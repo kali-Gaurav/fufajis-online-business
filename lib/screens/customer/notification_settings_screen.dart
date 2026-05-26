@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/notification_provider.dart';
 import '../../providers/auth_provider.dart';
@@ -19,6 +19,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   void initState() {
     super.initState();
     final provider = Provider.of<NotificationProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    
     _settings = NotificationSettings(
       orderUpdates: provider.settings.orderUpdates,
       promotions: provider.settings.promotions,
@@ -29,6 +31,25 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       quietHoursEnd: provider.settings.quietHoursEnd,
       frequencyLimitPerHour: provider.settings.frequencyLimitPerHour,
     );
+
+    if (authProvider.currentUser != null) {
+      provider.initialize(authProvider.currentUser!.id).then((_) {
+        if (mounted) {
+          setState(() {
+            _settings = NotificationSettings(
+              orderUpdates: provider.settings.orderUpdates,
+              promotions: provider.settings.promotions,
+              priceDrops: provider.settings.priceDrops,
+              shopUpdates: provider.settings.shopUpdates,
+              systemMessages: provider.settings.systemMessages,
+              quietHoursStart: provider.settings.quietHoursStart,
+              quietHoursEnd: provider.settings.quietHoursEnd,
+              frequencyLimitPerHour: provider.settings.frequencyLimitPerHour,
+            );
+          });
+        }
+      });
+    }
   }
 
   @override

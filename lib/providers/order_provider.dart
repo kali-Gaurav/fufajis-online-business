@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import '../models/order_model.dart';
 import '../services/firestore_service.dart';
 import '../services/notification_service.dart';
@@ -11,6 +12,7 @@ import '../models/delivery_type.dart';
 import '../models/user_model.dart';
 import '../services/razorpay_service.dart';
 import '../models/payment_result.dart';
+import '../services/offline_manager.dart';
 
 /// Return request model for handling customer returns
 class ReturnRequest {
@@ -79,6 +81,27 @@ class OrderProvider with ChangeNotifier {
   final NotificationService _notificationService = NotificationService();
   final InventoryAlertService _inventoryAlertService = InventoryAlertService();
   final RazorpayService _razorpayService = RazorpayService();
+  final Connectivity _connectivity = Connectivity();
+  StreamSubscription? _connectivitySub;
+
+  OrderProvider() {
+    _initConnectivity();
+  }
+
+  Future<void> _initConnectivity() async {
+    await OfflineManager().initialize();
+    _connectivitySub = _connectivity.onConnectivityChanged.listen((dynamic result) {
+      bool isOnline = false;
+      if (result is List) {
+        isOnline = !result.contains(ConnectivityResult.none);
+      } else {
+        isOnline = result != ConnectivityResult.none;
+      }
+      if (isOnline) {
+        syncOfflineOrders();
+      }
+    });
+  }
 
   // State variables
   List<OrderModel> _orders = [];
@@ -307,6 +330,30 @@ class OrderProvider with ChangeNotifier {
         updatedAt: DateTime.now(),
       );
 
+      // Check connectivity
+      final connectivityResult = await _connectivity.checkConnectivity();
+      bool isOffline = false;
+      if (connectivityResult is List) {
+        isOffline = connectivityResult.contains(ConnectivityResult.none);
+      } else {
+        isOffline = connectivityResult == ConnectivityResult.none;
+      }
+
+      if (isOffline) {
+        // Queue the order offline
+        await OfflineManager().queueOrder(newOrder);
+        
+        _orders.insert(0, newOrder);
+        _isLoading = false;
+        notifyListeners();
+
+        _notificationService.triggerLocalOrderStatusNotification(
+          orderNumber,
+          'Order Queued (Offline Mode)',
+        );
+        return newOrder;
+      }
+
       await _firestoreService.createOrder(newOrder);
 
       _orders.insert(0, newOrder);
@@ -321,7 +368,29 @@ class OrderProvider with ChangeNotifier {
 
       return newOrder;
     } catch (e) {
-      debugPrint('Error creating order: $e');
+      debugPrint('Error creating order: $e. Queueing offline.');
+      try {
+        final orderNumber = order.orderNumber.isEmpty ? OrderNumberGenerator.generate() : order.orderNumber;
+        final newOrder = order.copyWith(
+          orderNumber: orderNumber,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+        await OfflineManager().queueOrder(newOrder);
+        if (!_orders.any((o) => o.id == newOrder.id)) {
+          _orders.insert(0, newOrder);
+        }
+        _notificationService.triggerLocalOrderStatusNotification(
+          orderNumber,
+          'Order Queued (Offline Mode)',
+        );
+        _isLoading = false;
+        notifyListeners();
+        return newOrder;
+      } catch (innerErr) {
+        debugPrint('Failed to queue order: $innerErr');
+      }
+
       _errorMessage = 'Failed to create order: ${e.toString()}';
       _isLoading = false;
       notifyListeners();
@@ -744,5 +813,44 @@ class OrderProvider with ChangeNotifier {
       'todayRevenue': todayRevenue,
       'pendingOrderCount': pendingOrderCount,
     };
+  }
+
+  /// Checks if the current user has purchased a specific product in any delivered order.
+  bool hasPurchasedProduct(String productId) {
+    return _orders.any((order) => 
+      order.status == OrderStatus.delivered && 
+      order.items.any((item) => item.productId == productId)
+    );
+  }
+
+  Future<void> syncOfflineOrders() async {
+    try {
+      final queued = OfflineManager().getQueuedOrders();
+      if (queued.isEmpty) return;
+      
+      debugPrint('Offline Sync: Found ${queued.length} queued orders to synchronize.');
+      for (final order in queued) {
+        final doc = await FirebaseFirestore.instance.collection('orders').doc(order.id).get();
+        if (!doc.exists) {
+          await _firestoreService.createOrder(order);
+          debugPrint('Offline Sync: Order ${order.orderNumber} successfully pushed to Firestore.');
+        } else {
+          debugPrint('Offline Sync: Order ${order.orderNumber} already exists on Firestore. Skipping.');
+        }
+        await OfflineManager().removeQueuedOrder(order.id);
+        
+        final idx = _orders.indexWhere((o) => o.id == order.id);
+        if (idx >= 0) {
+          _orders[idx] = order.copyWith(
+            notes: order.notes != null 
+              ? '${order.notes} (Synced Online)' 
+              : 'Synced Online'
+          );
+        }
+      }
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Offline Sync: Error during order synchronization: $e');
+    }
   }
 }

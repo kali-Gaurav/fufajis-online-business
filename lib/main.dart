@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/app_localizations.dart';
 
 import 'providers/theme_provider.dart';
 import 'providers/auth_provider.dart';
@@ -32,6 +34,8 @@ import 'services/shorebird_service.dart';
 import 'widgets/offline_indicator.dart';
 import 'widgets/maintenance_overlay.dart';
 import 'widgets/force_update_overlay.dart';
+import 'services/performance_monitor.dart';
+import 'services/crash_reporter.dart';
 
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'services/owner_initialization_service.dart';
@@ -121,6 +125,9 @@ Future<Widget> _initializeApp() async {
 
   // Initialize Shorebird update check (background)
   ShorebirdService().checkForUpdates();
+
+  // Record application startup time
+  PerformanceMonitor.recordAppStartupTime();
   
   // Return app with providers
   return MultiProvider(
@@ -187,6 +194,16 @@ class _FufajiAppState extends State<FufajiApp> {
           darkTheme: AppTheme.darkTheme,
           themeMode: _mapThemeMode(themeProvider.themeMode),
           locale: themeProvider.locale,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('en', ''),
+            Locale('hi', ''),
+          ],
           routerConfig: _router,
           debugShowCheckedModeBanner: false,
           builder: (context, child) {

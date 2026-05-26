@@ -155,67 +155,88 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           // Wallet
           Expanded(
-            child: Column(
-              children: [
-                const Icon(Icons.account_balance_wallet, color: AppTheme.primary),
-                const SizedBox(height: 4),
-                Text(
-                  '₹${(user?.walletBalance ?? 0.0).round()}',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.grey900,
-                  ),
+            child: InkWell(
+              onTap: () => context.push('/customer/wallet'),
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Column(
+                  children: [
+                    const Icon(Icons.account_balance_wallet, color: AppTheme.primary),
+                    const SizedBox(height: 4),
+                    Text(
+                      '₹${(user?.walletBalance ?? 0.0).round()}',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.grey900,
+                      ),
+                    ),
+                    const Text(
+                      'Wallet',
+                      style: TextStyle(fontSize: 12, color: AppTheme.grey500),
+                    ),
+                  ],
                 ),
-                const Text(
-                  'Wallet',
-                  style: TextStyle(fontSize: 12, color: AppTheme.grey500),
-                ),
-              ],
+              ),
             ),
           ),
           Container(width: 1, height: 40, color: AppTheme.grey200),
           // Reward Points
           Expanded(
-            child: Column(
-              children: [
-                const Icon(Icons.stars, color: AppTheme.warning),
-                const SizedBox(height: 4),
-                Text(
-                  '${user?.rewardPoints ?? 0}',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.grey900,
-                  ),
+            child: InkWell(
+              onTap: () => context.push('/customer/wallet'),
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Column(
+                  children: [
+                    const Icon(Icons.stars, color: AppTheme.warning),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${user?.rewardPoints ?? 0}',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.grey900,
+                      ),
+                    ),
+                    const Text(
+                      'Points',
+                      style: TextStyle(fontSize: 12, color: AppTheme.grey500),
+                    ),
+                  ],
                 ),
-                const Text(
-                  'Points',
-                  style: TextStyle(fontSize: 12, color: AppTheme.grey500),
-                ),
-              ],
+              ),
             ),
           ),
           Container(width: 1, height: 40, color: AppTheme.grey200),
           // Cashback
           Expanded(
-            child: Column(
-              children: [
-                const Icon(Icons.receipt_long, color: AppTheme.success),
-                const SizedBox(height: 4),
-                const Text(
-                  '₹0',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.grey900,
-                  ),
+            child: InkWell(
+              onTap: () => context.push('/customer/wallet'),
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Column(
+                  children: [
+                    const Icon(Icons.receipt_long, color: AppTheme.success),
+                    const SizedBox(height: 4),
+                    Text(
+                      '₹${((user?.walletBalance ?? 0.0) * 0.15).round()}',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.grey900,
+                      ),
+                    ),
+                    const Text(
+                      'Cashback',
+                      style: TextStyle(fontSize: 12, color: AppTheme.grey500),
+                    ),
+                  ],
                 ),
-                const Text(
-                  'Cashback',
-                  style: TextStyle(fontSize: 12, color: AppTheme.grey500),
-                ),
-              ],
+              ),
             ),
           ),
         ],

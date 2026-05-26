@@ -225,8 +225,12 @@ class WhatsAppSyncSetupScreen extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () {
-          // TODO: Open WhatsApp with pre-filled message
+        onPressed: () async {
+          const message = "Hi Fufaji, I want to sync my inventory via WhatsApp. Please guide me.";
+          final url = Uri.parse("https://wa.me/919999999999?text=${Uri.encodeComponent(message)}");
+          if (await canLaunchUrl(url)) {
+            await launchUrl(url, mode: LaunchMode.externalApplication);
+          }
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.green,

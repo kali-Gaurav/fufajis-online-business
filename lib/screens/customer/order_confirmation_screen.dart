@@ -17,6 +17,8 @@ import '../../services/delivery_charge_calculator.dart';
 /// 
 /// [Requirements 4.8]: Display order number, estimated delivery date, and send confirmation SMS/notification
 /// [Requirements 4.9]: Navigate to order confirmation screen after order creation
+import '../../services/invoice_service.dart';
+
 class OrderConfirmationScreen extends StatefulWidget {
   final String? orderId;
   final String? orderNumber;
@@ -1357,10 +1359,13 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
   }
 
   void _onInvoiceTap() {
-    // TODO: Generate and share invoice
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Invoice feature coming soon')),
-    );
+    if (_order != null) {
+      InvoiceService.generateAndPrintInvoice(_order!);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Order data not available')),
+      );
+    }
   }
 
   void _onCancelTap() {

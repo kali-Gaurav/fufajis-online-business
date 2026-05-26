@@ -832,6 +832,9 @@ class _QnaSectionState extends State<QnaSection> {
 
     setState(() => _isLoading = true);
 
+    final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+    final isVerified = orderProvider.hasPurchasedProduct(widget.productId);
+
     try {
       await _qnaService.askQuestion(
         productId: widget.productId,
@@ -839,7 +842,7 @@ class _QnaSectionState extends State<QnaSection> {
         customerName: currentUser.name ?? 'Customer',
         customerImage: currentUser.profileImage ?? '',
         question: _questionController.text.trim(),
-        isVerifiedPurchase: false, // TODO: Check order history
+        isVerifiedPurchase: isVerified,
       );
 
       if (mounted) {

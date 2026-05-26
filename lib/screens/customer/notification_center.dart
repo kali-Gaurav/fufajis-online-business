@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
@@ -14,6 +14,18 @@ class NotificationCenter extends StatefulWidget {
 }
 
 class _NotificationCenterState extends State<NotificationCenter> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      if (authProvider.currentUser != null) {
+        Provider.of<NotificationProvider>(context, listen: false)
+            .initialize(authProvider.currentUser!.id);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final notificationProvider = Provider.of<NotificationProvider>(context);
@@ -92,19 +104,34 @@ class _NotificationCenterState extends State<NotificationCenter> {
       separatorBuilder: (context, index) => const Divider(height: 1),
       itemBuilder: (context, index) {
         final notification = provider.notifications[index];
-        return _NotificationTile(
-          notification: notification,
-          onTap: () {
-            if (userId != null && !notification.isRead) {
-              provider.markAsRead(userId, notification.id);
-            }
-            _handleNotificationClick(context, notification);
-          },
-          onDelete: () {
+        return Dismissible(
+          key: Key(notification.id),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            color: Colors.red,
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: const Icon(Icons.delete, color: Colors.white),
+          ),
+          onDismissed: (direction) {
             if (userId != null) {
               provider.deleteNotification(userId, notification.id);
             }
           },
+          child: _NotificationTile(
+            notification: notification,
+            onTap: () {
+              if (userId != null && !notification.isRead) {
+                provider.markAsRead(userId, notification.id);
+              }
+              _handleNotificationClick(context, notification);
+            },
+            onDelete: () {
+              if (userId != null) {
+                provider.deleteNotification(userId, notification.id);
+              }
+            },
+          ),
         );
       },
     );

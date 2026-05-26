@@ -5,6 +5,11 @@ import '../../utils/app_theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/admin_provider.dart';
 import 'user_management_screen.dart';
+import 'shop_management_screen.dart';
+import 'product_moderation_screen.dart';
+import 'order_management_screen.dart';
+import 'coupon_management_screen.dart';
+import 'analytics_screen.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -21,8 +26,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
     'User Management',
     'Shop Moderation',
     'Product Moderation',
+    'Global Orders',
+    'Promo Coupons',
     'Global Analytics',
-    'App Settings',
   ];
 
   @override
@@ -61,8 +67,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
               NavigationRailDestination(icon: Icon(Icons.people_outline), selectedIcon: Icon(Icons.people), label: Text('Users')),
               NavigationRailDestination(icon: Icon(Icons.storefront_outlined), selectedIcon: Icon(Icons.storefront), label: Text('Shops')),
               NavigationRailDestination(icon: Icon(Icons.inventory_2_outlined), selectedIcon: Icon(Icons.inventory_2), label: Text('Products')),
+              NavigationRailDestination(icon: Icon(Icons.shopping_bag_outlined), selectedIcon: Icon(Icons.shopping_bag), label: Text('Orders')),
+              NavigationRailDestination(icon: Icon(Icons.confirmation_number_outlined), selectedIcon: Icon(Icons.confirmation_number), label: Text('Coupons')),
               NavigationRailDestination(icon: Icon(Icons.analytics_outlined), selectedIcon: Icon(Icons.analytics), label: Text('Analytics')),
-              NavigationRailDestination(icon: Icon(Icons.settings_outlined), selectedIcon: Icon(Icons.settings), label: Text('Settings')),
             ],
           ),
           const VerticalDivider(thickness: 1, width: 1),
@@ -78,10 +85,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
     switch (index) {
       case 0: return _buildOverview();
       case 1: return const UserManagementScreen();
-      case 2: return const Center(child: Text('Shop Moderation Screen (Coming Soon)'));
-      case 3: return const Center(child: Text('Product Moderation Screen (Coming Soon)'));
-      case 4: return const Center(child: Text('Global Analytics Screen (Coming Soon)'));
-      case 5: return const Center(child: Text('App Global Settings Screen (Coming Soon)'));
+      case 2: return const ShopManagementScreen();
+      case 3: return const ProductModerationScreen();
+      case 4: return const OrderManagementScreen();
+      case 5: return const CouponManagementScreen();
+      case 6: return const AnalyticsScreen();
       default: return const SizedBox.shrink();
     }
   }
