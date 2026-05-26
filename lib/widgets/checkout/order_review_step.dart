@@ -513,3 +513,33 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
   Widget _buildSummaryRow(String label, double value,
       {bool isFree = false, bool isDiscount = false}) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            color: isFree ? AppTheme.success : AppTheme.grey600,
+          ),
+        ),
+        Text(
+          isDiscount
+              ? '- ₹${value.abs().round()}'
+              : isFree
+                  ? 'FREE'
+                  : '₹${value.round()}',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: isFree
+                ? AppTheme.success
+                : isDiscount
+                    ? AppTheme.success
+                    : AppTheme.grey900,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
