@@ -1,0 +1,1455 @@
+﻿import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
+import '../../models/order_model.dart';
+import '../../models/delivery_type.dart';
+import '../../models/payment_method.dart';
+import '../../providers/order_provider.dart';
+import '../../providers/cart_provider.dart';
+import '../../services/notification_service.dart';
+import '../../services/sms_service.dart';
+import '../../utils/app_theme.dart';
+import '../../services/delivery_charge_calculator.dart';
+
+/// Order Confirmation Screen
+/// Displays order confirmation details after successful order placement
+/// 
+/// [Requirements 4.8]: Display order number, estimated delivery date, and send confirmation SMS/notification
+/// [Requirements 4.9]: Navigate to order confirmation screen after order creation
+class OrderConfirmationScreen extends StatefulWidget {
+  final String? orderId;
+  final String? orderNumber;
+
+  const OrderConfirmationScreen({
+    super.key,
+    this.orderId,
+    this.orderNumber,
+  });
+
+  @override
+  State<OrderConfirmationScreen> createState() => _OrderConfirmationScreenState();
+}
+
+class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with TickerProviderStateMixin {
+  OrderModel? _order;
+  bool _isLoading = true;
+  String? _errorMessage;
+  late AnimationController _scaleController;
+  late AnimationController _confettiController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scaleController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _confettiController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    );
+    _loadOrder();
+  }
+
+  @override
+  void dispose() {
+    _scaleController.dispose();
+    _confettiController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadOrder() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+      OrderModel? order;
+
+      // Try to get order by ID first, then by order number
+      if (widget.orderId != null) {
+        order = await orderProvider.getOrderById(widget.orderId!);
+      } else if (widget.orderNumber != null) {
+        // Search in existing orders
+        order = orderProvider.orders.firstWhere(
+          (o) => o.orderNumber == widget.orderNumber,
+          orElse: () => orderProvider.currentOrder!,
+        );
+      } else {
+        // Use current order from provider
+        order = orderProvider.currentOrder;
+      }
+
+      if (order != null) {
+        setState(() {
+          _order = order;
+          _isLoading = false;
+        });
+
+        // Trigger celebration animation
+        _confettiController.forward();
+        _scaleController.forward();
+
+        // Clear cart and send notification
+        _finalizeOrder();
+      } else {
+        setState(() {
+          _errorMessage = 'Order not found';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Failed to load order: ${e.toString()}';
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _finalizeOrder() {
+    if (!mounted) return;
+
+    // Clear cart
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    cartProvider.clearCart();
+
+    // Send confirmation notification
+    final notificationService = NotificationService();
+    if (_order != null) {
+      notificationService.triggerLocalOrderStatusNotification(
+        _order!.orderNumber,
+        'Order Placed',
+      );
+
+      // Send SMS confirmation
+      _sendOrderConfirmationSMS();
+    }
+  }
+
+  /// Send order confirmation SMS to customer
+  /// 
+  /// [Requirements 4.9]: Send confirmation SMS/notification
+  Future<void> _sendOrderConfirmationSMS() async {
+    if (_order == null) return;
+
+    try {
+      final smsService = SMSService();
+      final deliveryDate = DeliveryChargeCalculator.getFormattedDeliveryDate(_order!.deliveryType);
+
+      // Validate phone number
+      if (!SMSService.isValidPhoneNumber(_order!.customerPhone)) {
+        debugPrint('Invalid phone number format: ${_order!.customerPhone}');
+        return;
+      }
+
+      // Send SMS
+      final success = await smsService.sendOrderConfirmationSMS(
+        phoneNumber: _order!.customerPhone,
+        orderNumber: _order!.orderNumber,
+        estimatedDeliveryDate: deliveryDate,
+        totalAmount: _order!.totalAmount,
+      );
+
+      if (success) {
+        debugPrint('Order confirmation SMS sent successfully');
+      } else {
+        debugPrint('Failed to send order confirmation SMS');
+      }
+    } catch (e) {
+      debugPrint('Error sending order confirmation SMS: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_errorMessage != null) {
+      return _buildErrorState();
+    }
+
+    if (_order == null) {
+      return _buildOrderNotFoundState();
+    }
+
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Celebration animation
+              _buildCelebrationHeader(),
+              
+              // Order details
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Success message
+                    _buildSuccessMessage(),
+                    const SizedBox(height: 20),
+                    
+                    // Order number and status
+                    _buildOrderInfoCard(),
+                    const SizedBox(height: 12),
+                    
+                    // Estimated delivery
+                    _buildDeliveryInfoCard(),
+                    const SizedBox(height: 12),
+                    
+                    // Order summary
+                    _buildOrderSummaryCard(),
+                    const SizedBox(height: 12),
+                    
+                    // Payment info
+                    _buildPaymentInfoCard(),
+                    const SizedBox(height: 12),
+                    
+                    // Delivery address
+                    _buildDeliveryAddressCard(),
+                    const SizedBox(height: 12),
+
+                    // Order status timeline
+                    _buildOrderStatusTimeline(),
+                    const SizedBox(height: 24),
+                    
+                    // Action buttons
+                    _buildActionButtons(),
+                    const SizedBox(height: 16),
+                    
+                    // Help section
+                    _buildHelpSection(),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        
+        // Confetti overlay
+        _buildConfettiOverlay(),
+      ],
+    );
+  }
+
+  Widget _buildCelebrationHeader() {
+    return Container(
+      height: 200,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            AppTheme.primary.withValues(alpha: 0.1),
+            Colors.white,
+          ],
+        ),
+      ),
+      child: Center(
+        child: ScaleTransition(
+          scale: CurvedAnimation(
+            parent: _scaleController,
+            curve: Curves.elasticOut,
+          ),
+          child: Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              color: AppTheme.success.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.success.withValues(alpha: 0.2),
+                  blurRadius: 20,
+                  spreadRadius: 5,
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.check_circle,
+              color: AppTheme.success,
+              size: 100,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildConfettiOverlay() {
+    return Positioned.fill(
+      child: IgnorePointer(
+        child: Lottie.asset(
+          'assets/animations/confetti.json',
+          controller: _confettiController,
+          repeat: false,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            // Fallback celebration animation
+            return _buildFallbackCelebration();
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFallbackCelebration() {
+    return AnimatedBuilder(
+      animation: _confettiController,
+      builder: (context, child) {
+        return CustomPaint(
+          painter: ConfettiPainter(_confettiController.value),
+          size: Size.infinite,
+        );
+      },
+    );
+  }
+
+  Widget _buildSuccessMessage() {
+    return Column(
+      children: [
+        const Text(
+          'Order Placed Successfully!',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.grey900,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Thank you for your order',
+          style: TextStyle(
+            fontSize: 14,
+            color: AppTheme.grey600,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOrderInfoCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.receipt_long, color: AppTheme.primary, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Order #${_order!.orderNumber}',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.grey900,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: _order!.status.color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              _order!.status.displayName,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: _order!.status.color,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDeliveryInfoCard() {
+    final formattedDate = DeliveryChargeCalculator.getFormattedDeliveryDate(_order!.deliveryType);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                DeliveryTypeOption.getIcon(_order!.deliveryType),
+                color: DeliveryTypeOption.getColor(_order!.deliveryType),
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                DeliveryTypeOption.fromType(_order!.deliveryType).name,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.grey900,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              const Icon(Icons.access_time, color: AppTheme.grey500, size: 16),
+              const SizedBox(width: 8),
+              Text(
+                'Estimated Delivery: ',
+                style: const TextStyle(fontSize: 13, color: AppTheme.grey600),
+              ),
+              Expanded(
+                child: Text(
+                  formattedDate,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Icon(Icons.local_shipping, color: AppTheme.grey500, size: 16),
+              const SizedBox(width: 8),
+              Text(
+                'Delivery Charge: ',
+                style: const TextStyle(fontSize: 13, color: AppTheme.grey600),
+              ),
+              Text(
+                _order!.deliveryCharge == 0 ? 'FREE' : '₹${_order!.deliveryCharge.round()}',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: _order!.deliveryCharge == 0 ? AppTheme.success : AppTheme.grey900,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOrderSummaryCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.shopping_bag, color: AppTheme.primary, size: 20),
+              const SizedBox(width: 8),
+              const Text(
+                'Order Summary',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.grey900,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                '${_order!.items.length} items',
+                style: const TextStyle(fontSize: 13, color: AppTheme.grey500),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ..._order!.items.map((item) => _buildOrderItemRow(item)),
+          const Divider(height: 24),
+          _buildPriceRow('Subtotal', _order!.subtotal),
+          const SizedBox(height: 8),
+          _buildPriceRow(
+            'Delivery',
+            _order!.deliveryCharge,
+            isFree: _order!.deliveryCharge == 0,
+          ),
+          if (_order!.discount > 0) ...[
+            const SizedBox(height: 8),
+            _buildPriceRow('Discount', -_order!.discount, isDiscount: true),
+          ],
+          if (_order!.walletAmountUsed > 0) ...[
+            const SizedBox(height: 8),
+            _buildPriceRow(
+              'Wallet Used',
+              -_order!.walletAmountUsed,
+              isDiscount: true,
+            ),
+          ],
+          const Divider(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Total Paid',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.grey900,
+                ),
+              ),
+              Text(
+                '₹${_order!.totalAmount.round()}',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.primary,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOrderItemRow(OrderItem item) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: AppTheme.grey100,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: item.productImage.isNotEmpty
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      item.productImage,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.image,
+                        color: AppTheme.grey400,
+                      ),
+                    ),
+                  )
+                : const Icon(Icons.image, color: AppTheme.grey400),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.productName,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppTheme.grey900,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (item.selectedVariant != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    item.selectedVariant!,
+                    style: const TextStyle(fontSize: 11, color: AppTheme.grey500),
+                  ),
+                ],
+                const SizedBox(height: 2),
+                Text(
+                  'Qty: ${item.quantity} × ₹${item.price.round()}',
+                  style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            '₹${item.totalPrice.round()}',
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.grey900,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPriceRow(String label, double value,
+      {bool isFree = false, bool isDiscount = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            color: isFree ? AppTheme.success : AppTheme.grey600,
+          ),
+        ),
+        Text(
+          isDiscount
+              ? '- ₹${value.abs().round()}'
+              : isFree
+                  ? 'FREE'
+                  : '₹${value.round()}',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: isFree
+                ? AppTheme.success
+                : isDiscount
+                    ? AppTheme.success
+                    : AppTheme.grey900,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPaymentInfoCard() {
+    final paymentMethodName = PaymentMethodOption.getDisplayName(_order!.paymentMethod);
+    final paymentMethodOption = PaymentMethodOption.fromMethod(_order!.paymentMethod);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                paymentMethodOption.icon,
+                color: paymentMethodOption.iconColor,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'Payment Method',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.grey900,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                paymentMethodName,
+                style: const TextStyle(fontSize: 14, color: AppTheme.grey700),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color: paymentMethodOption.iconColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  _order!.paymentMethod == PaymentMethod.cod ? 'COD' : 'PAID',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: paymentMethodOption.iconColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (_order!.paymentId != null) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Text(
+                  'Transaction ID: ',
+                  style: TextStyle(fontSize: 12, color: AppTheme.grey500),
+                ),
+                Expanded(
+                  child: Text(
+                    _order!.paymentId!,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.grey800,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ],
+          if (_order!.cashbackEarned > 0) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppTheme.success.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.savings, color: AppTheme.success, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    'You earned ₹${_order!.cashbackEarned.round()} cashback!',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.success,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDeliveryAddressCard() {
+    final address = _order!.deliveryAddress;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.location_on, color: AppTheme.primary, size: 20),
+              const SizedBox(width: 8),
+              const Text(
+                'Delivery Address',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.grey900,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppTheme.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  address.label,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      address.fullAddress,
+                      style: const TextStyle(fontSize: 13, color: AppTheme.grey700),
+                    ),
+                    if (address.landmark.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        'Landmark: ${address.landmark}',
+                        style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
+                      ),
+                    ],
+                    Text(
+                      'Pincode: ${address.pincode}',
+                      style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (address.deliveryInstructions != null &&
+              address.deliveryInstructions!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppTheme.warning.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info, color: AppTheme.warning, size: 16),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      address.deliveryInstructions!,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.grey700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOrderStatusTimeline() {
+    final orderedStatuses = [
+      OrderStatus.pending,
+      OrderStatus.confirmed,
+      OrderStatus.processing,
+      OrderStatus.packed,
+      OrderStatus.outForDelivery,
+      OrderStatus.delivered,
+    ];
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.timeline, color: AppTheme.primary, size: 20),
+              const SizedBox(width: 8),
+              const Text(
+                'Order Status',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.grey900,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          // Order placed step
+          _buildTimelineStep(
+            icon: Icons.check_circle,
+            title: 'Order Placed',
+            subtitle: _order?.createdAt != null
+                ? _formatDateTime(_order!.createdAt)
+                : 'Confirmed',
+            isCompleted: true,
+            isFirst: true,
+          ),
+          // Show subsequent statuses based on current order status
+          ..._buildSubsequentStatusSteps(orderedStatuses),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimelineStep({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required bool isCompleted,
+    required bool isFirst,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Timeline indicator
+        Column(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: isCompleted
+                    ? AppTheme.success.withValues(alpha: 0.1)
+                    : AppTheme.grey200,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                color: isCompleted ? AppTheme.success : AppTheme.grey400,
+                size: 18,
+              ),
+            ),
+            if (!isFirst)
+              Container(
+                width: 2,
+                height: 40,
+                color: isCompleted ? AppTheme.success : AppTheme.grey200,
+              ),
+          ],
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: isCompleted ? AppTheme.grey900 : AppTheme.grey500,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.grey500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<Widget> _buildSubsequentStatusSteps(List<OrderStatus> orderedStatuses) {
+    final List<Widget> steps = [];
+    final currentStatus = _order?.status ?? OrderStatus.pending;
+    final statusHistory = _order?.statusHistory ?? [];
+
+    // Find the index of current status in the ordered list
+    final currentIndex = orderedStatuses.indexOf(currentStatus);
+
+    for (int i = 1; i < orderedStatuses.length; i++) {
+      final status = orderedStatuses[i];
+      final isCompleted = i <= currentIndex;
+
+      // Get timestamp from status history if available
+      String subtitle = '';
+      final historyEntry = statusHistory.firstWhere(
+        (entry) => entry.status == status,
+        orElse: () => StatusHistoryEntry(
+          status: status,
+          timestamp: DateTime.now(),
+        ),
+      );
+      subtitle = _formatDateTime(historyEntry.timestamp);
+
+      steps.add(
+        _buildTimelineStep(
+          icon: status.icon,
+          title: status.displayName,
+          subtitle: subtitle,
+          isCompleted: isCompleted,
+          isFirst: false,
+        ),
+      );
+    }
+
+    return steps;
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final dateDay = DateTime(dateTime.year, dateTime.month, dateTime.day);
+
+    if (dateDay == today) {
+      return 'Today, ${_formatTime(dateTime)}';
+    } else if (dateDay.difference(today).inDays == -1) {
+      return 'Yesterday, ${_formatTime(dateTime)}';
+    } else {
+      return '${dateTime.day} ${_getMonthName(dateTime)}, ${_formatTime(dateTime)}';
+    }
+  }
+
+  String _formatTime(DateTime dateTime) {
+    final hour = dateTime.hour;
+    final minute = dateTime.minute.toString().padLeft(2, '0');
+    final period = hour >= 12 ? 'PM' : 'AM';
+    final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+    return '$displayHour:$minute $period';
+  }
+
+  String _getMonthName(DateTime dateTime) {
+    switch (dateTime.month) {
+      case 1:
+        return 'Jan';
+      case 2:
+        return 'Feb';
+      case 3:
+        return 'Mar';
+      case 4:
+        return 'Apr';
+      case 5:
+        return 'May';
+      case 6:
+        return 'Jun';
+      case 7:
+        return 'Jul';
+      case 8:
+        return 'Aug';
+      case 9:
+        return 'Sep';
+      case 10:
+        return 'Oct';
+      case 11:
+        return 'Nov';
+      case 12:
+        return 'Dec';
+      default:
+        return '';
+    }
+  }
+
+  Widget _buildActionButtons() {
+    return Column(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: _navigateToTrackOrder,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primary,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.local_shipping, size: 20),
+                SizedBox(width: 8),
+                Text(
+                  'Track Order',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton(
+            onPressed: _navigateToHome,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppTheme.primary,
+              side: const BorderSide(color: AppTheme.primary),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.shopping_bag_outlined, size: 20),
+                SizedBox(width: 8),
+                Text(
+                  'Continue Shopping',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHelpSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppTheme.grey100,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.headset_mic, color: AppTheme.grey600, size: 20),
+              SizedBox(width: 8),
+              Text(
+                'Need Help?',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.grey800,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildHelpButton(Icons.chat, 'Chat', _onChatTap),
+              _buildHelpButton(Icons.phone, 'Call', _onCallTap),
+              _buildHelpButton(Icons.receipt, 'Invoice', _onInvoiceTap),
+              _buildHelpButton(Icons.cancel, 'Cancel', _onCancelTap),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHelpButton(IconData icon, String label, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.black.withValues(alpha: 0.05),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Icon(icon, color: AppTheme.primary, size: 24),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              color: AppTheme.grey600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.error_outline,
+              color: AppTheme.error,
+              size: 64,
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Something went wrong',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.grey900,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _errorMessage!,
+              style: const TextStyle(
+                fontSize: 14,
+                color: AppTheme.grey600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _loadOrder,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOrderNotFoundState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.search_off,
+              color: AppTheme.grey400,
+              size: 64,
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Order Not Found',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.grey900,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'We couldn\'t find the order you\'re looking for.',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppTheme.grey600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => context.go('/customer/home'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text('Go to Home'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _navigateToTrackOrder() {
+    if (_order != null) {
+      context.go('/customer/orders/${_order!.id}/tracking');
+    }
+  }
+
+  void _navigateToHome() {
+    context.go('/customer/home');
+  }
+
+  void _onChatTap() {
+    // TODO: Implement chat with support
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Chat feature coming soon')),
+    );
+  }
+
+  void _onCallTap() {
+    // TODO: Implement call support
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Call support: 1800-XXX-XXXX')),
+    );
+  }
+
+  void _onInvoiceTap() {
+    // TODO: Generate and share invoice
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Invoice feature coming soon')),
+    );
+  }
+
+  void _onCancelTap() {
+    if (_order != null && _order!.canCancel) {
+      _showCancelOrderDialog();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('This order cannot be cancelled')),
+      );
+    }
+  }
+
+  void _showCancelOrderDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: AppTheme.warning, size: 28),
+            SizedBox(width: 12),
+            Text('Cancel Order?'),
+          ],
+        ),
+        content: const Text(
+          'Are you sure you want to cancel this order? This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Keep Order'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+              final success = await orderProvider.cancelOrder(
+                _order!.id,
+                'Cancelled by customer',
+              );
+              if (success && mounted) {
+                context.go('/customer/home');
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.error,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Cancel Order'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Custom confetti painter for celebration animation
+class ConfettiPainter extends CustomPainter {
+  final double animationValue;
+
+  ConfettiPainter(this.animationValue);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..style = PaintingStyle.fill;
+
+    // Generate confetti particles
+    final random = DateTime.now().millisecond;
+    for (int i = 0; i < 50; i++) {
+      final x = (random * (i + 1) % size.width) * animationValue;
+      final y = (random * (i + 2) % size.height) * animationValue;
+      final color = [
+        Colors.red,
+        Colors.green,
+        Colors.blue,
+        Colors.yellow,
+        Colors.purple,
+        Colors.orange,
+      ][i % 6];
+
+      paint.color = color.withValues(alpha: 1 - animationValue);
+      final rect = Rect.fromLTWH(x, y, 8, 8);
+      canvas.drawRect(rect, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant ConfettiPainter oldDelegate) {
+    return oldDelegate.animationValue != animationValue;
+  }
+}
+

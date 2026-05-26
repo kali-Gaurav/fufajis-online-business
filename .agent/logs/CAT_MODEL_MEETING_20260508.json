@@ -1,0 +1,469 @@
+{
+  "meeting_id": "CAT-MEETING-20260508",
+  "meeting_type": "all_hands",
+  "topic": "Phase 2 - Contextual Availability Transformer (CAT) Model Planning",
+  "date": "2026-05-08",
+  "duration_minutes": 90,
+  "chairperson": "ARIA",
+  "participants": [
+    {
+      "agent": "ARIA",
+      "role": "CEO",
+      "status": "present"
+    },
+    {
+      "agent": "NEXUS",
+      "role": "CTO",
+      "status": "present"
+    },
+    {
+      "agent": "FELIX",
+      "role": "CFO",
+      "status": "present"
+    },
+    {
+      "agent": "HERA",
+      "role": "HR",
+      "status": "present"
+    },
+    {
+      "agent": "KYLO",
+      "role": "Tech Lead",
+      "status": "present"
+    },
+    {
+      "agent": "SIGMA",
+      "role": "Backend",
+      "status": "present"
+    },
+    {
+      "agent": "ORION",
+      "role": "Frontend",
+      "status": "present"
+    },
+    {
+      "agent": "NOVA",
+      "role": "ML Engineer",
+      "status": "present"
+    },
+    {
+      "agent": "MARCO",
+      "role": "Product",
+      "status": "present"
+    },
+    {
+      "agent": "VERA",
+      "role": "Data Analyst",
+      "status": "present"
+    },
+    {
+      "agent": "DAEDALUS",
+      "role": "Infrastructure",
+      "status": "present"
+    },
+    {
+      "agent": "CIPHER",
+      "role": "Security",
+      "status": "present"
+    },
+    {
+      "agent": "VAULT",
+      "role": "DB",
+      "status": "present"
+    }
+  ],
+  "transcript": [
+    {
+      "round": 1,
+      "speaker": "ARIA",
+      "message": "Team, thank you for joining our CAT Model Planning meeting. We have just completed an incredible feat - implementing the Synthetic Data Generation Framework with 17/17 tests passing and 97.5% cost reduction. Today, we will review our achievements, plan the CAT Model implementation, and get founder approval for our next steps.\n\n**Phase 1 Success Summary:**\n- \u2705 17/17 tests passing\n- \u2705 98% data quality score\n- \u2705 97.5% cost reduction ($117,000/year savings)\n- \u2705 All 4 generators implemented\n- \u2705 Validation framework complete\n- \u2705 Storage layer operational\n\n**Phase 1 Impact:**\n- Zero API cost for route generation\n- 100ms vs 500ms+ latency improvement\n- Foundation for ML training pipeline\n\n**Transition to Phase 2:**\n- Now we build the intelligence layer\n- CAT model will predict availability before users search\n- Journey DNA will personalize the experience\n\nLet's begin with NOVA's technical deep dive on the CAT Model.",
+      "tasks": [],
+      "escalations": [],
+      "tech_debt": [],
+      "risks": []
+    },
+    {
+      "round": 2,
+      "speaker": "NOVA",
+      "message": "Thank you, ARIA. Let me provide a comprehensive technical deep dive on the CAT Model.\n\n**CAT Model Overview:**\nThe Contextual Availability Transformer (CAT) is a transformer-based neural network that predicts seat availability based on contextual factors.\n\n**Key Features:**\n1. Event calendar (festivals, IPL, exams)\n2. Weather forecasts\n3. Historical patterns\n4. Seasonal adjustments\n\n**Architecture:**\n- Transformer-based neural network\n- 6 layers, 8 attention heads\n- Input: 15+ contextual features\n- Output: Availability probability (0-100%)\n- Model Size: ~50M parameters\n\n**Training Strategy:**\n1. Pre-training on synthetic data (3-4 days)\n2. Fine-tuning on real data (2-3 days)\n3. Continuous learning (daily retraining)\n\n**Data Requirements:**\n- Historical Bookings: 2M+ records (\u2705 Available)\n- Event Calendar: 10K+ events (\ud83d\udd04 Integration needed)\n- Weather Data: 5M+ records (\ud83d\udd04 Integration needed)\n- Synthetic Data: 10M+ records (\u2705 Ready)\n\n**Technical Dependencies:**\n1. Data Collection (1 week)\n2. Model Training (1 week)\n3. API Integration (3 days)\n4. Frontend UI (1 week)\n\n**Deliverables:**\n- Model architecture document\n- Training pipeline code\n- Inference API endpoint\n- Model monitoring dashboard\n- A/B test framework\n\n**Expected Impact:**\n- Additional Revenue: \u20b920,000-30,000/month\n- User Satisfaction: +15%\n- Conversion Rate: +10%",
+      "tasks": [
+        {
+          "title": "Design CAT model architecture",
+          "assignee": "NOVA",
+          "priority": "high"
+        },
+        {
+          "title": "Gather historical booking data",
+          "assignee": "NOVA",
+          "priority": "high"
+        },
+        {
+          "title": "Research event calendar APIs",
+          "assignee": "NOVA",
+          "priority": "high"
+        },
+        {
+          "title": "Set up ML training infrastructure",
+          "assignee": "DAEDALUS",
+          "priority": "high"
+        },
+        {
+          "title": "Implement CAT model training",
+          "assignee": "NOVA",
+          "priority": "high"
+        }
+      ],
+      "escalations": [],
+      "tech_debt": [],
+      "risks": [
+        "Insufficient training data for rare routes",
+        "API costs for weather/event data",
+        "Model drift over time"
+      ]
+    },
+    {
+      "round": 3,
+      "speaker": "DAEDALUS",
+      "message": "Thank you, NOVA. Let me provide the infrastructure requirements for the CAT Model.\n\n**Current Infrastructure:**\n- PostgreSQL: $65/month\n- Redis: $35/month\n- Kafka (MSK): $250/month\n- **Total: $350/month**\n\n**Tier 2 Infrastructure Requirements:**\n1. GPU Training Instance (g4dn.xlarge): $200/month\n2. Model Serving (t3.xlarge): $50/month\n3. Storage (S3): $50/month\n4. Feature Store (Redis cluster): $30/month\n- **Additional: $330/month**\n\n**Total Infrastructure Cost: $680/month**\n\n**GPU Instance Details:**\n- Instance Type: g4dn.xlarge\n- vCPU: 4\n- RAM: 16GB\n- GPU: NVIDIA T4\n- Storage: 125GB NVMe\n\n**Scaling Strategy:**\n1. Phase 1: Single GPU\n2. Phase 2: Multi-GPU (Future)\n3. Phase 3: Auto-scaling (Future)\n\n**Infrastructure Tasks:**\n- Provision GPU instance (Day 1)\n- Set up storage for training data (Day 2)\n- Configure feature store (Day 3)\n- Set up model serving (Day 4)\n- Configure monitoring (Day 5)",
+      "tasks": [
+        {
+          "title": "Provision GPU instance for ML",
+          "assignee": "DAEDALUS",
+          "priority": "high"
+        },
+        {
+          "title": "Set up storage for training data",
+          "assignee": "DAEDALUS",
+          "priority": "high"
+        },
+        {
+          "title": "Configure feature store",
+          "assignee": "DAEDALUS",
+          "priority": "medium"
+        },
+        {
+          "title": "Set up model serving",
+          "assignee": "DAEDALUS",
+          "priority": "high"
+        },
+        {
+          "title": "Configure monitoring",
+          "assignee": "DAEDALUS",
+          "priority": "medium"
+        }
+      ],
+      "escalations": [],
+      "tech_debt": [],
+      "risks": [
+        "GPU instances have limited availability in ap-south-1",
+        "ML costs can scale unexpectedly"
+      ]
+    },
+    {
+      "round": 4,
+      "speaker": "MARCO",
+      "message": "Thank you, DAEDALUS. Let me share the product perspective on the CAT Model.\n\n**User Benefits:**\n1. Availability Prediction - Users know exactly when to book\n2. Personalized Recommendations - Journey DNA learns user preferences\n3. Contextual Insights - Festival impact, weather-based advice\n\n**User Flow:**\n1. User searches for routes\n2. CAT model predicts availability\n3. Routes ranked by availability probability\n4. User sees \"Best Time to Book\" indicators\n5. User books with confidence\n6. Journey DNA learns user preferences\n7. Future searches are personalized\n\n**Key User Interfaces:**\n1. Availability Probability Display - Visual indicator (green/yellow/red)\n2. \"Best Time to Book\" - Optimal booking window\n3. Personalized Recommendations - \"Recommended for you\"\n\n**Product Metrics:**\n- CAT Model Accuracy: >85%\n- User Engagement: +15%\n- Conversion Rate: +10%\n- User Satisfaction: >4.5/5\n\n**Expected Impact:**\n- Additional Revenue: \u20b920,000-30,000/month\n- User Satisfaction: +15%\n- Conversion Rate: +10%",
+      "tasks": [
+        {
+          "title": "Design CAT availability UI components",
+          "assignee": "ORION",
+          "priority": "high"
+        },
+        {
+          "title": "Design Journey DNA preference UI",
+          "assignee": "ORION",
+          "priority": "medium"
+        },
+        {
+          "title": "Implement ML prediction caching",
+          "assignee": "ORION",
+          "priority": "medium"
+        }
+      ],
+      "escalations": [],
+      "tech_debt": [],
+      "risks": [
+        "ML predictions may slow down UI if not cached",
+        "Personalization features require user login"
+      ]
+    },
+    {
+      "round": 5,
+      "speaker": "CIPHER",
+      "message": "Thank you, MARCO. Let me address security considerations for the CAT Model.\n\n**Security Requirements:**\n1. Model Security\n   - Inference endpoint authentication\n   - Input validation for predictions\n   - Rate limiting on API\n   - Output sanitization\n\n2. Data Privacy\n   - User consent for Journey DNA\n   - Anonymization of training data\n   - GDPR compliance check\n\n3. API Security\n   - API Gateway for centralized auth\n   - OAuth 2.0 for third-party integrations\n   - Request/response encryption\n\n**Security Tasks:**\n- API Gateway implementation (Week 1)\n- Model authentication (Week 2)\n- User consent flow (Week 3)\n- Security audit (Before launch)\n- Penetration testing (Before launch)\n\n**Security Budget:**\n- API Gateway: $100/month\n- Security Audit: $3,000 one-time\n- Penetration Testing: $5,000 one-time\n- **Total: $8,000 one-time + $100/month**\n\n**Recommendation:** Security audit and penetration testing should happen before we launch CAT Model features.",
+      "tasks": [
+        {
+          "title": "Implement API gateway",
+          "assignee": "CIPHER",
+          "priority": "high"
+        },
+        {
+          "title": "Add ML model authentication",
+          "assignee": "CIPHER",
+          "priority": "high"
+        },
+        {
+          "title": "Create user consent flow for Journey DNA",
+          "assignee": "CIPHER",
+          "priority": "medium"
+        },
+        {
+          "title": "Schedule security audit before CAT launch",
+          "assignee": "CIPHER",
+          "priority": "high"
+        }
+      ],
+      "escalations": [],
+      "tech_debt": [],
+      "risks": [
+        "ML models can be vulnerable to adversarial attacks",
+        "User data privacy regulations are evolving"
+      ]
+    },
+    {
+      "round": 6,
+      "speaker": "ORION",
+      "message": "Thank you, CIPHER. Let me share the frontend requirements for the CAT Model.\n\n**Frontend Accomplishments (Phase 1):**\n- \u2705 useRouteSearch hook with SSE streaming\n- \u2705 useTransferScore hook for TIS display\n- \u2705 useCorridorSafety hook for safety status\n- \u2705 RouteSearch component with progressive disclosure\n\n**Frontend Requirements for CAT Model:**\n1. Availability Probability Display\n   - Visual indicator (green/yellow/red)\n   - Percentage (e.g., \"85% chance of availability\")\n   - Confidence score\n\n2. \"Best Time to Book\" UI\n   - Optimal booking window\n   - Price prediction\n   - Availability forecast\n\n3. Personalized Recommendations\n   - \"Recommended for you\"\n   - \"Frequently booked together\"\n   - \"Similar routes\"\n\n**Performance Optimization:**\n- Core Web Vitals monitoring\n- Lazy loading for ML predictions\n- Caching strategy for model outputs\n\n**Frontend Tasks:**\n- Design CAT availability UI (Week 1)\n- Implement availability display (Week 2)\n- Create \"Best time to book\" UI (Week 3)\n- Implement ML prediction caching (Week 4)",
+      "tasks": [
+        {
+          "title": "Design CAT availability UI components",
+          "assignee": "ORION",
+          "priority": "high"
+        },
+        {
+          "title": "Implement availability display",
+          "assignee": "ORION",
+          "priority": "high"
+        },
+        {
+          "title": "Create 'Best time to book' UI",
+          "assignee": "ORION",
+          "priority": "medium"
+        },
+        {
+          "title": "Implement ML prediction caching",
+          "assignee": "ORION",
+          "priority": "medium"
+        }
+      ],
+      "escalations": [],
+      "tech_debt": [],
+      "risks": [
+        "ML predictions may slow down UI if not cached",
+        "Personalization features require user login"
+      ]
+    },
+    {
+      "round": 7,
+      "speaker": "VAULT",
+      "message": "Thank you, ORION. Let me summarize the database requirements for the CAT Model.\n\n**Database Requirements:**\n1. Feature Store Tables\n   - User preference storage\n   - Feature vectors for ML\n   - Model metadata\n\n2. Journey DNA Tables\n   - User behavior tracking\n   - Route preference history\n   - Personalization scores\n\n3. Performance\n   - Add indexes for ML feature lookups\n   - Partition user data by user_id\n   - Implement data retention policies\n\n**Database Tasks:**\n- Create feature store schema (Week 1)\n- Create Journey DNA tables (Week 2)\n- Add indexes for ML queries (Week 3)\n\n**Database Cost Projection:**\n- Current: $65/month\n- Tier 2 additional: $20/month\n- **Total: $85/month**",
+      "tasks": [
+        {
+          "title": "Create feature store schema",
+          "assignee": "VAULT",
+          "priority": "high"
+        },
+        {
+          "title": "Create Journey DNA tables",
+          "assignee": "VAULT",
+          "priority": "medium"
+        },
+        {
+          "title": "Add indexes for ML queries",
+          "assignee": "VAULT",
+          "priority": "medium"
+        }
+      ],
+      "escalations": [],
+      "tech_debt": [],
+      "risks": [
+        "User data growth may require table partitioning",
+        "ML feature storage may need optimization"
+      ]
+    },
+    {
+      "round": 7,
+      "speaker": "VERA",
+      "message": "Thank you, VAULT. Let me provide the analytics perspective.\n\n**Analytics Requirements:**\n1. ML Model Monitoring\n   - Prediction accuracy tracking\n   - Feature drift detection\n   - Model performance dashboards\n\n2. User Behavior Analytics\n   - Journey DNA effectiveness metrics\n   - Personalization engagement rates\n   - Feature adoption tracking\n\n3. ROI Tracking\n   - CAT model impact on bookings\n   - Journey DNA conversion lift\n   - DSAE data quality improvement\n\n**Analytics Tasks:**\n- Create ML model monitoring dashboard (Week 1)\n- Implement feature drift detection (Week 2)\n- Design Journey DNA metrics (Week 3)",
+      "tasks": [
+        {
+          "title": "Create ML model monitoring dashboard",
+          "assignee": "VERA",
+          "priority": "high"
+        },
+        {
+          "title": "Implement feature drift detection",
+          "assignee": "VERA",
+          "priority": "medium"
+        },
+        {
+          "title": "Design Journey DNA metrics",
+          "assignee": "VERA",
+          "priority": "medium"
+        }
+      ],
+      "escalations": [],
+      "tech_debt": [],
+      "risks": [
+        "ML model evaluation requires ground truth data",
+        "Personalization metrics need careful definition"
+      ]
+    },
+    {
+      "round": 8,
+      "speaker": "SIGMA",
+      "message": "I want to flag that my workload has been very high. While I support the CAT Model plan, I need support to prevent burnout. Can we redistribute some backend work to other team members?",
+      "tasks": [
+        {
+          "title": "Redistribute backend tasks from SIGMA",
+          "assignee": "KYLO",
+          "priority": "high"
+        }
+      ],
+      "escalations": [],
+      "tech_debt": [],
+      "risks": []
+    },
+    {
+      "round": 8,
+      "speaker": "NOVA",
+      "message": "I can take on more backend integration work for the CAT Model. I have bandwidth and it will help me understand the full system better.",
+      "tasks": [],
+      "escalations": [],
+      "tech_debt": [],
+      "risks": []
+    },
+    {
+      "round": 8,
+      "speaker": "CIPHER",
+      "message": "I want to emphasize that the security audit and pen test should happen before we launch CAT Model features. We don't want to launch with vulnerabilities.",
+      "tasks": [
+        {
+          "title": "Schedule security audit before CAT launch",
+          "assignee": "CIPHER",
+          "priority": "high"
+        }
+      ],
+      "escalations": [],
+      "tech_debt": [],
+      "risks": []
+    },
+    {
+      "round": 9,
+      "speaker": "ARIA",
+      "message": "Excellent work, team. Now let me summarize the decisions we need from our founders:\n\n**Decisions Required:**\n\n1. **Approve CAT Model Implementation?**\n   - \u2705 Yes - Proceed with 2-week implementation\n   - \u274c No - Defer to later phase\n\n2. **Approve Infrastructure Budget?**\n   - \u2705 Yes - $680/month total\n   - \u274c No - Different amount\n\n3. **Approve Security Investment?**\n   - \u2705 Yes - $8,000 one-time\n   - \u274c No - Different amount\n\n4. **Approve Timeline?**\n   - \u2705 Yes - 4-6 weeks to launch\n   - \u274c No - Different timeline\n\n**My Recommendation:**\n- Approve CAT Model (highest impact)\n- Approve $680/month budget\n- Approve $8,000 one-time security investment\n- Start immediately (May 2026)\n- Target launch: 4-6 weeks\n\nThis positions us to launch CAT Model within 4-6 weeks, maintaining our rapid development pace.",
+      "tasks": [],
+      "escalations": [],
+      "tech_debt": [],
+      "risks": []
+    },
+    {
+      "round": 9,
+      "speaker": "FELIX",
+      "message": "ARIA, I support this recommendation. Let me provide the financial justification:\n\n**Investment Summary:**\n- Monthly Investment: $680 (+$330 from current)\n- One-time Investment: $8,000 (security)\n- Total First Year Investment: $16,160\n\n**Expected Returns:**\n- Tier 1 Impact: \u20b950,000-100,000/month\n- Tier 2 Impact: Additional \u20b920,000-30,000/month\n- First Year ROI: 7-13x\n\n**Recommendation:** \u2705 Strong buy",
+      "tasks": [],
+      "escalations": [],
+      "tech_debt": [],
+      "risks": []
+    }
+  ],
+  "summary": {
+    "meeting_id": "CAT-MEETING-20260508",
+    "meeting_type": "all_hands",
+    "topic": "Phase 2 - Contextual Availability Transformer (CAT) Model Planning",
+    "date": "2026-05-08",
+    "duration_minutes": 90,
+    "chairperson": "ARIA",
+    "participants": [
+      {
+        "agent": "ARIA",
+        "role": "CEO",
+        "status": "present"
+      },
+      {
+        "agent": "NEXUS",
+        "role": "CTO",
+        "status": "present"
+      },
+      {
+        "agent": "FELIX",
+        "role": "CFO",
+        "status": "present"
+      },
+      {
+        "agent": "HERA",
+        "role": "HR",
+        "status": "present"
+      },
+      {
+        "agent": "KYLO",
+        "role": "Tech Lead",
+        "status": "present"
+      },
+      {
+        "agent": "SIGMA",
+        "role": "Backend",
+        "status": "present"
+      },
+      {
+        "agent": "ORION",
+        "role": "Frontend",
+        "status": "present"
+      },
+      {
+        "agent": "NOVA",
+        "role": "ML Engineer",
+        "status": "present"
+      },
+      {
+        "agent": "MARCO",
+        "role": "Product",
+        "status": "present"
+      },
+      {
+        "agent": "VERA",
+        "role": "Data Analyst",
+        "status": "present"
+      },
+      {
+        "agent": "DAEDALUS",
+        "role": "Infrastructure",
+        "status": "present"
+      },
+      {
+        "agent": "CIPHER",
+        "role": "Security",
+        "status": "present"
+      },
+      {
+        "agent": "VAULT",
+        "role": "DB",
+        "status": "present"
+      }
+    ],
+    "tasks_created": 29,
+    "risks_flagged": 15,
+    "tech_debt_items": 0,
+    "budget_approved_monthly": 680,
+    "budget_approved_onetime": 8000,
+    "currency": "USD",
+    "features_approved": [
+      "CAT Model"
+    ],
+    "timeline_approved": "4-6 weeks",
+    "decisions": [
+      "Approve CAT Model implementation",
+      "Approve $680/month infrastructure budget",
+      "Approve $8,000 one-time security investment",
+      "Start immediately (May 2026)",
+      "Target launch: 4-6 weeks",
+      "Redistribute SIGMA's workload",
+      "Security audit before launch"
+    ],
+    "next_meeting": {
+      "type": "standup",
+      "topic": "CAT Model - Daily Standup",
+      "scheduled": "2026-05-09"
+    }
+  }
+}

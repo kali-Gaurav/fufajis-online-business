@@ -1,0 +1,63 @@
+name: Build & Release APK
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Flutter APK
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          
+      - name: Get dependencies
+        run: flutter pub get
+        
+      - name: Run tests
+        run: flutter test
+        
+      - name: Build APK
+        run: |
+          flutter build apk --release --split-per-abi \
+            --dart-define=RAZORPAY_KEY_ID=${{ secrets.RAZORPAY_KEY_ID }} \
+            --dart-define=SHOP_LATITUDE=${{ secrets.SHOP_LATITUDE }} \
+            --dart-define=SHOP_LONGITUDE=${{ secrets.SHOP_LONGITUDE }} \
+            --dart-define=DELIVERY_RADIUS_KM=8
+        
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          
+      - name: Create Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: RELEASE_NOTES.md
+          files: |
+            build/app/outputs/flutter-apk/app-release-arm64-v8a.apk
+            build/app/outputs/flutter-apk/app-release-armeabi-v7a.apk
+            build/app/outputs/flutter-apk/app-release-x86_64.apk
+          tag_name: v${{ github.run_number }}
+          name: Fufaji Online v1.0.0 Build ${{ github.run_number }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
