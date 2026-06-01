@@ -28,12 +28,14 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'YOUR_API_KEY',
-    authDomain: 'your-project.firebaseapp.com',
-    projectId: 'your-project',
-    storageBucket: 'your-project.appspot.com',
-    messagingSenderId: 'YOUR_SENDER_ID',
-    appId: 'YOUR_APP_ID',
+    apiKey: 'AIzaSyC318o7mu7NT8HdQ2LDm8CFQt0F3mY_14M',
+    authDomain: 'fufaji-online-business.firebaseapp.com',
+    databaseURL: 'https://fufaji-online-business-default-rtdb.firebaseio.com',
+    projectId: 'fufaji-online-business',
+    storageBucket: 'fufaji-online-business.firebasestorage.app',
+    messagingSenderId: '126709583600',
+    appId: '1:126709583600:web:2dc754e7782aeeb7d5bc35',
+    measurementId: 'G-PDP66TX9R1',
   );
 
   static const FirebaseOptions android = FirebaseOptions(

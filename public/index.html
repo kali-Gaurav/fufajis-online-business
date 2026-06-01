@@ -372,5 +372,43 @@
         <p>&copy; 2026 Fufaji Online Business. Designed for local community service.</p>
         <p style="margin-top: 10px; font-size: 12px;">Powered by Firebase Hosting</p>
     </footer>
+
+    <!-- Firebase SDK Integration -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+        import { getPerformance } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-performance.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC318o7mu7NT8HdQ2LDm8CFQt0F3mY_14M",
+            authDomain: "fufaji-online-business.firebaseapp.com",
+            databaseURL: "https://fufaji-online-business-default-rtdb.firebaseio.com",
+            projectId: "fufaji-online-business",
+            storageBucket: "fufaji-online-business.firebasestorage.app",
+            messagingSenderId: "126709583600",
+            appId: "1:126709583600:web:2dc754e7782aeeb7d5bc35",
+            measurementId: "G-PDP66TX9R1"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const perf = getPerformance(app);
+
+        // Track custom events (e.g. download clicks)
+        document.addEventListener('DOMContentLoaded', () => {
+            const downloadBtn = document.querySelector('a[download]');
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', () => {
+                    logEvent(analytics, 'download_apk', {
+                        event_category: 'engagement',
+                        event_label: 'Download APK Direct Link'
+                    });
+                });
+            }
+        });
+    </script>
 </body>
 </html>
