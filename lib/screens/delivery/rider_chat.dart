@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import '../../services/firestore_service.dart';
+import '../../services/chat_service.dart';
 import '../../models/chat_message_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/app_theme.dart';
@@ -14,7 +14,7 @@ class RiderChatScreen extends StatefulWidget {
 }
 
 class _RiderChatScreenState extends State<RiderChatScreen> {
-  final FirestoreService _firestoreService = FirestoreService();
+  final ChatService _chatService = ChatService();
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
@@ -65,7 +65,7 @@ class _RiderChatScreenState extends State<RiderChatScreen> {
     _messageController.clear();
 
     try {
-      await _firestoreService.sendSupportMessage(chatMsg);
+      await _chatService.sendSupportMessage(chatMsg);
       _scrollToBottom();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -82,7 +82,7 @@ class _RiderChatScreenState extends State<RiderChatScreen> {
     final riderName = rider?.name ?? 'Rahul';
 
     // Mark incoming messages as read when opening chat
-    _firestoreService.markMessagesAsRead(riderId, riderId);
+    _chatService.markMessagesAsRead(riderId, riderId);
 
     return Scaffold(
       backgroundColor: AppTheme.grey50,
@@ -115,7 +115,7 @@ class _RiderChatScreenState extends State<RiderChatScreen> {
           // Real-time Chat Messages Stream
           Expanded(
             child: StreamBuilder<List<ChatMessageModel>>(
-              stream: _firestoreService.getRiderChatStream(riderId),
+              stream: _chatService.getRiderChatStream(riderId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());

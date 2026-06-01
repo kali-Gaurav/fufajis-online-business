@@ -1,6 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/product_model.dart';
+import '../models/order_model.dart';
 
 class RecommendationService {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   /// Association matrix mapping a source category to targeted complementary categories
   static const Map<String, List<String>> _categoryAssociations = {
     'vegetables': ['groceries', 'dairy'],
@@ -22,6 +26,63 @@ class RecommendationService {
     'bread': ['butter', 'jam', 'tea'],
     'samosa': ['cold drink', 'sauce'],
   };
+
+  /// Fetch frequently bought products from user's order history
+  Future<List<String>> getFrequentlyBoughtProducts(String userId, {int limit = 10}) async {
+    try {
+      final snapshot = await _firestore
+          .collection('orders')
+          .where('customerId', isEqualTo: userId)
+          .where('status', isEqualTo: 'OrderStatus.delivered')
+          .limit(20)
+          .get();
+
+      final Map<String, int> productCounts = {};
+      for (var doc in snapshot.docs) {
+        final order = OrderModel.fromMap(doc.data());
+        for (var item in order.items) {
+          productCounts[item.productId] = (productCounts[item.productId] ?? 0) + item.quantity;
+        }
+      }
+
+      final sortedProducts = productCounts.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+
+      return sortedProducts.map((e) => e.key).take(limit).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /// Get user's favorite categories sorted by purchase frequency
+  Future<List<String>> getFavoriteCategories(String userId) async {
+    try {
+      final snapshot = await _firestore
+          .collection('orders')
+          .where('customerId', isEqualTo: userId)
+          .where('status', isEqualTo: 'OrderStatus.delivered')
+          .limit(20)
+          .get();
+
+      final Map<String, int> categoryCounts = {};
+      for (var doc in snapshot.docs) {
+        final order = OrderModel.fromMap(doc.data());
+        for (var item in order.items) {
+          // In a production app, category is resolved via catalog reference
+          // For simplicity we extract if available, otherwise skip
+          final cat = item.productId.split('_')[0]; // Simple mock logic fallback
+          categoryCounts[cat] = (categoryCounts[cat] ?? 0) + item.quantity;
+        }
+      }
+
+      final sortedCategories = categoryCounts.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+
+      return sortedCategories.map((e) => e.key).toList();
+    } catch (_) {
+      return [];
+    }
+  }
 
   /// Recommends products based on current basket contents.
   /// Filters out items that are already in the basket.

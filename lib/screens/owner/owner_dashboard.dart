@@ -5,7 +5,8 @@ import '../../providers/order_provider.dart';
 import '../../providers/product_provider.dart';
 import '../../models/order_model.dart';
 import '../../models/user_model.dart';
-import '../../services/firestore_service.dart';
+import '../../providers/shop_config_provider.dart';
+import 'shop_settings_screen.dart';
 import 'rider_management_screen.dart';
 import 'orders_management.dart';
 import 'inventory_screen.dart';
@@ -41,40 +42,14 @@ class OwnerDashboard extends StatefulWidget {
 
 class _OwnerDashboardState extends State<OwnerDashboard> {
   int _selectedIndex = 0;
-  bool _isShopOpen = true;
-  final FirestoreService _firestoreService = FirestoreService();
 
   @override
   void initState() {
     super.initState();
-    _fetchShopStatus();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final orderProvider = Provider.of<OrderProvider>(context, listen: false);
       orderProvider.listenToAllOrders();
     });
-  }
-
-  Future<void> _fetchShopStatus() async {
-    final status = await _firestoreService.getShopStatus();
-    if (mounted) {
-      setState(() => _isShopOpen = status);
-    }
-  }
-
-  Future<void> _toggleShopStatus(bool value) async {
-    setState(() => _isShopOpen = value);
-    await _firestoreService.updateShopStatus(value);
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(value
-              ? 'Shop is now OPEN for orders'
-              : 'Shop is now CLOSED for orders'),
-          backgroundColor: value ? AppTheme.success : AppTheme.error,
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    }
   }
 
   final List<Widget> _pages = [
@@ -84,14 +59,15 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
     const InventoryScreen(),
     const AnalyticsScreen(),
     const WhatsAppSyncSetupScreen(),
-    const RiderManagementScreen(),
     const SettlementsManagementScreen(),
+    const RiderManagementScreen(),
     const AttendanceManagementScreen(),
     const RiderSupportConsole(),
     const DynamicPricingConsole(),
     const ReviewsModerationScreen(),
     const VendorRequestScreen(),
     const BahiKhataScreen(),
+    const ShopSettingsScreen(),
   ];
 
   final List<String> _titles = [
@@ -102,16 +78,21 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
     'Analytics',
     'WhatsApp Sync',
     'COD Settlements',
+    'Fleet Management',
     'Rider Attendance',
     'Rider Support',
     'Dynamic Pricing',
     'Customer Reviews',
     'Vendor Orders',
     'Bahi-Khata (Credit)',
+    'Shop Settings',
   ];
 
   @override
   Widget build(BuildContext context) {
+    final shopConfigProvider = Provider.of<ShopConfigProvider>(context);
+    final isShopOpen = shopConfigProvider.shopConfig?.isOpen ?? true;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_titles[_selectedIndex]),
@@ -119,20 +100,33 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
           Row(
             children: [
               Text(
-                _isShopOpen ? 'OPEN' : 'CLOSED',
+                isShopOpen ? 'OPEN' : 'CLOSED',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: _isShopOpen ? AppTheme.success : AppTheme.error,
+                  color: isShopOpen ? AppTheme.success : AppTheme.error,
                 ),
               ),
               Switch(
-                value: _isShopOpen,
-                onChanged: _toggleShopStatus,
+                value: isShopOpen,
+                onChanged: (value) async {
+                  await shopConfigProvider.setShopOpen(value);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(value
+                            ? 'Shop is now OPEN for orders'
+                            : 'Shop is now CLOSED for orders'),
+                        backgroundColor: value ? AppTheme.success : AppTheme.error,
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                },
                 activeThumbColor: AppTheme.success,
-                activeTrackColor: AppTheme.success.withValues(alpha: 0.3),
+                activeTrackColor: AppTheme.success.withOpacity(0.3),
                 inactiveThumbColor: AppTheme.error,
-                inactiveTrackColor: AppTheme.error.withValues(alpha: 0.3),
+                inactiveTrackColor: AppTheme.error.withOpacity(0.3),
               ),
             ],
           ),
@@ -234,6 +228,11 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                 icon: Icon(Icons.menu_book_outlined),
                 selectedIcon: Icon(Icons.menu_book),
                 label: Text('Khata'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.settings_outlined),
+                selectedIcon: Icon(Icons.settings),
+                label: Text('Settings'),
               ),
             ],
           ),

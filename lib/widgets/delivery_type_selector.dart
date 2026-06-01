@@ -1,6 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/delivery_type.dart';
 import '../services/delivery_charge_calculator.dart';
+import '../providers/shop_config_provider.dart';
 import '../utils/app_theme.dart';
 
 /// Widget for selecting delivery type with visual cards
@@ -41,6 +43,29 @@ class _DeliveryTypeSelectorState extends State<DeliveryTypeSelector> {
 
   @override
   Widget build(BuildContext context) {
+    bool isEmergency = false;
+    try {
+      final configProvider = context.watch<ShopConfigProvider>();
+      isEmergency = configProvider.shopConfig?.isEmergencyMode ?? false;
+    } catch (_) {}
+
+    final filteredOptions = DeliveryTypeOption.allOptions.where((option) {
+      if (isEmergency) {
+        if (option.type == DeliveryType.express || option.type == DeliveryType.sameDay) {
+          return false;
+        }
+      }
+      return true;
+    }).toList();
+
+    if (isEmergency) {
+      filteredOptions.sort((a, b) {
+        if (a.type == DeliveryType.scheduled) return -1;
+        if (b.type == DeliveryType.scheduled) return 1;
+        return 0;
+      });
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -53,9 +78,9 @@ class _DeliveryTypeSelectorState extends State<DeliveryTypeSelector> {
           ),
         ),
         const SizedBox(height: 12),
-        ...DeliveryTypeOption.allOptions.map((option) => _buildDeliveryOption(option)),
+        ...filteredOptions.map((option) => _buildDeliveryOption(option)),
         const SizedBox(height: 8),
-        _buildFreeDeliveryHint(),
+        _buildFreeDeliveryHint(isEmergency: isEmergency),
       ],
     );
   }
@@ -201,8 +226,12 @@ class _DeliveryTypeSelectorState extends State<DeliveryTypeSelector> {
     );
   }
 
-  Widget _buildFreeDeliveryHint() {
-    if (widget.subtotal >= DeliveryChargeCalculator.freeDeliveryThreshold) {
+  Widget _buildFreeDeliveryHint({bool isEmergency = false}) {
+    final threshold = isEmergency
+        ? DeliveryChargeCalculator.freeDeliveryThreshold * 1.5
+        : DeliveryChargeCalculator.freeDeliveryThreshold;
+
+    if (widget.subtotal >= threshold) {
       return Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -231,9 +260,7 @@ class _DeliveryTypeSelectorState extends State<DeliveryTypeSelector> {
       );
     }
 
-    final amountNeeded = DeliveryChargeCalculator.getAmountNeededForFreeDelivery(
-      widget.subtotal,
-    );
+    final amountNeeded = threshold - widget.subtotal;
 
     return Container(
       padding: const EdgeInsets.all(12),
@@ -279,13 +306,36 @@ class CompactDeliveryTypeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isEmergency = false;
+    try {
+      final configProvider = context.watch<ShopConfigProvider>();
+      isEmergency = configProvider.shopConfig?.isEmergencyMode ?? false;
+    } catch (_) {}
+
+    final filteredOptions = DeliveryTypeOption.allOptions.where((option) {
+      if (isEmergency) {
+        if (option.type == DeliveryType.express || option.type == DeliveryType.sameDay) {
+          return false;
+        }
+      }
+      return true;
+    }).toList();
+
+    if (isEmergency) {
+      filteredOptions.sort((a, b) {
+        if (a.type == DeliveryType.scheduled) return -1;
+        if (b.type == DeliveryType.scheduled) return 1;
+        return 0;
+      });
+    }
+
     return SizedBox(
       height: 60,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: DeliveryTypeOption.allOptions.length,
+        itemCount: filteredOptions.length,
         itemBuilder: (context, index) {
-          final option = DeliveryTypeOption.allOptions[index];
+          final option = filteredOptions[index];
           final isSelected = selectedType == option.type;
           final charge = DeliveryChargeCalculator.calculateDeliveryCharge(
             option.type,

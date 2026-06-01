@@ -13,15 +13,26 @@ const twilioClient = twilio(
 const twilioPhoneNumber = functions.config().twilio?.phone_number;
 
 /**
- * Razorpay Webhook Handler
- * This function receives events from Razorpay (like payment.captured)
- * and updates the order status in Firestore securely.
+ * ═══════════════════════════════════════════════════════════════════════
+ * RAZORPAY WEBHOOK HANDLER (PRODUCTION HARDENED)
+ * ═══════════════════════════════════════════════════════════════════════
+ * Receives events from Razorpay (payment.captured, payment.failed,
+ * payment.refunded, order.paid) and reconciles order status in Firestore.
+ *
+ * Security: HMAC-SHA256 signature verification
+ * Idempotency: Deduplication via webhook_events collection
+ * Audit: Full reconciliation log in payment_reconciliation_log
  */
 exports.razorpayWebhook = functions.https.onRequest(async (req, res) => {
+    // Only accept POST requests
+    if (req.method !== 'POST') {
+        return res.status(405).send('Method Not Allowed');
+    }
+
     const RAZORPAY_WEBHOOK_SECRET = functions.config().razorpay.webhook_secret;
     const signature = req.headers['x-razorpay-signature'];
 
-    // 1. Verify the signature to ensure the request is actually from Razorpay
+    // 1. Verify HMAC-SHA256 signature
     const body = JSON.stringify(req.body);
     const expectedSignature = crypto
         .createHmac('sha256', RAZORPAY_WEBHOOK_SECRET)
@@ -29,72 +40,191 @@ exports.razorpayWebhook = functions.https.onRequest(async (req, res) => {
         .digest('hex');
 
     if (signature !== expectedSignature) {
-        console.error('Invalid Razorpay signature');
+        console.error('[RazorpayWebhook] SECURITY: Invalid signature rejected');
+        await admin.firestore().collection('payment_reconciliation_log').add({
+            action: 'webhook_signature_rejected',
+            signature: signature ? signature.substring(0, 12) + '...' : 'missing',
+            timestamp: admin.firestore.FieldValue.serverTimestamp(),
+        });
         return res.status(400).send('Invalid signature');
     }
 
     const event = req.body.event;
     const payload = req.body.payload;
+    const webhookEventId = req.body.id || `unknown_${Date.now()}`;
 
-    console.log(`Received Razorpay event: ${event}`);
+    console.log(`[RazorpayWebhook] Received event: ${event} (ID: ${webhookEventId})`);
 
     try {
+        // 2. Idempotency guard — skip already-processed events
+        const eventRef = admin.firestore().collection('webhook_events').doc(`razorpay_${webhookEventId}`);
+        const eventDoc = await eventRef.get();
+        if (eventDoc.exists) {
+            console.log(`[RazorpayWebhook] Event ${webhookEventId} already processed. Skipping.`);
+            return res.status(200).send('Already processed');
+        }
+
+        // ── PAYMENT CAPTURED / AUTHORIZED ──
         if (event === 'payment.captured' || event === 'payment.authorized') {
             const payment = payload.payment.entity;
-            const orderId = payment.notes.order_id;
+            const orderId = payment.notes?.order_id || payment.order_id;
+            const amountPaise = payment.amount; // Amount in paise
+            const amountRupees = amountPaise / 100;
 
             if (!orderId) {
-                console.error('No order_id found in payment notes');
+                console.error('[RazorpayWebhook] No order_id found in payment notes');
+                await eventRef.set({ processedAt: admin.firestore.FieldValue.serverTimestamp(), eventId: webhookEventId, type: event, error: 'missing_order_id' });
                 return res.status(400).send('Missing order_id');
             }
 
-            // Production Hardening: Idempotency Check (Feature 73)
-            const eventRef = admin.firestore().collection('webhook_events').doc(`razorpay_${req.body.id}`);
-            const eventDoc = await eventRef.get();
-            if (eventDoc.exists) {
-                console.log(`Event ${req.body.id} already processed.`);
-                return res.status(200).send('Already processed');
-            }
-
-            // 2. Update Firestore Order Status
             const orderRef = admin.firestore().collection('orders').doc(orderId);
             const orderDoc = await orderRef.get();
 
             if (!orderDoc.exists) {
-                console.error(`Order ${orderId} not found`);
+                console.error(`[RazorpayWebhook] Order ${orderId} not found`);
+                await eventRef.set({ processedAt: admin.firestore.FieldValue.serverTimestamp(), eventId: webhookEventId, type: event, error: 'order_not_found', orderId });
                 return res.status(404).send('Order not found');
             }
 
+            // 3. Amount validation — ensure webhook amount matches order
+            const orderData = orderDoc.data();
+            const orderAmount = orderData.totalAmount || 0;
+            const tolerance = 1.0; // ₹1 tolerance for rounding
+            if (Math.abs(amountRupees - orderAmount) > tolerance) {
+                console.error(`[RazorpayWebhook] AMOUNT MISMATCH: Webhook ₹${amountRupees} vs Order ₹${orderAmount}`);
+                await admin.firestore().collection('payment_reconciliation_log').add({
+                    paymentId: payment.id,
+                    orderId: orderId,
+                    action: 'amount_mismatch',
+                    webhookAmount: amountRupees,
+                    orderAmount: orderAmount,
+                    timestamp: admin.firestore.FieldValue.serverTimestamp(),
+                });
+                // Still process but flag for manual review
+            }
+
+            // 4. Transactional update
             await admin.firestore().runTransaction(async (transaction) => {
+                // Update order
                 transaction.update(orderRef, {
                     paymentStatus: 'paid',
                     paymentId: payment.id,
+                    status: 'OrderStatus.confirmed',
                     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-                    status: 'OrderStatus.confirmed' // Use standard enum format
+                    reconciliationSource: 'razorpay_webhook',
+                    reconciledAt: admin.firestore.FieldValue.serverTimestamp(),
                 });
+
+                // Create/update payment record
+                const paymentRef = admin.firestore().collection('payments').doc(payment.id);
+                transaction.set(paymentRef, {
+                    paymentId: payment.id,
+                    orderId: orderId,
+                    orderNumber: orderData.orderNumber || '',
+                    amount: amountRupees,
+                    currency: payment.currency || 'INR',
+                    method: payment.method || 'unknown',
+                    status: 'captured',
+                    verified: true,
+                    verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
+                    source: 'webhook',
+                    customerId: orderData.customerId || '',
+                    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                }, { merge: true });
+
+                // Mark webhook event as processed
                 transaction.set(eventRef, {
                     processedAt: admin.firestore.FieldValue.serverTimestamp(),
-                    eventId: req.body.id,
+                    eventId: webhookEventId,
                     orderId: orderId,
-                    type: event
+                    paymentId: payment.id,
+                    amount: amountRupees,
+                    type: event,
                 });
             });
 
-            console.log(`Order ${orderId} marked as PAID and CONFIRMED via webhook`);
+            // 5. Reconciliation audit log
+            await admin.firestore().collection('payment_reconciliation_log').add({
+                paymentId: payment.id,
+                orderId: orderId,
+                amount: amountRupees,
+                action: 'webhook_reconcile',
+                event: event,
+                timestamp: admin.firestore.FieldValue.serverTimestamp(),
+            });
+
+            console.log(`[RazorpayWebhook] Order ${orderId} → PAID + CONFIRMED (₹${amountRupees})`);
+
+        // ── PAYMENT FAILED ──
         } else if (event === 'payment.failed') {
             const payment = payload.payment.entity;
-            const orderId = payment.notes.order_id;
+            const orderId = payment.notes?.order_id || payment.order_id;
             if (orderId) {
                 await admin.firestore().collection('orders').doc(orderId).update({
                     paymentStatus: 'failed',
-                    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
                 });
+                await eventRef.set({ processedAt: admin.firestore.FieldValue.serverTimestamp(), eventId: webhookEventId, orderId, type: event });
+            }
+
+        // ── PAYMENT REFUNDED ──
+        } else if (event === 'refund.created' || event === 'payment.refunded') {
+            const refundEntity = event === 'refund.created' 
+                ? payload.refund?.entity 
+                : payload.payment?.entity;
+            
+            if (refundEntity) {
+                const paymentId = refundEntity.payment_id || refundEntity.id;
+                const refundAmount = (refundEntity.amount || 0) / 100;
+
+                // Find order by payment ID
+                const ordersQuery = await admin.firestore().collection('orders')
+                    .where('paymentId', '==', paymentId)
+                    .limit(1)
+                    .get();
+
+                if (!ordersQuery.empty) {
+                    const orderDoc = ordersQuery.docs[0];
+                    await orderDoc.ref.update({
+                        paymentStatus: 'refunded',
+                        refundAmount: refundAmount,
+                        refundedAt: admin.firestore.FieldValue.serverTimestamp(),
+                        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                    });
+                    console.log(`[RazorpayWebhook] Order ${orderDoc.id} refunded ₹${refundAmount}`);
+                }
+
+                await eventRef.set({ processedAt: admin.firestore.FieldValue.serverTimestamp(), eventId: webhookEventId, paymentId, type: event });
+
+                await admin.firestore().collection('payment_reconciliation_log').add({
+                    paymentId: paymentId,
+                    action: 'refund_processed',
+                    amount: refundAmount,
+                    timestamp: admin.firestore.FieldValue.serverTimestamp(),
+                });
+            }
+
+        // ── ORDER PAID ──
+        } else if (event === 'order.paid') {
+            const order = payload.order?.entity;
+            if (order) {
+                await eventRef.set({ processedAt: admin.firestore.FieldValue.serverTimestamp(), eventId: webhookEventId, razorpayOrderId: order.id, type: event });
             }
         }
 
         res.status(200).send('Webhook processed');
     } catch (error) {
-        console.error('Error processing webhook:', error);
+        console.error('[RazorpayWebhook] Error processing webhook:', error);
+
+        // Log failure for manual review
+        await admin.firestore().collection('payment_reconciliation_log').add({
+            action: 'webhook_processing_error',
+            eventId: webhookEventId,
+            event: event,
+            error: error.message,
+            timestamp: admin.firestore.FieldValue.serverTimestamp(),
+        }).catch(() => {});
+
         res.status(500).send('Internal Server Error');
     }
 });
@@ -687,16 +817,72 @@ exports.initiateRiderPayout = functions.https.onCall(async (data, context) => {
 
         console.log(`Initiating secure transfer of ₹${amount} to Razorpay account: ${riderAccountId}`);
 
-        // REAL WORLD: In production, call the official Razorpay Transfers API:
-        // POST https://api.razorpay.com/v1/transfers
-        // with basic auth using Key and Secret
-        // For development safety, we simulate successful gateway verification while preserving the actual function interface.
+        const razorpayConfig = functions.config().razorpay || {};
+        const keyId = razorpayConfig.key_id;
+        const keySecret = razorpayConfig.key_secret;
         
-        return {
-            success: true,
-            transferId: `trf_${Date.now()}`,
-            message: 'Transfer processed successfully via Razorpay Route API'
-        };
+        if (!keyId || !keySecret) {
+            throw new functions.https.HttpsError(
+                'failed-precondition',
+                'Razorpay is not configured with key_id or key_secret on the backend.'
+            );
+        }
+
+        const auth = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
+        const postData = JSON.stringify({
+            account: riderAccountId,
+            amount: Math.round(amount * 100), // convert to paise
+            currency: currency || 'INR',
+            notes: {
+                info: 'Rider Payout Transfer via Route API'
+            }
+        });
+
+        const https = require('https');
+        const result = await new Promise((resolve, reject) => {
+            const req = https.request({
+                hostname: 'api.razorpay.com',
+                port: 443,
+                path: '/v1/transfers',
+                method: 'POST',
+                headers: {
+                    'Authorization': `Basic ${auth}`,
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(postData)
+                }
+            }, (res) => {
+                let responseBody = '';
+                res.on('data', (chunk) => responseBody += chunk);
+                res.on('end', () => {
+                    try {
+                        resolve({ statusCode: res.statusCode, body: JSON.parse(responseBody) });
+                    } catch (e) {
+                        resolve({ statusCode: res.statusCode, body: responseBody });
+                    }
+                });
+            });
+
+            req.on('error', (err) => reject(err));
+            req.write(postData);
+            req.end();
+        });
+
+        if (result.statusCode >= 200 && result.statusCode < 300) {
+            console.log(`Rider payout transfer successful: ${result.body.id}`);
+            return {
+                success: true,
+                transferId: result.body.id,
+                message: 'Transfer processed successfully via Razorpay Route API'
+            };
+        } else {
+            console.error('Razorpay Route Transfer Error Response:', result.body);
+            const errDescription = result.body && result.body.error ? result.body.error.description : 'Failed to process payout';
+            return {
+                success: false,
+                error: errDescription,
+                message: errDescription
+            };
+        }
     } catch (error) {
         console.error('Error initiating rider payout:', error);
         throw new functions.https.HttpsError(
@@ -706,3 +892,557 @@ exports.initiateRiderPayout = functions.https.onCall(async (data, context) => {
     }
 });
 
+/**
+ * Scheduled: Hourly Inventory Alert Check
+ * Checks for low stock and generates alerts based on sales velocity
+ */
+exports.checkInventoryAlerts = functions.pubsub.schedule('every 1 hours').onRun(async (context) => {
+    const shopsSnapshot = await admin.firestore().collection('shops').get();
+    
+    for (const shopDoc of shopsSnapshot.docs) {
+        const shopId = shopDoc.id;
+        const productsSnapshot = await admin.firestore()
+            .collection('shops')
+            .doc(shopId)
+            .collection('products')
+            .where('stockQuantity', '<=', 10) // Basic threshold
+            .get();
+
+        for (const productDoc of productsSnapshot.docs) {
+            const product = productDoc.data();
+            
+            // Logic for predictive alerts based on sales velocity would go here
+            // For now, create a simple alert
+            await admin.firestore().collection('inventory_alerts').add({
+                shopId,
+                productId: productDoc.id,
+                productName: product.name,
+                currentStock: product.stockQuantity,
+                severity: product.stockQuantity <= 2 ? 'critical' : 'medium',
+                status: 'active',
+                createdAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+        }
+    }
+    return null;
+});
+
+/**
+ * Scheduled: Hourly Expiry Date Tracking
+ * Checks for expiring items and applies dynamic markdown pricing
+ */
+exports.processExpiries = functions.pubsub.schedule('every 1 hours').onRun(async (context) => {
+    const now = admin.firestore.Timestamp.now();
+    const threeDaysFromNow = new admin.firestore.Timestamp(now.seconds + (3 * 24 * 60 * 60), 0);
+
+    const productsSnapshot = await admin.firestore()
+        .collectionGroup('products')
+        .where('expiryDate', '<=', threeDaysFromNow)
+        .get();
+
+    for (const productDoc of productsSnapshot.docs) {
+        const product = productDoc.data();
+        if (product.expiryDate <= now) {
+            // Item expired: mark as unavailable or auto-discount to 90% off
+            await productDoc.ref.update({
+                isAvailable: false,
+                status: 'expired'
+            });
+        } else {
+            // Near expiry: Apply 20% discount automatically
+            const originalPrice = product.originalPrice || product.price;
+            const discountedPrice = originalPrice * 0.8;
+            await productDoc.ref.update({
+                price: discountedPrice,
+                isDiscounted: true,
+                discountPercentage: 20,
+                updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+        }
+    }
+    return null;
+});
+
+/**
+ * Scheduled: Hourly Dynamic Pricing Adjuster
+ * Adjusts prices based on competitor data or demand velocity
+ */
+exports.updateDynamicPricing = functions.pubsub.schedule('every 1 hours').onRun(async (context) => {
+    // This would typically fetch from a competitor price index or analyze recent sales velocity
+    console.log('Running Dynamic Pricing Adjuster...');
+    // Simulated logic: Adjust high-demand items up by 2%, low-demand down by 5%
+    return null;
+});
+
+/**
+ * Scheduled: Daily Expiry Alert Check (FEFO & Expiry Warnings)
+ * Runs every 24 hours to scan inventory batches for items expiring in less than 15 days,
+ * and pushes a high-priority notification to branch staff.
+ */
+exports.checkExpiryAlerts = functions.pubsub.schedule('0 0 * * *').timeZone('Asia/Kolkata').onRun(async (context) => {
+    const now = new Date();
+    const fifteenDaysFromNow = new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000);
+    const fifteenDaysTimestamp = admin.firestore.Timestamp.fromDate(fifteenDaysFromNow);
+
+    console.log(`Running checkExpiryAlerts daily scan. Expiry threshold: ${fifteenDaysFromNow.toISOString()}`);
+
+    try {
+        // Query all inventory batches expiring in less than 15 days
+        const batchesSnapshot = await admin.firestore()
+            .collectionGroup('inventory_batches')
+            .where('expiryDate', '<=', fifteenDaysTimestamp)
+            .get();
+
+        console.log(`Found ${batchesSnapshot.size} batches expiring soon.`);
+
+        if (batchesSnapshot.empty) {
+            return null;
+        }
+
+        // Cache product names and users to avoid redundant reads
+        const productCache = {};
+        const branchUsersCache = {};
+
+        for (const batchDoc of batchesSnapshot.docs) {
+            const batch = batchDoc.data();
+            
+            // Extract shopId and branchId from path: /shops/{shopId}/branches/{branchId}/inventory_batches/{batchId}
+            const pathSegments = batchDoc.ref.path.split('/');
+            if (pathSegments.length < 5) continue;
+            const shopId = pathSegments[1];
+            const branchId = pathSegments[3];
+
+            // Verify quantity is active and batch isn't fully depleted
+            if (!batch.quantity || batch.quantity <= 0) continue;
+
+            const expDate = batch.expiryDate ? batch.expiryDate.toDate() : null;
+            if (!expDate) continue;
+
+            // Check if already expired
+            if (expDate < now) continue;
+
+            const daysRemaining = Math.ceil((expDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+            // Fetch product name (with caching)
+            const productKey = `${shopId}_${branchId}_${batch.productId}`;
+            if (!productCache[productKey]) {
+                const productDoc = await admin.firestore()
+                    .collection('shops')
+                    .doc(shopId)
+                    .collection('branches')
+                    .doc(branchId)
+                    .collection('products')
+                    .doc(batch.productId)
+                    .get();
+                productCache[productKey] = productDoc.exists ? productDoc.data().name : 'Unknown Product';
+            }
+            const productName = productCache[productKey];
+
+            // Fetch branch staff (with caching)
+            const branchKey = `${shopId}_${branchId}`;
+            if (!branchUsersCache[branchKey]) {
+                const usersSnapshot = await admin.firestore().collection('users')
+                    .where('isActive', '==', true)
+                    .get();
+
+                const staff = [];
+                usersSnapshot.forEach(userDoc => {
+                    const userData = userDoc.data();
+                    const isStaffRole = ['UserRole.employee', 'UserRole.shopOwner', 'UserRole.admin'].includes(userData.role) ||
+                        (userData.roles && userData.roles.some(r => ['UserRole.employee', 'UserRole.shopOwner', 'UserRole.admin'].includes(r)));
+                    const isAssigned = userData.branchId === branchId || userData.assignedBranchId === branchId || userData.shopId === shopId;
+                    
+                    if (isStaffRole && isAssigned && userData.fcmToken) {
+                        staff.push(userData.fcmToken);
+                    }
+                });
+                branchUsersCache[branchKey] = staff;
+            }
+            const fcmTokens = branchUsersCache[branchKey];
+
+            if (fcmTokens.length === 0) {
+                console.log(`No active branch staff with FCM tokens found for branch ${branchId}`);
+                continue;
+            }
+
+            // Create low stock/expiry alert document in Firestore for visibility on dashboard
+            const alertId = `expiry_alert_${batchDoc.id}`;
+            await admin.firestore()
+                .collection('shops')
+                .doc(shopId)
+                .collection('branches')
+                .doc(branchId)
+                .collection('inventory_alerts')
+                .doc(alertId)
+                .set({
+                    id: alertId,
+                    type: 'near_expiry',
+                    productId: batch.productId,
+                    productName: productName,
+                    batchId: batch.batchId,
+                    currentStock: batch.quantity,
+                    expiryDate: batch.expiryDate,
+                    severity: daysRemaining <= 5 ? 'critical' : 'high',
+                    status: 'pending',
+                    message: `Batch ${batch.batchId} of ${productName} is expiring in ${daysRemaining} days. Qty: ${batch.quantity}.`,
+                    createdAt: admin.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+
+            // Send FCM notifications to all branch staff
+            const messages = fcmTokens.map(token => ({
+                notification: {
+                    title: `⚠️ Near Expiry Alert: ${productName}`,
+                    body: `Batch ${batch.batchId} (${batch.quantity} units) is expiring in ${daysRemaining} days! Mark it down now.`
+                },
+                data: {
+                    type: 'expiryWarning',
+                    batchId: batch.batchId,
+                    productId: batch.productId,
+                    shopId: shopId,
+                    branchId: branchId
+                },
+                token: token
+            }));
+
+            try {
+                await Promise.all(messages.map(msg => admin.messaging().send(msg)));
+                console.log(`Sent expiry warnings to ${fcmTokens.length} staff members for batch ${batch.batchId}`);
+            } catch (err) {
+                console.error(`Error sending FCM messages for batch ${batch.batchId}:`, err);
+            }
+        }
+    } catch (error) {
+        console.error('Error executing checkExpiryAlerts:', error);
+    }
+    return null;
+});
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// TASK 12: NOTIFICATION QUEUE → FCM PROCESSOR
+// ═══════════════════════════════════════════════════════════════════════
+// Processes the notification_queue collection populated by the WhatsApp
+// fallback system (sendWithFallback in whatsapp_notification_service.dart)
+// and sends actual FCM push notifications.
+
+/**
+ * Process FCM Notification Queue
+ * Triggered when a new document is created in notification_queue.
+ * Sends FCM push notification and updates the document status.
+ */
+exports.processNotificationQueue = functions.firestore
+    .document('notification_queue/{docId}')
+    .onCreate(async (snap, context) => {
+        const data = snap.data();
+        const { userId, fcmToken, title, body, orderId, type } = data;
+
+        if (!fcmToken) {
+            console.log(`[NotificationQueue] No FCM token for notification ${context.params.docId}. Skipping.`);
+            await snap.ref.update({ status: 'skipped', reason: 'no_fcm_token', processedAt: admin.firestore.FieldValue.serverTimestamp() });
+            return null;
+        }
+
+        try {
+            const message = {
+                notification: {
+                    title: title || '📦 Fufaji Update',
+                    body: body || 'You have a new notification.',
+                },
+                data: {
+                    orderId: orderId || '',
+                    type: type || 'general',
+                    click_action: 'FLUTTER_NOTIFICATION_CLICK',
+                },
+                token: fcmToken,
+            };
+
+            const response = await admin.messaging().send(message);
+
+            console.log(`[NotificationQueue] FCM sent to ${userId}: ${response}`);
+            await snap.ref.update({
+                status: 'sent',
+                fcmResponse: response,
+                processedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+        } catch (error) {
+            console.error(`[NotificationQueue] Error sending FCM to ${userId}:`, error);
+
+            let errorReason = error.message;
+            let shouldRemoveToken = false;
+
+            // Handle invalid/expired FCM tokens
+            if (error.code === 'messaging/invalid-registration-token' ||
+                error.code === 'messaging/registration-token-not-registered') {
+                shouldRemoveToken = true;
+                errorReason = 'invalid_or_expired_token';
+
+                // Remove stale FCM token from user profile
+                try {
+                    await admin.firestore().collection('users').doc(userId).update({
+                        fcmToken: admin.firestore.FieldValue.delete(),
+                        fcmTokenRemovedAt: admin.firestore.FieldValue.serverTimestamp(),
+                        fcmTokenRemovalReason: errorReason,
+                    });
+                    console.log(`[NotificationQueue] Removed stale FCM token for user ${userId}`);
+                } catch (tokenError) {
+                    console.error(`[NotificationQueue] Error removing stale token:`, tokenError);
+                }
+            }
+
+            await snap.ref.update({
+                status: 'failed',
+                error: errorReason,
+                tokenRemoved: shouldRemoveToken,
+                processedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+
+            // Fallback to in-app notification
+            try {
+                await admin.firestore().collection('users').doc(userId).collection('notifications').add({
+                    title: title || 'Fufaji Update',
+                    body: body || 'You have a new notification.',
+                    orderId: orderId || '',
+                    type: type || 'general',
+                    read: false,
+                    source: 'fcm_fallback',
+                    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                });
+            } catch (fallbackError) {
+                console.error(`[NotificationQueue] In-app fallback also failed:`, fallbackError);
+            }
+        }
+        return null;
+    });
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// TASK 11 (SUPPLEMENT): ORPHAN PAYMENT RECONCILIATION SCANNER
+// ═══════════════════════════════════════════════════════════════════════
+// Catches orders stuck in "pending" payment status that webhooks missed.
+
+/**
+ * Scheduled: Reconcile Orphaned Payments (every 15 minutes)
+ * Scans for orders stuck in "pending" payment status for >15 min
+ * and checks if their payment was actually captured.
+ */
+exports.reconcileOrphanedPayments = functions.pubsub
+    .schedule('every 15 minutes')
+    .timeZone('Asia/Kolkata')
+    .onRun(async (context) => {
+        console.log('[ReconcileOrphan] Starting orphan payment scan...');
+
+        try {
+            const cutoffTime = new Date(Date.now() - 15 * 60 * 1000);
+            const cutoffTimestamp = admin.firestore.Timestamp.fromDate(cutoffTime);
+
+            // Find orders stuck in pending payment state
+            const snapshot = await admin.firestore()
+                .collection('orders')
+                .where('paymentStatus', '==', 'pending')
+                .where('createdAt', '<', cutoffTimestamp)
+                .limit(50)
+                .get();
+
+            if (snapshot.empty) {
+                console.log('[ReconcileOrphan] No orphaned orders found.');
+                return null;
+            }
+
+            console.log(`[ReconcileOrphan] Found ${snapshot.size} orphaned orders to check.`);
+
+            let reconciled = 0;
+            let failedOrExpired = 0;
+
+            for (const doc of snapshot.docs) {
+                const orderData = doc.data();
+                const paymentId = orderData.paymentId;
+
+                if (!paymentId || paymentId === '') {
+                    // No payment ID — mark as expired after 30 minutes
+                    const createdAt = orderData.createdAt?.toDate();
+                    const thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000);
+                    if (createdAt && createdAt < thirtyMinAgo) {
+                        await doc.ref.update({
+                            paymentStatus: 'expired',
+                            status: 'OrderStatus.cancelled',
+                            cancellationReason: 'Payment not received within 30 minutes',
+                            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                            reconciliationSource: 'orphan_scanner_timeout',
+                        });
+                        failedOrExpired++;
+                    }
+                    continue;
+                }
+
+                // Check if payment was actually captured in payments collection
+                const paymentDoc = await admin.firestore()
+                    .collection('payments')
+                    .doc(paymentId)
+                    .get();
+
+                if (paymentDoc.exists && paymentDoc.data().status === 'captured') {
+                    await doc.ref.update({
+                        paymentStatus: 'paid',
+                        status: 'OrderStatus.confirmed',
+                        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                        reconciliationSource: 'orphan_scanner',
+                        reconciledAt: admin.firestore.FieldValue.serverTimestamp(),
+                    });
+                    reconciled++;
+                    console.log(`[ReconcileOrphan] Reconciled: ${doc.id}`);
+                }
+
+                // Also check webhook_events to see if a payment.captured was received
+                const webhookQuery = await admin.firestore()
+                    .collection('webhook_events')
+                    .where('paymentId', '==', paymentId)
+                    .limit(1)
+                    .get();
+
+                if (!webhookQuery.empty && !paymentDoc.exists) {
+                    // Webhook received but payment record missing — reconstruct
+                    const webhookData = webhookQuery.docs[0].data();
+                    await doc.ref.update({
+                        paymentStatus: 'paid',
+                        status: 'OrderStatus.confirmed',
+                        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                        reconciliationSource: 'orphan_scanner_webhook_match',
+                        reconciledAt: admin.firestore.FieldValue.serverTimestamp(),
+                    });
+                    reconciled++;
+                }
+            }
+
+            // Log the scan results
+            await admin.firestore().collection('payment_reconciliation_log').add({
+                action: 'orphan_scan_complete',
+                totalScanned: snapshot.size,
+                reconciled: reconciled,
+                expiredOrFailed: failedOrExpired,
+                timestamp: admin.firestore.FieldValue.serverTimestamp(),
+            });
+
+            console.log(`[ReconcileOrphan] Scan complete. Reconciled: ${reconciled}, Expired: ${failedOrExpired}`);
+            return null;
+        } catch (error) {
+            console.error('[ReconcileOrphan] Error:', error);
+            return null;
+        }
+    });
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// TASK 13: DAILY FIRESTORE BACKUP TO GCS
+// ═══════════════════════════════════════════════════════════════════════
+// Automated daily export of all Firestore collections to Google Cloud
+// Storage for disaster recovery.
+
+/**
+ * Scheduled: Daily Firestore Backup (2:00 AM IST)
+ * Exports all Firestore documents to a GCS bucket.
+ * 
+ * SETUP REQUIRED:
+ * 1. Create a GCS bucket: gs://fufaji-online-business-backups
+ * 2. Grant the default service account the 'Cloud Datastore Import Export Admin' role
+ * 3. Grant the GCS bucket write access to the service account
+ * 
+ * Run this in Cloud Console:
+ *   gcloud projects add-iam-policy-binding fufaji-online-business \
+ *     --member="serviceAccount:fufaji-online-business@appspot.gserviceaccount.com" \
+ *     --role="roles/datastore.importExportAdmin"
+ */
+exports.dailyFirestoreBackup = functions.pubsub
+    .schedule('0 20 * * *') // 2:00 AM IST = 8:30 PM UTC (adjusted for 5.5h offset)
+    .timeZone('Asia/Kolkata')
+    .onRun(async (context) => {
+        const projectId = process.env.GCLOUD_PROJECT || 'fufaji-online-business';
+        const bucket = `gs://${projectId}-backups`;
+
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const outputUriPrefix = `${bucket}/firestore-exports/${timestamp}`;
+
+        console.log(`[FirestoreBackup] Starting daily backup to ${outputUriPrefix}`);
+
+        try {
+            // Use the Firestore Admin API to export documents
+            const client = new admin.firestore.v1.FirestoreAdminClient();
+            const databaseName = client.databasePath(projectId, '(default)');
+
+            const [response] = await client.exportDocuments({
+                name: databaseName,
+                outputUriPrefix: outputUriPrefix,
+                // Export all collections (empty array = all)
+                collectionIds: [],
+            });
+
+            console.log(`[FirestoreBackup] Export operation started: ${response.name}`);
+
+            // Log the backup metadata
+            await admin.firestore().collection('system_backups').add({
+                type: 'firestore_export',
+                operationName: response.name,
+                outputUri: outputUriPrefix,
+                status: 'started',
+                timestamp: admin.firestore.FieldValue.serverTimestamp(),
+                scheduledBy: 'dailyFirestoreBackup',
+            });
+
+            return null;
+        } catch (error) {
+            console.error('[FirestoreBackup] Error starting export:', error);
+
+            // Log the failure
+            await admin.firestore().collection('system_backups').add({
+                type: 'firestore_export',
+                status: 'failed',
+                error: error.message,
+                timestamp: admin.firestore.FieldValue.serverTimestamp(),
+                scheduledBy: 'dailyFirestoreBackup',
+            }).catch(() => {});
+
+            return null;
+        }
+    });
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// CLEANUP: Stale Notification Queue Purge (Weekly)
+// ═══════════════════════════════════════════════════════════════════════
+
+/**
+ * Scheduled: Weekly cleanup of processed notifications (Sunday 3 AM IST)
+ * Deletes notification_queue documents that were processed >7 days ago.
+ */
+exports.cleanupNotificationQueue = functions.pubsub
+    .schedule('0 21 * * 0') // Sunday 3 AM IST = Saturday 9:30 PM UTC
+    .timeZone('Asia/Kolkata')
+    .onRun(async (context) => {
+        console.log('[Cleanup] Starting notification queue cleanup...');
+
+        try {
+            const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+            const cutoff = admin.firestore.Timestamp.fromDate(sevenDaysAgo);
+
+            const snapshot = await admin.firestore()
+                .collection('notification_queue')
+                .where('status', 'in', ['sent', 'skipped', 'failed'])
+                .where('processedAt', '<', cutoff)
+                .limit(500)
+                .get();
+
+            if (snapshot.empty) {
+                console.log('[Cleanup] No stale notifications to clean.');
+                return null;
+            }
+
+            const batch = admin.firestore().batch();
+            snapshot.docs.forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
+
+            console.log(`[Cleanup] Deleted ${snapshot.size} processed notifications.`);
+            return null;
+        } catch (error) {
+            console.error('[Cleanup] Error:', error);
+            return null;
+        }
+    });

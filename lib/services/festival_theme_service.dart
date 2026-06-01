@@ -6,8 +6,37 @@ class FestivalThemeService {
   factory FestivalThemeService() => _instance;
   FestivalThemeService._internal();
 
-  /// Gets the current active festival mode from Remote Config
-  String get currentFestival => RemoteConfigService().festivalMode;
+  /// Localized calendar of Indian festivals mapping (MM-DD)
+  static const Map<String, String> _festivalDates = {
+    '01-14': 'makar_sankranti',
+    '03-10': 'holi',
+    '08-15': 'independence_day',
+    '10-30': 'diwali',
+    '12-25': 'christmas',
+  };
+
+  /// Auto detects if there is an upcoming festival within 7 days
+  String get currentFestival {
+    // 1. Try remote config override first
+    final configVal = RemoteConfigService().festivalMode;
+    if (configVal != 'none' && configVal.isNotEmpty) {
+      return configVal;
+    }
+
+    // 2. Check local calendar auto triggers
+    final now = DateTime.now();
+    for (int i = 0; i <= 7; i++) {
+      final checkDate = now.add(Duration(days: i));
+      final monthStr = checkDate.month.toString().padLeft(2, '0');
+      final dayStr = checkDate.day.toString().padLeft(2, '0');
+      final key = '$monthStr-$dayStr';
+      if (_festivalDates.containsKey(key)) {
+        return _festivalDates[key]!;
+      }
+    }
+
+    return 'none';
+  }
 
   /// Returns a primary color based on the active festival
   Color getFestivalPrimaryColor(BuildContext context) {
@@ -31,7 +60,7 @@ class FestivalThemeService {
       case 'diwali':
         return const BoxDecoration(
           image: DecorationImage(
-            image: NetworkImage('https://example.com/diwali_pattern.png'),
+            image: NetworkImage('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=400'),
             repeat: ImageRepeat.repeat,
             opacity: 0.1,
           ),

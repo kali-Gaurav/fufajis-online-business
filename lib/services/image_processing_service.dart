@@ -129,4 +129,22 @@ class ImageProcessingService {
   Future<File> sharpenImage(File imageFile) async {
     return imageFile;
   }
+
+  /// Uploads a compressed image to Firebase Storage (Step 8.2)
+  Future<String?> uploadCompressedImage(XFile image, String path) async {
+    try {
+      final bytes = await image.readAsBytes();
+      // Compression is implicitly handled by pickImage's quality in real usage,
+      // here we just upload the bytes.
+      final ref = _storage.ref().child(path);
+      final uploadTask = await ref.putData(
+        bytes, 
+        SettableMetadata(contentType: 'image/jpeg'),
+      );
+      return await uploadTask.ref.getDownloadURL();
+    } catch (e) {
+      debugPrint('[ImageProcessingService] Upload failed: $e');
+      return null;
+    }
+  }
 }

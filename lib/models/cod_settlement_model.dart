@@ -5,7 +5,12 @@ class CodSettlementModel {
   final String riderId;
   final String riderName;
   final String riderPhone;
-  final double amount;
+  final double amount; // backward-compatibility
+  final double expectedAmount;
+  final double receivedAmount;
+  final double difference;
+  final String? approvedBy; // managerId
+  final String? reason;
   final String status; // 'pending', 'approved', 'rejected'
   final DateTime submittedAt;
   final DateTime? resolvedAt;
@@ -17,6 +22,11 @@ class CodSettlementModel {
     required this.riderName,
     required this.riderPhone,
     required this.amount,
+    required this.expectedAmount,
+    required this.receivedAmount,
+    required this.difference,
+    this.approvedBy,
+    this.reason,
     required this.status,
     required this.submittedAt,
     this.resolvedAt,
@@ -30,6 +40,11 @@ class CodSettlementModel {
       riderName: map['riderName'] ?? '',
       riderPhone: map['riderPhone'] ?? '',
       amount: (map['amount'] ?? 0.0).toDouble(),
+      expectedAmount: (map['expectedAmount'] ?? 0.0).toDouble(),
+      receivedAmount: (map['receivedAmount'] ?? 0.0).toDouble(),
+      difference: (map['difference'] ?? 0.0).toDouble(),
+      approvedBy: map['approvedBy'],
+      reason: map['reason'],
       status: map['status'] ?? 'pending',
       submittedAt: map['submittedAt'] != null 
           ? (map['submittedAt'] as Timestamp).toDate() 
@@ -48,6 +63,11 @@ class CodSettlementModel {
       'riderName': riderName,
       'riderPhone': riderPhone,
       'amount': amount,
+      'expectedAmount': expectedAmount,
+      'receivedAmount': receivedAmount,
+      'difference': difference,
+      'approvedBy': approvedBy,
+      'reason': reason,
       'status': status,
       'submittedAt': Timestamp.fromDate(submittedAt),
       'resolvedAt': resolvedAt != null ? Timestamp.fromDate(resolvedAt!) : null,
@@ -61,6 +81,11 @@ class CodSettlementModel {
     String? riderName,
     String? riderPhone,
     double? amount,
+    double? expectedAmount,
+    double? receivedAmount,
+    double? difference,
+    String? approvedBy,
+    String? reason,
     String? status,
     DateTime? submittedAt,
     DateTime? resolvedAt,
@@ -72,6 +97,11 @@ class CodSettlementModel {
       riderName: riderName ?? this.riderName,
       riderPhone: riderPhone ?? this.riderPhone,
       amount: amount ?? this.amount,
+      expectedAmount: expectedAmount ?? this.expectedAmount,
+      receivedAmount: receivedAmount ?? this.receivedAmount,
+      difference: difference ?? this.difference,
+      approvedBy: approvedBy ?? this.approvedBy,
+      reason: reason ?? this.reason,
       status: status ?? this.status,
       submittedAt: submittedAt ?? this.submittedAt,
       resolvedAt: resolvedAt ?? this.resolvedAt,
@@ -79,3 +109,4 @@ class CodSettlementModel {
     );
   }
 }
+

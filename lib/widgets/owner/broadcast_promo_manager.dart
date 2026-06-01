@@ -31,7 +31,7 @@ class _BroadcastPromoManagerState extends State<BroadcastPromoManager> {
           const Text('Broadcast Promo (Area-Specific)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
-            value: _selectedVillage,
+            initialValue: _selectedVillage,
             decoration: const InputDecoration(labelText: 'Target Village', border: OutlineInputBorder()),
             items: _villages.map((v) => DropdownMenuItem(value: v, child: Text(v))).toList(),
             onChanged: (v) => setState(() => _selectedVillage = v!),

@@ -9,7 +9,7 @@ import '../../services/offline_sync_service.dart';
 import 'trip_route_sheet.dart';
 import '../../utils/app_theme.dart';
 import '../../providers/auth_provider.dart';
-import '../../services/firestore_service.dart';
+import '../../services/fleet_service.dart';
 import '../../models/attendance_model.dart';
 import '../../services/offline_routing_service.dart';
 import 'delivery_earnings_screen.dart';
@@ -19,6 +19,7 @@ import '../../providers/delivery_provider.dart';
 import '../../models/order_model.dart';
 import '../../models/user_model.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../widgets/common/banner_ad_widget.dart';
 
 import '../../widgets/common/role_restricted_widget.dart';
@@ -161,7 +162,7 @@ class DeliveryHomePage extends StatefulWidget {
 }
 
 class _DeliveryHomePageState extends State<DeliveryHomePage> {
-  final FirestoreService _firestoreService = FirestoreService();
+  final FleetService _fleetService = FleetService();
   final OfflineRoutingService _routingService = OfflineRoutingService();
 
   // Store coordinates (Jaipur Central Shop)
@@ -261,7 +262,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
     );
 
     try {
-      await _firestoreService.clockInRider(newAttendance);
+      await _fleetService.clockInRider(newAttendance);
       if (!mounted) return;
       setState(() => _isLoadingLocation = false);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -295,7 +296,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
     }
 
     try {
-      await _firestoreService.clockOutRider(activeShift.id, currentLat, currentLng);
+      await _fleetService.clockOutRider(activeShift.id, currentLat, currentLng);
       _shiftTimer?.cancel();
       _shiftTimer = null;
       _activeClockInTime = null;
@@ -349,7 +350,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
     });
 
     return StreamBuilder<List<AttendanceModel>>(
-      stream: _firestoreService.getRiderAttendanceStream(riderId),
+      stream: _fleetService.getRiderAttendanceStream(riderId),
       builder: (context, snapshot) {
         AttendanceModel? activeShift;
         List<AttendanceModel> history = [];
@@ -401,6 +402,9 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
               _buildStatsGrid(deliveryProvider),
               const SizedBox(height: 24),
 
+              _buildCashCollectionSummaryCard(riderId),
+              const SizedBox(height: 24),
+
               // Shift Logs Checklist / History
               _buildShiftHistorySection(history),
               const SizedBox(height: 24),
@@ -417,7 +421,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
               _buildQuickActions(),
               
               const SizedBox(height: 32),
-              Center(
+              const Center(
                 child: Text(
                   'Fufaji Delivery v2.4.0 • Enterprise Edition',
                   style: TextStyle(fontSize: 10, color: AppTheme.grey400),
@@ -1130,7 +1134,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                   ],
                 ),
               );
-            }).toList(),
+            }),
         ],
       ),
     );
@@ -1235,7 +1239,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                   ],
                 ),
               );
-            }).toList(),
+            }),
         ],
       ),
     );
@@ -1400,6 +1404,118 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildCashCollectionSummaryCard(String riderId) {
+    final startOfDay = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('orders')
+          .where('deliveryAgentId', isEqualTo: riderId)
+          .where('status', isEqualTo: 'OrderStatus.delivered')
+          .where('paymentMethod', isEqualTo: 'PaymentMethod.cod')
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const SizedBox.shrink();
+        }
+
+        final docs = snapshot.data!.docs;
+        
+        // Filter locally by deliveredAt >= startOfDay
+        final todayDocs = docs.where((doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          final timestamp = data['deliveredAt'] as Timestamp?;
+          if (timestamp == null) return false;
+          return timestamp.toDate().isAfter(startOfDay);
+        }).toList();
+
+        double totalCashCollected = 0.0;
+        for (var doc in todayDocs) {
+          final data = doc.data() as Map<String, dynamic>;
+          totalCashCollected += (data['cashCollectedAmount'] ?? data['totalAmount'] ?? 0.0).toDouble();
+        }
+
+        if (totalCashCollected == 0.0) {
+          return const SizedBox.shrink(); // Hide if no COD collected today
+        }
+
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF8E2DE2).withValues(alpha: 0.3),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.account_balance_wallet, color: Colors.white, size: 28),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'COD CASH COLLECTED TODAY',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white70,
+                        letterSpacing: 1.1,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '₹${totalCashCollected.round()}',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  // Direct to settlements management or earnings page
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please submit settlement from the Earnings page.')),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: const Color(0xFF4A00E0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('Settlements'),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

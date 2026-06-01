@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'wallet_service.dart';
 import 'membership_tier_calculator.dart';
+import 'shop_config_service.dart';
 
 /// CashbackCalculator handles cashback calculation and application
 /// 
@@ -38,14 +39,21 @@ class CashbackCalculator {
     required String orderId,
   }) async {
     try {
+      final config = await ShopConfigService().getShopConfig();
+      if (!config.enableCashback) {
+        debugPrint('Cashback is disabled in shop configuration.');
+        return false;
+      }
+
       // Get user's membership tier to determine cashback multiplier
       final tier = await _tierCalculator.getUserTier(userId);
       final tierBenefits = _tierCalculator.getTierBenefits(tier);
       final cashbackMultiplier =
           (tierBenefits['cashbackPercentage'] ?? 1.0) / 1.0;
 
-      // Calculate cashback amount
-      final cashbackAmount = calculateCashback(orderAmount, multiplier: cashbackMultiplier);
+      // Calculate cashback amount using config percentage
+      final baseCashbackPct = config.cashbackPercentage / 100.0;
+      final cashbackAmount = orderAmount * baseCashbackPct * cashbackMultiplier;
 
       // Add to wallet
       final success = await _walletService.addToWallet(
@@ -54,6 +62,7 @@ class CashbackCalculator {
         transactionType: WalletTransactionType.cashback,
         orderReference: orderId,
         description: 'Cashback for Order #$orderId',
+        transactionId: 'txn_cashback_$orderId',
       );
 
       if (success) {
@@ -73,23 +82,32 @@ class CashbackCalculator {
     required double orderAmount,
   }) async {
     try {
+      final config = await ShopConfigService().getShopConfig();
+      if (!config.enableCashback) return 0.0;
+
       final tier = await _tierCalculator.getUserTier(userId);
       final tierBenefits = _tierCalculator.getTierBenefits(tier);
-      final cashbackPercentage = (tierBenefits['cashbackPercentage'] ?? 1.0) / 100.0;
+      final tierMultiplier = (tierBenefits['cashbackPercentage'] ?? 1.0);
 
-      return orderAmount * cashbackPercentage;
+      final baseCashbackPct = config.cashbackPercentage / 100.0;
+      return orderAmount * baseCashbackPct * tierMultiplier;
     } catch (e) {
       debugPrint('Error getting cashback amount: $e');
-      return orderAmount * baseCashbackPercentage;
+      final config = ShopConfigService().cachedConfig;
+      final basePct = config != null ? config.cashbackPercentage / 100.0 : baseCashbackPercentage;
+      return orderAmount * basePct;
     }
   }
 
   /// Gets cashback percentage for a user's tier
   Future<double> getCashbackPercentage(String userId) async {
     try {
+      final config = await ShopConfigService().getShopConfig();
+      if (!config.enableCashback) return 0.0;
       final tier = await _tierCalculator.getUserTier(userId);
       final tierBenefits = _tierCalculator.getTierBenefits(tier);
-      return (tierBenefits['cashbackPercentage'] ?? 1.0);
+      final multiplier = (tierBenefits['cashbackPercentage'] ?? 1.0);
+      return config.cashbackPercentage * multiplier;
     } catch (e) {
       debugPrint('Error getting cashback percentage: $e');
       return 1.0;

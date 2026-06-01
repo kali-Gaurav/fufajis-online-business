@@ -3,20 +3,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/product_model.dart';
 import '../models/low_stock_alert_model.dart';
-import '../services/firestore_service.dart';
-import '../services/cache_service.dart';
+import '../services/product_service.dart';
 import '../services/inventory_alert_service.dart';
 import '../services/expiry_checker_service.dart';
-import '../services/pricing_engine.dart';
-import 'dart:convert';
 import 'dart:async';
+import '../utils/db_seeder.dart';
 
 class ProductProvider with ChangeNotifier {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
-  final FirestoreService _firestoreService = FirestoreService();
+  final ProductService _productService = ProductService();
   final InventoryAlertService _inventoryAlertService = InventoryAlertService();
   final ExpiryCheckerService _expiryCheckerService = ExpiryCheckerService();
-  final PricingEngineService _pricingEngineService = PricingEngineService();
   
   List<ProductModel> _products = [];
   List<ProductModel> _featuredProducts = [];
@@ -55,6 +52,18 @@ class ProductProvider with ChangeNotifier {
     _loadWishlist();
     _initFirestoreListener();
     _listenToLowStock();
+    _runDailyExpiryChecks();
+  }
+
+  Future<void> _runDailyExpiryChecks() async {
+    if (_shopId == null) return;
+    try {
+      await _expiryCheckerService.checkAndApplyDiscounts(_shopId!);
+      await _expiryCheckerService.removeExpiredProducts(_shopId!);
+      await _expiryCheckerService.applyNearExpiryDiscount(daysBeforeExpiry: 3, discountPercent: 20.0);
+    } catch (e) {
+      debugPrint('Error running daily expiry checks: $e');
+    }
   }
 
   void _loadWishlist() {
@@ -78,6 +87,7 @@ class ProductProvider with ChangeNotifier {
     if (_shopId != id) {
       _shopId = id;
       _updateInventoryHealth();
+      _runDailyExpiryChecks();
     }
   }
 
@@ -91,12 +101,43 @@ class ProductProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Sorts products based on criterion (Step 10.4)
+  void sortProducts(String criterion) {
+    switch (criterion) {
+      case 'price_low_high':
+        _products.sort((a, b) => a.price.compareTo(b.price));
+        break;
+      case 'price_high_low':
+        _products.sort((a, b) => b.price.compareTo(a.price));
+        break;
+      case 'newest':
+        _products.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        break;
+      case 'popularity':
+        _products.sort((a, b) => (b.isTrending ? 1 : 0).compareTo(a.isTrending ? 1 : 0));
+        break;
+    }
+    notifyListeners();
+  }
+
   ProductModel? getProductById(String id) {
     try {
       return _products.firstWhere((p) => p.id == id);
     } catch (e) {
       return null;
     }
+  }
+
+  ProductModel? getProductByBarcode(String barcode) {
+    try {
+      return _products.firstWhere((p) => p.barcode == barcode);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  List<ProductModel> getProductsWithExpiry() {
+    return _products.where((p) => p.expiryDate != null).toList();
   }
 
   Future<void> _updateInventoryHealth() async {
@@ -106,10 +147,36 @@ class ProductProvider with ChangeNotifier {
   }
 
   void _listenToLowStock() {
-    _firestoreService.getLowStockAlertsStream().listen((alerts) {
+    _productService.getLowStockAlertsStream().listen((alerts) {
       _lowStockAlerts = alerts;
       notifyListeners();
     });
+  }
+
+  Future<void> checkAllProductsLowStock() async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final alertService = InventoryAlertService();
+      
+      for (var product in _products) {
+        if (product.stockQuantity < product.minimumStock) {
+          await _productService.createLowStockAlert(product);
+        } else {
+          final velocityData = await alertService.calculateSalesVelocityWithTrend(product.id);
+          final daysUntilStockout = await alertService.predictDaysUntilStockout(product.id, product.stockQuantity, precalculatedVelocity: velocityData);
+          if (daysUntilStockout <= 7) {
+            await _productService.createLowStockAlert(product);
+          }
+        }
+      }
+      await _updateInventoryHealth();
+    } catch (e) {
+      debugPrint('Error checking low stock: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   DocumentSnapshot? _lastProductDoc;
@@ -219,7 +286,15 @@ class ProductProvider with ChangeNotifier {
 
   Future<void> seedDatabase() async {
     // In a professional build, this would be restricted to Admin
-    await _firestoreService.batchAddProducts(_getMockProducts());
+    await _productService.batchAddProducts(_getMockProducts());
+    try {
+      await DatabaseSeeder.seedPurchaseOrdersAndLocations(
+        shopId: _shopId ?? 'shop_001',
+        branchId: 'branch_001',
+      );
+    } catch (e) {
+      debugPrint('Error seeding mock POs and locations: $e');
+    }
   }
 
   void loadMockProducts() {
@@ -313,15 +388,15 @@ class ProductProvider with ChangeNotifier {
   }
 
   Future<void> addProduct(ProductModel product) async {
-    await _firestoreService.addProduct(product);
+    await _productService.addProduct(product);
   }
 
   Future<void> updateProduct(ProductModel product) async {
-    await _firestoreService.updateProduct(product.id, product.toMap());
+    await _productService.updateProduct(product.id, product.toMap());
   }
 
   Future<void> deleteProduct(String productId) async {
-    await _firestoreService.deleteProduct(productId);
+    await _productService.deleteProduct(productId);
   }
 
   Future<Map<String, dynamic>> getPricingRules() async {

@@ -44,7 +44,22 @@ class InventoryAlertService {
           .get();
 
       if (snapshot.docs.isEmpty) {
-        return 0.0;
+        // Fallback: Query from actual completed orders in '/orders'
+        final ordersSnapshot = await _firestore
+            .collection('orders')
+            .where('status', isEqualTo: 'delivered')
+            .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
+            .get();
+        int totalUnits = 0;
+        for (var doc in ordersSnapshot.docs) {
+          final items = (doc.data()['items'] as List?) ?? [];
+          for (var item in items) {
+            if (item['productId'] == productId) {
+              totalUnits += (item['quantity'] as num?)?.toInt() ?? 0;
+            }
+          }
+        }
+        return totalUnits / days;
       }
 
       // Calculate total units sold
@@ -74,30 +89,67 @@ class InventoryAlertService {
       final midDate = now.subtract(Duration(days: days ~/ 2));
 
       // Get first half sales
-      final firstHalfSnapshot = await _salesHistoryCollection(productId)
+      var firstHalfSnapshot = await _salesHistoryCollection(productId)
           .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
           .where('createdAt', isLessThan: Timestamp.fromDate(midDate))
           .get();
 
       // Get second half sales
-      final secondHalfSnapshot = await _salesHistoryCollection(productId)
+      var secondHalfSnapshot = await _salesHistoryCollection(productId)
           .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(midDate))
           .get();
 
       int firstHalfUnits = 0;
-      for (final doc in firstHalfSnapshot.docs) {
-        final data = doc.data() as Map<String, dynamic>?;
-        firstHalfUnits += (data?['quantity'] as int?) ?? 0;
-      }
-
       int secondHalfUnits = 0;
-      for (final doc in secondHalfSnapshot.docs) {
-        final data = doc.data() as Map<String, dynamic>?;
-        secondHalfUnits += (data?['quantity'] as int?) ?? 0;
+      int totalDataPoints = firstHalfSnapshot.docs.length + secondHalfSnapshot.docs.length;
+
+      if (totalDataPoints == 0) {
+        // Fallback: Query from actual completed orders in '/orders'
+        final firstHalfOrders = await _firestore
+            .collection('orders')
+            .where('status', isEqualTo: 'delivered')
+            .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
+            .where('createdAt', isLessThan: Timestamp.fromDate(midDate))
+            .get();
+
+        final secondHalfOrders = await _firestore
+            .collection('orders')
+            .where('status', isEqualTo: 'delivered')
+            .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(midDate))
+            .get();
+
+        for (var doc in firstHalfOrders.docs) {
+          final items = (doc.data()['items'] as List?) ?? [];
+          for (var item in items) {
+            if (item['productId'] == productId) {
+              firstHalfUnits += (item['quantity'] as num?)?.toInt() ?? 0;
+            }
+          }
+        }
+
+        for (var doc in secondHalfOrders.docs) {
+          final items = (doc.data()['items'] as List?) ?? [];
+          for (var item in items) {
+            if (item['productId'] == productId) {
+              secondHalfUnits += (item['quantity'] as num?)?.toInt() ?? 0;
+            }
+          }
+        }
+        totalDataPoints = firstHalfOrders.docs.length + secondHalfOrders.docs.length;
+      } else {
+        for (final doc in firstHalfSnapshot.docs) {
+          final data = doc.data() as Map<String, dynamic>?;
+          firstHalfUnits += (data?['quantity'] as int?) ?? 0;
+        }
+
+        for (final doc in secondHalfSnapshot.docs) {
+          final data = doc.data() as Map<String, dynamic>?;
+          secondHalfUnits += (data?['quantity'] as int?) ?? 0;
+        }
       }
 
-      final firstHalfVelocity = firstHalfUnits / (days / 2);
-      final secondHalfVelocity = secondHalfUnits / (days / 2);
+      final double firstHalfVelocity = firstHalfUnits / (days / 2);
+      final double secondHalfVelocity = secondHalfUnits / (days / 2);
 
       // Calculate trend
       String trend = 'stable';
@@ -105,17 +157,21 @@ class InventoryAlertService {
 
       if (secondHalfVelocity > firstHalfVelocity * 1.1) {
         trend = 'increasing';
-        trendPercentage = ((secondHalfVelocity - firstHalfVelocity) / firstHalfVelocity) * 100;
+        trendPercentage = firstHalfVelocity > 0
+            ? ((secondHalfVelocity - firstHalfVelocity) / firstHalfVelocity) * 100
+            : 100.0;
       } else if (secondHalfVelocity < firstHalfVelocity * 0.9) {
         trend = 'decreasing';
-        trendPercentage = ((firstHalfVelocity - secondHalfVelocity) / firstHalfVelocity) * 100;
+        trendPercentage = firstHalfVelocity > 0
+            ? ((firstHalfVelocity - secondHalfVelocity) / firstHalfVelocity) * 100
+            : 0.0;
       }
 
       return {
         'velocity': secondHalfVelocity,
         'trend': trend,
         'trendPercentage': trendPercentage.round(),
-        'confidence': _calculateConfidence(firstHalfSnapshot.docs.length + secondHalfSnapshot.docs.length),
+        'confidence': _calculateConfidence(totalDataPoints),
       };
     } catch (e) {
       print('Error calculating sales velocity with trend: $e');
@@ -126,6 +182,17 @@ class InventoryAlertService {
         'confidence': 0.0,
       };
     }
+  }
+
+  /// Predict stockout days (wrapper for predictDaysUntilStockout for naming parity)
+  Future<int> predictStockout(String productId, int currentStock) async {
+    return predictDaysUntilStockout(productId, currentStock);
+  }
+
+  /// Get restock suggestions for items predicted to run out within 3 days
+  Future<List<Map<String, dynamic>>> getRestockSuggestions(String shopId) async {
+    final alerts = await checkLowStock(shopId);
+    return alerts.where((alert) => (alert['daysUntilStockout'] as int) <= 3).toList();
   }
 
   /// Calculate confidence level based on data points
@@ -470,7 +537,7 @@ class InventoryAlertService {
     // Calculate total reorder cost (mock calculation)
     final totalReorderCost = alerts.fold<int>(
       0,
-      (sum, alert) => sum + (alert['reorderQuantity'] as int) * 50, // Mock price
+      (total, alert) => total + (alert['reorderQuantity'] as int) * 50, // Mock price
     );
 
     return {

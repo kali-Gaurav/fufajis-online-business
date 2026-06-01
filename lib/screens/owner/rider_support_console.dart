@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../services/firestore_service.dart';
+import '../../services/chat_service.dart';
 import '../../models/chat_message_model.dart';
 import '../../utils/app_theme.dart';
 
@@ -12,7 +12,7 @@ class RiderSupportConsole extends StatefulWidget {
 }
 
 class _RiderSupportConsoleState extends State<RiderSupportConsole> {
-  final FirestoreService _firestoreService = FirestoreService();
+  final ChatService _chatService = ChatService();
   final TextEditingController _replyController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
@@ -66,7 +66,7 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
     _replyController.clear();
 
     try {
-      await _firestoreService.sendSupportMessage(replyMsg);
+      await _chatService.sendSupportMessage(replyMsg);
       _scrollToBottom();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -100,7 +100,7 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
 
   Widget _buildSidebar() {
     return StreamBuilder<List<ChatMessageModel>>(
-      stream: _firestoreService.getOwnerChatChannelsStream(),
+      stream: _chatService.getOwnerChatChannelsStream(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -298,7 +298,7 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
     final riderName = _selectedRiderName ?? 'Rider';
 
     // Mark incoming messages as read
-    _firestoreService.markMessagesAsRead(channelId, 'owner_admin');
+    _chatService.markMessagesAsRead(channelId, 'owner_admin');
 
     return Column(
       children: [
@@ -346,7 +346,7 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
         // Messages Area
         Expanded(
           child: StreamBuilder<List<ChatMessageModel>>(
-            stream: _firestoreService.getRiderChatStream(channelId),
+            stream: _chatService.getRiderChatStream(channelId),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());

@@ -6,7 +6,7 @@ import '../../utils/app_theme.dart';
 import '../../models/order_model.dart';
 import '../../models/payment_method.dart';
 import '../../providers/order_provider.dart';
-import '../../services/firestore_service.dart';
+import '../../services/order_service.dart';
 
 class OrdersManagementScreen extends StatefulWidget {
   const OrdersManagementScreen({super.key});
@@ -23,7 +23,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
     'Out for Delivery',
     'Completed'
   ];
-  final FirestoreService _firestoreService = FirestoreService();
+  final OrderService _orderService = OrderService();
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +103,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
           const SizedBox(height: 24),
           // Orders Stream
           StreamBuilder<List<OrderModel>>(
-            stream: _firestoreService.getAllOrdersStream(),
+            stream: _orderService.getAllOrdersStream(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -353,7 +353,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                   children: [
                     OutlinedButton(
                       onPressed: () async {
-                        await _firestoreService.updateOrderStatus(
+                        await _orderService.updateOrderStatus(
                             order.id, 'cancelled');
                       },
                       style: OutlinedButton.styleFrom(
@@ -372,7 +372,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                           await Provider.of<OrderProvider>(context, listen: false)
                               .approveOrderAndPayment(order.id);
                         } else {
-                          await _firestoreService.updateOrderStatus(
+                          await _orderService.updateOrderStatus(
                               order.id, 'confirmed');
                         }
                       },
@@ -410,7 +410,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
               if (order.status == OrderStatus.packed)
                 ElevatedButton(
                   onPressed: () async {
-                    await _firestoreService.updateOrderStatus(
+                    await _orderService.updateOrderStatus(
                         order.id, 'outForDelivery');
                   },
                   style: ElevatedButton.styleFrom(

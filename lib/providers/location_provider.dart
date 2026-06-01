@@ -3,6 +3,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import '../config/app_config.dart';
 import '../models/user_model.dart';
+import '../services/shop_config_service.dart';
 
 class LocationProvider with ChangeNotifier {
   Position? _currentPosition;
@@ -12,6 +13,7 @@ class LocationProvider with ChangeNotifier {
   String _pincode = '';
   double _latitude = 0.0;
   double _longitude = 0.0;
+  Address? _selectedAddress;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -25,7 +27,16 @@ class LocationProvider with ChangeNotifier {
   String get pincode => _pincode;
   double get latitude => _latitude;
   double get longitude => _longitude;
-  double get deliveryRadiusKm => AppConfig.deliveryRadiusKm;
+  Address? get selectedAddress => _selectedAddress;
+
+  void setSelectedAddress(Address? address) {
+    _selectedAddress = address;
+    notifyListeners();
+  }
+  double get deliveryRadiusKm {
+    final config = ShopConfigService().cachedConfig;
+    return config?.maxDeliveryRadiusKm ?? AppConfig.deliveryRadiusKm;
+  }
 
   // Check if location service is enabled
   Future<bool> checkLocationService() async {
@@ -153,9 +164,12 @@ class LocationProvider with ChangeNotifier {
     required double latitude,
     required double longitude,
   }) {
+    final config = ShopConfigService().cachedConfig;
+    final shopLat = config?.shopLatitude ?? AppConfig.shopLatitude;
+    final shopLng = config?.shopLongitude ?? AppConfig.shopLongitude;
     return calculateDistance(
-      AppConfig.shopLatitude,
-      AppConfig.shopLongitude,
+      shopLat,
+      shopLng,
       latitude,
       longitude,
     );
@@ -165,11 +179,21 @@ class LocationProvider with ChangeNotifier {
     required double latitude,
     required double longitude,
   }) {
-    return distanceFromShopInMeters(
-          latitude: latitude,
-          longitude: longitude,
-        ) <=
-        AppConfig.deliveryRadiusMeters;
+    final service = ShopConfigService();
+    final config = service.cachedConfig;
+    if (config == null) {
+      return distanceFromShopInMeters(
+            latitude: latitude,
+            longitude: longitude,
+          ) <=
+          AppConfig.deliveryRadiusMeters;
+    }
+    return service.isWithinDeliveryArea(
+      latitude,
+      longitude,
+      config,
+      service.cachedBranches,
+    );
   }
 
   bool isAddressWithinDeliveryRadius(Address address) {
@@ -183,12 +207,13 @@ class LocationProvider with ChangeNotifier {
     final distanceKm =
         distanceFromShopInMeters(latitude: address.latitude, longitude: address.longitude) /
             1000;
+    final limit = deliveryRadiusKm;
 
-    if (distanceKm <= AppConfig.deliveryRadiusKm) {
-      return 'Delivery available: ${distanceKm.toStringAsFixed(1)} km from shop.';
+    if (isAddressWithinDeliveryRadius(address)) {
+      return 'Delivery available: ${distanceKm.toStringAsFixed(1)} km from shop/branch.';
     }
 
-    return 'Delivery not available: this address is ${distanceKm.toStringAsFixed(1)} km away. We currently deliver within ${AppConfig.deliveryRadiusKm.toStringAsFixed(0)} km.';
+    return 'Delivery not available: this address is ${distanceKm.toStringAsFixed(1)} km away. We currently deliver within ${limit.toStringAsFixed(0)} km.';
   }
 
   // Get estimated delivery time based on distance

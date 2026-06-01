@@ -10,6 +10,9 @@ import '../../utils/app_theme.dart';
 
 import '../../widgets/common/role_restricted_widget.dart';
 
+import '../../models/product_model.dart';
+import '../../providers/product_provider.dart';
+
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -22,6 +25,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final orderProvider = Provider.of<OrderProvider>(context);
+    final productProvider = Provider.of<ProductProvider>(context);
     final user = authProvider.currentUser;
 
     return Scaffold(
@@ -30,6 +34,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             // Profile Header
             _buildProfileHeader(user),
+            const SizedBox(height: 16),
+            // Buy Again Section (Step 15.3)
+            _buildBuyAgainSection(orderProvider, productProvider),
             const SizedBox(height: 16),
             // Wallet & Rewards
             _buildWalletSection(user),
@@ -133,6 +140,72 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildBuyAgainSection(OrderProvider orderProvider, ProductProvider productProvider) {
+    final recentIds = orderProvider.getFrequentlyBoughtProductIds();
+    if (recentIds.isEmpty) return const SizedBox.shrink();
+    
+    final products = recentIds
+        .map((id) => productProvider.getProductById(id))
+        .whereType<ProductModel>()
+        .toList();
+
+    if (products.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Text(
+            'Buy Again',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey900),
+          ),
+        ),
+        SizedBox(
+          height: 180,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            itemCount: products.length,
+            itemBuilder: (context, index) {
+              final product = products[index];
+              return Container(
+                width: 140,
+                margin: const EdgeInsets.only(right: 12),
+                child: Card(
+                  elevation: 1,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  child: InkWell(
+                    onTap: () => context.push('/customer/product/${product.id}'),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                            child: Image.network(product.imageUrl, fit: BoxFit.cover, width: double.infinity),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            product.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 

@@ -5,6 +5,7 @@
     "phone_number": "+15017122661"
   },
   "razorpay": {
+    "key_id": "rzp_live_Sr7JfZt4NbXzMw",
     "webhook_secret": "ieGG9GcxgN0km2ZVcGyaGEG6",
     "key_secret": "ieGG9GcxgN0km2ZVcGyaGEG6"
   }

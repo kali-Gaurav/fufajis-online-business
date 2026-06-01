@@ -7,15 +7,18 @@ class ProductReviewModel {
   final double rating; // 1-5 stars
   final String comment;
   final List<String> mediaUrls; // Up to 3 images
+  final String? videoUrl; // Step 14.1
   final DateTime createdAt;
-  final String? orderId; // Reference to order for one-review-per-order validation
+  final String? orderId; // Reference to order
   final bool isVerifiedPurchase;
   final String? ownerReply; // Shop owner response
   final DateTime? ownerReplyDate;
   final bool isFlagged; // For moderation
   final bool isApproved; // Admin approval status
   final int helpfulCount; // Number of users who found this helpful
-  final List<String> flagReasons; // Reasons for flagging
+  final List<String> flagReasons;
+
+
 
   ProductReviewModel({
     required this.id,
@@ -35,6 +38,7 @@ class ProductReviewModel {
     this.isApproved = true,
     this.helpfulCount = 0,
     this.flagReasons = const [],
+    this.videoUrl,
   });
 
   factory ProductReviewModel.fromMap(Map<String, dynamic> map) {
@@ -47,6 +51,7 @@ class ProductReviewModel {
       rating: (map['rating'] ?? 0.0).toDouble(),
       comment: map['comment'] ?? '',
       mediaUrls: List<String>.from(map['mediaUrls'] ?? []),
+      videoUrl: map['videoUrl'],
       createdAt: map['createdAt']?.toDate() ?? DateTime.now(),
       orderId: map['orderId'],
       isVerifiedPurchase: map['isVerifiedPurchase'] ?? false,
@@ -69,6 +74,7 @@ class ProductReviewModel {
       'rating': rating,
       'comment': comment,
       'mediaUrls': mediaUrls,
+      'videoUrl': videoUrl,
       'createdAt': createdAt,
       'orderId': orderId,
       'isVerifiedPurchase': isVerifiedPurchase,
@@ -90,6 +96,7 @@ class ProductReviewModel {
     double? rating,
     String? comment,
     List<String>? mediaUrls,
+    String? videoUrl,
     DateTime? createdAt,
     String? orderId,
     bool? isVerifiedPurchase,
@@ -109,6 +116,7 @@ class ProductReviewModel {
       rating: rating ?? this.rating,
       comment: comment ?? this.comment,
       mediaUrls: mediaUrls ?? this.mediaUrls,
+      videoUrl: videoUrl ?? this.videoUrl,
       createdAt: createdAt ?? this.createdAt,
       orderId: orderId ?? this.orderId,
       isVerifiedPurchase: isVerifiedPurchase ?? this.isVerifiedPurchase,

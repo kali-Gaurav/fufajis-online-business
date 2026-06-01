@@ -21,6 +21,8 @@ class _FastCheckoutScreenState extends State<FastCheckoutScreen> {
   bool _isProcessing = false;
   Address? _selectedAddress;
   PaymentMethod _paymentMethod = PaymentMethod.cod;
+  String? _stableOrderId;
+  String? _stableOrderNumber;
 
   @override
   void initState() {
@@ -56,12 +58,17 @@ class _FastCheckoutScreenState extends State<FastCheckoutScreen> {
     final orderProvider = context.read<OrderProvider>();
     final user = auth.currentUser;
 
+    final userId = auth.currentUser?.id ?? 'user_001';
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    _stableOrderId ??= 'ord_${userId}_$timestamp';
+    _stableOrderNumber ??= auth.generateOrderNumber();
+
     final order = OrderModel(
-      id: 'ord_${DateTime.now().millisecondsSinceEpoch}',
-      orderNumber: auth.generateOrderNumber(),
-      customerId: auth.currentUser!.id,
-      customerName: auth.currentUser!.name ?? 'Customer',
-      customerPhone: auth.currentUser!.phoneNumber,
+      id: _stableOrderId!,
+      orderNumber: _stableOrderNumber!,
+      customerId: userId,
+      customerName: auth.currentUser?.name ?? 'Customer',
+      customerPhone: auth.currentUser?.phoneNumber ?? '',
       shopId: cart.cartItems.first.shopId,
       shopName: cart.cartItems.first.shopName,
       items: cart.cartItems.map((item) => OrderItem(

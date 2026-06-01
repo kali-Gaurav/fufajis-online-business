@@ -1,14 +1,16 @@
-enum UserRole { customer, shopOwner, deliveryAgent, admin }
+enum UserRole { customer, shopOwner, deliveryAgent, admin, employee }
 
 enum MembershipTier { bronze, silver, gold, platinum }
 
 class UserModel {
   final String id;
+  String get uid => id;
   final String phoneNumber;
   final String? email;
   final String? name;
   final String? profileImage;
-  final UserRole role;
+  final UserRole role; // Active role for current session
+  final List<UserRole> roles; // All authorized roles for this account
   final MembershipTier membershipTier;
   final double walletBalance;
   final int rewardPoints;
@@ -23,6 +25,7 @@ class UserModel {
   final double creditBalance; // Total amount owed by customer (Khata)
   final double creditLimit; // Max credit allowed to customer
   final double codLimit;
+  final bool isBlocked;
   final DateTime createdAt;
   final DateTime lastLogin;
 
@@ -33,6 +36,7 @@ class UserModel {
     this.name,
     this.profileImage,
     this.role = UserRole.customer,
+    this.roles = const [UserRole.customer],
     this.membershipTier = MembershipTier.bronze,
     this.walletBalance = 0.0,
     this.rewardPoints = 0,
@@ -47,6 +51,7 @@ class UserModel {
     this.creditBalance = 0.0,
     this.creditLimit = 5000.0,
     this.codLimit = 2000.0,
+    this.isBlocked = false,
     required this.createdAt,
     required this.lastLogin,
   });
@@ -62,6 +67,13 @@ class UserModel {
         (e) => e.toString() == map['role'],
         orElse: () => UserRole.customer,
       ),
+      roles: (map['roles'] as List<dynamic>?)
+              ?.map((r) => UserRole.values.firstWhere(
+                    (e) => e.toString() == r,
+                    orElse: () => UserRole.customer,
+                  ))
+              .toList() ??
+          [UserRole.customer],
       membershipTier: MembershipTier.values.firstWhere(
         (e) => e.toString() == map['membershipTier'],
         orElse: () => MembershipTier.bronze,
@@ -79,6 +91,7 @@ class UserModel {
       creditBalance: (map['creditBalance'] ?? 0.0).toDouble(),
       creditLimit: (map['creditLimit'] ?? 5000.0).toDouble(),
       codLimit: (map['codLimit'] ?? 2000.0).toDouble(),
+      isBlocked: map['isBlocked'] ?? false,
       createdAt: map['createdAt']?.toDate() ?? DateTime.now(),
       lastLogin: map['lastLogin']?.toDate() ?? DateTime.now(),
     );
@@ -92,6 +105,7 @@ class UserModel {
       'name': name,
       'profileImage': profileImage,
       'role': role.toString(),
+      'roles': roles.map((r) => r.toString()).toList(),
       'membershipTier': membershipTier.toString(),
       'walletBalance': walletBalance,
       'rewardPoints': rewardPoints,
@@ -106,6 +120,7 @@ class UserModel {
       'creditBalance': creditBalance,
       'creditLimit': creditLimit,
       'codLimit': codLimit,
+      'isBlocked': isBlocked,
       'createdAt': createdAt,
       'lastLogin': lastLogin,
     };
@@ -118,6 +133,7 @@ class UserModel {
     String? name,
     String? profileImage,
     UserRole? role,
+    List<UserRole>? roles,
     MembershipTier? membershipTier,
     double? walletBalance,
     int? rewardPoints,
@@ -132,6 +148,7 @@ class UserModel {
     double? creditBalance,
     double? creditLimit,
     double? codLimit,
+    bool? isBlocked,
     DateTime? createdAt,
     DateTime? lastLogin,
   }) {
@@ -142,6 +159,7 @@ class UserModel {
       name: name ?? this.name,
       profileImage: profileImage ?? this.profileImage,
       role: role ?? this.role,
+      roles: roles ?? this.roles,
       membershipTier: membershipTier ?? this.membershipTier,
       walletBalance: walletBalance ?? this.walletBalance,
       rewardPoints: rewardPoints ?? this.rewardPoints,
@@ -156,6 +174,7 @@ class UserModel {
       creditBalance: creditBalance ?? this.creditBalance,
       creditLimit: creditLimit ?? this.creditLimit,
       codLimit: codLimit ?? this.codLimit,
+      isBlocked: isBlocked ?? this.isBlocked,
       createdAt: createdAt ?? this.createdAt,
       lastLogin: lastLogin ?? this.lastLogin,
     );

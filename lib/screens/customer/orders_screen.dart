@@ -1,11 +1,13 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:math';
 import '../../providers/order_provider.dart';
+import '../../providers/cart_provider.dart';
 import '../../models/order_model.dart';
 import '../../widgets/scratch_card_widget.dart';
+import '../../services/reorder_service.dart';
 import '../../utils/app_theme.dart';
 
 class OrdersScreen extends StatefulWidget {
@@ -432,6 +434,27 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   spacing: 8,
                   runSpacing: 8,
                   children: [
+                    // Reorder Button (delivered orders)
+                    if (order.status == OrderStatus.delivered)
+                      SizedBox(
+                        height: 36,
+                        child: ElevatedButton.icon(
+                          onPressed: () => _handleReorder(order),
+                          icon: const Icon(Icons.replay, size: 14),
+                          label: const Text(
+                            'Reorder',
+                            style: TextStyle(fontSize: 11),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.deepOrange,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                          ),
+                        ),
+                      ),
                     // Claim Reward Button
                     if (order.status == OrderStatus.delivered &&
                         !_claimedRewards.contains(order.id))
@@ -518,6 +541,61 @@ class _OrdersScreenState extends State<OrdersScreen> {
       return '${difference.inDays} days ago';
     } else {
       return '${date.day}/${date.month}/${date.year}';
+    }
+  }
+
+  /// Handle reorder: populate cart from previous order with validation feedback
+  Future<void> _handleReorder(OrderModel order) async {
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    
+    // Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    final result = await ReorderService().populateCartFromOrder(
+      order: order,
+      cartProvider: cartProvider,
+    );
+
+    if (!mounted) return;
+    Navigator.of(context).pop(); // dismiss loading
+
+    if (result.success) {
+      // Show feedback with details
+      String message = result.summaryMessage;
+      
+      if (result.hasUnavailableItems) {
+        message += '\nUnavailable: ${result.unavailableItems.join(", ")}';
+      }
+      if (result.hasPriceChanges) {
+        message += '\nPrices updated for: ${result.priceChangedItems.length} items';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: result.hasUnavailableItems ? Colors.orange : AppTheme.success,
+          duration: const Duration(seconds: 3),
+          action: SnackBarAction(
+            label: 'VIEW CART',
+            textColor: Colors.white,
+            onPressed: () => context.push('/customer/cart'),
+          ),
+        ),
+      );
+
+      // Navigate to cart
+      context.push('/customer/cart');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.summaryMessage),
+          backgroundColor: AppTheme.error,
+        ),
+      );
     }
   }
 

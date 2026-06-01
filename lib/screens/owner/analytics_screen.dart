@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../utils/app_theme.dart';
-import '../../services/firestore_service.dart';
+import '../../services/order_service.dart';
 import '../../models/order_model.dart';
 import '../../providers/product_provider.dart';
 import '../../widgets/owner/broadcast_promo_manager.dart';
@@ -19,7 +19,7 @@ class AnalyticsScreen extends StatefulWidget {
 class _AnalyticsScreenState extends State<AnalyticsScreen> {
   int _selectedPeriod = 0;
   final List<String> _periods = ['Today', 'This Week', 'This Month', 'All Time'];
-  final FirestoreService _firestoreService = FirestoreService();
+  final OrderService _orderService = OrderService();
 
   int _analyticsTab = 0; // 0 = Metrics, 1 = Postcode Heatmaps
   int _mapMode = 0; // 0 = Interactive Vector Grid, 1 = Google Maps Live
@@ -143,7 +143,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<OrderModel>>(
-      stream: _firestoreService.getAllOrdersStream(),
+      stream: _orderService.getAllOrdersStream(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(

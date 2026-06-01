@@ -16,7 +16,7 @@ class GroupBuyingRoom extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.share),
-            onPressed: () => SharePlus.share('Join my Fufaji group order: fufaji://group/$groupId'),
+            onPressed: () => Share.share('Join my Fufaji group order: fufaji://group/$groupId'),
           ),
         ],
       ),

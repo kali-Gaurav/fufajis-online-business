@@ -15,8 +15,37 @@ service cloud.firestore {
       return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'UserRole.deliveryAgent';
     }
 
+    function isEmployee() {
+      return isSignedIn() && (
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'UserRole.employee' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'UserRole.shopOwner' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'UserRole.admin'
+      );
+    }
+
     function isAdmin() {
       return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'UserRole.admin';
+    }
+
+    // Check if an order is in a terminal (immutable) state
+    function isOrderTerminal(orderData) {
+      return orderData.status == 'OrderStatus.delivered'
+          || orderData.status == 'OrderStatus.cancelled';
+    }
+
+    function getShopConfig() {
+      return get(/databases/$(database)/documents/settings/shop_config).data;
+    }
+
+    function isWithinGeofence(address) {
+      let config = getShopConfig();
+      let latDelta = config.maxDeliveryRadiusKm * 0.009; // ~1km = 0.009 degrees
+      let lngDelta = config.maxDeliveryRadiusKm * 0.011; // adjusted for longitude
+      return address.latitude != null && address.longitude != null &&
+             address.latitude >= (config.shopLatitude - latDelta) &&
+             address.latitude <= (config.shopLatitude + latDelta) &&
+             address.longitude >= (config.shopLongitude - lngDelta) &&
+             address.longitude <= (config.shopLongitude + lngDelta);
     }
 
     // --- Users Collection ---
@@ -27,16 +56,25 @@ service cloud.firestore {
       allow update: if request.auth != null && request.auth.uid == userId
                     && (request.resource.data.role == resource.data.role);
       
-      allow create: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId
+                    && (request.resource.data.role == 'UserRole.customer'
+                        || (request.resource.data.phoneNumber != null && exists(/databases/$(database)/documents/pre_authorized_users/$(request.resource.data.phoneNumber.replace('\\+', ''))))
+                        || (request.resource.data.email != null && exists(/databases/$(database)/documents/pre_authorized_users/$(request.resource.data.email.replace('@', '_').replace('.', '_'))))
+                       );
 
       match /addresses/{addressId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /wallet_transactions/{transactionId} {
+        allow read: if request.auth != null && (request.auth.uid == userId || isOwner() || isAdmin());
+        allow create: if request.auth != null && request.auth.uid == userId;
+        allow update, delete: if false;
       }
     }
 
     // --- Pre-Authorized Users (Security Seed) ---
     match /pre_authorized_users/{phone} {
-      // Allow individual lookups for login role assignment, but deny listing
       allow get: if true;
       allow list: if isAdmin();
       allow write: if isAdmin();
@@ -63,19 +101,47 @@ service cloud.firestore {
 
     // --- Orders Collection ---
     match /orders/{orderId} {
-      allow create: if isSignedIn();
+      allow create: if isSignedIn()
+                    && request.resource.data.customerId == request.auth.uid
+                    && request.resource.data.status == 'OrderStatus.pending'
+                    && request.resource.data.paymentStatus != 'paid'
+                    && isWithinGeofence(request.resource.data.deliveryAddress);
+                    
       allow read: if isSignedIn() && (
         request.auth.uid == resource.data.customerId ||
         isOwner() ||
         isRider() ||
         isAdmin()
       );
-      allow update: if isSignedIn() && (
-        isOwner() ||
-        isRider() ||
-        isAdmin() ||
-        (request.auth.uid == resource.data.customerId && request.resource.data.status == 'cancelled')
-      );
+      
+      // ── IMMUTABILITY GUARD: Block all edits to delivered/cancelled orders ──
+      // Exception: Admin can still update for refund processing
+      allow update: if isSignedIn()
+        && (
+          // Admin override for refunds on terminal orders
+          (isAdmin())
+          ||
+          // Owner/Rider/Employee can update only non-terminal orders
+          ((isOwner() || isEmployee()) && !isOrderTerminal(resource.data))
+          ||
+          // Rider can update only orders assigned to them, and only non-terminal
+          (isRider() && !isOrderTerminal(resource.data)
+           && resource.data.deliveryAgentId == request.auth.uid)
+          ||
+          // Customer can only cancel their own order (if not yet packed)
+          (request.auth.uid == resource.data.customerId
+           && !isOrderTerminal(resource.data)
+           && resource.data.status in ['OrderStatus.pending', 'OrderStatus.confirmed', 'OrderStatus.accepted']
+           && request.resource.data.status == 'OrderStatus.cancelled'
+           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt', 'statusHistory', 'cancellationReason']))
+        );
+
+      // Secure OTP subcollection
+      match /secure/otp {
+        allow read: if isSignedIn() && request.auth.uid == get(/databases/$(database)/documents/orders/$(orderId)).data.customerId;
+        allow create, update: if isOwner() || isAdmin() || isRider();
+        allow delete: if false;
+      }
     }
 
     // --- Chats Collection ---
@@ -84,6 +150,136 @@ service cloud.firestore {
         request.auth.uid in resource.data.participants ||
         request.auth.uid in request.resource.data.participants
       );
+    }
+
+    // --- Settings Collection ---
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isOwner() || isAdmin();
+
+      match /branches/{branchId} {
+        allow read: if true;
+        allow write: if isOwner() || isAdmin();
+      }
+    }
+
+    // --- Rider Payouts ---
+    match /rider_payouts/{payoutId} {
+      allow read: if isSignedIn() && (isOwner() || isAdmin() || request.auth.uid == resource.data.riderId);
+      allow write: if isOwner() || isAdmin();
+    }
+
+    // --- Payments ---
+    match /payments/{paymentId} {
+      allow read: if isSignedIn() && (isOwner() || isAdmin() || request.auth.uid == resource.data.customerId);
+      allow create: if isSignedIn() && request.resource.data.customerId == request.auth.uid;
+      // Payments are append-only for customers; only admin/owner can update status
+      allow update: if isOwner() || isAdmin();
+      allow delete: if false;
+    }
+
+    // --- Return Requests ---
+    match /return_requests/{requestId} {
+      allow read: if isSignedIn() && (isOwner() || isAdmin() || request.auth.uid == resource.data.customerId);
+      allow create: if isSignedIn() && request.resource.data.customerId == request.auth.uid;
+      allow update: if isOwner() || isAdmin();
+      allow delete: if false;
+    }
+
+    // --- Group Buying Pools ---
+    match /group_pools/{poolId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (request.auth.uid in request.resource.data.memberIds);
+      allow delete: if false;
+    }
+
+    // --- Khata Transactions ---
+    match /khata_transactions/{transactionId} {
+      allow read: if isSignedIn() && (isOwner() || isAdmin() || request.auth.uid == resource.data.userId);
+      allow create: if isSignedIn() && (request.resource.data.userId == request.auth.uid || isOwner() || isAdmin());
+      allow update, delete: if isOwner() || isAdmin();
+    }
+
+    // --- Shops and Branches Collections ---
+    match /shops/{shopId} {
+      allow read: if isSignedIn();
+      allow write: if isOwner() || isAdmin();
+
+      match /branches/{branchId} {
+        allow read: if isSignedIn();
+        allow write: if isOwner() || isAdmin();
+
+        match /products/{productId} {
+          allow read: if isSignedIn();
+          allow write: if isOwner() || isAdmin() || isEmployee();
+        }
+
+        match /inventory_batches/{batchId} {
+          allow read: if isSignedIn();
+          allow write: if isOwner() || isAdmin() || isEmployee();
+        }
+
+        match /inventory_audit_logs/{auditId} {
+          allow read: if isEmployee() || isOwner() || isAdmin();
+          allow create: if isEmployee() || isOwner() || isAdmin();
+          allow update, delete: if false;
+        }
+
+        match /inventory_audits/{auditId} {
+          allow read: if isEmployee() || isOwner() || isAdmin();
+          allow write: if isEmployee() || isOwner() || isAdmin();
+        }
+
+        match /damage_reports/{reportId} {
+          allow read: if isEmployee() || isOwner() || isAdmin();
+          allow write: if isEmployee() || isOwner() || isAdmin();
+        }
+
+        match /attendance/{attendanceId} {
+          allow read: if isSignedIn() && (request.auth.uid == resource.data.employeeId || isEmployee() || isOwner() || isAdmin());
+          allow write: if isSignedIn() && (request.auth.uid == request.resource.data.employeeId || isEmployee() || isOwner() || isAdmin());
+        }
+
+        match /cash_collections/{collectionId} {
+          allow read: if isEmployee() || isOwner() || isAdmin();
+          allow write: if isEmployee() || isOwner() || isAdmin();
+        }
+
+        match /returns/{returnId} {
+          allow read: if isEmployee() || isOwner() || isAdmin();
+          allow write: if isEmployee() || isOwner() || isAdmin();
+        }
+
+        match /inventory_transfers/{transferId} {
+          allow read: if isEmployee() || isOwner() || isAdmin();
+          allow write: if isEmployee() || isOwner() || isAdmin();
+        }
+
+        match /shelf_refill_alerts/{alertId} {
+          allow read: if isEmployee() || isOwner() || isAdmin();
+          allow write: if isEmployee() || isOwner() || isAdmin();
+        }
+
+        match /orders/{orderId} {
+          allow read: if isSignedIn();
+          allow write: if isOwner() || isAdmin() || isEmployee();
+        }
+      }
+    }
+
+    // --- Payment Reconciliation Audit Log (write-once, append-only) ---
+    match /payment_reconciliation_log/{logId} {
+      allow read: if isOwner() || isAdmin();
+      allow create: if isSignedIn();
+      allow update, delete: if false;  // Immutable audit trail
+    }
+
+    // --- Cash Collection Audit Log (write-once) ---
+    match /cash_collection_audit/{logId} {
+      allow read: if isOwner() || isAdmin();
+      allow create: if isSignedIn() && (isRider() || isEmployee() || isOwner() || isAdmin());
+      allow update, delete: if false;
     }
   }
 }

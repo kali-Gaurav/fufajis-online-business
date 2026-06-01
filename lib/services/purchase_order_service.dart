@@ -19,7 +19,7 @@ class PurchaseOrderService {
       estimatedCost: (p.costPrice ?? (p.price * 0.8)) * ((p.minimumStock * 2) - p.stockQuantity),
     )).toList();
 
-    double total = poItems.fold(0.0, (sum, item) => sum + item.estimatedCost);
+    double total = poItems.fold(0.0, (total, item) => total + item.estimatedCost);
 
     return PurchaseOrder(
       id: 'po_${DateTime.now().millisecondsSinceEpoch}',

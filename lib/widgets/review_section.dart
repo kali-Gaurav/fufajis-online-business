@@ -4,6 +4,8 @@ import '../providers/review_provider.dart';
 import '../models/product_review_model.dart';
 import '../utils/app_theme.dart';
 
+import 'package:video_player/video_player.dart';
+
 class ReviewSection extends StatefulWidget {
   final String productId;
   final String productName;
@@ -348,23 +350,27 @@ class _ReviewSectionState extends State<ReviewSection> {
               overflow: TextOverflow.ellipsis,
             ),
 
-            // Review images
-            if (review.mediaUrls.isNotEmpty) ...[
+            // Review media (Step 14.1, 14.2)
+            if (review.mediaUrls.isNotEmpty || review.videoUrl != null) ...[
               const SizedBox(height: 12),
               SizedBox(
-                height: 80,
+                height: 100,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: review.mediaUrls.length,
+                  itemCount: review.mediaUrls.length + (review.videoUrl != null ? 1 : 0),
                   itemBuilder: (context, index) {
+                    if (review.videoUrl != null && index == 0) {
+                      return _buildVideoThumbnail(context, review.videoUrl!);
+                    }
+                    final imgIndex = review.videoUrl != null ? index - 1 : index;
                     return Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.network(
-                          review.mediaUrls[index],
-                          width: 80,
-                          height: 80,
+                          review.mediaUrls[imgIndex],
+                          width: 100,
+                          height: 100,
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -593,6 +599,125 @@ class _ReviewSectionState extends State<ReviewSection> {
     } else {
       return '${(difference.inDays / 365).floor()} years ago';
     }
+  }
+
+  Widget _buildVideoThumbnail(BuildContext context, String videoUrl) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: InkWell(
+        onTap: () {
+          _showVideoPlayer(context, videoUrl);
+        },
+        child: Container(
+          width: 100,
+          height: 100,
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Stack(
+            alignment: Alignment.center,
+            children: [
+              Icon(Icons.play_circle_fill, color: Colors.white, size: 40),
+              Positioned(
+                bottom: 4,
+                right: 4,
+                child: Text(
+                  'VIDEO',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 8,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showVideoPlayer(BuildContext context, String videoUrl) {
+    showDialog(
+      context: context,
+      builder: (context) => VideoPlayerDialog(videoUrl: videoUrl),
+    );
+  }
+}
+
+class VideoPlayerDialog extends StatefulWidget {
+  final String videoUrl;
+  const VideoPlayerDialog({super.key, required this.videoUrl});
+
+  @override
+  State<VideoPlayerDialog> createState() => _VideoPlayerDialogState();
+}
+
+class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
+  late VideoPlayerController _controller;
+  bool _initialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl))
+      ..initialize().then((_) {
+        setState(() => _initialized = true);
+        _controller.play();
+      });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.black,
+      insetPadding: const EdgeInsets.all(10),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          if (_initialized)
+            AspectRatio(
+              aspectRatio: _controller.value.aspectRatio,
+              child: VideoPlayer(_controller),
+            )
+          else
+            const CircularProgressIndicator(color: AppTheme.primary),
+          Positioned(
+            top: 10,
+            right: 10,
+            child: IconButton(
+              icon: const Icon(Icons.close, color: Colors.white),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+          if (_initialized)
+            Positioned(
+              bottom: 20,
+              child: FloatingActionButton(
+                mini: true,
+                backgroundColor: Colors.white24,
+                onPressed: () {
+                  setState(() {
+                    _controller.value.isPlaying
+                        ? _controller.pause()
+                        : _controller.play();
+                  });
+                },
+                child: Icon(
+                  _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }
 

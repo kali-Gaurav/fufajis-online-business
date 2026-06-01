@@ -15,6 +15,16 @@ class PurchaseOrderItem {
     required this.estimatedCost,
   });
 
+  factory PurchaseOrderItem.fromMap(Map<String, dynamic> map) {
+    return PurchaseOrderItem(
+      productId: map['productId'] ?? '',
+      productName: map['productName'] ?? '',
+      quantity: map['quantity'] ?? 0,
+      unit: map['unit'] ?? '',
+      estimatedCost: (map['estimatedCost'] ?? 0.0).toDouble(),
+    );
+  }
+
   Map<String, dynamic> toMap() => {
     'productId': productId,
     'productName': productName,
@@ -42,6 +52,23 @@ class PurchaseOrder {
     required this.createdAt,
     this.status = 'draft',
   });
+
+  factory PurchaseOrder.fromMap(Map<String, dynamic> map) {
+    return PurchaseOrder(
+      id: map['id'] ?? '',
+      shopId: map['shopId'] ?? '',
+      distributorName: map['distributorName'] ?? '',
+      items: (map['items'] as List?)
+              ?.map((i) => PurchaseOrderItem.fromMap(Map<String, dynamic>.from(i)))
+              .toList() ??
+          [],
+      totalAmount: (map['totalAmount'] ?? 0.0).toDouble(),
+      createdAt: map['createdAt'] is Timestamp
+          ? (map['createdAt'] as Timestamp).toDate()
+          : DateTime.tryParse(map['createdAt']?.toString() ?? '') ?? DateTime.now(),
+      status: map['status'] ?? 'draft',
+    );
+  }
 
   Map<String, dynamic> toMap() => {
     'id': id,

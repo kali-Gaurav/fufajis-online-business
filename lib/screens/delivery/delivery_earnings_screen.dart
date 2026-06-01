@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../utils/app_theme.dart';
 import '../../providers/auth_provider.dart';
-import '../../services/firestore_service.dart';
+import '../../services/order_service.dart';
+import '../../services/fleet_service.dart';
 import '../../models/order_model.dart';
 import '../../models/payment_method.dart';
 import '../../models/cod_settlement_model.dart';
@@ -19,7 +20,8 @@ class DeliveryEarningsScreen extends StatefulWidget {
 class _DeliveryEarningsScreenState extends State<DeliveryEarningsScreen> {
   int _selectedPeriod = 0;
   final List<String> _periods = ['Today', 'This Week', 'This Month', 'All Time'];
-  final FirestoreService _firestoreService = FirestoreService();
+  final FleetService _fleetService = FleetService();
+  final OrderService _orderService = OrderService();
 
   // Filter orders by period selector
   List<OrderModel> _filterOrders(List<OrderModel> orders, String period) {
@@ -51,7 +53,7 @@ class _DeliveryEarningsScreenState extends State<DeliveryEarningsScreen> {
     final agentId = authProvider.currentUser?.id ?? 'user_001';
 
     return StreamBuilder<List<OrderModel>>(
-      stream: _firestoreService.getAllOrdersStream(),
+            stream: _orderService.getAllOrdersStream(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator(color: AppTheme.secondary));
@@ -710,7 +712,7 @@ class _DeliveryEarningsScreenState extends State<DeliveryEarningsScreen> {
   Widget _buildCodCollectionLedger(
       String agentId, String agentName, String agentPhone, double totalCodCollected) {
     return StreamBuilder<List<CodSettlementModel>>(
-      stream: _firestoreService.getCodSettlementsStream(agentId),
+      stream: _fleetService.getCodSettlementsStream(agentId),
       builder: (context, snapshot) {
         final settlements = snapshot.data ?? [];
         
@@ -880,9 +882,9 @@ class _DeliveryEarningsScreenState extends State<DeliveryEarningsScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
+                                const Text(
                                   'Cash Submission Request',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.bold,
                                     color: AppTheme.grey800,
@@ -902,7 +904,7 @@ class _DeliveryEarningsScreenState extends State<DeliveryEarningsScreen> {
                             children: [
                               Text(
                                 '₹${s.amount.toStringAsFixed(0)}',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                   color: AppTheme.grey900,
@@ -1025,6 +1027,9 @@ class _DeliveryEarningsScreenState extends State<DeliveryEarningsScreen> {
                     riderName: agentName,
                     riderPhone: agentPhone,
                     amount: amount,
+                    expectedAmount: maxAmount,
+                    receivedAmount: amount,
+                    difference: amount - maxAmount,
                     status: 'pending',
                     submittedAt: DateTime.now(),
                     notes: notes.isNotEmpty ? notes : null,
@@ -1033,7 +1038,7 @@ class _DeliveryEarningsScreenState extends State<DeliveryEarningsScreen> {
                   Navigator.pop(context);
                   
                   try {
-                    await _firestoreService.submitCodSettlement(request);
+                    await _fleetService.submitCodSettlement(request);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Submission request for ₹${amount.toStringAsFixed(0)} sent to owner!'),

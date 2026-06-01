@@ -103,7 +103,7 @@ class _InventoryHealthScoreWidgetState extends State<InventoryHealthScoreWidget>
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () => context.push('/owner/inventory'),
+              onPressed: () => context.push('/owner/inventory-alerts'),
               style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
               child: const Text('View Alerts', style: TextStyle(fontSize: 12)),
             ),
@@ -205,7 +205,10 @@ class ExpiringSoonWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text('Expiring Soon', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              Icon(Icons.timer_outlined, color: AppTheme.warning, size: 20),
+              IconButton(
+                icon: const Icon(Icons.arrow_forward, color: AppTheme.primary, size: 20),
+                onPressed: () => context.push('/owner/expiry-tracking'),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -279,7 +282,7 @@ class PendingPriceChangesWidget extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {}, 
+                  onPressed: () => context.push('/owner/pending-price-changes'), 
                   child: const Text('Review All Changes'),
                 ),
               ),

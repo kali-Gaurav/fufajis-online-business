@@ -7,6 +7,9 @@ import '../../models/order_model.dart';
 import '../../utils/app_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../services/invoice_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
+import '../../services/weight_verification_service.dart';
 
 class OrderDetailScreen extends StatefulWidget {
   final String orderId;
@@ -22,6 +25,8 @@ class OrderDetailScreen extends StatefulWidget {
 
 class _OrderDetailScreenState extends State<OrderDetailScreen> {
   OrderModel? _order;
+  Map<String, dynamic>? _rawOrderData;
+  List<WeightProofRecord> _weightProofs = [];
   bool _isLoading = true;
 
   @override
@@ -33,9 +38,23 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   Future<void> _loadOrder() async {
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
     final order = await orderProvider.getOrderById(widget.orderId);
+    Map<String, dynamic>? rawData;
+    List<WeightProofRecord> proofs = [];
+    try {
+      final doc = await FirebaseFirestore.instance.collection('orders').doc(widget.orderId).get();
+      if (doc.exists) {
+        rawData = doc.data();
+      }
+      proofs = await WeightVerificationService().getOrderWeightProofs(widget.orderId);
+    } catch (e) {
+      debugPrint('Error loading extra order data: $e');
+    }
+
     if (mounted) {
       setState(() {
         _order = order;
+        _rawOrderData = rawData;
+        _weightProofs = proofs;
         _isLoading = false;
       });
     }
@@ -74,6 +93,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           children: [
             _buildStatusHeader(),
             _buildItemsList(),
+            _buildPackingAndWeightProofSection(),
             _buildShopSection(),
             _buildDeliverySection(),
             _buildPriceDetails(),
@@ -322,4 +342,318 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   String _formatDateTime(DateTime dt) => '${dt.day}/${dt.month}/${dt.year} ${dt.hour}:${dt.minute.toString().padLeft(2, '0')}';
+
+  Widget _buildPackingAndWeightProofSection() {
+    if (_rawOrderData == null) return const SizedBox.shrink();
+
+    final hasPackingProof = _rawOrderData!['packingProof'] != null;
+    final hasWeightProof = _weightProofs.isNotEmpty;
+
+    if (!hasPackingProof && !hasWeightProof) return const SizedBox.shrink();
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(8),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          )
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.verified_user_outlined, color: AppTheme.primary, size: 20),
+              SizedBox(width: 8),
+              Text(
+                'Trust & Quality Proofs',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                  color: AppTheme.grey900,
+                ),
+              ),
+            ],
+          ),
+          const Divider(height: 24),
+
+          // 1. Packing Proof
+          if (hasPackingProof) ...[
+            _buildPackingProofCard(),
+            if (hasWeightProof) const SizedBox(height: 16),
+          ],
+
+          // 2. Weight Verification Proof (Real Weight Guarantee)
+          if (hasWeightProof) ...[
+            _buildWeightProofCard(),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPackingProofCard() {
+    final packingProof = _rawOrderData!['packingProof'] as Map<String, dynamic>;
+    final photoUrl = packingProof['photoUrl'] as String?;
+    final packedBy = packingProof['packedBy'] as String? ?? 'Our Team';
+    final packedAtVal = packingProof['packedAt'];
+    String timeStr = '';
+    if (packedAtVal is Timestamp) {
+      timeStr = DateFormat('h:mm a, d MMM yyyy').format(packedAtVal.toDate());
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const CircleAvatar(
+              radius: 14,
+              backgroundColor: Color(0xFFE8F5E9),
+              child: Icon(Icons.inventory_2, size: 14, color: Color(0xFF2E7D32)),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Packed with care by $packedBy',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                      color: AppTheme.grey900,
+                    ),
+                  ),
+                  if (timeStr.isNotEmpty)
+                    Text(
+                      'Time: $timeStr',
+                      style: const TextStyle(color: AppTheme.grey50, fontSize: 11),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        if (photoUrl != null && photoUrl.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          GestureDetector(
+            onTap: () => _viewFullPhoto(photoUrl, 'Packing Proof'),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  CachedNetworkImage(
+                    imageUrl: photoUrl,
+                    height: 140,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    placeholder: (_, __) => Container(
+                      height: 140,
+                      color: AppTheme.grey50,
+                      child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                    ),
+                    errorWidget: (_, __, ___) => const SizedBox.shrink(),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withAlpha(150),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.zoom_in, color: Colors.white, size: 12),
+                        SizedBox(width: 4),
+                        Text(
+                          'View Photo Proof',
+                          style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildWeightProofCard() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            CircleAvatar(
+              radius: 14,
+              backgroundColor: Color(0xFFE3F2FD),
+              child: Icon(Icons.scale, size: 14, color: Color(0xFF1565C0)),
+            ),
+            SizedBox(width: 10),
+            Text(
+              'Real Weight Guarantee',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+                color: AppTheme.grey900,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: _weightProofs.length,
+          itemBuilder: (context, index) {
+            final proof = _weightProofs[index];
+            final diff = proof.packedWeightKg - proof.orderedWeightKg;
+            
+            Color outcomeColor;
+            String statusText;
+            IconData statusIcon;
+
+            switch (proof.outcome) {
+              case WeightOutcome.exact:
+                outcomeColor = const Color(0xFF2E7D32);
+                statusText = 'Perfect weight';
+                statusIcon = Icons.check_circle_outline;
+                break;
+              case WeightOutcome.overPacked:
+                outcomeColor = const Color(0xFF1565C0);
+                statusText = '+${diff.toStringAsFixed(2)}kg free extra!';
+                statusIcon = Icons.card_giftcard;
+                break;
+              case WeightOutcome.underPacked:
+                outcomeColor = const Color(0xFFE65100);
+                statusText = 'Underweight (₹${proof.refundAmountIfAny.round()} refunded)';
+                statusIcon = Icons.monetization_on_outlined;
+                break;
+            }
+
+            return Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppTheme.grey50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppTheme.grey200),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          proof.productName,
+                          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12, color: AppTheme.grey900),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          'Ordered: ${proof.orderedWeightKg.toStringAsFixed(2)} kg  •  Packed: ${proof.packedWeightKg.toStringAsFixed(2)} kg',
+                          style: const TextStyle(color: AppTheme.grey600, fontSize: 11),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(statusIcon, color: outcomeColor, size: 12),
+                          const SizedBox(width: 4),
+                          Text(
+                            statusText,
+                            style: TextStyle(
+                              color: outcomeColor,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (proof.photoUrl != null && proof.photoUrl!.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        GestureDetector(
+                          onTap: () => _viewFullPhoto(proof.photoUrl!, 'Weight Proof: ${proof.productName}'),
+                          child: const Text(
+                            'View Photo 📸',
+                            style: TextStyle(
+                              color: AppTheme.primary,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  void _viewFullPhoto(String url, String title) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AppBar(
+              title: Text(title, style: const TextStyle(color: Colors.white, fontSize: 15)),
+              backgroundColor: Colors.black87,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              leading: IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+            InteractiveViewer(
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(12),
+                  bottomRight: Radius.circular(12),
+                ),
+                child: CachedNetworkImage(
+                  imageUrl: url,
+                  fit: BoxFit.contain,
+                  placeholder: (_, __) => Container(
+                    height: 300,
+                    color: Colors.black26,
+                    child: const Center(child: CircularProgressIndicator(color: Colors.white)),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

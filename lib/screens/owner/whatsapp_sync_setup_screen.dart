@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/app_theme.dart';
@@ -150,7 +151,7 @@ class WhatsAppSyncSetupScreen extends StatelessWidget {
           ElevatedButton.icon(
             onPressed: () {
               Clipboard.setData(ClipboardData(text: phone));
-              // Show snackbar
+              // Show snack bar
             },
             icon: const Icon(Icons.copy, size: 16),
             label: const Text('Copy ID'),

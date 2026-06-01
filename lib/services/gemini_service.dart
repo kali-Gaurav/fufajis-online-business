@@ -6,6 +6,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/product_model.dart';
 import 'package:uuid/uuid.dart';
 
+import '../services/hindi_product_dictionary.dart';
+
 /// Gemini AI Service for parsing and intelligence
 class GeminiService {
   final Dio _dio = Dio();
@@ -25,14 +27,20 @@ class GeminiService {
 
   /// Parse a list of items from plain text (WhatsApp message)
   Future<List<Map<String, dynamic>>> parseItemListFromText(String text) async {
-    if (_apiKey.isEmpty) return _simulateTextParsing(text);
+    // Translate common Hindi names to English before processing
+    String translatedText = text;
+    hindiProductDictionary.forEach((key, value) {
+      translatedText = translatedText.replaceAll(RegExp(key, caseSensitive: false), value);
+    });
+
+    if (_apiKey.isEmpty) return _simulateTextParsing(translatedText);
     try {
-      final prompt = 'Parse the following grocery list into a JSON array with keys: name, quantity (num), unit, price, category. Text: "$text"';
+      final prompt = 'Parse the following grocery list into a JSON array with keys: name, quantity (num), unit, price, category. Text: "$translatedText"';
       final response = await _generateContent(prompt);
       return _parseJsonList(response);
     } catch (e) {
       debugPrint('Error parsing text list: $e');
-      return _simulateTextParsing(text);
+      return _simulateTextParsing(translatedText);
     }
   }
 
@@ -118,6 +126,19 @@ class GeminiService {
   List<Map<String, dynamic>> _simulateTextParsing(String text) => [
     {'name': 'Potato', 'quantity': 5, 'unit': 'kg', 'price': 30.0, 'category': 'vegetables'}
   ];
+
+  /// Extract keywords and intent from voice transcription (Step 6)
+  Future<List<String>> extractKeywordsForSearch(String text) async {
+    if (_apiKey.isEmpty) return text.split(' ').where((s) => s.length > 2).toList();
+    try {
+      final prompt = 'Extract primary searchable keywords (items like "potato", "milk") from this sentence in Hindi or English: "$text". Return ONLY a comma-separated list of English keywords.';
+      final response = await _generateContent(prompt);
+      return response.split(',').map((s) => s.trim().toLowerCase()).toList();
+    } catch (e) {
+      debugPrint('Gemini Search Keyword Extraction failed: $e');
+      return text.split(' ').where((s) => s.length > 2).toList();
+    }
+  }
 
   /// Fallback for missing methods used elsewhere
   Future<ProductModel> parseProductFromVoice(String text, {String? context}) async {

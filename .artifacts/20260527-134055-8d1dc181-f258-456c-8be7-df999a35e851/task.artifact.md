@@ -1,0 +1,21 @@
+# Tasks
+
+- [ ] Research and Verify Fixes [/]
+    - [x] Find where `FirestoreService` functionality moved (found in `UserService`)
+    - [x] Check `AuthProvider` for role update methods (found `requestRoleUpdate`)
+    - [x] Verify `OrderProvider` existence and location
+- [ ] Implement Fixes [ ]
+    - [ ] Update `khata_screen.dart` to use `UserService`
+    - [ ] Update `rider_management_screen.dart` to use `UserService`
+    - [ ] Update `rider_support_console.dart` to use `UserService`
+    - [ ] Update `offline_sync_service.dart` to use `UserService`
+    - [ ] Update `pricing_service.dart` to use `UserService`
+    - [ ] Update `role_select_screen.dart` to use `requestRoleUpdate`
+    - [ ] Add missing import in `qna_section.dart`
+    - [ ] Investigate and fix `ShorebirdCodePush` error in `shorebird_service.dart`
+- [ ] Project Cleanup [ ]
+    - [ ] Remove unused imports reported in warnings
+    - [ ] Fix minor performance/info warnings where trivial
+- [ ] Verification [ ]
+    - [ ] Run `flutter analyze`
+    - [ ] Verify specific files with `analyze_file`

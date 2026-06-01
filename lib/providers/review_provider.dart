@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/product_review_model.dart';
-import '../services/firestore_service.dart';
+import '../services/product_service.dart';
 
 class ReviewProvider extends ChangeNotifier {
-  final FirestoreService _firestoreService = FirestoreService();
+  final ProductService _productService = ProductService();
   
   List<ProductReviewModel> _reviews = [];
   bool _isLoading = false;
@@ -115,7 +115,7 @@ class ReviewProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _firestoreService.addProductReview(review);
+      await _productService.addProductReview(review);
       _isLoading = false;
       notifyListeners();
     } catch (e) {

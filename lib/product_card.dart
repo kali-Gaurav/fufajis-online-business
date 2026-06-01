@@ -3,9 +3,13 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:intl/intl.dart';
 
 import 'models/product_model.dart';
 import 'providers/cart_provider.dart';
+import 'providers/location_provider.dart';
+import 'providers/shop_config_provider.dart';
+import 'services/shop_config_service.dart';
 import 'utils/app_theme.dart';
 import 'widgets/common/shimmer_loader.dart';
 
@@ -24,6 +28,30 @@ class ProductCard extends StatelessWidget {
     final cart = context.watch<CartProvider>();
     final qty = cart.getQuantity(product.id);
     final discount = product.effectiveDiscount;
+
+    final locationProvider = Provider.of<LocationProvider>(context);
+    final configProvider = Provider.of<ShopConfigProvider>(context);
+    
+    final userAddress = locationProvider.selectedAddress;
+    String branchId = 'primary';
+    String branchName = 'Primary Store';
+    if (userAddress != null) {
+      final nearest = ShopConfigService().getNearestBranch(
+        userAddress.latitude,
+        userAddress.longitude,
+        configProvider.branches,
+      );
+      if (nearest != null) {
+        branchId = nearest.id;
+        branchName = nearest.branchName;
+      }
+    }
+    
+    final stockVal = product.branchStock[branchId] ?? product.stockQuantity;
+
+    final bool isExpiringSoon = product.expiryDate != null &&
+        product.expiryDate!.difference(DateTime.now()).inDays <= 3 &&
+        !product.isExpired;
 
     return GestureDetector(
       onTap: () => context.push('/customer/product/${product.id}'),
@@ -74,8 +102,42 @@ class ProductCard extends StatelessWidget {
                             ),
                           ),
                   ),
-                  // Discount / Lightning badge
-                  if (product.isLightningDealActive)
+                  // Discount / Lightning badge / Expiry badge
+                  if (isExpiringSoon)
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: AppTheme.errorColor,
+                          borderRadius: BorderRadius.circular(6),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.2),
+                              blurRadius: 4,
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.timer_outlined, size: 10, color: Colors.white),
+                            const SizedBox(width: 2),
+                            Text(
+                              'Expiring Soon - ${discount > 0 ? discount.toStringAsFixed(0) : "20"}% OFF',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else if (product.isLightningDealActive)
                     Positioned(
                       top: 8,
                       left: 8,
@@ -175,6 +237,44 @@ class ProductCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                  
+                  // Step 9.5: Exclusive "Limited Stock" progress bar for Lightning Deals
+                  if (product.isLightningDealActive && product.stockQuantity < 20)
+                    Positioned(
+                      bottom: 8,
+                      left: 8,
+                      right: 8,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.6),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              'Only ${product.stockQuantity} left!',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 7,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(2),
+                            child: LinearProgressIndicator(
+                              value: (product.stockQuantity / 20).clamp(0.0, 1.0),
+                              backgroundColor: Colors.white.withValues(alpha: 0.3),
+                              color: Colors.redAccent,
+                              minHeight: 3,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -204,6 +304,53 @@ class ProductCard extends StatelessWidget {
                         color: Colors.grey[500],
                       ),
                     ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: stockVal > 0 
+                                ? (stockVal < 10 ? Colors.orange.shade50 : Colors.green.shade50)
+                                : Colors.red.shade50,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            stockVal > 0 
+                                ? (stockVal < 10 ? 'Only $stockVal Left @ $branchName' : 'In Stock @ $branchName')
+                                : 'Out of Stock @ $branchName',
+                            style: TextStyle(
+                              fontSize: 8,
+                              fontWeight: FontWeight.bold,
+                              color: stockVal > 0 
+                                  ? (stockVal < 10 ? Colors.orange.shade800 : Colors.green.shade800)
+                                  : Colors.red.shade800,
+                            ),
+                          ),
+                        ),
+                        if (product.shelfPhotoUrl != null) ...[
+                          const SizedBox(width: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.teal.shade50,
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: Colors.teal.shade200, width: 0.5),
+                            ),
+                            child: const Row(
+                              children: [
+                                Icon(Icons.verified_user, size: 8, color: Colors.teal),
+                                SizedBox(width: 2),
+                                Text(
+                                  'Freshness Verified ✅',
+                                  style: TextStyle(fontSize: 6, fontWeight: FontWeight.bold, color: Colors.teal),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
                     const Spacer(),
                     Row(
                       children: [
@@ -213,6 +360,23 @@ class ProductCard extends StatelessWidget {
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
                             color: AppTheme.primaryColor,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: Colors.blue.shade200, width: 0.5),
+                          ),
+                          child: const Text(
+                            'Fixed Price 🤝',
+                            style: TextStyle(
+                              fontSize: 7,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue,
+                            ),
                           ),
                         ),
                         if (product.mrp != null &&
@@ -330,7 +494,24 @@ void _showSourceLocationDialog(BuildContext context, ProductModel product) {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Source info
+            // Farmer Profile (Step 11.3)
+            if (product.farmerName != null)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: CircleAvatar(
+                  backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+                  backgroundImage: product.farmerImageUrl != null 
+                    ? CachedNetworkImageProvider(product.farmerImageUrl!) 
+                    : null,
+                  child: product.farmerImageUrl == null 
+                    ? const Icon(Icons.person, color: AppTheme.primaryColor) 
+                    : null,
+                ),
+                title: Text(product.farmerName!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                subtitle: const Text('Local Farmer Partner', style: TextStyle(fontSize: 12)),
+              ),
+            
+            // Sourcing Info
             if (product.village.isNotEmpty || product.origin != null) ...[
               Row(
                 children: [
@@ -344,10 +525,40 @@ void _showSourceLocationDialog(BuildContext context, ProductModel product) {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
             ],
+
+            // Organic Badge (Step 11.5)
+            if (product.isOrganicCertified)
+               Container(
+                 margin: const EdgeInsets.only(bottom: 12),
+                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                 decoration: BoxDecoration(
+                   color: Colors.green.withValues(alpha: 0.1),
+                   borderRadius: BorderRadius.circular(6),
+                   border: Border.all(color: Colors.green.withValues(alpha: 0.5)),
+                 ),
+                 child: const Row(
+                   mainAxisSize: MainAxisSize.min,
+                   children: [
+                     Icon(Icons.verified, color: Colors.green, size: 14),
+                     SizedBox(width: 6),
+                     Text('Certified Organic', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 11)),
+                   ],
+                 ),
+               ),
+
+            // Sourcing Date (Step 11.4)
+            if (product.harvestDate != null)
+               Padding(
+                 padding: const EdgeInsets.only(bottom: 12),
+                 child: Text(
+                   'Harvested on: ${DateFormat('dd MMM yyyy').format(product.harvestDate!)}', 
+                   style: const TextStyle(fontSize: 12, color: AppTheme.grey600, fontStyle: FontStyle.italic),
+                 ),
+               ),
             
-            // Mini-map placeholder (would integrate with Google Maps in production)
+            // Mini-map placeholder
             Container(
               height: 150,
               width: double.infinity,

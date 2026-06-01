@@ -22,7 +22,7 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
   XFile? _selectedImage;
   bool _isAnalyzing = false;
   List<String> _analysisLogs = [];
-  List<ProductModel> _matchedProducts = [];
+  List<AISearchResult> _matchedResults = [];
   late AnimationController _laserController;
   
   // Debug mode simulation label selection
@@ -49,7 +49,7 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
       if (image != null) {
         setState(() {
           _selectedImage = image;
-          _matchedProducts.clear();
+          _matchedResults.clear();
         });
         _runImageAnalysis();
       }
@@ -100,7 +100,7 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
 
     setState(() {
       _isAnalyzing = false;
-      _matchedProducts = results;
+      _matchedResults = results;
       _laserController.stop();
       _analysisLogs.add(results.isNotEmpty 
           ? '[AI] Successfully matched ${results.length} item(s)!' 
@@ -112,7 +112,7 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
     setState(() {
       _selectedImage = null;
       _isAnalyzing = false;
-      _matchedProducts.clear();
+      _matchedResults.clear();
       _analysisLogs.clear();
       _selectedSimulationLabel = null;
     });
@@ -394,7 +394,7 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
   }
 
   Widget _buildResultsContainer() {
-    if (_matchedProducts.isEmpty) {
+    if (_matchedResults.isEmpty) {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.all(24),
@@ -437,7 +437,7 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'MATCHING CATALOG PRODUCTS',
+            'MATCHING CATALOG PRODUCTS (AI Confidence)',
             style: TextStyle(
               color: Colors.white,
               fontSize: 13,
@@ -449,9 +449,10 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: _matchedProducts.length,
+            itemCount: _matchedResults.length,
             itemBuilder: (context, index) {
-              final product = _matchedProducts[index];
+              final result = _matchedResults[index];
+              final product = result.product;
               return Container(
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.all(12),
@@ -486,8 +487,8 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
                             style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            '₹${product.price.toStringAsFixed(0)} / ${product.unit}',
-                            style: const TextStyle(color: AppTheme.primary, fontSize: 13),
+                            '₹${product.price.toStringAsFixed(0)} / ${product.unit} • ${(result.confidence * 100).toInt()}% match',
+                            style: const TextStyle(color: AppTheme.primary, fontSize: 12),
                           ),
                         ],
                       ),
@@ -501,7 +502,7 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
                         backgroundColor: AppTheme.primary,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                       ),
-                      child: const Text('View Product'),
+                      child: const Text('View'),
                     ),
                   ],
                 ),

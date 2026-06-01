@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../utils/app_theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/admin_provider.dart';
+import '../../services/firestore_seeder.dart';
 import 'user_management_screen.dart';
 import 'shop_management_screen.dart';
 import 'product_moderation_screen.dart';
@@ -45,6 +46,27 @@ class _AdminDashboardState extends State<AdminDashboard> {
       appBar: AppBar(
         title: Text(_titles[_selectedIndex]),
         actions: [
+          IconButton(
+            onPressed: () async {
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (ctx) => const Center(child: CircularProgressIndicator()),
+              );
+              await FirestoreSeeder.seedDatabase();
+              if (mounted) Navigator.pop(context);
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Catalog & Price History Seeded Successfully!'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }
+            },
+            icon: const Icon(Icons.settings_backup_restore),
+            tooltip: 'Seed Demo Catalog',
+          ),
           IconButton(
             onPressed: () => context.push('/role-select'),
             icon: const Icon(Icons.swap_horiz),

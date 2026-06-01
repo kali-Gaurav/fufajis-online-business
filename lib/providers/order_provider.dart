@@ -3,16 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import '../models/order_model.dart';
-import '../services/firestore_service.dart';
+import '../services/order_service.dart';
 import '../services/notification_service.dart';
-import '../services/inventory_alert_service.dart';
 import '../utils/order_number_generator.dart';
-import '../models/payment_method.dart';
-import '../models/delivery_type.dart';
-import '../models/user_model.dart';
 import '../services/razorpay_service.dart';
 import '../models/payment_result.dart';
 import '../services/offline_manager.dart';
+import '../services/wallet_service.dart';
 
 /// Return request model for handling customer returns
 class ReturnRequest {
@@ -77,12 +74,10 @@ class ReturnRequest {
 
 /// OrderProvider manages the complete order lifecycle including:
 class OrderProvider with ChangeNotifier {
-  final FirestoreService _firestoreService = FirestoreService();
+  final OrderService _orderService = OrderService();
   final NotificationService _notificationService = NotificationService();
-  final InventoryAlertService _inventoryAlertService = InventoryAlertService();
   final RazorpayService _razorpayService = RazorpayService();
   final Connectivity _connectivity = Connectivity();
-  StreamSubscription? _connectivitySub;
 
   OrderProvider() {
     _initConnectivity();
@@ -90,7 +85,7 @@ class OrderProvider with ChangeNotifier {
 
   Future<void> _initConnectivity() async {
     await OfflineManager().initialize();
-    _connectivitySub = _connectivity.onConnectivityChanged.listen((dynamic result) {
+    _connectivity.onConnectivityChanged.listen((dynamic result) {
       bool isOnline = false;
       if (result is List) {
         isOnline = !result.contains(ConnectivityResult.none);
@@ -180,11 +175,47 @@ class OrderProvider with ChangeNotifier {
     return completer.future;
   }
 
-  bool verifyDeliveryOTP(String orderId, String otp) {
+  Future<bool> verifyAndDeliverOrder({
+    required String orderId,
+    required String otp,
+    required double riderLatitude,
+    required double riderLongitude,
+  }) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
     try {
-      final order = _orders.firstWhere((o) => o.id == orderId);
-      return order.otp == otp;
+      final success = await _orderService.verifyAndDeliverOrder(
+        orderId: orderId,
+        otp: otp,
+        riderLatitude: riderLatitude,
+        riderLongitude: riderLongitude,
+      );
+
+      if (success) {
+        final index = _orders.indexWhere((o) => o.id == orderId);
+        if (index >= 0) {
+          _orders[index] = _orders[index].copyWith(
+            status: OrderStatus.delivered,
+            otpVerified: true,
+            updatedAt: DateTime.now(),
+            deliveredAt: DateTime.now(),
+          );
+          if (_currentOrder?.id == orderId) {
+            _currentOrder = _orders[index];
+          }
+        }
+      }
+
+      _isLoading = false;
+      notifyListeners();
+      return success;
     } catch (e) {
+      debugPrint('Error in verifyAndDeliverOrder: $e');
+      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      _isLoading = false;
+      notifyListeners();
       return false;
     }
   }
@@ -200,6 +231,26 @@ class OrderProvider with ChangeNotifier {
         }
       } catch (e) {
         debugPrint('Error getting order by id: $e');
+      }
+    }
+    return null;
+  }
+
+  Future<OrderModel?> getOrderByParcelId(String parcelId) async {
+    try {
+      return _orders.firstWhere((o) => o.parcelId == parcelId);
+    } catch (_) {
+      try {
+        final snapshot = await FirebaseFirestore.instance
+            .collection('orders')
+            .where('parcelId', isEqualTo: parcelId)
+            .limit(1)
+            .get();
+        if (snapshot.docs.isNotEmpty) {
+          return OrderModel.fromMap(snapshot.docs.first.data());
+        }
+      } catch (e) {
+        debugPrint('Error getting order by parcel id: $e');
       }
     }
     return null;
@@ -231,7 +282,7 @@ class OrderProvider with ChangeNotifier {
     // Paginating orders stream is complex with snapshots, 
     // we use a simplified paginated query for the list view
     // and a listener for the current active orders.
-    final sub = _firestoreService.getOrdersStream(userId).listen((orders) {
+    final sub = _orderService.getOrdersStream(userId).listen((orders) {
       // For real-time updates of current orders
       // In production, we'd only listen to 'active' orders.
       _orders = orders; 
@@ -298,7 +349,7 @@ class OrderProvider with ChangeNotifier {
       notifyListeners();
     }
 
-    final sub = _firestoreService.getAllOrdersStream().listen((orders) {
+    final sub = _orderService.getAllOrdersStream().listen((orders) {
       _orders = orders;
       _isLoading = false;
       notifyListeners();
@@ -323,6 +374,39 @@ class OrderProvider with ChangeNotifier {
     notifyListeners();
 
     try {
+      // 1. Idempotency: Check if order document already exists in Firestore
+      final existingDoc = await FirebaseFirestore.instance.collection('orders').doc(order.id).get();
+      if (existingDoc.exists) {
+        debugPrint('[Security/Idempotency] Order with ID ${order.id} already exists. Returning existing order.');
+        _isLoading = false;
+        _processingOrders.remove(idempotencyKey);
+        notifyListeners();
+        return OrderModel.fromMap(existingDoc.data()!);
+      }
+
+      // 2. Anti-Spam: Check if user placed another order in the last 10 seconds
+      final recentQuery = await FirebaseFirestore.instance
+          .collection('orders')
+          .where('customerId', isEqualTo: order.customerId)
+          .orderBy('createdAt', descending: true)
+          .limit(1)
+          .get();
+
+      if (recentQuery.docs.isNotEmpty) {
+        final lastOrderData = recentQuery.docs.first.data();
+        if (lastOrderData['createdAt'] != null) {
+          final lastOrderTime = (lastOrderData['createdAt'] as Timestamp).toDate();
+          if (DateTime.now().difference(lastOrderTime).inSeconds < 10) {
+            debugPrint('[Security/Idempotency] Rapid duplicate order detected. Rejecting request.');
+            _errorMessage = 'Duplicate order detected. Please wait a moment before trying again.';
+            _isLoading = false;
+            _processingOrders.remove(idempotencyKey);
+            notifyListeners();
+            return null;
+          }
+        }
+      }
+
       final orderNumber = OrderNumberGenerator.generate();
       final newOrder = order.copyWith(
         orderNumber: orderNumber,
@@ -330,14 +414,11 @@ class OrderProvider with ChangeNotifier {
         updatedAt: DateTime.now(),
       );
 
-      // Check connectivity
-      final connectivityResult = await _connectivity.checkConnectivity();
-      bool isOffline = false;
-      if (connectivityResult is List) {
-        isOffline = connectivityResult.contains(ConnectivityResult.none);
-      } else {
-        isOffline = connectivityResult == ConnectivityResult.none;
-      }
+      final dynamic connectivityRes = await _connectivity.checkConnectivity();
+      final List<ConnectivityResult> connectivityResult = (connectivityRes is List) 
+          ? List<ConnectivityResult>.from(connectivityRes) 
+          : [connectivityRes as ConnectivityResult];
+      bool isOffline = connectivityResult.contains(ConnectivityResult.none);
 
       if (isOffline) {
         // Queue the order offline
@@ -354,7 +435,7 @@ class OrderProvider with ChangeNotifier {
         return newOrder;
       }
 
-      await _firestoreService.createOrder(newOrder);
+      await _orderService.createOrder(newOrder);
 
       _orders.insert(0, newOrder);
       
@@ -497,7 +578,7 @@ class OrderProvider with ChangeNotifier {
         _currentOrder = updatedOrder;
       }
 
-      await _firestoreService.updateOrderStatus(
+      await _orderService.updateOrderStatus(
         orderId,
         newStatus.toString().split('.').last,
       );
@@ -606,7 +687,19 @@ class OrderProvider with ChangeNotifier {
       final order = _orders[index];
 
       if (order.walletAmountUsed > 0) {
-        _walletBalance += order.walletAmountUsed;
+        final walletSuccess = await WalletService().addToWallet(
+          userId: order.customerId,
+          amount: order.walletAmountUsed,
+          transactionType: WalletTransactionType.refund,
+          orderReference: order.id,
+          description: 'Auto-refund: Order cancelled',
+          transactionId: 'txn_wallet_refund_${order.id}',
+        );
+        if (walletSuccess) {
+          _walletBalance += order.walletAmountUsed;
+        } else {
+          throw Exception('Failed to refund wallet balance');
+        }
       }
 
       await _restoreStock(order.items);
@@ -629,7 +722,7 @@ class OrderProvider with ChangeNotifier {
         _currentOrder = updatedOrder;
       }
 
-      await _firestoreService.updateOrderStatus(orderId, 'cancelled');
+      await _orderService.updateOrderStatus(orderId, 'cancelled');
 
       _notificationService.triggerLocalOrderStatusNotification(
         order.orderNumber,
@@ -650,7 +743,7 @@ class OrderProvider with ChangeNotifier {
 
   Future<void> rateAndTipOrder(String orderId, double rating, {double? tip}) async {
     try {
-      await _firestoreService.updateOrder(orderId, {
+      await _orderService.updateOrder(orderId, {
         'rating': rating,
         if (tip != null) 'tipAmount': FieldValue.increment(tip),
         'updatedAt': DateTime.now(),
@@ -722,7 +815,39 @@ class OrderProvider with ChangeNotifier {
 
   String getMembershipTier() => 'Bronze';
 
-  List<String> getFrequentlyBoughtProductIds() => [];
+  /// Analyzes history to find most frequently bought items (Step 15.1)
+  List<String> getFrequentlyBoughtProductIds() {
+    final Map<String, int> frequencyMap = {};
+    for (var order in _orders) {
+      if (order.status != OrderStatus.cancelled) {
+        for (var item in order.items) {
+          frequencyMap[item.productId] = (frequencyMap[item.productId] ?? 0) + item.quantity;
+        }
+      }
+    }
+    final sorted = frequencyMap.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    return sorted.map((e) => e.key).take(12).toList();
+  }
+
+  /// Finds "Weekly Essentials" or recurring items (Step 15.1)
+  List<String> getWeeklyEssentials() {
+    final Map<String, List<DateTime>> purchaseDates = {};
+    for (var order in _orders) {
+      for (var item in order.items) {
+        purchaseDates.putIfAbsent(item.productId, () => []).add(order.createdAt);
+      }
+    }
+    
+    final List<String> essentials = [];
+    purchaseDates.forEach((productId, dates) {
+      if (dates.length >= 3) {
+        // Simple logic: if bought 3+ times, consider essential
+        essentials.add(productId);
+      }
+    });
+    return essentials;
+  }
 
   bool isValidStatusTransition(OrderStatus current, OrderStatus next) => true;
 
@@ -764,7 +889,7 @@ class OrderProvider with ChangeNotifier {
         'proofImages': proofImages ?? [],
         'createdAt': FieldValue.serverTimestamp(),
       };
-      await _firestoreService.createReturnRequest(request);
+      await _orderService.createReturnRequest(request);
       return true;
     } catch (e) {
       debugPrint('Error creating return request: $e');
@@ -825,14 +950,14 @@ class OrderProvider with ChangeNotifier {
 
   Future<void> syncOfflineOrders() async {
     try {
-      final queued = OfflineManager().getQueuedOrders();
+      final queued = await OfflineManager().getQueuedOrders();
       if (queued.isEmpty) return;
       
       debugPrint('Offline Sync: Found ${queued.length} queued orders to synchronize.');
       for (final order in queued) {
         final doc = await FirebaseFirestore.instance.collection('orders').doc(order.id).get();
         if (!doc.exists) {
-          await _firestoreService.createOrder(order);
+          await _orderService.createOrder(order);
           debugPrint('Offline Sync: Order ${order.orderNumber} successfully pushed to Firestore.');
         } else {
           debugPrint('Offline Sync: Order ${order.orderNumber} already exists on Firestore. Skipping.');

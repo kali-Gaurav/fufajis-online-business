@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:geolocator/geolocator.dart';
 import '../../providers/order_provider.dart';
 import '../../models/order_model.dart';
 import '../../utils/app_theme.dart';
@@ -59,13 +60,45 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                if (orderProvider.verifyDeliveryOTP(order.id, _otpController.text)) {
-                  orderProvider.updateOrderStatus(order.id, OrderStatus.delivered);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Delivery Verified!')));
-                  context.pop();
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid OTP'), backgroundColor: AppTheme.error));
+              onPressed: () async {
+                setState(() => _isLoading = true);
+                try {
+                  // Retrieve rider location coordinates
+                  final position = await Geolocator.getCurrentPosition(
+                    desiredAccuracy: LocationAccuracy.high,
+                  );
+
+                  final success = await orderProvider.verifyAndDeliverOrder(
+                    orderId: order.id,
+                    otp: _otpController.text,
+                    riderLatitude: position.latitude,
+                    riderLongitude: position.longitude,
+                  );
+
+                  if (success && mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Delivery Verified & Completed!')),
+                    );
+                    context.pop();
+                  } else if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(orderProvider.errorMessage ?? 'Invalid OTP or Proximity check failed'),
+                        backgroundColor: AppTheme.error,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Verification failed: ${e.toString().replaceFirst('Exception: ', '')}'),
+                        backgroundColor: AppTheme.error,
+                      ),
+                    );
+                  }
+                } finally {
+                  if (mounted) setState(() => _isLoading = false);
                 }
               },
               child: const Text('Verify & Complete'),

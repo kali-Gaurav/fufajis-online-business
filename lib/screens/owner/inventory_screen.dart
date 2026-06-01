@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' as intl;
 import 'dart:math';
 import '../../utils/app_theme.dart';
 import '../../providers/product_provider.dart';
 import '../../models/product_model.dart';
-import '../../services/firestore_service.dart';
+import '../../services/product_service.dart';
 import 'products_management.dart';
 
 class InventoryScreen extends StatefulWidget {
@@ -18,7 +19,7 @@ class InventoryScreen extends StatefulWidget {
 class _InventoryScreenState extends State<InventoryScreen> {
   int _selectedFilter = 0;
   final List<String> _filters = ['All', 'Low Stock', 'Out of Stock', 'Expiring Soon', 'Expired'];
-  final FirestoreService _firestoreService = FirestoreService();
+  final ProductService _productService = ProductService();
   String _searchQuery = '';
   bool _autoReorderEnabled = false;
   bool _isAutoReordering = false;
@@ -416,7 +417,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
   Future<void> _quickIncrementStock(ProductModel product, int amount) async {
     try {
-      await _firestoreService.updateProduct(product.id, {
+      await _productService.updateProduct(product.id, {
         'stockQuantity': product.stockQuantity + amount,
         'isAvailable': true,
       });
@@ -485,7 +486,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                 final amount = int.tryParse(controller.text);
                 if (amount != null) {
                   try {
-                    await _firestoreService.updateProduct(selectedProduct.id, {
+                    await _productService.updateProduct(selectedProduct.id, {
                       'stockQuantity': selectedProduct.stockQuantity + amount,
                       'isAvailable': true,
                     });
@@ -623,7 +624,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     int reorderCount = 0;
     for (final item in lowStockItems) {
       try {
-        await _firestoreService.updateProduct(item.id, {
+        await _productService.updateProduct(item.id, {
           'stockQuantity': item.stockQuantity + 50,
           'isAvailable': true,
         });

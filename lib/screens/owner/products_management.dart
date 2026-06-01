@@ -10,7 +10,7 @@ import '../../utils/app_theme.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/product_model.dart';
-import '../../services/firestore_service.dart';
+import '../../services/product_service.dart';
 import '../../services/global_catalog_service.dart';
 import '../../services/image_processing_service.dart';
 import '../../widgets/voice_to_stock_dialog.dart';
@@ -1490,7 +1490,7 @@ class _BulkUploadDialogState extends State<BulkUploadDialog> {
       _statusLog = 'Parsing CSV rows...';
     });
 
-    final firestore = FirestoreService();
+    final productService = ProductService();
     final lines = csvText.split('\n');
     int successCount = 0;
     int errorCount = 0;
@@ -1560,7 +1560,7 @@ class _BulkUploadDialogState extends State<BulkUploadDialog> {
     if (bulkItems.isNotEmpty) {
       try {
         setState(() => _statusLog = 'Uploading ${bulkItems.length} products in batches...');
-        await firestore.batchAddProducts(bulkItems);
+        await productService.batchAddProducts(bulkItems);
         successCount = bulkItems.length;
       } catch (e) {
         errors.add('Batch Write Failed: $e');
@@ -1575,7 +1575,7 @@ class _BulkUploadDialogState extends State<BulkUploadDialog> {
           '${errors.isNotEmpty ? '\nErrors:\n${errors.join('\n')}' : ''}';
     });
 
-    if (context.mounted && successCount > 0) {
+    if (mounted && successCount > 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Successfully bulk-uploaded $successCount products!'),

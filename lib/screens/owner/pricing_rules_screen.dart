@@ -430,7 +430,7 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
     );
   }
 
-  Widget _buildPriceImpactRow(String label, String original, String new_price) {
+  Widget _buildPriceImpactRow(String label, String original, String newPrice) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -446,7 +446,7 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
             ),
             const SizedBox(width: 8),
             Text(
-              new_price,
+              newPrice,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.green,

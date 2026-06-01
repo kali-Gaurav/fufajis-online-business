@@ -164,7 +164,7 @@ class _CouponManagementScreenState extends State<CouponManagementScreen> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  value: discountType,
+                  initialValue: discountType,
                   decoration: const InputDecoration(labelText: 'Type', border: OutlineInputBorder()),
                   items: const [
                     DropdownMenuItem(value: 'percentage', child: Text('Percentage (%)')),

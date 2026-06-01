@@ -16,7 +16,7 @@ extension ProductProviderPhase11To14 on ProductProvider {
       final firestore = FirebaseFirestore.instance;
       final doc = await firestore
           .collection('shops')
-          .doc('shop_001')
+          .doc(currentShopId ?? 'shop_001')
           .collection('settings')
           .doc('whatsapp_sync')
           .get();
@@ -49,7 +49,7 @@ extension ProductProviderPhase11To14 on ProductProvider {
       final firestore = FirebaseFirestore.instance;
       await firestore
           .collection('shops')
-          .doc('shop_001')
+          .doc(currentShopId ?? 'shop_001')
           .collection('settings')
           .doc('whatsapp_sync')
           .set({
@@ -80,7 +80,7 @@ extension ProductProviderPhase11To14 on ProductProvider {
       final firestore = FirebaseFirestore.instance;
       await firestore
           .collection('shops')
-          .doc('shop_001')
+          .doc(currentShopId ?? 'shop_001')
           .collection('settings')
           .doc('whatsapp_sync')
           .set({
@@ -102,7 +102,7 @@ extension ProductProviderPhase11To14 on ProductProvider {
       final firestore = FirebaseFirestore.instance;
       final snapshot = await firestore
           .collection('shops')
-          .doc('shop_001')
+          .doc(currentShopId ?? 'shop_001')
           .collection('inventory_alerts')
           .where('dismissed', isEqualTo: false)
           .orderBy('severity')
@@ -121,7 +121,7 @@ extension ProductProviderPhase11To14 on ProductProvider {
       final firestore = FirebaseFirestore.instance;
       await firestore
           .collection('shops')
-          .doc('shop_001')
+          .doc(currentShopId ?? 'shop_001')
           .collection('inventory_alerts')
           .doc(alertId)
           .update({'dismissed': true, 'dismissedAt': FieldValue.serverTimestamp()});
@@ -160,7 +160,7 @@ extension ProductProviderPhase11To14 on ProductProvider {
       final firestore = FirebaseFirestore.instance;
       final snapshot = await firestore
           .collection('shops')
-          .doc('shop_001')
+          .doc(currentShopId ?? 'shop_001')
           .collection('products')
           .get();
 
@@ -269,7 +269,7 @@ extension ProductProviderPhase11To14 on ProductProvider {
       final firestore = FirebaseFirestore.instance;
       final doc = await firestore
           .collection('shops')
-          .doc('shop_001')
+          .doc(currentShopId ?? 'shop_001')
           .collection('settings')
           .doc('pricing_rules')
           .get();
@@ -297,7 +297,7 @@ extension ProductProviderPhase11To14 on ProductProvider {
       final firestore = FirebaseFirestore.instance;
       await firestore
           .collection('shops')
-          .doc('shop_001')
+          .doc(currentShopId ?? 'shop_001')
           .collection('settings')
           .doc('pricing_rules')
           .set(rules, SetOptions(merge: true));
@@ -313,7 +313,7 @@ extension ProductProviderPhase11To14 on ProductProvider {
       final firestore = FirebaseFirestore.instance;
       final snapshot = await firestore
           .collection('shops')
-          .doc('shop_001')
+          .doc(currentShopId ?? 'shop_001')
           .collection('price_changes')
           .where('status', isEqualTo: 'pending')
           .orderBy('createdAt', descending: true)
@@ -332,7 +332,7 @@ extension ProductProviderPhase11To14 on ProductProvider {
       final firestore = FirebaseFirestore.instance;
       await firestore
           .collection('shops')
-          .doc('shop_001')
+          .doc(currentShopId ?? 'shop_001')
           .collection('price_changes')
           .doc(changeId)
           .update({
@@ -351,7 +351,7 @@ extension ProductProviderPhase11To14 on ProductProvider {
       final firestore = FirebaseFirestore.instance;
       await firestore
           .collection('shops')
-          .doc('shop_001')
+          .doc(currentShopId ?? 'shop_001')
           .collection('price_changes')
           .doc(changeId)
           .update({

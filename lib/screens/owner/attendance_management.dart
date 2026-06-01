@@ -1,6 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../services/firestore_service.dart';
+import '../../services/fleet_service.dart';
 import '../../models/attendance_model.dart';
 import '../../utils/app_theme.dart';
 
@@ -12,14 +12,14 @@ class AttendanceManagementScreen extends StatefulWidget {
 }
 
 class _AttendanceManagementScreenState extends State<AttendanceManagementScreen> {
-  final FirestoreService _firestoreService = FirestoreService();
+  final FleetService _fleetService = FleetService();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.grey50,
       body: StreamBuilder<List<AttendanceModel>>(
-        stream: _firestoreService.getAllAttendanceStream(),
+        stream: _fleetService.getAllAttendanceStream(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());

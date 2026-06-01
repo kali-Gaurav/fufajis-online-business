@@ -1,6 +1,7 @@
 import 'dart:math';
 import '../models/product_model.dart';
-import 'firestore_service.dart';
+import 'product_service.dart';
+import 'shop_config_service.dart';
 
 class MandiMarketFeed {
   final String itemName;
@@ -114,7 +115,17 @@ class PricingService {
 
   /// Automatically updates all eligible product prices matching current Mandi rates
   Future<int> autoUpdateEligibleProductPrices(List<ProductModel> allProducts) async {
-    final firestore = FirestoreService();
+    try {
+      final config = await ShopConfigService().getShopConfig();
+      if (!config.isAutoPilotEnabled) {
+        return 0;
+      }
+    } catch (e) {
+      // Fallback: If config load fails, don't run autopilot by default
+      return 0;
+    }
+
+    final productService = ProductService();
     int updatedCount = 0;
 
     for (final product in allProducts) {
@@ -131,8 +142,8 @@ class PricingService {
               name: product.name,
               description: product.description,
               price: srp,
-              originalPrice: (srp * 1.15).roundToDouble(), // Dynamic original price (adds 15% discount wrapper)
-              discountPercentage: 15.0,
+              originalPrice: srp, // Dynamic original price equal to sale price (no forced 15% markup)
+              discountPercentage: 0.0,
               unit: product.unit,
               category: product.category,
               subCategory: product.subCategory,
@@ -165,7 +176,7 @@ class PricingService {
               unitOptions: product.unitOptions,
             );
 
-            await firestore.addProduct(updatedProd); // Overwrite / edit product
+            await productService.addProduct(updatedProd); // Overwrite / edit product
             updatedCount++;
           }
         }

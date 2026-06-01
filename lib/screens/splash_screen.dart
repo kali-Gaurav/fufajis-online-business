@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../models/user_model.dart';
 import '../providers/order_provider.dart';
 import '../providers/product_provider.dart';
 import '../services/update_service.dart';
+import '../services/lightning_deals_service.dart';
+import '../services/cache_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -21,11 +24,11 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(seconds: 1),
+      duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..repeat(reverse: true);
-    _animation = Tween<double>(begin: 0.9, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    _animation = Tween<double>(begin: 0.85, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
     );
     _navigateToNextScreen();
   }
@@ -37,9 +40,15 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   Future<void> _navigateToNextScreen() async {
-    // 1. Mandatory Version & Maintenance Check
+    // 1. Mandatory Version & Maintenance Check (Step 1.1)
     final bool canProceed = await UpdateService().handleVersionCheck(context);
     if (!canProceed) return; // Blocked by mandatory dialog
+
+    // 2. Background Fetch for Lightning Deals (Step 1.2)
+    LightningDealsService().fetchActiveDeals();
+
+    // 3. Ensure Cache Service is ready (Step 1.3)
+    await CacheService().init();
 
     await Future.delayed(const Duration(seconds: 1));
 
@@ -48,11 +57,34 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
     if (mounted) {
       if (isLoggedIn) {
+        // Step 1.5: Wait for profile to load to prevent race conditions
+        int retryCount = 0;
+        while (authProvider.currentUser == null && retryCount < 50) {
+          await Future.delayed(const Duration(milliseconds: 100));
+          if (!mounted) return;
+          retryCount++;
+          debugPrint('[SplashScreen] Waiting for profile... ($retryCount)');
+        }
+
         if (authProvider.currentUser != null) {
+          if (!mounted) return;
           Provider.of<OrderProvider>(context, listen: false)
               .loadOrders(authProvider.currentUser!.id);
+          
+          final user = authProvider.currentUser!;
+          
+          // Route based on active role and profile completion
+          if (user.role == UserRole.customer && 
+              (user.name == null || user.name!.isEmpty || user.district == null || user.district!.isEmpty)) {
+            context.go('/profile-creation');
+          } else {
+            context.go('/');
+          }
+        } else {
+          // Profile failed to load after 5 seconds
+          debugPrint('[SplashScreen] Profile load timeout. Routing to login.');
+          if (mounted) context.go('/login');
         }
-        context.go('/'); 
       } else {
         context.go('/login');
       }

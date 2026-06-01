@@ -6,6 +6,10 @@ import '../../providers/location_provider.dart';
 import '../../models/user_model.dart';
 import 'map_picker_screen.dart';
 
+import 'dart:io';
+import 'package:record/record.dart';
+import 'package:path_provider/path_provider.dart';
+
 class AddressScreen extends StatefulWidget {
   const AddressScreen({super.key});
 
@@ -29,11 +33,37 @@ class _AddressScreenState extends State<AddressScreen> {
   bool _isDefault = false;
   double? _capturedLatitude;
   double? _capturedLongitude;
+  String _addressType = 'House'; // Step 18.3
+  
+  // Voice Tagging (Step 18.1)
+  final _audioRecorder = AudioRecorder();
+  bool _isRecording = false;
+  String? _voiceTagPath;
 
   @override
   void initState() {
     super.initState();
     _loadAddresses();
+  }
+
+  Future<void> _toggleRecording() async {
+    if (_isRecording) {
+      final path = await _audioRecorder.stop();
+      setState(() {
+        _isRecording = false;
+        _voiceTagPath = path;
+      });
+    } else {
+      if (await _audioRecorder.hasPermission()) {
+        final dir = await getTemporaryDirectory();
+        final path = '${dir.path}/address_tag_${DateTime.now().millisecondsSinceEpoch}.m4a';
+        await _audioRecorder.start(const RecordConfig(), path: path);
+        setState(() {
+          _isRecording = true;
+          _voiceTagPath = null;
+        });
+      }
+    }
   }
 
   Future<void> _loadAddresses() async {
@@ -58,6 +88,7 @@ class _AddressScreenState extends State<AddressScreen> {
       _deliveryInstructionsController.text = address.deliveryInstructions ?? '';
       _capturedLatitude = address.latitude;
       _capturedLongitude = address.longitude;
+      _addressType = address.id.contains('shop') ? 'Shop' : address.id.contains('apt') ? 'Apartment' : 'House';
     } else {
       _editingAddress = null;
       _labelController.text = 'Home';
@@ -69,6 +100,7 @@ class _AddressScreenState extends State<AddressScreen> {
       _deliveryInstructionsController.clear();
       _capturedLatitude = null;
       _capturedLongitude = null;
+      _addressType = 'House';
     }
     setState(() => _isFormOpen = true);
   }
@@ -351,14 +383,18 @@ class _AddressScreenState extends State<AddressScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     try {
       await authProvider.setDefaultAddress(addressId);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Default address updated!')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Default address updated!')),
+        );
+      }
       await _loadAddresses();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
     } finally {
       setState(() => _isLoading = false);
     }
@@ -451,6 +487,28 @@ class _AddressScreenState extends State<AddressScreen> {
               ),
               const SizedBox(height: 24),
               
+              // Step 18.3: Address Type Classification
+              const Text('Property Type', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              const SizedBox(height: 8),
+              Row(
+                children: ['House', 'Apartment', 'Shop'].map((type) {
+                  final isSelected = _addressType == type;
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ChoiceChip(
+                        label: Center(child: Text(type)),
+                        selected: isSelected,
+                        onSelected: (val) => setState(() => _addressType = type),
+                        selectedColor: AppTheme.primary,
+                        labelStyle: TextStyle(color: isSelected ? Colors.white : AppTheme.grey700),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 24),
+
               // Quick Preset Chips
               const Text('Address Type', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
               const SizedBox(height: 8),
@@ -579,6 +637,39 @@ class _AddressScreenState extends State<AddressScreen> {
                   ),
                 ),
               ],
+              const SizedBox(height: 24),
+              
+              // Step 18.1: Voice Tagging UI
+              const Text('Voice Instructions (for Rider)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppTheme.grey100,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppTheme.grey200),
+                ),
+                child: Row(
+                  children: [
+                    IconButton(
+                      onPressed: _toggleRecording,
+                      icon: Icon(_isRecording ? Icons.stop_circle : Icons.mic, color: _isRecording ? Colors.red : AppTheme.primary),
+                      iconSize: 32,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        _isRecording 
+                            ? 'Recording... Tap to Stop' 
+                            : _voiceTagPath != null 
+                                ? 'Voice Tag Attached âœ…' 
+                                : 'Record direction hints (e.g. "Behind the big Banyan tree")',
+                        style: TextStyle(fontSize: 12, color: _isRecording ? Colors.red : AppTheme.grey600),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               const SizedBox(height: 16),
               
               TextFormField(
@@ -660,8 +751,9 @@ class _AddressScreenState extends State<AddressScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     try {
+      final String idSuffix = _addressType == 'Shop' ? '_shop' : _addressType == 'Apartment' ? '_apt' : '_house';
       final address = Address(
-        id: _editingAddress?.id ?? 'addr_${DateTime.now().millisecondsSinceEpoch}',
+        id: _editingAddress?.id ?? 'addr_${DateTime.now().millisecondsSinceEpoch}$idSuffix',
         label: _labelController.text.trim(),
         fullAddress: _fullAddressController.text.trim(),
         village: _villageController.text.trim(),
@@ -675,22 +767,28 @@ class _AddressScreenState extends State<AddressScreen> {
 
       if (_editingAddress != null) {
         await authProvider.updateAddress(_editingAddress!.id, address);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Address updated successfully!')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Address updated successfully!')),
+          );
+        }
       } else {
         await authProvider.addAddress(address);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Address saved successfully!')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Address saved successfully!')),
+          );
+        }
       }
 
       _closeAddressForm();
       await _loadAddresses();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save address: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save address: $e')),
+        );
+      }
     } finally {
       setState(() => _isLoading = false);
     }
@@ -704,25 +802,29 @@ class _AddressScreenState extends State<AddressScreen> {
     try {
       await locationProvider.getCurrentLocation();
       if (locationProvider.currentPosition == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content:
-                Text(locationProvider.errorMessage ?? 'Unable to get location'),
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content:
+                  Text(locationProvider.errorMessage ?? 'Unable to get location'),
+            ),
+          );
+        }
         return;
       }
 
-      setState(() {
-        _capturedLatitude = locationProvider.latitude;
-        _capturedLongitude = locationProvider.longitude;
-        if (locationProvider.currentAddress.isNotEmpty) {
-          _fullAddressController.text = locationProvider.currentAddress;
-        }
-        if (locationProvider.pincode.isNotEmpty) {
-          _pincodeController.text = locationProvider.pincode;
-        }
-      });
+      if (mounted) {
+        setState(() {
+          _capturedLatitude = locationProvider.latitude;
+          _capturedLongitude = locationProvider.longitude;
+          if (locationProvider.currentAddress.isNotEmpty) {
+            _fullAddressController.text = locationProvider.currentAddress;
+          }
+          if (locationProvider.pincode.isNotEmpty) {
+            _pincodeController.text = locationProvider.pincode;
+          }
+        });
+      }
 
       final probeAddress = Address(
         id: 'probe',
@@ -737,15 +839,17 @@ class _AddressScreenState extends State<AddressScreen> {
         longitude: _capturedLongitude!,
       );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(locationProvider.deliveryZoneMessageFor(probeAddress)),
-          backgroundColor: locationProvider
-                  .isAddressWithinDeliveryRadius(probeAddress)
-              ? AppTheme.success
-              : AppTheme.error,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(locationProvider.deliveryZoneMessageFor(probeAddress)),
+            backgroundColor: locationProvider
+                    .isAddressWithinDeliveryRadius(probeAddress)
+                ? AppTheme.success
+                : AppTheme.error,
+          ),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);

@@ -1,86 +1,137 @@
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter/foundation.dart';
 import '../models/product_model.dart';
 import '../models/order_model.dart';
+import 'sqlite_service.dart';
 
+/// Offline Manager — Fufaji Relational Offline Storage (SQLite)
+/// Replaces all Hive key-value operations with structured SQLite queries.
 class OfflineManager {
   static final OfflineManager _instance = OfflineManager._internal();
   factory OfflineManager() => _instance;
   OfflineManager._internal();
 
-  static const String _productsBoxName = 'cached_products';
-  static const String _ordersQueueBoxName = 'orders_queue';
-  static const String _settingsBoxName = 'offline_settings';
-
+  final SqliteService _sqlite = SqliteService();
   bool _isInitialized = false;
 
-  /// Initialize Hive boxes for offline use
+  /// Initialize the SQLite database (idempotent)
   Future<void> initialize() async {
     if (_isInitialized) return;
-
-    await Hive.initFlutter();
-    
-    // Open necessary boxes
-    await Hive.openBox(_productsBoxName);
-    await Hive.openBox(_ordersQueueBoxName);
-    await Hive.openBox(_settingsBoxName);
-
+    // Accessing the database getter triggers _initDatabase()
+    await _sqlite.database;
     _isInitialized = true;
+    debugPrint('[OfflineManager] SQLite initialized.');
   }
 
-  /// Cache products list locally
+  // ─────────────── PRODUCTS ───────────────
+
+  /// Cache a list of products from Firestore
   Future<void> cacheProducts(List<ProductModel> products) async {
-    final box = Hive.box(_productsBoxName);
-    // Clear old cache to manage size
-    await box.clear();
-
-    final productMaps = {
-      for (var product in products) product.id: product.toMap()
-    };
-    await box.putAll(productMaps);
-    
-    // Save last cached timestamp
-    final settingsBox = Hive.box(_settingsBoxName);
-    await settingsBox.put('last_cached_time', DateTime.now().toIso8601String());
+    final maps = products.map((p) => p.toMap()).toList();
+    await _sqlite.cacheProducts(maps);
+    debugPrint('[OfflineManager] Cached ${products.length} products.');
   }
 
-  /// Retrieve cached products
-  List<ProductModel> getCachedProducts() {
-    final box = Hive.box(_productsBoxName);
-    return box.values
-        .map((data) => ProductModel.fromMap(Map<String, dynamic>.from(data)))
-        .toList();
+  /// Retrieve all cached products from SQLite
+  Future<List<ProductModel>> getCachedProducts() async {
+    final maps = await _sqlite.getCachedProducts();
+    return maps.map((m) => ProductModel.fromMap(m)).toList();
   }
 
-  /// Get last cached timestamp
-  DateTime? getLastCachedTime() {
-    final settingsBox = Hive.box(_settingsBoxName);
-    final timeStr = settingsBox.get('last_cached_time');
-    return timeStr != null ? DateTime.parse(timeStr) : null;
+  /// Clear cached product data (e.g. on logout)
+  Future<void> clearProductCache() async {
+    await _sqlite.clearProductCache();
   }
 
-  /// Queue an order offline when network is down
+  // ─────────────── ORDERS (Offline Queue) ───────────────
+
+  /// Queue an order for sync when network becomes available
   Future<void> queueOrder(OrderModel order) async {
-    final box = Hive.box(_ordersQueueBoxName);
-    await box.put(order.id, order.toMap());
+    await _sqlite.saveOrder(order.toMap());
+    debugPrint('[OfflineManager] Queued order: ${order.id}');
   }
 
-  /// Retrieve all queued offline orders
-  List<OrderModel> getQueuedOrders() {
-    final box = Hive.box(_ordersQueueBoxName);
-    return box.values
-        .map((data) => OrderModel.fromMap(Map<String, dynamic>.from(data)))
-        .toList();
+  /// Retrieve all orders that have not yet been synced
+  Future<List<OrderModel>> getQueuedOrders() async {
+    final maps = await _sqlite.getUnsyncedOrders();
+    return maps.map((m) => OrderModel.fromMap(m)).toList();
   }
 
-  /// Clear a specific queued order after sync success
+  /// Mark a specific order as synced (does not delete — keeps for audit trail)
   Future<void> removeQueuedOrder(String orderId) async {
-    final box = Hive.box(_ordersQueueBoxName);
-    await box.delete(orderId);
+    await _sqlite.markOrderSynced(orderId);
   }
 
-  /// Clear the entire queued orders box
+  /// Remove all unsynced orders from the queue
   Future<void> clearQueuedOrders() async {
-    final box = Hive.box(_ordersQueueBoxName);
-    await box.clear();
+    final db = await _sqlite.database;
+    await db.delete('orders', where: 'is_synced = ?', whereArgs: [0]);
+    debugPrint('[OfflineManager] Cleared all unsynced orders.');
   }
+
+  // ─────────────── CART ───────────────
+
+  Future<void> saveCartItem(Map<String, dynamic> item) => _sqlite.saveCartItem(item);
+  Future<List<Map<String, dynamic>>> getCartItems() => _sqlite.getCartItems();
+  Future<void> updateCartItemQuantity(String itemId, int qty) =>
+      _sqlite.updateCartItemQuantity(itemId, qty);
+  Future<void> removeCartItem(String itemId) => _sqlite.removeCartItem(itemId);
+  Future<void> clearCart() => _sqlite.clearCart();
+
+  // ─────────────── INVENTORY ───────────────
+
+  Future<void> saveInventoryAction(Map<String, dynamic> action) =>
+      _sqlite.saveInventoryAction(action);
+
+  Future<List<Map<String, dynamic>>> getUnsyncedInventoryActions() =>
+      _sqlite.getUnsyncedInventoryActions();
+
+  Future<void> markInventoryActionSynced(String actionId) =>
+      _sqlite.markInventoryActionSynced(actionId);
+
+  // ─────────────── PENDING SYNC QUEUE ───────────────
+
+  Future<void> enqueuePendingSync({
+    required String id,
+    required String actionType,
+    required String collection,
+    required String documentId,
+    required Map<String, dynamic> data,
+  }) =>
+      _sqlite.enqueuePendingSync(
+        id: id,
+        actionType: actionType,
+        collection: collection,
+        documentId: documentId,
+        data: data,
+      );
+
+  Future<List<Map<String, dynamic>>> getPendingSyncItems() =>
+      _sqlite.getPendingSyncItems();
+
+  Future<void> markSyncDone(String syncId) => _sqlite.markSyncDone(syncId);
+  Future<void> markSyncFailed(String syncId) => _sqlite.markSyncFailed(syncId);
+  Future<int> getPendingSyncCount() => _sqlite.getPendingSyncCount();
+
+  // ─────────────── AUDIT LOGS ───────────────
+
+  Future<void> writeAuditLog({
+    required String id,
+    required String action,
+    required String entityType,
+    String? entityId,
+    String? userId,
+    String? details,
+  }) =>
+      _sqlite.writeAuditLog(
+        id: id,
+        action: action,
+        entityType: entityType,
+        entityId: entityId,
+        userId: userId,
+        details: details,
+      );
+
+  // ─────────────── UTILITY ───────────────
+
+  Future<void> clearAllData() => _sqlite.clearAllData();
 }

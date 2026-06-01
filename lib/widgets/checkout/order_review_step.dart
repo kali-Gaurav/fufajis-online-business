@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/order_provider.dart';
+import '../../providers/location_provider.dart';
+import '../../providers/shop_config_provider.dart';
 import '../../models/user_model.dart';
 import '../../models/delivery_type.dart';
 import '../../models/payment_method.dart';
 import '../../services/delivery_charge_calculator.dart';
+import '../../services/shop_config_service.dart';
 import '../../utils/app_theme.dart';
 
 /// Step 3: Order Review Widget
@@ -13,6 +16,8 @@ class OrderReviewStep extends StatefulWidget {
   final Address deliveryAddress;
   final PaymentMethod paymentMethod;
   final DeliveryType deliveryType;
+  final DateTime? scheduledDeliveryDate;
+  final String? timeSlot;
   final VoidCallback onPlaceOrder;
   final VoidCallback onBack;
 
@@ -21,6 +26,8 @@ class OrderReviewStep extends StatefulWidget {
     required this.deliveryAddress,
     required this.paymentMethod,
     required this.deliveryType,
+    this.scheduledDeliveryDate,
+    this.timeSlot,
     required this.onPlaceOrder,
     required this.onBack,
   });
@@ -47,6 +54,32 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context);
     final orderProvider = Provider.of<OrderProvider>(context);
+    final locationProvider = Provider.of<LocationProvider>(context, listen: false);
+    final configProvider = Provider.of<ShopConfigProvider>(context, listen: false);
+
+    final distanceKm = locationProvider.distanceFromShopInMeters(
+      latitude: widget.deliveryAddress.latitude,
+      longitude: widget.deliveryAddress.longitude,
+    ) / 1000.0;
+
+    final branches = configProvider.branches;
+    final nearestBranch = ShopConfigService().getNearestBranch(
+      widget.deliveryAddress.latitude,
+      widget.deliveryAddress.longitude,
+      branches,
+    );
+
+    final deliveryFee = DeliveryChargeCalculator.calculateDeliveryCharge(
+      widget.deliveryType,
+      cartProvider.subtotal,
+      distanceKm: distanceKm,
+      config: configProvider.shopConfig,
+      branch: nearestBranch,
+    );
+
+    final tax = cartProvider.subtotal * 0.05; // 5% tax
+    final walletUsed = _useWallet ? cartProvider.walletAmountUsed : 0;
+    final total = (cartProvider.subtotal - cartProvider.discount + deliveryFee + cartProvider.tipAmount + tax - walletUsed).clamp(0.0, double.infinity);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -78,7 +111,7 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
         const SizedBox(height: 12),
 
         // Delivery Type Card
-        _buildDeliveryTypeCard(),
+        _buildDeliveryTypeCard(deliveryFee),
         const SizedBox(height: 12),
 
         // Order Items Card
@@ -94,7 +127,7 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
         const SizedBox(height: 12),
 
         // Price Summary Card
-        _buildPriceSummary(cartProvider),
+        _buildPriceSummary(cartProvider, deliveryFee, total),
         const SizedBox(height: 24),
 
         // Place Order Button
@@ -109,7 +142,7 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
             ),
           ),
           child: Text(
-            'Place Order - ₹${cartProvider.total.round()}',
+            'Place Order - ₹${total.round()}',
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -178,15 +211,11 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
     );
   }
 
-  Widget _buildDeliveryTypeCard() {
-    final charge = DeliveryChargeCalculator.calculateDeliveryCharge(
-      widget.deliveryType,
-      0,
-    );
+  Widget _buildDeliveryTypeCard(double charge) {
     final formattedDate = DeliveryChargeCalculator.getFormattedDeliveryDate(
       widget.deliveryType,
     );
-
+ 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -222,7 +251,7 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                widget.deliveryType.toString().split('.').last,
+                widget.deliveryType.displayName,
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
@@ -245,7 +274,9 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
               const Icon(Icons.access_time, color: AppTheme.grey500, size: 14),
               const SizedBox(width: 4),
               Text(
-                'Estimated delivery: $formattedDate',
+                widget.deliveryType == DeliveryType.scheduled && widget.scheduledDeliveryDate != null
+                    ? 'Scheduled: ${_formatDate(widget.scheduledDeliveryDate!)} (${widget.timeSlot ?? "Anytime"})'
+                    : 'Estimated delivery: $formattedDate',
                 style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
               ),
             ],
@@ -253,6 +284,10 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
         ],
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
   }
 
   Widget _buildItemsCard(CartProvider cartProvider) {
@@ -296,7 +331,7 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
             ],
           ),
           const SizedBox(height: 12),
-          ...cartProvider.cartItems.map((item) => _buildItemRow(item)),
+          ...cartProvider.cartItems.take(3).map((item) => _buildItemRow(item)),
           if (cartProvider.cartItems.length > 3)
             Padding(
               padding: const EdgeInsets.only(top: 8),
@@ -310,7 +345,7 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
     );
   }
 
-  Widget _buildItemRow(cartItem) {
+  Widget _buildItemRow(dynamic cartItem) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -437,10 +472,10 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
     );
   }
 
-  Widget _buildPriceSummary(CartProvider cartProvider) {
+  Widget _buildPriceSummary(CartProvider cartProvider, double deliveryFee, double total) {
     final tax = cartProvider.subtotal * 0.05; // 5% tax
     final walletUsed = _useWallet ? cartProvider.walletAmountUsed : 0;
-
+ 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -470,8 +505,8 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
           const SizedBox(height: 8),
           _buildSummaryRow(
             'Delivery',
-            cartProvider.deliveryCharge,
-            isFree: cartProvider.deliveryCharge == 0,
+            deliveryFee,
+            isFree: deliveryFee == 0,
           ),
           const SizedBox(height: 8),
           _buildSummaryRow('Tax (5%)', tax),
@@ -496,7 +531,7 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
                 ),
               ),
               Text(
-                '₹${cartProvider.total.round()}',
+                '₹${total.round()}',
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -542,4 +577,3 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
     );
   }
 }
-

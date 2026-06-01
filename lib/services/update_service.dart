@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'remote_config_service.dart';
+import 'github_service.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class UpdateService {
   static final UpdateService _instance = UpdateService._internal();
@@ -8,6 +10,7 @@ class UpdateService {
   UpdateService._internal();
 
   final RemoteConfigService _remoteConfig = RemoteConfigService();
+  final GitHubService _githubService = GitHubService();
 
   /// Returns true if the app can proceed to navigation, false if blocked by update/maintenance.
   Future<bool> handleVersionCheck(BuildContext context) async {
@@ -27,7 +30,8 @@ class UpdateService {
       return false;
     }
 
-    // 4. Check for Optional Update (Soft)
+    // 4. Check for Optional Update (Soft) via Remote Config
+    // GitHub API check is now a secondary background check or deprecated for soft updates to avoid rate limits.
     final bool softUpdate = await _remoteConfig.isOptionalUpdateAvailable();
     if (softUpdate) {
       if (context.mounted) _showUpdateDialog(context, isForceUpdate: false);
@@ -36,6 +40,30 @@ class UpdateService {
     }
 
     return true;
+  }
+
+  Future<bool> _isGitHubUpdateAvailable() async {
+    final latestVersion = await _githubService.getLatestReleaseVersion();
+    if (latestVersion == null) return false;
+
+    final packageInfo = await PackageInfo.fromPlatform();
+    return _isVersionLower(packageInfo.version, latestVersion);
+  }
+
+  bool _isVersionLower(String current, String target) {
+    try {
+      List<int> currentParts = current.split('.').map(int.parse).toList();
+      List<int> targetParts = target.split('.').map(int.parse).toList();
+
+      for (int i = 0; i < currentParts.length && i < targetParts.length; i++) {
+        if (currentParts[i] < targetParts[i]) return true;
+        if (currentParts[i] > targetParts[i]) return false;
+      }
+      if (targetParts.length > currentParts.length) return true;
+    } catch (e) {
+      debugPrint('Version comparison error: $e');
+    }
+    return false;
   }
 
   void _showUpdateDialog(BuildContext context, {required bool isForceUpdate}) {

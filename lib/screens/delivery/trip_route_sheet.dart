@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../models/order_model.dart';
 import '../../models/payment_method.dart';
-import '../../services/firestore_service.dart';
+import '../../services/order_service.dart';
 import '../../services/offline_routing_service.dart';
 import '../../services/offline_sync_service.dart';
 import '../../utils/app_theme.dart';
@@ -22,7 +22,7 @@ class _HyperLocalPosition {
 }
 
 class _TripRouteSheetState extends State<TripRouteSheet> {
-  final FirestoreService _firestoreService = FirestoreService();
+  final OrderService _orderService = OrderService();
   final OfflineRoutingService _routingService = OfflineRoutingService();
   final OfflineSyncService _syncService = OfflineSyncService();
 
@@ -106,7 +106,7 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
 
     // Send a location update
     if (_syncService.isOnline.value) {
-      await _firestoreService.updateOrderLiveLocation(
+      await _orderService.updateOrderLiveLocation(
         order.id,
         order.deliveryAddress.latitude,
         order.deliveryAddress.longitude,
@@ -271,7 +271,7 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
         ],
       ),
       body: StreamBuilder<List<OrderModel>>(
-        stream: _firestoreService.getAllOrdersStream(),
+        stream: _orderService.getAllOrdersStream(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());

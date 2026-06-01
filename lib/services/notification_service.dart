@@ -45,7 +45,7 @@ class NotificationService {
     );
 
     await _localNotifications.initialize(
-      settings: initializationSettings,
+      initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
         debugPrint("Notification clicked: ${response.payload}");
       },
@@ -117,10 +117,10 @@ class NotificationService {
     );
 
     await _localNotifications.show(
-      id: DateTime.now().millisecond,
-      title: title,
-      body: body,
-      notificationDetails: platformChannelSpecifics,
+      DateTime.now().millisecond,
+      title,
+      body,
+      platformChannelSpecifics,
       payload: payload,
     );
   }
@@ -180,6 +180,15 @@ class NotificationService {
   void triggerSystemNotification(String title, String body) {
     final fullTitle = "ℹ️ $title";
     showLocalNotification(fullTitle, body, type: 'systemMessage');
+  }
+
+  // Trigger staple refill notification (Idea 27)
+  void triggerStapleRefillNotification(String productName, int daysLeft) {
+    final title = "🛒 Smart Kitchen Reminder";
+    final body = daysLeft <= 0 
+        ? "You've likely run out of $productName! Refill now from your Smart Kitchen."
+        : "You're running low on $productName! (Estimated: $daysLeft days left).";
+    showLocalNotification(title, body, type: 'stapleRefill');
   }
 
   // Get notification color based on type

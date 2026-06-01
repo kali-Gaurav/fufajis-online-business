@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../utils/app_theme.dart';
 import '../../providers/product_provider.dart';
 import '../../models/product_model.dart';
-import '../../services/firestore_service.dart';
+import '../../services/product_service.dart';
 import '../../services/pricing_service.dart';
 
 class DynamicPricingConsole extends StatefulWidget {
@@ -545,8 +545,8 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
                           );
 
                           try {
-                            final firestore = FirestoreService();
-                            await firestore.addProduct(updatedProduct);
+                            final productService = ProductService();
+                            await productService.addProduct(updatedProduct);
                             await provider.refreshProducts(); // Refresh list
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(

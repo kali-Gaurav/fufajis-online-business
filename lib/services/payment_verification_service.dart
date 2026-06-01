@@ -289,6 +289,172 @@ class PaymentVerificationService {
         return PaymentStatus.unknown;
     }
   }
+
+  // ─────────────────────────────────────────────────────────────────────
+  // WEBHOOK RECONCILIATION — Fixes orders stuck in "Pending" after
+  // successful payment when client app crashes or network drops.
+  // ─────────────────────────────────────────────────────────────────────
+
+  /// Called by Cloud Function webhook handler when Razorpay sends
+  /// a `payment.captured` event. Reconciles the order status in Firestore.
+  ///
+  /// Flow: Razorpay Server → Cloud Function → this method
+  Future<bool> reconcilePaymentFromWebhook({
+    required String razorpayPaymentId,
+    required String razorpayOrderId,
+    required String razorpaySignature,
+    required double amount,
+  }) async {
+    try {
+      debugPrint('[PaymentReconciliation] Webhook received for payment: $razorpayPaymentId');
+
+      // 1. Check if this payment was already reconciled (idempotency guard)
+      final existingPayment = await _firestore
+          .collection('payments')
+          .doc(razorpayPaymentId)
+          .get();
+
+      if (existingPayment.exists && existingPayment.data()?['verified'] == true) {
+        debugPrint('[PaymentReconciliation] Payment $razorpayPaymentId already reconciled. Skipping.');
+        return true;
+      }
+
+      // 2. Find the matching order by razorpay order ID
+      final orderQuery = await _firestore
+          .collection('orders')
+          .where('paymentId', isEqualTo: razorpayPaymentId)
+          .limit(1)
+          .get();
+
+      // Also try matching by order ID field
+      QuerySnapshot<Map<String, dynamic>>? orderByIdQuery;
+      if (orderQuery.docs.isEmpty) {
+        orderByIdQuery = await _firestore
+            .collection('orders')
+            .doc(razorpayOrderId)
+            .collection('payments')
+            .limit(1)
+            .get();
+      }
+
+      String? firestoreOrderId;
+      if (orderQuery.docs.isNotEmpty) {
+        firestoreOrderId = orderQuery.docs.first.id;
+      } else if (razorpayOrderId.isNotEmpty) {
+        // Check if the razorpayOrderId is the Firestore document ID
+        final directDoc = await _firestore.collection('orders').doc(razorpayOrderId).get();
+        if (directDoc.exists) {
+          firestoreOrderId = razorpayOrderId;
+        }
+      }
+
+      // 3. Update payment record
+      await _firestore.collection('payments').doc(razorpayPaymentId).set({
+        'paymentId': razorpayPaymentId,
+        'orderId': firestoreOrderId ?? razorpayOrderId,
+        'razorpayOrderId': razorpayOrderId,
+        'amount': amount,
+        'status': 'captured',
+        'verified': true,
+        'verifiedAt': FieldValue.serverTimestamp(),
+        'source': 'webhook_reconciliation',
+        'signature': razorpaySignature,
+        'createdAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      // 4. Update order status if found and still pending
+      if (firestoreOrderId != null) {
+        final orderDoc = await _firestore.collection('orders').doc(firestoreOrderId).get();
+        if (orderDoc.exists) {
+          final currentStatus = orderDoc.data()?['status']?.toString() ?? '';
+          final paymentStatus = orderDoc.data()?['paymentStatus']?.toString() ?? '';
+
+          // Only reconcile if order is still in a pre-payment state
+          if (paymentStatus != 'paid' ||
+              currentStatus.contains('pending') ||
+              currentStatus.contains('created')) {
+            await _firestore.collection('orders').doc(firestoreOrderId).update({
+              'paymentStatus': 'paid',
+              'paymentId': razorpayPaymentId,
+              'status': 'OrderStatus.confirmed',
+              'updatedAt': FieldValue.serverTimestamp(),
+              'reconciliationSource': 'razorpay_webhook',
+              'reconciledAt': FieldValue.serverTimestamp(),
+            });
+            debugPrint('[PaymentReconciliation] Order $firestoreOrderId reconciled to CONFIRMED.');
+          }
+        }
+      }
+
+      // 5. Log the reconciliation event for audit trail
+      await _firestore.collection('payment_reconciliation_log').add({
+        'paymentId': razorpayPaymentId,
+        'orderId': firestoreOrderId ?? razorpayOrderId,
+        'amount': amount,
+        'action': 'webhook_reconcile',
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      return true;
+    } catch (e) {
+      debugPrint('[PaymentReconciliation] Error reconciling webhook payment: $e');
+
+      // Log the failure for manual review
+      try {
+        await _firestore.collection('payment_reconciliation_log').add({
+          'paymentId': razorpayPaymentId,
+          'orderId': razorpayOrderId,
+          'amount': amount,
+          'action': 'webhook_reconcile_failed',
+          'error': e.toString(),
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+      } catch (_) {}
+
+      return false;
+    }
+  }
+
+  /// Scans for orders that are stuck in "Pending Payment" state for more
+  /// than 15 minutes and checks their actual payment status. This catches
+  /// edge cases that webhooks might miss (e.g., webhook delivery failure).
+  Future<int> reconcileOrphanedPayments() async {
+    try {
+      final cutoffTime = DateTime.now().subtract(const Duration(minutes: 15));
+      final snapshot = await _firestore
+          .collection('orders')
+          .where('paymentStatus', isEqualTo: 'pending')
+          .where('createdAt', isLessThan: Timestamp.fromDate(cutoffTime))
+          .limit(20)
+          .get();
+
+      int reconciled = 0;
+      for (final doc in snapshot.docs) {
+        final paymentId = doc.data()['paymentId']?.toString();
+        if (paymentId == null || paymentId.isEmpty) continue;
+
+        // Check if payment was actually captured in our payments collection
+        final paymentDoc = await _firestore.collection('payments').doc(paymentId).get();
+        if (paymentDoc.exists && paymentDoc.data()?['status'] == 'captured') {
+          await _firestore.collection('orders').doc(doc.id).update({
+            'paymentStatus': 'paid',
+            'status': 'OrderStatus.confirmed',
+            'updatedAt': FieldValue.serverTimestamp(),
+            'reconciliationSource': 'orphan_scanner',
+            'reconciledAt': FieldValue.serverTimestamp(),
+          });
+          reconciled++;
+          debugPrint('[PaymentReconciliation] Orphan reconciled: ${doc.id}');
+        }
+      }
+
+      debugPrint('[PaymentReconciliation] Orphan scan complete. Reconciled: $reconciled');
+      return reconciled;
+    } catch (e) {
+      debugPrint('[PaymentReconciliation] Orphan scan error: $e');
+      return 0;
+    }
+  }
 }
 
 

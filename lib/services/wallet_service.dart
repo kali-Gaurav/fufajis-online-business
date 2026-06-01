@@ -64,6 +64,7 @@ class WalletTransaction {
   final DateTime timestamp;
   final String? description;
   final double balanceAfter;
+  final int? sequenceNumber;
 
   WalletTransaction({
     required this.id,
@@ -74,6 +75,7 @@ class WalletTransaction {
     required this.timestamp,
     this.description,
     required this.balanceAfter,
+    this.sequenceNumber,
   });
 
   factory WalletTransaction.fromMap(Map<String, dynamic> map) {
@@ -93,6 +95,7 @@ class WalletTransaction {
           : DateTime.now(),
       description: map['description'],
       balanceAfter: (map['balanceAfter'] ?? 0.0).toDouble(),
+      sequenceNumber: map['sequenceNumber'],
     );
   }
 
@@ -106,6 +109,7 @@ class WalletTransaction {
       'timestamp': timestamp,
       'description': description,
       'balanceAfter': balanceAfter,
+      if (sequenceNumber != null) 'sequenceNumber': sequenceNumber,
     };
   }
 
@@ -118,6 +122,7 @@ class WalletTransaction {
     DateTime? timestamp,
     String? description,
     double? balanceAfter,
+    int? sequenceNumber,
   }) {
     return WalletTransaction(
       id: id ?? this.id,
@@ -128,6 +133,7 @@ class WalletTransaction {
       timestamp: timestamp ?? this.timestamp,
       description: description ?? this.description,
       balanceAfter: balanceAfter ?? this.balanceAfter,
+      sequenceNumber: sequenceNumber ?? this.sequenceNumber,
     );
   }
 }
@@ -158,13 +164,22 @@ class WalletService {
     required WalletTransactionType transactionType,
     String? orderReference,
     String? description,
+    String? transactionId,
   }) async {
     try {
       final userRef = _firestore.collection('users').doc(userId);
-      final transactionId = 'txn_${DateTime.now().millisecondsSinceEpoch}';
+      final finalTxnId = transactionId ?? 'txn_${DateTime.now().millisecondsSinceEpoch}';
 
       // Use transaction to ensure atomicity
       await _firestore.runTransaction((transaction) async {
+        // 1. Idempotency Check: check if transaction log already exists
+        final txnDocRef = userRef.collection('wallet_transactions').doc(finalTxnId);
+        final existingTxn = await transaction.get(txnDocRef);
+        if (existingTxn.exists) {
+          debugPrint('[WalletService] Transaction $finalTxnId already processed. Skipping.');
+          return; // Idempotent success
+        }
+
         // Get current user data
         final userDoc = await transaction.get(userRef);
         if (!userDoc.exists) {
@@ -174,16 +189,19 @@ class WalletService {
         final userData = userDoc.data()!;
         final currentBalance = (userData['walletBalance'] ?? 0.0).toDouble();
         final newBalance = currentBalance + amount;
+        final lastSeqNum = userData['lastTransactionSequenceNumber'] ?? 0;
+        final newSeqNum = lastSeqNum + 1;
 
-        // Update user wallet balance
+        // Update user wallet balance and sequence number
         transaction.update(userRef, {
           'walletBalance': newBalance,
+          'lastTransactionSequenceNumber': newSeqNum,
           'updatedAt': DateTime.now(),
         });
 
         // Create transaction record
         final transactionData = WalletTransaction(
-          id: transactionId,
+          id: finalTxnId,
           userId: userId,
           type: transactionType,
           amount: amount,
@@ -191,10 +209,11 @@ class WalletService {
           timestamp: DateTime.now(),
           description: description ?? transactionType.description,
           balanceAfter: newBalance,
+          sequenceNumber: newSeqNum,
         );
 
         transaction.set(
-          userRef.collection('wallet_transactions').doc(transactionId),
+          txnDocRef,
           transactionData.toMap(),
         );
       });
@@ -213,13 +232,22 @@ class WalletService {
     required WalletTransactionType transactionType,
     String? orderReference,
     String? description,
+    String? transactionId,
   }) async {
     try {
       final userRef = _firestore.collection('users').doc(userId);
-      final transactionId = 'txn_${DateTime.now().millisecondsSinceEpoch}';
+      final finalTxnId = transactionId ?? 'txn_${DateTime.now().millisecondsSinceEpoch}';
 
       // Use transaction to ensure atomicity
       await _firestore.runTransaction((transaction) async {
+        // 1. Idempotency Check: check if transaction log already exists
+        final txnDocRef = userRef.collection('wallet_transactions').doc(finalTxnId);
+        final existingTxn = await transaction.get(txnDocRef);
+        if (existingTxn.exists) {
+          debugPrint('[WalletService] Transaction $finalTxnId already processed. Skipping.');
+          return; // Idempotent success
+        }
+
         // Get current user data
         final userDoc = await transaction.get(userRef);
         if (!userDoc.exists) {
@@ -235,16 +263,19 @@ class WalletService {
         }
 
         final newBalance = currentBalance - amount;
+        final lastSeqNum = userData['lastTransactionSequenceNumber'] ?? 0;
+        final newSeqNum = lastSeqNum + 1;
 
-        // Update user wallet balance
+        // Update user wallet balance and sequence number
         transaction.update(userRef, {
           'walletBalance': newBalance,
+          'lastTransactionSequenceNumber': newSeqNum,
           'updatedAt': DateTime.now(),
         });
 
         // Create transaction record
         final transactionData = WalletTransaction(
-          id: transactionId,
+          id: finalTxnId,
           userId: userId,
           type: transactionType,
           amount: amount,
@@ -252,10 +283,11 @@ class WalletService {
           timestamp: DateTime.now(),
           description: description ?? transactionType.description,
           balanceAfter: newBalance,
+          sequenceNumber: newSeqNum,
         );
 
         transaction.set(
-          userRef.collection('wallet_transactions').doc(transactionId),
+          txnDocRef,
           transactionData.toMap(),
         );
       });

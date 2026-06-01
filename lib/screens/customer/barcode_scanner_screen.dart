@@ -233,10 +233,10 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> with Single
                   Row(
                     children: [
                       // Torch Toggle Button
-                      ValueListenableBuilder(
-                        valueListenable: _controller,
+                      ValueListenableBuilder<TorchState>(
+                        valueListenable: _controller.torchState,
                         builder: (context, state, child) {
-                          final isTorchOn = state.torchState == TorchState.on;
+                          final isTorchOn = state == TorchState.on;
                           return IconButton(
                             icon: Icon(
                               isTorchOn ? Icons.flash_on : Icons.flash_off,

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Fufaji's Online App</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #FF5722;
+            --primary-dark: #E64A19;
+            --secondary: #4CAF50;
+            --dark: #1E1E24;
+            --light: #F7F9FC;
+            --white: #FFFFFF;
+            --gray: #64748B;
+            --radius: 16px;
+            --shadow: 0 10px 30px rgba(0,0,0,0.05);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header {
+            width: 100%;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-dot {
+            width: 12px;
+            height: 12px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        main {
+            width: 100%;
+            max-width: 1200px;
+            padding: 40px 20px;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 60px;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        @media (max-width: 768px) {
+            main {
+                grid-template-columns: 1fr;
+                gap: 40px;
+                text-align: center;
+            }
+            .hero-actions {
+                justify-content: center;
+            }
+        }
+
+        .hero-title {
+            font-size: 48px;
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+
+        .hero-title span {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc {
+            font-size: 18px;
+            color: var(--gray);
+            margin-bottom: 35px;
+            max-width: 550px;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 32px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 16px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+            box-shadow: 0 10px 20px rgba(255, 87, 34, 0.2);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(255, 87, 34, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: var(--white);
+            color: var(--dark);
+            border: 2px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .version-badge {
+            display: inline-flex;
+            align-items: center;
+            background-color: rgba(255, 87, 34, 0.1);
+            color: var(--primary);
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background-color: var(--white);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+            text-align: center;
+        }
+
+        .qr-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .qr-desc {
+            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 25px;
+        }
+
+        .qr-placeholder {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 25px;
+            background-color: #f1f5f9;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        /* SVG QR Code representation of the URL */
+        .qr-svg {
+            width: 170px;
+            height: 170px;
+        }
+
+        .steps-container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 40px 20px;
+            margin: 0 auto;
+        }
+
+        .steps-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .step-card {
+            background-color: var(--white);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0, 0, 0, 0.01);
+            position: relative;
+        }
+
+        .step-num {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .step-heading {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .step-text {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        footer {
+            width: 100%;
+            padding: 40px 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            text-align: center;
+            color: var(--gray);
+            font-size: 14px;
+            background-color: var(--white);
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            Fufaji's Online <span class="logo-dot"></span>
+        </div>
+    </header>
+
+    <main>
+        <div>
+            <div class="version-badge">Latest Stable: v1.0.1 (Build 2)</div>
+            <h1 class="hero-title">Fixed Pricing. Honest Quality.<br><span>Fresh To Your Home.</span></h1>
+            <p class="hero-desc">Download Fufaji's Online App to order groceries, dairy, vegetables, and household essentials directly from our local store with guaranteed super-fast delivery.</p>
+            
+            <div class="hero-actions">
+                <a href="./app-release.apk" class="btn btn-primary" download>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Download APK (Direct)
+                </a>
+                <a href="#install-guide" class="btn btn-secondary">
+                    Installation Help
+                </a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 class="qr-title">Scan to Download</h3>
+            <p class="qr-desc">Scan this QR code with your phone camera to download the app instantly.</p>
+            <div class="qr-placeholder">
+                <!-- QR Code representation for direct download -->
+                <svg class="qr-svg" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#1E1E24" stroke-width="1">
+                    <rect x="0" y="0" width="7" height="7" fill="black"/>
+                    <rect x="1" y="1" width="5" height="5" fill="white"/>
+                    <rect x="2" y="2" width="3" height="3" fill="black"/>
+                    
+                    <rect x="22" y="0" width="7" height="7" fill="black"/>
+                    <rect x="23" y="1" width="5" height="5" fill="white"/>
+                    <rect x="24" y="2" width="3" height="3" fill="black"/>
+                    
+                    <rect x="0" y="22" width="7" height="7" fill="black"/>
+                    <rect x="1" y="23" width="5" height="5" fill="white"/>
+                    <rect x="2" y="24" width="3" height="3" fill="black"/>
+                    
+                    <!-- Random QR bits for presentation -->
+                    <rect x="9" y="1" width="2" height="2" fill="black"/>
+                    <rect x="13" y="0" width="1" height="3" fill="black"/>
+                    <rect x="16" y="2" width="4" height="2" fill="black"/>
+                    <rect x="9" y="5" width="4" height="1" fill="black"/>
+                    <rect x="15" y="5" width="2" height="3" fill="black"/>
+                    <rect x="10" y="9" width="3" height="4" fill="black"/>
+                    <rect x="1" y="9" width="4" height="2" fill="black"/>
+                    <rect x="5" y="13" width="3" height="2" fill="black"/>
+                    <rect x="19" y="9" width="4" height="4" fill="black"/>
+                    <rect x="25" y="9" width="3" height="2" fill="black"/>
+                    <rect x="22" y="15" width="2" height="3" fill="black"/>
+                    <rect x="26" y="14" width="2" height="4" fill="black"/>
+                    <rect x="9" y="16" width="3" height="3" fill="black"/>
+                    <rect x="14" y="14" width="4" height="2" fill="black"/>
+                    <rect x="13" y="18" width="5" height="2" fill="black"/>
+                    <rect x="9" y="22" width="2" height="5" fill="black"/>
+                    <rect x="13" y="22" width="4" height="1" fill="black"/>
+                    <rect x="15" y="24" width="3" height="4" fill="black"/>
+                    <rect x="20" y="22" width="4" height="3" fill="black"/>
+                    <rect x="26" y="23" width="2" height="2" fill="black"/>
+                    <rect x="25" y="26" width="3" height="2" fill="black"/>
+                </svg>
+            </div>
+            <div style="font-size: 12px; color: var(--gray);">File size: ~18 MB</div>
+        </div>
+    </main>
+
+    <section id="install-guide" class="steps-container">
+        <h2 class="steps-title">How to Install</h2>
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-num">1</div>
+                <h4 class="step-heading">Download APK</h4>
+                <p class="step-text">Click the <strong>Download APK</strong> button above on your Android device to save the installer file.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">2</div>
+                <h4 class="step-heading">Enable Unknown Sources</h4>
+                <p class="step-text">If prompted by your browser, go to your phone <strong>Settings > Security</strong> and toggle <strong>"Allow installation from this source"</strong>.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">3</div>
+                <h4 class="step-heading">Run & Enjoy</h4>
+                <p class="step-text">Open the downloaded <code>app-release.apk</code> file and tap <strong>Install</strong>. Open the app to start shopping!</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Fufaji Online Business. Designed for local community service.</p>
+        <p style="margin-top: 10px; font-size: 12px;">Powered by Firebase Hosting</p>
+    </footer>
+</body>
+</html>

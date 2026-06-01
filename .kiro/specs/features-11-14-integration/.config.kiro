@@ -1,9 +1,0 @@
-{
-  "specType": "feature",
-  "workflowType": "requirements-first",
-  "featureName": "features-11-14-integration",
-  "displayName": "Features 11-14 Integration",
-  "description": "End-to-end integration of WhatsApp Sync, Inventory Alerts, Expiry Tracking, and Dynamic Pricing services",
-  "createdAt": "2026-05-20T10:00:00Z",
-  "updatedAt": "2026-05-20T10:00:00Z"
-}

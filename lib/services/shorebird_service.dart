@@ -6,21 +6,15 @@ class ShorebirdService {
   factory ShorebirdService() => _instance;
   ShorebirdService._internal();
 
-  final _shorebirdCodePush = ShorebirdCodePush();
+  final _shorebirdUpdater = ShorebirdUpdater();
 
   /// Check if a patch is available and download it in the background
   Future<void> checkForUpdates() async {
     try {
-      final isShorebirdAvailable = _shorebirdCodePush.isShorebirdAvailable();
-      if (!isShorebirdAvailable) {
-        debugPrint('[Shorebird] Shorebird is not available.');
-        return;
-      }
-
-      final isUpdateAvailable = await _shorebirdCodePush.isNewPatchAvailableForDownload();
-      if (isUpdateAvailable) {
-        debugPrint('[Shorebird] New patch available. Downloading...');
-        await _shorebirdCodePush.downloadUpdateIfAvailable();
+      final status = await _shorebirdUpdater.checkForUpdate();
+      if (status == UpdateStatus.outdated) {
+        debugPrint('[Shorebird] New patch available. Updating...');
+        await _shorebirdUpdater.update();
         debugPrint('[Shorebird] Patch downloaded. It will be applied on next app restart.');
       } else {
         debugPrint('[Shorebird] No new patches found.');
@@ -33,7 +27,8 @@ class ShorebirdService {
   /// Get current patch number
   Future<int?> getCurrentPatchNumber() async {
     try {
-      return await _shorebirdCodePush.currentPatchNumber();
+      final patch = await _shorebirdUpdater.readCurrentPatch();
+      return patch?.number;
     } catch (e) {
       return null;
     }

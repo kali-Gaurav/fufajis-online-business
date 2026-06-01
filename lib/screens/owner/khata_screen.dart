@@ -1,7 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/user_model.dart';
-import '../../services/firestore_service.dart';
+import '../../services/user_service.dart';
 import '../../utils/app_theme.dart';
 
 class KhataScreen extends StatefulWidget {
@@ -12,9 +12,8 @@ class KhataScreen extends StatefulWidget {
 }
 
 class _KhataScreenState extends State<KhataScreen> {
-  final FirestoreService _firestoreService = FirestoreService();
+  final UserService _userService = UserService();
   String _searchQuery = '';
-  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {

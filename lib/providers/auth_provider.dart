@@ -6,6 +6,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import '../models/user_model.dart';
+import '../models/shop_branch_model.dart';
+import '../services/shop_config_service.dart';
+
+class ShopInfo {
+  final String id;
+  final String name;
+  const ShopInfo({required this.id, required this.name});
+}
 
 class AuthProvider with ChangeNotifier {
   static final AuthProvider instance = AuthProvider._internal();
@@ -17,6 +25,22 @@ class AuthProvider with ChangeNotifier {
 
   UserModel? _currentUser;
   UserModel? get currentUser => _currentUser;
+
+  ShopBranchModel? _currentBranch;
+  ShopBranchModel? get currentBranch => _currentBranch;
+
+  ShopInfo? _currentShop;
+  ShopInfo? get currentShop => _currentShop ?? const ShopInfo(id: 'shop_001', name: 'Fufaji Store');
+
+  void setCurrentBranch(ShopBranchModel? branch) {
+    _currentBranch = branch;
+    notifyListeners();
+  }
+
+  void setCurrentShop(ShopInfo? shop) {
+    _currentShop = shop;
+    notifyListeners();
+  }
   
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -27,14 +51,53 @@ class AuthProvider with ChangeNotifier {
   bool _isLoggedIn = false;
   bool get isLoggedIn => _isLoggedIn;
 
+  bool _isProfileLoading = false;
+  bool get isProfileLoading => _isProfileLoading;
+
   bool _isMfaStepRequired = false;
   bool get isMfaStepRequired => _isMfaStepRequired;
 
   String? _verificationId;
 
+  String? _emailVerificationOtp;
+  String? _verificationEmail;
+  DateTime? _emailOtpExpiry;
+  bool _isEmailVerification = false;
+
+  bool get isEmailVerification => _isEmailVerification;
+
+  String _getPasswordForEmail(String email) {
+    return 'FufajiSecureAuthPass_${email.hashCode}_2026';
+  }
+
+  Future<void> sendEmailOTP(String email) async {
+    _isLoading = true;
+    _errorMessage = null;
+    _isEmailVerification = true;
+    notifyListeners();
+
+    try {
+      // Generate a 6-digit OTP
+      final otp = (100000 + (DateTime.now().microsecondsSinceEpoch % 900000)).toString();
+      _emailVerificationOtp = otp;
+      _verificationEmail = email;
+      _emailOtpExpiry = DateTime.now().add(const Duration(minutes: 5));
+
+      debugPrint('[Security/Auth] Sent Email OTP: $otp to email: $email');
+      
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Failed to send OTP: ${e.toString()}';
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> sendOTP(String phoneNumber) async {
     _isLoading = true;
     _errorMessage = null;
+    _isEmailVerification = false;
     notifyListeners();
 
     try {
@@ -65,27 +128,114 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> verifyOTP(String otp) async {
+  Future<bool> verifyOTP(String otp, {UserRole? selectedRole}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      if (_verificationId == null) {
-        _errorMessage = 'Session expired';
-        _isLoading = false;
-        notifyListeners();
-        return false;
+      UserCredential userCredential;
+      if (_isEmailVerification) {
+        if (_emailVerificationOtp == null || _verificationEmail == null || _emailOtpExpiry == null) {
+          _errorMessage = 'Verification session expired';
+          _isLoading = false;
+          notifyListeners();
+          return false;
+        }
+
+        if (DateTime.now().isAfter(_emailOtpExpiry!)) {
+          _errorMessage = 'OTP expired';
+          _isLoading = false;
+          notifyListeners();
+          return false;
+        }
+
+        if (_emailVerificationOtp != otp) {
+          _errorMessage = 'Invalid OTP';
+          _isLoading = false;
+          notifyListeners();
+          return false;
+        }
+
+        final email = _verificationEmail!;
+        final password = _getPasswordForEmail(email);
+
+        try {
+          userCredential = await _auth.signInWithEmailAndPassword(
+            email: email,
+            password: password,
+          );
+        } on FirebaseAuthException catch (e) {
+          if (e.code == 'user-not-found') {
+            userCredential = await _auth.createUserWithEmailAndPassword(
+              email: email,
+              password: password,
+            );
+          } else {
+            rethrow;
+          }
+        }
+      } else {
+        if (_verificationId == null) {
+          _errorMessage = 'Session expired';
+          _isLoading = false;
+          notifyListeners();
+          return false;
+        }
+
+        final credential = PhoneAuthProvider.credential(
+          verificationId: _verificationId!,
+          smsCode: otp,
+        );
+
+        userCredential = await _auth.signInWithCredential(credential);
       }
 
-      final credential = PhoneAuthProvider.credential(
-        verificationId: _verificationId!,
-        smsCode: otp,
-      );
-
-      final userCredential = await _auth.signInWithCredential(credential);
       if (userCredential.user != null) {
-        await _onSuccessfulLogin(userCredential.user!);
+        final user = userCredential.user!;
+        
+        // Role authorization check (Security Hardening)
+        if (selectedRole != null && selectedRole != UserRole.customer) {
+          final String contact = user.phoneNumber ?? user.email ?? '';
+          final String phoneDocId = contact.replaceAll('+', '');
+          
+          bool isAuthorized = false;
+
+          // Check user document roles
+          final userDoc = await _firestore.collection('users').doc(user.uid).get();
+          if (userDoc.exists) {
+            final rolesList = (userDoc.data()?['roles'] as List<dynamic>?)?.map((r) => r.toString()).toList() ?? [];
+            if (rolesList.contains(selectedRole.toString())) {
+              isAuthorized = true;
+            }
+          }
+
+          // Check pre_authorized_users collection if not authorized in user doc
+          if (!isAuthorized) {
+            final authDoc = await _firestore.collection('pre_authorized_users').doc(phoneDocId).get();
+            if (authDoc.exists && authDoc.data()?['role'] == selectedRole.toString()) {
+              isAuthorized = true;
+            }
+
+            if (!isAuthorized && user.email != null) {
+              final emailDocId = user.email!.replaceAll('@', '_').replaceAll('.', '_');
+              final emailAuthDoc = await _firestore.collection('pre_authorized_users').doc(emailDocId).get();
+              if (emailAuthDoc.exists && emailAuthDoc.data()?['role'] == selectedRole.toString()) {
+                isAuthorized = true;
+              }
+            }
+          }
+
+          if (!isAuthorized) {
+            await _auth.signOut();
+            _errorMessage = 'This account is not authorized for the selected role.';
+            _isLoading = false;
+            notifyListeners();
+            return false;
+          }
+        }
+
+        await _onSuccessfulLogin(user, selectedRole: selectedRole);
         return true;
       }
       return false;
@@ -97,27 +247,34 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<void> _onSuccessfulLogin(User user) async {
+  Future<void> _onSuccessfulLogin(User user, {UserRole? selectedRole}) async {
     _isLoggedIn = true;
     
-    // The 'onUserCreate' Cloud Function handles creating the initial user doc with roles.
-    // We just need to wait a bit or listen to the stream.
-    _startUserListener(user.uid);
+    try {
+      final branches = await ShopConfigService().getBranches();
+      if (branches.isNotEmpty) {
+        _currentBranch = branches.firstWhere((b) => b.isPrimary, orElse: () => branches.first);
+      }
+    } catch (e) {
+      debugPrint('Failed to load initial branch on successful login: $e');
+    }
+    
+    _startUserListener(user.uid, defaultRole: selectedRole);
     
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', true);
     await _saveFCMToken(user.uid);
     
-    // Check if MFA is required from pre_authorized_users (still readable by user during login)
     final String phoneNumber = user.phoneNumber ?? '';
+    final String contact = user.email ?? phoneNumber;
+    final String docId = contact.replaceAll('+', '').replaceAll('@', '_').replaceAll('.', '_');
+    
     final authDoc = await _firestore
         .collection('pre_authorized_users')
-        .doc(phoneNumber.replaceAll('+', ''))
+        .doc(docId)
         .get();
 
     if (authDoc.exists && authDoc.data()?['isMfaRequired'] == true) {
-      // Check if user doc exists and has the role set. 
-      // This is a race condition with the Cloud Function, but _startUserListener handles updates.
       _isMfaStepRequired = true;
     }
 
@@ -127,16 +284,57 @@ class AuthProvider with ChangeNotifier {
 
   StreamSubscription? _userSubscription;
 
-  void _startUserListener(String userId) {
+  void _startUserListener(String userId, {UserRole? defaultRole}) {
+    _isProfileLoading = true;
+    notifyListeners();
     _userSubscription?.cancel();
     _userSubscription = _firestore
         .collection('users')
         .doc(userId)
         .snapshots()
-        .listen((snapshot) {
+        .listen((snapshot) async {
       if (snapshot.exists && snapshot.data() != null) {
         _currentUser = UserModel.fromMap(snapshot.data()!);
+        _isProfileLoading = false;
+        
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('cached_role', _currentUser!.role.toString());
+
+        if (_currentBranch == null) {
+          try {
+            final branches = await ShopConfigService().getBranches();
+            if (branches.isNotEmpty) {
+              _currentBranch = branches.firstWhere((b) => b.isPrimary, orElse: () => branches.first);
+            }
+          } catch (e) {
+            debugPrint('Failed to load initial branch in auth listener: $e');
+          }
+        }
+
         notifyListeners();
+      } else {
+        // Fallback: Create user document if it doesn't exist
+        final user = _auth.currentUser;
+        if (user != null) {
+          final isEmail = user.email != null && user.email!.isNotEmpty;
+          final contact = isEmail ? user.email! : (user.phoneNumber ?? '');
+          final finalRole = defaultRole ?? UserRole.customer;
+
+          final newUser = UserModel(
+            id: userId,
+            phoneNumber: isEmail ? '' : contact,
+            email: isEmail ? contact : null,
+            name: user.displayName ?? contact.split('@').first,
+            role: finalRole,
+            roles: [UserRole.customer, if (finalRole != UserRole.customer) finalRole],
+            isVerified: true,
+            isActive: true,
+            createdAt: DateTime.now(),
+            lastLogin: DateTime.now(),
+          );
+
+          await _firestore.collection('users').doc(userId).set(newUser.toMap(), SetOptions(merge: true));
+        }
       }
     });
   }
@@ -161,9 +359,16 @@ class AuthProvider with ChangeNotifier {
     final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
     if (isLoggedIn && _auth.currentUser != null) {
       _isLoggedIn = true;
+      _isProfileLoading = true;
+      notifyListeners();
+      
       final doc = await _firestore.collection('users').doc(_auth.currentUser!.uid).get();
       if (doc.exists) {
         _currentUser = UserModel.fromMap(doc.data()!);
+        _isProfileLoading = false;
+        _startUserListener(_auth.currentUser!.uid);
+      } else {
+        // Wait for listener to catch the document if it's being created by a Cloud Function
         _startUserListener(_auth.currentUser!.uid);
       }
     }
@@ -201,6 +406,30 @@ class AuthProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
       return false;
+    }
+  }
+
+  /// Switch the active role for the current user (Step 1.5)
+  Future<void> switchRole(UserRole newRole) async {
+    if (_currentUser == null || !_currentUser!.roles.contains(newRole)) return;
+    
+    _isLoading = true;
+    notifyListeners();
+    
+    try {
+      // Update Firestore
+      await _firestore.collection('users').doc(_currentUser!.id).update({
+        'role': newRole.toString(),
+      });
+      
+      // Note: _startUserListener will catch the change and update _currentUser locally
+      
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Failed to switch role: ${e.toString()}';
+      _isLoading = false;
+      notifyListeners();
     }
   }
 

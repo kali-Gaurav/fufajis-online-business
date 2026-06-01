@@ -23,6 +23,8 @@ import 'providers/location_provider.dart';
 import 'providers/wallet_provider.dart';
 import 'providers/admin_provider.dart';
 import 'providers/notification_provider.dart';
+import 'providers/shop_config_provider.dart';
+import 'providers/accessibility_provider.dart';
 import 'utils/app_router.dart';
 import 'utils/app_theme.dart';
 import 'firebase_options.dart';
@@ -35,7 +37,10 @@ import 'widgets/offline_indicator.dart';
 import 'widgets/maintenance_overlay.dart';
 import 'widgets/force_update_overlay.dart';
 import 'services/performance_monitor.dart';
-import 'services/crash_reporter.dart';
+import 'services/storage_service.dart';
+import 'services/permission_service.dart';
+import 'services/ai_search_service.dart';
+import 'services/update_service.dart';
 
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'services/owner_initialization_service.dart';
@@ -114,8 +119,11 @@ Future<Widget> _initializeApp() async {
   // Initialize SharedPreferences
   final prefs = await SharedPreferences.getInstance();
   
-  // Initialize Cache Service with Upstash Redis failover readiness
+  // Initialize Cache Service (Step 1.3)
   await CacheService().init();
+
+  // Initialize High-Performance Hive Storage (Step 1.5 Upgrade)
+  await StorageService().init();
 
   // Initialize Remote Config (Feature: Instant OTA Updates)
   await RemoteConfigService().init();
@@ -128,7 +136,14 @@ Future<Widget> _initializeApp() async {
 
   // Record application startup time
   PerformanceMonitor.recordAppStartupTime();
+
+  // Initialize Permission Service & Service warm-up (Step 5)
+  final permissionService = PermissionService();
+  await permissionService.requestAllPermissions();
   
+  // Warm-up AI Search Service
+  await AISearchService().warmup();
+
   // Return app with providers
   return MultiProvider(
     providers: [
@@ -148,6 +163,8 @@ Future<Widget> _initializeApp() async {
       ChangeNotifierProvider(create: (_) => WalletProvider()),
       ChangeNotifierProvider(create: (_) => AdminProvider()),
       ChangeNotifierProvider(create: (_) => NotificationProvider()),
+      ChangeNotifierProvider(create: (_) => ShopConfigProvider()),
+      ChangeNotifierProvider(create: (_) => AccessibilityProvider()),
     ],
     child: const FufajiApp(),
   );
@@ -168,6 +185,7 @@ class _FufajiAppState extends State<FufajiApp> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       NotificationService().initialize(context);
+      UpdateService().handleVersionCheck(context);
     });
   }
 
@@ -186,14 +204,16 @@ class _FufajiAppState extends State<FufajiApp> {
   Widget build(BuildContext context) {
     final remoteConfig = RemoteConfigService();
 
-    return Consumer<ThemeProvider>(
-      builder: (context, themeProvider, child) {
+    return Consumer2<ThemeProvider, AccessibilityProvider>(
+      builder: (context, themeProvider, accessibilityProvider, child) {
         return MaterialApp.router(
           title: "Fufaji's Online",
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: _mapThemeMode(themeProvider.themeMode),
-          locale: themeProvider.locale,
+          locale: accessibilityProvider.isElderlyMode
+              ? Locale(accessibilityProvider.preferredLanguage)
+              : themeProvider.locale,
           localizationsDelegates: const [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
@@ -207,26 +227,35 @@ class _FufajiAppState extends State<FufajiApp> {
           routerConfig: _router,
           debugShowCheckedModeBanner: false,
           builder: (context, child) {
-            return FutureBuilder<bool>(
-              future: remoteConfig.isForceUpdateRequired(),
-              builder: (context, snapshot) {
-                final bool forceUpdate = snapshot.data ?? false;
+            final mediaQuery = MediaQuery.of(context);
+            // Apply scale factor dynamically using textScaler
+            final scaledMediaQuery = mediaQuery.copyWith(
+              textScaler: TextScaler.linear(accessibilityProvider.effectiveFontScale),
+            );
 
-                if (forceUpdate) {
-                  return ForceUpdateOverlay(updateUrl: remoteConfig.forceUpdateUrl);
-                }
+            return MediaQuery(
+              data: scaledMediaQuery,
+              child: FutureBuilder<bool>(
+                future: remoteConfig.isForceUpdateRequired(),
+                builder: (context, snapshot) {
+                  final bool forceUpdate = snapshot.data ?? false;
 
-                if (remoteConfig.isMaintenanceMode) {
-                  return MaintenanceOverlay(
-                    onRetry: () async {
-                      await remoteConfig.fetchAndActivate();
-                      setState(() {});
-                    },
-                  );
-                }
+                  if (forceUpdate) {
+                    return ForceUpdateOverlay(updateUrl: remoteConfig.forceUpdateUrl);
+                  }
 
-                return OfflineIndicator(child: child!);
-              },
+                  if (remoteConfig.isMaintenanceMode) {
+                    return MaintenanceOverlay(
+                      onRetry: () async {
+                        await remoteConfig.fetchAndActivate();
+                        setState(() {});
+                      },
+                    );
+                  }
+
+                  return OfflineIndicator(child: child!);
+                },
+              ),
             );
           },
         );

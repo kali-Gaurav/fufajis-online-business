@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/payment_method.dart';
+import '../models/cart_item.dart';
 
 /// Service for validating payment methods and checking eligibility
 class PaymentMethodValidator {
@@ -29,6 +30,10 @@ class PaymentMethodValidator {
     double orderTotal, {
     double walletBalance = 0,
     bool isPayLaterEligible = false,
+    double creditLimit = 5000.0,
+    double creditBalance = 0.0,
+    List<CartItem> cartItems = const [],
+    int userPoints = 0,
   }) {
     switch (method) {
       case PaymentMethod.cod:
@@ -45,17 +50,20 @@ class PaymentMethodValidator {
       case PaymentMethod.razorpay:
         return orderTotal > 0;
       case PaymentMethod.credit:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        return _validateCredit(orderTotal, creditLimit, creditBalance);
       case PaymentMethod.loyaltyPoints:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        return _validateLoyaltyPoints(orderTotal, userPoints, cartItems);
     }
   }
 
   /// Validate Cash on Delivery
   static bool _validateCod(double orderTotal) {
     return orderTotal >= codMinimumAmount && orderTotal <= codMaximumAmount;
+  }
+
+  /// Validate Credit (Khata)
+  static bool _validateCredit(double orderTotal, double creditLimit, double creditBalance) {
+    return creditBalance + orderTotal <= creditLimit;
   }
 
   /// Validate Wallet payment
@@ -75,6 +83,14 @@ class PaymentMethodValidator {
   /// Validate EMI
   static bool _validateEmi(double orderTotal) {
     return orderTotal >= emiMinimumAmount;
+  }
+
+  /// Validate Loyalty Points
+  static bool _validateLoyaltyPoints(double orderTotal, int userPoints, List<CartItem> cartItems) {
+    if (userPoints <= 0 || orderTotal <= 0) return false;
+    final hasDiscountedItem = cartItems.any((item) => item.originalPrice != null && item.originalPrice! > item.price);
+    if (hasDiscountedItem) return false;
+    return true;
   }
 
   /// Get payment method details
@@ -106,6 +122,10 @@ class PaymentMethodValidator {
     double orderTotal, {
     double walletBalance = 0,
     bool isPayLaterEligible = false,
+    double creditLimit = 5000.0,
+    double creditBalance = 0.0,
+    List<CartItem> cartItems = const [],
+    int userPoints = 0,
   }) {
     return PaymentMethodOption.allOptions.map((option) {
       final isAvailable = validatePaymentMethod(
@@ -113,6 +133,10 @@ class PaymentMethodValidator {
         orderTotal,
         walletBalance: walletBalance,
         isPayLaterEligible: isPayLaterEligible,
+        creditLimit: creditLimit,
+        creditBalance: creditBalance,
+        cartItems: cartItems,
+        userPoints: userPoints,
       );
 
       // Update wallet balance display
@@ -141,6 +165,10 @@ class PaymentMethodValidator {
     double orderTotal, {
     double walletBalance = 0,
     bool isPayLaterEligible = false,
+    double creditLimit = 5000.0,
+    double creditBalance = 0.0,
+    List<CartItem> cartItems = const [],
+    int userPoints = 0,
   }) {
     switch (method) {
       case PaymentMethod.cod:
@@ -182,12 +210,36 @@ class PaymentMethodValidator {
       case PaymentMethod.razorpay:
         return 'This payment method is currently unavailable';
       case PaymentMethod.credit:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        if (creditBalance + orderTotal > creditLimit) {
+          return 'Exceeds credit limit (Remaining: ₹${(creditLimit - creditBalance).round()})';
+        }
+        return 'Credit payment is unavailable';
       case PaymentMethod.loyaltyPoints:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        if (userPoints <= 0) {
+          return 'You have no loyalty points to redeem';
+        }
+        final hasDiscountedItem = cartItems.any((item) => item.originalPrice != null && item.originalPrice! > item.price);
+        if (hasDiscountedItem) {
+          return 'Loyalty points cannot be redeemed on orders containing discounted items';
+        }
+        return 'Loyalty points option is unavailable';
     }
+  }
+
+  /// Calculate maximum loyalty points credit that can be applied (100 points = ₹1)
+  /// Capped at 50% of the total bill, and blocked if order contains discounted items
+  static double calculateMaxLoyaltyCredit(
+    double orderTotal,
+    int userPoints,
+    List<CartItem> cartItems,
+  ) {
+    if (userPoints <= 0 || orderTotal <= 0) return 0.0;
+    final hasDiscountedItem = cartItems.any((item) => item.originalPrice != null && item.originalPrice! > item.price);
+    if (hasDiscountedItem) return 0.0;
+
+    final pointsValue = userPoints * 0.01;
+    final maxAllowed = orderTotal * 0.5;
+    return pointsValue.clamp(0.0, maxAllowed);
   }
 
   /// Check if payment method requires online payment

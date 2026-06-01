@@ -5,7 +5,9 @@ import '../../utils/app_theme.dart';
 import '../../models/cod_settlement_model.dart';
 
 import '../../models/rider_payout_model.dart';
-import '../../services/firestore_service.dart';
+import '../../services/fleet_service.dart';
+import '../../services/order_service.dart';
+import '../../services/user_service.dart';
 import '../../services/rider_payout_service.dart';
 
 class SettlementsManagementScreen extends StatefulWidget {
@@ -16,7 +18,9 @@ class SettlementsManagementScreen extends StatefulWidget {
 }
 
 class _SettlementsManagementScreenState extends State<SettlementsManagementScreen> {
-  final FirestoreService _firestoreService = FirestoreService();
+  final FleetService _fleetService = FleetService();
+  final OrderService _orderService = OrderService();
+  final UserService _userService = UserService();
   final RiderPayoutService _payoutService = RiderPayoutService();
   int _ledgerType = 0; // 0 = Cash Settlements, 1 = Refunds, 2 = Rider Payouts
   int _selectedTab = 0; // 0 = Pending, 1 = Approved, 2 = Rejected, 3 = All
@@ -260,7 +264,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
             const SizedBox(height: 20),
             // Rider Selector
             StreamBuilder<List<Map<String, dynamic>>>(
-              stream: _firestoreService.getAuthorizedRidersStream(),
+              stream: _userService.getAuthorizedRidersStream(),
               builder: (context, snap) {
                 final riders = snap.data ?? [];
                 return DropdownButtonFormField<String>(
@@ -375,7 +379,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
         const SizedBox(height: 24),
 
         StreamBuilder<List<CodSettlementModel>>(
-          stream: _firestoreService.getAllCodSettlementsStream(),
+          stream: _fleetService.getAllCodSettlementsStream(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
@@ -630,7 +634,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
 
   Widget _buildCancellationsRefundsSection() {
     return StreamBuilder<List<Map<String, dynamic>>>(
-      stream: _firestoreService.getAllReturnRequestsStream(),
+      stream: _orderService.getAllReturnRequestsStream(),
       builder: (context, snapshot) {
         final requests = snapshot.data ?? [];
         
@@ -1141,7 +1145,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
 
   Future<void> _updateStatus(BuildContext context, CodSettlementModel item, String status, {String? notes}) async {
     try {
-      await _firestoreService.updateCodSettlementStatus(item.id, status, notes: notes);
+      await _fleetService.updateCodSettlementStatus(item.id, status, notes: notes);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

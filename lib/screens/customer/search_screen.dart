@@ -3,12 +3,15 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import '../../models/user_model.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../utils/app_theme.dart';
 import 'product_detail_screen.dart';
 import 'barcode_scanner_screen.dart';
-
+import 'package:flutter/services.dart';
+import '../../services/gemini_service.dart' show GeminiService;
 class SearchScreen extends StatefulWidget {
   final String? initialQuery;
   const SearchScreen({super.key, this.initialQuery});
@@ -17,9 +20,12 @@ class SearchScreen extends StatefulWidget {
   State<SearchScreen> createState() => _SearchScreenState();
 }
 
+
+
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  final GeminiService _geminiService = GeminiService();
   
   // Voice search variables
   final stt.SpeechToText _speech = stt.SpeechToText();
@@ -213,13 +219,19 @@ class _SearchScreenState extends State<SearchScreen> {
                         
                         // Central Glowing Mic Button
                         GestureDetector(
-                          onTap: () {
-                            if (_isListening) {
-                              _stopListening();
-                              setStateBottomSheet(() => _isListening = false);
-                            } else {
-                              _startListening(setStateBottomSheet);
-                              setStateBottomSheet(() => _isListening = true);
+                          onLongPressStart: (_) {
+                            HapticFeedback.heavyImpact();
+                            _startListening(setStateBottomSheet);
+                            setStateBottomSheet(() => _isListening = true);
+                          },
+                          onLongPressEnd: (_) {
+                            HapticFeedback.selectionClick();
+                            _stopListening();
+                            setStateBottomSheet(() => _isListening = false);
+                            
+                            // Step 6.5: Auto-trigger search on speech end
+                            if (_transcription.trim().isNotEmpty) {
+                              _processVoiceResult();
                             }
                           },
                           child: AnimatedContainer(
@@ -258,7 +270,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     // Live Transcription display
                     Text(
                       _transcription.isEmpty
-                          ? (_isListening ? 'Listening... बोलिए...' : 'Tap Mic to Start')
+                          ? (_isListening ? 'Listening... बोलिए...' : 'Hold Mic to Speak')
                           : _transcription,
                       style: TextStyle(
                         fontSize: _transcription.isEmpty ? 16 : 20,
@@ -357,6 +369,22 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
+  void _processVoiceResult() async {
+    if (_transcription.trim().isEmpty) return;
+
+    // Step 6.3: Gemini parser to extract keywords
+    final keywords = await _geminiService.extractKeywordsForSearch(_transcription);
+    
+    if (mounted) {
+      final query = keywords.isNotEmpty ? keywords.join(' ') : _transcription;
+      _searchController.text = query;
+      _performSearch(query);
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+    }
+  }
+
   void _startListening([StateSetter? setStateBottomSheet]) async {
     setState(() {
       _isListening = true;
@@ -418,24 +446,83 @@ class _SearchScreenState extends State<SearchScreen> {
       final query = result.trim();
       final productProvider = Provider.of<ProductProvider>(context, listen: false);
       final matchedProducts = productProvider.searchProducts(query);
+      
       if (matchedProducts.isNotEmpty) {
-        // Direct match found, navigate directly to detail page
-        context.go('/customer/product/${matchedProducts.first.id}');
+        // Step 7.4: Instant "Add to Cart" pop-up
+        _showInstantAddDialog(matchedProducts.first);
       } else {
-        // Not found, set search text to scanned code and search
-        _searchController.text = query;
-        _performSearch(query);
-        
-        // Show a temporary snackbar to let the user know
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Barcode '$query' scanned. No exact match, showing search results."),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: AppTheme.primary,
-          ),
-        );
+        // Step 7.5: Fallback to "Product Not Found" form for owners
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        if (authProvider.currentUser?.role == UserRole.shopOwner) {
+          _showProductNotFoundForOwner(query);
+        } else {
+          _searchController.text = query;
+          _performSearch(query);
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Barcode '$query' scanned. No exact match."),
+              backgroundColor: AppTheme.primary,
+            ),
+          );
+        }
       }
     }
+  }
+
+  void _showInstantAddDialog(dynamic product) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Product Found!'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(product.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Text('Price: ₹${product.price}'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Provider.of<CartProvider>(context, listen: false).addToCart(product);
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary),
+            child: const Text('Add to Cart', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showProductNotFoundForOwner(String barcode) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Product Not Found'),
+        content: Text('The product with barcode $barcode was not found in our catalog. Would you like to add it to your shop?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Not Now'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              // Navigate to add product screen with pre-filled barcode
+              // context.push('/owner/add-product?barcode=$barcode');
+            },
+            child: const Text('Add Product'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

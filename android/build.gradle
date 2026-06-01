@@ -13,31 +13,42 @@ subprojects {
     afterEvaluate { project ->
         if (project.hasProperty('android')) {
             project.android {
+                // Ensure namespace is set for all plugins to avoid AGP 8+ errors
                 if (namespace == null || namespace == "") {
                     namespace = "com.fufajis.plugins.${project.name.replace('-', '.')}"
                 }
+                
                 compileOptions {
                     sourceCompatibility JavaVersion.VERSION_21
                     targetCompatibility JavaVersion.VERSION_21
                 }
             }
+            
+            // Fix for Kotlin version mismatches in plugins
             project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
                 kotlinOptions {
                     jvmTarget = "21"
-                    languageVersion = "1.8"
-                    apiVersion = "1.8"
                 }
             }
-        }
-    }
-}
 
-// Fix for blue_thermal_printer and other legacy plugins
-subprojects {
-    project.configurations.all {
-        resolutionStrategy.eachDependency { details ->
-            if (details.requested.group == 'com.android.tools.build' && details.requested.name == 'gradle') {
-                details.useVersion '8.1.1' // Use a version that might be more lenient if possible
+            // Fix for blue_thermal_printer and other legacy plugins with 'package' attribute
+            if (project.name == "blue_thermal_printer") {
+                project.android {
+                    namespace = "id.kakzaki.blue_thermal_printer"
+                }
+                // Strip the package attribute from the manifest file before processing
+                project.tasks.matching { it.name.contains("Manifest") }.all { task ->
+                    task.doFirst {
+                        def manifestFile = project.file("src/main/AndroidManifest.xml")
+                        if (manifestFile.exists()) {
+                            def content = manifestFile.text
+                            if (content.contains('package="id.kakzaki.blue_thermal_printer"')) {
+                                manifestFile.text = content.replace('package="id.kakzaki.blue_thermal_printer"', '')
+                                println "STDOUT: Fixed manifest for ${project.name}"
+                            }
+                        }
+                    }
+                }
             }
         }
     }

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../models/qna_model.dart';
 import '../providers/auth_provider.dart';
+import '../providers/order_provider.dart';
 import '../services/qna_service.dart';
 import '../utils/app_theme.dart';
 

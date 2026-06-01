@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../utils/app_theme.dart';
 import '../models/user_model.dart';
-
+import 'package:flutter/services.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -12,30 +12,37 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
+
+
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   
   UserRole _selectedRole = UserRole.customer;
   bool _isLoading = false;
+  bool _isEmailMode = false;
 
   void _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
+    HapticFeedback.lightImpact();
+
     setState(() => _isLoading = true);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    final phoneNumber = '+91${_phoneController.text.trim()}';
+    final contact = _isEmailMode ? _emailController.text.trim() : '+91${_phoneController.text.trim()}';
     
-    // In a real app, we'd send OTP here. 
-    // The provider already handles the logic.
-    await authProvider.sendOTP(phoneNumber);
+    if (_isEmailMode) {
+      await authProvider.sendEmailOTP(contact);
+    } else {
+      await authProvider.sendOTP(contact);
+    }
     
     if (mounted) {
       setState(() => _isLoading = false);
       if (authProvider.errorMessage == null) {
-        // Pass the selected role to OTP screen or store it in provider for post-OTP setup
-        context.push('/otp/$phoneNumber?role=${_selectedRole.toString().split('.').last}');
+        context.push('/otp/${Uri.encodeComponent(contact)}?isEmail=$_isEmailMode&role=${_selectedRole.toString().split('.').last}');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(authProvider.errorMessage!), backgroundColor: AppTheme.error),
@@ -55,7 +62,6 @@ class _LoginScreenState extends State<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 40),
-              // Brand Logo/Icon
               Center(
                 child: Container(
                   padding: const EdgeInsets.all(20),
@@ -86,7 +92,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 12),
               
-              // Role Selection
               Row(
                 children: [
                   _RoleButton(
@@ -95,51 +100,151 @@ class _LoginScreenState extends State<LoginScreen> {
                     isSelected: _selectedRole == UserRole.customer,
                     onTap: () => setState(() => _selectedRole = UserRole.customer),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 6),
                   _RoleButton(
                     label: "Owner",
                     icon: Icons.shop_two_outlined,
                     isSelected: _selectedRole == UserRole.shopOwner,
                     onTap: () => setState(() => _selectedRole = UserRole.shopOwner),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 6),
                   _RoleButton(
                     label: "Delivery",
                     icon: Icons.delivery_dining_outlined,
                     isSelected: _selectedRole == UserRole.deliveryAgent,
                     onTap: () => setState(() => _selectedRole = UserRole.deliveryAgent),
                   ),
+                  const SizedBox(width: 6),
+                  _RoleButton(
+                    label: "Employee",
+                    icon: Icons.badge_outlined,
+                    isSelected: _selectedRole == UserRole.employee,
+                    onTap: () => setState(() => _selectedRole = UserRole.employee),
+                  ),
                 ],
               ),
               
-              const SizedBox(height: 40),
+              const SizedBox(height: 32),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => setState(() {
+                        _isEmailMode = false;
+                        _formKey.currentState?.reset();
+                      }),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: !_isEmailMode ? AppTheme.primary : Colors.transparent,
+                              width: 2.0,
+                            ),
+                          ),
+                        ),
+                        child: Text(
+                          "Phone OTP",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: !_isEmailMode ? AppTheme.primary : AppTheme.grey600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => setState(() {
+                        _isEmailMode = true;
+                        _formKey.currentState?.reset();
+                      }),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: _isEmailMode ? AppTheme.primary : Colors.transparent,
+                              width: 2.0,
+                            ),
+                          ),
+                        ),
+                        child: Text(
+                          "Email OTP",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: _isEmailMode ? AppTheme.primary : AppTheme.grey600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 24),
               
               Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "Phone Number",
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.grey700),
-                    ),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: _phoneController,
-                      keyboardType: TextInputType.phone,
-                      maxLength: 10,
-                      style: const TextStyle(fontSize: 18, letterSpacing: 2, fontWeight: FontWeight.bold),
-                      decoration: InputDecoration(
-                        prefixIcon: Container(
-                          padding: const EdgeInsets.all(14),
-                          child: const Text("+91", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey900)),
-                        ),
-                        hintText: "00000 00000",
-                        hintStyle: TextStyle(fontSize: 18, color: AppTheme.grey400, letterSpacing: 2),
-                        counterText: "",
+                    if (!_isEmailMode) ...[
+                      const Text(
+                        "Phone Number",
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.grey700),
                       ),
-                      validator: (v) => (v == null || v.length != 10) ? "Enter 10-digit number" : null,
-                    ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _phoneController,
+                        keyboardType: TextInputType.phone,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(10),
+                        ],
+                        style: const TextStyle(fontSize: 18, letterSpacing: 2, fontWeight: FontWeight.bold),
+                        decoration: InputDecoration(
+                          prefixIcon: Container(
+                            padding: const EdgeInsets.all(14),
+                            child: const Text("+91", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey900)),
+                          ),
+                          hintText: "00000 00000",
+                          hintStyle: TextStyle(fontSize: 18, color: AppTheme.grey400, letterSpacing: 2),
+                          counterText: "",
+                        ),
+                        validator: (v) {
+                          if (v == null || v.isEmpty) return "Phone number is required";
+                          if (v.length != 10) return "Enter 10-digit number";
+                          if (!RegExp(r'^[6-9]\d{9}$').hasMatch(v)) return "Enter a valid mobile number";
+                          return null;
+                        },
+                      ),
+                    ] else ...[
+                      const Text(
+                        "Email Address",
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.grey700),
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.email_outlined, color: AppTheme.grey600),
+                          hintText: "name@example.com",
+                          hintStyle: TextStyle(fontSize: 16, color: AppTheme.grey400),
+                        ),
+                        validator: (v) {
+                          if (v == null || v.isEmpty) return "Email address is required";
+                          final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                          if (!emailRegex.hasMatch(v)) return "Enter a valid email address";
+                          return null;
+                        },
+                      ),
+                    ],
                   ],
                 ),
               ),

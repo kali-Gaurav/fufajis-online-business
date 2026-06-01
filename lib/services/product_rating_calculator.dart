@@ -106,7 +106,7 @@ class ProductRatingCalculator {
   Future<Map<int, double>> getRatingPercentages(String productId) async {
     try {
       final distribution = await getRatingDistribution(productId);
-      final total = distribution.values.fold<int>(0, (sum, count) => sum + count);
+      final total = distribution.values.fold<int>(0, (acc, val) => acc + val);
 
       if (total == 0) {
         return {5: 0, 4: 0, 3: 0, 2: 0, 1: 0};

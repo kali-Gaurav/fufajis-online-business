@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/product_model.dart';
+import '../models/product_batch_model.dart';
 import 'notification_service.dart';
 import 'analytics_service.dart';
 
@@ -139,20 +140,36 @@ class ExpiryCheckerService {
     return originalPrice * (1 - discountPercentage / 100);
   }
 
-  /// Apply discount to product
+  /// Apply discount to product (with category-based liquidation/cost-price checks)
   Future<void> _applyDiscount(
     String productId,
     ProductModel product,
     double discountPercentage,
     DateTime now,
   ) async {
-    final newPrice = _calculateDiscountedPrice(product.price, discountPercentage);
+    double newPrice = _calculateDiscountedPrice(product.price, discountPercentage);
+    double finalDiscount = discountPercentage;
+
+    final cost = product.costPrice ?? 0.0;
+    if (cost > 0.0 && newPrice < cost) {
+      final category = product.category.toLowerCase().trim();
+      final allowBelowCost = category == 'dairy' || 
+                             category == 'bakery' || 
+                             category == 'bread' || 
+                             category == 'prepared food' || 
+                             category == 'prepared_food';
+      if (!allowBelowCost) {
+        newPrice = cost;
+        finalDiscount = ((product.price - cost) / product.price * 100);
+        if (finalDiscount < 0) finalDiscount = 0;
+      }
+    }
 
     await _firestore.collection('products').doc(productId).update({
-      'discountPercentage': discountPercentage,
+      'discountPercentage': finalDiscount,
       'originalPrice': product.price,
       'price': newPrice,
-      'isOnSale': discountPercentage > 0,
+      'isOnSale': finalDiscount > 0,
       'updatedAt': Timestamp.fromDate(now),
     });
   }
@@ -432,5 +449,117 @@ class ExpiryCheckerService {
       'previousDiscount': product.discountPercentage,
       'timestamp': Timestamp.now(),
     });
+  }
+
+  /// Add a new batch for a product
+  Future<void> addBatch(ProductBatch batch) async {
+    await _firestore
+        .collection('products')
+        .doc(batch.productId)
+        .collection('batches')
+        .doc(batch.batchId)
+        .set(batch.toMap());
+  }
+
+  /// Get active batches for a product sorted by expiry date (FIFO)
+  Future<List<ProductBatch>> getBatches(String productId) async {
+    final snapshot = await _firestore
+        .collection('products')
+        .doc(productId)
+        .collection('batches')
+        .where('quantity', isGreaterThan: 0)
+        .orderBy('expiryDate', descending: false)
+        .get();
+
+    return snapshot.docs
+        .map((doc) => ProductBatch.fromMap(doc.data()))
+        .toList();
+  }
+
+  /// Deduct stock from batches in FIFO order and update product stock
+  Future<void> deductStockFIFO(String productId, int quantityToDeduct) async {
+    final batches = await getBatches(productId);
+    final batch = _firestore.batch();
+    int remaining = quantityToDeduct;
+
+    for (var b in batches) {
+      if (remaining <= 0) break;
+
+      final batchRef = _firestore
+          .collection('products')
+          .doc(productId)
+          .collection('batches')
+          .doc(b.batchId);
+
+      if (b.quantity <= remaining) {
+        remaining -= b.quantity;
+        batch.update(batchRef, {'quantity': 0});
+      } else {
+        batch.update(batchRef, {'quantity': b.quantity - remaining});
+        remaining = 0;
+      }
+    }
+
+    // Decrement from the product's main stockQuantity
+    final productRef = _firestore.collection('products').doc(productId);
+    batch.update(productRef, {
+      'stockQuantity': FieldValue.increment(-quantityToDeduct),
+    });
+
+    await batch.commit();
+  }
+
+  /// Auto-applies near-expiry discounts to products expiring within a threshold (with cost price protection)
+  Future<void> applyNearExpiryDiscount({
+    int daysBeforeExpiry = 3,
+    double discountPercent = 20.0,
+  }) async {
+    final now = DateTime.now();
+    final thresholdDate = now.add(Duration(days: daysBeforeExpiry));
+    
+    // Get all products expiring before the threshold date
+    final snapshot = await _firestore
+        .collection('products')
+        .where('expiryDate', isGreaterThan: Timestamp.fromDate(now))
+        .where('expiryDate', isLessThanOrEqualTo: Timestamp.fromDate(thresholdDate))
+        .get();
+
+    final batch = _firestore.batch();
+    for (var doc in snapshot.docs) {
+      final data = doc.data();
+      final currentDiscount = (data['discountPercentage'] as num?)?.toDouble() ?? 0.0;
+      
+      // If current discount is less than the near-expiry discount, apply it
+      if (currentDiscount < discountPercent) {
+        final originalPrice = (data['price'] as num?)?.toDouble() ?? 0.0;
+        final costPrice = (data['costPrice'] as num?)?.toDouble() ?? 0.0;
+        final category = (data['category']?.toString() ?? '').toLowerCase().trim();
+        
+        double newPrice = originalPrice * (1 - discountPercent / 100);
+        double finalDiscount = discountPercent;
+        
+        if (costPrice > 0.0 && newPrice < costPrice) {
+          final allowBelowCost = category == 'dairy' || 
+                                 category == 'bakery' || 
+                                 category == 'bread' || 
+                                 category == 'prepared food' || 
+                                 category == 'prepared_food';
+          if (!allowBelowCost) {
+            newPrice = costPrice;
+            finalDiscount = ((originalPrice - costPrice) / originalPrice * 100);
+            if (finalDiscount < 0) finalDiscount = 0;
+          }
+        }
+        
+        batch.update(doc.reference, {
+          'discountPercentage': finalDiscount,
+          'originalPrice': originalPrice,
+          'price': newPrice,
+          'isOnSale': finalDiscount > 0,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      }
+    }
+    await batch.commit();
   }
 }

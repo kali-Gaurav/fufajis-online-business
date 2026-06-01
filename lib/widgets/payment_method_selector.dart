@@ -9,6 +9,8 @@ class PaymentMethodSelector extends StatefulWidget {
   final double orderTotal;
   final double walletBalance;
   final bool isPayLaterEligible;
+  final double creditLimit;
+  final double creditBalance;
   final ValueChanged<PaymentMethod> onMethodSelected;
   final bool showWalletBalance;
   final bool compactMode;
@@ -19,6 +21,8 @@ class PaymentMethodSelector extends StatefulWidget {
     required this.orderTotal,
     required this.walletBalance,
     required this.isPayLaterEligible,
+    this.creditLimit = 5000.0,
+    this.creditBalance = 0.0,
     required this.onMethodSelected,
     this.showWalletBalance = true,
     this.compactMode = false,
@@ -51,6 +55,8 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector> {
       widget.orderTotal,
       walletBalance: widget.walletBalance,
       isPayLaterEligible: widget.isPayLaterEligible,
+      creditLimit: widget.creditLimit,
+      creditBalance: widget.creditBalance,
     );
 
     if (widget.compactMode) {
@@ -86,6 +92,8 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector> {
             widget.orderTotal,
             walletBalance: widget.walletBalance,
             isPayLaterEligible: widget.isPayLaterEligible,
+            creditLimit: widget.creditLimit,
+            creditBalance: widget.creditBalance,
           )
         : null;
 

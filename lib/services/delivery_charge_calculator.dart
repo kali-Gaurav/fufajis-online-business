@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/delivery_type.dart';
+import '../models/shop_config_model.dart';
+import '../models/shop_branch_model.dart';
+import 'shop_config_service.dart';
 
 /// Service for calculating delivery charges based on order subtotal and delivery type
 class DeliveryChargeCalculator {
@@ -30,30 +33,58 @@ class DeliveryChargeCalculator {
   /// [subtotal] - The order subtotal amount
   ///
   /// Returns the calculated delivery charge
-  static double calculateDeliveryCharge(DeliveryType type, double subtotal) {
+  static double calculateDeliveryCharge(
+    DeliveryType type,
+    double subtotal, {
+    double? distanceKm,
+    ShopConfigModel? config,
+    ShopBranchModel? branch,
+  }) {
+    final bool isEmergency = config?.isEmergencyMode ?? false;
+
     switch (type) {
       case DeliveryType.standard:
-        return _calculateStandardDeliveryCharge(subtotal);
+        if (distanceKm != null && config != null) {
+          return ShopConfigService().calculateDeliveryChargeForDistance(
+            distanceKm: distanceKm,
+            orderAmount: subtotal,
+            config: config,
+            branch: branch,
+          );
+        }
+        return _calculateStandardDeliveryCharge(subtotal, isEmergency: isEmergency);
       case DeliveryType.express:
-        return expressDeliveryCharge;
+        return isEmergency ? expressDeliveryCharge * 2.0 : expressDeliveryCharge;
       case DeliveryType.sameDay:
-        return sameDayDeliveryCharge;
+        return isEmergency ? sameDayDeliveryCharge * 2.0 : sameDayDeliveryCharge;
       case DeliveryType.villageDelivery:
-        return villageDeliveryCharge;
+        return isEmergency ? villageDeliveryCharge * 2.0 : villageDeliveryCharge;
       case DeliveryType.scheduled:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        final base = distanceKm != null && config != null
+            ? ShopConfigService().calculateDeliveryChargeForDistance(
+                distanceKm: distanceKm,
+                orderAmount: subtotal,
+                config: config,
+                branch: branch,
+              )
+            : _calculateStandardDeliveryCharge(subtotal, isEmergency: isEmergency);
+        final surcharge = isEmergency ? 20.0 * 2.0 : 20.0;
+        return base + surcharge;
     }
   }
 
   /// Calculate standard delivery charge based on subtotal
-  static double _calculateStandardDeliveryCharge(double subtotal) {
-    if (subtotal >= freeDeliveryThreshold) {
+  static double _calculateStandardDeliveryCharge(double subtotal, {bool isEmergency = false}) {
+    final threshold = isEmergency ? freeDeliveryThreshold * 1.5 : freeDeliveryThreshold;
+    final chargeBelow500 = isEmergency ? standardDeliveryChargeBelow500 * 2.0 : standardDeliveryChargeBelow500;
+    final chargeBelow200 = isEmergency ? standardDeliveryChargeBelow200 * 2.0 : standardDeliveryChargeBelow200;
+
+    if (subtotal >= threshold) {
       return 0.0;
     } else if (subtotal >= reducedDeliveryThreshold) {
-      return standardDeliveryChargeBelow500;
+      return chargeBelow500;
     } else {
-      return standardDeliveryChargeBelow200;
+      return chargeBelow200;
     }
   }
 
@@ -170,9 +201,18 @@ class DeliveryChargeCalculator {
   /// Returns a map with charge details
   static Map<String, dynamic> getDeliveryDetails(
     DeliveryType type,
-    double subtotal,
-  ) {
-    final charge = calculateDeliveryCharge(type, subtotal);
+    double subtotal, {
+    double? distanceKm,
+    ShopConfigModel? config,
+    ShopBranchModel? branch,
+  }) {
+    final charge = calculateDeliveryCharge(
+      type,
+      subtotal,
+      distanceKm: distanceKm,
+      config: config,
+      branch: branch,
+    );
     final formattedDate = getFormattedDeliveryDate(type);
     final option = DeliveryTypeOption.fromType(type);
 
@@ -188,16 +228,18 @@ class DeliveryChargeCalculator {
   }
 
   /// Check if standard delivery is free for the given subtotal
-  static bool isStandardDeliveryFree(double subtotal) {
-    return subtotal >= freeDeliveryThreshold;
+  static bool isStandardDeliveryFree(double subtotal, {ShopConfigModel? config}) {
+    final threshold = config != null ? config.minOrderForFreeDelivery : freeDeliveryThreshold;
+    return subtotal >= threshold;
   }
 
   /// Get the amount needed for free standard delivery
-  static double getAmountNeededForFreeDelivery(double subtotal) {
-    if (subtotal >= freeDeliveryThreshold) {
+  static double getAmountNeededForFreeDelivery(double subtotal, {ShopConfigModel? config}) {
+    final threshold = config != null ? config.minOrderForFreeDelivery : freeDeliveryThreshold;
+    if (subtotal >= threshold) {
       return 0;
     }
-    return freeDeliveryThreshold - subtotal;
+    return threshold - subtotal;
   }
 
   /// Calculate total order amount including delivery
@@ -213,8 +255,17 @@ class DeliveryChargeCalculator {
     required DeliveryType deliveryType,
     double discount = 0,
     double walletAmount = 0,
+    double? distanceKm,
+    ShopConfigModel? config,
+    ShopBranchModel? branch,
   }) {
-    final deliveryCharge = calculateDeliveryCharge(deliveryType, subtotal);
+    final deliveryCharge = calculateDeliveryCharge(
+      deliveryType,
+      subtotal,
+      distanceKm: distanceKm,
+      config: config,
+      branch: branch,
+    );
     final total = subtotal - discount + deliveryCharge - walletAmount;
     return total.clamp(0, total);
   }

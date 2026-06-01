@@ -1,8 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/order_provider.dart';
 import '../../providers/cart_provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/wallet_provider.dart';
 import '../../models/payment_method.dart';
+import '../../services/payment_method_validator.dart';
 import '../../widgets/payment_method_selector.dart';
 import '../../utils/app_theme.dart';
 
@@ -38,7 +41,66 @@ class _PaymentMethodStepState extends State<PaymentMethodStep> {
   void didUpdateWidget(PaymentMethodStep oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.selectedMethod != widget.selectedMethod) {
-      _selectedMethod = widget.selectedMethod;
+      setState(() {
+        _selectedMethod = widget.selectedMethod;
+      });
+    }
+  }
+
+  void _validateAndContinue() {
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final walletProvider = Provider.of<WalletProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = authProvider.currentUser;
+
+    bool isValid = true;
+    String errorMessage = '';
+
+    if (_selectedMethod == PaymentMethod.wallet) {
+      if (walletProvider.walletBalance < cartProvider.total) {
+        isValid = false;
+        errorMessage = 'Insufficient wallet balance (Available: ₹${walletProvider.walletBalance.round()})';
+      }
+    } else if (_selectedMethod == PaymentMethod.credit) {
+      if (user != null) {
+        if (user.creditBalance + cartProvider.total > user.creditLimit) {
+          isValid = false;
+          errorMessage = 'Exceeds credit limit (Remaining: ₹${(user.creditLimit - user.creditBalance).round()})';
+        }
+      } else {
+        isValid = false;
+        errorMessage = 'User profile not found for credit check.';
+      }
+    } else {
+      isValid = PaymentMethodValidator.validatePaymentMethod(
+        _selectedMethod,
+        cartProvider.total,
+        walletBalance: walletProvider.walletBalance,
+        isPayLaterEligible: _checkPayLaterEligibility(),
+        creditLimit: user?.creditLimit ?? 5000.0,
+        creditBalance: user?.creditBalance ?? 0.0,
+      );
+      if (!isValid) {
+        errorMessage = PaymentMethodValidator.getUnavailabilityReason(
+          _selectedMethod,
+          cartProvider.total,
+          walletBalance: walletProvider.walletBalance,
+          isPayLaterEligible: _checkPayLaterEligibility(),
+          creditLimit: user?.creditLimit ?? 5000.0,
+          creditBalance: user?.creditBalance ?? 0.0,
+        );
+      }
+    }
+
+    if (isValid) {
+      widget.onContinue();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: AppTheme.error,
+        ),
+      );
     }
   }
 
@@ -46,6 +108,11 @@ class _PaymentMethodStepState extends State<PaymentMethodStep> {
   Widget build(BuildContext context) {
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
     final cartProvider = Provider.of<CartProvider>(context);
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = authProvider.currentUser;
+    final creditLimit = user?.creditLimit ?? 5000.0;
+    final creditBalance = user?.creditBalance ?? 0.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -123,6 +190,8 @@ class _PaymentMethodStepState extends State<PaymentMethodStep> {
             orderTotal: cartProvider.total,
             walletBalance: orderProvider.walletBalance,
             isPayLaterEligible: _checkPayLaterEligibility(),
+            creditLimit: creditLimit,
+            creditBalance: creditBalance,
             onMethodSelected: (method) {
               setState(() => _selectedMethod = method);
               widget.onMethodSelected(method);
@@ -136,7 +205,7 @@ class _PaymentMethodStepState extends State<PaymentMethodStep> {
 
         // Continue button
         ElevatedButton(
-          onPressed: _selectedMethod != null ? widget.onContinue : null,
+          onPressed: _selectedMethod != null ? _validateAndContinue : null,
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.primary,
             foregroundColor: Colors.white,

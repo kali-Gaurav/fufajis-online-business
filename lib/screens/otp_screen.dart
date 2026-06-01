@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:pinput/pinput.dart';
-import '../models/user_model.dart';
 import '../providers/auth_provider.dart';
+import '../models/user_model.dart';
 import '../utils/app_theme.dart';
 
 class OTPScreen extends StatefulWidget {
@@ -44,7 +44,16 @@ class _OTPScreenState extends State<OTPScreen> {
 
   void _verifyOTP() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final isValid = await authProvider.verifyOTP(_otpController.text);
+    
+    UserRole? parsedRole;
+    if (widget.role != null) {
+      parsedRole = UserRole.values.firstWhere(
+        (e) => e.toString().split('.').last == widget.role,
+        orElse: () => UserRole.customer,
+      );
+    }
+
+    final isValid = await authProvider.verifyOTP(_otpController.text, selectedRole: parsedRole);
 
     if (isValid) {
       if (!mounted) return;
@@ -58,7 +67,7 @@ class _OTPScreenState extends State<OTPScreen> {
         }
       }
     } else {
-      _showError('Invalid OTP. Please try again.');
+      _showError(authProvider.errorMessage ?? 'Invalid OTP. Please try again.');
     }
   }
 
@@ -103,7 +112,11 @@ class _OTPScreenState extends State<OTPScreen> {
     if (!_canResend) return;
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    await authProvider.sendOTP(widget.phoneNumber);
+    if (authProvider.isEmailVerification) {
+      await authProvider.sendEmailOTP(widget.phoneNumber);
+    } else {
+      await authProvider.sendOTP(widget.phoneNumber);
+    }
 
     if (authProvider.errorMessage == null) {
       setState(() {

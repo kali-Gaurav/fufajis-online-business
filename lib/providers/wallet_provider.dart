@@ -163,6 +163,7 @@ class WalletProvider with ChangeNotifier {
         transactionType: WalletTransactionType.refund,
         orderReference: orderId,
         description: 'Auto-refund: $reason',
+        transactionId: 'txn_wallet_refund_$orderId',
       );
 
       if (success) {
@@ -194,6 +195,7 @@ class WalletProvider with ChangeNotifier {
         amount: orderAmount,
         transactionType: WalletTransactionType.walletPayment,
         orderReference: orderId,
+        transactionId: 'txn_wallet_debit_$orderId',
       );
 
       if (success) {

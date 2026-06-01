@@ -135,6 +135,14 @@ class ProductModel {
   final DateTime? lightningDealEndTime;
   final bool isGroupBuyEligible; // Feature 15
   final String? farmStory; // Feature 16: Deep transparency
+  final String? farmerName; // Step 11.3
+  final String? farmerImageUrl; // Step 11.3
+  final DateTime? harvestDate; // Step 11.4
+  final bool isOrganicCertified; // Step 11.5
+  final Map<String, int> branchStock;
+  final Map<String, Map<String, dynamic>> branchLocations;
+  final String? shelfPhotoUrl;
+  final DateTime? shelfPhotoUpdatedAt;
 
   ProductModel({
     required this.id,
@@ -185,6 +193,14 @@ class ProductModel {
     this.lightningDealEndTime,
     this.isGroupBuyEligible = false,
     this.farmStory,
+    this.farmerName,
+    this.farmerImageUrl,
+    this.harvestDate,
+    this.isOrganicCertified = false,
+    this.branchStock = const {},
+    this.branchLocations = const {},
+    this.shelfPhotoUrl,
+    this.shelfPhotoUpdatedAt,
   });
 
   static DateTime? _parseDate(dynamic val) {
@@ -251,6 +267,40 @@ class ProductModel {
           const [],
       lightningDealPrice: (map['lightningDealPrice'] as num?)?.toDouble(),
       lightningDealEndTime: _parseDate(map['lightningDealEndTime']),
+      farmStory: map['farmStory'],
+      farmerName: map['farmerName'],
+      farmerImageUrl: map['farmerImageUrl'],
+      harvestDate: _parseDate(map['harvestDate']),
+      isOrganicCertified: map['isOrganicCertified'] ?? false,
+      branchStock: (map['branchStock'] as Map<dynamic, dynamic>?)?.map(
+            (k, v) => MapEntry(k.toString(), v as int),
+          ) ??
+          const {},
+      branchLocations: (map['branchLocations'] as Map<dynamic, dynamic>?)?.map(
+            (k, v) {
+              if (v is Map) {
+                return MapEntry(k.toString(), Map<String, dynamic>.from(v));
+              } else if (v is String) {
+                final regAisle = RegExp(r'Aisle\s+([A-Za-z0-9]+)', caseSensitive: false);
+                final regShelf = RegExp(r'Shelf\s+(\d+)', caseSensitive: false);
+                final matchAisle = regAisle.firstMatch(v);
+                final matchShelf = regShelf.firstMatch(v);
+                final zoneStr = matchAisle?.group(1) ?? 'A';
+                final shelfNum = int.tryParse(matchShelf?.group(1) ?? '1') ?? 1;
+                return MapEntry(k.toString(), {
+                  'zone': zoneStr,
+                  'aisle': 1,
+                  'shelf': shelfNum,
+                  'bin': 1,
+                });
+              } else {
+                return MapEntry(k.toString(), <String, dynamic>{});
+              }
+            },
+          ) ??
+          const {},
+      shelfPhotoUrl: map['shelfPhotoUrl'],
+      shelfPhotoUpdatedAt: _parseDate(map['shelfPhotoUpdatedAt']),
     );
   }
 
@@ -302,6 +352,15 @@ class ProductModel {
       'unitOptions': unitOptions.map((x) => x.toMap()).toList(),
       'lightningDealPrice': lightningDealPrice,
       'lightningDealEndTime': lightningDealEndTime?.toIso8601String(),
+      'farmStory': farmStory,
+      'farmerName': farmerName,
+      'farmerImageUrl': farmerImageUrl,
+      'harvestDate': harvestDate?.toIso8601String(),
+      'isOrganicCertified': isOrganicCertified,
+      'branchStock': branchStock,
+      'branchLocations': branchLocations,
+      'shelfPhotoUrl': shelfPhotoUrl,
+      'shelfPhotoUpdatedAt': shelfPhotoUpdatedAt?.toIso8601String(),
     };
   }
 
@@ -352,6 +411,10 @@ class ProductModel {
     List<ProductUnitOption>? unitOptions,
     double? lightningDealPrice,
     DateTime? lightningDealEndTime,
+    Map<String, int>? branchStock,
+    Map<String, Map<String, dynamic>>? branchLocations,
+    String? shelfPhotoUrl,
+    DateTime? shelfPhotoUpdatedAt,
   }) {
     return ProductModel(
       id: id ?? this.id,
@@ -400,6 +463,10 @@ class ProductModel {
       unitOptions: unitOptions ?? this.unitOptions,
       lightningDealPrice: lightningDealPrice ?? this.lightningDealPrice,
       lightningDealEndTime: lightningDealEndTime ?? this.lightningDealEndTime,
+      branchStock: branchStock ?? this.branchStock,
+      branchLocations: branchLocations ?? this.branchLocations,
+      shelfPhotoUrl: shelfPhotoUrl ?? this.shelfPhotoUrl,
+      shelfPhotoUpdatedAt: shelfPhotoUpdatedAt ?? this.shelfPhotoUpdatedAt,
     );
   }
 
@@ -439,6 +506,27 @@ class ProductModel {
   bool get isLocal => village.isNotEmpty || origin?.toLowerCase() == 'local';
 
   bool get inStock => stockQuantity > 0;
+
+  /// Normalizes price to 1kg/1L for value comparison (Step 13.3)
+  double? get normalizedPricePerKg {
+    final currentP = currentPrice;
+    final String u = unit.toLowerCase();
+
+    if (u.contains('kg')) {
+      final double qty = double.tryParse(u.split(' ')[0]) ?? 1.0;
+      return currentP / qty;
+    } else if (u.contains(' g')) {
+      final double qty = double.tryParse(u.split(' ')[0]) ?? 500.0;
+      return (currentP / qty) * 1000;
+    } else if (u.contains(' l')) {
+      final double qty = double.tryParse(u.split(' ')[0]) ?? 1.0;
+      return currentP / qty;
+    } else if (u.contains('ml')) {
+      final double qty = double.tryParse(u.split(' ')[0]) ?? 500.0;
+      return (currentP / qty) * 1000;
+    }
+    return null;
+  }
 }
 
 class ProductReview {

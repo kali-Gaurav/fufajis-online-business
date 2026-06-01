@@ -7,6 +7,7 @@ import 'package:uuid/uuid.dart';
 import '../models/product_model.dart';
 import 'notification_service.dart';
 import 'analytics_service.dart';
+import 'dynamic_pricing_config_service.dart';
 
 /// Pricing Engine Service for Dynamic Price Adjustment & Competitor Matching
 /// Automatically matches or beats competitor prices on basic items
@@ -16,10 +17,9 @@ class PricingEngineService {
   final AnalyticsService _analyticsService = AnalyticsService();
   final Uuid _uuid = const Uuid();
 
-  // Configuration
-  static const double _defaultMargin = 0.05; // 5% minimum margin
-  static const double _priceMatchThreshold = 0.02; // 2% threshold for matching
-  static const int _priceHistoryDays = 90; // Keep 90 days of price history
+  // Dynamic configuration — all values loaded from Firestore via DynamicPricingConfigService
+  final DynamicPricingConfigService _pricingConfig = DynamicPricingConfigService();
+  static const int _priceHistoryDays = 90; // fallback, overridden by Firestore config
 
   // Collection references
   CollectionReference _productsCollection(String shopId) =>
@@ -110,23 +110,32 @@ class PricingEngineService {
           ? competitorPrices.map((p) => p['price'] as double).reduce(min)
           : null;
 
-      // Get pricing rules
+      // Get dynamic pricing config (Firestore-driven, 15-min cached)
+      final effectiveMarginPct = await _pricingConfig.getEffectiveMargin(
+        shopId: shopId, category: category ?? 'other');
+      final effectiveStrategy = await _pricingConfig.getEffectiveStrategy(
+        shopId: shopId, category: category ?? 'other');
       final rules = await getPricingRules(shopId, category);
       final defaultRule = rules.firstWhere(
-        (r) => r['isDefault'],
-        orElse: () => {'margin': _defaultMargin, 'strategy': 'match'},
+        (r) => r['isDefault'] == true,
+        orElse: () => {
+          'margin': effectiveMarginPct / 100.0,
+          'strategy': effectiveStrategy,
+          'isDefault': true,
+        },
       );
 
       // Calculate base price
       double optimalPrice;
-      final margin = (defaultRule['margin'] as double?) ?? _defaultMargin;
+      final margin = (defaultRule['margin'] as double?) ?? (effectiveMarginPct / 100.0);
       final strategy = defaultRule['strategy'] as String;
 
       switch (strategy) {
         case 'beat':
           // Price slightly below lowest competitor
           if (lowestCompetitorPrice != null) {
-            optimalPrice = lowestCompetitorPrice * (1 - _priceMatchThreshold);
+            final beatThreshold = effectiveMarginPct / 100.0 * 0.4; // 40% of margin as beat gap
+            optimalPrice = lowestCompetitorPrice * (1 - beatThreshold);
           } else {
             optimalPrice = costPrice * (1 + margin);
           }
@@ -205,10 +214,12 @@ class PricingEngineService {
           precalculatedCompetitorPrices: competitorPrices,
         );
 
-        // Check if price change is needed
+        // Check if price change is needed (threshold read from dynamic config)
         final priceDifference = (optimalPrice - product.price) / product.price;
+        final globalConfig = await _pricingConfig.getGlobalConfig();
+        final matchThreshold = globalConfig.defaultCompetitorMatchThreshold / 100.0;
         
-        if (priceDifference.abs() > _priceMatchThreshold) {
+        if (priceDifference.abs() > matchThreshold) {
           final change = {
             'productId': product.id,
             'productName': product.name,

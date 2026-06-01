@@ -1,7 +1,6 @@
-import 'dart:io';
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'dart:async';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
@@ -13,12 +12,13 @@ import '../../providers/auth_provider.dart';
 import '../../models/subscription_model.dart';
 import '../../models/product_model.dart';
 import '../../models/product_review_model.dart';
-import '../../services/firestore_service.dart';
+import '../../services/product_service.dart';
 import '../../services/storage_service.dart';
 import '../../utils/app_theme.dart';
 import '../../widgets/qna_section.dart';
 import '../../widgets/group_buy_widget.dart';
 import '../../widgets/farm_map_widget.dart';
+import '../../widgets/price_trust_widgets.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final String productId;
@@ -34,7 +34,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   bool _isLoading = true;
   ProductModel? _product;
   ProductUnitOption? _selectedUnitOption;
-  final FirestoreService _firestoreService = FirestoreService();
+  final ProductService _productService = ProductService();
   final StorageService _storageService = StorageService();
   final ImagePicker _imagePicker = ImagePicker();
   StreamSubscription<List<ProductReviewModel>>? _reviewsSubscription;
@@ -65,7 +65,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   void _listenToReviews() {
     _reviewsSubscription?.cancel();
-    _reviewsSubscription = _firestoreService.getProductReviewsStream(widget.productId).listen(
+    _reviewsSubscription = _productService.getProductReviewsStream(widget.productId).listen(
       (reviews) {
         if (mounted) setState(() => _reviews = reviews);
       },
@@ -108,7 +108,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               final shareText = 'Check out ${_product!.name} on Fufaji\'s Online!\n'
                   'Price: ₹${(_product!.isLightningDealActive ? _product!.lightningDealPrice : _product!.price)?.round()}\n'
                   'Link: https://fufajis.online/product/${widget.productId}';
-              SharePlus.share(shareText);
+              var share = Share.share(shareText);
             },
           ),
           IconButton(
@@ -153,6 +153,22 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           _buildProductImages(),
           const SizedBox(height: 16),
           _buildProductInfo(),
+          const SizedBox(height: 10),
+          // Feature 2 — Honest Price Badges
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: HonestPriceBadges(
+              hasNoDiscount: _product!.originalPrice == null || _product!.originalPrice == _product!.price,
+              isLocallySourced: _product!.shopName.toLowerCase().contains('fufaji'),
+              priceStableFor60Days: false, // derived live by PriceHistoryWidget stream
+            ),
+          ),
+          const SizedBox(height: 12),
+          // Feature 1 — Price History Timeline
+          PriceHistoryWidget(
+            productId: widget.productId,
+            currentPrice: _product!.price,
+          ),
           const SizedBox(height: 16),
           if (_product!.unitOptions.isNotEmpty) ...[
             _buildUnitOptionsSelector(),
@@ -223,6 +239,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ],
             ],
           ),
+          const SizedBox(height: 4),
+          if (_product!.normalizedPricePerKg != null)
+            Text(
+              '(₹${_product!.normalizedPricePerKg!.toStringAsFixed(0)} / kg equivalent)',
+              style: const TextStyle(color: AppTheme.grey500, fontSize: 13, fontStyle: FontStyle.italic),
+            ),
           Text('Price per $unit', style: const TextStyle(color: Colors.grey, fontSize: 12)),
         ],
       ),

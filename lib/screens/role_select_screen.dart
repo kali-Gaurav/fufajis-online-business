@@ -29,13 +29,16 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> {
         case 'deliveryAgent':
           role = UserRole.deliveryAgent;
           break;
+        case 'employee':
+          role = UserRole.employee;
+          break;
         case 'customer':
         default:
           role = UserRole.customer;
           break;
       }
 
-      await authProvider.updateRole(role);
+      await authProvider.requestRoleUpdate(authProvider.currentUser!.id, role);
 
       if (mounted) {
         // Redirection handled by central AppRouter via refreshListenable
@@ -104,6 +107,7 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> {
                 icon: Icons.shopping_bag_outlined,
                 title: 'Customer',
                 description: 'Shop from local stores and get delivery at home',
+                tooltip: 'Best for daily groceries and home essentials',
                 color: AppTheme.primary,
                 onTap: () => _selectRole('customer'),
               ),
@@ -113,6 +117,7 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> {
                 icon: Icons.storefront,
                 title: 'Shop Owner',
                 description: 'Manage your shop, products, and orders',
+                tooltip: 'For local merchants wanting to sell online',
                 color: AppTheme.secondary,
                 onTap: () => _selectRole('shopOwner'),
               ),
@@ -122,8 +127,18 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> {
                 icon: Icons.delivery_dining,
                 title: 'Delivery Partner',
                 description: 'Deliver orders and earn money',
+                tooltip: 'For agents with a vehicle ready to deliver',
                 color: AppTheme.info,
                 onTap: () => _selectRole('deliveryAgent'),
+              ),
+              const SizedBox(height: 16),
+              _buildRoleCard(
+                icon: Icons.badge_outlined,
+                title: 'Store Staff / Employee',
+                description: 'Perform operational tasks, scanning, audits, etc.',
+                tooltip: 'For store managers, packing, and inventory staff',
+                color: Colors.deepOrange,
+                onTap: () => _selectRole('employee'),
               ),
               if (_isLoading)
                 const Padding(
@@ -141,60 +156,64 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> {
     required IconData icon,
     required String title,
     required String description,
+    required String tooltip,
     required Color color,
     required VoidCallback onTap,
   }) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: InkWell(
-        onTap: _isLoading ? null : onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+    return Tooltip(
+      message: tooltip,
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: InkWell(
+          onTap: _isLoading ? null : onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, size: 28, color: color),
                 ),
-                child: Icon(icon, size: 28, color: color),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.grey900,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.grey900,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      description,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppTheme.grey600,
+                      const SizedBox(height: 4),
+                      Text(
+                        description,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: AppTheme.grey600,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const Icon(
-                Icons.arrow_forward_ios,
-                color: AppTheme.grey400,
-                size: 20,
-              ),
-            ],
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  color: AppTheme.grey400,
+                  size: 20,
+                ),
+              ],
+            ),
           ),
         ),
       ),

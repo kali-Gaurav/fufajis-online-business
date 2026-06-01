@@ -21,9 +21,9 @@ class CartProvider with ChangeNotifier {
   double get tipAmount => _tipAmount;
   DeliveryType get deliveryType => _deliveryType;
 
-  int get totalItems => _cartItems.fold(0, (sum, item) => sum + item.quantity);
+  int get totalItems => _cartItems.fold(0, (total, item) => total + item.quantity);
 
-  double get subtotal => _cartItems.fold(0.0, (sum, item) => sum + item.totalPrice);
+  double get subtotal => _cartItems.fold(0.0, (total, item) => total + item.totalPrice);
 
   double get discount {
     double discount = 0.0;
@@ -340,7 +340,16 @@ class CartProvider with ChangeNotifier {
     for (var item in items) {
       final String name = (item['name'] ?? '').toString().toLowerCase();
       final double qty = double.tryParse(item['quantity']?.toString() ?? '1.0') ?? 1.0;
-      final String unit = (item['unit'] ?? '').toString().toLowerCase();
+      String unit = (item['unit'] ?? '').toString().toLowerCase();
+
+      // Normalize Hindi voice quantities/units
+      if (unit.contains('kilo') || unit.contains('kilogram') || unit == 'किलो' || unit == 'किग्रा') {
+        unit = 'kg';
+      } else if (unit.contains('gram') || unit == 'ग्राम' || unit == 'जी' || unit == 'g') {
+        unit = 'g';
+      } else if (unit.contains('liter') || unit.contains('litre') || unit == 'लीटर') {
+        unit = 'l';
+      }
 
       // Find matching product in shop inventory
       ProductModel? match;

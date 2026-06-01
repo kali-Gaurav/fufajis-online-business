@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../services/firestore_service.dart';
+import '../../services/user_service.dart';
 import '../../models/user_model.dart';
 import '../../utils/app_theme.dart';
 import '../../providers/auth_provider.dart';
@@ -13,7 +13,7 @@ class RiderManagementScreen extends StatefulWidget {
 }
 
 class _RiderManagementScreenState extends State<RiderManagementScreen> {
-  final FirestoreService _firestoreService = FirestoreService();
+  final UserService _userService = UserService();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
 
@@ -59,7 +59,7 @@ class _RiderManagementScreenState extends State<RiderManagementScreen> {
               final name = _nameController.text.trim();
               if (phone.isNotEmpty && name.isNotEmpty) {
                 final owner = Provider.of<AuthProvider>(context, listen: false).currentUser;
-                await _firestoreService.authorizeUser(
+                await _userService.authorizeUser(
                   phone,
                   UserRole.deliveryAgent,
                   name,
@@ -89,7 +89,7 @@ class _RiderManagementScreenState extends State<RiderManagementScreen> {
         title: const Text('Delivery Fleet'),
       ),
       body: StreamBuilder<List<Map<String, dynamic>>>(
-        stream: _firestoreService.getAuthorizedRidersStream(),
+        stream: _userService.getAuthorizedRidersStream(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -144,7 +144,7 @@ class _RiderManagementScreenState extends State<RiderManagementScreen> {
                         ),
                       );
                       if (confirm == true) {
-                        await _firestoreService.deauthorizeUser(rider['phoneNumber']);
+                        await _userService.deauthorizeUser(rider['phoneNumber']);
                       }
                     },
                   ),

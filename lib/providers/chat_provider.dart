@@ -2,10 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/chat_message_model.dart';
-import '../services/firestore_service.dart';
+import '../services/chat_service.dart';
 
 class ChatProvider with ChangeNotifier {
-  final FirestoreService _firestoreService = FirestoreService();
+  final ChatService _chatService = ChatService();
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   List<ChatMessageModel> _messages = [];
@@ -57,7 +57,7 @@ class ChatProvider with ChangeNotifier {
       chatChannelId: channelId,
     );
 
-    await _firestoreService.sendSupportMessage(msg);
+    await _chatService.sendSupportMessage(msg);
   }
 
   // Feature: Voice Note Order Request

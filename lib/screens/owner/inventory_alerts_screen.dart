@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/product_provider_extensions.dart';
 import '../../models/low_stock_alert_model.dart';
+import '../../utils/app_theme.dart';
 
 /// Inventory Alerts Screen
 /// Displays low-stock alerts with predictions and reorder recommendations
@@ -14,8 +15,9 @@ class InventoryAlertsScreen extends StatefulWidget {
   State<InventoryAlertsScreen> createState() => _InventoryAlertsScreenState();
 }
 
-class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> {
+class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with SingleTickerProviderStateMixin {
   late TextEditingController _searchController;
+  late TabController _tabController;
   String _selectedSeverity = 'All';
   bool _isLoading = false;
   List<LowStockAlert> _filteredAlerts = [];
@@ -24,13 +26,22 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> {
   void initState() {
     super.initState();
     _searchController = TextEditingController();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(_handleTabChange);
     _loadAlerts();
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _tabController.removeListener(_handleTabChange);
+    _tabController.dispose();
     super.dispose();
+  }
+
+  void _handleTabChange() {
+    if (_tabController.indexIsChanging) return;
+    _loadAlerts();
   }
 
   Future<void> _loadAlerts() async {
@@ -38,11 +49,28 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> {
     try {
       final provider = context.read<ProductProvider>();
       final alerts = provider.lowStockAlerts;
-      
       _filterAlerts(alerts);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading alerts: $e')),
+        SnackBar(content: Text('Error loading alerts: $e'), backgroundColor: AppTheme.error),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _runDiagnostics() async {
+    setState(() => _isLoading = true);
+    try {
+      final provider = context.read<ProductProvider>();
+      await provider.checkAllProductsLowStock();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Diagnostics run successfully! Stock metrics updated.'), backgroundColor: AppTheme.success),
+      );
+      _loadAlerts();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error running diagnostics: $e'), backgroundColor: AppTheme.error),
       );
     } finally {
       setState(() => _isLoading = false);
@@ -52,10 +80,17 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> {
   void _filterAlerts(List<LowStockAlert> alerts) {
     List<LowStockAlert> filtered = alerts;
 
+    // Filter by Tab: 0 = Current Low Stock (below minimum stock), 1 = Predicted Stockout (stockout predicted within 7 days)
+    if (_tabController.index == 0) {
+      filtered = filtered.where((alert) => alert.currentStock <= alert.minimumStock).toList();
+    } else {
+      filtered = filtered.where((alert) => alert.daysUntilStockout > 0 && alert.daysUntilStockout <= 7).toList();
+    }
+
     // Filter by severity
     if (_selectedSeverity != 'All') {
       filtered = filtered
-          .where((alert) => alert.severity == _selectedSeverity)
+          .where((alert) => alert.severity.toLowerCase() == _selectedSeverity.toLowerCase())
           .toList();
     }
 
@@ -74,34 +109,41 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> {
     try {
       final provider = context.read<ProductProvider>();
       await provider.dismissInventoryAlert(alert.id);
-      
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Alert dismissed')),
       );
-      
       await _loadAlerts();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error dismissing alert: $e')),
+        SnackBar(content: Text('Error dismissing alert: $e'), backgroundColor: AppTheme.error),
       );
     }
   }
 
   Future<void> _reorderNow(LowStockAlert alert) async {
-    // Navigate to reorder screen or show reorder dialog
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Reorder'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.shopping_cart_checkout, color: AppTheme.secondary),
+            const SizedBox(width: 8),
+            const Text('Confirm Reorder'),
+          ],
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Product: ${alert.productName}'),
+            Text('Product: ${alert.productName}', style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            Text('Current Stock: ${alert.currentStock} units'),
+            Text('Average Daily Sales: ${alert.averageDailySales.toStringAsFixed(1)} units/day'),
+            const Divider(height: 24),
+            Text('Recommended Restock: ${alert.recommendedReorderQuantity} units', style: const TextStyle(color: AppTheme.success, fontWeight: FontWeight.bold, fontSize: 16)),
             const SizedBox(height: 8),
-            Text('Recommended Quantity: ${alert.recommendedReorderQuantity}'),
-            const SizedBox(height: 8),
-            Text('Current Stock: ${alert.currentStock}'),
+            Text('This quantity covers ${alert.recommendedStockDays > 0 ? alert.recommendedStockDays : 14} days of future sales velocity.', style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
           ],
         ),
         actions: [
@@ -113,10 +155,11 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> {
             onPressed: () {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Reorder initiated')),
+                SnackBar(content: Text('Purchase Order for ${alert.recommendedReorderQuantity} units sent to distributor!'), backgroundColor: AppTheme.success),
               );
             },
-            child: const Text('Confirm Reorder'),
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.secondary),
+            child: const Text('Confirm Order'),
           ),
         ],
       ),
@@ -124,26 +167,51 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> {
   }
 
   Color _getSeverityColor(String severity) {
-    switch (severity) {
-      case 'Critical':
-        return Colors.red;
-      case 'High':
+    switch (severity.toLowerCase()) {
+      case 'critical':
+        return AppTheme.error;
+      case 'high':
         return Colors.orange;
-      case 'Medium':
-        return Colors.amber;
-      case 'Low':
-        return Colors.yellow;
+      case 'medium':
+        return Colors.amber[700]!;
+      case 'low':
+        return AppTheme.info;
       default:
-        return Colors.grey;
+        return AppTheme.grey500;
     }
+  }
+
+  Color _getDaysRemainingColor(int days) {
+    if (days <= 1) return AppTheme.error;
+    if (days <= 3) return Colors.orange;
+    if (days <= 7) return Colors.amber[700]!;
+    return AppTheme.success;
   }
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<ProductProvider>();
+    
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Inventory Alerts'),
-        elevation: 0,
+        title: const Text('Inventory Forecast & Alerts'),
+        actions: [
+          IconButton(
+            onPressed: _runDiagnostics,
+            icon: const Icon(Icons.analytics_outlined),
+            tooltip: 'Run Inventory Predictions',
+          ),
+        ],
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: AppTheme.secondary,
+          labelColor: AppTheme.secondary,
+          unselectedLabelColor: AppTheme.grey600,
+          tabs: const [
+            Tab(text: 'Low Stock / कम स्टॉक'),
+            Tab(text: 'Predicted Stockouts / संभावित कमी'),
+          ],
+        ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -151,21 +219,21 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> {
               children: [
                 // Search and Filter
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                   child: Column(
                     children: [
                       // Search Bar
                       TextField(
                         controller: _searchController,
-                        onChanged: (_) {
-                          final provider = context.read<ProductProvider>();
-                          _filterAlerts(provider.lowStockAlerts);
-                        },
+                        onChanged: (_) => _filterAlerts(provider.lowStockAlerts),
                         decoration: InputDecoration(
-                          hintText: 'Search products...',
+                          hintText: 'Search products by name...',
                           prefixIcon: const Icon(Icons.search),
+                          filled: true,
+                          fillColor: AppTheme.grey100,
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
                           ),
                         ),
                       ),
@@ -187,10 +255,14 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> {
                                     child: FilterChip(
                                       label: Text(severity),
                                       selected: _selectedSeverity == severity,
+                                      selectedColor: AppTheme.secondary.withValues(alpha: 0.15),
+                                      checkmarkColor: AppTheme.secondary,
+                                      labelStyle: TextStyle(
+                                        color: _selectedSeverity == severity ? AppTheme.secondary : AppTheme.grey700,
+                                        fontWeight: _selectedSeverity == severity ? FontWeight.bold : FontWeight.normal,
+                                      ),
                                       onSelected: (_) {
                                         setState(() => _selectedSeverity = severity);
-                                        final provider =
-                                            context.read<ProductProvider>();
                                         _filterAlerts(provider.lowStockAlerts);
                                       },
                                     ),
@@ -211,29 +283,28 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> {
                             children: [
                               Icon(
                                 Icons.check_circle,
-                                size: 64,
-                                color: Colors.green[300],
+                                size: 80,
+                                color: AppTheme.success.withValues(alpha: 0.2),
                               ),
                               const SizedBox(height: 16),
                               const Text(
-                                'No alerts',
+                                'All clear! No alerts here.',
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
+                                  color: AppTheme.grey800,
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              Text(
-                                'Your inventory is healthy!',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                ),
+                              const Text(
+                                'Your inventory is fully stocked & healthy.',
+                                style: TextStyle(color: AppTheme.grey500),
                               ),
                             ],
                           ),
                         )
                       : ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           itemCount: _filteredAlerts.length,
                           itemBuilder: (context, index) {
                             final alert = _filteredAlerts[index];
@@ -247,14 +318,29 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> {
   }
 
   Widget _buildAlertCard(LowStockAlert alert) {
-    return Card(
+    final severityColor = _getSeverityColor(alert.severity);
+    final daysColor = _getDaysRemainingColor(alert.daysUntilStockout);
+    
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppTheme.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(color: AppTheme.grey200),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with severity badge
+            // Header with severity badge & Title
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -267,6 +353,7 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> {
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
+                          color: AppTheme.grey900,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -274,98 +361,114 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> {
                       const SizedBox(height: 4),
                       Text(
                         'SKU: ${alert.productId}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
-                          color: Colors.grey[600],
+                          color: AppTheme.grey500,
                         ),
                       ),
                     ],
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: _getSeverityColor(alert.severity).withValues(alpha: 0.2),
+                    color: severityColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    alert.severity,
+                    alert.severity.toUpperCase(),
                     style: TextStyle(
-                      color: _getSeverityColor(alert.severity),
-                      fontSize: 12,
+                      color: severityColor,
+                      fontSize: 11,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const Divider(height: 24),
 
-            // Stock Information
+            // Main Info Block
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildInfoColumn(
+                _buildMetricBlock(
                   'Current Stock',
                   '${alert.currentStock}',
+                  Icons.inventory_2,
+                  AppTheme.secondary,
+                ),
+                _buildMetricBlock(
+                  'Daily Velocity',
+                  '${alert.averageDailySales.toStringAsFixed(1)} /day',
+                  Icons.trending_up,
                   Colors.blue,
                 ),
-                _buildInfoColumn(
-                  'Daily Sales',
-                  '${alert.averageDailySales.toStringAsFixed(1)}',
-                  Colors.orange,
-                ),
-                _buildInfoColumn(
-                  'Days Until Stockout',
-                  '${alert.daysUntilStockout}',
-                  alert.daysUntilStockout <= 3 ? Colors.red : Colors.green,
+                _buildMetricBlock(
+                  _tabController.index == 1 ? 'Days Left' : 'Min Required',
+                  _tabController.index == 1 ? '${alert.daysUntilStockout} days' : '${alert.minimumStock}',
+                  _tabController.index == 1 ? Icons.hourglass_bottom : Icons.warning_amber,
+                  _tabController.index == 1 ? daysColor : Colors.orange,
+                  boldText: _tabController.index == 1,
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
 
-            // Recommendation
+            // Smart Recommendation Banner
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.amber[50],
-                borderRadius: BorderRadius.circular(8),
+                color: AppTheme.secondary.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.lightbulb, color: Colors.amber[700], size: 20),
+                  const Icon(Icons.lightbulb_outline, color: AppTheme.secondary, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Reorder ${alert.recommendedReorderQuantity} units to maintain ${alert.recommendedStockDays} days of stock',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.amber[900],
+                      'Reorder ${alert.recommendedReorderQuantity} units to keep ${alert.recommendedStockDays > 0 ? alert.recommendedStockDays : 14} days safety buffer.',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.secondary,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
 
-            // Actions
+            // Action Buttons
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
+                  child: OutlinedButton.icon(
                     onPressed: () => _dismissAlert(alert),
-                    child: const Text('Dismiss'),
+                    icon: const Icon(Icons.check_circle_outline, size: 16),
+                    label: const Text('Dismiss'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppTheme.grey700,
+                      side: const BorderSide(color: AppTheme.grey300),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 Expanded(
-                  child: ElevatedButton(
+                  child: ElevatedButton.icon(
                     onPressed: () => _reorderNow(alert),
-                    child: const Text('Reorder Now'),
+                    icon: const Icon(Icons.local_shipping, size: 16),
+                    label: const Text('Reorder Now'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.secondary,
+                      foregroundColor: AppTheme.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      elevation: 0,
+                    ),
                   ),
                 ),
               ],
@@ -376,27 +479,45 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> {
     );
   }
 
-  Widget _buildInfoColumn(String label, String value, Color color) {
+  Widget _buildMetricBlock(String label, String value, IconData icon, Color color, {bool boldText = false}) {
     return Expanded(
-      child: Column(
+      child: Row(
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
             ),
-            textAlign: TextAlign.center,
+            child: Icon(icon, color: color, size: 18),
           ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: color,
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppTheme.grey500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: boldText ? color : AppTheme.grey900,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-            textAlign: TextAlign.center,
           ),
         ],
       ),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'remote_config_service.dart';
 
 /// Enterprise WhatsApp Service using Meta Business API
@@ -28,8 +29,8 @@ class MetaWhatsAppService {
     required String templateName,
     required List<String> parameters,
   }) async {
-    final String accessToken = const String.fromEnvironment('WHATSAPP_LIVE_TOKEN');
-    final String phoneId = const String.fromEnvironment('WHATSAPP_PHONE_ID');
+    final String accessToken = dotenv.get('WHATSAPP_TOKEN', fallback: '');
+    final String phoneId = dotenv.get('WHATSAPP_PHONE_ID', fallback: '');
 
     if (accessToken.isEmpty || phoneId.isEmpty) {
       debugPrint('WhatsApp Error: Live API Credentials not found in environment.');

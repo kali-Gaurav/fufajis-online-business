@@ -198,6 +198,11 @@ class OrderItem {
   final String? selectedColor;
   final bool isPacked;
   final bool isOutOfStock;
+  final String? substitutionStatus; // 'pending', 'approved', 'declined'
+  final String? proposedReplacementId;
+  final String? proposedReplacementName;
+  final double? proposedReplacementPrice;
+  final DateTime? substitutionTimestamp;
 
   OrderItem({
     required this.id,
@@ -217,6 +222,11 @@ class OrderItem {
     this.selectedColor,
     this.isPacked = false,
     this.isOutOfStock = false,
+    this.substitutionStatus,
+    this.proposedReplacementId,
+    this.proposedReplacementName,
+    this.proposedReplacementPrice,
+    this.substitutionTimestamp,
   });
 
   factory OrderItem.fromMap(Map<String, dynamic> map) {
@@ -238,6 +248,15 @@ class OrderItem {
       selectedColor: map['selectedColor'],
       isPacked: map['isPacked'] ?? false,
       isOutOfStock: map['isOutOfStock'] ?? false,
+      substitutionStatus: map['substitutionStatus'],
+      proposedReplacementId: map['proposedReplacementId'],
+      proposedReplacementName: map['proposedReplacementName'],
+      proposedReplacementPrice: (map['proposedReplacementPrice'] as num?)?.toDouble(),
+      substitutionTimestamp: map['substitutionTimestamp'] != null
+          ? (map['substitutionTimestamp'] is Timestamp
+              ? (map['substitutionTimestamp'] as Timestamp).toDate()
+              : DateTime.tryParse(map['substitutionTimestamp'].toString()))
+          : null,
     );
   }
 
@@ -260,6 +279,13 @@ class OrderItem {
       'selectedColor': selectedColor,
       'isPacked': isPacked,
       'isOutOfStock': isOutOfStock,
+      'substitutionStatus': substitutionStatus,
+      'proposedReplacementId': proposedReplacementId,
+      'proposedReplacementName': proposedReplacementName,
+      'proposedReplacementPrice': proposedReplacementPrice,
+      'substitutionTimestamp': substitutionTimestamp != null
+          ? Timestamp.fromDate(substitutionTimestamp!)
+          : null,
     };
   }
 
@@ -281,6 +307,11 @@ class OrderItem {
     String? selectedColor,
     bool? isPacked,
     bool? isOutOfStock,
+    String? substitutionStatus,
+    String? proposedReplacementId,
+    String? proposedReplacementName,
+    double? proposedReplacementPrice,
+    DateTime? substitutionTimestamp,
   }) {
     return OrderItem(
       id: id ?? this.id,
@@ -300,6 +331,11 @@ class OrderItem {
       selectedColor: selectedColor ?? this.selectedColor,
       isPacked: isPacked ?? this.isPacked,
       isOutOfStock: isOutOfStock ?? this.isOutOfStock,
+      substitutionStatus: substitutionStatus ?? this.substitutionStatus,
+      proposedReplacementId: proposedReplacementId ?? this.proposedReplacementId,
+      proposedReplacementName: proposedReplacementName ?? this.proposedReplacementName,
+      proposedReplacementPrice: proposedReplacementPrice ?? this.proposedReplacementPrice,
+      substitutionTimestamp: substitutionTimestamp ?? this.substitutionTimestamp,
     );
   }
 }
@@ -339,6 +375,7 @@ class OrderModel {
   final String? shopPhone;
   final String? shopAddress;
   final String? trackingNumber;
+  final String? parcelId;
   final String? otp;
   final bool otpVerified;
   final String? cancellationReason;
@@ -394,6 +431,7 @@ class OrderModel {
     this.shopPhone,
     this.shopAddress,
     this.trackingNumber,
+    this.parcelId,
     this.otp,
     this.otpVerified = false,
     this.cancellationReason,
@@ -466,6 +504,7 @@ class OrderModel {
       shopPhone: map['shopPhone'],
       shopAddress: map['shopAddress'],
       trackingNumber: map['trackingNumber'],
+      parcelId: map['parcelId'],
       otp: map['otp'],
       otpVerified: map['otpVerified'] ?? false,
       cancellationReason: map['cancellationReason'],
@@ -537,6 +576,7 @@ class OrderModel {
       'shopPhone': shopPhone,
       'shopAddress': shopAddress,
       'trackingNumber': trackingNumber,
+      'parcelId': parcelId,
       'otp': otp,
       'otpVerified': otpVerified,
       'cancellationReason': cancellationReason,
@@ -591,6 +631,7 @@ class OrderModel {
     String? shopPhone,
     String? shopAddress,
     String? trackingNumber,
+    String? parcelId,
     String? otp,
     bool? otpVerified,
     String? cancellationReason,
@@ -644,6 +685,7 @@ class OrderModel {
       shopPhone: shopPhone ?? this.shopPhone,
       shopAddress: shopAddress ?? this.shopAddress,
       trackingNumber: trackingNumber ?? this.trackingNumber,
+      parcelId: parcelId ?? this.parcelId,
       otp: otp ?? this.otp,
       otpVerified: otpVerified ?? this.otpVerified,
       cancellationReason: cancellationReason ?? this.cancellationReason,

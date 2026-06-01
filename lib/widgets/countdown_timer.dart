@@ -11,14 +11,19 @@ class CountdownTimer extends StatefulWidget {
   State<CountdownTimer> createState() => _CountdownTimerState();
 }
 
-class _CountdownTimerState extends State<CountdownTimer> {
+class _CountdownTimerState extends State<CountdownTimer> with SingleTickerProviderStateMixin {
   late Timer _timer;
   late Duration _duration;
+  late AnimationController _pulseController;
 
   @override
   void initState() {
     super.initState();
     _duration = widget.endTime.difference(DateTime.now());
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..repeat(reverse: true);
     _startTimer();
   }
 
@@ -29,6 +34,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
           _duration = widget.endTime.difference(DateTime.now());
           if (_duration.isNegative) {
             _timer.cancel();
+            _pulseController.stop();
           }
         });
       }
@@ -38,6 +44,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
   @override
   void dispose() {
     _timer.cancel();
+    _pulseController.dispose();
     super.dispose();
   }
 
@@ -49,9 +56,13 @@ class _CountdownTimerState extends State<CountdownTimer> {
     final minutes = (_duration.inMinutes % 60).toString().padLeft(2, '0');
     final seconds = (_duration.inSeconds % 60).toString().padLeft(2, '0');
 
-    return Text(
-      '$hours:$minutes:$seconds',
-      style: widget.style ?? const TextStyle(fontWeight: FontWeight.bold),
+    // Step 9.2: Pulse animation on "Live" deals
+    return FadeTransition(
+      opacity: Tween<double>(begin: 0.7, end: 1.0).animate(_pulseController),
+      child: Text(
+        '$hours:$minutes:$seconds',
+        style: widget.style ?? const TextStyle(fontWeight: FontWeight.bold),
+      ),
     );
   }
 }

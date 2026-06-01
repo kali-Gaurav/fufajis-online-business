@@ -5,7 +5,7 @@ import '../../utils/app_theme.dart';
 import '../../providers/product_provider.dart';
 import '../../models/product_model.dart';
 import '../../models/purchase_order.dart';
-import '../../services/firestore_service.dart';
+import '../../services/order_service.dart';
 
 class VendorRequestScreen extends StatefulWidget {
   const VendorRequestScreen({super.key});
@@ -201,7 +201,7 @@ class _VendorRequestScreenState extends State<VendorRequestScreen> {
         status: 'sent',
       );
 
-      await FirestoreService().updateOrder(order.id, order.toMap()); // Using existing updateOrder but for PO collection in future
+      await OrderService().updateOrder(order.id, order.toMap()); // Using existing updateOrder but for PO collection in future
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Order request sent and logged.')));

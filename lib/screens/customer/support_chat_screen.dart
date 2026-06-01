@@ -5,7 +5,7 @@ import '../../models/chat_message_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/chat_provider.dart';
 import '../../utils/app_theme.dart';
-import '../../services/firestore_service.dart';
+import '../../services/chat_service.dart';
 
 class SupportChatScreen extends StatefulWidget {
   final String? orderId;
@@ -22,7 +22,7 @@ class SupportChatScreen extends StatefulWidget {
 class _SupportChatScreenState extends State<SupportChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final FirestoreService _firestoreService = FirestoreService();
+  final ChatService _chatService = ChatService();
 
   @override
   void initState() {

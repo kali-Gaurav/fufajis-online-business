@@ -28,6 +28,7 @@ if (-not (Test-Path "android/key.properties")) {
 flutter clean
 flutter pub get
 flutter build apk --release `
+  --no-tree-shake-icons `
   --dart-define=RAZORPAY_KEY_ID=$RazorpayKeyId `
   --dart-define=SHOP_LATITUDE=$ShopLatitude `
   --dart-define=SHOP_LONGITUDE=$ShopLongitude `

@@ -3,25 +3,41 @@ import 'package:speech_to_text/speech_to_text.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-/// Step 25: Voice-Powered Product Seeding
+import '../models/product_model.dart';
+import 'gemini_service.dart';
+
+/// Step 23: Voice-Powered Product Seeding
 /// Uses STT and Gemini to auto-populate product creation forms.
 class VoiceProductSeedingService {
-  final SpeechToText _speech = SpeechToText();
+  static final VoiceProductSeedingService _instance = VoiceProductSeedingService._internal();
+  factory VoiceProductSeedingService() => _instance;
+  VoiceProductSeedingService._internal();
 
-  Future<void> startVoiceSeeding(Function(String) onResult) async {
-    bool available = await _speech.initialize();
-    if (available) {
-      _speech.listen(onResult: (result) {
-        if (result.finalResult) {
-          onResult(result.recognizedWords);
-        }
-      });
+  final GeminiService _geminiService = GeminiService();
+
+  /// Parses voice text into product data using Gemini (Step 23.2)
+  Future<ProductModel?> parseProductFromVoice(String voiceInput) async {
+    try {
+      final product = await _geminiService.parseProductFromVoice(voiceInput);
+      return product;
+    } catch (e) {
+      debugPrint('[VoiceSeeding] Parsing failed: $e');
+      return null;
     }
   }
 
-  Future<Map<String, dynamic>> parseProductData(String voiceInput) async {
-    // Logic to call Gemini API and parse voice text to JSON
-    // { "name": "Apples", "price": 150, "quantity": 20 }
-    return {"name": "Detected Product", "price": 0.0};
+  /// Suggests HSN Code and GST based on category (Step 23.5)
+  Map<String, dynamic> getTaxSuggestions(String category) {
+    switch (category.toLowerCase()) {
+      case 'vegetables':
+      case 'fruits':
+        return {'hsn': '0701', 'gst': 0};
+      case 'dairy':
+        return {'hsn': '0401', 'gst': 5};
+      case 'groceries':
+        return {'hsn': '1901', 'gst': 12};
+      default:
+        return {'hsn': '0000', 'gst': 18};
+    }
   }
 }

@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/order_model.dart';
 import '../models/user_model.dart';
-import '../services/firestore_service.dart';
+import '../services/order_service.dart';
 import '../services/delivery_charge_calculator.dart';
 
 import 'package:geolocator/geolocator.dart';
 
 class DeliveryProvider with ChangeNotifier {
-  final FirestoreService _firestoreService = FirestoreService();
+  final OrderService _orderService = OrderService();
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   List<OrderModel> _assignedOrders = [];
@@ -211,7 +211,7 @@ class DeliveryProvider with ChangeNotifier {
         order.deliveredAt!.day,
       );
       return deliveredDate == today;
-    }).fold(0.0, (sum, order) => sum + (order.deliveryFee ?? 0.0));
+    }).fold(0.0, (total, order) => total + (order.deliveryFee ?? 0.0));
   }
 
   Future<bool> acceptOrder(String orderId, UserModel rider) async {
@@ -287,14 +287,33 @@ class DeliveryProvider with ChangeNotifier {
             order.subtotal,
           );
 
-          await _db.collection('orders').doc(orderId).update({
+          final Map<String, dynamic> updates = {
             'status': 'delivered',
             'otpVerified': true,
             'deliveredAt': FieldValue.serverTimestamp(),
             'deliveryFee': deliveryFee,
             'rewardPointsEarned': earnedPoints, // Save earned points to order
             'updatedAt': FieldValue.serverTimestamp(),
-          });
+          };
+
+          if (order.paymentMethod.toString().toLowerCase().contains('cod')) {
+            updates['cashCollectedAmount'] = order.totalAmount;
+            updates['cashCollectedAt'] = FieldValue.serverTimestamp();
+
+            await _db
+                .collection('orders')
+                .doc(orderId)
+                .collection('cashCollection')
+                .doc('log')
+                .set({
+              'amount': order.totalAmount,
+              'collectedBy': order.deliveryAgentId ?? 'demo_rider',
+              'collectedAt': FieldValue.serverTimestamp(),
+              'status': 'collected',
+            });
+          }
+
+          await _db.collection('orders').doc(orderId).update(updates);
 
           // Award points to Customer
           await _db.collection('users').doc(order.customerId).update({
@@ -359,7 +378,7 @@ class DeliveryProvider with ChangeNotifier {
 
   Future<void> updateRiderLocation(
       String orderId, double lat, double lng) async {
-    await _firestoreService.updateOrderLiveLocation(orderId, lat, lng);
+    await _orderService.updateOrderLiveLocation(orderId, lat, lng);
   }
 
   /// Task 9.6: Get earnings history with pagination
