@@ -31,3 +31,10 @@
 
 # Keep project-specific models if needed for serialization
 -keep class com.fufajis.online.models.** { *; }
+
+# ML Kit ProGuard Rules
+-dontwarn com.google.mlkit.vision.text.**
+-dontwarn com.google.mlkit.common.**
+-dontwarn com.google.mlkit.vision.common.**
+-keep class com.google.mlkit.** { *; }
+
