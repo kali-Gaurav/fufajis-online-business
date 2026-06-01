@@ -112,13 +112,14 @@ dev_dependencies:
   mockito: ^5.4.4
 
 dependency_overrides:
-  record_platform_interface: 1.4.0
+  record_platform_interface: 1.2.0
 
 flutter:
   uses-material-design: true
 
   assets:
     - .env
+    - shorebird.yaml
     # - assets/images/
     # - assets/icons/
 
