@@ -1,8 +1,62 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
+    // Deny all access by default
     match /{allPaths=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if false;
+    }
+
+    // User Avatars & Profiles
+    match /users/{userId}/avatar/{document=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth.uid == userId
+                   && request.resource.size < 5 * 1024 * 1024  // 5MB max
+                   && request.resource.contentType.matches('image/.*');
+      allow delete: if request.auth.uid == userId;
+    }
+
+    // Product Images (Shop-specific)
+    match /shops/{shopId}/products/{productId}/images/{document=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth.uid in get(/databases/(default)/documents/users/$(request.auth.uid)).data.shopIds
+                   && request.resource.size < 10 * 1024 * 1024  // 10MB max
+                   && request.resource.contentType.matches('image/.*');
+      allow delete: if request.auth.uid in get(/databases/(default)/documents/users/$(request.auth.uid)).data.shopIds;
+    }
+
+    // Order Documents (receipts, invoices)
+    match /orders/{orderId}/documents/{document=**} {
+      allow read: if request.auth != null
+                   && (request.auth.uid == get(/databases/(default)/documents/orders/$(orderId)).data.customerId
+                       || request.auth.uid in get(/databases/(default)/documents/users/$(request.auth.uid)).data.shopIds);
+      allow write: if request.auth != null
+                   && request.resource.size < 50 * 1024 * 1024  // 50MB max
+                   && request.resource.contentType.matches('application/(pdf|.*text.*)');
+      allow delete: if request.auth != null;
+    }
+
+    // User Invoices (GST, billing)
+    match /users/{userId}/invoices/{document=**} {
+      allow read: if request.auth.uid == userId;
+      allow write: if request.auth.uid == userId
+                   && request.resource.size < 20 * 1024 * 1024  // 20MB max
+                   && request.resource.contentType.matches('application/pdf');
+      allow delete: if request.auth.uid == userId;
+    }
+
+    // Delivery Proof (photos)
+    match /deliveries/{deliveryId}/proof/{document=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+                   && request.resource.size < 15 * 1024 * 1024  // 15MB max
+                   && request.resource.contentType.matches('image/.*');
+      allow delete: if false;  // Immutable for audit trail
+    }
+
+    // Temporary uploads (before processing)
+    match /temp/{userId}/{document=**} {
+      allow read, write, delete: if request.auth.uid == userId
+                                  && request.resource.size < 50 * 1024 * 1024;
     }
   }
 }
