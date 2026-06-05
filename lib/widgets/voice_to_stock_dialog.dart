@@ -24,7 +24,9 @@ class _VoiceToStockDialogState extends State<VoiceToStockDialog> {
       bool available = await _speech.initialize();
       if (available) {
         setState(() => _isListening = true);
-        _speech.listen(onResult: (val) => setState(() => _text = val.recognizedWords));
+        _speech.listen(
+          onResult: (val) => setState(() => _text = val.recognizedWords),
+        );
       }
     } else {
       setState(() => _isListening = false);
@@ -43,7 +45,7 @@ class _VoiceToStockDialogState extends State<VoiceToStockDialog> {
 
       if (command != null && mounted) {
         final provider = Provider.of<ProductProvider>(context, listen: false);
-        
+
         if (command['action'] == 'ADD') {
           final product = ProductModel(
             id: 'prod_voice_${DateTime.now().millisecondsSinceEpoch}',
@@ -62,17 +64,27 @@ class _VoiceToStockDialogState extends State<VoiceToStockDialog> {
           );
           await provider.addProduct(product);
         }
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('✅ Inventory updated: ${command['action']} ${command['name']}'), backgroundColor: AppTheme.success),
+            SnackBar(
+              content: Text(
+                '✅ Inventory updated: ${command['action']} ${command['name']}',
+              ),
+              backgroundColor: AppTheme.success,
+            ),
           );
           Navigator.pop(context);
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ Error: $e'), backgroundColor: AppTheme.error));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Error: $e'),
+            backgroundColor: AppTheme.error,
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isProcessing = false);
@@ -90,7 +102,10 @@ class _VoiceToStockDialogState extends State<VoiceToStockDialog> {
           children: [
             const Icon(Icons.inventory_2, color: AppTheme.primary, size: 48),
             const SizedBox(height: 16),
-            const Text('Voice Inventory Entry', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const Text(
+              'Voice Inventory Entry',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 32),
             GestureDetector(
               onLongPress: _listen,
@@ -98,12 +113,24 @@ class _VoiceToStockDialogState extends State<VoiceToStockDialog> {
               child: CircleAvatar(
                 radius: 40,
                 backgroundColor: _isListening ? Colors.red : AppTheme.primary,
-                child: Icon(_isListening ? Icons.stop : Icons.mic, color: Colors.white, size: 40),
+                child: Icon(
+                  _isListening ? Icons.stop : Icons.mic,
+                  color: Colors.white,
+                  size: 40,
+                ),
               ),
             ),
             const SizedBox(height: 24),
-            Text(_text, textAlign: TextAlign.center, style: const TextStyle(fontStyle: FontStyle.italic)),
-            if (_isProcessing) const Padding(padding: EdgeInsets.only(top: 24), child: CircularProgressIndicator()),
+            Text(
+              _text,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontStyle: FontStyle.italic),
+            ),
+            if (_isProcessing)
+              const Padding(
+                padding: EdgeInsets.only(top: 24),
+                child: CircularProgressIndicator(),
+              ),
           ],
         ),
       ),

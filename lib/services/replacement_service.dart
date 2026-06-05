@@ -7,13 +7,20 @@ class ReplacementService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   /// Suggests replacements for an out-of-stock product
-  List<ProductModel> suggestReplacements(ProductModel original, List<ProductModel> catalog) {
+  List<ProductModel> suggestReplacements(
+    ProductModel original,
+    List<ProductModel> catalog,
+  ) {
     // Strategy: Same category, similar price point, in stock
-    final available = catalog.where((p) => p.id != original.id && p.stockQuantity > 0).toList();
-    
+    final available = catalog
+        .where((p) => p.id != original.id && p.stockQuantity > 0)
+        .toList();
+
     // 1. Filter by category
-    var matches = available.where((p) => p.category == original.category).toList();
-    
+    var matches = available
+        .where((p) => p.category == original.category)
+        .toList();
+
     // 2. Score by tag overlap
     matches.sort((a, b) {
       final aOverlap = a.tags.where((t) => original.tags.contains(t)).length;
@@ -117,7 +124,8 @@ class ReplacementService {
       bool didChange = false;
 
       final updatedItems = order.items.map((it) {
-        if (it.substitutionStatus == 'pending' && it.substitutionTimestamp != null) {
+        if (it.substitutionStatus == 'pending' &&
+            it.substitutionTimestamp != null) {
           final diff = DateTime.now().difference(it.substitutionTimestamp!);
           if (diff.inMinutes >= 10) {
             didChange = true;
@@ -135,7 +143,10 @@ class ReplacementService {
       }).toList();
 
       if (didChange) {
-        final newSubtotal = updatedItems.fold(0.0, (total, it) => total + it.totalPrice);
+        final newSubtotal = updatedItems.fold(
+          0.0,
+          (total, it) => total + it.totalPrice,
+        );
         final newTotal = newSubtotal + order.deliveryCharge - order.discount;
 
         await docRef.update({
@@ -185,7 +196,10 @@ class ReplacementService {
         return it;
       }).toList();
 
-      final newSubtotal = updatedItems.fold(0.0, (total, it) => total + it.totalPrice);
+      final newSubtotal = updatedItems.fold(
+        0.0,
+        (total, it) => total + it.totalPrice,
+      );
       final newTotal = newSubtotal + order.deliveryCharge - order.discount;
 
       await docRef.update({
@@ -215,7 +229,10 @@ class ReplacementService {
     );
   }
 
-  String formatReplacementMessage(ProductModel original, ProductModel replacement) {
+  String formatReplacementMessage(
+    ProductModel original,
+    ProductModel replacement,
+  ) {
     return "Sorry, ${original.name} is out of stock. Would you like ${replacement.name} instead (₹${replacement.price})?";
   }
 }

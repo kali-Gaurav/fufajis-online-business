@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fufajis_online/models/product_review_model.dart';
 import 'package:fufajis_online/services/profanity_filter_service.dart';
-import 'package:fufajis_online/services/product_rating_calculator.dart';
 
 void main() {
   group('ProductReviewModel Tests', () {

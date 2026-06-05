@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/product_provider_extensions.dart';
 import '../../models/low_stock_alert_model.dart';
@@ -9,7 +8,7 @@ import '../../utils/app_theme.dart';
 /// Inventory Alerts Screen
 /// Displays low-stock alerts with predictions and reorder recommendations
 class InventoryAlertsScreen extends StatefulWidget {
-  const InventoryAlertsScreen({Key? key}) : super(key: key);
+  const InventoryAlertsScreen({super.key});
 
   @override
   State<InventoryAlertsScreen> createState() => _InventoryAlertsScreenState();
@@ -125,11 +124,11 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
+        title: const Row(
           children: [
-            const Icon(Icons.shopping_cart_checkout, color: AppTheme.secondary),
-            const SizedBox(width: 8),
-            const Text('Confirm Reorder'),
+            Icon(Icons.shopping_cart_checkout, color: AppTheme.secondary),
+            SizedBox(width: 8),
+            Text('Confirm Reorder'),
           ],
         ),
         content: Column(

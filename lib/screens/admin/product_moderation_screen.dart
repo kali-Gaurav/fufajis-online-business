@@ -88,9 +88,9 @@ class _ProductModerationScreenState extends State<ProductModerationScreen> {
           // Image Banner
           Expanded(
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppTheme.grey100,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
               ),
               child: Stack(
                 children: [
@@ -136,11 +136,11 @@ class _ProductModerationScreenState extends State<ProductModerationScreen> {
                 const SizedBox(height: 4),
                 Text(
                   'Shop: ${product.shopName}',
-                  style: TextStyle(fontSize: 12, color: AppTheme.grey600),
+                  style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
                 ),
                 Text(
                   'Category: ${product.category}',
-                  style: TextStyle(fontSize: 12, color: AppTheme.grey600),
+                  style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
                 ),
                 const SizedBox(height: 12),
                 Row(

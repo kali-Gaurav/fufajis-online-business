@@ -43,8 +43,12 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
   Widget build(BuildContext context) {
     final orderProvider = Provider.of<OrderProvider>(context);
 
-    if (_isLoading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    if (_order == null) return const Scaffold(body: Center(child: Text('Order not found')));
+    if (_isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (_order == null) {
+      return const Scaffold(body: Center(child: Text('Order not found')));
+    }
 
     final order = _order!;
 
@@ -52,28 +56,33 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
       appBar: AppBar(title: Text('Pack Order #${order.orderNumber}')),
       body: ListView(
         children: [
-          ...order.items.map((item) => CheckboxListTile(
-                title: Text(item.productName),
-                subtitle: Text('${item.quantity} x ${item.unit}'),
-                value: _packedItems[item.id] ?? false,
-                onChanged: (val) {
-                  setState(() {
-                    _packedItems[item.id] = val ?? false;
-                  });
-                },
-              )),
+          ...order.items.map(
+            (item) => CheckboxListTile(
+              title: Text(item.productName),
+              subtitle: Text('${item.quantity} x ${item.unit}'),
+              value: _packedItems[item.id] ?? false,
+              onChanged: (val) {
+                setState(() {
+                  _packedItems[item.id] = val ?? false;
+                });
+              },
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.all(16),
             child: ElevatedButton(
-              onPressed: _packedItems.values.every((v) => v) 
-                ? () async {
-                    await orderProvider.updateOrderStatus(order.id, OrderStatus.packed);
-                    if (mounted) context.pop();
-                  }
-                : null,
+              onPressed: _packedItems.values.every((v) => v)
+                  ? () async {
+                      await orderProvider.updateOrderStatus(
+                        order.id,
+                        OrderStatus.packed,
+                      );
+                      if (mounted) context.pop();
+                    }
+                  : null,
               child: const Text('Mark as Packed'),
             ),
-          )
+          ),
         ],
       ),
     );

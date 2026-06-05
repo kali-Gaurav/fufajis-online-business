@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
+import '../../widgets/scan_qr_widget.dart';
+import '../employee/dispatch_scanner_screen.dart';
 import 'package:provider/provider.dart';
 import '../../utils/app_theme.dart';
 import '../../models/order_model.dart';
@@ -21,7 +23,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
     'New',
     'Processing',
     'Out for Delivery',
-    'Completed'
+    'Completed',
   ];
   final OrderService _orderService = OrderService();
 
@@ -50,7 +52,10 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                     onPressed: () => context.push('/owner/packing-terminal'),
                     icon: const Icon(Icons.inventory),
                     label: const Text('Packing Terminal'),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo, foregroundColor: Colors.white),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.indigo,
+                      foregroundColor: Colors.white,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   IconButton(
@@ -276,7 +281,8 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
               ),
             ],
           ),
-          if (order.paymentMethod != PaymentMethod.cod && order.paymentStatus != 'paid') ...[
+          if (order.paymentMethod != PaymentMethod.cod &&
+              order.paymentStatus != 'paid') ...[
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(12),
@@ -287,7 +293,11 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 24),
+                  const Icon(
+                    Icons.warning_amber_rounded,
+                    color: Colors.amber,
+                    size: 24,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -354,7 +364,9 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                     OutlinedButton(
                       onPressed: () async {
                         await _orderService.updateOrderStatus(
-                            order.id, 'cancelled');
+                          order.id,
+                          'cancelled',
+                        );
                       },
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -368,12 +380,17 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                     const SizedBox(width: 8),
                     ElevatedButton(
                       onPressed: () async {
-                        if (order.paymentMethod != PaymentMethod.cod && order.paymentStatus != 'paid') {
-                          await Provider.of<OrderProvider>(context, listen: false)
-                              .approveOrderAndPayment(order.id);
+                        if (order.paymentMethod != PaymentMethod.cod &&
+                            order.paymentStatus != 'paid') {
+                          await Provider.of<OrderProvider>(
+                            context,
+                            listen: false,
+                          ).approveOrderAndPayment(order.id);
                         } else {
                           await _orderService.updateOrderStatus(
-                              order.id, 'confirmed');
+                            order.id,
+                            'confirmed',
+                          );
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -382,14 +399,57 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                       ),
                       child: Text(
-                        order.paymentMethod != PaymentMethod.cod && order.paymentStatus != 'paid'
+                        order.paymentMethod != PaymentMethod.cod &&
+                                order.paymentStatus != 'paid'
                             ? 'Accept & Verify'
                             : 'Accept',
                       ),
                     ),
                   ],
                 ),
-              if (order.status == OrderStatus.confirmed)
+              if (order.status == OrderStatus.confirmed) ...[
+                // Show ORDER QR — employee scans to open packing screen
+                IconButton(
+                  icon: const Icon(Icons.qr_code, color: Color(0xFF6A1B9A)),
+                  tooltip: 'Show ORDER QR for packing',
+                  onPressed: () => showDialog(
+                    context: context,
+                    builder: (_) => Dialog(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text('Packing QR',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16)),
+                            const SizedBox(height: 4),
+                            const Text(
+                              'Employee scans this to open order packing',
+                              style: TextStyle(
+                                  color: Colors.grey, fontSize: 12),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            ScanQrWidget.order(
+                              orderId: order.id,
+                              orderNumber: order.orderNumber,
+                              size: 200,
+                            ),
+                            const SizedBox(height: 8),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Close'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
                 ElevatedButton(
                   onPressed: () => context.push('/owner/packing/${order.id}'),
                   style: ElevatedButton.styleFrom(
@@ -398,6 +458,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                   ),
                   child: const Text('Start Packing'),
                 ),
+              ],
               if (order.status == OrderStatus.processing)
                 ElevatedButton(
                   onPressed: () => context.push('/owner/packing/${order.id}'),
@@ -407,7 +468,80 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                   ),
                   child: const Text('Continue Packing'),
                 ),
-              if (order.status == OrderStatus.packed)
+              if (order.status == OrderStatus.packed) ...[
+                // Show DISPATCH QR — dispatch employee scans this
+                IconButton(
+                  icon: const Icon(Icons.qr_code,
+                      color: Color(0xFFE65100)),
+                  tooltip: 'Show DISPATCH QR',
+                  onPressed: () => showDialog(
+                    context: context,
+                    builder: (_) => Dialog(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text('Dispatch QR',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16)),
+                            const SizedBox(height: 4),
+                            const Text(
+                              'Dispatch employee scans to verify & dispatch',
+                              style: TextStyle(
+                                  color: Colors.grey, fontSize: 12),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            ScanQrWidget.dispatch(
+                              orderId: order.id,
+                              orderNumber: order.orderNumber,
+                              size: 200,
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceEvenly,
+                              children: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context),
+                                  child: const Text('Close'),
+                                ),
+                                ElevatedButton.icon(
+                                  icon: const Icon(
+                                      Icons.qr_code_scanner,
+                                      size: 16),
+                                  label:
+                                      const Text('Scan to Dispatch'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        const Color(0xFFE65100),
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            DispatchScannerScreen(
+                                                orderId: order.id),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
                 ElevatedButton(
                   onPressed: () async {
                     await _orderService.updateOrderStatus(
@@ -419,6 +553,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                   ),
                   child: const Text('Assign to Delivery'),
                 ),
+              ],
             ],
           ),
         ],

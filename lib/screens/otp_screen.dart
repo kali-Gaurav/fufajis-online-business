@@ -20,11 +20,25 @@ class _OTPScreenState extends State<OTPScreen> {
   final TextEditingController _otpController = TextEditingController();
   int _resendTimer = 60;
   bool _canResend = false;
+  bool _otpComplete = false; // tracks whether 6 digits entered
 
   @override
   void initState() {
     super.initState();
     _startResendTimer();
+    // Listen so the Verify button enables as soon as 6 digits are typed
+    _otpController.addListener(() {
+      final complete = _otpController.text.length == 6;
+      if (complete != _otpComplete) {
+        setState(() => _otpComplete = complete);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _otpController.dispose();
+    super.dispose();
   }
 
   void _startResendTimer() {
@@ -44,7 +58,7 @@ class _OTPScreenState extends State<OTPScreen> {
 
   void _verifyOTP() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    
+
     UserRole? parsedRole;
     if (widget.role != null) {
       parsedRole = UserRole.values.firstWhere(
@@ -53,17 +67,20 @@ class _OTPScreenState extends State<OTPScreen> {
       );
     }
 
-    final isValid = await authProvider.verifyOTP(_otpController.text, selectedRole: parsedRole);
+    final isValid = await authProvider.verifyOTP(
+      _otpController.text,
+      selectedRole: parsedRole,
+    );
 
     if (isValid) {
       if (!mounted) return;
-      
+
       // Feature: High-Security Owner MFA Check
       if (authProvider.isMfaStepRequired) {
         _showMfaLinkDialog(authProvider);
       } else {
         if (mounted) {
-          context.go('/'); 
+          context.go('/');
         }
       }
     } else {
@@ -112,11 +129,7 @@ class _OTPScreenState extends State<OTPScreen> {
     if (!_canResend) return;
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    if (authProvider.isEmailVerification) {
-      await authProvider.sendEmailOTP(widget.phoneNumber);
-    } else {
-      await authProvider.sendOTP(widget.phoneNumber);
-    }
+    await authProvider.sendOTP(widget.phoneNumber);
 
     if (authProvider.errorMessage == null) {
       setState(() {
@@ -130,10 +143,7 @@ class _OTPScreenState extends State<OTPScreen> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppTheme.error,
-      ),
+      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
     );
   }
 
@@ -208,10 +218,7 @@ class _OTPScreenState extends State<OTPScreen> {
               // Subtitle
               Text(
                 'We sent a 6-digit code to ${widget.phoneNumber}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: AppTheme.grey600,
-                ),
+                style: const TextStyle(fontSize: 16, color: AppTheme.grey600),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 48),
@@ -234,7 +241,7 @@ class _OTPScreenState extends State<OTPScreen> {
               const SizedBox(height: 32),
               // Verify Button
               ElevatedButton(
-                onPressed: _otpController.text.length == 6 ? _verifyOTP : null,
+                onPressed: _otpComplete ? _verifyOTP : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primary,
                   foregroundColor: AppTheme.white,
@@ -245,10 +252,7 @@ class _OTPScreenState extends State<OTPScreen> {
                 ),
                 child: const Text(
                   'Verify OTP',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(height: 32),
@@ -280,10 +284,7 @@ class _OTPScreenState extends State<OTPScreen> {
                 onPressed: () {},
                 child: const Text(
                   "Didn't receive the code?",
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppTheme.grey600,
-                  ),
+                  style: TextStyle(fontSize: 14, color: AppTheme.grey600),
                 ),
               ),
             ],

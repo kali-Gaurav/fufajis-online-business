@@ -170,11 +170,11 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.location_on, color: AppTheme.primary, size: 20),
-              const SizedBox(width: 8),
-              const Text(
+              Icon(Icons.location_on, color: AppTheme.primary, size: 20),
+              SizedBox(width: 8),
+              Text(
                 'Delivery Address',
                 style: TextStyle(
                   fontSize: 14,
@@ -232,11 +232,11 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.local_shipping, color: AppTheme.primary, size: 20),
-              const SizedBox(width: 8),
-              const Text(
+              Icon(Icons.local_shipping, color: AppTheme.primary, size: 20),
+              SizedBox(width: 8),
+              Text(
                 'Delivery Type',
                 style: TextStyle(
                   fontSize: 14,
@@ -466,7 +466,7 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
         },
         title: const Text('Use Wallet Balance'),
         subtitle: Text('Available: ₹${orderProvider.walletBalance.round()}'),
-        activeColor: AppTheme.primary,
+        activeThumbColor: AppTheme.primary,
         contentPadding: EdgeInsets.zero,
       ),
     );

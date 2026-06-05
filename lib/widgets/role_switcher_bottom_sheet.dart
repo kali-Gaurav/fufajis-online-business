@@ -81,7 +81,7 @@ class RoleSwitcherBottomSheet extends StatelessWidget {
                       },
               ),
             );
-          }).toList(),
+          }),
           const SizedBox(height: 8),
         ],
       ),

@@ -46,11 +46,11 @@ class CodSettlementModel {
       approvedBy: map['approvedBy'],
       reason: map['reason'],
       status: map['status'] ?? 'pending',
-      submittedAt: map['submittedAt'] != null 
-          ? (map['submittedAt'] as Timestamp).toDate() 
+      submittedAt: map['submittedAt'] != null
+          ? (map['submittedAt'] as Timestamp).toDate()
           : DateTime.now(),
-      resolvedAt: map['resolvedAt'] != null 
-          ? (map['resolvedAt'] as Timestamp).toDate() 
+      resolvedAt: map['resolvedAt'] != null
+          ? (map['resolvedAt'] as Timestamp).toDate()
           : null,
       notes: map['notes'],
     );
@@ -109,4 +109,3 @@ class CodSettlementModel {
     );
   }
 }
-

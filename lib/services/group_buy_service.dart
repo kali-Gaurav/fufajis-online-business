@@ -32,13 +32,17 @@ class GroupBuyService {
   }
 
   /// Joins an existing pool
-  Future<void> joinPool(String poolId, String userId, double contribution) async {
+  Future<void> joinPool(
+    String poolId,
+    String userId,
+    double contribution,
+  ) async {
     final docRef = _firestore.collection('group_pools').doc(poolId);
-    
+
     await _firestore.runTransaction((transaction) async {
       final snapshot = await transaction.get(docRef);
       if (!snapshot.exists) throw Exception('Pool not found');
-      
+
       final pool = GroupOrderModel.fromMap(snapshot.data()!);
       if (pool.isExpired) throw Exception('Pool expired');
       if (pool.isCompleted) throw Exception('Pool already full');
@@ -46,8 +50,11 @@ class GroupBuyService {
       final newMemberIds = [...pool.memberIds];
       if (!newMemberIds.contains(userId)) newMemberIds.add(userId);
 
-      final newContributions = Map<String, double>.from(pool.memberContributions);
-      newContributions[userId] = (newContributions[userId] ?? 0.0) + contribution;
+      final newContributions = Map<String, double>.from(
+        pool.memberContributions,
+      );
+      newContributions[userId] =
+          (newContributions[userId] ?? 0.0) + contribution;
 
       final newTotal = pool.totalAmount + contribution;
       final isCompleted = newTotal >= pool.goalAmount;
@@ -62,16 +69,21 @@ class GroupBuyService {
   }
 
   /// Streams active pools for a specific village
-  Stream<List<GroupOrderModel>> getVillagePools(String district, String village) {
+  Stream<List<GroupOrderModel>> getVillagePools(
+    String district,
+    String village,
+  ) {
     return _firestore
         .collection('group_pools')
         .where('district', isEqualTo: district)
         .where('village', isEqualTo: village)
         .where('isCompleted', isEqualTo: false)
         .snapshots()
-        .map((snap) => snap.docs
-            .map((doc) => GroupOrderModel.fromMap(doc.data()))
-            .where((p) => !p.isExpired)
-            .toList());
+        .map(
+          (snap) => snap.docs
+              .map((doc) => GroupOrderModel.fromMap(doc.data()))
+              .where((p) => !p.isExpired)
+              .toList(),
+        );
   }
 }

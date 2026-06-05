@@ -105,10 +105,10 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
   }
 
   Widget _buildSettlementsHeader() {
-    return Column(
+    return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'COD Cash Settlements',
           style: TextStyle(
             fontSize: 24,
@@ -116,7 +116,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
             color: AppTheme.grey900,
           ),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         Text(
           'Verify and reconcile Cash on Delivery collections from riders.',
           style: TextStyle(
@@ -129,10 +129,10 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
   }
 
   Widget _buildRefundsHeader() {
-    return Column(
+    return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Cancellations & Refunds Ledger',
           style: TextStyle(
             fontSize: 24,
@@ -140,7 +140,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
             color: AppTheme.grey900,
           ),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         Text(
           'Process customer refunds, manage returned product catalogs, and review feedback.',
           style: TextStyle(
@@ -153,10 +153,10 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
   }
 
   Widget _buildPayoutsHeader() {
-    return Column(
+    return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Fleet Payouts (Instant)',
           style: TextStyle(
             fontSize: 24,
@@ -164,7 +164,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
             color: AppTheme.grey900,
           ),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         Text(
           'Send earnings and incentives to riders via Razorpay Route. Instant bank transfers.',
           style: TextStyle(
@@ -340,7 +340,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(p.riderName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                Text('Txn: ${p.transactionId ?? 'Failed'}', style: TextStyle(fontSize: 12, color: AppTheme.grey500)),
+                Text('Txn: ${p.transactionId ?? 'Failed'}', style: const TextStyle(fontSize: 12, color: AppTheme.grey500)),
               ],
             ),
           ),
@@ -348,7 +348,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text('₹${p.amount}', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: Colors.indigo)),
-              Text(DateFormat('MMM dd, hh:mm a').format(p.timestamp), style: TextStyle(fontSize: 10, color: AppTheme.grey400)),
+              Text(DateFormat('MMM dd, hh:mm a').format(p.timestamp), style: const TextStyle(fontSize: 10, color: AppTheme.grey400)),
             ],
           ),
         ],

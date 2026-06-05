@@ -34,17 +34,14 @@ class CategoryChip extends StatelessWidget {
                     color: AppTheme.primaryColor.withValues(alpha: 0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
-                  )
+                  ),
                 ]
               : [],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              category.icon,
-              style: const TextStyle(fontSize: 24),
-            ),
+            Text(category.icon, style: const TextStyle(fontSize: 24)),
             const SizedBox(height: 4),
             Text(
               category.name,
@@ -83,10 +80,7 @@ class SectionHeader extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
           ),
           if (subtitle.isNotEmpty && onTap != null)
             GestureDetector(
@@ -233,10 +227,7 @@ class EmptyState extends StatelessWidget {
             const SizedBox(height: 20),
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-              ),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
@@ -247,10 +238,7 @@ class EmptyState extends StatelessWidget {
             ),
             if (buttonText != null && onButton != null) ...[
               const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: onButton,
-                child: Text(buttonText!),
-              ),
+              ElevatedButton(onPressed: onButton, child: Text(buttonText!)),
             ],
           ],
         ),

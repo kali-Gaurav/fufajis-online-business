@@ -50,7 +50,8 @@ class AccessibilityProvider extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       _isElderlyMode = prefs.getBool(_elderlyModeKey) ?? false;
-      _fontScale = prefs.getDouble(_fontScaleKey) ?? (_isElderlyMode ? 1.3 : 1.0);
+      _fontScale =
+          prefs.getDouble(_fontScaleKey) ?? (_isElderlyMode ? 1.3 : 1.0);
       _preferredLanguage = prefs.getString(_languageKey) ?? 'en';
       _highContrast = prefs.getBool(_highContrastKey) ?? false;
       _isInitialized = true;
@@ -68,7 +69,9 @@ class AccessibilityProvider extends ChangeNotifier {
     // Auto-adjust related settings when toggling
     if (enabled) {
       if (_fontScale < 1.3) _fontScale = 1.3;
-      if (_preferredLanguage == 'en') _preferredLanguage = 'hi'; // default to Hindi for elderly
+      if (_preferredLanguage == 'en') {
+        _preferredLanguage = 'hi'; // default to Hindi for elderly
+      }
       _highContrast = true;
     } else {
       _fontScale = 1.0;

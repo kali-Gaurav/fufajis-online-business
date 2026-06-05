@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import '../../utils/app_theme.dart';
+import '../utils/app_theme.dart';
 
 class MiniMapWidget extends StatelessWidget {
   final LatLng location;
   final String title;
 
-  const MiniMapWidget({
-    super.key,
-    required this.location,
-    required this.title,
-  });
+  const MiniMapWidget({super.key, required this.location, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -24,10 +20,7 @@ class MiniMapWidget extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: GoogleMap(
-          initialCameraPosition: CameraPosition(
-            target: location,
-            zoom: 14,
-          ),
+          initialCameraPosition: CameraPosition(target: location, zoom: 14),
           markers: {
             Marker(
               markerId: const MarkerId('source'),

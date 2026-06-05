@@ -40,19 +40,22 @@ class WhatsAppSyncSetupScreen extends StatelessWidget {
             _buildStep(
               number: '1',
               title: 'Save our Number',
-              description: 'Save +91 98765 43210 in your contacts as "Fufaji Inventory".',
+              description:
+                  'Save +91 98765 43210 in your contacts as "Fufaji Inventory".',
               icon: Icons.contact_phone,
             ),
             _buildStep(
               number: '2',
               title: 'Send a Photo',
-              description: 'Take a clear photo of your purchase bill or handwritten list.',
+              description:
+                  'Take a clear photo of your purchase bill or handwritten list.',
               icon: Icons.camera_alt,
             ),
             _buildStep(
               number: '3',
               title: 'AI Magic',
-              description: 'Our AI will read the bill and automatically update your inventory.',
+              description:
+                  'Our AI will read the bill and automatically update your inventory.',
               icon: Icons.auto_awesome,
             ),
             const SizedBox(height: 40),
@@ -75,11 +78,7 @@ class WhatsAppSyncSetupScreen extends StatelessWidget {
               color: Colors.green.shade50,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.chat,
-              size: 80,
-              color: Colors.green,
-            ),
+            child: const Icon(Icons.chat, size: 80, color: Colors.green),
           ),
         ),
         const SizedBox(height: 15),
@@ -87,10 +86,7 @@ class WhatsAppSyncSetupScreen extends StatelessWidget {
           child: Text(
             'Sync your inventory effortlessly\nusing WhatsApp',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey,
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.grey),
           ),
         ),
       ],
@@ -124,7 +120,10 @@ class WhatsAppSyncSetupScreen extends StatelessWidget {
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.green,
                   borderRadius: BorderRadius.circular(20),
@@ -141,10 +140,7 @@ class WhatsAppSyncSetupScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text('Registered Phone:'),
-              Text(
-                phone,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
+              Text(phone, style: const TextStyle(fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 10),
@@ -187,7 +183,10 @@ class WhatsAppSyncSetupScreen extends StatelessWidget {
             child: Center(
               child: Text(
                 number,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -210,10 +209,7 @@ class WhatsAppSyncSetupScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 5),
-                Text(
-                  description,
-                  style: const TextStyle(color: Colors.grey),
-                ),
+                Text(description, style: const TextStyle(color: Colors.grey)),
               ],
             ),
           ),
@@ -227,8 +223,11 @@ class WhatsAppSyncSetupScreen extends StatelessWidget {
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () async {
-          const message = "Hi Fufaji, I want to sync my inventory via WhatsApp. Please guide me.";
-          final url = Uri.parse("https://wa.me/919999999999?text=${Uri.encodeComponent(message)}");
+          const message =
+              "Hi Fufaji, I want to sync my inventory via WhatsApp. Please guide me.";
+          final url = Uri.parse(
+            "https://wa.me/919999999999?text=${Uri.encodeComponent(message)}",
+          );
           if (await canLaunchUrl(url)) {
             await launchUrl(url, mode: LaunchMode.externalApplication);
           }
@@ -236,7 +235,9 @@ class WhatsAppSyncSetupScreen extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.green,
           padding: const EdgeInsets.symmetric(vertical: 15),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
         child: const Text(
           'Try it on WhatsApp',
@@ -279,7 +280,10 @@ class _FAQItem extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: ExpansionTile(
-        title: Text(question, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+        title: Text(
+          question,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        ),
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),

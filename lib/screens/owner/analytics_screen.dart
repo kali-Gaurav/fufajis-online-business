@@ -1,4 +1,4 @@
-﻿import 'dart:math';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -515,8 +515,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     final isSelected = _selectedPostcode?['zip'] == zone['zip'];
 
                     Color densityColor = AppTheme.grey600;
-                    if (zone['density'] == 'High') densityColor = AppTheme.error;
-                    else if (zone['density'] == 'Medium') densityColor = AppTheme.warning;
+                    if (zone['density'] == 'High') {
+                      densityColor = AppTheme.error;
+                    } else if (zone['density'] == 'Medium') densityColor = AppTheme.warning;
 
                     return GestureDetector(
                       onTap: () => setState(() => _selectedPostcode = zone),
@@ -928,8 +929,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
   Widget _buildPostcodeInspector(Map<String, dynamic> zone) {
     Color densityColor = AppTheme.grey600;
-    if (zone['density'] == 'High') densityColor = AppTheme.error;
-    else if (zone['density'] == 'Medium') densityColor = AppTheme.warning;
+    if (zone['density'] == 'High') {
+      densityColor = AppTheme.error;
+    } else if (zone['density'] == 'Medium') densityColor = AppTheme.warning;
 
     return Container(
       width: double.infinity,

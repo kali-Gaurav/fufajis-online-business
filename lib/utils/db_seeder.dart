@@ -1,6 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:uuid/uuid.dart';
-import '../models/purchase_order.dart';
 
 class DatabaseSeeder {
   /// Seeds mock Purchase Orders and configures products with structured shelf coordinates.

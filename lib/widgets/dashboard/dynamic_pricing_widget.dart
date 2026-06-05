@@ -5,7 +5,7 @@ import '../../providers/product_provider.dart';
 /// Dynamic Pricing Widget
 /// Displays dynamic pricing metrics on the owner dashboard
 class DynamicPricingWidget extends StatefulWidget {
-  const DynamicPricingWidget({Key? key}) : super(key: key);
+  const DynamicPricingWidget({super.key});
 
   @override
   State<DynamicPricingWidget> createState() => _DynamicPricingWidgetState();

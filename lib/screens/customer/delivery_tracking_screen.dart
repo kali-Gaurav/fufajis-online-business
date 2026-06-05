@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -107,8 +107,8 @@ class _DeliveryTrackingScreenState extends State<DeliveryTrackingScreen>
         
         // Simple linear interpolation between store and customer based on distance
         // This is a demo mapping logic
-        final storeLat = 26.9124;
-        final storeLng = 75.7873;
+        const storeLat = 26.9124;
+        const storeLng = 75.7873;
         final custLat = order.deliveryAddress.latitude;
         final custLng = order.deliveryAddress.longitude;
         
@@ -149,16 +149,6 @@ class _DeliveryTrackingScreenState extends State<DeliveryTrackingScreen>
     super.dispose();
   }
 
-  // Calculate rider position based on real status/location
-  Offset _getRiderOffset(OrderStatus status) {
-    if (status == OrderStatus.delivered) return _customerOffset;
-    if (status == OrderStatus.outForDelivery) {
-      // For demo, we still move it slightly or use liveLocation if available
-      return Offset(_storeOffset.dx + 150, _storeOffset.dy - 150);
-    }
-    return _storeOffset;
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_realOrder == null) {
@@ -169,7 +159,6 @@ class _DeliveryTrackingScreenState extends State<DeliveryTrackingScreen>
     final String orderNum = order.orderNumber;
     final double finalTotal = order.totalAmount;
     final bool isDelivered = order.status == OrderStatus.delivered;
-    final bool isOut = order.status == OrderStatus.outForDelivery;
 
     return Scaffold(
       backgroundColor: AppTheme.grey50,
@@ -374,7 +363,7 @@ class _DeliveryTrackingScreenState extends State<DeliveryTrackingScreen>
           const SizedBox(width: 4),
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.bold,
               color: AppTheme.grey800,

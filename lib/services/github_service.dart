@@ -13,7 +13,9 @@ class GitHubService {
   /// Fetches the latest release version from GitHub API
   Future<String?> getLatestReleaseVersion() async {
     try {
-      final url = Uri.parse('https://api.github.com/repos/$_owner/$_repo/releases/latest');
+      final url = Uri.parse(
+        'https://api.github.com/repos/$_owner/$_repo/releases/latest',
+      );
       final response = await http.get(url);
 
       if (response.statusCode == 200) {

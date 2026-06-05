@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 /// RewardSystem handles reward points calculation and management
-/// 
+///
 /// [Requirements 11.2, 11.3]: Awards points based on:
 /// - 1 point per ₹10 spent
 /// - 100 points for first order
@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 /// - Implements points-to-currency conversion (100 points = ₹1)
 class RewardSystem {
   static final RewardSystem _instance = RewardSystem._internal();
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  FirebaseFirestore get _firestore => FirebaseFirestore.instance;
 
   factory RewardSystem() {
     return _instance;
@@ -35,14 +35,14 @@ class RewardSystem {
   static const double pointsToCurrencyRate = 0.01; // 100 points = ₹1
 
   /// Calculates reward points earned from order amount
-  /// 
+  ///
   /// [Requirements 11.2]: Awards 1 point per ₹10 spent
   int calculateOrderPoints(double orderAmount) {
     return (orderAmount * pointsPerRupee).floor();
   }
 
   /// Awards points for first order
-  /// 
+  ///
   /// [Requirements 11.2]: Awards 100 points for first order
   Future<bool> awardFirstOrderPoints(String userId) async {
     try {
@@ -80,7 +80,7 @@ class RewardSystem {
   }
 
   /// Awards points for writing a review
-  /// 
+  ///
   /// [Requirements 11.2]: Awards 20 points for reviews
   Future<bool> awardReviewPoints(String userId) async {
     try {
@@ -118,7 +118,7 @@ class RewardSystem {
   }
 
   /// Awards points for referral
-  /// 
+  ///
   /// [Requirements 11.2]: Awards 50 points for referrals
   Future<bool> awardReferralPoints(String userId) async {
     try {
@@ -156,7 +156,7 @@ class RewardSystem {
   }
 
   /// Awards points for order completion
-  /// 
+  ///
   /// [Requirements 11.2]: Awards 1 point per ₹10 spent
   Future<bool> awardOrderPoints({
     required String userId,
@@ -200,7 +200,7 @@ class RewardSystem {
   }
 
   /// Redeems reward points for wallet credit
-  /// 
+  ///
   /// [Requirements 11.3]: Implements points-to-currency conversion (100 points = ₹1)
   Future<double?> redeemPoints({
     required String userId,
@@ -274,7 +274,7 @@ class RewardSystem {
   }
 
   /// Converts reward points to currency amount
-  /// 
+  ///
   /// [Requirements 11.3]: 100 points = ₹1
   double convertPointsToCurrency(int points) {
     return points * pointsToCurrencyRate;
@@ -296,17 +296,15 @@ class RewardSystem {
     final transactionId = 'pts_${DateTime.now().millisecondsSinceEpoch}';
     final userRef = _firestore.collection('users').doc(userId);
 
-    transaction.set(
-      userRef.collection('reward_transactions').doc(transactionId),
-      {
-        'id': transactionId,
-        'userId': userId,
-        'points': points,
-        'description': description,
-        'orderId': orderId,
-        'timestamp': DateTime.now(),
-      },
-    );
+    transaction
+        .set(userRef.collection('reward_transactions').doc(transactionId), {
+          'id': transactionId,
+          'userId': userId,
+          'points': points,
+          'description': description,
+          'orderId': orderId,
+          'timestamp': DateTime.now(),
+        });
   }
 
   /// Helper method to record wallet transaction
@@ -319,16 +317,14 @@ class RewardSystem {
     final transactionId = 'wlt_${DateTime.now().millisecondsSinceEpoch}';
     final userRef = _firestore.collection('users').doc(userId);
 
-    transaction.set(
-      userRef.collection('wallet_transactions').doc(transactionId),
-      {
-        'id': transactionId,
-        'userId': userId,
-        'amount': amount,
-        'description': description,
-        'timestamp': DateTime.now(),
-      },
-    );
+    transaction
+        .set(userRef.collection('wallet_transactions').doc(transactionId), {
+          'id': transactionId,
+          'userId': userId,
+          'amount': amount,
+          'description': description,
+          'timestamp': DateTime.now(),
+        });
   }
 
   /// Streams reward points changes in real-time

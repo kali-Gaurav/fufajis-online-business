@@ -25,6 +25,9 @@ import 'providers/admin_provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/shop_config_provider.dart';
 import 'providers/accessibility_provider.dart';
+import 'providers/employee_provider.dart';
+import 'providers/review_provider.dart';
+import 'providers/guest_provider.dart';
 import 'utils/app_router.dart';
 import 'utils/app_theme.dart';
 import 'firebase_options.dart';
@@ -41,44 +44,70 @@ import 'services/storage_service.dart';
 import 'services/permission_service.dart';
 import 'services/ai_search_service.dart';
 import 'services/update_service.dart';
+import 'services/workflow_verification_service.dart';
+import 'dart:ui';
 
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'services/owner_initialization_service.dart';
+import 'services/logging_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize App Check before other services (Feature: High Security)
   await _initializeSecurity();
+
+  const sentryDsn = String.fromEnvironment('SENTRY_DSN', defaultValue: '');
+  if (sentryDsn.isEmpty) {
+    debugPrint(
+      '[Warning] SENTRY_DSN is not configured. Crash reporting is disabled.',
+    );
+  }
 
   // Initialize Sentry...
   await SentryFlutter.init(
     (options) {
-      options.dsn = const String.fromEnvironment('SENTRY_DSN', defaultValue: '');
-      options.tracesSampleRate = 1.0;
+      options.dsn = sentryDsn;
+      options.tracesSampleRate =
+          0.2; // Optimized sampling rate (Weakness 49 fix)
     },
     appRunner: () async {
+      // Step: Global Error Handling Integration
+      FlutterError.onError = (details) {
+        LoggingService().error('Flutter Error', details.exception, details.stack);
+      };
+      
+      PlatformDispatcher.instance.onError = (error, stack) {
+        LoggingService().error('Platform Dispatcher Error', error, stack);
+        return true;
+      };
+
       final appWidget = await _initializeApp();
       runApp(appWidget);
     },
   );
 }
 
+dynamic _securityInitError;
+StackTrace? _securityInitStack;
+
 Future<void> _initializeSecurity() async {
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
+
     await FirebaseAppCheck.instance.activate(
-      // ignore: deprecated_member_use
-      androidProvider: AndroidProvider.playIntegrity,
-      // ignore: deprecated_member_use
+      androidProvider: AndroidProvider.playIntegrity, // Using the new class if it exists? Wait.
       appleProvider: AppleProvider.deviceCheck,
     );
-    debugPrint('[Security] Firebase App Check activated.');
-  } catch (e) {
-    debugPrint('[Security] App Check initialization skipped: $e');
+    LoggingService().info('Firebase App Check activated.');
+  } catch (e, stack) {
+    LoggingService().error('App Check initialization failed', e, stack);
+    _securityInitError = e;
+    _securityInitStack = stack;
   }
 }
 
@@ -87,23 +116,30 @@ Future<Widget> _initializeApp() async {
   try {
     await dotenv.load(fileName: ".env");
   } catch (e) {
-    debugPrint("Warning: .env file not found or failed to load");
+    LoggingService().warning('.env file not found or failed to load');
   }
-  
+
   // Disable debug logs in release mode
   if (const bool.fromEnvironment('dart.vm.product')) {
     debugPrint = (String? message, {int? wrapWidth}) {};
   }
-  
+
+  // Report App Check errors to Sentry if occurred during startup
+  if (_securityInitError != null) {
+    LoggingService().error('Startup Security Error', _securityInitError, _securityInitStack);
+  }
+
   // Initialize Firebase
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
 
     // Security Hardening: Seed whitelisted owners
     await OwnerInitializationService.seedWhitelistedOwners();
-    
+
     // Enable offline disk persistence for Firestore
     FirebaseFirestore.instance.settings = const Settings(
       persistenceEnabled: true,
@@ -112,13 +148,14 @@ Future<Widget> _initializeApp() async {
 
     // Initialize Mobile Ads
     await MobileAds.instance.initialize();
-  } catch (e) {
-    debugPrint('Initialization error: $e');
+    LoggingService().info('Core Firebase services initialized.');
+  } catch (e, stack) {
+    LoggingService().error('Firebase Initialization error', e, stack);
   }
-  
+
   // Initialize SharedPreferences
   final prefs = await SharedPreferences.getInstance();
-  
+
   // Initialize Cache Service (Step 1.3)
   await CacheService().init();
 
@@ -140,9 +177,12 @@ Future<Widget> _initializeApp() async {
   // Initialize Permission Service & Service warm-up (Step 5)
   final permissionService = PermissionService();
   await permissionService.requestAllPermissions();
-  
+
   // Warm-up AI Search Service
   await AISearchService().warmup();
+
+  // Run Workflow Verification (Feature: Production Guard)
+  await WorkflowVerificationService().verifyWorkflow();
 
   // Return app with providers
   return MultiProvider(
@@ -152,7 +192,8 @@ Future<Widget> _initializeApp() async {
       ChangeNotifierProvider(create: (_) => CartProvider()..loadCart()),
       ChangeNotifierProxyProvider<AuthProvider, ProductProvider>(
         create: (_) => ProductProvider(prefs),
-        update: (_, auth, product) => product!..updateShopId(auth.currentUser?.id),
+        update: (_, auth, product) =>
+            product!..updateShopId(auth.currentUser?.id),
       ),
       ChangeNotifierProvider(create: (_) => OrderProvider()),
       ChangeNotifierProvider(create: (_) => DeliveryProvider()),
@@ -165,6 +206,11 @@ Future<Widget> _initializeApp() async {
       ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ChangeNotifierProvider(create: (_) => ShopConfigProvider()),
       ChangeNotifierProvider(create: (_) => AccessibilityProvider()),
+      ChangeNotifierProvider(create: (_) => EmployeeProvider()),
+      ChangeNotifierProvider(create: (_) => ReviewProvider()),
+      // Guest mode — local-only, no Firebase user
+      // Must come after AuthProvider so route guards can read both
+      ChangeNotifierProvider(create: (_) => GuestProvider()),
     ],
     child: const FufajiApp(),
   );
@@ -220,17 +266,16 @@ class _FufajiAppState extends State<FufajiApp> {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          supportedLocales: const [
-            Locale('en', ''),
-            Locale('hi', ''),
-          ],
+          supportedLocales: const [Locale('en', ''), Locale('hi', '')],
           routerConfig: _router,
           debugShowCheckedModeBanner: false,
           builder: (context, child) {
             final mediaQuery = MediaQuery.of(context);
             // Apply scale factor dynamically using textScaler
             final scaledMediaQuery = mediaQuery.copyWith(
-              textScaler: TextScaler.linear(accessibilityProvider.effectiveFontScale),
+              textScaler: TextScaler.linear(
+                accessibilityProvider.effectiveFontScale,
+              ),
             );
 
             return MediaQuery(
@@ -241,7 +286,9 @@ class _FufajiAppState extends State<FufajiApp> {
                   final bool forceUpdate = snapshot.data ?? false;
 
                   if (forceUpdate) {
-                    return ForceUpdateOverlay(updateUrl: remoteConfig.forceUpdateUrl);
+                    return ForceUpdateOverlay(
+                      updateUrl: remoteConfig.forceUpdateUrl,
+                    );
                   }
 
                   if (remoteConfig.isMaintenanceMode) {

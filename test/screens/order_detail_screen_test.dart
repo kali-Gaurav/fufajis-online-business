@@ -1,14 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:provider/provider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fufajis_online/screens/customer/order_detail_screen.dart';
 import 'package:fufajis_online/providers/order_provider.dart';
-import 'package:fufajis_online/models/order_model.dart';
-import 'package:fufajis_online/models/user_model.dart';
-import 'package:fufajis_online/models/delivery_type.dart';
-import 'package:fufajis_online/models/payment_method.dart';
 
 class MockOrderProvider extends Mock implements OrderProvider {}
 

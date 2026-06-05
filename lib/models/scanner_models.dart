@@ -179,13 +179,7 @@ class DamageReport {
   }
 }
 
-enum DamageType {
-  broken,
-  expired,
-  leaking,
-  damagedPackaging,
-  other,
-}
+enum DamageType { broken, expired, leaking, damagedPackaging, other }
 
 /// Model for inventory transfers between branches
 class InventoryTransfer {
@@ -289,13 +283,7 @@ class InventoryTransfer {
   }
 }
 
-enum TransferStatus {
-  pending,
-  shipped,
-  inTransit,
-  received,
-  cancelled,
-}
+enum TransferStatus { pending, shipped, inTransit, received, cancelled }
 
 /// Model for employee attendance records
 class AttendanceRecord {
@@ -340,10 +328,14 @@ class AttendanceRecord {
       checkInTime: _parseDate(map['checkInTime']),
       checkOutTime: _parseDate(map['checkOutTime']),
       checkInLocation: map['checkInLocation'] != null
-          ? LocationData.fromMap(Map<String, dynamic>.from(map['checkInLocation']))
+          ? LocationData.fromMap(
+              Map<String, dynamic>.from(map['checkInLocation']),
+            )
           : null,
       checkOutLocation: map['checkOutLocation'] != null
-          ? LocationData.fromMap(Map<String, dynamic>.from(map['checkOutLocation']))
+          ? LocationData.fromMap(
+              Map<String, dynamic>.from(map['checkOutLocation']),
+            )
           : null,
       qrCodeId: map['qrCodeId'],
       status: AttendanceStatus.values.firstWhere(
@@ -436,13 +428,7 @@ class LocationData {
   }
 }
 
-enum AttendanceStatus {
-  present,
-  absent,
-  late,
-  halfDay,
-  onLeave,
-}
+enum AttendanceStatus { present, absent, late, halfDay, onLeave }
 
 /// Model for cash collection records
 class CashCollection {
@@ -601,11 +587,7 @@ class ReturnRecord {
   }
 }
 
-enum ReturnCondition {
-  opened,
-  unopened,
-  damaged,
-}
+enum ReturnCondition { opened, unopened, damaged }
 
 /// Model for shelf refill alerts
 class ShelfRefillAlert {

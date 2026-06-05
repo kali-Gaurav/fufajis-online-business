@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../../utils/app_theme.dart';
 
 /// Step indicator widget for checkout flow progress
@@ -11,12 +11,7 @@ class CheckoutStepIndicator extends StatelessWidget {
     super.key,
     required this.currentStep,
     this.totalSteps = 4,
-    this.stepTitles = const [
-      'Address',
-      'Payment',
-      'Review',
-      'Confirm',
-    ],
+    this.stepTitles = const ['Address', 'Payment', 'Review', 'Confirm'],
   });
 
   @override
@@ -86,7 +81,9 @@ class CheckoutStepIndicator extends StatelessWidget {
                   width: 20,
                   height: 3,
                   decoration: BoxDecoration(
-                    color: index <= currentStep ? AppTheme.primary : AppTheme.grey300,
+                    color: index <= currentStep
+                        ? AppTheme.primary
+                        : AppTheme.grey300,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -96,18 +93,18 @@ class CheckoutStepIndicator extends StatelessWidget {
                 height: 32,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: isCompleted || isCurrent ? AppTheme.primary : Colors.white,
+                  color: isCompleted || isCurrent
+                      ? AppTheme.primary
+                      : Colors.white,
                   border: Border.all(
-                    color: isCompleted || isCurrent ? AppTheme.primary : AppTheme.grey300,
+                    color: isCompleted || isCurrent
+                        ? AppTheme.primary
+                        : AppTheme.grey300,
                     width: 2,
                   ),
                 ),
                 child: isCompleted
-                    ? const Icon(
-                        Icons.check,
-                        color: Colors.white,
-                        size: 16,
-                      )
+                    ? const Icon(Icons.check, color: Colors.white, size: 16)
                     : Center(
                         child: Text(
                           '${index + 1}',
@@ -125,7 +122,9 @@ class CheckoutStepIndicator extends StatelessWidget {
                   width: 20,
                   height: 3,
                   decoration: BoxDecoration(
-                    color: index < currentStep ? AppTheme.primary : AppTheme.grey300,
+                    color: index < currentStep
+                        ? AppTheme.primary
+                        : AppTheme.grey300,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -188,16 +187,14 @@ class CompactCheckoutStepIndicator extends StatelessWidget {
               shape: BoxShape.circle,
               color: isCompleted || isCurrent ? AppTheme.primary : Colors.white,
               border: Border.all(
-                color: isCompleted || isCurrent ? AppTheme.primary : AppTheme.grey300,
+                color: isCompleted || isCurrent
+                    ? AppTheme.primary
+                    : AppTheme.grey300,
                 width: 2,
               ),
             ),
             child: isCompleted
-                ? const Icon(
-                    Icons.check,
-                    color: Colors.white,
-                    size: 12,
-                  )
+                ? const Icon(Icons.check, color: Colors.white, size: 12)
                 : Center(
                     child: Text(
                       '${index + 1}',
@@ -223,4 +220,3 @@ class CompactCheckoutStepIndicator extends StatelessWidget {
     );
   }
 }
-

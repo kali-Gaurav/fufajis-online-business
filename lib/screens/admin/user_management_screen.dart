@@ -13,7 +13,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,12 +25,18 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('User Management', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                const Text(
+                  'User Management',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
                 ElevatedButton.icon(
                   onPressed: () {},
                   icon: const Icon(Icons.download),
                   label: const Text('Export CSV'),
-                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, foregroundColor: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primary,
+                    foregroundColor: Colors.white,
+                  ),
                 ),
               ],
             ),
@@ -43,7 +49,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 decoration: InputDecoration(
                   hintText: 'Search by Phone Number or Name',
                   prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                 ),
                 onChanged: (val) {
@@ -67,22 +75,25 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   }
 
                   final users = snapshot.data?.docs ?? [];
-                  
+
                   // Filter by search query
                   final filteredUsers = users.where((doc) {
                     final data = doc.data() as Map<String, dynamic>;
                     final name = (data['name'] ?? '').toString().toLowerCase();
-                    final phone = (data['phoneNumber'] ?? '').toString().toLowerCase();
-                    return name.contains(_searchQuery) || phone.contains(_searchQuery);
+                    final phone = (data['phoneNumber'] ?? '')
+                        .toString()
+                        .toLowerCase();
+                    return name.contains(_searchQuery) ||
+                        phone.contains(_searchQuery);
                   }).toList();
 
                   return Card(
                     elevation: 2,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     child: Theme(
-                      data: Theme.of(context).copyWith(
-                        cardColor: Colors.white,
-                      ),
+                      data: Theme.of(context).copyWith(cardColor: Colors.white),
                       child: PaginatedDataTable(
                         header: const Text('All Registered Users'),
                         columns: const [
@@ -128,42 +139,68 @@ class _UserDataTableSource extends DataTableSource {
     return DataRow(
       cells: [
         DataCell(Text(phone)),
-        DataCell(Chip(
-          label: Text(role.toString().toUpperCase(), style: const TextStyle(fontSize: 10)),
-          backgroundColor: role == 'admin' ? Colors.red.withValues(alpha: 0.1) : 
-                          role == 'shop_owner' ? Colors.orange.withValues(alpha: 0.1) : 
-                          Colors.blue.withValues(alpha: 0.1),
-        )),
-        DataCell(Text('₹$balance', style: const TextStyle(fontWeight: FontWeight.bold))),
+        DataCell(
+          Chip(
+            label: Text(
+              role.toString().toUpperCase(),
+              style: const TextStyle(fontSize: 10),
+            ),
+            backgroundColor: role == 'admin'
+                ? Colors.red.withValues(alpha: 0.1)
+                : role == 'shop_owner'
+                ? Colors.orange.withValues(alpha: 0.1)
+                : Colors.blue.withValues(alpha: 0.1),
+          ),
+        ),
+        DataCell(
+          Text(
+            '₹$balance',
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
         DataCell(
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: isBlocked ? Colors.red.withValues(alpha: 0.1) : Colors.green.withValues(alpha: 0.1),
+              color: isBlocked
+                  ? Colors.red.withValues(alpha: 0.1)
+                  : Colors.green.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
               isBlocked ? 'BLOCKED' : 'ACTIVE',
-              style: TextStyle(color: isBlocked ? Colors.red : Colors.green, fontSize: 12),
+              style: TextStyle(
+                color: isBlocked ? Colors.red : Colors.green,
+                fontSize: 12,
+              ),
             ),
-          )
+          ),
         ),
         DataCell(
           Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.remove_red_eye, color: AppTheme.primary, size: 18),
+                icon: const Icon(
+                  Icons.remove_red_eye,
+                  color: AppTheme.primary,
+                  size: 18,
+                ),
                 tooltip: 'View Details',
                 onPressed: () {},
               ),
               IconButton(
-                icon: Icon(isBlocked ? Icons.lock_open : Icons.block, color: isBlocked ? Colors.green : Colors.red, size: 18),
+                icon: Icon(
+                  isBlocked ? Icons.lock_open : Icons.block,
+                  color: isBlocked ? Colors.green : Colors.red,
+                  size: 18,
+                ),
                 tooltip: isBlocked ? 'Unblock User' : 'Block User',
                 onPressed: () {
                   // Toggle block status
-                  FirebaseFirestore.instance.collection('users').doc(userDoc.id).update({
-                    'isBlocked': !isBlocked,
-                  });
+                  FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(userDoc.id)
+                      .update({'isBlocked': !isBlocked});
                 },
               ),
             ],

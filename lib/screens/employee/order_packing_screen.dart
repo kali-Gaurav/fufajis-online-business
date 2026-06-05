@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
-import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../services/employee_scanner_service.dart';
@@ -15,6 +15,11 @@ import '../../models/product_batch_model.dart';
 import '../../models/product_model.dart';
 import '../../services/printer_service.dart';
 import '../../widgets/employee/printer_select_dialog.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+import 'unified_scanner_hub.dart';
+import '../../services/scanner_service.dart';
+import '../../services/smart_scan_service.dart';
+import '../../widgets/scan_qr_widget.dart';
 
 
 class OrderPackingScreen extends StatefulWidget {
@@ -36,6 +41,12 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
   List<OrderItem> _sortedItems = [];
   bool _autoPrintOnComplete = true;
   static const String _keyAutoPrintPacking = 'auto_print_receipt_on_packing';
+
+  // --- Barcode Mapping and Inputs ---
+  final Map<String, String> _barcodeToProductId = {};
+  final Map<String, String> _productIdToBarcode = {};
+  final TextEditingController _barcodeInputController = TextEditingController();
+  final FocusNode _barcodeFocusNode = FocusNode();
 
   // --- Packing Photo Proof (Feature 4) ---
   XFile? _packingPhoto;
@@ -59,6 +70,13 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
     if (widget.orderId != null) {
       _loadOrder(widget.orderId!);
     }
+  }
+
+  @override
+  void dispose() {
+    _barcodeInputController.dispose();
+    _barcodeFocusNode.dispose();
+    super.dispose();
   }
 
   Future<void> _loadAutoPrintSetting() async {
@@ -113,7 +131,11 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
   }
 
   Future<void> _loadOrder(String orderId) async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _barcodeToProductId.clear();
+      _productIdToBarcode.clear();
+    });
     try {
       final orderProvider = context.read<OrderProvider>();
       final order = await orderProvider.getOrderById(orderId);
@@ -160,6 +182,10 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
           if (productDoc.exists) {
             final product = ProductModel.fromMap(productDoc.data()!);
             locations[item.productId] = product.branchLocations[branchId] ?? const {};
+            if (product.barcode.isNotEmpty) {
+              _barcodeToProductId[product.barcode] = product.id;
+              _productIdToBarcode[product.id] = product.barcode;
+            }
           } else {
             locations[item.productId] = const {};
           }
@@ -321,6 +347,224 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
     );
   }
 
+  Future<void> _processBarcodeScan(String barcode) async {
+    final cleanBarcode = barcode.trim();
+    if (cleanBarcode.isEmpty) return;
+
+    _barcodeInputController.clear();
+    _barcodeFocusNode.requestFocus(); // Keep focus for continuous hardware scanning
+
+    final productId = _barcodeToProductId[cleanBarcode];
+    if (productId != null) {
+      final hasItem =
+          _sortedItems.any((item) => item.productId == productId);
+      if (hasItem) {
+        if (_verifiedItems.contains(productId)) {
+          // Already verified — warn with double buzz
+          await SmartScanService.hapticError();
+          final name = _sortedItems
+              .firstWhere((i) => i.productId == productId)
+              .productName;
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text('⚠ "$name" already scanned'),
+              backgroundColor: Colors.orange,
+              duration: const Duration(seconds: 2),
+            ));
+          }
+        } else {
+          // ✓ Verify item
+          await _verifyItem(productId);
+          await SmartScanService.hapticSuccess();
+
+          final name = _sortedItems
+              .firstWhere((i) => i.productId == productId)
+              .productName;
+          final remaining =
+              _sortedItems.length - _verifiedItems.length;
+
+          if (mounted) {
+            // Check if order is now fully packed
+            if (_verifiedItems.length == _sortedItems.length) {
+              // All items done — celebration haptic + auto-prompt
+              await SmartScanService.hapticComplete();
+              _showAllPackedDialog();
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(
+                    '✓ $name packed  •  $remaining item${remaining == 1 ? '' : 's'} left'),
+                backgroundColor: Colors.green,
+                duration: const Duration(seconds: 1),
+              ));
+            }
+          }
+        }
+      } else {
+        // Wrong item for this order
+        await SmartScanService.hapticError();
+        _showBarcodeErrorDialog(
+          title: 'Incorrect Item',
+          message: 'This product is NOT in the customer\'s cart!',
+        );
+      }
+    } else {
+      // Unknown barcode
+      await SmartScanService.hapticError();
+      _showBarcodeErrorDialog(
+        title: 'Unknown Barcode',
+        message: 'Barcode "$cleanBarcode" is not recognised in this branch.',
+      );
+    }
+  }
+
+  /// Shown after packing completes — displays DISPATCH QR for the dispatch team.
+  void _showDispatchQrDialog(String orderId, String orderNumber) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16)),
+        contentPadding:
+            const EdgeInsets.fromLTRB(20, 16, 20, 0),
+        title: const Row(
+          children: [
+            Icon(Icons.check_circle, color: Colors.green, size: 26),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text('Packed! Show to Dispatch',
+                  style: TextStyle(fontSize: 16)),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Hand this to the dispatch employee to scan.',
+              style: TextStyle(color: Colors.grey, fontSize: 13),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            // DISPATCH QR — scanned by dispatch team
+            ScanQrWidget.dispatch(
+              orderId: orderId,
+              orderNumber: orderNumber,
+              size: 200,
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Done'),
+          ),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.local_shipping_outlined, size: 16),
+            label: const Text('Go to Dispatch'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFE65100),
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) =>
+                      DispatchScannerScreen(orderId: orderId),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Auto-shown when every item in the order has been scanned.
+  void _showAllPackedDialog() {
+    if (_currentOrder == null) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.check_circle, color: Colors.green, size: 28),
+            SizedBox(width: 10),
+            Text('All Items Packed!'),
+          ],
+        ),
+        content: Text(
+          '${_sortedItems.length} item${_sortedItems.length == 1 ? '' : 's'} verified.\n'
+          'Mark this order as packed and ready for dispatch?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Review First'),
+          ),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.local_shipping_outlined),
+            label: const Text('Mark Packed & Seal'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              _completePacking();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showBarcodeErrorDialog({required String title, required String message}) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.warning, color: Colors.red),
+            const SizedBox(width: 8),
+            Text(title),
+          ],
+        ),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _barcodeFocusNode.requestFocus();
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Opens the inline camera scanner (defined at bottom of this file).
+  /// Returns one scanned barcode and processes it.
+  Future<void> _openCameraScanner() async {
+    final code = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => const _PackingItemScanPage(),
+      ),
+    );
+    if (code != null && code.isNotEmpty) {
+      await _processBarcodeScan(code);
+    }
+  }
+
   Future<void> _verifyItem(String productId) async {
     if (_currentOrder == null) return;
 
@@ -377,8 +621,8 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
         employeeName: authProvider.currentUser?.name ?? 'Employee',
       );
 
-      // Upload packing photo and save proof record
-      await _savePackingPhotoProof(authProvider);
+      // Upload packing photo and get proof URL
+      final photoUrl = await _savePackingPhotoProof(authProvider);
 
       // Save weight verifications for each applicable item
       for (final item in _weightVerificationItems) {
@@ -397,24 +641,32 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
         }
       }
 
-      final parcelId = await service.completePacking(
+      await service.completePacking(
         orderId: _currentOrder!.id,
         verifiedItems: _verifiedItems,
+        photoUrl: photoUrl,
       );
 
+      final completedOrderId = _currentOrder!.id;
+      final completedOrderNumber =
+          _currentOrder!.orderNumber ?? completedOrderId;
+
       setState(() {
-        _parcelId = parcelId;
+        _currentOrder = null;
+        _verifiedItems.clear();
+        _packedWeights.clear();
+        _packingPhoto = null;
+        _parcelId = null;
         _isLoading = false;
       });
 
-      _showSuccess('Order packed! Parcel: $parcelId');
+      await SmartScanService.hapticComplete();
 
-      if (_autoPrintOnComplete) {
-        await _handleAutoPrint(parcelId);
-      }
+      // Show DISPATCH QR immediately — dispatch team scans this
+      if (mounted) _showDispatchQrDialog(completedOrderId, completedOrderNumber);
     } catch (e) {
       setState(() => _isLoading = false);
-      _showError('Failed to complete packing: $e');
+      _showError('Failed to submit for approval: $e');
     }
   }
 
@@ -423,6 +675,20 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Order Packing'),
+        leading: _currentOrder != null
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  setState(() {
+                    _currentOrder = null;
+                    _verifiedItems.clear();
+                    _packedWeights.clear();
+                    _packingPhoto = null;
+                    _parcelId = null;
+                  });
+                },
+              )
+            : null,
         actions: [
           IconButton(
             icon: const Icon(Icons.print),
@@ -435,7 +701,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: const CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : _currentOrder == null
               ? _buildNoOrderView()
               : _buildOrderView(),
@@ -443,34 +709,189 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
   }
 
   Widget _buildNoOrderView() {
-    return Center(
+    final authProvider = context.read<AuthProvider>();
+    final branchId = authProvider.currentBranch?.id ?? '';
+    final shopId = authProvider.currentShop?.id ?? '';
+
+    final service = EmployeeScannerService(
+      shopId: shopId,
+      branchId: branchId,
+      employeeId: authProvider.currentUser?.uid ?? '',
+      employeeName: authProvider.currentUser?.name ?? 'Employee',
+    );
+
+    return DefaultTabController(
+      length: 3,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.inventory_2, size: 64, color: Colors.grey),
-          const SizedBox(height: 16),
-          Text(
-            'No Order Selected',
-            style: Theme.of(context).textTheme.titleLarge,
+          Container(
+            color: Colors.white,
+            child: const TabBar(
+              labelColor: Colors.orange,
+              unselectedLabelColor: Colors.grey,
+              indicatorColor: Colors.orange,
+              tabs: [
+                Tab(icon: Icon(Icons.new_releases), text: 'Confirmed'),
+                Tab(icon: Icon(Icons.inventory_2), text: 'Processing'),
+                Tab(icon: Icon(Icons.check_circle), text: 'Packed & Sealed'),
+              ],
+            ),
           ),
-          const SizedBox(height: 8),
-          const Text(
-            'Scan an order QR code or select from list',
-            style: TextStyle(color: Colors.grey),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: () => _showScannerDialog(),
-            icon: const Icon(Icons.qr_code_scanner),
-            label: const Text('Scan Order QR'),
-          ),
-          const SizedBox(height: 12),
-          TextButton(
-            onPressed: () => _showOrderList(),
-            child: const Text('View Pending Orders'),
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: service.getPendingOrders(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error loading tasks: ${snapshot.error}'));
+                }
+                
+                final docs = snapshot.data?.docs ?? [];
+                final List<OrderModel> allOrders = docs
+                    .map((doc) => OrderModel.fromMap(doc.data() as Map<String, dynamic>))
+                    .toList();
+
+                final confirmed = allOrders.where((order) {
+                  return order.status == OrderStatus.confirmed;
+                }).toList();
+
+                final processing = allOrders.where((order) {
+                  return order.status == OrderStatus.processing;
+                }).toList();
+
+                final packed = allOrders.where((order) {
+                  return order.status == OrderStatus.packed;
+                }).toList();
+
+                return TabBarView(
+                  children: [
+                    _buildOrderListTab(confirmed, 'No newly confirmed orders'),
+                    _buildOrderListTab(processing, 'No orders currently being packed', isReview: true),
+                    _buildOrderListTab(packed, 'No packed orders yet'),
+                  ],
+                );
+              },
+            ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildOrderListTab(List<OrderModel> orders, String emptyMsg, {bool isReview = false}) {
+    if (orders.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.inventory_2_outlined, size: 48, color: Colors.grey),
+            const SizedBox(height: 12),
+            Text(emptyMsg, style: const TextStyle(color: Colors.grey)),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(12),
+      itemCount: orders.length,
+      itemBuilder: (context, index) {
+        final order = orders[index];
+        final isRejected = order.packingStatus == 'rejected';
+
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Order #${order.orderNumber}',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+                if (isRejected)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: Colors.red.shade200),
+                    ),
+                    child: const Text(
+                      'Rejected',
+                      style: TextStyle(color: Colors.red, fontSize: 10, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+              ],
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 4),
+                Text('Customer: ${order.customerName}'),
+                Text('${order.items.length} items • ₹${order.totalAmount.round()}'),
+                if (isRejected && order.packingRejectionReason != null) ...[
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'Reason: ${order.packingRejectionReason}',
+                      style: TextStyle(color: Colors.red.shade900, fontSize: 11, fontStyle: FontStyle.italic),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            trailing: isReview
+                ? const Icon(Icons.hourglass_empty, color: Colors.amber)
+                : const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: isReview
+                ? null
+                : () async {
+                    setState(() {
+                      _currentOrder = order;
+                      _verifiedItems.clear();
+                      _packedWeights.clear();
+                      _packingPhoto = null;
+                      _parcelId = order.parcelId;
+
+                      for (var item in order.items) {
+                        if (item.isPacked) {
+                          _verifiedItems.add(item.productId);
+                        }
+                      }
+                    });
+
+                    try {
+                      final authProvider = context.read<AuthProvider>();
+                      final shopId = authProvider.currentShop?.id ?? '';
+                      final branchId = authProvider.currentBranch?.id ?? '';
+                      final employeeId = authProvider.currentUser?.uid ?? '';
+                      final employeeName = authProvider.currentUser?.name ?? 'Employee';
+                      
+                      final service = EmployeeScannerService(
+                        shopId: shopId,
+                        branchId: branchId,
+                        employeeId: employeeId,
+                        employeeName: employeeName,
+                      );
+                      await service.startPacking(order.id);
+                    } catch (e) {
+                      debugPrint('Error starting packing: $e');
+                    }
+                  },
+          ),
+        );
+      },
     );
   }
 
@@ -483,6 +904,38 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (order.packingStatus == 'rejected' && order.packingRejectionReason != null)
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.red.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.red.shade300, width: 1.5),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.warning, color: Colors.red, size: 28),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'PACKING REJECTED BY OWNER',
+                          style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          order.packingRejectionReason!,
+                          style: TextStyle(color: Colors.red.shade900, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           // Order Info Card
           Card(
             color: allVerified ? Colors.green.shade50 : Colors.orange.shade50,
@@ -500,7 +953,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                       ),
                       Chip(
                         label: Text(order.status.displayName),
-                        color: MaterialStateProperty.all(
+                        color: WidgetStateProperty.all(
                           allVerified ? Colors.green : Colors.orange,
                         ),
                       ),
@@ -596,11 +1049,86 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
               Switch(
                 value: _autoPrintOnComplete,
                 onChanged: _toggleAutoPrintSetting,
-                activeColor: Colors.green,
+                activeThumbColor: Colors.green,
               ),
             ],
           ),
           const SizedBox(height: 8),
+
+          // Smart Barcode Scanning Section
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.qr_code_scanner, color: Colors.orange),
+                      SizedBox(width: 8),
+                      Text(
+                        'Smart Barcode Packing',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _barcodeInputController,
+                          focusNode: _barcodeFocusNode,
+                          decoration: InputDecoration(
+                            hintText: 'Scan item barcode / enter code...',
+                            hintStyle: const TextStyle(fontSize: 13, color: Colors.grey),
+                            prefixIcon: const Icon(Icons.keyboard, size: 20),
+                            suffixIcon: _barcodeInputController.text.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(Icons.clear, size: 18),
+                                    onPressed: () => _barcodeInputController.clear(),
+                                  )
+                                : null,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(color: Colors.orange, width: 2),
+                            ),
+                          ),
+                          onSubmitted: _processBarcodeScan,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton.icon(
+                        onPressed: _openCameraScanner,
+                        icon: const Icon(Icons.camera_alt, size: 18),
+                        label: const Text('Scan'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Tip: Hardware scanners work automatically when cursor is focused in input box.',
+                    style: TextStyle(fontSize: 10, color: Colors.grey.shade600, fontStyle: FontStyle.italic),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
 
           // Packing Checklist
           Text(
@@ -614,16 +1142,57 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
             return Card(
               child: ListTile(
                 leading: CircleAvatar(
+                  backgroundColor: isVerified ? Colors.green : Colors.grey,
                   child: isVerified
                       ? const Icon(Icons.check, color: Colors.white)
                       : Text('${item.quantity}'),
-                  backgroundColor: isVerified ? Colors.green : Colors.grey,
                 ),
                 title: Text(item.productName),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${item.quantity} x ₹${item.price}'),
+                    Row(
+                      children: [
+                        Text('${item.quantity} x ₹${item.price}'),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.shade50,
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: Colors.orange.shade200, width: 0.5),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.lock_outline, size: 10, color: Colors.orange),
+                              const SizedBox(width: 2),
+                              Text(
+                                'Fixed Price (Owner Managed)',
+                                style: TextStyle(
+                                  color: Colors.orange.shade800,
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (_productIdToBarcode[item.productId] != null) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.qr_code, size: 14, color: Colors.grey),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Barcode: ${_productIdToBarcode[item.productId]}',
+                            style: const TextStyle(color: Colors.grey, fontSize: 11),
+                          ),
+                        ],
+                      ),
+                    ],
                     if (_productLocations[item.productId] != null && _productLocations[item.productId]!.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Row(
@@ -682,7 +1251,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
           const SizedBox(height: 8),
 
           // Complete Button
-          if (_parcelId == null)
+          if (_currentOrder?.packingStatus != 'approved' && _currentOrder?.status != OrderStatus.packed)
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -693,7 +1262,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: Text(
-                  allVerified ? 'Complete Packing' : 'Verify All Items First',
+                  allVerified ? 'Mark Packed & Seal' : 'Verify All Items First',
                 ),
               ),
             ),
@@ -702,36 +1271,19 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
     );
   }
 
-  void _showScannerDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Enter Order ID'),
-        content: TextField(
-          autofocus: true,
-          decoration: const InputDecoration(
-            labelText: 'Order ID (e.g., ORDER-12345)',
-            border: const OutlineInputBorder(),
-          ),
-          onSubmitted: (value) {
-            if (value.isNotEmpty) {
-              Navigator.pop(context);
-              if (value.startsWith('ORDER-')) {
-                _loadOrder(value);
-              } else {
-                _loadOrder('ORDER-$value');
-              }
-            }
-          },
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-        ],
+  /// Opens a full-screen QR scanner that returns one scanned code,
+  /// then loads the matching order. Accepts ORDER-{id} or bare UUIDs.
+  Future<void> _showScannerDialog() async {
+    final code = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => const _OrderQrScanPage(),
       ),
     );
+    if (code == null || code.isEmpty) return;
+    final orderId = code.startsWith('ORDER-') ? code : 'ORDER-$code';
+    _loadOrder(orderId);
   }
 
   void _showOrderList() {
@@ -842,8 +1394,8 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
     }
   }
 
-  Future<void> _savePackingPhotoProof(AuthProvider authProvider) async {
-    if (_packingPhoto == null || _currentOrder == null) return;
+  Future<String?> _savePackingPhotoProof(AuthProvider authProvider) async {
+    if (_packingPhoto == null || _currentOrder == null) return null;
 
     setState(() => _photoUploading = true);
     try {
@@ -859,19 +1411,10 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
         SettableMetadata(contentType: 'image/jpeg'),
       );
       final downloadUrl = await task.ref.getDownloadURL();
-
-      await FirebaseFirestore.instance.collection('orders').doc(_currentOrder!.id).update({
-        'packingProof': {
-          'photoUrl': downloadUrl,
-          'packedBy': authProvider.currentUser?.name ?? 'Employee',
-          'employeeId': authProvider.currentUser?.uid ?? '',
-          'packedAt': FieldValue.serverTimestamp(),
-        },
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+      return downloadUrl;
     } catch (e) {
       debugPrint('[PackingScreen] Photo upload error: $e');
-      // Non-fatal — log but don't block packing completion
+      return null;
     } finally {
       setState(() => _photoUploading = false);
     }
@@ -945,3 +1488,283 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// _OrderQrScanPage
+//
+// Lightweight fullscreen camera scanner that pops with the raw scanned code.
+// Called by OrderPackingScreen._showScannerDialog().
+// Accepts: ORDER-{id}, bare UUID, or any alphanumeric order reference.
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _OrderQrScanPage extends StatefulWidget {
+  const _OrderQrScanPage();
+
+  @override
+  State<_OrderQrScanPage> createState() => _OrderQrScanPageState();
+}
+
+class _OrderQrScanPageState extends State<_OrderQrScanPage> {
+  final MobileScannerController _ctrl = MobileScannerController();
+  bool _done = false;
+  bool _flashOn = false;
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _onDetect(BarcodeCapture capture) {
+    if (_done) return;
+    final raw = capture.barcodes.firstOrNull?.rawValue;
+    if (raw == null || raw.isEmpty) return;
+    _done = true;
+    HapticFeedback.mediumImpact();
+    Navigator.pop(context, raw);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          MobileScanner(controller: _ctrl, onDetect: _onDetect),
+
+          // Scan frame
+          Center(
+            child: Container(
+              width: 240,
+              height: 240,
+              decoration: BoxDecoration(
+                border: Border.all(
+                    color: const Color(0xFF6A1B9A), width: 3),
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          ),
+
+          // Top bar
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 16, vertical: 10),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const Expanded(
+                    child: Text(
+                      'Scan Order QR',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      _flashOn ? Icons.flash_on : Icons.flash_off,
+                      color: _flashOn ? Colors.amber : Colors.white,
+                    ),
+                    onPressed: () async {
+                      await _ctrl.toggleTorch();
+                      setState(() => _flashOn = !_flashOn);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Bottom hint
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 40),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text(
+                    'Point at ORDER-{id} QR on the packing label',
+                    style: TextStyle(
+                        color: Colors.white70, fontSize: 13),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+          children: [
+            TextField(
+              controller: controller,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              autofocus: true,
+              decoration: InputDecoration(
+                labelText: 'Weight (${item.unit})',
+                suffixText: item.unit,
+                border: const OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final weight = double.tryParse(controller.text);
+              if (weight != null && weight > 0) {
+                setState(() => _packedWeights[productId] = weight);
+                Navigator.pop(ctx);
+                _checkAllWeightsVerified();
+              }
+            },
+            child: const Text('Confirm Weight'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _checkAllWeightsVerified() {
+    final allWeighed = _weightVerificationItems.every(
+        (item) => _packedWeights.containsKey(item.productId));
+    setState(() => _allWeightsVerified = allWeighed);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// _PackingItemScanPage
+//
+// Camera scanner for scanning individual product barcodes while packing.
+// Returns raw barcode string. Shown with color-coded frame (purple = packing).
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _PackingItemScanPage extends StatefulWidget {
+  const _PackingItemScanPage();
+
+  @override
+  State<_PackingItemScanPage> createState() => _PackingItemScanPageState();
+}
+
+class _PackingItemScanPageState extends State<_PackingItemScanPage> {
+  final MobileScannerController _ctrl = MobileScannerController();
+  bool _done = false;
+  bool _flashOn = false;
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _onDetect(BarcodeCapture capture) {
+    if (_done) return;
+    final raw = capture.barcodes.firstOrNull?.rawValue;
+    if (raw == null || raw.isEmpty) return;
+    _done = true;
+    HapticFeedback.mediumImpact();
+    Navigator.pop(context, raw);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          MobileScanner(controller: _ctrl, onDetect: _onDetect),
+
+          // Purple frame for packing mode
+          Center(
+            child: Container(
+              width: 240,
+              height: 240,
+              decoration: BoxDecoration(
+                border: Border.all(
+                    color: const Color(0xFF6A1B9A), width: 3),
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          ),
+
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 16, vertical: 10),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const Expanded(
+                    child: Text(
+                      'Scan Item Barcode',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      _flashOn ? Icons.flash_on : Icons.flash_off,
+                      color: _flashOn ? Colors.amber : Colors.white,
+                    ),
+                    onPressed: () async {
+                      await _ctrl.toggleTorch();
+                      setState(() => _flashOn = !_flashOn);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 40),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6A1B9A).withValues(alpha: 0.8),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text(
+                    'Scan each product barcode to verify',
+                    style: TextStyle(
+                        color: Colors.white, fontSize: 13),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

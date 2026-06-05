@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/family_group_model.dart';
 import '../../services/family_account_service.dart';
-import '../../providers/auth_provider.dart' as app_auth;
 
 /// Full family management screen with create/join, member list, shared cart, approvals,
 /// spending dashboards, and settings — production-grade for Fufaji households.
@@ -62,6 +60,27 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
       );
     }
 
+    if (_error != null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Family Account')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: Colors.red),
+              const SizedBox(height: 16),
+              Text(_error!, style: const TextStyle(color: Colors.white70)),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _loadFamilyGroup,
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     if (_familyGroup == null) {
       return _buildCreateFamilyScreen();
     }
@@ -98,7 +117,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF6C63FF).withOpacity(0.3),
+                    color: const Color(0xFF6C63FF).withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -120,7 +139,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                   const SizedBox(height: 8),
                   Text(
                     'Create a shared household cart, set spending limits for kids, and manage family grocery orders together.',
-                    style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14),
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 14),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -142,9 +161,9 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 labelText: 'Family Name',
-                labelStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                 hintText: 'e.g., Nagar Family',
-                hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+                hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
                 prefixIcon: const Icon(Icons.home, color: Color(0xFF6C63FF)),
                 filled: true,
                 fillColor: const Color(0xFF1A1A2E),
@@ -161,9 +180,9 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 labelText: 'Monthly Budget (₹)',
-                labelStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                 hintText: 'Leave 0 for unlimited',
-                hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+                hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
                 prefixIcon: const Icon(Icons.currency_rupee, color: Color(0xFF6C63FF)),
                 filled: true,
                 fillColor: const Color(0xFF1A1A2E),
@@ -233,7 +252,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFF6C63FF).withOpacity(0.15),
+              color: const Color(0xFF6C63FF).withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: const Color(0xFF6C63FF), size: 24),
@@ -254,7 +273,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                 Text(
                   subtitle,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.white.withValues(alpha: 0.5),
                     fontSize: 13,
                   ),
                 ),
@@ -374,7 +393,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
         Icon(icon, color: const Color(0xFF6C63FF), size: 28),
         const SizedBox(height: 8),
         Text(value, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-        Text(label, style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12)),
+        Text(label, style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12)),
       ],
     );
   }
@@ -395,7 +414,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
         color: const Color(0xFF1A1A2E),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: roleColors[member.role]!.withOpacity(0.3),
+          color: roleColors[member.role]!.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -403,7 +422,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
         children: [
           CircleAvatar(
             radius: 24,
-            backgroundColor: roleColors[member.role]!.withOpacity(0.2),
+            backgroundColor: roleColors[member.role]!.withValues(alpha: 0.2),
             child: Text(
               member.name.isNotEmpty ? member.name[0].toUpperCase() : '?',
               style: TextStyle(
@@ -432,7 +451,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: roleColors[member.role]!.withOpacity(0.15),
+                        color: roleColors[member.role]!.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -452,7 +471,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                       ? 'Budget: ₹${member.currentMonthSpending.toStringAsFixed(0)} / ₹${member.monthlySpendingLimit.toStringAsFixed(0)}'
                       : 'Unlimited budget',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.white.withValues(alpha: 0.5),
                     fontSize: 12,
                   ),
                 ),
@@ -462,7 +481,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
                       value: (member.currentMonthSpending / member.monthlySpendingLimit).clamp(0, 1),
-                      backgroundColor: Colors.white.withOpacity(0.1),
+                      backgroundColor: Colors.white.withValues(alpha: 0.1),
                       valueColor: AlwaysStoppedAnimation(
                         member.currentMonthSpending > member.monthlySpendingLimit * 0.9
                             ? const Color(0xFFFF6B6B)
@@ -481,7 +500,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
               onPressed: () => _showMemberSettingsDialog(member),
               icon: Icon(
                 Icons.settings,
-                color: Colors.white.withOpacity(0.4),
+                color: Colors.white.withValues(alpha: 0.4),
                 size: 20,
               ),
             ),
@@ -497,16 +516,16 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.white.withOpacity(0.2)),
+            Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.white.withValues(alpha: 0.2)),
             const SizedBox(height: 16),
             Text(
               'Family cart is empty',
-              style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 18),
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 18),
             ),
             const SizedBox(height: 8),
             Text(
               'Items added by family members will appear here',
-              style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 14),
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 14),
             ),
           ],
         ),
@@ -563,12 +582,12 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                     const SizedBox(height: 4),
                     Text(
                       'Added by ${item.addedByName} • Qty: ${item.quantity}',
-                      style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12),
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12),
                     ),
                     if (item.note != null)
                       Text(
                         '📝 ${item.note}',
-                        style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 11),
+                        style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 11),
                       ),
                   ],
                 ),
@@ -620,11 +639,11 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.check_circle_outline, size: 64, color: Colors.green.withOpacity(0.3)),
+            Icon(Icons.check_circle_outline, size: 64, color: Colors.green.withValues(alpha: 0.3)),
             const SizedBox(height: 16),
             Text(
               'No pending approvals',
-              style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 18),
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 18),
             ),
           ],
         ),
@@ -644,7 +663,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: approval.isPending
-                  ? const Color(0xFFFFD93D).withOpacity(0.3)
+                  ? const Color(0xFFFFD93D).withValues(alpha: 0.3)
                   : Colors.transparent,
             ),
           ),
@@ -769,7 +788,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                       child: CircularProgressIndicator(
                         value: budgetUsed,
                         strokeWidth: 12,
-                        backgroundColor: Colors.white.withOpacity(0.1),
+                        backgroundColor: Colors.white.withValues(alpha: 0.1),
                         valueColor: AlwaysStoppedAnimation(
                           budgetUsed > 0.9
                               ? const Color(0xFFFF6B6B)
@@ -794,7 +813,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                           group.monthlyBudget > 0
                               ? 'of ₹${group.monthlyBudget.toStringAsFixed(0)}'
                               : 'This Month',
-                          style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 13),
+                          style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 13),
                         ),
                       ],
                     ),
@@ -828,7 +847,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
             children: [
               CircleAvatar(
                 radius: 18,
-                backgroundColor: const Color(0xFF6C63FF).withOpacity(0.2),
+                backgroundColor: const Color(0xFF6C63FF).withValues(alpha: 0.2),
                 child: Text(
                   m.name.isNotEmpty ? m.name[0] : '?',
                   style: const TextStyle(color: Color(0xFF6C63FF), fontWeight: FontWeight.bold),
@@ -842,7 +861,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                     Text(m.name, style: const TextStyle(color: Colors.white, fontSize: 14)),
                     Text(
                       m.role.name,
-                      style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 11),
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 11),
                     ),
                   ],
                 ),
@@ -880,7 +899,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     labelText: 'Name',
-                    labelStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                    labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                     filled: true,
                     fillColor: const Color(0xFF0F0F1A),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
@@ -893,7 +912,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     labelText: 'Phone Number',
-                    labelStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                    labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                     filled: true,
                     fillColor: const Color(0xFF0F0F1A),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
@@ -901,12 +920,12 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<FamilyRole>(
-                  value: selectedRole,
+                  initialValue: selectedRole,
                   dropdownColor: const Color(0xFF1A1A2E),
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     labelText: 'Role',
-                    labelStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                    labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                     filled: true,
                     fillColor: const Color(0xFF0F0F1A),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
@@ -926,7 +945,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     labelText: 'Monthly Limit (₹0 = unlimited)',
-                    labelStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                    labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                     filled: true,
                     fillColor: const Color(0xFF0F0F1A),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
@@ -994,12 +1013,12 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               DropdownButtonFormField<FamilyRole>(
-                value: selectedRole,
+                initialValue: selectedRole,
                 dropdownColor: const Color(0xFF1A1A2E),
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   labelText: 'Role',
-                  labelStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                  labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                   filled: true,
                   fillColor: const Color(0xFF0F0F1A),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
@@ -1019,7 +1038,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   labelText: 'Monthly Spending Limit (₹)',
-                  labelStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                  labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                   filled: true,
                   fillColor: const Color(0xFF0F0F1A),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),

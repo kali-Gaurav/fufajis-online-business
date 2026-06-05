@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../models/order_model.dart';
-import '../models/product_model.dart';
 
 /// Service for Idea 27: Smart Kitchen Integration
 ///

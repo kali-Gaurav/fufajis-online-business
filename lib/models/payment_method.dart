@@ -56,7 +56,7 @@ class PaymentMethodOption {
   final double? minAmount; // New Feature: Minimum amount required
   final double? cashbackPercentage; // New Feature: Cashback offer
 
-  const PaymentMethodOption({
+  PaymentMethodOption({
     required this.method,
     required this.name,
     required this.description,
@@ -71,98 +71,98 @@ class PaymentMethodOption {
   });
 
   /// Cash on Delivery option
-  static const PaymentMethodOption cod = PaymentMethodOption(
+  static final PaymentMethodOption cod = PaymentMethodOption(
     method: PaymentMethod.cod,
     name: 'Cash on Delivery',
     description: 'Pay when you receive your order',
     icon: Icons.money_outlined,
-    iconColor: Color(0xFF4CAF50),
+    iconColor: const Color(0xFF4CAF50),
   );
 
   /// UPI payment option
-  static const PaymentMethodOption upi = PaymentMethodOption(
+  static final PaymentMethodOption upi = PaymentMethodOption(
     method: PaymentMethod.upi,
     name: 'UPI',
     description: 'Google Pay, PhonePe, Paytm & more',
     icon: Icons.qr_code,
-    iconColor: Color(0xFF673AB7),
+    iconColor: const Color(0xFF673AB7),
     cashbackPercentage: 2.0, // Offer 2% cashback on UPI
   );
 
   /// Credit/Debit Card option
-  static const PaymentMethodOption card = PaymentMethodOption(
+  static final PaymentMethodOption card = PaymentMethodOption(
     method: PaymentMethod.card,
     name: 'Credit / Debit Card',
     description: 'All major cards accepted',
     icon: Icons.credit_card,
-    iconColor: Color(0xFF2196F3),
+    iconColor: const Color(0xFF2196F3),
   );
 
   /// Net Banking option
-  static const PaymentMethodOption netBanking = PaymentMethodOption(
+  static final PaymentMethodOption netBanking = PaymentMethodOption(
     method: PaymentMethod.netBanking,
     name: 'Net Banking',
     description: 'Direct bank transfer',
     icon: Icons.account_balance,
-    iconColor: Color(0xFF607D8B),
+    iconColor: const Color(0xFF607D8B),
   );
 
   /// Wallet Balance option
-  static const PaymentMethodOption wallet = PaymentMethodOption(
+  static final PaymentMethodOption wallet = PaymentMethodOption(
     method: PaymentMethod.wallet,
     name: 'Wallet Balance',
     description: 'Use your Fufaji wallet balance',
     icon: Icons.account_balance_wallet,
-    iconColor: Color(0xFFFF9800),
+    iconColor: const Color(0xFFFF9800),
     subLabel: 'Available: ₹0',
   );
 
   /// Razorpay payment option
-  static const PaymentMethodOption razorpay = PaymentMethodOption(
+  static final PaymentMethodOption razorpay = PaymentMethodOption(
     method: PaymentMethod.razorpay,
     name: 'Razorpay',
     description: 'Cards, UPI, Wallet & Net Banking',
     icon: Icons.payment,
-    iconColor: Color(0xFF3399CC),
+    iconColor: const Color(0xFF3399CC),
   );
 
   /// EMI option
-  static const PaymentMethodOption emi = PaymentMethodOption(
+  static final PaymentMethodOption emi = PaymentMethodOption(
     method: PaymentMethod.emi,
     name: 'EMI',
     description: 'Easy monthly installments',
     icon: Icons.calendar_today,
-    iconColor: Color(0xFF9C27B0),
+    iconColor: const Color(0xFF9C27B0),
     minAmount: 3000.0, // EMI only available for orders > 3000
   );
 
   /// Pay Later (Buy Now Pay Later) option
-  static const PaymentMethodOption payLater = PaymentMethodOption(
+  static final PaymentMethodOption payLater = PaymentMethodOption(
     method: PaymentMethod.payLater,
     name: 'Pay Later',
     description: 'Buy now, pay after delivery',
     icon: Icons.schedule,
-    iconColor: Color(0xFFE91E63),
+    iconColor: const Color(0xFFE91E63),
     showBadge: true,
     badgeText: 'BNPL',
   );
 
   /// Credit (Khata) option for loyal customers
-  static const PaymentMethodOption credit = PaymentMethodOption(
+  static final PaymentMethodOption credit = PaymentMethodOption(
     method: PaymentMethod.credit,
     name: 'Fufaji Credit (Khata)',
     description: 'Add to your monthly account',
     icon: Icons.menu_book,
-    iconColor: Color(0xFF795548),
+    iconColor: const Color(0xFF795548),
   );
 
   /// Loyalty Points option
-  static const PaymentMethodOption loyaltyPoints = PaymentMethodOption(
+  static final PaymentMethodOption loyaltyPoints = PaymentMethodOption(
     method: PaymentMethod.loyaltyPoints,
     name: 'Loyalty Points',
     description: 'Redeem your earned points',
     icon: Icons.stars,
-    iconColor: Color(0xFFFFC107),
+    iconColor: const Color(0xFFFFC107),
   );
 
   /// Get all available payment method options
@@ -302,7 +302,7 @@ class PaymentMethodOption {
       ),
       name: map['name'] ?? '',
       description: map['description'] ?? '',
-      icon: IconData(map['icon'] ?? Icons.payment.codePoint, fontFamily: 'MaterialIcons'),
+      icon: Icons.payment,
       iconColor: Color(map['iconColor'] ?? 0xFF2196F3),
       isAvailable: map['isAvailable'] ?? true,
       subLabel: map['subLabel'],
@@ -319,7 +319,7 @@ class PaymentMethodOption {
       'name': name,
       'description': description,
       'icon': icon.codePoint,
-      'iconColor': iconColor.value,
+      'iconColor': iconColor.toARGB32(),
       'isAvailable': isAvailable,
       'subLabel': subLabel,
       'showBadge': showBadge,

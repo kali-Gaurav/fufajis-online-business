@@ -124,10 +124,4 @@ class PaymentResult {
 }
 
 /// Payment status enum
-enum PaymentStatus {
-  success,
-  failed,
-  cancelled,
-  externalWallet,
-  unknown,
-}
+enum PaymentStatus { success, failed, cancelled, externalWallet, unknown }

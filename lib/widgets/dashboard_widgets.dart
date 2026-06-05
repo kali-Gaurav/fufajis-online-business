@@ -1,10 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/product_provider.dart';
 import '../utils/app_theme.dart';
-import '../models/product_model.dart';
-import 'package:intl/intl.dart';
 
 class InventoryHealthScoreWidget extends StatefulWidget {
   const InventoryHealthScoreWidget({super.key});
@@ -14,7 +12,7 @@ class InventoryHealthScoreWidget extends StatefulWidget {
 }
 
 class _InventoryHealthScoreWidgetState extends State<InventoryHealthScoreWidget> {
-  bool _isLoading = false;
+  final bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +25,13 @@ class _InventoryHealthScoreWidgetState extends State<InventoryHealthScoreWidget>
     final status = health['status'] as String;
     
     Color scoreColor;
-    if (score >= 80) scoreColor = AppTheme.success;
-    else if (score >= 60) scoreColor = AppTheme.warning;
-    else scoreColor = AppTheme.error;
+    if (score >= 80) {
+      scoreColor = AppTheme.success;
+    } else if (score >= 60) {
+      scoreColor = AppTheme.warning;
+    } else {
+      scoreColor = AppTheme.error;
+    }
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -222,7 +224,7 @@ class ExpiringSoonWidget extends StatelessWidget {
                 ? Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: AppTheme.success.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)), child: const Text('ON SALE', style: TextStyle(fontSize: 9, color: AppTheme.success, fontWeight: FontWeight.bold)))
                 : TextButton(onPressed: () {}, child: const Text('Apply Discount', style: TextStyle(fontSize: 11))),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -251,11 +253,11 @@ class PendingPriceChangesWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Price Recommendations', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  const Icon(Icons.trending_up, color: AppTheme.primary, size: 20),
+                  Text('Price Recommendations', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Icon(Icons.trending_up, color: AppTheme.primary, size: 20),
                 ],
               ),
               const SizedBox(height: 12),
@@ -277,7 +279,7 @@ class PendingPriceChangesWidget extends StatelessWidget {
                     ),
                   ),
                 );
-              }).toList(),
+              }),
               const SizedBox(height: 8),
               SizedBox(
                 width: double.infinity,

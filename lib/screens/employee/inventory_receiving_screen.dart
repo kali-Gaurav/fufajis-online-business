@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:blue_thermal_printer/blue_thermal_printer.dart';
+import '../../services/smart_scan_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/employee_scanner_service.dart';
 import '../../services/ai_recognition_service.dart';
@@ -31,7 +32,14 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
   final _supplierController = TextEditingController();
   final _costPriceController = TextEditingController();
   DateTime? _expiryDate;
-  
+
+  // Auto-complete additions
+  final _quantityFocusNode = FocusNode(); // auto-focus after scan
+  final SmartScanService _smartScan = SmartScanService();
+  String? _poReference;       // open PO reference if found
+  int _batchCount = 0;        // items processed this session
+  bool _autoFillActive = false; // shows green glow when auto-filled
+
   String? _scannedBarcode;
   ProductModel? _product;
   bool _isLoading = false;
@@ -415,17 +423,80 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
   }
 
   Future<void> _lookupProduct(String barcode) async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _autoFillActive = false;
+      _poReference = null;
+    });
+
+    final auth = context.read<AuthProvider>();
+    final shopId = auth.currentShop?.id ?? '';
+    final branchId = auth.currentBranch?.id ?? '';
+
     try {
-      final productProvider = context.read<ProductProvider>();
-      final product = await productProvider.getProductByBarcode(barcode);
-      setState(() {
-        _product = product;
-        _isLoading = false;
-      });
+      // SmartScanService: auto-lookup + PO match
+      final result = await _smartScan.autoProduct(
+        barcode: barcode,
+        shopId: shopId,
+        branchId: branchId,
+      );
+
+      if (result.found) {
+        setState(() {
+          _product = result.product;
+          _isLoading = false;
+          _autoFillActive = true;
+
+          // Auto-fill quantity from open PO if available
+          if (result.openPoLine != null) {
+            _quantityController.text =
+                result.openPoLine!.quantity.toString();
+            _poReference = result.openPoLine!.poId;
+            if (result.openPoLine!.supplier?.isNotEmpty == true) {
+              _supplierController.text =
+                  result.openPoLine!.supplier!;
+            }
+          } else {
+            _quantityController.text = '1';
+          }
+        });
+
+        // Auto-focus quantity field so employee just types/confirms
+        await SmartScanService.hapticSuccess();
+        await Future.delayed(const Duration(milliseconds: 150));
+        _quantityFocusNode.requestFocus();
+        _quantityController.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: _quantityController.text.length,
+        );
+      } else {
+        // Fallback: try product provider cache
+        final productProvider = context.read<ProductProvider>();
+        final cached = productProvider.getProductByBarcode(barcode);
+        setState(() {
+          _product = cached;
+          _isLoading = false;
+          _autoFillActive = cached != null;
+          if (cached != null) _quantityController.text = '1';
+        });
+
+        if (cached != null) {
+          await SmartScanService.hapticSuccess();
+          await Future.delayed(const Duration(milliseconds: 150));
+          _quantityFocusNode.requestFocus();
+          _quantityController.selection = TextSelection(
+            baseOffset: 0,
+            extentOffset: _quantityController.text.length,
+          );
+        } else {
+          await SmartScanService.hapticError();
+          _showError('Product not found: $barcode');
+        }
+      }
     } catch (e) {
       setState(() => _isLoading = false);
-      _showError('Product not found: $barcode');
+      await SmartScanService.hapticError();
+      _showError('Lookup failed: $e');
     }
   }
 
@@ -505,9 +576,14 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
         _supplierController.clear();
         _costPriceController.clear();
         _expiryDate = null;
+        _poReference = null;
+        _autoFillActive = false;
+        _batchCount++;   // increment session counter
       });
 
-      _showSuccess('Added $quantity $printName to stock');
+      await SmartScanService.hapticComplete();
+      _showSuccess(
+          '✓ $quantity × $printName added  —  $_batchCount item${_batchCount == 1 ? '' : 's'} this session');
 
       if (_autoPrintShelfTag) {
         await _handleAutoPrintShelfTag(
@@ -530,21 +606,21 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Receive Inventory'),
+        title: const Text('Receive Inventory'),
         actions: [
           IconButton(
-            icon: Icon(Icons.print),
+            icon: const Icon(Icons.print),
             onPressed: _showPrinterSettings,
           ),
           if (!_poMode)
             IconButton(
-              icon: Icon(Icons.qr_code_scanner),
+              icon: const Icon(Icons.qr_code_scanner),
               onPressed: () => _showScannerDialog(),
             ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -558,15 +634,15 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                         _poMode = false;
                       });
                     },
-                    icon: Icon(Icons.qr_code_scanner),
-                    label: Text('Standard Scan'),
+                    icon: const Icon(Icons.qr_code_scanner),
+                    label: const Text('Standard Scan'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: !_poMode ? Colors.green : Colors.grey.shade200,
                       foregroundColor: !_poMode ? Colors.white : Colors.black,
                     ),
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () {
@@ -575,8 +651,8 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                       });
                       _loadPurchaseOrders();
                     },
-                    icon: Icon(Icons.receipt_long),
-                    label: Text('Receive via PO'),
+                    icon: const Icon(Icons.receipt_long),
+                    label: const Text('Receive via PO'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _poMode ? Colors.green : Colors.grey.shade200,
                       foregroundColor: _poMode ? Colors.white : Colors.black,
@@ -585,7 +661,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             if (_poMode)
               _buildPOWorkflowView()
             else
@@ -603,7 +679,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
         // PO Selector Card
         Card(
           child: Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -611,12 +687,12 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                   'Select Purchase Order',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 _purchaseOrders.isEmpty
-                    ? Text('No pending Purchase Orders found.')
+                    ? const Text('No pending Purchase Orders found.')
                     : DropdownButtonFormField<PurchaseOrder>(
-                        value: _selectedPO,
-                        decoration: InputDecoration(
+                        initialValue: _selectedPO,
+                        decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           prefixIcon: Icon(Icons.receipt),
                         ),
@@ -641,10 +717,10 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
         ),
         
         if (_selectedPO != null) ...[
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Card(
             child: Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -657,15 +733,15 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                       ),
                       OutlinedButton.icon(
                         onPressed: _isLoading ? null : _scanInvoiceOCR,
-                        icon: Icon(Icons.camera_alt),
-                        label: Text('Scan Invoice OCR'),
+                        icon: const Icon(Icons.camera_alt),
+                        label: const Text('Scan Invoice OCR'),
                       ),
                     ],
                   ),
-                  Divider(height: 24),
+                  const Divider(height: 24),
                   ListView.builder(
                     shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
+                    physics: const NeverScrollableScrollPhysics(),
                     itemCount: _selectedPO!.items.length,
                     itemBuilder: (context, index) {
                       final item = _selectedPO!.items[index];
@@ -685,11 +761,11 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                                     children: [
                                       Text(
                                         item.productName,
-                                        style: TextStyle(fontWeight: FontWeight.bold),
+                                        style: const TextStyle(fontWeight: FontWeight.bold),
                                       ),
                                       Text(
                                         'Ordered: ${item.quantity} ${item.unit}',
-                                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                                        style: const TextStyle(color: Colors.grey, fontSize: 12),
                                       ),
                                     ],
                                   ),
@@ -697,14 +773,14 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                                 Row(
                                   children: [
                                     IconButton(
-                                      icon: Icon(Icons.remove_circle_outline),
+                                      icon: const Icon(Icons.remove_circle_outline),
                                       onPressed: currentQty > 0
                                           ? () => setState(() => _poReceivedQuantities[item.productId] = currentQty - 1)
                                           : null,
                                     ),
-                                    Text('$currentQty', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                    Text('$currentQty', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                                     IconButton(
-                                      icon: Icon(Icons.add_circle_outline),
+                                      icon: const Icon(Icons.add_circle_outline),
                                       onPressed: () => setState(() => _poReceivedQuantities[item.productId] = currentQty + 1),
                                     ),
                                   ],
@@ -714,29 +790,29 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                             
                             // Optional details for this specific item in PO receiving
                             ExpansionTile(
-                              title: Text('Item Expiry / Batch Details', style: TextStyle(fontSize: 12)),
-                              childrenPadding: EdgeInsets.all(8),
+                              title: const Text('Item Expiry / Batch Details', style: TextStyle(fontSize: 12)),
+                              childrenPadding: const EdgeInsets.all(8),
                               children: [
                                 Row(
                                   children: [
                                     Expanded(
                                       child: TextField(
-                                        decoration: InputDecoration(
+                                        decoration: const InputDecoration(
                                           labelText: 'Batch Number',
                                           isDense: true,
                                         ),
                                         onChanged: (val) => _poBatchNumbers[item.productId] = val,
                                       ),
                                     ),
-                                    SizedBox(width: 8),
+                                    const SizedBox(width: 8),
                                     Expanded(
                                       child: InkWell(
                                         onTap: () async {
                                           final date = await showDatePicker(
                                             context: context,
-                                            initialDate: DateTime.now().add(Duration(days: 180)),
+                                            initialDate: DateTime.now().add(const Duration(days: 180)),
                                             firstDate: DateTime.now(),
-                                            lastDate: DateTime.now().add(Duration(days: 3650)),
+                                            lastDate: DateTime.now().add(const Duration(days: 3650)),
                                           );
                                           if (date != null) {
                                             setState(() {
@@ -745,7 +821,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                                           }
                                         },
                                         child: InputDecorator(
-                                          decoration: InputDecoration(
+                                          decoration: const InputDecoration(
                                             labelText: 'Expiry Date',
                                             isDense: true,
                                           ),
@@ -753,7 +829,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                                             _poExpiryDates[item.productId] == null
                                                 ? 'Select'
                                                 : DateFormat('yyyy-MM-dd').format(_poExpiryDates[item.productId]!),
-                                            style: TextStyle(fontSize: 12),
+                                            style: const TextStyle(fontSize: 12),
                                           ),
                                         ),
                                       ),
@@ -767,12 +843,12 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                       );
                     },
                   ),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _confirmPOReceive,
-                      child: _isLoading ? CircularProgressIndicator() : Text('Confirm PO Receive'),
+                      child: _isLoading ? const CircularProgressIndicator() : const Text('Confirm PO Receive'),
                     ),
                   ),
                 ],
@@ -805,7 +881,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
             Switch(
               value: _autoPrintShelfTag,
               onChanged: _toggleAutoPrintSetting,
-              activeColor: Colors.green,
+              activeThumbColor: Colors.green,
             ),
           ],
         ),
@@ -821,56 +897,97 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                   'Scan Product',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 if (_scannedBarcode != null)
                   Container(
-                    padding: EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: Colors.green.shade50,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.check_circle, color: Colors.green),
-                        SizedBox(width: 8),
+                        Icon(Icons.check_circle,
+                            color: _autoFillActive
+                                ? Colors.green
+                                : Colors.grey),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 'Barcode: $_scannedBarcode',
-                                style:
-                                    TextStyle(fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
                               ),
                               if (_product != null)
                                 Text(
                                   _product!.name,
-                                  style: TextStyle(color: Colors.grey),
+                                  style: const TextStyle(
+                                      color: Colors.grey),
+                                ),
+                              // PO auto-fill badge
+                              if (_poReference != null)
+                                Container(
+                                  margin: const EdgeInsets.only(top: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.shade50,
+                                    borderRadius:
+                                        BorderRadius.circular(6),
+                                    border: Border.all(
+                                        color: Colors.blue.shade200),
+                                  ),
+                                  child: Text(
+                                    '📋 PO auto-filled: $_poReference',
+                                    style: TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.blue.shade700),
+                                  ),
                                 ),
                             ],
                           ),
                         ),
+                        // Batch session counter
+                        if (_batchCount > 0)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              '$_batchCount done',
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
                       ],
                     ),
                   )
                 else
                   ElevatedButton.icon(
                     onPressed: () => _showScannerDialog(),
-                    icon: Icon(Icons.qr_code_scanner),
-                    label: Text('Scan Product Barcode'),
+                    icon: const Icon(Icons.qr_code_scanner),
+                    label: const Text('Scan Product Barcode'),
                   ),
               ],
             ),
           ),
         ),
 
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
 
         // Product Details
         if (_product != null) ...[
           Card(
             child: Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -878,7 +995,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                     'Product Details',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   _buildDetailRow('Name', _product!.name),
                   _buildDetailRow(
                       'Current Stock', _product!.stockQuantity.toString()),
@@ -892,12 +1009,12 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
             ),
           ),
 
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Quantity Input
           Card(
             child: Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -905,33 +1022,47 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                     'Add Stock',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   TextField(
                     controller: _quantityController,
+                    focusNode: _quantityFocusNode, // auto-focused after scan
                     keyboardType: TextInputType.number,
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => _addToStock(), // Enter key = save
                     decoration: InputDecoration(
-                      labelText: 'Quantity',
-                      prefixIcon: Icon(Icons.numbers),
-                      border: OutlineInputBorder(),
+                      labelText: 'Quantity *',
+                      prefixIcon: const Icon(Icons.numbers),
+                      border: const OutlineInputBorder(),
+                      // Green glow when auto-filled from PO
+                      enabledBorder: _autoFillActive
+                          ? OutlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Colors.green.shade400, width: 2))
+                          : null,
+                      helperText: _poReference != null
+                          ? 'Auto-filled from PO'
+                          : null,
+                      helperStyle:
+                          const TextStyle(color: Colors.green),
                     ),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   TextField(
                     controller: _batchNumberController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Batch Number',
                       prefixIcon: Icon(Icons.qr_code_2),
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   InkWell(
                     onTap: () async {
                       final date = await showDatePicker(
                         context: context,
-                        initialDate: DateTime.now().add(Duration(days: 180)),
+                        initialDate: DateTime.now().add(const Duration(days: 180)),
                         firstDate: DateTime.now(),
-                        lastDate: DateTime.now().add(Duration(days: 3650)),
+                        lastDate: DateTime.now().add(const Duration(days: 3650)),
                       );
                       if (date != null) {
                         setState(() {
@@ -940,7 +1071,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                       }
                     },
                     child: InputDecorator(
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Expiry Date',
                         prefixIcon: Icon(Icons.calendar_today),
                         border: OutlineInputBorder(),
@@ -952,52 +1083,52 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   TextField(
                     controller: _supplierController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Supplier',
                       prefixIcon: Icon(Icons.business),
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   TextField(
                     controller: _costPriceController,
                     keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Cost Price (Optional)',
                       prefixIcon: Icon(Icons.currency_rupee),
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   TextField(
                     controller: _notesController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Notes (optional)',
                       prefixIcon: Icon(Icons.note),
                       border: OutlineInputBorder(),
                     ),
                     maxLines: 2,
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   OutlinedButton.icon(
                     onPressed: _isLoading ? null : _scanProductLabel,
-                    icon: Icon(Icons.camera_alt),
-                    label: Text('Scan Label with OCR/AI'),
+                    icon: const Icon(Icons.camera_alt),
+                    label: const Text('Scan Label with OCR/AI'),
                     style: OutlinedButton.styleFrom(
-                      minimumSize: Size(double.infinity, 48),
+                      minimumSize: const Size(double.infinity, 48),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _addToStock,
                       child: _isLoading
-                          ? CircularProgressIndicator()
-                          : Text('Add to Stock'),
+                          ? const CircularProgressIndicator()
+                          : const Text('Add to Stock'),
                     ),
                   ),
                 ],
@@ -1010,7 +1141,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
         if (_product == null)
           Card(
             child: Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1018,7 +1149,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                     'Quick Add',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -1036,7 +1167,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
             ),
           ),
 
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
 
         // Received Items List
         if (_receivedItems.isNotEmpty) ...[
@@ -1044,12 +1175,12 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
             'Recently Received',
             style: Theme.of(context).textTheme.titleMedium,
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           ..._receivedItems.map((item) => Card(
                 child: ListTile(
-                  leading: CircleAvatar(
-                    child: Icon(Icons.add_box, color: Colors.white),
+                  leading: const CircleAvatar(
                     backgroundColor: Colors.green,
+                    child: Icon(Icons.add_box, color: Colors.white),
                   ),
                   title: Text(item.productName),
                   subtitle: Text('Barcode: ${item.barcode}'),
@@ -1058,7 +1189,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                     children: [
                       Text(
                         '+${item.quantity}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
                           color: Colors.green,
@@ -1087,12 +1218,12 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
 
   Widget _buildDetailRow(String label, String value) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(color: Colors.grey)),
-          Text(value, style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(label, style: const TextStyle(color: Colors.grey)),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -1102,10 +1233,10 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Enter Barcode'),
+        title: const Text('Enter Barcode'),
         content: TextField(
           autofocus: true,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             labelText: 'Barcode',
             border: OutlineInputBorder(),
           ),
@@ -1122,7 +1253,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
+            child: const Text('Cancel'),
           ),
         ],
       ),

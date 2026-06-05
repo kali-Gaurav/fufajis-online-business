@@ -4,6 +4,7 @@ import '../../services/user_service.dart';
 import '../../models/user_model.dart';
 import '../../utils/app_theme.dart';
 import '../../providers/auth_provider.dart';
+import 'fleet_tracking_dashboard.dart';
 
 class RiderManagementScreen extends StatefulWidget {
   const RiderManagementScreen({super.key});
@@ -58,7 +59,10 @@ class _RiderManagementScreenState extends State<RiderManagementScreen> {
               final phone = _phoneController.text.trim();
               final name = _nameController.text.trim();
               if (phone.isNotEmpty && name.isNotEmpty) {
-                final owner = Provider.of<AuthProvider>(context, listen: false).currentUser;
+                final owner = Provider.of<AuthProvider>(
+                  context,
+                  listen: false,
+                ).currentUser;
                 await _userService.authorizeUser(
                   phone,
                   UserRole.deliveryAgent,
@@ -70,7 +74,9 @@ class _RiderManagementScreenState extends State<RiderManagementScreen> {
                   _phoneController.clear();
                   _nameController.clear();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Rider authorized successfully')),
+                    const SnackBar(
+                      content: Text('Rider authorized successfully'),
+                    ),
                   );
                 }
               }
@@ -87,6 +93,17 @@ class _RiderManagementScreenState extends State<RiderManagementScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Delivery Fleet'),
+        actions: [
+          TextButton.icon(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const FleetTrackingDashboard()),
+            ),
+            icon: const Icon(Icons.map, color: AppTheme.primary),
+            label: const Text('Live Map', style: TextStyle(color: AppTheme.primary)),
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: StreamBuilder<List<Map<String, dynamic>>>(
         stream: _userService.getAuthorizedRidersStream(),
@@ -102,7 +119,11 @@ class _RiderManagementScreenState extends State<RiderManagementScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.delivery_dining, size: 64, color: AppTheme.grey300),
+                  const Icon(
+                    Icons.delivery_dining,
+                    size: 64,
+                    color: AppTheme.grey300,
+                  ),
                   const SizedBox(height: 16),
                   const Text('No riders authorized yet.'),
                   const SizedBox(height: 16),
@@ -130,21 +151,34 @@ class _RiderManagementScreenState extends State<RiderManagementScreen> {
                   title: Text(rider['name'] ?? 'Unknown'),
                   subtitle: Text(rider['phoneNumber'] ?? ''),
                   trailing: IconButton(
-                    icon: const Icon(Icons.delete_outline, color: AppTheme.error),
+                    icon: const Icon(
+                      Icons.delete_outline,
+                      color: AppTheme.error,
+                    ),
                     onPressed: () async {
                       final confirm = await showDialog<bool>(
                         context: context,
                         builder: (context) => AlertDialog(
                           title: const Text('Deauthorize Rider?'),
-                          content: const Text('This rider will lose access to the Delivery Dashboard immediately.'),
+                          content: const Text(
+                            'This rider will lose access to the Delivery Dashboard immediately.',
+                          ),
                           actions: [
-                            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('No')),
-                            TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Yes, Remove')),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text('No'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: const Text('Yes, Remove'),
+                            ),
                           ],
                         ),
                       );
                       if (confirm == true) {
-                        await _userService.deauthorizeUser(rider['phoneNumber']);
+                        await _userService.deauthorizeUser(
+                          rider['phoneNumber'],
+                        );
                       }
                     },
                   ),

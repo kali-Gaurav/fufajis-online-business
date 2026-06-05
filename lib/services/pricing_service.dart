@@ -63,11 +63,18 @@ class PricingService {
       final base = entry.value;
 
       // Simulate a daily swing of -12% to +15%
-      final double swing = (rand.nextDouble() * 27.0) - 12.0; 
+      final double swing = (rand.nextDouble() * 27.0) - 12.0;
       final current = base * (1 + swing / 100.0);
 
       String category = 'groceries';
-      if (['potato', 'onion', 'tomato', 'coriander', 'spinach', 'cauliflower'].contains(key)) {
+      if ([
+        'potato',
+        'onion',
+        'tomato',
+        'coriander',
+        'spinach',
+        'cauliflower',
+      ].contains(key)) {
         category = 'vegetables';
       } else if (['mango', 'banana', 'apple'].contains(key)) {
         category = 'fruits';
@@ -87,7 +94,12 @@ class PricingService {
 
   /// Calculates Suggested Retail Price (SRP) adding markup, transport surcharge, and wastage buffers
   double calculateSuggestedRetailPrice(double mandiPrice) {
-    final totalMultiplier = 1.0 + (marginPercentage + transportChargePercentage + wastageBufferPercentage) / 100.0;
+    final totalMultiplier =
+        1.0 +
+        (marginPercentage +
+                transportChargePercentage +
+                wastageBufferPercentage) /
+            100.0;
     final suggested = mandiPrice * totalMultiplier;
     // Round to nearest rupee for clean customer pricing
     return suggested.roundToDouble();
@@ -114,7 +126,9 @@ class PricingService {
   }
 
   /// Automatically updates all eligible product prices matching current Mandi rates
-  Future<int> autoUpdateEligibleProductPrices(List<ProductModel> allProducts) async {
+  Future<int> autoUpdateEligibleProductPrices(
+    List<ProductModel> allProducts,
+  ) async {
     try {
       final config = await ShopConfigService().getShopConfig();
       if (!config.isAutoPilotEnabled) {
@@ -142,7 +156,8 @@ class PricingService {
               name: product.name,
               description: product.description,
               price: srp,
-              originalPrice: srp, // Dynamic original price equal to sale price (no forced 15% markup)
+              originalPrice:
+                  srp, // Dynamic original price equal to sale price (no forced 15% markup)
               discountPercentage: 0.0,
               unit: product.unit,
               category: product.category,
@@ -176,7 +191,9 @@ class PricingService {
               unitOptions: product.unitOptions,
             );
 
-            await productService.addProduct(updatedProd); // Overwrite / edit product
+            await productService.addProduct(
+              updatedProd,
+            ); // Overwrite / edit product
             updatedCount++;
           }
         }

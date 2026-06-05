@@ -1,13 +1,29 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:crypto/crypto.dart';
 import '../models/user_model.dart';
 import '../models/shop_branch_model.dart';
 import '../services/shop_config_service.dart';
+import '../services/customer_state.dart';
+import '../services/trusted_device_service.dart';
+import '../services/account_linking_service.dart';
+import '../services/user_service.dart';
+import '../services/cart_sync_service.dart';
+import '../services/session_service.dart';
+import '../services/audit_service.dart';
+import '../services/security_event_service.dart';
+import '../services/device_security_service.dart';
+import '../services/update_service.dart';
 
 class ShopInfo {
   final String id;
@@ -22,15 +38,29 @@ class AuthProvider with ChangeNotifier {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final LocalAuthentication _localAuth = LocalAuthentication();
 
   UserModel? _currentUser;
   UserModel? get currentUser => _currentUser;
+
+  CustomerState _customerState = CustomerState.guest;
+  CustomerState get customerState => _customerState;
+
+  final TrustedDeviceService _trustedDeviceService = TrustedDeviceService();
+  final AccountLinkingService _accountLinkingService = AccountLinkingService();
+  final UserService _userService = UserService();
+  final CartSyncService _cartSyncService = CartSyncService();
+  
+  List<Map<String, dynamic>> _recentAccounts = [];
+  List<Map<String, dynamic>> get recentAccounts => _recentAccounts;
 
   ShopBranchModel? _currentBranch;
   ShopBranchModel? get currentBranch => _currentBranch;
 
   ShopInfo? _currentShop;
-  ShopInfo? get currentShop => _currentShop ?? const ShopInfo(id: 'shop_001', name: 'Fufaji Store');
+  ShopInfo? get currentShop =>
+      _currentShop ?? const ShopInfo(id: 'shop_001', name: 'Fufaji Store');
 
   void setCurrentBranch(ShopBranchModel? branch) {
     _currentBranch = branch;
@@ -41,13 +71,13 @@ class AuthProvider with ChangeNotifier {
     _currentShop = shop;
     notifyListeners();
   }
-  
+
   bool _isLoading = false;
   bool get isLoading => _isLoading;
-  
+
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
-  
+
   bool _isLoggedIn = false;
   bool get isLoggedIn => _isLoggedIn;
 
@@ -57,190 +87,317 @@ class AuthProvider with ChangeNotifier {
   bool _isMfaStepRequired = false;
   bool get isMfaStepRequired => _isMfaStepRequired;
 
+  bool _isDeviceVerificationRequired = false;
+  bool get isDeviceVerificationRequired => _isDeviceVerificationRequired;
+
+  bool _isPinRequired = false;
+  bool get isPinRequired => _isPinRequired;
+
   String? _verificationId;
 
-  String? _emailVerificationOtp;
-  String? _verificationEmail;
-  DateTime? _emailOtpExpiry;
-  bool _isEmailVerification = false;
+  // --- Security Helpers ---
 
-  bool get isEmailVerification => _isEmailVerification;
-
-  String _getPasswordForEmail(String email) {
-    return 'FufajiSecureAuthPass_${email.hashCode}_2026';
+  Future<String> getDeviceId() async {
+    final deviceInfo = DeviceInfoPlugin();
+    if (Platform.isAndroid) {
+      final androidInfo = await deviceInfo.androidInfo;
+      return androidInfo.id;
+    } else if (Platform.isIOS) {
+      final iosInfo = await deviceInfo.iosInfo;
+      return iosInfo.identifierForVendor ?? 'unknown_ios_device';
+    }
+    return 'unknown_device';
   }
 
-  Future<void> sendEmailOTP(String email) async {
+  Future<String> getDeviceName() async {
+    final deviceInfo = DeviceInfoPlugin();
+    if (Platform.isAndroid) {
+      final androidInfo = await deviceInfo.androidInfo;
+      return '${androidInfo.manufacturer} ${androidInfo.model}';
+    } else if (Platform.isIOS) {
+      final iosInfo = await deviceInfo.iosInfo;
+      return iosInfo.name;
+    }
+    return 'Unknown Device';
+  }
+
+  // --- Session tracking ---
+  String? _currentSessionId;
+  final SessionService _sessionService = SessionService();
+
+  // --- Auth Methods ---
+
+  Future<bool> loginWithEmailPassword(String email, String password) async {
     _isLoading = true;
     _errorMessage = null;
-    _isEmailVerification = true;
     notifyListeners();
-
     try {
-      // Generate a 6-digit OTP
-      final otp = (100000 + (DateTime.now().microsecondsSinceEpoch % 900000)).toString();
-      _emailVerificationOtp = otp;
-      _verificationEmail = email;
-      _emailOtpExpiry = DateTime.now().add(const Duration(minutes: 5));
-
-      debugPrint('[Security/Auth] Sent Email OTP: $otp to email: $email');
-      
-      _isLoading = false;
-      notifyListeners();
+      final userCredential = await _auth.signInWithEmailAndPassword(email: email, password: password);
+      if (userCredential.user != null) {
+        await _onSuccessfulLogin(userCredential.user!);
+        return true;
+      }
+      return false;
     } catch (e) {
-      _errorMessage = 'Failed to send OTP: ${e.toString()}';
+      _errorMessage = 'Login failed: ${e.toString()}';
       _isLoading = false;
       notifyListeners();
+      return false;
     }
   }
 
   Future<void> sendOTP(String phoneNumber) async {
     _isLoading = true;
     _errorMessage = null;
-    _isEmailVerification = false;
     notifyListeners();
-
     try {
       await _auth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
-          await _auth.signInWithCredential(credential);
-          await checkAuthStatus();
+          final userCredential = await _auth.signInWithCredential(credential);
+          if (userCredential.user != null) await _onSuccessfulLogin(userCredential.user!);
         },
         verificationFailed: (FirebaseAuthException e) {
-          _errorMessage = e.message ?? 'Verification failed';
+          _errorMessage = e.message;
           _isLoading = false;
           notifyListeners();
         },
-        codeSent: (String verificationId, int? resendToken) {
-          _verificationId = verificationId;
+        codeSent: (String vid, int? token) {
+          _verificationId = vid;
           _isLoading = false;
           notifyListeners();
         },
-        codeAutoRetrievalTimeout: (String verificationId) {
-          _verificationId = verificationId;
-        },
+        codeAutoRetrievalTimeout: (String vid) => _verificationId = vid,
       );
     } catch (e) {
-      _errorMessage = 'Failed to send OTP: ${e.toString()}';
+      _errorMessage = e.toString();
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  Future<bool> verifyOTP(String otp, {UserRole? selectedRole}) async {
+  Future<void> sendOTPForCheckout(String phoneNumber) async {
+    return sendOTP(phoneNumber); // Re-use sendOTP but caller won't wait for auto login
+  }
+
+  Future<bool> signInWithGoogle() async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
-
     try {
-      UserCredential userCredential;
-      if (_isEmailVerification) {
-        if (_emailVerificationOtp == null || _verificationEmail == null || _emailOtpExpiry == null) {
-          _errorMessage = 'Verification session expired';
-          _isLoading = false;
-          notifyListeners();
-          return false;
-        }
-
-        if (DateTime.now().isAfter(_emailOtpExpiry!)) {
-          _errorMessage = 'OTP expired';
-          _isLoading = false;
-          notifyListeners();
-          return false;
-        }
-
-        if (_emailVerificationOtp != otp) {
-          _errorMessage = 'Invalid OTP';
-          _isLoading = false;
-          notifyListeners();
-          return false;
-        }
-
-        final email = _verificationEmail!;
-        final password = _getPasswordForEmail(email);
-
-        try {
-          userCredential = await _auth.signInWithEmailAndPassword(
-            email: email,
-            password: password,
-          );
-        } on FirebaseAuthException catch (e) {
-          if (e.code == 'user-not-found') {
-            userCredential = await _auth.createUserWithEmailAndPassword(
-              email: email,
-              password: password,
-            );
-          } else {
-            rethrow;
-          }
-        }
-      } else {
-        if (_verificationId == null) {
-          _errorMessage = 'Session expired';
-          _isLoading = false;
-          notifyListeners();
-          return false;
-        }
-
-        final credential = PhoneAuthProvider.credential(
-          verificationId: _verificationId!,
-          smsCode: otp,
-        );
-
-        userCredential = await _auth.signInWithCredential(credential);
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        _isLoading = false;
+        notifyListeners();
+        return false;
       }
-
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      final UserCredential userCredential = await _auth.signInWithCredential(credential);
       if (userCredential.user != null) {
         final user = userCredential.user!;
-        
-        // Role authorization check (Security Hardening)
-        if (selectedRole != null && selectedRole != UserRole.customer) {
-          final String contact = user.phoneNumber ?? user.email ?? '';
-          final String phoneDocId = contact.replaceAll('+', '');
-          
-          bool isAuthorized = false;
-
-          // Check user document roles
-          final userDoc = await _firestore.collection('users').doc(user.uid).get();
-          if (userDoc.exists) {
-            final rolesList = (userDoc.data()?['roles'] as List<dynamic>?)?.map((r) => r.toString()).toList() ?? [];
-            if (rolesList.contains(selectedRole.toString())) {
-              isAuthorized = true;
-            }
-          }
-
-          // Check pre_authorized_users collection if not authorized in user doc
-          if (!isAuthorized) {
-            final authDoc = await _firestore.collection('pre_authorized_users').doc(phoneDocId).get();
-            if (authDoc.exists && authDoc.data()?['role'] == selectedRole.toString()) {
-              isAuthorized = true;
-            }
-
-            if (!isAuthorized && user.email != null) {
-              final emailDocId = user.email!.replaceAll('@', '_').replaceAll('.', '_');
-              final emailAuthDoc = await _firestore.collection('pre_authorized_users').doc(emailDocId).get();
-              if (emailAuthDoc.exists && emailAuthDoc.data()?['role'] == selectedRole.toString()) {
-                isAuthorized = true;
-              }
-            }
-          }
-
-          if (!isAuthorized) {
-            await _auth.signOut();
-            _errorMessage = 'This account is not authorized for the selected role.';
-            _isLoading = false;
-            notifyListeners();
-            return false;
-          }
+        final isAuthorized = await _checkRoleAuthorization(user.email ?? '', user.uid);
+        if (!isAuthorized) {
+          await logout();
+          _errorMessage = 'Access Denied: Not authorized.';
+          notifyListeners();
+          return false;
         }
-
-        await _onSuccessfulLogin(user, selectedRole: selectedRole);
+        if (_currentUser?.role == UserRole.shopOwner || _currentUser?.role == UserRole.admin) {
+          final deviceId = await getDeviceId();
+          final isApproved = _currentUser?.approvedDevices.any((d) => d.deviceId == deviceId && d.approved) ?? false;
+          if (!isApproved) {
+            _isDeviceVerificationRequired = true;
+            notifyListeners();
+            return true;
+          }
+          _isPinRequired = true;
+          notifyListeners();
+          return true;
+        }
+        await _onSuccessfulLogin(user);
         return true;
       }
       return false;
     } catch (e) {
-      _errorMessage = 'Invalid OTP: ${e.toString()}';
+      _errorMessage = 'Google Sign-In failed: ${e.toString()}';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<void> checkAndLinkDuplicateAccount(User user) async {
+    // If the user signed in with Google, check if phone number exists
+    if (user.phoneNumber != null) {
+      final existingUid = await _accountLinkingService.checkPhoneExists(user.phoneNumber!);
+      if (existingUid != null && existingUid != user.uid) {
+         await _accountLinkingService.mergeAccounts(existingUid, user.uid);
+      }
+    }
+    // Also check email if signing in with phone, etc. 
+    if (user.email != null) {
+       final existingUid = await _accountLinkingService.checkEmailExists(user.email!);
+       if (existingUid != null && existingUid != user.uid) {
+          await _accountLinkingService.mergeAccounts(existingUid, user.uid);
+       }
+    }
+  }
+
+  Future<bool> _checkRoleAuthorization(String email, String userId) async {
+    final emailDocId = email.replaceAll('@', '_').replaceAll('.', '_');
+    final authDoc = await _firestore.collection('pre_authorized_users').doc(emailDocId).get();
+    if (authDoc.exists) {
+      final userSnap = await _firestore.collection('users').doc(userId).get();
+      if (!userSnap.exists) {
+        final roleStr = authDoc.data()?['role'] ?? 'UserRole.customer';
+        final role = UserRole.values.firstWhere((e) => e.toString() == roleStr, orElse: () => UserRole.customer);
+        final newUser = UserModel(
+          id: userId,
+          phoneNumber: '',
+          email: email,
+          name: authDoc.data()?['name'] ?? email.split('@').first,
+          role: role,
+          roles: [UserRole.customer, role],
+          isVerified: true,
+          isActive: true,
+          createdAt: DateTime.now(),
+          lastLogin: DateTime.now(),
+        );
+        await _firestore.collection('users').doc(userId).set(newUser.toMap());
+        _currentUser = newUser;
+      } else {
+        _currentUser = UserModel.fromMap(userSnap.data()!);
+      }
+      return true;
+    }
+    return _currentUser?.role != UserRole.shopOwner && _currentUser?.role != UserRole.employee;
+  }
+
+  // Delegates to DeviceSecurityService (PBKDF2) — called from auth screens
+  // that do NOT use SecurityPinScreen directly (e.g. inline PIN dialogs).
+  Future<bool> verifyPin(String pin) async {
+    if (_currentUser == null) return false;
+    final email = _currentUser!.email;
+    final valid = await DeviceSecurityService.validatePinLocally(pin, email);
+    if (valid) {
+      _isPinRequired = false;
+      notifyListeners();
+    } else {
+      _errorMessage = 'Invalid PIN';
+      notifyListeners();
+    }
+    return valid;
+  }
+
+  /// Called by SecurityPinScreen after creating a new PIN during first setup.
+  Future<void> saveOwnerPin(String email, String pbkdf2Hash) async {
+    try {
+      final snap = await _firestore
+          .collection('owners')
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
+      if (snap.docs.isNotEmpty) {
+        await snap.docs.first.reference.update({
+          'pinHash': pbkdf2Hash,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      }
+      // Also update users collection for cross-reference
+      if (_currentUser != null) {
+        await _firestore
+            .collection('users')
+            .doc(_currentUser!.id)
+            .update({'pinHash': pbkdf2Hash});
+        _currentUser = _currentUser!.copyWith(pinHash: pbkdf2Hash);
+      }
+    } catch (e) {
+      debugPrint('[AuthProvider] saveOwnerPin error: $e');
+    }
+  }
+
+  Future<bool> authenticateBiometric() async {
+    try {
+      final canCheck = await _localAuth.canCheckBiometrics;
+      if (!canCheck) return false;
+      return await _localAuth.authenticate(
+        localizedReason: 'Authenticate to access Owner Dashboard',
+        options: const AuthenticationOptions(stickyAuth: true, biometricOnly: true),
+      );
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<void> requestDeviceApproval() async {
+    if (_currentUser == null) return;
+    final deviceId = await getDeviceId();
+    final deviceName = await getDeviceName();
+    final newFingerprint = DeviceFingerprint(deviceId: deviceId, deviceName: deviceName, approved: false, registeredAt: DateTime.now());
+    final updatedDevices = [..._currentUser!.approvedDevices, newFingerprint];
+    await _firestore.collection('users').doc(_currentUser!.id).update({
+      'approvedDevices': updatedDevices.map((d) => d.toMap()).toList(),
+    });
+    _isDeviceVerificationRequired = true;
+    _errorMessage = 'Device approval requested.';
+    notifyListeners();
+  }
+
+  /// SECURITY FIX: quickLogin no longer creates an anonymous Firebase user.
+  /// Anonymous users could place orders without verification — a critical flaw.
+  ///
+  /// Quick login now means: enter guest mode via GuestProvider (local only).
+  /// Use GuestProvider.enterGuestMode() from the UI layer.
+  /// This method is kept as a no-op to avoid breaking callers gradually.
+  @Deprecated('Use GuestProvider.enterGuestMode() instead')
+  Future<bool> quickLogin(String name, String phone) async {
+    _isLoading = false;
+    _errorMessage =
+        'Quick login now uses guest mode. Please use GuestProvider.enterGuestMode().';
+    notifyListeners();
+    return false;
+  }
+
+  Future<bool> verifyOTP(String otp, {UserRole? selectedRole}) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      if (_verificationId == null) return false;
+      final credential = PhoneAuthProvider.credential(verificationId: _verificationId!, smsCode: otp);
+      final userCredential = await _auth.signInWithCredential(credential);
+      if (userCredential.user != null) {
+        await _onSuccessfulLogin(userCredential.user!, selectedRole: selectedRole);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> verifyOTPAndAutoCreateAccount(String otp) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      if (_verificationId == null) return false;
+      final credential = PhoneAuthProvider.credential(verificationId: _verificationId!, smsCode: otp);
+      final userCredential = await _auth.signInWithCredential(credential);
+      if (userCredential.user != null) {
+        // Auto create account
+        final userModel = await _userService.ensureUserDocExists(userCredential.user!);
+        await _onSuccessfulLogin(userCredential.user!, selectedRole: userModel.role);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      _errorMessage = e.toString();
       _isLoading = false;
       notifyListeners();
       return false;
@@ -249,34 +406,41 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> _onSuccessfulLogin(User user, {UserRole? selectedRole}) async {
     _isLoggedIn = true;
-    
-    try {
-      final branches = await ShopConfigService().getBranches();
-      if (branches.isNotEmpty) {
-        _currentBranch = branches.firstWhere((b) => b.isPrimary, orElse: () => branches.first);
-      }
-    } catch (e) {
-      debugPrint('Failed to load initial branch on successful login: $e');
-    }
-    
+    _customerState = CustomerState.verifiedCustomer;
     _startUserListener(user.uid, defaultRole: selectedRole);
-    
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', true);
     await _saveFCMToken(user.uid);
-    
-    final String phoneNumber = user.phoneNumber ?? '';
-    final String contact = user.email ?? phoneNumber;
-    final String docId = contact.replaceAll('+', '').replaceAll('@', '_').replaceAll('.', '_');
-    
-    final authDoc = await _firestore
-        .collection('pre_authorized_users')
-        .doc(docId)
-        .get();
 
-    if (authDoc.exists && authDoc.data()?['isMfaRequired'] == true) {
-      _isMfaStepRequired = true;
+    // Register trusted device
+    await _trustedDeviceService.registerDevice(user.uid);
+    _customerState = CustomerState.trustedDevice;
+
+    // Merge cart
+    await _cartSyncService.mergeCarts(user.uid);
+
+    // Create Firestore session (enables remote logout / session revocation)
+    try {
+      _currentSessionId = await _sessionService.createSession(user.uid);
+      _sessionService.listenToSession(_currentSessionId!, () async {
+        // Session was revoked remotely — force logout
+        await logout();
+        await SecurityEventService().logEvent(
+          event: SecurityEventType.sessionRevoked,
+          userId: user.uid,
+        );
+      });
+    } catch (e) {
+      debugPrint('[AuthProvider] Session creation failed: $e');
     }
+
+    // Audit log
+    final displayName = user.displayName ?? user.email ?? user.phoneNumber ?? user.uid;
+    await AuditService().logLogin(user.uid, displayName);
+
+    // Track App Version for adoption metrics
+    unawaited(UpdateService().trackUserVersion(user.uid));
 
     _isLoading = false;
     notifyListeners();
@@ -288,167 +452,148 @@ class AuthProvider with ChangeNotifier {
     _isProfileLoading = true;
     notifyListeners();
     _userSubscription?.cancel();
-    _userSubscription = _firestore
-        .collection('users')
-        .doc(userId)
-        .snapshots()
-        .listen((snapshot) async {
-      if (snapshot.exists && snapshot.data() != null) {
+    _userSubscription = _firestore.collection('users').doc(userId).snapshots().listen((snapshot) async {
+      if (snapshot.exists) {
         _currentUser = UserModel.fromMap(snapshot.data()!);
+        _saveRecentAccount(_currentUser!);
         _isProfileLoading = false;
-        
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('cached_role', _currentUser!.role.toString());
-
-        if (_currentBranch == null) {
-          try {
-            final branches = await ShopConfigService().getBranches();
-            if (branches.isNotEmpty) {
-              _currentBranch = branches.firstWhere((b) => b.isPrimary, orElse: () => branches.first);
-            }
-          } catch (e) {
-            debugPrint('Failed to load initial branch in auth listener: $e');
-          }
-        }
-
         notifyListeners();
-      } else {
-        // Fallback: Create user document if it doesn't exist
-        final user = _auth.currentUser;
-        if (user != null) {
-          final isEmail = user.email != null && user.email!.isNotEmpty;
-          final contact = isEmail ? user.email! : (user.phoneNumber ?? '');
-          final finalRole = defaultRole ?? UserRole.customer;
-
-          final newUser = UserModel(
-            id: userId,
-            phoneNumber: isEmail ? '' : contact,
-            email: isEmail ? contact : null,
-            name: user.displayName ?? contact.split('@').first,
-            role: finalRole,
-            roles: [UserRole.customer, if (finalRole != UserRole.customer) finalRole],
-            isVerified: true,
-            isActive: true,
-            createdAt: DateTime.now(),
-            lastLogin: DateTime.now(),
-          );
-
-          await _firestore.collection('users').doc(userId).set(newUser.toMap(), SetOptions(merge: true));
-        }
       }
     });
   }
 
-  Future<void> demoLogin(String phoneNumber, String name) async {
-    _isLoading = true;
-    _currentUser = UserModel(
-      id: 'user_001',
-      phoneNumber: phoneNumber,
-      name: name,
-      role: UserRole.customer,
-      createdAt: DateTime.now(),
-      lastLogin: DateTime.now(),
-    );
-    _isLoggedIn = true;
-    _isLoading = false;
-    notifyListeners();
+  Future<void> _saveRecentAccount(UserModel user) async {
+    final prefs = await SharedPreferences.getInstance();
+    final recentStr = prefs.getString('recent_accounts');
+    List<dynamic> accounts = recentStr != null ? jsonDecode(recentStr) : [];
+    
+    // Remove if exists
+    accounts.removeWhere((a) => a['id'] == user.id);
+    
+    // Add to top
+    accounts.insert(0, {
+      'id': user.id,
+      'name': user.name,
+      'phoneNumber': user.phoneNumber,
+    });
+    
+    // Keep max 3
+    if (accounts.length > 3) accounts = accounts.sublist(0, 3);
+    
+    await prefs.setString('recent_accounts', jsonEncode(accounts));
+    _recentAccounts = accounts.map((e) => e as Map<String, dynamic>).toList();
+  }
+
+  Future<void> loadRecentAccounts() async {
+    final prefs = await SharedPreferences.getInstance();
+    final recentStr = prefs.getString('recent_accounts');
+    if (recentStr != null) {
+      final List<dynamic> accounts = jsonDecode(recentStr);
+      _recentAccounts = accounts.map((e) => e as Map<String, dynamic>).toList();
+      notifyListeners();
+    }
   }
 
   Future<bool> checkAuthStatus() async {
+    await loadRecentAccounts();
     final prefs = await SharedPreferences.getInstance();
-    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-    if (isLoggedIn && _auth.currentUser != null) {
+    final loggedIn = prefs.getBool('isLoggedIn') ?? false;
+    
+    if (loggedIn && _auth.currentUser != null) {
       _isLoggedIn = true;
-      _isProfileLoading = true;
-      notifyListeners();
+      final isTrusted = await _trustedDeviceService.isDeviceTrusted(_auth.currentUser!.uid);
+      _customerState = isTrusted ? CustomerState.trustedDevice : CustomerState.verifiedCustomer;
       
-      final doc = await _firestore.collection('users').doc(_auth.currentUser!.uid).get();
-      if (doc.exists) {
-        _currentUser = UserModel.fromMap(doc.data()!);
-        _isProfileLoading = false;
-        _startUserListener(_auth.currentUser!.uid);
-      } else {
-        // Wait for listener to catch the document if it's being created by a Cloud Function
-        _startUserListener(_auth.currentUser!.uid);
-      }
+      _startUserListener(_auth.currentUser!.uid);
+      return true;
     }
-    return _isLoggedIn;
+    
+    // Determine guest state based on local cart
+    final localCart = await _cartSyncService.loadLocalCart();
+    _customerState = localCart.isNotEmpty ? CustomerState.guestWithCart : CustomerState.guest;
+    
+    return false;
   }
 
   Future<void> logout() async {
+    final userId    = _currentUser?.id ?? _auth.currentUser?.uid;
+    final userName  = _currentUser?.name ?? _auth.currentUser?.email ?? 'Unknown';
+
+    // 1. Revoke Firestore session (triggers remote logout on other screens)
+    if (_currentSessionId != null && userId != null) {
+      try {
+        await _sessionService.revokeSession(
+            _currentSessionId!, userId, userName);
+      } catch (e) {
+        debugPrint('[AuthProvider] Session revoke error: $e');
+      }
+    }
+    _sessionService.stopSessionListener();
+    _currentSessionId = null;
+
+    // 2. Revoke trusted device record
+    if (_currentUser != null) {
+      final deviceId = await DeviceSecurityService.getDeviceId();
+      await _trustedDeviceService.revokeDevice(_currentUser!.id, deviceId);
+    }
+
+    // 3. Audit log before clearing user
+    if (userId != null) {
+      await AuditService().logLogout(userId, userName);
+    }
+
+    // 4. Clear Firebase auth
     _userSubscription?.cancel();
+    await _googleSignIn.signOut();
     await _auth.signOut();
-    _currentUser = null;
-    _isLoggedIn = false;
+
+    // 5. Clear local state
+    _currentUser     = null;
+    _isLoggedIn      = false;
+    _customerState   = CustomerState.guest;
+    _isPinRequired   = false;
+    _isDeviceVerificationRequired = false;
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', false);
+    // Note: Do NOT clear guest cart — it persists for browsing.
+
     notifyListeners();
-  }
-
-  /// Request a role update via Cloud Function (Security Hardening)
-  Future<bool> requestRoleUpdate(String targetUserId, UserRole role) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
-    try {
-      final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('setRole');
-      final result = await callable.call({
-        'targetUserId': targetUserId,
-        'newRole': role.toString(),
-      });
-
-      _isLoading = false;
-      notifyListeners();
-      return result.data['success'] == true;
-    } catch (e) {
-      _errorMessage = 'Failed to update role: ${e.toString()}';
-      _isLoading = false;
-      notifyListeners();
-      return false;
-    }
-  }
-
-  /// Switch the active role for the current user (Step 1.5)
-  Future<void> switchRole(UserRole newRole) async {
-    if (_currentUser == null || !_currentUser!.roles.contains(newRole)) return;
-    
-    _isLoading = true;
-    notifyListeners();
-    
-    try {
-      // Update Firestore
-      await _firestore.collection('users').doc(_currentUser!.id).update({
-        'role': newRole.toString(),
-      });
-      
-      // Note: _startUserListener will catch the change and update _currentUser locally
-      
-      _isLoading = false;
-      notifyListeners();
-    } catch (e) {
-      _errorMessage = 'Failed to switch role: ${e.toString()}';
-      _isLoading = false;
-      notifyListeners();
-    }
   }
 
   Future<void> _saveFCMToken(String userId) async {
     final token = await FirebaseMessaging.instance.getToken();
-    if (token != null) {
-      await _firestore.collection('users').doc(userId).update({'fcmToken': token});
-    }
+    if (token != null) await _firestore.collection('users').doc(userId).update({'fcmToken': token});
   }
 
   Future<bool> linkGoogleAccount() async {
     _isLoading = true;
     notifyListeners();
-    // MFA Link logic removed temporarily to resolve package conflict in IDE
     await Future.delayed(const Duration(seconds: 2));
     _isMfaStepRequired = false;
     _isLoading = false;
     notifyListeners();
     return true;
+  }
+
+  Future<void> updateProfile({String? name, String? email, String? district, String? village}) async {
+    if (_currentUser == null) return;
+    await _firestore.collection('users').doc(_currentUser!.id).update({
+      if (name != null) 'name': name,
+      if (email != null) 'email': email,
+      if (district != null) 'district': district,
+      if (village != null) 'village': village,
+    });
+  }
+
+  Future<bool> requestRoleUpdate(String targetUserId, UserRole role) async {
+    try {
+      final callable = FirebaseFunctions.instance.httpsCallable('setRole');
+      final result = await callable.call({'targetUserId': targetUserId, 'newRole': role.toString()});
+      return result.data['success'] == true;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<List<Address>> getAddresses() async {
@@ -460,9 +605,7 @@ class AuthProvider with ChangeNotifier {
   Future<void> setDefaultAddress(String addressId) async {
     if (_currentUser == null) return;
     final query = await _firestore.collection('users').doc(_currentUser!.id).collection('addresses').get();
-    for (var doc in query.docs) {
-      await doc.reference.update({'isDefault': doc.id == addressId});
-    }
+    for (var doc in query.docs) await doc.reference.update({'isDefault': doc.id == addressId});
   }
 
   Future<void> deleteAddress(String addressId) async {
@@ -480,17 +623,8 @@ class AuthProvider with ChangeNotifier {
     await _firestore.collection('users').doc(_currentUser!.id).collection('addresses').doc(addressId).update(address.toMap());
   }
 
-  Future<void> updateProfile({String? name, String? email, String? district, String? village}) async {
+  Future<void> updateCreditBalance(double change) async {
     if (_currentUser == null) return;
-    await _firestore.collection('users').doc(_currentUser!.id).update({
-      if (name != null) 'name': name,
-      if (email != null) 'email': email,
-      if (district != null) 'district': district,
-      if (village != null) 'village': village,
-    });
-  }
-
-  String generateOrderNumber() {
-    return 'HLM-${DateTime.now().millisecondsSinceEpoch}';
+    await _firestore.collection('users').doc(_currentUser!.id).update({'creditBalance': FieldValue.increment(change)});
   }
 }

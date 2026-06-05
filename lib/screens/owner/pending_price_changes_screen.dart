@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 /// Pending Price Changes Screen
 /// Displays pending price changes for review and approval
 class PendingPriceChangesScreen extends StatefulWidget {
-  const PendingPriceChangesScreen({Key? key}) : super(key: key);
+  const PendingPriceChangesScreen({super.key});
 
   @override
   State<PendingPriceChangesScreen> createState() =>

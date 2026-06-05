@@ -23,7 +23,10 @@ class ReorderService {
   // ─── RECENT ORDERS ──────────────────────────────────────────────────
 
   /// Retrieve user's recent completed orders for "Buy Again" display
-  Future<List<OrderModel>> getRecentOrders(String userId, {int limit = 5}) async {
+  Future<List<OrderModel>> getRecentOrders(
+    String userId, {
+    int limit = 5,
+  }) async {
     try {
       final snapshot = await _db
           .collection('orders')
@@ -109,15 +112,17 @@ class ReorderService {
       orderId: order.id,
       orderNumber: order.orderNumber,
       orderItems: order.items
-          .map((item) => {
-                'productId': item.productId,
-                'productName': item.productName,
-                'productImage': item.productImage,
-                'unit': item.unit,
-                'quantity': item.quantity,
-                'price': item.price,
-                'selectedVariant': item.selectedVariant,
-              })
+          .map(
+            (item) => {
+              'productId': item.productId,
+              'productName': item.productName,
+              'productImage': item.productImage,
+              'unit': item.unit,
+              'quantity': item.quantity,
+              'price': item.price,
+              'selectedVariant': item.selectedVariant,
+            },
+          )
           .toList(),
       customName: customName,
     );
@@ -135,9 +140,9 @@ class ReorderService {
           .collection('reorder_templates')
           .doc(template.id)
           .update({
-        'usageCount': FieldValue.increment(1),
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+            'usageCount': FieldValue.increment(1),
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
     } catch (e) {
       debugPrint('[ReorderService] Error updating usage count: $e');
     }
@@ -159,7 +164,10 @@ class ReorderService {
       cartProvider.clearCart();
 
       for (var item in order.items) {
-        final prodDoc = await _db.collection('products').doc(item.productId).get();
+        final prodDoc = await _db
+            .collection('products')
+            .doc(item.productId)
+            .get();
 
         if (!prodDoc.exists) {
           unavailableItems.add(item.productName);
@@ -184,7 +192,9 @@ class ReorderService {
         // Match unit option variant
         ProductUnitOption? matchedOption;
         if (item.selectedVariant != null) {
-          final options = product.unitOptions.where((opt) => opt.id == item.selectedVariant);
+          final options = product.unitOptions.where(
+            (opt) => opt.id == item.selectedVariant,
+          );
           if (options.isNotEmpty) {
             matchedOption = options.first;
           }
@@ -232,7 +242,10 @@ class ReorderService {
       cartProvider.clearCart();
 
       for (var item in template.items) {
-        final prodDoc = await _db.collection('products').doc(item.productId).get();
+        final prodDoc = await _db
+            .collection('products')
+            .doc(item.productId)
+            .get();
 
         if (!prodDoc.exists) {
           unavailableItems.add(item.productName);
@@ -254,7 +267,9 @@ class ReorderService {
 
         ProductUnitOption? matchedOption;
         if (item.selectedVariant != null) {
-          final options = product.unitOptions.where((opt) => opt.id == item.selectedVariant);
+          final options = product.unitOptions.where(
+            (opt) => opt.id == item.selectedVariant,
+          );
           if (options.isNotEmpty) {
             matchedOption = options.first;
           }
@@ -317,13 +332,19 @@ class ReorderResult {
     if (addedItems.isEmpty) return 'None of the items are currently available.';
 
     final parts = <String>[];
-    parts.add('${addedItems.length} item${addedItems.length > 1 ? 's' : ''} added to cart.');
+    parts.add(
+      '${addedItems.length} item${addedItems.length > 1 ? 's' : ''} added to cart.',
+    );
 
     if (hasUnavailableItems) {
-      parts.add('${unavailableItems.length} item${unavailableItems.length > 1 ? 's' : ''} unavailable.');
+      parts.add(
+        '${unavailableItems.length} item${unavailableItems.length > 1 ? 's' : ''} unavailable.',
+      );
     }
     if (hasPriceChanges) {
-      parts.add('${priceChangedItems.length} price${priceChangedItems.length > 1 ? 's' : ''} updated.');
+      parts.add(
+        '${priceChangedItems.length} price${priceChangedItems.length > 1 ? 's' : ''} updated.',
+      );
     }
 
     return parts.join(' ');

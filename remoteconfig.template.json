@@ -1,0 +1,63 @@
+{
+  "conditions": [],
+  "parameters": {
+    "delivery_radius_km": {
+      "defaultValue": { "value": "15" },
+      "description": "Maximum delivery radius in kilometers",
+      "valueType": "STRING"
+    },
+    "free_delivery_above": {
+      "defaultValue": { "value": "499" },
+      "description": "Order amount above which delivery is free (INR)",
+      "valueType": "STRING"
+    },
+    "standard_delivery_fee": {
+      "defaultValue": { "value": "30" },
+      "description": "Standard delivery fee in INR",
+      "valueType": "STRING"
+    },
+    "express_delivery_fee": {
+      "defaultValue": { "value": "60" },
+      "description": "Express delivery fee in INR",
+      "valueType": "STRING"
+    },
+    "minimum_order_value": {
+      "defaultValue": { "value": "99" },
+      "description": "Minimum order value in INR",
+      "valueType": "STRING"
+    },
+    "app_maintenance_mode": {
+      "defaultValue": { "value": "false" },
+      "description": "Put app in maintenance mode when true",
+      "valueType": "STRING"
+    },
+    "force_update_version": {
+      "defaultValue": { "value": "1.0.0" },
+      "description": "Minimum app version required; older versions are forced to update",
+      "valueType": "STRING"
+    },
+    "shop_is_open": {
+      "defaultValue": { "value": "true" },
+      "description": "Toggle shop open/closed without an app update",
+      "valueType": "STRING"
+    },
+    "flash_sale_active": {
+      "defaultValue": { "value": "false" },
+      "description": "Enable flash sale banner and pricing",
+      "valueType": "STRING"
+    },
+    "flash_sale_discount_percent": {
+      "defaultValue": { "value": "0" },
+      "description": "Discount percentage applied during flash sale",
+      "valueType": "STRING"
+    }
+  },
+  "version": {
+    "versionNumber": "1",
+    "updateTime": "2026-06-03T00:00:00Z",
+    "updateUser": { "email": "anthonynagar1122@gmail.com" },
+    "description": "Initial production Remote Config template",
+    "updateOrigin": "REST_API",
+    "updateType": "INCREMENTAL_UPDATE"
+  }
+}

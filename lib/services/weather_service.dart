@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 
 /// Weather alert model for hyperlocal delivery warnings
 class WeatherAlert {
-  final String condition;    // e.g. 'Rain', 'Thunderstorm', 'Clear'
+  final String condition; // e.g. 'Rain', 'Thunderstorm', 'Clear'
   final String description;
   final double tempCelsius;
   final int humidity;
@@ -27,8 +27,12 @@ class WeatherAlert {
 
 class WeatherService {
   // Free-tier OpenWeatherMap API key (set via env or config)
-  static const String _apiKey = String.fromEnvironment('OPENWEATHER_API_KEY', defaultValue: '');
-  static const String _baseUrl = 'https://api.openweathermap.org/data/2.5/weather';
+  static const String _apiKey = String.fromEnvironment(
+    'OPENWEATHER_API_KEY',
+    defaultValue: '',
+  );
+  static const String _baseUrl =
+      'https://api.openweathermap.org/data/2.5/weather';
 
   /// Fetches current weather for a given lat/lng.
   /// Falls back to a safe default if the API key is missing or the call fails.
@@ -76,16 +80,20 @@ class WeatherService {
 
     if (['Thunderstorm', 'Tornado', 'Squall'].contains(condition)) {
       hasWarning = true;
-      warningMessage = '⚠️ Severe weather alert! Deliveries may be delayed by 30-60 minutes due to $description.';
+      warningMessage =
+          '⚠️ Severe weather alert! Deliveries may be delayed by 30-60 minutes due to $description.';
     } else if (condition == 'Rain' || condition == 'Drizzle') {
       hasWarning = true;
-      warningMessage = '🌧️ Rain expected in your area. Deliveries may take 15-30 extra minutes.';
+      warningMessage =
+          '🌧️ Rain expected in your area. Deliveries may take 15-30 extra minutes.';
     } else if (temp >= 45) {
       hasWarning = true;
-      warningMessage = '🔥 Extreme heat (${temp.round()}°C)! Perishable items will use insulated packaging.';
+      warningMessage =
+          '🔥 Extreme heat (${temp.round()}°C)! Perishable items will use insulated packaging.';
     } else if (windSpeed > 15) {
       hasWarning = true;
-      warningMessage = '💨 High winds detected. Rider safety measures may add 10-20 min delay.';
+      warningMessage =
+          '💨 High winds detected. Rider safety measures may add 10-20 min delay.';
     }
 
     return WeatherAlert(
@@ -116,7 +124,8 @@ class WeatherService {
         windSpeed: 8.5,
         iconCode: '10d',
         hasWarning: true,
-        warningMessage: '🌧️ Light rain expected in your area. Deliveries may take 15-30 extra minutes.',
+        warningMessage:
+            '🌧️ Light rain expected in your area. Deliveries may take 15-30 extra minutes.',
       );
     } else if (hour >= 18 || hour < 6) {
       // Night — clear skies

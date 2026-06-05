@@ -212,8 +212,8 @@ class _NotificationTile extends StatelessWidget {
         trailing: PopupMenuButton(
           itemBuilder: (context) => [
             PopupMenuItem(
-              child: const Text('Delete'),
               onTap: onDelete,
+              child: const Text('Delete'),
             ),
           ],
         ),

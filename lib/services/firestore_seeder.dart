@@ -23,18 +23,23 @@ class FirestoreSeeder {
         'createdAt': FieldValue.serverTimestamp(),
       });
 
-      await _db.collection('shops').doc(shopId).collection('branches').doc(branchId).set({
-        'id': branchId,
-        'name': 'Main Jaipur Branch',
-        'shopId': shopId,
-        'isPrimary': true,
-        'phone': '919876543210',
-        'address': 'Plot 45, Tonk Road, Jaipur, Rajasthan',
-        'latitude': 26.9124,
-        'longitude': 75.7873,
-        'maxDeliveryRadiusKm': 8.0,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+      await _db
+          .collection('shops')
+          .doc(shopId)
+          .collection('branches')
+          .doc(branchId)
+          .set({
+            'id': branchId,
+            'name': 'Main Jaipur Branch',
+            'shopId': shopId,
+            'isPrimary': true,
+            'phone': '919876543210',
+            'address': 'Plot 45, Tonk Road, Jaipur, Rajasthan',
+            'latitude': 26.9124,
+            'longitude': 75.7873,
+            'maxDeliveryRadiusKm': 8.0,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
 
       debugPrint('[Seeder] Shop & Branch configurations seeded.');
 
@@ -58,7 +63,8 @@ class FirestoreSeeder {
         ProductModel(
           id: 'prod_tomato',
           name: 'Fresh Organic Tomatoes (Desi)',
-          description: 'Directly sourced juicy, farm-fresh desi organic tomatoes. Perfect for curries, salads, and chutneys.',
+          description:
+              'Directly sourced juicy, farm-fresh desi organic tomatoes. Perfect for curries, salads, and chutneys.',
           price: 40.0,
           originalPrice: 40.0,
           unit: 'kg',
@@ -66,7 +72,8 @@ class FirestoreSeeder {
           subCategory: 'fresh-veggies',
           shopId: shopId,
           shopName: shopName,
-          imageUrl: 'https://images.unsplash.com/photo-1595855759920-86582396756a?w=400',
+          imageUrl:
+              'https://images.unsplash.com/photo-1595855759920-86582396756a?w=400',
           stockQuantity: 150,
           minimumStock: 20,
           district: 'Jaipur',
@@ -83,13 +90,14 @@ class FirestoreSeeder {
               'shelf': '3',
               'bin': 'A',
               'category': 'vegetables',
-            }
+            },
           },
         ),
         ProductModel(
           id: 'prod_banana',
           name: 'Organic Bananas (Robusta)',
-          description: 'Naturally ripened chemical-free bananas packed with energy and potassium.',
+          description:
+              'Naturally ripened chemical-free bananas packed with energy and potassium.',
           price: 50.0,
           originalPrice: 60.0,
           unit: 'dozen',
@@ -97,7 +105,8 @@ class FirestoreSeeder {
           subCategory: 'fresh-fruits',
           shopId: shopId,
           shopName: shopName,
-          imageUrl: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400',
+          imageUrl:
+              'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400',
           stockQuantity: 80,
           minimumStock: 15,
           district: 'Sawai Madhopur',
@@ -114,13 +123,14 @@ class FirestoreSeeder {
               'shelf': '1',
               'bin': 'B',
               'category': 'fruits',
-            }
+            },
           },
         ),
         ProductModel(
           id: 'prod_atta',
           name: 'Sujata Chakki Fresh Atta',
-          description: '100% whole wheat chakki fresh atta with natural dietary fibers.',
+          description:
+              '100% whole wheat chakki fresh atta with natural dietary fibers.',
           price: 420.0,
           originalPrice: 420.0,
           unit: '10kg bag',
@@ -128,7 +138,8 @@ class FirestoreSeeder {
           subCategory: 'flours',
           shopId: shopId,
           shopName: shopName,
-          imageUrl: 'https://images.unsplash.com/photo-1574316071802-0d684efa7bf5?w=400',
+          imageUrl:
+              'https://images.unsplash.com/photo-1574316071802-0d684efa7bf5?w=400',
           stockQuantity: 120,
           minimumStock: 25,
           district: 'Jaipur',
@@ -144,13 +155,14 @@ class FirestoreSeeder {
               'shelf': '2',
               'bin': 'C',
               'category': 'groceries',
-            }
+            },
           },
         ),
         ProductModel(
           id: 'prod_basmati_rice',
           name: 'Premium Basmati Rice (Rozana)',
-          description: 'Long grain, aromatic Rozana Basmati Rice perfect for daily use.',
+          description:
+              'Long grain, aromatic Rozana Basmati Rice perfect for daily use.',
           price: 95.0,
           originalPrice: 110.0,
           unit: 'kg',
@@ -158,7 +170,8 @@ class FirestoreSeeder {
           subCategory: 'rice-grains',
           shopId: shopId,
           shopName: shopName,
-          imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400',
+          imageUrl:
+              'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400',
           stockQuantity: 200,
           minimumStock: 30,
           district: 'Kota',
@@ -174,13 +187,14 @@ class FirestoreSeeder {
               'shelf': '1',
               'bin': 'D',
               'category': 'groceries',
-            }
+            },
           },
         ),
         ProductModel(
           id: 'prod_milk',
           name: 'Fufaji Fresh Farm Milk (A2)',
-          description: 'Pure, organic, unpasteurized A2 cow milk delivered directly from local dairy farms.',
+          description:
+              'Pure, organic, unpasteurized A2 cow milk delivered directly from local dairy farms.',
           price: 64.0,
           originalPrice: 64.0,
           unit: 'litre',
@@ -188,7 +202,8 @@ class FirestoreSeeder {
           subCategory: 'milk',
           shopId: shopId,
           shopName: shopName,
-          imageUrl: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400',
+          imageUrl:
+              'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400',
           stockQuantity: 60,
           minimumStock: 10,
           district: 'Jaipur',
@@ -204,7 +219,7 @@ class FirestoreSeeder {
               'shelf': '1',
               'bin': 'A',
               'category': 'dairy',
-            }
+            },
           },
         ),
       ];
@@ -229,7 +244,9 @@ class FirestoreSeeder {
         await changesRef.add({
           'oldPrice': product.price * 1.15,
           'newPrice': product.price,
-          'createdAt': Timestamp.fromDate(DateTime.now().subtract(const Duration(days: 65))),
+          'createdAt': Timestamp.fromDate(
+            DateTime.now().subtract(const Duration(days: 65)),
+          ),
           'note': 'Weekly local market adjustment',
         });
 
@@ -237,13 +254,17 @@ class FirestoreSeeder {
         await changesRef.add({
           'oldPrice': product.price * 0.95,
           'newPrice': product.price * 1.15,
-          'createdAt': Timestamp.fromDate(DateTime.now().subtract(const Duration(days: 80))),
+          'createdAt': Timestamp.fromDate(
+            DateTime.now().subtract(const Duration(days: 80)),
+          ),
           'note': 'Procurement cost adjustment',
         });
       }
       debugPrint('[Seeder] Price history streams successfully populated.');
 
-      debugPrint('[Seeder] Seeding completely successfully. Ready for real-time operation!');
+      debugPrint(
+        '[Seeder] Seeding completely successfully. Ready for real-time operation!',
+      );
     } catch (e) {
       debugPrint('[Seeder] ERROR seeding catalog: $e');
     }

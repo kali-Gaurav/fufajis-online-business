@@ -230,8 +230,9 @@ class HybridSubstituteService {
 
     // Price proximity (within 20% price range = max score)
     final priceDelta = (candidate.price - original.price).abs() / original.price;
-    if (priceDelta <= 0.05) score += 20;
-    else if (priceDelta <= 0.10) score += 15;
+    if (priceDelta <= 0.05) {
+      score += 20;
+    } else if (priceDelta <= 0.10) score += 15;
     else if (priceDelta <= 0.20) score += 10;
 
     // Customer's preferred brand

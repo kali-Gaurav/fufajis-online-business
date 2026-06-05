@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:lottie/lottie.dart';
 import '../services/gemini_service.dart';
 import '../utils/app_theme.dart';
 import '../providers/product_provider.dart';

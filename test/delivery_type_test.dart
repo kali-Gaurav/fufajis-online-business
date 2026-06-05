@@ -13,7 +13,7 @@ void main() {
 
     test('DeliveryTypeOption.allOptions returns all options', () {
       final options = DeliveryTypeOption.allOptions;
-      expect(options.length, equals(4));
+      expect(options.length, equals(DeliveryType.values.length));
       expect(options.map((e) => e.type).toSet(), equals(DeliveryType.values.toSet()));
     });
 
@@ -25,7 +25,7 @@ void main() {
     });
 
     test('Standard delivery option has correct values', () {
-      final standard = DeliveryTypeOption.standard;
+      const standard = DeliveryTypeOption.standard;
       expect(standard.name, equals('Standard Delivery'));
       expect(standard.price, equals(0));
       expect(standard.estimatedDays, equals(2));
@@ -33,7 +33,7 @@ void main() {
     });
 
     test('Express delivery option has correct values', () {
-      final express = DeliveryTypeOption.express;
+      const express = DeliveryTypeOption.express;
       expect(express.name, equals('Express Delivery'));
       expect(express.price, equals(50));
       expect(express.estimatedDays, equals(1));
@@ -41,7 +41,7 @@ void main() {
     });
 
     test('Same day delivery option has correct values', () {
-      final sameDay = DeliveryTypeOption.sameDay;
+      const sameDay = DeliveryTypeOption.sameDay;
       expect(sameDay.name, equals('Same Day Delivery'));
       expect(sameDay.price, equals(100));
       expect(sameDay.estimatedDays, equals(0));
@@ -49,7 +49,7 @@ void main() {
     });
 
     test('Village delivery option has correct values', () {
-      final village = DeliveryTypeOption.villageDelivery;
+      const village = DeliveryTypeOption.villageDelivery;
       expect(village.name, equals('Village Delivery'));
       expect(village.price, equals(30));
       expect(village.estimatedDays, equals(4));

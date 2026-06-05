@@ -121,7 +121,7 @@ class _OperatingHoursScreenState extends State<OperatingHoursScreen> {
                 title: const Text('Auto-Close Outside Hours', style: TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: const Text('Automatically marks the shop as closed in the customer app outside operating hours.'),
                 value: config.autoCloseOutsideHours,
-                activeColor: AppTheme.primary,
+                activeThumbColor: AppTheme.primary,
                 onChanged: (val) async {
                   await provider.updateShopConfig(config.copyWith(autoCloseOutsideHours: val));
                 },
@@ -222,7 +222,7 @@ class _OperatingHoursScreenState extends State<OperatingHoursScreen> {
                               ),
                             Switch(
                               value: hours.isOpen,
-                              activeColor: AppTheme.primary,
+                              activeThumbColor: AppTheme.primary,
                               onChanged: (val) async {
                                 final updated = OperatingHours(
                                   isOpen: val,

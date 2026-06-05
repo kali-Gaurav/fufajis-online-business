@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:speech_to_text/speech_to_text.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 import '../models/product_model.dart';
 import 'gemini_service.dart';

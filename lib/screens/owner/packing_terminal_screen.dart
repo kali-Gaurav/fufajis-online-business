@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
+import 'package:intl/intl.dart';
 import '../../models/order_model.dart';
 import '../../models/product_model.dart';
 import '../../providers/product_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../services/replacement_service.dart';
 import '../../services/whatsapp_notification_service.dart';
+import '../../services/order_service.dart';
 import '../../utils/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -23,6 +26,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
   final Map<String, bool> _packedItems = {};
   final Map<String, double> _itemWeights = {};
   final Map<String, bool> _outOfStockItems = {};
+  bool _isLoading = false;
   
   // Step 29.4: Packing timer
   Stopwatch? _packingTimer;
@@ -80,47 +84,87 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
             ),
         ],
       ),
-      body: Row(
-        children: [
-          // Left: Order Queue
-          Container(
-            width: 320,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              border: Border(right: BorderSide(color: AppTheme.grey300)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Row(
               children: [
-                const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text('PENDING QUEUE', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2, color: AppTheme.grey600)),
+                // Left: Order Queue
+                Container(
+                  width: 320,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    border: Border(right: BorderSide(color: AppTheme.grey300)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Text('PENDING QUEUE', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2, color: AppTheme.grey600)),
+                      ),
+                      Expanded(child: _buildOrderQueue()),
+                    ],
+                  ),
                 ),
-                Expanded(child: _buildOrderQueue()),
+                
+                // Right: Item Check-off / Review
+                Expanded(
+                  child: _activeOrderId == null 
+                    ? _buildTerminalIdleState()
+                    : _buildItemChecklist(),
+                ),
               ],
             ),
-          ),
-          
-          // Right: Item Check-off
-          Expanded(
-            child: _activeOrderId == null 
-              ? _buildTerminalIdleState()
-              : _buildItemChecklist(),
-          ),
+    );
+  }
+
+  Widget _buildTerminalIdleState() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.inventory_2_outlined, size: 80, color: AppTheme.grey300),
+          SizedBox(height: 16),
+          Text('Select an order from the queue to start packing', style: TextStyle(color: AppTheme.grey500)),
         ],
       ),
     );
   }
 
-  Widget _buildTerminalIdleState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.inventory_2_outlined, size: 80, color: AppTheme.grey300),
-          const SizedBox(height: 16),
-          const Text('Select an order from the queue to start packing', style: TextStyle(color: AppTheme.grey500)),
-        ],
+  Widget _buildPackingStatusBadge(String? status) {
+    Color color;
+    String text;
+    switch (status) {
+      case 'pending_approval':
+        color = Colors.amber.shade800;
+        text = 'Awaiting Review';
+        break;
+      case 'rejected':
+        color = Colors.red;
+        text = 'Rejected';
+        break;
+      case 'packing':
+        color = Colors.blue;
+        text = 'Packing';
+        break;
+      case 'approved':
+        color = Colors.green;
+        text = 'Approved';
+        break;
+      default:
+        color = Colors.grey;
+        text = 'Not Started';
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: color.withOpacity(0.3), width: 0.5),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -146,13 +190,20 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
 
             return ListTile(
               selected: isActive,
-              selectedTileColor: AppTheme.primary.withValues(alpha: 0.05),
+              selectedTileColor: AppTheme.primary.withOpacity(0.05),
               leading: CircleAvatar(
                 backgroundColor: AppTheme.grey200,
                 child: Text('${order.items.length}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.grey800)),
               ),
               title: Text('#${order.orderNumber}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-              subtitle: Text('₹${order.totalAmount.round()} • ${_formatDate(order.createdAt)}', style: const TextStyle(fontSize: 11)),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('₹${order.totalAmount.round()} • ${_formatDate(order.createdAt)}', style: const TextStyle(fontSize: 11)),
+                  const SizedBox(height: 4),
+                  _buildPackingStatusBadge(order.packingStatus),
+                ],
+              ),
               trailing: const Icon(Icons.arrow_forward_ios, size: 14),
               onTap: () {
                 setState(() {
@@ -177,6 +228,11 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
       builder: (context, snapshot) {
         if (!snapshot.hasData || !snapshot.data!.exists) return const Center(child: CircularProgressIndicator());
         final order = OrderModel.fromMap(snapshot.data!.data() as Map<String, dynamic>);
+
+        if (order.packingStatus == 'pending_approval') {
+          return _buildReviewPanel(order);
+        }
+
         final productProvider = Provider.of<ProductProvider>(context);
 
         return Column(
@@ -264,9 +320,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
           width: 50,
           height: 50,
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: AppTheme.grey100),
-          child: item.productImage != null 
-            ? ClipRRect(borderRadius: BorderRadius.circular(8), child: CachedNetworkImage(imageUrl: item.productImage!, fit: BoxFit.cover))
-            : const Icon(Icons.shopping_bag),
+          child: ClipRRect(borderRadius: BorderRadius.circular(8), child: CachedNetworkImage(imageUrl: item.productImage, fit: BoxFit.cover)),
         ),
         title: Text(
           item.productName, 
@@ -376,7 +430,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
                   },
                   child: const Text('Select'),
                 ),
-              )).toList(),
+              )),
           ],
         ),
         actions: [
@@ -555,5 +609,394 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
 
   String _formatDate(DateTime date) {
     return '${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+  }
+
+  Widget _buildReviewPanel(OrderModel order) {
+    final proof = order.packingProof;
+    final photoUrl = proof?['photoUrl'] as String?;
+    final packedBy = proof?['packedBy'] as String? ?? 'Employee';
+    final packedAt = proof?['packedAt'] != null
+        ? (proof!['packedAt'] is Timestamp
+            ? (proof['packedAt'] as Timestamp).toDate()
+            : DateTime.tryParse(proof['packedAt'].toString()))
+        : null;
+
+    final formattedPackedAt = packedAt != null
+        ? DateFormat('hh:mm a').format(packedAt)
+        : 'N/A';
+
+    final startedAt = order.packingStartedAt;
+    final completedAt = order.packingCompletedAt;
+    final duration = startedAt != null && completedAt != null
+        ? completedAt.difference(startedAt)
+        : null;
+    final durationStr = duration != null
+        ? '${duration.inMinutes}m ${duration.inSeconds % 60}s'
+        : '';
+
+    return Column(
+      children: [
+        // Review Header
+        Container(
+          padding: const EdgeInsets.all(20),
+          color: Colors.white,
+          child: Row(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Review Packing: #${order.orderNumber}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
+                  Text('Packed by: $packedBy at $formattedPackedAt', style: const TextStyle(color: AppTheme.grey600)),
+                  if (durationStr.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text('Time spent: $durationStr', style: const TextStyle(color: AppTheme.grey600, fontSize: 12, fontWeight: FontWeight.w500)),
+                  ],
+                ],
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.amber, width: 1.5),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.rate_review, color: Colors.amber, size: 16),
+                    SizedBox(width: 6),
+                    Text(
+                      'AWAITING APPROVAL',
+                      style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Scrollable content area
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Left column: Checklist & weights
+                Expanded(
+                  flex: 3,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'PACKED ITEMS CHECKLIST',
+                        style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2, color: AppTheme.grey600, fontSize: 13),
+                      ),
+                      const SizedBox(height: 12),
+                      ...order.items.map((item) {
+                        final isWeightUnit = item.unit.toLowerCase().contains('kg') || 
+                                             item.unit.toLowerCase().contains('g') || 
+                                             item.unit.toLowerCase().contains('kilo') || 
+                                             item.unit.toLowerCase().contains('gm');
+                        final hasCustomWeight = order.toMap()['packedWeights'] != null &&
+                            (order.toMap()['packedWeights'] as Map).containsKey(item.id);
+                        final packedWeight = hasCustomWeight
+                            ? (order.toMap()['packedWeights'] as Map)[item.id]
+                            : null;
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: item.isOutOfStock ? Colors.red.withOpacity(0.05) : Colors.green.withOpacity(0.05),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: item.isOutOfStock ? Colors.red.withOpacity(0.2) : Colors.green.withOpacity(0.2),
+                            ),
+                          ),
+                          child: ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(
+                              item.productName,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                decoration: item.isOutOfStock ? TextDecoration.lineThrough : null,
+                              ),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Qty: ${item.quantity} ${item.unit}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                if (isWeightUnit && packedWeight != null) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Verified Weight: ${packedWeight} kg',
+                                    style: TextStyle(color: Colors.green.shade800, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ],
+                            ),
+                            trailing: item.isOutOfStock
+                                ? const Text('OUT OF STOCK', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 11))
+                                : const Icon(Icons.check_circle, color: Colors.green),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 24),
+                // Right column: Photo proof
+                Expanded(
+                  flex: 2,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'PACKING PHOTO PROOF',
+                        style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2, color: AppTheme.grey600, fontSize: 13),
+                      ),
+                      const SizedBox(height: 12),
+                      if (photoUrl != null && photoUrl.isNotEmpty)
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: GestureDetector(
+                            onTap: () => _showFullPhotoDialog(context, photoUrl),
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                CachedNetworkImage(
+                                  imageUrl: photoUrl,
+                                  height: 300,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) => const SizedBox(
+                                    height: 300,
+                                    child: Center(child: CircularProgressIndicator()),
+                                  ),
+                                  errorWidget: (context, url, error) => const Icon(Icons.error),
+                                ),
+                                Positioned(
+                                  bottom: 12,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black54,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: const Row(
+                                      children: [
+                                        Icon(Icons.zoom_in, color: Colors.white, size: 16),
+                                        SizedBox(width: 4),
+                                        Text('Tap to Enlarge', style: TextStyle(color: Colors.white, fontSize: 11)),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      else
+                        Container(
+                          height: 200,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.photo, size: 48, color: Colors.grey),
+                                SizedBox(height: 8),
+                                Text('No photo proof submitted', style: TextStyle(color: Colors.grey)),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // Review Actions Footer
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -2))],
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 52,
+                  child: OutlinedButton.icon(
+                    onPressed: () => _showRejectionDialog(order),
+                    icon: const Icon(Icons.cancel, color: Colors.red),
+                    label: const Text('REJECT PACKING', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.red, width: 1.5),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: SizedBox(
+                  height: 52,
+                  child: ElevatedButton.icon(
+                    onPressed: () => _approvePacking(order),
+                    icon: const Icon(Icons.check_circle),
+                    label: const Text('APPROVE & SHIP', style: TextStyle(fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showFullPhotoDialog(BuildContext context, String url) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(10),
+        child: Stack(
+          alignment: Alignment.topRight,
+          children: [
+            InteractiveViewer(
+              panEnabled: true,
+              minScale: 0.5,
+              maxScale: 4.0,
+              child: CachedNetworkImage(
+                imageUrl: url,
+                fit: BoxFit.contain,
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.close, color: Colors.white, size: 30),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showRejectionDialog(OrderModel order) {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Reject Packing Submission'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Please provide the reason for rejecting this packing job:'),
+            const SizedBox(height: 12),
+            TextField(
+              controller: controller,
+              decoration: const InputDecoration(
+                hintText: 'e.g. Missing Item: Britannia Rusk, photo proof shows incorrect packaging...',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 3,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final reason = controller.text.trim();
+              if (reason.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please enter a rejection reason')),
+                );
+                return;
+              }
+              Navigator.pop(ctx);
+              await _rejectPacking(order, reason);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            child: const Text('Confirm Rejection'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _approvePacking(OrderModel order) async {
+    setState(() => _isLoading = true);
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final ownerId = authProvider.currentUser?.uid ?? 'owner';
+      final ownerName = authProvider.currentUser?.name ?? 'Owner';
+
+      await OrderService().approvePacking(order.id, ownerId, ownerName);
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Order #${order.orderNumber} approved and marked packed!'),
+          backgroundColor: AppTheme.success,
+        ),
+      );
+      setState(() {
+        _activeOrderId = null;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to approve order: $e'), backgroundColor: AppTheme.error),
+      );
+    }
+  }
+
+  Future<void> _rejectPacking(OrderModel order, String reason) async {
+    setState(() => _isLoading = true);
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final ownerId = authProvider.currentUser?.uid ?? 'owner';
+      final ownerName = authProvider.currentUser?.name ?? 'Owner';
+
+      await OrderService().rejectPacking(order.id, ownerId, ownerName, reason);
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Order #${order.orderNumber} packing rejected. Sent back to packer.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      setState(() {
+        _activeOrderId = null;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to reject order: $e'), backgroundColor: AppTheme.error),
+      );
+    }
   }
 }

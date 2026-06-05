@@ -26,7 +26,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
   final SpeechToTextService _speechService = SpeechToTextService();
   final GeminiService _geminiService = GeminiService();
   final ImageProcessingService _imageService = ImageProcessingService();
-  
+
   bool _isProcessing = false;
   String _transcribedText = '';
   String _statusMessage = 'Tap the microphone and describe your product';
@@ -38,7 +38,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
   final TextEditingController _stockController = TextEditingController();
   final TextEditingController _unitController = TextEditingController();
   final TextEditingController _categoryController = TextEditingController();
-  
+
   String _selectedCategory = 'groceries';
   File? _productImage;
   bool _isListening = false;
@@ -58,7 +58,6 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
     _categoryController.dispose();
     super.dispose();
   }
-
 
   Future<void> _startRecording() async {
     // Request permissions
@@ -109,13 +108,13 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
 
     try {
       final text = await _speechService.stopListening();
-      
+
       if (text.isNotEmpty) {
         setState(() {
           _transcribedText = text;
           _statusMessage = 'Processing: "$text"';
         });
-        
+
         // Parse the transcribed text using Gemini
         await _parseVoiceInput(text);
       } else {
@@ -143,7 +142,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
       if (mounted) {
         setState(() {
           _statusMessage = 'Product details extracted! Review and edit below.';
-          
+
           // Populate form fields
           _nameController.text = productData.name;
           _descriptionController.text = productData.description;
@@ -156,7 +155,8 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _statusMessage = 'Failed to parse: $e. Please enter details manually.';
+          _statusMessage =
+              'Failed to parse: $e. Please enter details manually.';
         });
       }
     } finally {
@@ -201,8 +201,11 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
     setState(() => _isProcessing = true);
 
     try {
-      final productProvider = Provider.of<ProductProvider>(context, listen: false);
-      
+      final productProvider = Provider.of<ProductProvider>(
+        context,
+        listen: false,
+      );
+
       // Create product model
       final product = ProductModel(
         id: const Uuid().v4(),
@@ -210,7 +213,9 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
         description: _descriptionController.text.trim(),
         price: price,
         originalPrice: price,
-        unit: _unitController.text.trim().isNotEmpty ? _unitController.text.trim() : 'piece',
+        unit: _unitController.text.trim().isNotEmpty
+            ? _unitController.text.trim()
+            : 'piece',
         category: _selectedCategory,
         shopId: currentUser.id,
         shopName: currentUser.name ?? 'Shop',
@@ -226,7 +231,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
 
       // Add to Firestore via Provider
       await productProvider.addProduct(product);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -245,10 +250,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppTheme.error,
-      ),
+      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
     );
   }
 
@@ -273,28 +275,27 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
           children: [
             // Voice input section
             _buildVoiceInputSection(),
-            
+
             const SizedBox(height: 24),
-            
+
             // Transcribed text display
-            if (_transcribedText.isNotEmpty)
-              _buildTranscribedTextDisplay(),
-            
+            if (_transcribedText.isNotEmpty) _buildTranscribedTextDisplay(),
+
             const SizedBox(height: 24),
-            
+
             // Product form
             _buildProductForm(),
-            
+
             const SizedBox(height: 24),
-            
+
             // Image picker
             _buildImagePicker(),
-            
+
             const SizedBox(height: 32),
-            
+
             // Save button
             _buildSaveButton(),
-            
+
             const SizedBox(height: 32),
           ],
         ),
@@ -330,7 +331,8 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: (_isListening ? AppTheme.error : AppTheme.primary).withValues(alpha: 0.4),
+                    color: (_isListening ? AppTheme.error : AppTheme.primary)
+                        .withValues(alpha: 0.4),
                     blurRadius: 20,
                     spreadRadius: 5,
                   ),
@@ -343,9 +345,9 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
               ),
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Status message
           Text(
             _statusMessage,
@@ -356,9 +358,9 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
               fontWeight: _isListening ? FontWeight.w600 : FontWeight.normal,
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Example phrases
           Container(
             padding: const EdgeInsets.all(12),
@@ -372,7 +374,11 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.lightbulb_outline, size: 16, color: AppTheme.warning),
+                    Icon(
+                      Icons.lightbulb_outline,
+                      size: 16,
+                      color: AppTheme.warning,
+                    ),
                     SizedBox(width: 8),
                     Text(
                       'Try saying:',
@@ -381,9 +387,15 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                _buildExamplePhrase('"Add 20 kg organic apples priced at 150 rupees"'),
-                _buildExamplePhrase('"Add 1 liter Amul milk, 50 rupees, 10 in stock"'),
-                _buildExamplePhrase('"Add 500g Tata salt, 25 rupees, 50 packets"'),
+                _buildExamplePhrase(
+                  '"Add 20 kg organic apples priced at 150 rupees"',
+                ),
+                _buildExamplePhrase(
+                  '"Add 1 liter Amul milk, 50 rupees, 10 in stock"',
+                ),
+                _buildExamplePhrase(
+                  '"Add 500g Tata salt, 25 rupees, 50 packets"',
+                ),
               ],
             ),
           ),
@@ -433,10 +445,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
           const SizedBox(height: 8),
           Text(
             '"$_transcribedText"',
-            style: const TextStyle(
-              fontSize: 16,
-              fontStyle: FontStyle.italic,
-            ),
+            style: const TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
           ),
         ],
       ),
@@ -456,7 +465,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        
+
         // Product name
         _buildTextField(
           controller: _nameController,
@@ -464,9 +473,9 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
           hint: 'e.g., Organic Apples',
           icon: Icons.inventory_2,
         ),
-        
+
         const SizedBox(height: 12),
-        
+
         // Description
         _buildTextField(
           controller: _descriptionController,
@@ -475,9 +484,9 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
           icon: Icons.description,
           maxLines: 3,
         ),
-        
+
         const SizedBox(height: 12),
-        
+
         // Price and Stock row
         Row(
           children: [
@@ -502,9 +511,9 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
             ),
           ],
         ),
-        
+
         const SizedBox(height: 12),
-        
+
         // Unit and Category row
         Row(
           children: [
@@ -517,9 +526,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
               ),
             ),
             const SizedBox(width: 12),
-            Expanded(
-              child: _buildCategoryDropdown(),
-            ),
+            Expanded(child: _buildCategoryDropdown()),
           ],
         ),
       ],
@@ -542,9 +549,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
         labelText: label,
         hintText: hint,
         prefixIcon: Icon(icon, color: AppTheme.grey400),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         contentPadding: const EdgeInsets.all(16),
       ),
     );
@@ -552,8 +557,16 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
 
   Widget _buildCategoryDropdown() {
     final categories = [
-      'groceries', 'vegetables', 'fruits', 'dairy', 'bakery',
-      'snacks', 'beverages', 'household', 'personalCare', 'other',
+      'groceries',
+      'vegetables',
+      'fruits',
+      'dairy',
+      'bakery',
+      'snacks',
+      'beverages',
+      'household',
+      'personalCare',
+      'other',
     ];
 
     return DropdownButtonFormField<String>(
@@ -561,9 +574,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
       decoration: InputDecoration(
         labelText: 'Category',
         prefixIcon: const Icon(Icons.category, color: AppTheme.grey400),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         contentPadding: const EdgeInsets.all(16),
       ),
       items: categories.map((category) {
@@ -606,19 +617,12 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
             child: _productImage != null
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: Image.file(
-                      _productImage!,
-                      fit: BoxFit.cover,
-                    ),
+                    child: Image.file(_productImage!, fit: BoxFit.cover),
                   )
                 : const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.camera_alt,
-                        size: 40,
-                        color: AppTheme.grey400,
-                      ),
+                      Icon(Icons.camera_alt, size: 40, color: AppTheme.grey400),
                       SizedBox(height: 8),
                       Text(
                         'Tap to add photo',
@@ -639,9 +643,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
         backgroundColor: AppTheme.primary,
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       child: _isProcessing
           ? const SizedBox(
@@ -654,10 +656,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
             )
           : const Text(
               'Add Product',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
     );
   }

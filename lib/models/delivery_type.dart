@@ -125,13 +125,7 @@ class DeliveryTypeOption {
 
   /// Get all available delivery type options
   static List<DeliveryTypeOption> get allOptions {
-    return [
-      standard,
-      express,
-      sameDay,
-      villageDelivery,
-      scheduled,
-    ];
+    return [standard, express, sameDay, villageDelivery, scheduled];
   }
 
   /// Get delivery type option by type

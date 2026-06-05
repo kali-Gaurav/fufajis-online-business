@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lottie/lottie.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../services/gemini_service.dart';
 import '../providers/cart_provider.dart';
@@ -173,10 +172,10 @@ class _OneClickVoiceOrderState extends State<OneClickVoiceOrder> {
           ),
           const SizedBox(height: 32),
           if (_isProcessing)
-            Column(
+            const Column(
               children: [
-                const CircularProgressIndicator(),
-                const SizedBox(height: 16),
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
                 Text("AI is adding items to your cart...", style: TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.w500)),
               ],
             )

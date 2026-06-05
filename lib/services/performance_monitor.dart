@@ -15,9 +15,7 @@ class PerformanceMonitor {
     try {
       await _analytics.logEvent(
         name: 'app_startup_time',
-        parameters: {
-          'duration_ms': durationMs,
-        },
+        parameters: {'duration_ms': durationMs},
       );
     } catch (e) {
       debugPrint('[PerformanceMonitor] Failed to log startup time: $e');
@@ -27,7 +25,9 @@ class PerformanceMonitor {
   /// Starts a metric stopwatch with a specified name/label
   static void startTrace(String name) {
     if (_activeStopwatches.containsKey(name)) {
-      debugPrint('[PerformanceMonitor] Warning: Trace "$name" is already running. Restarting.');
+      debugPrint(
+        '[PerformanceMonitor] Warning: Trace "$name" is already running. Restarting.',
+      );
       _activeStopwatches[name]!.reset();
     } else {
       _activeStopwatches[name] = Stopwatch();
@@ -37,17 +37,24 @@ class PerformanceMonitor {
   }
 
   /// Stops the metric trace and records the duration to Firebase Analytics
-  static Future<int?> stopTrace(String name, {Map<String, dynamic>? additionalParameters}) async {
+  static Future<int?> stopTrace(
+    String name, {
+    Map<String, dynamic>? additionalParameters,
+  }) async {
     final stopwatch = _activeStopwatches[name];
     if (stopwatch == null) {
-      debugPrint('[PerformanceMonitor] Error: Trace "$name" was never started.');
+      debugPrint(
+        '[PerformanceMonitor] Error: Trace "$name" was never started.',
+      );
       return null;
     }
 
     stopwatch.stop();
     final durationMs = stopwatch.elapsedMilliseconds;
     _activeStopwatches.remove(name);
-    debugPrint('[PerformanceMonitor] Trace finished: "$name" took ${durationMs}ms');
+    debugPrint(
+      '[PerformanceMonitor] Trace finished: "$name" took ${durationMs}ms',
+    );
 
     try {
       final Map<String, Object> params = {
@@ -60,10 +67,7 @@ class PerformanceMonitor {
         });
       }
 
-      await _analytics.logEvent(
-        name: 'performance_trace',
-        parameters: params,
-      );
+      await _analytics.logEvent(name: 'performance_trace', parameters: params);
     } catch (e) {
       debugPrint('[PerformanceMonitor] Failed to log trace "$name": $e');
     }
@@ -82,10 +86,7 @@ class PerformanceMonitor {
       final result = await asyncFunction();
       await stopTrace(
         name,
-        additionalParameters: {
-          ...?additionalParameters,
-          'status': 'success',
-        },
+        additionalParameters: {...?additionalParameters, 'status': 'success'},
       );
       return result;
     } catch (e) {

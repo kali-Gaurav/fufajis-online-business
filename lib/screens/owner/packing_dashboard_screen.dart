@@ -114,7 +114,7 @@ class PackingDashboardScreen extends StatelessWidget {
           // Column Header
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               border: Border(bottom: BorderSide(color: AppTheme.grey200, width: 1.5)),
             ),
             child: Row(
@@ -156,7 +156,7 @@ class PackingDashboardScreen extends StatelessWidget {
                       children: [
                         Icon(icon, size: 36, color: AppTheme.grey300),
                         const SizedBox(height: 8),
-                        Text(
+                        const Text(
                           'No orders',
                           style: TextStyle(color: AppTheme.grey400, fontSize: 13),
                         ),
@@ -296,11 +296,11 @@ class PackingDashboardScreen extends StatelessWidget {
               children: [
                 Text(
                   '${order.items.length} items • ₹${order.totalAmount.round()}',
-                  style: TextStyle(color: AppTheme.grey500, fontSize: 12),
+                  style: const TextStyle(color: AppTheme.grey500, fontSize: 12),
                 ),
                 Text(
                   _formatTime(order.createdAt),
-                  style: TextStyle(color: AppTheme.grey400, fontSize: 11),
+                  style: const TextStyle(color: AppTheme.grey400, fontSize: 11),
                 ),
               ],
             ),

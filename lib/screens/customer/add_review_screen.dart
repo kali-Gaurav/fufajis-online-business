@@ -27,7 +27,7 @@ class AddReviewScreen extends StatefulWidget {
 class _AddReviewScreenState extends State<AddReviewScreen> {
   double _rating = 5.0;
   final TextEditingController _commentController = TextEditingController();
-  List<XFile> _images = [];
+  final List<XFile> _images = [];
   bool _isLoading = false;
   String? _error;
   final ImagePicker _imagePicker = ImagePicker();

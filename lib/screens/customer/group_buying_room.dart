@@ -16,25 +16,38 @@ class GroupBuyingRoom extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.share),
-            onPressed: () => Share.share('Join my Fufaji group order: fufaji://group/$groupId'),
+            onPressed: () => Share.share(
+              'Join my Fufaji group order: fufaji://group/$groupId',
+            ),
           ),
         ],
       ),
       body: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance.collection('groups').doc(groupId).snapshots(),
+        stream: FirebaseFirestore.instance
+            .collection('groups')
+            .doc(groupId)
+            .snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-          
-          final group = GroupOrderModel.fromMap(snapshot.data!.data() as Map<String, dynamic>);
-          
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final group = GroupOrderModel.fromMap(
+            snapshot.data!.data() as Map<String, dynamic>,
+          );
+
           return Column(
             children: [
-              LinearProgressIndicator(value: group.totalAmount / group.goalAmount),
+              LinearProgressIndicator(
+                value: group.totalAmount / group.goalAmount,
+              ),
               Text('Goal: ₹${group.totalAmount} / ₹${group.goalAmount}'),
               Expanded(
                 child: ListView.builder(
                   itemCount: group.memberIds.length,
-                  itemBuilder: (context, index) => ListTile(title: Text('Member: ${group.memberIds[index]}')),
+                  itemBuilder: (context, index) => ListTile(
+                    title: Text('Member: ${group.memberIds[index]}'),
+                  ),
                 ),
               ),
             ],

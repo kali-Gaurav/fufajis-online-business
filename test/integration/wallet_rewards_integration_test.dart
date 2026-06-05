@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fufajis_online/services/wallet_service.dart';
 import 'package:fufajis_online/services/reward_system.dart';
 import 'package:fufajis_online/services/membership_tier_calculator.dart';
 import 'package:fufajis_online/services/cashback_calculator.dart';
@@ -40,7 +39,7 @@ void main() {
         // Order points
         final orderPoints = rewardSystem.calculateOrderPoints(orderAmount);
         // First order bonus
-        final firstOrderBonus = RewardSystem.firstOrderPoints;
+        const firstOrderBonus = RewardSystem.firstOrderPoints;
         // Total points
         final totalPoints = orderPoints + firstOrderBonus;
 

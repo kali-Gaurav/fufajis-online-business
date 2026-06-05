@@ -9,7 +9,10 @@ class AnalyticsService {
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
   /// Log a custom event with properties
-  Future<void> trackEvent(String eventName, Map<String, dynamic> properties) async {
+  Future<void> trackEvent(
+    String eventName,
+    Map<String, dynamic> properties,
+  ) async {
     try {
       // Map all non-primitive or complex properties to string/num formats accepted by Firebase
       final cleanProperties = properties.map<String, Object>((key, value) {
@@ -19,11 +22,10 @@ class AnalyticsService {
         return MapEntry(key, value.toString());
       });
 
-      await _analytics.logEvent(
-        name: eventName,
-        parameters: cleanProperties,
+      await _analytics.logEvent(name: eventName, parameters: cleanProperties);
+      debugPrint(
+        'Analytics Event Logged: $eventName, parameters: $cleanProperties',
       );
-      debugPrint('Analytics Event Logged: $eventName, parameters: $cleanProperties');
     } catch (e) {
       debugPrint('Error logging analytics event: $e');
     }
@@ -40,7 +42,10 @@ class AnalyticsService {
   }
 
   /// Set a user property (e.g. membership tier, role)
-  Future<void> setUserProperty({required String name, required String value}) async {
+  Future<void> setUserProperty({
+    required String name,
+    required String value,
+  }) async {
     try {
       await _analytics.setUserProperty(name: name, value: value);
       debugPrint('Analytics User Property Set: $name = $value');
@@ -65,18 +70,16 @@ class AnalyticsService {
     required String stepName,
     Map<String, dynamic>? properties,
   }) async {
-    final params = {
-      'step': step,
-      'step_name': stepName,
-      ...?properties,
-    };
+    final params = {'step': step, 'step_name': stepName, ...?properties};
     await trackEvent('checkout_progress', params);
   }
 
   /// Syncs financial data to Supabase Postgres mirror for complex SQL-based P&L analytics (Step 1.5)
   Future<void> syncToSupabase(String table, Map<String, dynamic> data) async {
     try {
-      debugPrint('[AnalyticsService] Syncing to Supabase Postgres Table: $table');
+      debugPrint(
+        '[AnalyticsService] Syncing to Supabase Postgres Table: $table',
+      );
       // Step 35 Readiness: Using Supabase for analytical queries that Firestore can't handle efficiently
       // Actual implementation would use the supabase_flutter client
       await Future.delayed(const Duration(milliseconds: 100));

@@ -15,7 +15,7 @@ class PricingRulesScreen extends StatefulWidget {
 class _PricingRulesScreenState extends State<PricingRulesScreen> {
   String _selectedStrategy = 'Match';
   bool _isLoading = false;
-  
+
   // Strategy parameters
   late TextEditingController _marginController;
   late TextEditingController _beatAmountController;
@@ -49,14 +49,16 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
     try {
       final provider = context.read<ProductProvider>();
       final rules = await provider.getPricingRules();
-      
+
       setState(() {
         _currentRules = rules;
         _selectedStrategy = rules['strategy'] ?? 'Match';
         _marginController.text = (rules['margin'] ?? 10).toString();
         _beatAmountController.text = (rules['beatAmount'] ?? 5).toString();
-        _premiumPercentageController.text = (rules['premiumPercentage'] ?? 10).toString();
-        _costPercentageController.text = (rules['costPercentage'] ?? 20).toString();
+        _premiumPercentageController.text = (rules['premiumPercentage'] ?? 10)
+            .toString();
+        _costPercentageController.text = (rules['costPercentage'] ?? 20)
+            .toString();
       });
 
       // Get pending changes count
@@ -75,7 +77,7 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
     setState(() => _isLoading = true);
     try {
       final provider = context.read<ProductProvider>();
-      
+
       final newRules = {
         'strategy': _selectedStrategy,
         'margin': double.parse(_marginController.text),
@@ -85,16 +87,16 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
       };
 
       await provider.updatePricingStrategy(newRules);
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pricing strategy updated')),
-      );
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Pricing strategy updated')));
 
       await _loadPricingRules();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error updating strategy: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error updating strategy: $e')));
     } finally {
       setState(() => _isLoading = false);
     }
@@ -103,10 +105,7 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pricing Rules'),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text('Pricing Rules'), elevation: 0),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -164,10 +163,7 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
                   // Strategy Selection
                   const Text(
                     'Pricing Strategy',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
 
@@ -178,10 +174,7 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
                   // Strategy Parameters
                   const Text(
                     'Strategy Parameters',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
 
@@ -409,10 +402,7 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         TextField(
@@ -420,9 +410,7 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
             hintText: hint,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             suffixText: label.contains('%') ? '%' : '₹',
           ),
         ),
@@ -493,10 +481,7 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
               ),
               Text(
                 description,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
             ],
           ),
@@ -507,13 +492,14 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
 
   double _calculatePreviewPrice(double basePrice) {
     final margin = double.tryParse(_marginController.text) ?? 10;
-    
+
     switch (_selectedStrategy) {
       case 'Beat':
         final beatAmount = double.tryParse(_beatAmountController.text) ?? 5;
         return basePrice - beatAmount;
       case 'Premium':
-        final premium = double.tryParse(_premiumPercentageController.text) ?? 10;
+        final premium =
+            double.tryParse(_premiumPercentageController.text) ?? 10;
         return basePrice * (1 + premium / 100);
       case 'Cost+':
         final markup = double.tryParse(_costPercentageController.text) ?? 20;

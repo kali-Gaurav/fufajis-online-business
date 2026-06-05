@@ -85,7 +85,7 @@ class TierCashbackService {
     // Restriction: COD cashback only after delivery
     if (paymentMethod == 'cod' && !isDelivered) {
       debugPrint('[TierCashback] COD order $orderId: cashback held until delivery.');
-      return CashbackResult(
+      return const CashbackResult(
         applied: false,
         amount: 0,
         reason: 'cod_pending_delivery',
@@ -95,14 +95,14 @@ class TierCashbackService {
     // Check if cashback is enabled globally
     final shopConfig = await ShopConfigService().getShopConfig();
     if (!shopConfig.enableCashback) {
-      return CashbackResult(applied: false, amount: 0, reason: 'cashback_disabled');
+      return const CashbackResult(applied: false, amount: 0, reason: 'cashback_disabled');
     }
 
     // Check if already applied (idempotency)
     final alreadyApplied = await _isCashbackAlreadyApplied(orderId);
     if (alreadyApplied) {
       debugPrint('[TierCashback] Cashback already applied for order $orderId');
-      return CashbackResult(applied: false, amount: 0, reason: 'already_applied');
+      return const CashbackResult(applied: false, amount: 0, reason: 'already_applied');
     }
 
     final cashback = await calculateCashback(
@@ -112,7 +112,7 @@ class TierCashbackService {
     );
 
     if (cashback <= 0) {
-      return CashbackResult(applied: false, amount: 0, reason: 'zero_cashback');
+      return const CashbackResult(applied: false, amount: 0, reason: 'zero_cashback');
     }
 
     // Get tier for display
@@ -135,7 +135,7 @@ class TierCashbackService {
       return CashbackResult(applied: true, amount: cashback, reason: 'success', tier: tier);
     }
 
-    return CashbackResult(applied: false, amount: 0, reason: 'wallet_error');
+    return const CashbackResult(applied: false, amount: 0, reason: 'wallet_error');
   }
 
   // ─────────────── WALLET REDEMPTION ───────────────

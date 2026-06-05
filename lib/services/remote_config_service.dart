@@ -21,30 +21,44 @@ class RemoteConfigService {
   static const String keySupportPhone = 'support_phone';
   static const String keyShowAds = 'show_ads';
   static const String keyFeatureNewCheckout = 'feature_new_checkout';
+  static const String keyAnnouncementTitle = 'announcement_title';
+  static const String keyAnnouncementMsg = 'announcement_message';
+  static const String keyAnnouncementLink = 'announcement_link';
+  static const String keyShowAnnouncement = 'show_announcement';
 
   Future<void> init() async {
     try {
-      await _remoteConfig.setConfigSettings(RemoteConfigSettings(
-        fetchTimeout: const Duration(minutes: 1),
-        // Development optimization: 0 seconds for instant testing
-        minimumFetchInterval: kDebugMode ? Duration.zero : const Duration(minutes: 15),
-      ));
+      await _remoteConfig.setConfigSettings(
+        RemoteConfigSettings(
+          fetchTimeout: const Duration(minutes: 1),
+          // Development optimization: 0 seconds for instant testing
+          minimumFetchInterval: kDebugMode
+              ? Duration.zero
+              : const Duration(minutes: 15),
+        ),
+      );
 
       // Standardizing defaults
       await _remoteConfig.setDefaults({
         keyMinAppVersion: '1.0.0',
         keyLatestAppVersion: '1.0.0',
-        keyForceUpdateUrl: 'https://play.google.com/store/apps/details?id=com.fufajis.online',
+        keyForceUpdateUrl:
+            'https://play.google.com/store/apps/details?id=com.fufajis.online',
         keyMaintenanceMode: false,
-        keyMaintenanceMessage: 'We are currently updating our systems to serve you better. Please check back soon.',
+        keyMaintenanceMessage:
+            'We are currently updating our systems to serve you better. Please check back soon.',
         keyFestivalMode: 'none',
         keySupportPhone: '+919999999999',
         keyShowAds: true,
         keyFeatureNewCheckout: false,
+        keyAnnouncementTitle: 'Update Available!',
+        keyAnnouncementMsg: 'New version of Fufaji is live. Update for better speed!',
+        keyAnnouncementLink: '',
+        keyShowAnnouncement: false,
       });
 
       await fetchAndActivate();
-      
+
       // Log initialization to Analytics
       await _analytics.logEvent(name: 'remote_config_initialized');
     } catch (e) {
@@ -65,11 +79,16 @@ class RemoteConfigService {
   String get latestAppVersion => _remoteConfig.getString(keyLatestAppVersion);
   String get forceUpdateUrl => _remoteConfig.getString(keyForceUpdateUrl);
   bool get isMaintenanceMode => _remoteConfig.getBool(keyMaintenanceMode);
-  String get maintenanceMessage => _remoteConfig.getString(keyMaintenanceMessage);
+  String get maintenanceMessage =>
+      _remoteConfig.getString(keyMaintenanceMessage);
   String get festivalMode => _remoteConfig.getString(keyFestivalMode);
   String get supportPhone => _remoteConfig.getString(keySupportPhone);
   bool get showAds => _remoteConfig.getBool(keyShowAds);
   bool get featureNewCheckout => _remoteConfig.getBool(keyFeatureNewCheckout);
+  String get announcementTitle => _remoteConfig.getString(keyAnnouncementTitle);
+  String get announcementMsg => _remoteConfig.getString(keyAnnouncementMsg);
+  String get announcementLink => _remoteConfig.getString(keyAnnouncementLink);
+  bool get showAnnouncement => _remoteConfig.getBool(keyShowAnnouncement);
 
   /// Checks if a mandatory update is required.
   Future<bool> isForceUpdateRequired() async {

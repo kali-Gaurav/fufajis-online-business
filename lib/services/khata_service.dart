@@ -7,12 +7,13 @@ class KhataService {
   /// Adds a credit entry (customer owes more) or a payment entry (customer paid back)
   Future<void> addKhataTransaction(KhataTransaction tx) async {
     final userRef = _db.collection('users').doc(tx.userId);
-    
+
     await _db.runTransaction((transaction) async {
       final userDoc = await transaction.get(userRef);
       if (!userDoc.exists) throw Exception('User not found');
 
-      final currentBalance = (userDoc.data()?['creditBalance'] ?? 0.0).toDouble();
+      final currentBalance = (userDoc.data()?['creditBalance'] ?? 0.0)
+          .toDouble();
       double newBalance = currentBalance;
 
       if (tx.type == KhataTransactionType.credit) {
@@ -31,11 +32,16 @@ class KhataService {
   }
 
   Stream<List<KhataTransaction>> getCustomerKhataStream(String userId) {
-    return _db.collection('khata_transactions')
+    return _db
+        .collection('khata_transactions')
         .where('userId', isEqualTo: userId)
         .orderBy('timestamp', descending: true)
         .snapshots()
-        .map((snap) => snap.docs.map((doc) => KhataTransaction.fromMap(doc.data())).toList());
+        .map(
+          (snap) => snap.docs
+              .map((doc) => KhataTransaction.fromMap(doc.data()))
+              .toList(),
+        );
   }
 
   Future<double> getCustomerTotalCredit(String userId) async {

@@ -1,19 +1,16 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
-import '../../models/product_model.dart';
-import '../../providers/cart_provider.dart';
-import '../../utils/app_theme.dart';
+import '../models/product_model.dart';
+import '../providers/cart_provider.dart';
+import '../utils/app_theme.dart';
 
 class QuickReorderCard extends StatelessWidget {
   final ProductModel product;
 
-  const QuickReorderCard({
-    super.key,
-    required this.product,
-  });
+  const QuickReorderCard({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +45,9 @@ class QuickReorderCard extends StatelessWidget {
                 children: [
                   Positioned.fill(
                     child: ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(15),
+                      ),
                       child: product.imageUrl.isNotEmpty
                           ? CachedNetworkImage(
                               imageUrl: product.imageUrl,
@@ -63,7 +62,11 @@ class QuickReorderCard extends StatelessWidget {
                                 color: AppTheme.grey400,
                               ),
                             )
-                          : const Icon(Icons.image, size: 40, color: AppTheme.grey400),
+                          : const Icon(
+                              Icons.image,
+                              size: 40,
+                              color: AppTheme.grey400,
+                            ),
                     ),
                   ),
                   // Buy Again Badge
@@ -71,7 +74,10 @@ class QuickReorderCard extends StatelessWidget {
                     top: 6,
                     left: 6,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: AppTheme.primary.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(6),
@@ -96,7 +102,7 @@ class QuickReorderCard extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             // Details Section
             Expanded(
               flex: 4,
@@ -151,13 +157,23 @@ class QuickReorderCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
                                 children: [
                                   InkWell(
-                                    onTap: () => cartProvider.decrementQuantity(product.id),
+                                    onTap: () => cartProvider.decrementQuantity(
+                                      product.id,
+                                    ),
                                     child: const Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      child: Icon(Icons.remove, color: Colors.white, size: 16),
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      child: Icon(
+                                        Icons.remove,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
                                     ),
                                   ),
                                   Text(
@@ -169,10 +185,19 @@ class QuickReorderCard extends StatelessWidget {
                                     ),
                                   ),
                                   InkWell(
-                                    onTap: () => cartProvider.incrementQuantity(product.id),
+                                    onTap: () => cartProvider.incrementQuantity(
+                                      product.id,
+                                    ),
                                     child: const Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      child: Icon(Icons.add, color: Colors.white, size: 16),
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      child: Icon(
+                                        Icons.add,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -183,14 +208,18 @@ class QuickReorderCard extends StatelessWidget {
                                 cartProvider.addToCart(product);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('${product.name} added to cart!'),
+                                    content: Text(
+                                      '${product.name} added to cart!',
+                                    ),
                                     duration: const Duration(seconds: 1),
                                     behavior: SnackBarBehavior.floating,
                                   ),
                                 );
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
+                                backgroundColor: AppTheme.primary.withValues(
+                                  alpha: 0.1,
+                                ),
                                 foregroundColor: AppTheme.primary,
                                 elevation: 0,
                                 padding: EdgeInsets.zero,
@@ -217,4 +246,3 @@ class QuickReorderCard extends StatelessWidget {
     );
   }
 }
-

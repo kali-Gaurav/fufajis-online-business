@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -13,12 +12,13 @@ import '../screens/customer/home_screen.dart';
 import '../screens/customer/cart_screen.dart';
 import '../screens/customer/search_screen.dart';
 import '../screens/customer/profile_screen.dart';
+import '../screens/customer/account_picker_screen.dart';
+import '../screens/customer/my_devices_screen.dart';
 import '../screens/customer/product_detail_screen.dart';
 import '../screens/owner/bahi_khata_screen.dart';
 import '../screens/customer/dispute_screen.dart';
 import '../screens/owner/packing_terminal_screen.dart';
 import '../screens/owner/packing_dashboard_screen.dart';
-import '../screens/customer/fast_checkout_screen.dart';
 import '../screens/customer/checkout_screen.dart';
 import '../screens/customer/order_confirmation_screen.dart';
 import '../screens/customer/orders_screen.dart';
@@ -33,14 +33,12 @@ import '../screens/customer/notification_settings_screen.dart';
 import '../screens/customer/order_detail_screen.dart';
 import '../screens/owner/owner_dashboard.dart';
 import '../screens/owner/products_management.dart';
-import '../screens/owner/packing_terminal_screen.dart';
 import '../screens/owner/orders_management.dart';
 import '../screens/owner/inventory_screen.dart';
 import '../screens/owner/inventory_audit_screen.dart';
 import '../screens/owner/vendor_request_screen.dart';
 import '../screens/owner/analytics_screen.dart';
 import '../screens/owner/whatsapp_sync_setup_screen.dart';
-import '../screens/owner/whatsapp_sync_config_screen.dart';
 import '../screens/owner/inventory_alerts_screen.dart';
 import '../screens/owner/expiry_tracking_screen.dart';
 import '../screens/owner/pricing_rules_screen.dart';
@@ -56,8 +54,15 @@ import '../screens/delivery/delivery_dashboard.dart';
 import '../screens/delivery/delivery_orders_screen.dart';
 import '../screens/delivery/delivery_earnings_screen.dart';
 import '../screens/delivery/trip_route_sheet.dart';
+import '../screens/owner/cash_register_screen.dart';
+import '../screens/owner/bill_scanner_screen.dart';
+import '../screens/owner/employee_management_screen.dart';
+import '../screens/delivery/smart_route_screen.dart';
 
 import '../screens/customer/profile_creation_screen.dart';
+import '../screens/security_pin_screen.dart';
+import '../screens/auth/verification_wall_screen.dart';
+import '../providers/guest_provider.dart';
 
 import '../screens/employee/employee_home_screen.dart';
 import '../screens/employee/scanner_screen.dart';
@@ -72,12 +77,39 @@ import '../screens/employee/returns_screen.dart';
 import '../screens/employee/inventory_transfer_screen.dart';
 import '../screens/employee/shelf_refill_screen.dart';
 import '../screens/employee/expiry_management_screen.dart';
+import '../screens/employee/unified_scanner_hub.dart';
+import '../screens/employee/dispatch_scanner_screen.dart';
+import '../screens/employee/delivery_pod_scanner_screen.dart';
+import '../screens/employee/customer_membership_scanner_screen.dart';
+import '../screens/owner/scan_activity_screen.dart';
+
+/// Combines multiple [Listenable]s into one so GoRouter re-evaluates
+/// its redirect when either AuthProvider OR GuestProvider changes state.
+class _MultiListenable extends ChangeNotifier {
+  _MultiListenable(this._listenables) {
+    for (final l in _listenables) {
+      l.addListener(notifyListeners);
+    }
+  }
+  final List<Listenable> _listenables;
+
+  @override
+  void dispose() {
+    for (final l in _listenables) {
+      l.removeListener(notifyListeners);
+    }
+    super.dispose();
+  }
+}
 
 class AppRouter {
   static final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
   static final GoRouter router = GoRouter(
-    refreshListenable: AuthProvider.instance,
+    refreshListenable: _MultiListenable([
+      AuthProvider.instance,
+      GuestProvider(),   // singleton — same instance as MultiProvider
+    ]),
     observers: [
       FirebaseAnalyticsObserver(analytics: _analytics),
     ],
@@ -98,6 +130,27 @@ class AppRouter {
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
+      ),
+
+      // Verification Wall — shown when guest/unverified tries protected action
+      GoRoute(
+        path: '/auth/verify-wall',
+        builder: (context, state) => VerificationWallScreen(
+          returnPath: state.uri.queryParameters['returnPath'] ?? '/customer/home',
+          reason: state.uri.queryParameters['reason'],
+        ),
+      ),
+
+      // Security PIN
+      GoRoute(
+        path: '/security-pin',
+        builder: (context, state) => const SecurityPinScreen(),
+      ),
+
+      // Account Picker
+      GoRoute(
+        path: '/account-picker',
+        builder: (context, state) => const AccountPickerScreen(),
       ),
 
       // OTP Verification
@@ -141,6 +194,10 @@ class AppRouter {
           GoRoute(
             path: 'profile',
             builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: 'devices',
+            builder: (context, state) => const MyDevicesScreen(),
           ),
           GoRoute(
             path: 'product/:productId',
@@ -308,6 +365,18 @@ class AppRouter {
             path: 'operating-hours',
             builder: (context, state) => const OperatingHoursScreen(),
           ),
+          GoRoute(
+            path: 'cash-register',
+            builder: (context, state) => const CashRegisterScreen(),
+          ),
+          GoRoute(
+            path: 'bill-scanner',
+            builder: (context, state) => const BillScannerScreen(),
+          ),
+          GoRoute(
+            path: 'employees',
+            builder: (context, state) => const EmployeeManagementScreen(),
+          ),
         ],
       ),
 
@@ -333,6 +402,10 @@ class AppRouter {
           GoRoute(
             path: 'trip-sheet',
             builder: (context, state) => const TripRouteSheet(),
+          ),
+          GoRoute(
+            path: 'smart-route',
+            builder: (context, state) => const SmartRouteScreen(),
           ),
         ],
       ),
@@ -411,35 +484,134 @@ class AppRouter {
             path: 'expiry',
             builder: (context, state) => const ExpiryManagementScreen(),
           ),
+
+          // ── New scanner screens ─────────────────────────────────────────────
+          GoRoute(
+            path: 'hub',
+            builder: (context, state) {
+              final mode = state.uri.queryParameters['mode'];
+              return UnifiedScannerHub(initialMode: mode);
+            },
+          ),
+          GoRoute(
+            path: 'dispatch',
+            builder: (context, state) {
+              final orderId = state.uri.queryParameters['orderId'];
+              return DispatchScannerScreen(orderId: orderId);
+            },
+          ),
+          GoRoute(
+            path: 'pod',
+            builder: (context, state) {
+              final parcelId = state.uri.queryParameters['parcelId'];
+              return DeliveryPodScannerScreen(parcelId: parcelId);
+            },
+          ),
+          GoRoute(
+            path: 'member',
+            builder: (context, state) {
+              final customerId = state.uri.queryParameters['customerId'];
+              return CustomerMembershipScannerScreen(
+                  customerId: customerId);
+            },
+          ),
         ],
+      ),
+
+      // Owner: scan activity log
+      GoRoute(
+        path: '/owner/scan-activity',
+        builder: (context, state) => const ScanActivityScreen(),
       ),
     ],
     redirect: (context, state) {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final isLoggedIn = authProvider.isLoggedIn;
-      final user = authProvider.currentUser;
+      final authProvider  = Provider.of<AuthProvider>(context, listen: false);
+      final guestProvider = Provider.of<GuestProvider>(context, listen: false);
+      final isLoggedIn    = authProvider.isLoggedIn;
+      final user          = authProvider.currentUser;
+      final isGuest       = guestProvider.isGuestMode;
+      final path          = state.uri.path;
 
-      final isOnOnboarding = state.uri.path == '/' || 
-                             state.uri.path == '/login' || 
-                             state.uri.path.startsWith('/otp/') ||
-                             state.uri.path == '/role-select' ||
-                             state.uri.path == '/profile-creation';
+      // ── Paths always accessible (no auth needed) ─────────────
+      final isOpenPath =
+          path == '/' ||
+          path == '/login' ||
+          path.startsWith('/otp/') ||
+          path == '/role-select' ||
+          path == '/profile-creation' ||
+          path == '/auth/verify-wall' ||
+          path == '/security-pin';
 
-      // 1. Not logged in: Allow login/otp screens
-      if (!isLoggedIn) {
-        if (state.uri.path == '/login' || state.uri.path.startsWith('/otp/')) return null;
+      // ── Paths guests CAN access (browse-only) ────────────────
+      final isGuestAllowed =
+          path == '/customer/home' ||
+          path == '/customer/search' ||
+          path.startsWith('/customer/product/') ||
+          path == '/customer/snap-to-shop';
+
+      // ── Paths that require verification (guest/unverified blocked) ──
+      final isVerificationRequired =
+          path == '/customer/orders' ||
+          path == '/customer/wallet' ||
+          path == '/customer/addresses' ||
+          path == '/customer/checkout' ||
+          path == '/customer/order-confirmation' ||
+          path.startsWith('/customer/order-detail/') ||
+          path.startsWith('/customer/track/') ||
+          path.startsWith('/customer/dispute/');
+
+      final isOnOnboarding = isOpenPath;
+
+      // 1. Not logged in + not in guest mode → login
+      if (!isLoggedIn && !isGuest) {
+        if (isOpenPath) return null;
         return '/login';
+      }
+
+      // 2. Guest mode — block protected routes → verification wall
+      if (isGuest && !isLoggedIn) {
+        if (isOpenPath || isGuestAllowed) return null;
+        if (isVerificationRequired) {
+          final encoded = Uri.encodeComponent(path);
+          return '/auth/verify-wall?returnPath=$encoded&reason=${Uri.encodeComponent("Verify your identity to continue")}';
+        }
+        // Any other customer route → also gate
+        if (path.startsWith('/customer/')) {
+          final encoded = Uri.encodeComponent(path);
+          return '/auth/verify-wall?returnPath=$encoded';
+        }
+        return '/customer/home';
       }
 
       // 2. Logged in: Route based on active role
       if (isLoggedIn && user != null) {
         final path = state.uri.path;
 
+        // Security Guard for Owner/Admin
+        if (user.role == UserRole.shopOwner || user.role == UserRole.admin) {
+          if (authProvider.isPinRequired && path != '/security-pin') {
+            return '/security-pin';
+          }
+          if (authProvider.isDeviceVerificationRequired && path != '/security-pin') {
+            // Re-using pin screen or dedicated device screen, but logic is in AuthProvider
+            return '/security-pin'; 
+          }
+        }
+
         // Force profile completion for new customers
-        if (user.role == UserRole.customer && 
-            (user.name == null || user.name!.isEmpty) && 
+        if (user.role == UserRole.customer &&
+            (user.name == null || user.name!.isEmpty) &&
             path != '/profile-creation') {
           return '/profile-creation';
+        }
+
+        // Unverified customer guard: block protected routes even if logged in
+        // (covers phone-OTP users who haven't completed profile verification)
+        if (user.role == UserRole.customer && !user.isVerified) {
+          if (isVerificationRequired) {
+            final encoded = Uri.encodeComponent(path);
+            return '/auth/verify-wall?returnPath=$encoded&reason=${Uri.encodeComponent("Complete verification to access this feature")}';
+          }
         }
 
         // If on onboarding pages, redirect to dashboard

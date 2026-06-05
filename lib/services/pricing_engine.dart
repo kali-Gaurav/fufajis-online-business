@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
 import '../models/product_model.dart';
 import 'notification_service.dart';
@@ -600,7 +598,7 @@ class PricingEngineService {
 
     if (snapshot.docs.isEmpty) return null;
     
-    final product = ProductModel.fromMap(snapshot.docs.first.data() as Map<String, dynamic>);
+    final product = ProductModel.fromMap(snapshot.docs.first.data());
     return product.price;
   }
 }

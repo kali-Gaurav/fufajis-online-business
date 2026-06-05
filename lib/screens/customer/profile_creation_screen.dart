@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/location_service.dart';
 import '../../utils/app_theme.dart';
 
 class ProfileCreationScreen extends StatefulWidget {
-  const ProfileCreationScreen({Key? key}) : super(key: key);
+  const ProfileCreationScreen({super.key});
 
   @override
   State<ProfileCreationScreen> createState() => _ProfileCreationScreenState();

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../models/chat_message_model.dart';
@@ -112,7 +112,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
   Widget _buildInputArea(dynamic user) {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: AppTheme.grey200))),
+      decoration: const BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: AppTheme.grey200))),
       child: Row(
         children: [
           IconButton(

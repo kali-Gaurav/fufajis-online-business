@@ -1,8 +1,74 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
+    
+    // Helper: is user signed in?
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Helper: is user updating their own folder?
+    function isUserOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Helper: is user an admin or shop owner?
+    // We check their role in Firestore (since Storage rules support fetching Firestore docs)
+    function isShopOwnerOrAdmin() {
+      return isSignedIn() && 
+        (firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'UserRole.shopOwner' ||
+         firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'UserRole.admin');
+    }
+
+    // Enforce file metadata (size < 5MB and is an image)
+    function isValidImage() {
+      return request.resource.size < 5 * 1024 * 1024
+          && request.resource.contentType.matches('image/.*');
+    }
+
+    // Enforce file metadata for PDFs (size < 10MB)
+    function isValidPdf() {
+      return request.resource.size < 10 * 1024 * 1024
+          && request.resource.contentType == 'application/pdf';
+    }
+
+    // 1. User profiles folder
+    match /users/{userId}/{allPaths=**} {
+      allow read: if isSignedIn();
+      allow write: if isUserOwner(userId) && isValidImage();
+    }
+
+    // 2. Product images - read by anyone, write only by Owner/Admin
+    match /products/{productId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if isShopOwnerOrAdmin() && isValidImage();
+    }
+
+    // 3. Shelf photos / freshness verification images
+    match /shelf_photos/{productId}/{allPaths=**} {
+      allow read: if isSignedIn();
+      allow write: if isShopOwnerOrAdmin() && isValidImage();
+    }
+
+    // 4. Review images - read by anyone, write by any authenticated user for their reviews
+    match /reviews/{productId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if isSignedIn() && isValidImage();
+    }
+
+    // 5. Invoices - read by customer who owns order or by shop owner/admin, write only by owner/admin
+    match /invoices/{orderId}.pdf {
+      allow read: if isSignedIn() && (
+        request.auth.uid == firestore.get(/databases/(default)/documents/orders/$(orderId)).data.customerId ||
+        isShopOwnerOrAdmin()
+      );
+      allow write: if isShopOwnerOrAdmin() && isValidPdf();
+    }
+
+    // 6. Generic system assets/fallback
     match /{allPaths=**} {
-      allow read, write: if request.auth != null;
+      allow read: if isSignedIn();
+      allow write: if isShopOwnerOrAdmin();
     }
   }
 }

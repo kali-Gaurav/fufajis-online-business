@@ -69,14 +69,13 @@ class AdminProvider with ChangeNotifier {
           .collection('orders')
           .where('status', isEqualTo: 'delivered')
           .get();
-      
+
       double revenue = 0.0;
       for (var doc in completedOrdersSnapshot.docs) {
         final data = doc.data();
         revenue += (data['totalAmount'] ?? 0.0).toDouble();
       }
       _totalRevenue = revenue;
-
     } catch (e) {
       _error = 'Failed to load metrics: $e';
     } finally {
@@ -129,7 +128,9 @@ class AdminProvider with ChangeNotifier {
 
     try {
       final snapshot = await _firestore.collection('shops').get();
-      _shops = snapshot.docs.map((doc) => {...doc.data(), 'id': doc.id}).toList();
+      _shops = snapshot.docs
+          .map((doc) => {...doc.data(), 'id': doc.id})
+          .toList();
     } catch (e) {
       _error = 'Failed to fetch shops: $e';
     } finally {
@@ -164,7 +165,7 @@ class AdminProvider with ChangeNotifier {
           .collectionGroup('products')
           .where('isApproved', isEqualTo: false)
           .get();
-      
+
       _pendingProducts = snapshot.docs
           .map((doc) => ProductModel.fromMap({...doc.data(), 'id': doc.id}))
           .toList();
@@ -185,10 +186,10 @@ class AdminProvider with ChangeNotifier {
           .collection('products')
           .doc(productId)
           .update({
-        'isApproved': true,
-        'isAvailable': true,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+            'isApproved': true,
+            'isAvailable': true,
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
       _pendingProducts.removeWhere((p) => p.id == productId);
       notifyListeners();
     } catch (e) {
@@ -198,7 +199,11 @@ class AdminProvider with ChangeNotifier {
   }
 
   /// Reject product
-  Future<void> rejectProduct(String shopId, String productId, String reason) async {
+  Future<void> rejectProduct(
+    String shopId,
+    String productId,
+    String reason,
+  ) async {
     try {
       await _firestore
           .collection('shops')
@@ -206,11 +211,11 @@ class AdminProvider with ChangeNotifier {
           .collection('products')
           .doc(productId)
           .update({
-        'isApproved': false,
-        'isAvailable': false,
-        'rejectionReason': reason,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+            'isApproved': false,
+            'isAvailable': false,
+            'rejectionReason': reason,
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
       _pendingProducts.removeWhere((p) => p.id == productId);
       notifyListeners();
     } catch (e) {

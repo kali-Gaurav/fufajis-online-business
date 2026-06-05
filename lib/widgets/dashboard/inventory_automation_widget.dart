@@ -34,7 +34,14 @@ class InventoryAutomationWidget extends StatelessWidget {
                   color: AppTheme.secondary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Text('SMART', style: TextStyle(fontSize: 10, color: AppTheme.secondary, fontWeight: FontWeight.bold)),
+                child: const Text(
+                  'SMART',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: AppTheme.secondary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ],
           ),
@@ -58,8 +65,17 @@ class InventoryAutomationWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-              Text(status, style: const TextStyle(fontSize: 11, color: AppTheme.grey600)),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                status,
+                style: const TextStyle(fontSize: 11, color: AppTheme.grey600),
+              ),
             ],
           ),
         ),

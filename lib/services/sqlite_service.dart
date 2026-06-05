@@ -141,9 +141,26 @@ class SqliteService {
 
   Future<void> upsertProduct(Map<String, dynamic> product) async {
     final db = await database;
-    await db.insert(
-      'products',
-      {
+    await db.insert('products', {
+      'id': product['id'],
+      'name': product['name'] ?? '',
+      'category': product['category'] ?? '',
+      'price': (product['price'] ?? 0).toDouble(),
+      'stock_quantity': product['stockQuantity'] ?? 0,
+      'is_available': (product['isAvailable'] == true) ? 1 : 0,
+      'image_url': product['imageUrl'] ?? '',
+      'unit': product['unit'] ?? '',
+      'barcode': product['barcode'] ?? '',
+      'data_json': jsonEncode(product),
+      'synced_at': DateTime.now().millisecondsSinceEpoch,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  Future<void> cacheProducts(List<Map<String, dynamic>> products) async {
+    final db = await database;
+    final batch = db.batch();
+    for (final product in products) {
+      batch.insert('products', {
         'id': product['id'],
         'name': product['name'] ?? '',
         'category': product['category'] ?? '',
@@ -155,32 +172,7 @@ class SqliteService {
         'barcode': product['barcode'] ?? '',
         'data_json': jsonEncode(product),
         'synced_at': DateTime.now().millisecondsSinceEpoch,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  }
-
-  Future<void> cacheProducts(List<Map<String, dynamic>> products) async {
-    final db = await database;
-    final batch = db.batch();
-    for (final product in products) {
-      batch.insert(
-        'products',
-        {
-          'id': product['id'],
-          'name': product['name'] ?? '',
-          'category': product['category'] ?? '',
-          'price': (product['price'] ?? 0).toDouble(),
-          'stock_quantity': product['stockQuantity'] ?? 0,
-          'is_available': (product['isAvailable'] == true) ? 1 : 0,
-          'image_url': product['imageUrl'] ?? '',
-          'unit': product['unit'] ?? '',
-          'barcode': product['barcode'] ?? '',
-          'data_json': jsonEncode(product),
-          'synced_at': DateTime.now().millisecondsSinceEpoch,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
     }
     await batch.commit(noResult: true);
     debugPrint('[SqliteService] Cached ${products.length} products.');
@@ -189,7 +181,11 @@ class SqliteService {
   Future<List<Map<String, dynamic>>> getCachedProducts() async {
     final db = await database;
     final rows = await db.query('products');
-    return rows.map((r) => jsonDecode(r['data_json'] as String) as Map<String, dynamic>).toList();
+    return rows
+        .map(
+          (r) => jsonDecode(r['data_json'] as String) as Map<String, dynamic>,
+        )
+        .toList();
   }
 
   Future<void> clearProductCache() async {
@@ -201,30 +197,34 @@ class SqliteService {
 
   Future<void> saveOrder(Map<String, dynamic> order) async {
     final db = await database;
-    await db.insert(
-      'orders',
-      {
-        'id': order['id'],
-        'order_number': order['orderNumber'] ?? '',
-        'customer_id': order['customerId'] ?? '',
-        'customer_name': order['customerName'] ?? '',
-        'status': order['status'] ?? 'pending',
-        'payment_method': order['paymentMethod']?.toString() ?? '',
-        'payment_status': order['paymentStatus'] ?? 'pending',
-        'total_amount': (order['totalAmount'] ?? 0).toDouble(),
-        'is_synced': 0,
-        'data_json': jsonEncode(order),
-        'created_at': DateTime.now().millisecondsSinceEpoch,
-        'updated_at': DateTime.now().millisecondsSinceEpoch,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert('orders', {
+      'id': order['id'],
+      'order_number': order['orderNumber'] ?? '',
+      'customer_id': order['customerId'] ?? '',
+      'customer_name': order['customerName'] ?? '',
+      'status': order['status'] ?? 'pending',
+      'payment_method': order['paymentMethod']?.toString() ?? '',
+      'payment_status': order['paymentStatus'] ?? 'pending',
+      'total_amount': (order['totalAmount'] ?? 0).toDouble(),
+      'is_synced': 0,
+      'data_json': jsonEncode(order),
+      'created_at': DateTime.now().millisecondsSinceEpoch,
+      'updated_at': DateTime.now().millisecondsSinceEpoch,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<List<Map<String, dynamic>>> getUnsyncedOrders() async {
     final db = await database;
-    final rows = await db.query('orders', where: 'is_synced = ?', whereArgs: [0]);
-    return rows.map((r) => jsonDecode(r['data_json'] as String) as Map<String, dynamic>).toList();
+    final rows = await db.query(
+      'orders',
+      where: 'is_synced = ?',
+      whereArgs: [0],
+    );
+    return rows
+        .map(
+          (r) => jsonDecode(r['data_json'] as String) as Map<String, dynamic>,
+        )
+        .toList();
   }
 
   Future<void> markOrderSynced(String orderId) async {
@@ -246,26 +246,26 @@ class SqliteService {
 
   Future<void> saveCartItem(Map<String, dynamic> item) async {
     final db = await database;
-    await db.insert(
-      'cart',
-      {
-        'id': item['id'],
-        'product_id': item['productId'],
-        'product_name': item['productName'] ?? '',
-        'price': (item['price'] ?? 0).toDouble(),
-        'quantity': item['quantity'] ?? 1,
-        'unit': item['unit'] ?? '',
-        'data_json': jsonEncode(item),
-        'added_at': DateTime.now().millisecondsSinceEpoch,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert('cart', {
+      'id': item['id'],
+      'product_id': item['productId'],
+      'product_name': item['productName'] ?? '',
+      'price': (item['price'] ?? 0).toDouble(),
+      'quantity': item['quantity'] ?? 1,
+      'unit': item['unit'] ?? '',
+      'data_json': jsonEncode(item),
+      'added_at': DateTime.now().millisecondsSinceEpoch,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<List<Map<String, dynamic>>> getCartItems() async {
     final db = await database;
     final rows = await db.query('cart');
-    return rows.map((r) => jsonDecode(r['data_json'] as String) as Map<String, dynamic>).toList();
+    return rows
+        .map(
+          (r) => jsonDecode(r['data_json'] as String) as Map<String, dynamic>,
+        )
+        .toList();
   }
 
   Future<void> updateCartItemQuantity(String itemId, int quantity) async {
@@ -275,7 +275,9 @@ class SqliteService {
     } else {
       final rows = await db.query('cart', where: 'id = ?', whereArgs: [itemId]);
       if (rows.isNotEmpty) {
-        final item = jsonDecode(rows.first['data_json'] as String) as Map<String, dynamic>;
+        final item =
+            jsonDecode(rows.first['data_json'] as String)
+                as Map<String, dynamic>;
         item['quantity'] = quantity;
         await db.update(
           'cart',
@@ -301,29 +303,33 @@ class SqliteService {
 
   Future<void> saveInventoryAction(Map<String, dynamic> action) async {
     final db = await database;
-    await db.insert(
-      'inventory',
-      {
-        'id': action['id'],
-        'product_id': action['productId'],
-        'action_type': action['actionType'] ?? 'receive',
-        'quantity': action['quantity'] ?? 0,
-        'batch_number': action['batchNumber'] ?? '',
-        'notes': action['notes'] ?? '',
-        'shop_id': action['shopId'] ?? '',
-        'branch_id': action['branchId'] ?? '',
-        'is_synced': 0,
-        'data_json': jsonEncode(action),
-        'created_at': DateTime.now().millisecondsSinceEpoch,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert('inventory', {
+      'id': action['id'],
+      'product_id': action['productId'],
+      'action_type': action['actionType'] ?? 'receive',
+      'quantity': action['quantity'] ?? 0,
+      'batch_number': action['batchNumber'] ?? '',
+      'notes': action['notes'] ?? '',
+      'shop_id': action['shopId'] ?? '',
+      'branch_id': action['branchId'] ?? '',
+      'is_synced': 0,
+      'data_json': jsonEncode(action),
+      'created_at': DateTime.now().millisecondsSinceEpoch,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<List<Map<String, dynamic>>> getUnsyncedInventoryActions() async {
     final db = await database;
-    final rows = await db.query('inventory', where: 'is_synced = ?', whereArgs: [0]);
-    return rows.map((r) => jsonDecode(r['data_json'] as String) as Map<String, dynamic>).toList();
+    final rows = await db.query(
+      'inventory',
+      where: 'is_synced = ?',
+      whereArgs: [0],
+    );
+    return rows
+        .map(
+          (r) => jsonDecode(r['data_json'] as String) as Map<String, dynamic>,
+        )
+        .toList();
   }
 
   Future<void> markInventoryActionSynced(String actionId) async {
@@ -346,22 +352,20 @@ class SqliteService {
     required Map<String, dynamic> data,
   }) async {
     final db = await database;
-    await db.insert(
-      'pending_sync',
-      {
-        'id': id,
-        'action_type': actionType,
-        'collection': collection,
-        'document_id': documentId,
-        'data_json': jsonEncode(data),
-        'retry_count': 0,
-        'status': 'pending',
-        'created_at': DateTime.now().millisecondsSinceEpoch,
-        'last_tried_at': null,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
+    await db.insert('pending_sync', {
+      'id': id,
+      'action_type': actionType,
+      'collection': collection,
+      'document_id': documentId,
+      'data_json': jsonEncode(data),
+      'retry_count': 0,
+      'status': 'pending',
+      'created_at': DateTime.now().millisecondsSinceEpoch,
+      'last_tried_at': null,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
+    debugPrint(
+      '[SqliteService] Enqueued sync: $actionType/$collection/$documentId',
     );
-    debugPrint('[SqliteService] Enqueued sync: $actionType/$collection/$documentId');
   }
 
   Future<List<Map<String, dynamic>>> getPendingSyncItems() async {
@@ -372,14 +376,18 @@ class SqliteService {
       whereArgs: ['pending'],
       orderBy: 'created_at ASC',
     );
-    return rows.map((r) => {
-      'id': r['id'],
-      'actionType': r['action_type'],
-      'collection': r['collection'],
-      'documentId': r['document_id'],
-      'data': jsonDecode(r['data_json'] as String),
-      'retryCount': r['retry_count'],
-    }).toList();
+    return rows
+        .map(
+          (r) => {
+            'id': r['id'],
+            'actionType': r['action_type'],
+            'collection': r['collection'],
+            'documentId': r['document_id'],
+            'data': jsonDecode(r['data_json'] as String),
+            'retryCount': r['retry_count'],
+          },
+        )
+        .toList();
   }
 
   Future<void> markSyncDone(String syncId) async {
@@ -394,7 +402,11 @@ class SqliteService {
 
   Future<void> markSyncFailed(String syncId, {int maxRetries = 5}) async {
     final db = await database;
-    final rows = await db.query('pending_sync', where: 'id = ?', whereArgs: [syncId]);
+    final rows = await db.query(
+      'pending_sync',
+      where: 'id = ?',
+      whereArgs: [syncId],
+    );
     if (rows.isEmpty) return;
     final retryCount = (rows.first['retry_count'] as int) + 1;
     final newStatus = retryCount >= maxRetries ? 'failed' : 'pending';
@@ -417,7 +429,9 @@ class SqliteService {
 
   Future<int> getPendingSyncCount() async {
     final db = await database;
-    final result = await db.rawQuery("SELECT COUNT(*) as count FROM pending_sync WHERE status = 'pending'");
+    final result = await db.rawQuery(
+      "SELECT COUNT(*) as count FROM pending_sync WHERE status = 'pending'",
+    );
     return (result.first['count'] as int?) ?? 0;
   }
 
@@ -432,29 +446,31 @@ class SqliteService {
     String? details,
   }) async {
     final db = await database;
-    await db.insert(
-      'audit_logs',
-      {
-        'id': id,
-        'action': action,
-        'entity_type': entityType,
-        'entity_id': entityId ?? '',
-        'user_id': userId ?? '',
-        'details': details ?? '',
-        'timestamp': DateTime.now().millisecondsSinceEpoch,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert('audit_logs', {
+      'id': id,
+      'action': action,
+      'entity_type': entityType,
+      'entity_id': entityId ?? '',
+      'user_id': userId ?? '',
+      'details': details ?? '',
+      'timestamp': DateTime.now().millisecondsSinceEpoch,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<List<Map<String, dynamic>>> getAuditLogs({int limit = 100}) async {
     final db = await database;
-    return await db.query('audit_logs', orderBy: 'timestamp DESC', limit: limit);
+    return await db.query(
+      'audit_logs',
+      orderBy: 'timestamp DESC',
+      limit: limit,
+    );
   }
 
   Future<void> clearOldAuditLogs({int keepDays = 30}) async {
     final db = await database;
-    final cutoff = DateTime.now().subtract(Duration(days: keepDays)).millisecondsSinceEpoch;
+    final cutoff = DateTime.now()
+        .subtract(Duration(days: keepDays))
+        .millisecondsSinceEpoch;
     await db.delete('audit_logs', where: 'timestamp < ?', whereArgs: [cutoff]);
   }
 

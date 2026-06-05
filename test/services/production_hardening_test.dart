@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fufajis_online/services/cache_service.dart';
 import 'package:fufajis_online/services/razorpay_service.dart';
-import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

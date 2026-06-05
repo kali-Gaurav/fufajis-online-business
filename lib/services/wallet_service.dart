@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import '../models/user_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'audit_service.dart';
 
 /// Enum for wallet transaction types
 enum WalletTransactionType {
@@ -217,6 +218,24 @@ class WalletService {
           transactionData.toMap(),
         );
       });
+
+      // Log Refund to Audit
+      if (transactionType == WalletTransactionType.refund) {
+        final currentUser = FirebaseAuth.instance.currentUser;
+        await AuditService().logAction(
+          userId: currentUser?.uid ?? 'system',
+          userName: currentUser?.displayName ?? currentUser?.email ?? 'System/Admin',
+          action: AuditAction.adminAction,
+          description: 'Issued wallet refund of ₹$amount to user $userId',
+          metadata: {
+            'targetUserId': userId,
+            'amount': amount,
+            'orderReference': orderReference,
+            'description': description,
+            'transactionId': finalTxnId,
+          },
+        );
+      }
 
       return true;
     } catch (e) {

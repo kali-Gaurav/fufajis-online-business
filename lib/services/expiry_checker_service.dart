@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../models/product_model.dart';
 import '../models/product_batch_model.dart';
 import 'notification_service.dart';
@@ -10,7 +9,7 @@ import 'analytics_service.dart';
 /// Expiry Checker Service for Auto-Expiry Date Tracking & Dynamic Markdown
 /// Automatically discounts products nearing expiry to clear stock
 class ExpiryCheckerService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  FirebaseFirestore get _firestore => FirebaseFirestore.instance;
   final NotificationService _notificationService = NotificationService();
   final AnalyticsService _analyticsService = AnalyticsService();
 

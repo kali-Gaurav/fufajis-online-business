@@ -68,7 +68,7 @@ void main() {
     });
 
     test('isFromToday should return false for older orders', () {
-      final oldOrderNumber = 'HLM-20200101-1234';
+      const oldOrderNumber = 'HLM-20200101-1234';
       expect(OrderNumberGenerator.isFromToday(oldOrderNumber), isFalse);
     });
 

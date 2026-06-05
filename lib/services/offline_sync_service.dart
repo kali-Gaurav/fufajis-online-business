@@ -43,12 +43,15 @@ class OfflineSyncService {
       _checkStatus(currentResults);
 
       // React to future connectivity changes
-      _connectivitySubscription =
-          _connectivity.onConnectivityChanged.listen((results) {
+      _connectivitySubscription = _connectivity.onConnectivityChanged.listen((
+        results,
+      ) {
         _checkStatus(results);
       });
 
-      debugPrint('[OfflineSyncService] Initialized. Pending: ${pendingSyncCount.value}');
+      debugPrint(
+        '[OfflineSyncService] Initialized. Pending: ${pendingSyncCount.value}',
+      );
     } catch (e) {
       debugPrint('[OfflineSyncService] Failed to initialize: $e');
     }
@@ -92,7 +95,9 @@ class OfflineSyncService {
       },
     );
     await _refreshCounts();
-    debugPrint('[OfflineSyncService] Enqueued status "$status" for order $orderId');
+    debugPrint(
+      '[OfflineSyncService] Enqueued status "$status" for order $orderId',
+    );
     if (isOnline.value) processQueue();
   }
 
@@ -105,7 +110,8 @@ class OfflineSyncService {
     required Map<String, dynamic> data,
   }) async {
     if (!_isInitialized) await init();
-    final taskId = 'emp_${DateTime.now().millisecondsSinceEpoch}_${actionType}_$documentId';
+    final taskId =
+        'emp_${DateTime.now().millisecondsSinceEpoch}_${actionType}_$documentId';
     await _sqlite.enqueuePendingSync(
       id: taskId,
       actionType: actionType,
@@ -122,7 +128,9 @@ class OfflineSyncService {
       },
     );
     await _refreshCounts();
-    debugPrint('[OfflineSyncService] Enqueued employee action "$actionType" for $documentId');
+    debugPrint(
+      '[OfflineSyncService] Enqueued employee action "$actionType" for $documentId',
+    );
     if (isOnline.value) processQueue();
   }
 
@@ -138,10 +146,14 @@ class OfflineSyncService {
   Future<void> _processOrderQueue() async {
     if (!_isInitialized || !isOnline.value) return;
     final items = await _sqlite.getPendingSyncItems();
-    final orderItems = items.where((i) => i['actionType'] == 'order_status').toList();
+    final orderItems = items
+        .where((i) => i['actionType'] == 'order_status')
+        .toList();
     if (orderItems.isEmpty) return;
 
-    debugPrint('[OfflineSyncService] Processing ${orderItems.length} order tasks...');
+    debugPrint(
+      '[OfflineSyncService] Processing ${orderItems.length} order tasks...',
+    );
 
     for (final item in orderItems) {
       if (!isOnline.value) break;
@@ -166,10 +178,14 @@ class OfflineSyncService {
   Future<void> _processEmployeeQueue() async {
     if (!_isInitialized || !isOnline.value) return;
     final items = await _sqlite.getPendingSyncItems();
-    final empItems = items.where((i) => i['actionType'] != 'order_status').toList();
+    final empItems = items
+        .where((i) => i['actionType'] != 'order_status')
+        .toList();
     if (empItems.isEmpty) return;
 
-    debugPrint('[OfflineSyncService] Processing ${empItems.length} employee tasks...');
+    debugPrint(
+      '[OfflineSyncService] Processing ${empItems.length} employee tasks...',
+    );
     final firestore = FirebaseFirestore.instance;
 
     for (final item in empItems) {
@@ -180,22 +196,31 @@ class OfflineSyncService {
       final shopId = data['shopId'] as String? ?? '';
       final branchId = data['branchId'] as String? ?? '';
       final documentId = data['documentId'] as String? ?? '';
-      final rawLocalData = Map<String, dynamic>.from(data['data'] as Map? ?? {});
+      final rawLocalData = Map<String, dynamic>.from(
+        data['data'] as Map? ?? {},
+      );
       final localData = _convertDateTimeToTimestamp(rawLocalData);
-      final localTimestamp = DateTime.tryParse(data['timestamp'] as String? ?? '') ?? DateTime.now();
+      final localTimestamp =
+          DateTime.tryParse(data['timestamp'] as String? ?? '') ??
+          DateTime.now();
 
       final collectionPath = _collectionForAction(actionType);
       if (collectionPath.isEmpty) {
-        debugPrint('[OfflineSyncService] Unknown action type $actionType. Discarding.');
+        debugPrint(
+          '[OfflineSyncService] Unknown action type $actionType. Discarding.',
+        );
         await _sqlite.markSyncDone(item['id'] as String);
         continue;
       }
 
       try {
         final docRef = firestore
-            .collection('shops').doc(shopId)
-            .collection('branches').doc(branchId)
-            .collection(collectionPath).doc(documentId);
+            .collection('shops')
+            .doc(shopId)
+            .collection('branches')
+            .doc(branchId)
+            .collection(collectionPath)
+            .doc(documentId);
 
         final snapshot = await docRef.get();
         bool shouldWrite = true;
@@ -206,11 +231,16 @@ class OfflineSyncService {
           if (serverData != null) {
             final serverModified = serverData['lastModified'] is Timestamp
                 ? (serverData['lastModified'] as Timestamp).toDate()
-                : DateTime.tryParse(serverData['lastModified']?.toString() ?? '');
+                : DateTime.tryParse(
+                    serverData['lastModified']?.toString() ?? '',
+                  );
 
-            if (serverModified != null && serverModified.isAfter(localTimestamp)) {
+            if (serverModified != null &&
+                serverModified.isAfter(localTimestamp)) {
               shouldWrite = false;
-              debugPrint('[OfflineSyncService] Conflict: server is newer for $documentId. Writing alert.');
+              debugPrint(
+                '[OfflineSyncService] Conflict: server is newer for $documentId. Writing alert.',
+              );
               await _writeConflictAlert(
                 firestore: firestore,
                 shopId: shopId,
@@ -232,16 +262,28 @@ class OfflineSyncService {
           await docRef.set(localData, SetOptions(merge: true));
 
           // Adjust stock for inventory mutations
-          if (actionType == 'receive' || actionType == 'damage' || actionType == 'return') {
-            await _adjustStock(firestore, shopId, branchId, localData, actionType);
+          if (actionType == 'receive' ||
+              actionType == 'damage' ||
+              actionType == 'return') {
+            await _adjustStock(
+              firestore,
+              shopId,
+              branchId,
+              localData,
+              actionType,
+            );
           }
         }
 
         await _sqlite.markSyncDone(item['id'] as String);
-        debugPrint('[OfflineSyncService] Employee sync complete: $actionType / $documentId');
+        debugPrint(
+          '[OfflineSyncService] Employee sync complete: $actionType / $documentId',
+        );
       } catch (e) {
         await _sqlite.markSyncFailed(item['id'] as String);
-        debugPrint('[OfflineSyncService] Failed to sync employee action $actionType / $documentId: $e');
+        debugPrint(
+          '[OfflineSyncService] Failed to sync employee action $actionType / $documentId: $e',
+        );
         break;
       }
     }
@@ -289,8 +331,11 @@ class OfflineSyncService {
         if (snapshot.exists) {
           final data = snapshot.data();
           if (data != null) {
-            final Map<dynamic, dynamic> branchStockMap = data['branchStock'] as Map? ?? {};
-            final targetBranchId = (branchId.isEmpty || branchId == 'primary') ? 'primary' : branchId;
+            final Map<dynamic, dynamic> branchStockMap =
+                data['branchStock'] as Map? ?? {};
+            final targetBranchId = (branchId.isEmpty || branchId == 'primary')
+                ? 'primary'
+                : branchId;
 
             int currentBranchStock = 0;
             if (branchStockMap.containsKey(targetBranchId)) {
@@ -301,7 +346,7 @@ class OfflineSyncService {
 
             final newBranchStock = currentBranchStock + quantity;
             final Map<String, int> updatedBranchStock = Map<String, int>.from(
-              branchStockMap.map((k, v) => MapEntry(k.toString(), v as int))
+              branchStockMap.map((k, v) => MapEntry(k.toString(), v as int)),
             );
             updatedBranchStock[targetBranchId] = newBranchStock;
 
@@ -310,21 +355,30 @@ class OfflineSyncService {
             if (updatedBranchStock.containsKey('primary')) {
               newGlobalStock = updatedBranchStock['primary']!;
             } else {
-              newGlobalStock = updatedBranchStock.values.fold(0, (total, val) => total + val);
+              newGlobalStock = updatedBranchStock.values.fold(
+                0,
+                (total, val) => total + val,
+              );
             }
 
             transaction.update(productRef, {
               'branchStock': updatedBranchStock,
               'stockQuantity': newGlobalStock,
-              'isAvailable': newGlobalStock > 0 || updatedBranchStock.values.any((val) => val > 0),
+              'isAvailable':
+                  newGlobalStock > 0 ||
+                  updatedBranchStock.values.any((val) => val > 0),
               'updatedAt': FieldValue.serverTimestamp(),
             });
           }
         }
       });
-      debugPrint('[OfflineSyncService] Adjusted stock globally for product $productId by $quantity');
+      debugPrint(
+        '[OfflineSyncService] Adjusted stock globally for product $productId by $quantity',
+      );
     } catch (e) {
-      debugPrint('[OfflineSyncService] Error performing transaction-based stock adjustment: $e');
+      debugPrint(
+        '[OfflineSyncService] Error performing transaction-based stock adjustment: $e',
+      );
       rethrow;
     }
   }
@@ -340,11 +394,15 @@ class OfflineSyncService {
     required Map<String, dynamic> serverData,
     required DateTime serverModified,
   }) async {
-    final alertId = 'conflict_${DateTime.now().millisecondsSinceEpoch}_$documentId';
+    final alertId =
+        'conflict_${DateTime.now().millisecondsSinceEpoch}_$documentId';
     final alertRef = firestore
-        .collection('shops').doc(shopId)
-        .collection('branches').doc(branchId)
-        .collection('inventory_alerts').doc(alertId);
+        .collection('shops')
+        .doc(shopId)
+        .collection('branches')
+        .doc(branchId)
+        .collection('inventory_alerts')
+        .doc(alertId);
 
     final details =
         'Conflict: Offline $actionType update ($documentId) at ${localTimestamp.toIso8601String()} '
@@ -375,7 +433,9 @@ class OfflineSyncService {
         );
       }
     } catch (waError) {
-      debugPrint('[OfflineSyncService] WhatsApp conflict alert failed: $waError');
+      debugPrint(
+        '[OfflineSyncService] WhatsApp conflict alert failed: $waError',
+      );
     }
   }
 
@@ -385,13 +445,18 @@ class OfflineSyncService {
     String branchId,
   ) async {
     final branchSnap = await firestore
-        .collection('shops').doc(shopId)
-        .collection('branches').doc(branchId)
+        .collection('shops')
+        .doc(shopId)
+        .collection('branches')
+        .doc(branchId)
         .get();
 
     if (!branchSnap.exists || branchSnap.data() == null) {
       return _ContactInfo(
-        phoneNumber: dotenv.get('WHATSAPP_OPERATIONS_PHONE', fallback: '919876543210'),
+        phoneNumber: dotenv.get(
+          'WHATSAPP_OPERATIONS_PHONE',
+          fallback: '919876543210',
+        ),
         name: 'Global Operations Support',
       );
     }
@@ -404,7 +469,12 @@ class OfflineSyncService {
       final m = await firestore.collection('users').doc(managerId).get();
       if (m.exists) {
         final p = m.data()?['phoneNumber'] as String? ?? '';
-        if (p.isNotEmpty) return _ContactInfo(phoneNumber: p, name: m.data()?['name'] ?? 'Manager');
+        if (p.isNotEmpty) {
+          return _ContactInfo(
+            phoneNumber: p,
+            name: m.data()?['name'] ?? 'Manager',
+          );
+        }
       }
     }
 
@@ -414,25 +484,39 @@ class OfflineSyncService {
       final a = await firestore.collection('users').doc(assistId).get();
       if (a.exists) {
         final p = a.data()?['phoneNumber'] as String? ?? '';
-        if (p.isNotEmpty) return _ContactInfo(phoneNumber: p, name: a.data()?['name'] ?? 'Asst. Manager');
+        if (p.isNotEmpty) {
+          return _ContactInfo(
+            phoneNumber: p,
+            name: a.data()?['name'] ?? 'Asst. Manager',
+          );
+        }
       }
     }
 
     // 3. Branch contact
     final contact = bd['contactPhone'] as String? ?? '';
     if (contact.isNotEmpty) {
-      return _ContactInfo(phoneNumber: contact, name: bd['branchName'] ?? 'Branch Manager');
+      return _ContactInfo(
+        phoneNumber: contact,
+        name: bd['branchName'] ?? 'Branch Manager',
+      );
     }
 
     // 4. Escalation
     final escalation = bd['escalationPhone'] as String? ?? '';
     if (escalation.isNotEmpty) {
-      return _ContactInfo(phoneNumber: escalation, name: 'Operations Escalation Desk');
+      return _ContactInfo(
+        phoneNumber: escalation,
+        name: 'Operations Escalation Desk',
+      );
     }
 
     // 5. Global fallback
     return _ContactInfo(
-      phoneNumber: dotenv.get('WHATSAPP_OPERATIONS_PHONE', fallback: '919876543210'),
+      phoneNumber: dotenv.get(
+        'WHATSAPP_OPERATIONS_PHONE',
+        fallback: '919876543210',
+      ),
       name: 'Global Operations Support',
     );
   }
@@ -445,13 +529,17 @@ class OfflineSyncService {
         result[key] = Timestamp.fromDate(value);
       } else if (value is String) {
         final parsed = DateTime.tryParse(value);
-        if (parsed != null && value.length >= 19 && (value.contains('-') || value.contains(':'))) {
+        if (parsed != null &&
+            value.length >= 19 &&
+            (value.contains('-') || value.contains(':'))) {
           result[key] = Timestamp.fromDate(parsed);
         } else {
           result[key] = value;
         }
       } else if (value is Map) {
-        result[key] = _convertDateTimeToTimestamp(Map<String, dynamic>.from(value));
+        result[key] = _convertDateTimeToTimestamp(
+          Map<String, dynamic>.from(value),
+        );
       } else if (value is List) {
         result[key] = value.map((item) {
           if (item is DateTime) return Timestamp.fromDate(item);
@@ -459,7 +547,9 @@ class OfflineSyncService {
             final p = DateTime.tryParse(item);
             if (p != null && item.length >= 19) return Timestamp.fromDate(p);
           }
-          if (item is Map) return _convertDateTimeToTimestamp(Map<String, dynamic>.from(item));
+          if (item is Map) {
+            return _convertDateTimeToTimestamp(Map<String, dynamic>.from(item));
+          }
           return item;
         }).toList();
       } else {
@@ -473,7 +563,9 @@ class OfflineSyncService {
     pendingSyncCount.value = await _sqlite.getPendingSyncCount();
     // Employee tasks are a subset of pending_sync where type != 'order_status'
     final all = await _sqlite.getPendingSyncItems();
-    pendingEmployeeSyncCount.value = all.where((i) => i['actionType'] != 'order_status').length;
+    pendingEmployeeSyncCount.value = all
+        .where((i) => i['actionType'] != 'order_status')
+        .length;
   }
 
   void dispose() {

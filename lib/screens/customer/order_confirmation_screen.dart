@@ -1,23 +1,21 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../models/order_model.dart';
 import '../../models/delivery_type.dart';
 import '../../models/payment_method.dart';
 import '../../providers/order_provider.dart';
 import '../../providers/cart_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../services/notification_service.dart';
 import '../../services/sms_service.dart';
 import '../../utils/app_theme.dart';
 import '../../services/delivery_charge_calculator.dart';
-
-/// Order Confirmation Screen
-/// Displays order confirmation details after successful order placement
-/// 
-/// [Requirements 4.8]: Display order number, estimated delivery date, and send confirmation SMS/notification
-/// [Requirements 4.9]: Navigate to order confirmation screen after order creation
 import '../../services/invoice_service.dart';
+import '../../widgets/payment_success_animation.dart';
 
 class OrderConfirmationScreen extends StatefulWidget {
   final String? orderId;
@@ -200,10 +198,16 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // Payment success animation (for online paid orders)
+                    _buildPaymentSuccessSection(),
+
                     // Success message
                     _buildSuccessMessage(),
                     const SizedBox(height: 20),
-                    
+
+                    // COD delivery OTP (shown only for COD orders)
+                    _buildCodOtpCard(),
+
                     // Order number and status
                     _buildOrderInfoCard(),
                     const SizedBox(height: 12),
@@ -246,6 +250,161 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
         _buildConfettiOverlay(),
       ],
     );
+  }
+
+  // ── COD OTP card ────────────────────────────────────────────────────────
+  Widget _buildCodOtpCard() {
+    final otp = _order!.otp;
+    if (_order!.paymentMethod != PaymentMethod.cod || otp == null || otp.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.warning.withValues(alpha: 0.15),
+            AppTheme.warning.withValues(alpha: 0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.warning.withValues(alpha: 0.5)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.lock_outline, color: AppTheme.warning, size: 20),
+              SizedBox(width: 8),
+              Text(
+                'Delivery Verification OTP',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.grey900,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Share this 4-digit OTP with the delivery agent upon receiving your order.',
+            style: TextStyle(fontSize: 12, color: AppTheme.grey600),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: otp.split('').map((digit) {
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 6),
+                width: 52,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppTheme.warning, width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.warning.withValues(alpha: 0.15),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  digit,
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.grey900,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 12),
+          Center(
+            child: TextButton.icon(
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: otp));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('OTP copied to clipboard')),
+                );
+              },
+              icon: const Icon(Icons.copy, size: 16),
+              label: const Text('Copy OTP'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── PaymentSuccessAnimation (for paid orders) ────────────────────────────
+  Widget _buildPaymentSuccessSection() {
+    if (_order == null) return const SizedBox.shrink();
+    final isPaid = _order!.paymentStatus == 'paid' ||
+        _order!.paymentMethod != PaymentMethod.cod;
+    if (!isPaid) return const SizedBox.shrink();
+    final delivery =
+        DeliveryChargeCalculator.getFormattedDeliveryDate(_order!.deliveryType);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: PaymentSuccessAnimation(
+        orderNumber: _order!.orderNumber,
+        estimatedDelivery: delivery,
+        onViewOrder: () {},
+        onContinueShopping: _navigateToHome,
+      ),
+    );
+  }
+
+  // ── WhatsApp share ───────────────────────────────────────────────────────
+  Future<void> _shareViaWhatsApp() async {
+    if (_order == null) return;
+    final items = _order!.items
+        .map((i) => '• ${i.productName} x${i.quantity}')
+        .join('\n');
+    final message = Uri.encodeComponent(
+      "Hi! I just placed an order on Fufaji's Online 🛒\n"
+      'Order #: ${_order!.orderNumber}\n'
+      'Items:\n$items\n'
+      'Total: ₹${_order!.totalAmount.round()}\n'
+      'Track: https://fufajionline.com/track/${_order!.orderNumber}',
+    );
+    final url = Uri.parse('https://wa.me/?text=$message');
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('WhatsApp not installed')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not open WhatsApp: $e')),
+        );
+      }
+    }
   }
 
   Widget _buildCelebrationHeader() {
@@ -322,9 +481,9 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
   }
 
   Widget _buildSuccessMessage() {
-    return Column(
+    return const Column(
       children: [
-        const Text(
+        Text(
           'Order Placed Successfully!',
           style: TextStyle(
             fontSize: 24,
@@ -333,7 +492,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
           ),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         Text(
           'Thank you for your order',
           style: TextStyle(
@@ -440,9 +599,9 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
             children: [
               const Icon(Icons.access_time, color: AppTheme.grey500, size: 16),
               const SizedBox(width: 8),
-              Text(
+              const Text(
                 'Estimated Delivery: ',
-                style: const TextStyle(fontSize: 13, color: AppTheme.grey600),
+                style: TextStyle(fontSize: 13, color: AppTheme.grey600),
               ),
               Expanded(
                 child: Text(
@@ -461,9 +620,9 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
             children: [
               const Icon(Icons.local_shipping, color: AppTheme.grey500, size: 16),
               const SizedBox(width: 8),
-              Text(
+              const Text(
                 'Delivery Charge: ',
-                style: const TextStyle(fontSize: 13, color: AppTheme.grey600),
+                style: TextStyle(fontSize: 13, color: AppTheme.grey600),
               ),
               Text(
                 _order!.deliveryCharge == 0 ? 'FREE' : '₹${_order!.deliveryCharge.round()}',
@@ -799,11 +958,11 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.location_on, color: AppTheme.primary, size: 20),
-              const SizedBox(width: 8),
-              const Text(
+              Icon(Icons.location_on, color: AppTheme.primary, size: 20),
+              SizedBox(width: 8),
+              Text(
                 'Delivery Address',
                 style: TextStyle(
                   fontSize: 16,
@@ -914,11 +1073,11 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.timeline, color: AppTheme.primary, size: 20),
-              const SizedBox(width: 8),
-              const Text(
+              Icon(Icons.timeline, color: AppTheme.primary, size: 20),
+              SizedBox(width: 8),
+              Text(
                 'Order Status',
                 style: TextStyle(
                   fontSize: 16,
@@ -1132,6 +1291,29 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
           ),
         ),
         const SizedBox(height: 12),
+
+        // Share via WhatsApp
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: _shareViaWhatsApp,
+            icon: const Icon(Icons.share, size: 18),
+            label: const Text(
+              'Share via WhatsApp',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF25D366),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+
         SizedBox(
           width: double.infinity,
           child: OutlinedButton(
@@ -1458,3 +1640,101 @@ class ConfettiPainter extends CustomPainter {
   }
 }
 
+/// Bottom sheet for rating the shopping experience (shown after first order).
+class _RateExperienceSheet extends StatefulWidget {
+  final String orderId;
+  const _RateExperienceSheet({required this.orderId});
+
+  @override
+  State<_RateExperienceSheet> createState() => _RateExperienceSheetState();
+}
+
+class _RateExperienceSheetState extends State<_RateExperienceSheet> {
+  int _rating = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: AppTheme.grey300,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'How was your experience?',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.grey900,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            "We'd love to hear your feedback on your first order!",
+            style: TextStyle(fontSize: 13, color: AppTheme.grey600),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(5, (i) {
+              final star = i + 1;
+              return IconButton(
+                onPressed: () => setState(() => _rating = star),
+                icon: Icon(
+                  star <= _rating ? Icons.star_rounded : Icons.star_outline_rounded,
+                  color: star <= _rating ? AppTheme.warning : AppTheme.grey300,
+                  size: 40,
+                ),
+              );
+            }),
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _rating > 0
+                  ? () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Thank you for your feedback!'),
+                        ),
+                      );
+                    }
+                  : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text(
+                'Submit',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Maybe later',
+              style: TextStyle(color: AppTheme.grey500),
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+}

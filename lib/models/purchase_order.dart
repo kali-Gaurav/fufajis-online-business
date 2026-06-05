@@ -58,14 +58,18 @@ class PurchaseOrder {
       id: map['id'] ?? '',
       shopId: map['shopId'] ?? '',
       distributorName: map['distributorName'] ?? '',
-      items: (map['items'] as List?)
-              ?.map((i) => PurchaseOrderItem.fromMap(Map<String, dynamic>.from(i)))
+      items:
+          (map['items'] as List?)
+              ?.map(
+                (i) => PurchaseOrderItem.fromMap(Map<String, dynamic>.from(i)),
+              )
               .toList() ??
           [],
       totalAmount: (map['totalAmount'] ?? 0.0).toDouble(),
       createdAt: map['createdAt'] is Timestamp
           ? (map['createdAt'] as Timestamp).toDate()
-          : DateTime.tryParse(map['createdAt']?.toString() ?? '') ?? DateTime.now(),
+          : DateTime.tryParse(map['createdAt']?.toString() ?? '') ??
+                DateTime.now(),
       status: map['status'] ?? 'draft',
     );
   }

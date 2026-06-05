@@ -17,13 +17,17 @@ class GroupBuyWidget extends StatelessWidget {
     if (!product.isGroupBuyEligible) return const SizedBox.shrink();
 
     final user = context.watch<AuthProvider>().currentUser;
-    if (user == null || user.district == null || user.village == null) return const SizedBox.shrink();
+    if (user == null || user.district == null || user.village == null) {
+      return const SizedBox.shrink();
+    }
 
     return StreamBuilder<List<GroupOrderModel>>(
       stream: _groupBuyService.getVillagePools(user.district!, user.village!),
       builder: (context, snapshot) {
         final pools = snapshot.data ?? [];
-        final productPools = pools.where((p) => p.shopId == product.shopId).toList();
+        final productPools = pools
+            .where((p) => p.shopId == product.shopId)
+            .toList();
 
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -46,11 +50,17 @@ class GroupBuyWidget extends StatelessWidget {
                       children: [
                         Text(
                           'Neighborhood Group Buy',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                         Text(
                           'Buy with neighbors to unlock 20% off!',
-                          style: TextStyle(fontSize: 12, color: AppTheme.grey600),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.grey600,
+                          ),
                         ),
                       ],
                     ),
@@ -61,7 +71,9 @@ class GroupBuyWidget extends StatelessWidget {
               if (productPools.isEmpty)
                 _buildCreatePool(context, user)
               else
-                ...productPools.map((pool) => _buildPoolItem(context, pool, user)),
+                ...productPools.map(
+                  (pool) => _buildPoolItem(context, pool, user),
+                ),
             ],
           ),
         );
@@ -84,7 +96,9 @@ class GroupBuyWidget extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.orange,
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
         child: const Text('Start a New Pool'),
       ),
@@ -109,11 +123,18 @@ class GroupBuyWidget extends StatelessWidget {
             children: [
               Text(
                 '${pool.memberIds.length} neighbors joined',
-                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
               ),
               Text(
                 '₹${pool.goalAmount.round() - pool.totalAmount.round()} more to go',
-                style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 13),
+                style: const TextStyle(
+                  color: Colors.orange,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
               ),
             ],
           ),
@@ -131,11 +152,19 @@ class GroupBuyWidget extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
-              onPressed: isMember ? null : () => _groupBuyService.joinPool(pool.id, user.id, product.price),
+              onPressed: isMember
+                  ? null
+                  : () => _groupBuyService.joinPool(
+                      pool.id,
+                      user.id,
+                      product.price,
+                    ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.orange,
                 side: const BorderSide(color: Colors.orange),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
               child: Text(isMember ? 'Joined ✅' : 'Join Pool'),
             ),

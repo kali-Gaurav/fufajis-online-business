@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../widgets/checkout/voice_landmark_widget.dart';
@@ -146,7 +146,7 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
           )
         else
           // Address list
-          ..._addresses.map((address) => _buildAddressCard(address)).toList(),
+          ..._addresses.map((address) => _buildAddressCard(address)),
 
         const SizedBox(height: 16),
 
@@ -354,7 +354,7 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.map,
                     size: 40,
                     color: AppTheme.grey400,

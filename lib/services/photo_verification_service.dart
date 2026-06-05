@@ -14,9 +14,10 @@ class PhotoVerificationService {
   }) async {
     try {
       final now = DateTime.now();
-      final path = 'products/$productId/shelf_${now.millisecondsSinceEpoch}.jpg';
+      final path =
+          'products/$productId/shelf_${now.millisecondsSinceEpoch}.jpg';
       final ref = _storage.ref().child(path);
-      
+
       final uploadTask = await ref.putFile(imageFile);
       final downloadUrl = await uploadTask.ref.getDownloadURL();
 

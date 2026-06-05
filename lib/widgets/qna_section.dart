@@ -1,5 +1,4 @@
-﻿import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../models/qna_model.dart';
@@ -315,7 +314,7 @@ class _QnaSectionState extends State<QnaSection> {
                         const Spacer(),
                         Text(
                           qna.timeAgo,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 12,
                             color: AppTheme.grey500,
                           ),
@@ -386,7 +385,7 @@ class _QnaSectionState extends State<QnaSection> {
                 const SizedBox(width: 8),
                 Text(
                   '• ${qna.answerTimeAgo}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     color: AppTheme.grey500,
                   ),
@@ -562,7 +561,7 @@ class _QnaSectionState extends State<QnaSection> {
         color: AppTheme.grey100,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Center(
+      child: const Center(
         child: Column(
           children: [
             Icon(
@@ -570,8 +569,8 @@ class _QnaSectionState extends State<QnaSection> {
               size: 48,
               color: AppTheme.grey400,
             ),
-            const SizedBox(height: 16),
-            const Text(
+            SizedBox(height: 16),
+            Text(
               'No questions yet',
               style: TextStyle(
                 fontSize: 16,
@@ -579,8 +578,8 @@ class _QnaSectionState extends State<QnaSection> {
                 color: AppTheme.grey600,
               ),
             ),
-            const SizedBox(height: 8),
-            const Text(
+            SizedBox(height: 8),
+            Text(
               'Be the first to ask a question about this product!',
               style: TextStyle(
                 fontSize: 14,
@@ -602,7 +601,7 @@ class _QnaSectionState extends State<QnaSection> {
         color: AppTheme.grey100,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Center(
+      child: const Center(
         child: Column(
           children: [
             Icon(
@@ -610,8 +609,8 @@ class _QnaSectionState extends State<QnaSection> {
               size: 48,
               color: AppTheme.grey400,
             ),
-            const SizedBox(height: 16),
-            const Text(
+            SizedBox(height: 16),
+            Text(
               'No matching questions',
               style: TextStyle(
                 fontSize: 16,
@@ -619,8 +618,8 @@ class _QnaSectionState extends State<QnaSection> {
                 color: AppTheme.grey600,
               ),
             ),
-            const SizedBox(height: 8),
-            const Text(
+            SizedBox(height: 8),
+            Text(
               'Try a different search term',
               style: TextStyle(
                 fontSize: 14,

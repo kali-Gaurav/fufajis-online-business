@@ -63,33 +63,33 @@ class ProductCardSkeleton extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
         ],
       ),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const ShimmerLoader.rectangular(
+          ShimmerLoader.rectangular(
             height: 120,
             borderRadius: 12,
           ),
           Padding(
-            padding: const EdgeInsets.all(8),
+            padding: EdgeInsets.all(8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const ShimmerLoader.rectangular(height: 16, width: 100),
-                const SizedBox(height: 8),
-                const ShimmerLoader.rectangular(height: 12, width: 60),
-                const SizedBox(height: 12),
+                ShimmerLoader.rectangular(height: 16, width: 100),
+                SizedBox(height: 8),
+                ShimmerLoader.rectangular(height: 12, width: 60),
+                SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const ShimmerLoader.rectangular(height: 20, width: 50),
-                    const ShimmerLoader.circular(size: 32),
+                    ShimmerLoader.rectangular(height: 20, width: 50),
+                    ShimmerLoader.circular(size: 32),
                   ],
                 ),
               ],

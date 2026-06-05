@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../utils/app_theme.dart';
 import '../../providers/shop_config_provider.dart';
-import '../../models/shop_config_model.dart';
 import 'shop_location_picker_screen.dart';
 import 'delivery_zones_screen.dart';
 import 'branch_management_screen.dart';
@@ -138,7 +138,7 @@ class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
                   title: const Text('Shop Open for Orders', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   subtitle: const Text('Toggle whether customers can place orders right now.'),
                   value: config.isOpen,
-                  activeColor: AppTheme.success,
+                  activeThumbColor: AppTheme.success,
                   inactiveThumbColor: AppTheme.error,
                   onChanged: (val) => provider.setShopOpen(val),
                 ),
@@ -163,7 +163,7 @@ class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
                     'Activates emergency protocols (limits capacities, disables express orders, prioritizes pickup-first).',
                   ),
                   value: config.isEmergencyMode,
-                  activeColor: Colors.red,
+                  activeThumbColor: Colors.red,
                   onChanged: (val) => provider.toggleEmergencyMode(),
                 ),
               ),
@@ -327,7 +327,7 @@ class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
                       title: const Text('Autopilot Dynamic Pricing'),
                       subtitle: const Text('Automatically updates product rates matching wholesale Mandi prices.'),
                       value: config.isAutoPilotEnabled,
-                      activeColor: AppTheme.primary,
+                      activeThumbColor: AppTheme.primary,
                       onChanged: (val) async {
                         await provider.updateShopConfig(config.copyWith(isAutoPilotEnabled: val));
                       },
@@ -337,7 +337,7 @@ class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
                       title: const Text('Enable Cashback rewards'),
                       subtitle: const Text('Give rewards to customers on successful order completions.'),
                       value: config.enableCashback,
-                      activeColor: AppTheme.primary,
+                      activeThumbColor: AppTheme.primary,
                       onChanged: (val) async {
                         await provider.updateShopConfig(config.copyWith(enableCashback: val));
                       },
@@ -354,6 +354,11 @@ class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
                   ],
                 ),
               ),
+              const SizedBox(height: 16),
+
+              // ── NEW: Daily WhatsApp Report ──
+              _buildSectionHeader('📊 Daily WhatsApp Report (10 PM Auto)'),
+              const _DailyReportSection(),
               const SizedBox(height: 32),
               
               ElevatedButton(
@@ -381,6 +386,273 @@ class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
       child: Text(
         title.toUpperCase(),
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.primary),
+      ),
+    );
+  }
+}
+
+// ─────────────── DAILY REPORT SECTION ───────────────
+
+class _DailyReportSection extends StatefulWidget {
+  const _DailyReportSection();
+
+  @override
+  State<_DailyReportSection> createState() => _DailyReportSectionState();
+}
+
+class _DailyReportSectionState extends State<_DailyReportSection> {
+  final TextEditingController _phoneCtrl = TextEditingController();
+  bool _enabled = false;
+  bool _isSaving = false;
+  bool _isTesting = false;
+  bool _loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadConfig();
+  }
+
+  @override
+  void dispose() {
+    _phoneCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadConfig() async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('settings')
+          .doc('shop_config')
+          .get();
+      if (doc.exists && mounted) {
+        final data = doc.data() ?? {};
+        setState(() {
+          _phoneCtrl.text = data['ownerPhone']?.toString() ?? '';
+          _enabled = data['dailyReportEnabled'] as bool? ?? false;
+          _loaded = true;
+        });
+      } else if (mounted) {
+        setState(() => _loaded = true);
+      }
+    } catch (e) {
+      if (mounted) setState(() => _loaded = true);
+    }
+  }
+
+  Future<void> _saveConfig() async {
+    final phone = _phoneCtrl.text.trim();
+    if (phone.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Phone number required'), backgroundColor: AppTheme.error),
+      );
+      return;
+    }
+    setState(() => _isSaving = true);
+    try {
+      await FirebaseFirestore.instance
+          .collection('settings')
+          .doc('shop_config')
+          .set({
+        'ownerPhone': phone,
+        'dailyReportEnabled': _enabled,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Daily report settings saved! Report will arrive at 10 PM 🎉'),
+            backgroundColor: AppTheme.success,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Save failed: $e'), backgroundColor: AppTheme.error),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  Future<void> _sendTestReport() async {
+    // First save the phone number if not saved
+    await _saveConfig();
+    if (!mounted) return;
+
+    setState(() => _isTesting = true);
+    try {
+      // Call the triggerDailyOwnerReport Cloud Function via Firestore queue
+      // (avoids needing functions package dependency)
+      await FirebaseFirestore.instance
+          .collection('report_trigger_queue')
+          .add({
+        'requestedAt': FieldValue.serverTimestamp(),
+        'type': 'daily_owner_report',
+        'status': 'pending',
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Test report queued! Check WhatsApp in ~30 seconds 📱'),
+            backgroundColor: AppTheme.success,
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Test trigger failed: $e'), backgroundColor: AppTheme.error),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isTesting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_loaded) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
+
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header banner
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF7B1FA2), Color(0xFF9C27B0)],
+                ),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.summarize, color: Colors.white),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Daily Business Summary',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
+                        ),
+                        Text(
+                          'Orders • Revenue • Pending • Top Products',
+                          style: TextStyle(color: Colors.white70, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text('10 PM 🕙', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Enable toggle
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text(
+                'Enable Daily Report',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              subtitle: const Text('Receive WhatsApp summary every night at 10 PM IST'),
+              value: _enabled,
+              activeThumbColor: const Color(0xFF7B1FA2),
+              onChanged: (val) => setState(() => _enabled = val),
+            ),
+            const Divider(),
+            const SizedBox(height: 8),
+
+            // Phone input
+            TextField(
+              controller: _phoneCtrl,
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(
+                labelText: 'WhatsApp Number',
+                hintText: 'e.g. 9876543210',
+                prefixText: '+91 ',
+                prefixIcon: const Icon(Icons.phone, color: Color(0xFF7B1FA2)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                helperText: 'Report will be sent to this number on WhatsApp',
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Buttons row
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _isSaving ? null : _saveConfig,
+                    icon: _isSaving
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.save_outlined),
+                    label: Text(_isSaving ? 'Saving...' : 'Save Settings'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      side: const BorderSide(color: Color(0xFF7B1FA2)),
+                      foregroundColor: const Color(0xFF7B1FA2),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _isTesting ? null : _sendTestReport,
+                    icon: _isTesting
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.send),
+                    label: Text(_isTesting ? 'Sending...' : 'Send Test Report Now'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF7B1FA2),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              '💡 Ensure ownerPhone is set before 10 PM for the report to be delivered.',
+              style: TextStyle(fontSize: 11, color: AppTheme.grey500),
+            ),
+          ],
+        ),
       ),
     );
   }

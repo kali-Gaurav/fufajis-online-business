@@ -106,7 +106,7 @@ class _CouponManagementScreenState extends State<CouponManagementScreen> {
             const SizedBox(height: 12),
             Text(coupon.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             const SizedBox(height: 4),
-            Text(coupon.description, style: TextStyle(fontSize: 12, color: AppTheme.grey600)),
+            Text(coupon.description, style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
             const Spacer(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -119,7 +119,7 @@ class _CouponManagementScreenState extends State<CouponManagementScreen> {
                 ),
                 Text(
                   'Min Order: ₹${coupon.minimumOrderAmount.toStringAsFixed(0)}',
-                  style: TextStyle(fontSize: 11, color: AppTheme.grey500),
+                  style: const TextStyle(fontSize: 11, color: AppTheme.grey500),
                 ),
               ],
             ),

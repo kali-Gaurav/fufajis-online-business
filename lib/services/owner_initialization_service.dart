@@ -18,7 +18,7 @@ class OwnerInitializationService {
     for (var phone in _primaryOwners) {
       final docId = phone.replaceAll('+', '');
       final ref = firestore.collection('pre_authorized_users').doc(docId);
-      
+
       batch.set(ref, {
         'phoneNumber': phone,
         'role': UserRole.shopOwner.toString(),

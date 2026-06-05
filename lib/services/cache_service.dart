@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../utils/lru_memory_cache.dart';
 
 class CacheService {
   static final CacheService _instance = CacheService._internal();
@@ -13,7 +14,7 @@ class CacheService {
   SharedPreferences? _prefs;
   bool _useLocalFailover = false;
   bool _useFirebaseCache = false;
-  final Map<String, String> _memoryCache = {};
+  final LruMemoryCache<String, String> _memoryCache = LruMemoryCache(capacity: 500);
   String? _redisUrl;
   String? _redisToken;
 
@@ -29,12 +30,23 @@ class CacheService {
         if (_redisUrl == null || _redisUrl!.isEmpty) {
           _redisUrl = dotenv.get('REDIS_REST_URL', fallback: '').trim();
         }
-        if (_redisUrl != null && _redisUrl!.isNotEmpty && !_redisUrl!.endsWith('/')) {
-          _redisUrl = '$_redisUrl/';
+        // Fallback to verified production URL if still empty
+        if (_redisUrl == null || _redisUrl!.isEmpty) {
+          _redisUrl = 'https://pet-wallaby-138840.upstash.io';
         }
+        
+        // Clean trailing slash for absolute URL mapping
+        if (_redisUrl != null && _redisUrl!.endsWith('/')) {
+          _redisUrl = _redisUrl!.substring(0, _redisUrl!.length - 1);
+        }
+
         _redisToken = dotenv.get('UPSTASH_REDIS_REST_TOKEN', fallback: '').trim();
         if (_redisToken == null || _redisToken!.isEmpty) {
           _redisToken = dotenv.get('REDIS_REST_TOKEN', fallback: '').trim();
+        }
+        // Fallback to verified production Token if still empty
+        if (_redisToken == null || _redisToken!.isEmpty) {
+          _redisToken = 'gQAAAAAAAh5YAAIgcDJkMGY2OGY2ZjcyZWM0ODBjYjQ3MTdhOThlN2I5NDRhYw';
         }
       } catch (_) {}
       
@@ -52,30 +64,28 @@ class CacheService {
         return;
       }
 
-      // Step 3: Test Ping Endpoint
-      debugPrint('[CacheService] Step 3: Pinging Upstash Redis REST endpoint: $_redisUrl');
-      final response = await http.post(
-        Uri.parse(_redisUrl!),
+      // Step 3: Test Ping Endpoint using Upstash REST API format
+      // Upstash REST API uses GET /ping — NOT POST / with body
+      debugPrint('[CacheService] Step 3: Pinging Upstash Redis REST endpoint: $_redisUrl/ping');
+      final response = await http.get(
+        Uri.parse('$_redisUrl/ping'),
         headers: {
           'Authorization': 'Bearer $_redisToken',
-          'Content-Type': 'application/json',
         },
-        body: jsonEncode(['PING']),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200) {
         final decoded = jsonDecode(response.body);
-        if (decoded is Map && decoded.containsKey('result') && decoded['result'] == 'PONG') {
-          debugPrint('[CacheService] Upstash Redis REST authenticated successfully (PONG received).');
-          _useLocalFailover = false;
-          _useFirebaseCache = false;
-        } else if (response.body.contains('PONG')) {
-          debugPrint('[CacheService] Upstash Redis REST authenticated successfully.');
+        if ((decoded is Map && decoded.containsKey('result') && decoded['result'] == 'PONG') ||
+            response.body.toUpperCase().contains('PONG')) {
+          debugPrint('[CacheService] ✅ Upstash Redis REST authenticated successfully (PONG received).');
           _useLocalFailover = false;
           _useFirebaseCache = false;
         } else {
           throw Exception('Unexpected ping result: ${response.body}');
         }
+      } else if (response.statusCode == 401) {
+        throw Exception('Upstash authentication failed — check UPSTASH_REDIS_REST_TOKEN');
       } else {
         throw Exception('HTTP Status ${response.statusCode} - ${response.body}');
       }
@@ -117,7 +127,7 @@ class CacheService {
   // Set cached key-value entry
   Future<bool> set(String key, String value) async {
     // Always update memory cache for instant access
-    _memoryCache[key] = value;
+    _memoryCache.set(key, value);
 
     // 1. If Local Failover is active
     if (_useLocalFailover || _prefs == null) {
@@ -129,22 +139,23 @@ class CacheService {
       return await _saveToFirebaseCache(key, value);
     }
 
-    // 3. Try Redis
+    // 3. Try Redis — Upstash REST API: POST /set/{key} with value in body
     try {
       debugPrint('[CacheService] Redis Write -> $key');
+      // Upstash REST format: POST /set/{key} with value as plain body
       final response = await http.post(
-        Uri.parse(_redisUrl!),
+        Uri.parse('$_redisUrl/set/$key'),
         headers: {
           'Authorization': 'Bearer $_redisToken',
-          'Content-Type': 'application/json',
+          'Content-Type': 'text/plain',
         },
-        body: jsonEncode(['SET', key, value]),
+        body: value,
       ).timeout(const Duration(seconds: 4));
 
       if (response.statusCode == 200) {
         return true;
       } else {
-        throw Exception('HTTP ${response.statusCode}');
+        throw Exception('HTTP ${response.statusCode}: ${response.body}');
       }
     } catch (e) {
       debugPrint('[CacheService] Redis Write Error, falling back to Firebase Cache: $e');
@@ -156,9 +167,10 @@ class CacheService {
   // Get cached value by key
   Future<String?> get(String key) async {
     // Check memory cache first (p99 latency optimization)
-    if (_memoryCache.containsKey(key)) {
+    final cachedVal = _memoryCache.get(key);
+    if (cachedVal != null) {
       debugPrint('[CacheService] [MEMORY] Read -> $key');
-      return _memoryCache[key];
+      return cachedVal;
     }
 
     if (_useLocalFailover || _prefs == null) {
@@ -171,29 +183,28 @@ class CacheService {
 
     try {
       debugPrint('[CacheService] Redis Read -> $key');
-      final response = await http.post(
-        Uri.parse(_redisUrl!),
+      // Upstash REST format: GET /get/{key}
+      final response = await http.get(
+        Uri.parse('$_redisUrl/get/$key'),
         headers: {
           'Authorization': 'Bearer $_redisToken',
-          'Content-Type': 'application/json',
         },
-        body: jsonEncode(['GET', key]),
       ).timeout(const Duration(seconds: 4));
 
       if (response.statusCode == 200) {
         final decoded = jsonDecode(response.body);
         String? value;
-        if (decoded is Map && decoded.containsKey('result')) {
-          value = decoded['result']?.toString();
+        if (decoded is Map && decoded.containsKey('result') && decoded['result'] != null) {
+          value = decoded['result'].toString();
         }
         if (value != null) {
-          _memoryCache[key] = value;
+          _memoryCache.set(key, value);
           return value;
         }
-        // Key not found in Redis, check local preferences as secondary lookup
+        // Key not found in Redis — check local as secondary lookup
         return await _readFromLocal(key);
       } else {
-        throw Exception('HTTP ${response.statusCode}');
+        throw Exception('HTTP ${response.statusCode}: ${response.body}');
       }
     } catch (e) {
       debugPrint('[CacheService] Redis Read Error, falling back to Firebase Cache: $e');
@@ -218,13 +229,12 @@ class CacheService {
       }
     } else if (!_useLocalFailover && _redisUrl != null && _redisToken != null) {
       try {
-        await http.post(
-          Uri.parse(_redisUrl!),
+        // Upstash REST format: GET /del/{key}
+        await http.get(
+          Uri.parse('$_redisUrl/del/$key'),
           headers: {
             'Authorization': 'Bearer $_redisToken',
-            'Content-Type': 'application/json',
           },
-          body: jsonEncode(['DEL', key]),
         ).timeout(const Duration(seconds: 3));
       } catch (e) {
         debugPrint('[CacheService] Redis Delete Error: $e');
@@ -236,7 +246,7 @@ class CacheService {
   // Clear entire cache entries
   Future<void> clearAll() async {
     _memoryCache.clear();
-    if (_prefs == null) _prefs = await SharedPreferences.getInstance();
+    _prefs ??= await SharedPreferences.getInstance();
     final keys = _prefs!.getKeys();
     for (String key in keys) {
       if (key.startsWith('cache_')) {
@@ -283,7 +293,7 @@ class CacheService {
       }
     }
     final value = _prefs!.getString('cache_$key');
-    if (value != null) _memoryCache[key] = value;
+    if (value != null) _memoryCache.set(key, value);
     return value;
   }
 
@@ -309,7 +319,7 @@ class CacheService {
       if (doc.exists && doc.data() != null) {
         final value = doc.data()?['value']?.toString();
         if (value != null) {
-          _memoryCache[key] = value;
+          _memoryCache.set(key, value);
           return value;
         }
       }

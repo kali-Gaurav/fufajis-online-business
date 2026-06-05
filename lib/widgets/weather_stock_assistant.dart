@@ -1,5 +1,4 @@
-﻿import 'package:flutter/material.dart';
-import '../utils/app_theme.dart';
+import 'package:flutter/material.dart';
 
 class WeatherStockAssistant extends StatelessWidget {
   const WeatherStockAssistant({super.key});

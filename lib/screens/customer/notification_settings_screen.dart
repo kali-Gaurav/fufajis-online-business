@@ -108,7 +108,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'No notifications between these hours',
                       style: TextStyle(fontSize: 13, color: AppTheme.grey600),
                     ),
@@ -160,7 +160,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Maximum notifications per hour',
                       style: TextStyle(fontSize: 13, color: AppTheme.grey600),
                     ),
@@ -178,7 +178,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                     Center(
                       child: Text(
                         '${_settings.frequencyLimitPerHour} notifications per hour',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: AppTheme.primary,
@@ -263,7 +263,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       padding: const EdgeInsets.only(left: 4, bottom: 12),
       child: Text(
         title.toUpperCase(),
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,
           color: AppTheme.grey500,
@@ -295,7 +295,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       children: [
         SwitchListTile(
           title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-          subtitle: Text(subtitle, style: TextStyle(fontSize: 12, color: AppTheme.grey500)),
+          subtitle: Text(subtitle, style: const TextStyle(fontSize: 12, color: AppTheme.grey500)),
           value: value,
           onChanged: onChanged,
           activeThumbColor: AppTheme.primary,
@@ -313,7 +313,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: 12, color: AppTheme.grey600, fontWeight: FontWeight.w500),
+          style: const TextStyle(fontSize: 12, color: AppTheme.grey600, fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 8),
         InkWell(
@@ -331,7 +331,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                   time.format(context),
                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                 ),
-                Icon(Icons.access_time, size: 18, color: AppTheme.primary),
+                const Icon(Icons.access_time, size: 18, color: AppTheme.primary),
               ],
             ),
           ),

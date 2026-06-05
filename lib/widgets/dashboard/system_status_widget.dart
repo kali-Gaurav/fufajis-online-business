@@ -54,7 +54,11 @@ class _SystemStatusWidgetState extends State<SystemStatusWidget> {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 if (_isLoading)
-                  const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                  const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
                 else
                   IconButton(
                     icon: const Icon(Icons.refresh, size: 20),
@@ -65,16 +69,34 @@ class _SystemStatusWidgetState extends State<SystemStatusWidget> {
               ],
             ),
             const SizedBox(height: 16),
-            _buildStatusRow('Installed Version', _currentVersion, Icons.install_mobile),
+            _buildStatusRow(
+              'Installed Version',
+              _currentVersion,
+              Icons.install_mobile,
+            ),
             const Divider(),
-            _buildStatusRow('Min. Required', _remoteConfig.minAppVersion, Icons.warning_amber),
+            _buildStatusRow(
+              'Min. Required',
+              _remoteConfig.minAppVersion,
+              Icons.warning_amber,
+            ),
             const Divider(),
-            _buildStatusRow('Maintenance Mode', _remoteConfig.isMaintenanceMode ? 'ACTIVE' : 'Inactive', 
-                Icons.construction, color: _remoteConfig.isMaintenanceMode ? AppTheme.error : AppTheme.success),
+            _buildStatusRow(
+              'Maintenance Mode',
+              _remoteConfig.isMaintenanceMode ? 'ACTIVE' : 'Inactive',
+              Icons.construction,
+              color: _remoteConfig.isMaintenanceMode
+                  ? AppTheme.error
+                  : AppTheme.success,
+            ),
             const SizedBox(height: 12),
             const Text(
               'Manage these values in Firebase Remote Config to force updates or start maintenance.',
-              style: TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic),
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+                fontStyle: FontStyle.italic,
+              ),
             ),
           ],
         ),
@@ -82,7 +104,12 @@ class _SystemStatusWidgetState extends State<SystemStatusWidget> {
     );
   }
 
-  Widget _buildStatusRow(String label, String value, IconData icon, {Color? color}) {
+  Widget _buildStatusRow(
+    String label,
+    String value,
+    IconData icon, {
+    Color? color,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(

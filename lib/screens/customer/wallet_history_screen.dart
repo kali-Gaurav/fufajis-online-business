@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../../providers/wallet_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/wallet_service.dart';
-import '../../models/user_model.dart';
 
 /// WalletHistoryScreen displays transaction history with pagination and filtering
 /// 
@@ -11,7 +10,7 @@ import '../../models/user_model.dart';
 /// shows transaction type, amount, order reference, timestamp,
 /// and allows filtering by transaction type
 class WalletHistoryScreen extends StatefulWidget {
-  const WalletHistoryScreen({Key? key}) : super(key: key);
+  const WalletHistoryScreen({super.key});
 
   @override
   State<WalletHistoryScreen> createState() => _WalletHistoryScreenState();

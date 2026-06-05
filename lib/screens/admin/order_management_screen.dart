@@ -50,12 +50,18 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Global Order Center', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Global Order Center',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
                 ElevatedButton.icon(
                   onPressed: () => adminProvider.fetchOrders(),
                   icon: const Icon(Icons.refresh),
                   label: const Text('Refresh'),
-                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, foregroundColor: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primary,
+                    foregroundColor: Colors.white,
+                  ),
                 ),
               ],
             ),
@@ -67,7 +73,9 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
                 decoration: InputDecoration(
                   hintText: 'Search by Order Number or Customer',
                   prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   filled: true,
                   fillColor: Colors.white,
@@ -84,19 +92,22 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
               child: adminProvider.isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : filteredOrders.isEmpty
-                      ? const Center(child: Text('No orders found.'))
-                      : Card(
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          child: ListView.separated(
-                            itemCount: filteredOrders.length,
-                            separatorBuilder: (context, index) => const Divider(height: 1),
-                            itemBuilder: (context, index) {
-                              final order = filteredOrders[index];
-                              return _buildOrderTile(context, order, adminProvider);
-                            },
-                          ),
-                        ),
+                  ? const Center(child: Text('No orders found.'))
+                  : Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ListView.separated(
+                        itemCount: filteredOrders.length,
+                        separatorBuilder: (context, index) =>
+                            const Divider(height: 1),
+                        itemBuilder: (context, index) {
+                          final order = filteredOrders[index];
+                          return _buildOrderTile(context, order, adminProvider);
+                        },
+                      ),
+                    ),
             ),
           ],
         ),
@@ -104,7 +115,11 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
     );
   }
 
-  Widget _buildOrderTile(BuildContext context, OrderModel order, AdminProvider provider) {
+  Widget _buildOrderTile(
+    BuildContext context,
+    OrderModel order,
+    AdminProvider provider,
+  ) {
     final status = order.status.displayName;
     final total = order.totalAmount;
     final itemsCount = order.items.length;
@@ -120,8 +135,18 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(order.orderNumber, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          Text('₹${total.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.primary)),
+          Text(
+            order.orderNumber,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          Text(
+            '₹${total.toStringAsFixed(2)}',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: AppTheme.primary,
+            ),
+          ),
         ],
       ),
       subtitle: Column(
@@ -133,11 +158,18 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
           const SizedBox(height: 6),
           Wrap(
             spacing: 8,
-            children: order.items.map((i) => Chip(
-              label: Text('${i.quantity}x ${i.productName}', style: const TextStyle(fontSize: 10)),
-              padding: EdgeInsets.zero,
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            )).toList(),
+            children: order.items
+                .map(
+                  (i) => Chip(
+                    label: Text(
+                      '${i.quantity}x ${i.productName}',
+                      style: const TextStyle(fontSize: 10),
+                    ),
+                    padding: EdgeInsets.zero,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                )
+                .toList(),
           ),
         ],
       ),
@@ -152,11 +184,16 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
             ),
             child: Text(
               status.toUpperCase(),
-              style: TextStyle(color: _getStatusColor(order.status), fontWeight: FontWeight.bold, fontSize: 12),
+              style: TextStyle(
+                color: _getStatusColor(order.status),
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
             ),
           ),
           const SizedBox(width: 16),
-          if (order.status != OrderStatus.cancelled && order.status != OrderStatus.delivered)
+          if (order.status != OrderStatus.cancelled &&
+              order.status != OrderStatus.delivered)
             IconButton(
               icon: const Icon(Icons.cancel, color: Colors.red),
               tooltip: 'Cancel Order',
@@ -188,7 +225,11 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
     }
   }
 
-  void _showCancelDialog(BuildContext context, OrderModel order, AdminProvider provider) {
+  void _showCancelDialog(
+    BuildContext context,
+    OrderModel order,
+    AdminProvider provider,
+  ) {
     final controller = TextEditingController();
 
     showDialog(

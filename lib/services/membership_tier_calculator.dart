@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 
 /// MembershipTierCalculator manages membership tier upgrades based on lifetime spending
-/// 
+///
 /// [Requirements 11.5]: Implements tier calculation based on lifetime spending:
 /// - Bronze tier: ₹0-999
 /// - Silver tier: ₹1000-4999
@@ -57,7 +57,7 @@ class MembershipTierCalculator {
   };
 
   /// Calculates the appropriate membership tier based on lifetime spending
-  /// 
+  ///
   /// [Requirements 11.5]: Updates tier on order completion
   MembershipTier calculateTier(double lifetimeSpending) {
     if (lifetimeSpending >= tierThresholds[MembershipTier.platinum]!) {
@@ -72,7 +72,7 @@ class MembershipTierCalculator {
   }
 
   /// Updates user's membership tier based on their lifetime spending
-  /// 
+  ///
   /// [Requirements 11.5]: Updates tier on order completion
   Future<MembershipTier?> updateMembershipTier(String userId) async {
     try {
@@ -85,10 +85,10 @@ class MembershipTierCalculator {
         }
 
         final userData = userDoc.data()!;
-        
+
         // Get lifetime spending from orders
         final lifetimeSpending = await _calculateLifetimeSpending(userId);
-        
+
         // Calculate new tier
         final newTier = calculateTier(lifetimeSpending);
         final currentTier = MembershipTier.values.firstWhere(
@@ -165,20 +165,22 @@ class MembershipTierCalculator {
   /// Gets the next tier and spending required to reach it
   Map<String, dynamic> getNextTierInfo(double currentSpending) {
     final currentTier = calculateTier(currentSpending);
-    
+
     // Find next tier
     MembershipTier? nextTier;
     double spendingRequired = 0.0;
 
     if (currentTier == MembershipTier.bronze) {
       nextTier = MembershipTier.silver;
-      spendingRequired = tierThresholds[MembershipTier.silver]! - currentSpending;
+      spendingRequired =
+          tierThresholds[MembershipTier.silver]! - currentSpending;
     } else if (currentTier == MembershipTier.silver) {
       nextTier = MembershipTier.gold;
       spendingRequired = tierThresholds[MembershipTier.gold]! - currentSpending;
     } else if (currentTier == MembershipTier.gold) {
       nextTier = MembershipTier.platinum;
-      spendingRequired = tierThresholds[MembershipTier.platinum]! - currentSpending;
+      spendingRequired =
+          tierThresholds[MembershipTier.platinum]! - currentSpending;
     }
 
     return {
@@ -193,7 +195,7 @@ class MembershipTierCalculator {
   double getTierProgress(double currentSpending) {
     final currentTier = calculateTier(currentSpending);
     final currentThreshold = tierThresholds[currentTier] ?? 0.0;
-    
+
     MembershipTier? nextTier;
     double nextThreshold = 0.0;
 
@@ -211,7 +213,8 @@ class MembershipTierCalculator {
       return 100.0;
     }
 
-    final progress = ((currentSpending - currentThreshold) /
+    final progress =
+        ((currentSpending - currentThreshold) /
             (nextThreshold - currentThreshold)) *
         100;
     return progress.clamp(0.0, 100.0);
@@ -227,25 +230,18 @@ class MembershipTierCalculator {
     final upgradeId = 'tier_${DateTime.now().millisecondsSinceEpoch}';
     final userRef = _firestore.collection('users').doc(userId);
 
-    transaction.set(
-      userRef.collection('tier_history').doc(upgradeId),
-      {
-        'id': upgradeId,
-        'userId': userId,
-        'oldTier': oldTier.toString(),
-        'newTier': newTier.toString(),
-        'timestamp': DateTime.now(),
-      },
-    );
+    transaction.set(userRef.collection('tier_history').doc(upgradeId), {
+      'id': upgradeId,
+      'userId': userId,
+      'oldTier': oldTier.toString(),
+      'newTier': newTier.toString(),
+      'timestamp': DateTime.now(),
+    });
   }
 
   /// Streams membership tier changes in real-time
   Stream<MembershipTier> watchMembershipTier(String userId) {
-    return _firestore
-        .collection('users')
-        .doc(userId)
-        .snapshots()
-        .map((doc) {
+    return _firestore.collection('users').doc(userId).snapshots().map((doc) {
       return MembershipTier.values.firstWhere(
         (e) => e.toString() == doc.data()?['membershipTier'],
         orElse: () => MembershipTier.bronze,

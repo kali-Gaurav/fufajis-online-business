@@ -7,12 +7,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class WhatsAppNotificationService {
   static String get _token => dotenv.get('WHATSAPP_TOKEN', fallback: '');
   static String get _phoneId => dotenv.get('WHATSAPP_PHONE_ID', fallback: '');
-  static String get _baseUrl => "https://graph.facebook.com/v25.0/$_phoneId/messages";
+  static String get _baseUrl =>
+      "https://graph.facebook.com/v25.0/$_phoneId/messages";
 
   /// Gets the active notification phase from Firestore (default is Phase 1)
   static Future<int> _getActivePhase() async {
     try {
-      final doc = await FirebaseFirestore.instance.collection('settings').doc('whatsapp_config').get();
+      final doc = await FirebaseFirestore.instance
+          .collection('settings')
+          .doc('whatsapp_config')
+          .get();
       if (doc.exists && doc.data() != null) {
         return doc.data()?['phase'] ?? 1;
       }
@@ -75,35 +79,49 @@ class WhatsAppNotificationService {
       buffer.writeln('━━━━━━━━━━━━━━━━━━');
       buffer.writeln('Namaste $customerName,');
       buffer.writeln('');
-      
+
       switch (status.toLowerCase()) {
         case 'confirmed':
-          buffer.writeln('Your order *#$orderNumber* has been confirmed by Fufaji Store. We are preparing it fresh for delivery! 🛒');
+          buffer.writeln(
+            'Your order *#$orderNumber* has been confirmed by Fufaji Store. We are preparing it fresh for delivery! 🛒',
+          );
           break;
         case 'outfordelivery':
-          buffer.writeln('Great news! Your order *#$orderNumber* is out for delivery. 🚚');
+          buffer.writeln(
+            'Great news! Your order *#$orderNumber* is out for delivery. 🚚',
+          );
           if (otp != null) {
             buffer.writeln('');
             buffer.writeln('🔑 *Delivery OTP: $otp*');
-            buffer.writeln('Please share this code only with our delivery rider.');
+            buffer.writeln(
+              'Please share this code only with our delivery rider.',
+            );
           }
           break;
         case 'delivered':
-          buffer.writeln('Your order *#$orderNumber* has been delivered. Thank you for shopping with Fufaji! 🙏');
+          buffer.writeln(
+            'Your order *#$orderNumber* has been delivered. Thank you for shopping with Fufaji! 🙏',
+          );
           break;
         default:
-          buffer.writeln('Status of your order *#$orderNumber* is now: *$status*.');
+          buffer.writeln(
+            'Status of your order *#$orderNumber* is now: *$status*.',
+          );
       }
 
       buffer.writeln('');
       buffer.writeln('Fixed pricing. Honest quality. Locally operated.');
-      return await sendOrderUpdate(phoneNumber: cleanNumber, message: buffer.toString());
+      return await sendOrderUpdate(
+        phoneNumber: cleanNumber,
+        message: buffer.toString(),
+      );
     }
 
     // ─── PHASE 3: INTERACTIVE BUTTONS ───
     if (phase == 3) {
       try {
-        final bodyText = "Namaste $customerName, your order #$orderNumber is $status. ${otp != null ? 'Your Delivery OTP is $otp.' : ''}";
+        final bodyText =
+            "Namaste $customerName, your order #$orderNumber is $status. ${otp != null ? 'Your Delivery OTP is $otp.' : ''}";
         final response = await http.post(
           Uri.parse(_baseUrl),
           headers: {
@@ -122,27 +140,31 @@ class WhatsAppNotificationService {
                 "buttons": [
                   {
                     "type": "reply",
-                    "reply": {"id": "btn_track", "title": "Track Order"}
+                    "reply": {"id": "btn_track", "title": "Track Order"},
                   },
                   {
                     "type": "reply",
-                    "reply": {"id": "btn_help", "title": "Call Store"}
-                  }
-                ]
-              }
-            }
+                    "reply": {"id": "btn_help", "title": "Call Store"},
+                  },
+                ],
+              },
+            },
           }),
         );
 
         if (response.statusCode == 200 || response.statusCode == 201) {
           return true;
         } else {
-          debugPrint("Phase 3 Interactive message failed: ${response.body}. Falling back to Phase 1.");
+          debugPrint(
+            "Phase 3 Interactive message failed: ${response.body}. Falling back to Phase 1.",
+          );
           // Fall back to plain text
           phase == 1;
         }
       } catch (e) {
-        debugPrint("Phase 3 Interactive message exception: $e. Falling back to Phase 1.");
+        debugPrint(
+          "Phase 3 Interactive message exception: $e. Falling back to Phase 1.",
+        );
       }
     }
 
@@ -150,8 +172,10 @@ class WhatsAppNotificationService {
     final String templateName = _getTemplateName(status);
 
     try {
-      debugPrint("Attempting Meta WhatsApp API call to $cleanNumber using template: $templateName");
-      
+      debugPrint(
+        "Attempting Meta WhatsApp API call to $cleanNumber using template: $templateName",
+      );
+
       final response = await http.post(
         Uri.parse(_baseUrl),
         headers: {
@@ -164,14 +188,19 @@ class WhatsAppNotificationService {
           "type": "template",
           "template": {
             "name": templateName,
-            "language": { "code": "en_US" },
+            "language": {"code": "en_US"},
             "components": [
               {
                 "type": "body",
-                "parameters": _getTemplateParameters(customerName, orderNumber, status, otp)
-              }
-            ]
-          }
+                "parameters": _getTemplateParameters(
+                  customerName,
+                  orderNumber,
+                  status,
+                  otp,
+                ),
+              },
+            ],
+          },
         }),
       );
 
@@ -179,11 +208,13 @@ class WhatsAppNotificationService {
         debugPrint("WhatsApp Sent Successfully!");
         return true;
       } else {
-        debugPrint("WhatsApp API Failure: ${response.statusCode} - ${response.body}");
+        debugPrint(
+          "WhatsApp API Failure: ${response.statusCode} - ${response.body}",
+        );
         // If your custom templates aren't approved yet, try sending 'hello_world' to test connection
         if (templateName != 'hello_world') {
-           debugPrint("Retrying with 'hello_world' test template...");
-           return await sendHelloWorld(cleanNumber);
+          debugPrint("Retrying with 'hello_world' test template...");
+          return await sendHelloWorld(cleanNumber);
         }
         return false;
       }
@@ -208,8 +239,8 @@ class WhatsAppNotificationService {
           "type": "template",
           "template": {
             "name": "hello_world",
-            "language": { "code": "en_US" }
-          }
+            "language": {"code": "en_US"},
+          },
         }),
       );
       return response.statusCode == 200 || response.statusCode == 201;
@@ -221,18 +252,22 @@ class WhatsAppNotificationService {
   static String _getTemplateName(String status) {
     // These names MUST match the "Template Name" you created in Meta WhatsApp Manager
     switch (status.toLowerCase()) {
-      case 'confirmed': return 'order_confirmed';
-      case 'outfordelivery': return 'order_out_for_delivery';
-      case 'delivered': return 'order_delivered';
-      default: return 'hello_world'; // Default test template
+      case 'confirmed':
+        return 'order_confirmed';
+      case 'outfordelivery':
+        return 'order_out_for_delivery';
+      case 'delivered':
+        return 'order_delivered';
+      default:
+        return 'hello_world'; // Default test template
     }
   }
 
   static List<Map<String, dynamic>> _getTemplateParameters(
-    String name, 
-    String order, 
-    String status, 
-    String? otp
+    String name,
+    String order,
+    String status,
+    String? otp,
   ) {
     // These are the {{1}}, {{2}} variables in your Meta templates
     List<Map<String, dynamic>> params = [
@@ -323,7 +358,9 @@ class WhatsAppNotificationService {
         debugPrint("[WhatsApp] Invoice sent to $cleanNumber");
         return true;
       } else {
-        debugPrint("[WhatsApp] Invoice failed: ${response.statusCode} - ${response.body}");
+        debugPrint(
+          "[WhatsApp] Invoice failed: ${response.statusCode} - ${response.body}",
+        );
         return false;
       }
     } catch (e) {
@@ -412,7 +449,8 @@ class WhatsAppNotificationService {
       cleanNumber = '91$cleanNumber';
     }
 
-    final message = '⚠️ *ITEM OUT OF STOCK - FUFAJI*\n\n'
+    final message =
+        '⚠️ *ITEM OUT OF STOCK - FUFAJI*\n\n'
         'Dear $customerName,\n'
         'For your Order #$orderNumber, *$originalName* is out of stock.\n'
         'We have replaced it with *$replacementName* (₹${replacementPrice.round()}) to avoid delivery delays.\n\n'
@@ -452,7 +490,8 @@ class WhatsAppNotificationService {
       cleanNumber = '91$cleanNumber';
     }
 
-    final message = '🚨 *SYNC CONFLICT ALERT - FUFAJI STORE*\n\n'
+    final message =
+        '🚨 *SYNC CONFLICT ALERT - FUFAJI STORE*\n\n'
         'Hello $managerName,\n'
         'An offline operation conflict was detected and resolved on the server:\n\n'
         '• *Operation:* ${actionType.toUpperCase()}\n'
@@ -495,7 +534,8 @@ class WhatsAppNotificationService {
       cleanNumber = '91$cleanNumber';
     }
 
-    final message = '⚠️ *HIGH GPS VARIANCE ATTENDANCE ALERT*\n\n'
+    final message =
+        '⚠️ *HIGH GPS VARIANCE ATTENDANCE ALERT*\n\n'
         'Hello $managerName,\n'
         'Employee *$employeeName* clocked in with low GPS accuracy or high distance variance:\n\n'
         '• *GPS Accuracy:* ${accuracy.toStringAsFixed(1)} meters\n'
@@ -521,6 +561,31 @@ class WhatsAppNotificationService {
       debugPrint('[WhatsApp] GPS variance alert failed: $e');
       return false;
     }
+  }
+
+  /// Sends a digital Bahi-Khata credit payment reminder via WhatsApp text message
+  static Future<bool> sendLedgerReminder({
+    required String phoneNumber,
+    required String customerName,
+    required double outstandingAmount,
+  }) async {
+    String cleanNumber = phoneNumber.replaceAll(RegExp(r'[^\d]'), '');
+    if (cleanNumber.length == 10) {
+      cleanNumber = '91$cleanNumber';
+    }
+
+    final message =
+        '🏪 *BAHI-KHATA PAYMENT REMINDER - FUFAJI STORE*\n\n'
+        'Namaste $customerName,\n'
+        'This is a friendly reminder from Fufaji Store regarding your digital ledger balance:\n\n'
+        '• *Outstanding Balance:* ₹${outstandingAmount.toStringAsFixed(2)}\n\n'
+        'Please clear your dues at your convenience using cash, UPI, or by visiting the store. 🙏\n'
+        'Thank you for your trust!';
+
+    return await sendOrderUpdate(
+      phoneNumber: cleanNumber,
+      message: message,
+    );
   }
 
   // ─────────────────────────────────────────────────────────────────────
@@ -579,7 +644,9 @@ class WhatsAppNotificationService {
           });
           fcmSent = true;
           channel = 'fcm_queued';
-          debugPrint('[NotificationFallback] FCM notification queued for $customerId');
+          debugPrint(
+            '[NotificationFallback] FCM notification queued for $customerId',
+          );
         }
       } catch (e) {
         debugPrint('[NotificationFallback] FCM fallback failed: $e');
@@ -589,18 +656,26 @@ class WhatsAppNotificationService {
     // ── Attempt 3: In-app notification (always succeeds) ──
     if (!whatsappSent && !fcmSent) {
       try {
-        await db.collection('users').doc(customerId).collection('notifications').add({
-          'title': title,
-          'body': body,
-          'orderId': orderId,
-          'type': notificationType ?? 'order_update',
-          'read': false,
-          'createdAt': FieldValue.serverTimestamp(),
-        });
+        await db
+            .collection('users')
+            .doc(customerId)
+            .collection('notifications')
+            .add({
+              'title': title,
+              'body': body,
+              'orderId': orderId,
+              'type': notificationType ?? 'order_update',
+              'read': false,
+              'createdAt': FieldValue.serverTimestamp(),
+            });
         channel = 'in_app';
-        debugPrint('[NotificationFallback] In-app notification stored for $customerId');
+        debugPrint(
+          '[NotificationFallback] In-app notification stored for $customerId',
+        );
       } catch (e) {
-        debugPrint('[NotificationFallback] Even in-app notification failed: $e');
+        debugPrint(
+          '[NotificationFallback] Even in-app notification failed: $e',
+        );
       }
     }
 

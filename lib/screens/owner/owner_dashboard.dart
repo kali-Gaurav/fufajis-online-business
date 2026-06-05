@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'device_management_screen.dart';
 import '../../utils/app_theme.dart';
 import '../../providers/order_provider.dart';
 import '../../providers/product_provider.dart';
@@ -25,11 +27,15 @@ import '../../widgets/intelligent_insights.dart';
 import '../../widgets/weather_stock_assistant.dart';
 import '../../widgets/customer_retention_bot.dart';
 import '../../widgets/whatsapp_logic_simulator.dart';
-import '../../widgets/voice_to_stock_dialog.dart';
 import '../../widgets/dashboard/revenue_analytics_widget.dart';
+import 'scan_activity_screen.dart';
+import 'release_management_screen.dart';
 import '../../widgets/dashboard/inventory_automation_widget.dart';
 import '../../widgets/dashboard/system_status_widget.dart';
+import '../../widgets/voice_command_sheet.dart';
+import 'bill_scanner_screen.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../widgets/common/role_restricted_widget.dart';
 
@@ -67,6 +73,9 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
     const ReviewsModerationScreen(),
     const VendorRequestScreen(),
     const BahiKhataScreen(),
+    DeviceManagementScreen(ownerEmail: FirebaseAuth.instance.currentUser?.email ?? ''),
+    const ScanActivityScreen(),
+    const ReleaseManagementScreen(),
     const ShopSettingsScreen(),
   ];
 
@@ -85,6 +94,9 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
     'Customer Reviews',
     'Vendor Orders',
     'Bahi-Khata (Credit)',
+    'Security & Devices',
+    'Scan Activity',
+    'App Releases',
     'Shop Settings',
   ];
 
@@ -124,9 +136,9 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                   }
                 },
                 activeThumbColor: AppTheme.success,
-                activeTrackColor: AppTheme.success.withOpacity(0.3),
+                activeTrackColor: AppTheme.success.withValues(alpha: 0.3),
                 inactiveThumbColor: AppTheme.error,
-                inactiveTrackColor: AppTheme.error.withOpacity(0.3),
+                inactiveTrackColor: AppTheme.error.withValues(alpha: 0.3),
               ),
             ],
           ),
@@ -137,7 +149,7 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
             tooltip: 'WhatsApp Command Simulator',
           ),
           RoleRestrictedWidget(
-            allowedRoles: [UserRole.admin, UserRole.shopOwner],
+            allowedRoles: const [UserRole.admin, UserRole.shopOwner],
             child: IconButton(
               onPressed: () => context.push('/role-select'),
               icon: const Icon(Icons.swap_horiz),
@@ -149,6 +161,16 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
             icon: const Icon(Icons.notifications_outlined),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => showVoiceCommandSheet(context),
+        backgroundColor: AppTheme.primary,
+        icon: const Icon(Icons.mic, color: Colors.white),
+        label: const Text(
+          'Voice',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        tooltip: 'Voice Command (Hindi)',
       ),
       body: Row(
         children: [
@@ -230,6 +252,21 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                 label: Text('Khata'),
               ),
               NavigationRailDestination(
+                icon: Icon(Icons.security_outlined),
+                selectedIcon: Icon(Icons.security),
+                label: Text('Devices'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.qr_code_scanner_outlined),
+                selectedIcon: Icon(Icons.qr_code_scanner),
+                label: Text('Scan Log'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.system_update_outlined),
+                selectedIcon: Icon(Icons.system_update),
+                label: Text('Releases'),
+              ),
+              NavigationRailDestination(
                 icon: Icon(Icons.settings_outlined),
                 selectedIcon: Icon(Icons.settings),
                 label: Text('Settings'),
@@ -269,7 +306,13 @@ class OwnerHomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildWelcomeCard(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
+            _buildQuickActions(context),
+            const SizedBox(height: 20),
+            _buildTodayAtAGlance(context),
+            const SizedBox(height: 20),
+            _buildSmartTools(context),
+            const SizedBox(height: 20),
             const SystemStatusWidget(),
             const SizedBox(height: 24),
             _buildStatsGrid(stats, productProvider.products.length),
@@ -280,25 +323,25 @@ class OwnerHomePage extends StatelessWidget {
             const SizedBox(height: 24),
             const CustomerRetentionBot(),
             const SizedBox(height: 24),
-            Row(
+            const Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Expanded(flex: 1, child: InventoryHealthScoreWidget()),
-                const SizedBox(width: 24),
-                const Expanded(flex: 1, child: RevenueAnalyticsWidget()),
-                const SizedBox(width: 24),
-                const Expanded(flex: 1, child: InventoryAutomationWidget()),
+                Expanded(flex: 1, child: InventoryHealthScoreWidget()),
+                SizedBox(width: 24),
+                Expanded(flex: 1, child: RevenueAnalyticsWidget()),
+                SizedBox(width: 24),
+                Expanded(flex: 1, child: InventoryAutomationWidget()),
               ],
             ),
             const SizedBox(height: 24),
-            Row(
+            const Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Expanded(flex: 1, child: LowStockAlertWidget()),
-                const SizedBox(width: 24),
-                const Expanded(flex: 1, child: ExpiringSoonWidget()),
-                const SizedBox(width: 24),
-                const Expanded(flex: 1, child: PendingPriceChangesWidget()),
+                Expanded(flex: 1, child: LowStockAlertWidget()),
+                SizedBox(width: 24),
+                Expanded(flex: 1, child: ExpiringSoonWidget()),
+                SizedBox(width: 24),
+                Expanded(flex: 1, child: PendingPriceChangesWidget()),
               ],
             ),
             const SizedBox(height: 24),
@@ -306,6 +349,268 @@ class OwnerHomePage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildTodayAtAGlance(BuildContext context) {
+    final today = DateTime.now();
+    final startOfDay = DateTime(today.year, today.month, today.day);
+
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('orders')
+          .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
+          .snapshots(),
+      builder: (context, snapshot) {
+        int orderCount = 0;
+        double todayRevenue = 0;
+        if (snapshot.hasData) {
+          final docs = snapshot.data!.docs;
+          orderCount = docs.length;
+          for (final doc in docs) {
+            final data = doc.data() as Map<String, dynamic>;
+            if (data['isPaid'] == true || data['paymentStatus'] == 'paid') {
+              todayRevenue += (data['totalAmount'] as num?)?.toDouble() ?? 0.0;
+            }
+          }
+        }
+
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.black.withValues(alpha: 0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.today, color: AppTheme.primary, size: 20),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Today at a Glance',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.grey900),
+                  ),
+                  const Spacer(),
+                  if (snapshot.connectionState == ConnectionState.waiting)
+                    const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+                  if (snapshot.hasData)
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(color: AppTheme.success, shape: BoxShape.circle),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: _glanceCard(
+                      icon: Icons.shopping_bag_outlined,
+                      label: 'Live Orders',
+                      value: orderCount.toString(),
+                      color: AppTheme.info,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _glanceCard(
+                      icon: Icons.currency_rupee,
+                      label: "Today's Revenue",
+                      value: '₹${todayRevenue.round()}',
+                      color: AppTheme.success,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('users')
+                          .where('role', isEqualTo: 'deliveryAgent')
+                          .where('isActive', isEqualTo: true)
+                          .snapshots(),
+                      builder: (context, agentSnap) {
+                        final count = agentSnap.data?.docs.length ?? 0;
+                        return _glanceCard(
+                          icon: Icons.delivery_dining_outlined,
+                          label: 'Active Agents',
+                          value: count.toString(),
+                          color: AppTheme.primary,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _glanceCard({required IconData icon, required String label, required String value, required Color color}) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color),
+          ),
+          const SizedBox(height: 2),
+          Text(label, style: const TextStyle(fontSize: 11, color: AppTheme.grey500)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSmartTools(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Smart Tools',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.grey700),
+        ),
+        const SizedBox(height: 12),
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 5,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 1.0,
+          children: [
+            _SmartToolCard(
+              emoji: '📷',
+              label: 'Scan Supplier Bill',
+              color: const Color(0xFF00897B),
+              onTap: () => context.push('/owner/bill-scanner'),
+            ),
+            _SmartToolCard(
+              emoji: '🔊',
+              label: 'Voice Commands',
+              color: AppTheme.primary,
+              onTap: () => showVoiceCommandSheet(context),
+            ),
+            _SmartToolCard(
+              emoji: '🧾',
+              label: 'Cash Register',
+              color: const Color(0xFF5C6BC0),
+              onTap: () => context.push('/owner/cash-register'),
+            ),
+            _SmartToolCard(
+              emoji: '🚚',
+              label: 'Smart Dispatch',
+              color: const Color(0xFF00ACC1),
+              onTap: () => context.push('/owner/smart-dispatch'),
+            ),
+            _SmartToolCard(
+              emoji: '📊',
+              label: 'Barcode Inventory',
+              color: const Color(0xFF7B1FA2),
+              onTap: () => context.push('/owner/barcode-inventory'),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildQuickActions(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Quick Actions',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.grey700,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            // Scan Bill
+            Expanded(
+              child: _QuickActionCard(
+                icon: Icons.document_scanner_outlined,
+                label: 'Scan Bill',
+                subtitle: 'Challan photo se stock',
+                color: const Color(0xFF00897B),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const BillScannerScreen(),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Voice Command
+            Expanded(
+              child: _QuickActionCard(
+                icon: Icons.mic_outlined,
+                label: 'Voice Command',
+                subtitle: 'Hindi mein boliye',
+                color: AppTheme.primary,
+                onTap: () => showVoiceCommandSheet(context),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Daily Report
+            Expanded(
+              child: _QuickActionCard(
+                icon: Icons.summarize_outlined,
+                label: 'Daily Report',
+                subtitle: 'WhatsApp pe milega',
+                color: const Color(0xFF7B1FA2),
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Settings → Daily Report mein apna number set karein',
+                      ),
+                      duration: Duration(seconds: 3),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        // Second row — Scan Activity (live employee scan monitor)
+        _QuickActionCard(
+          icon: Icons.qr_code_scanner,
+          label: 'Scan Activity',
+          subtitle: 'Employee scans — live log',
+          color: const Color(0xFF1565C0),
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const ScanActivityScreen(),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -322,10 +627,10 @@ class OwnerHomePage extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Expanded(
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
                   'Welcome back!',
                   style: TextStyle(
@@ -582,7 +887,7 @@ class OwnerHomePage extends StatelessWidget {
                   ],
                 ),
               );
-            }).toList(),
+            }),
         ],
       ),
     );
@@ -605,3 +910,117 @@ class OwnerHomePage extends StatelessWidget {
 }
 
 // ProductsManagementScreen is now imported from products_management.dart
+
+// ─────────────── SMART TOOL CARD ───────────────
+
+class _SmartToolCard extends StatelessWidget {
+  final String emoji;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _SmartToolCard({
+    required this.emoji,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(emoji, style: const TextStyle(fontSize: 28)),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────── QUICK ACTION CARD ───────────────
+
+class _QuickActionCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String subtitle;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _QuickActionCard({
+    required this.icon,
+    required this.label,
+    required this.subtitle,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: color.withOpacity(0.2)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: color, size: 22),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                color: color,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 11,
+                color: color.withOpacity(0.7),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

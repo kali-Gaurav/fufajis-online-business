@@ -1,9 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter/material.dart';
 import 'package:fufajis_online/models/order_model.dart';
-import 'package:fufajis_online/models/user_model.dart';
-import 'package:fufajis_online/models/payment_method.dart';
-import 'package:fufajis_online/models/delivery_type.dart';
 import 'package:fufajis_online/providers/order_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';

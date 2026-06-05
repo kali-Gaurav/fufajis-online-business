@@ -42,7 +42,7 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
     try {
       final permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
-        final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+        final pos = await Geolocator.getCurrentPosition(locationSettings: const LocationSettings(accuracy: LocationAccuracy.high));
         setState(() {
           _currentPos = _HyperLocalPosition(pos.latitude, pos.longitude);
         });
@@ -286,20 +286,20 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
               o.status == OrderStatus.outForDelivery).toList();
 
           if (activeDeliveries.isEmpty) {
-            return Center(
+            return const Center(
               child: Padding(
-                padding: const EdgeInsets.all(24.0),
+                padding: EdgeInsets.all(24.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.done_all, size: 64, color: AppTheme.grey400),
-                    const SizedBox(height: 16),
-                    const Text(
+                    Icon(Icons.done_all, size: 64, color: AppTheme.grey400),
+                    SizedBox(height: 16),
+                    Text(
                       'No Active Deliveries!',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey700),
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
+                    SizedBox(height: 8),
+                    Text(
                       'All orders are delivered. Excellent job!',
                       style: TextStyle(fontSize: 14, color: AppTheme.grey500),
                     ),

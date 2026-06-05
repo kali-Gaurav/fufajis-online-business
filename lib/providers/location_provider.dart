@@ -33,6 +33,7 @@ class LocationProvider with ChangeNotifier {
     _selectedAddress = address;
     notifyListeners();
   }
+
   double get deliveryRadiusKm {
     final config = ShopConfigService().cachedConfig;
     return config?.maxDeliveryRadiusKm ?? AppConfig.deliveryRadiusKm;
@@ -89,7 +90,7 @@ class LocationProvider with ChangeNotifier {
       }
 
       _currentPosition = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
       );
 
       _latitude = _currentPosition!.latitude;
@@ -167,12 +168,7 @@ class LocationProvider with ChangeNotifier {
     final config = ShopConfigService().cachedConfig;
     final shopLat = config?.shopLatitude ?? AppConfig.shopLatitude;
     final shopLng = config?.shopLongitude ?? AppConfig.shopLongitude;
-    return calculateDistance(
-      shopLat,
-      shopLng,
-      latitude,
-      longitude,
-    );
+    return calculateDistance(shopLat, shopLng, latitude, longitude);
   }
 
   bool isWithinDeliveryRadius({
@@ -205,8 +201,11 @@ class LocationProvider with ChangeNotifier {
 
   String deliveryZoneMessageFor(Address address) {
     final distanceKm =
-        distanceFromShopInMeters(latitude: address.latitude, longitude: address.longitude) /
-            1000;
+        distanceFromShopInMeters(
+          latitude: address.latitude,
+          longitude: address.longitude,
+        ) /
+        1000;
     final limit = deliveryRadiusKm;
 
     if (isAddressWithinDeliveryRadius(address)) {
@@ -242,8 +241,10 @@ class LocationProvider with ChangeNotifier {
       'Pilani',
       'Jhunjhunu',
     ];
-    return availableAreas.any((a) =>
-        area.toLowerCase().contains(a.toLowerCase()) ||
-        a.toLowerCase().contains(area.toLowerCase()));
+    return availableAreas.any(
+      (a) =>
+          area.toLowerCase().contains(a.toLowerCase()) ||
+          a.toLowerCase().contains(area.toLowerCase()),
+    );
   }
 }

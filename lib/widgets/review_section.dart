@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/review_provider.dart';
 import '../models/product_review_model.dart';
@@ -84,7 +84,7 @@ class _ReviewSectionState extends State<ReviewSection> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${reviewProvider.averageRating.toStringAsFixed(1)}',
+                    reviewProvider.averageRating.toStringAsFixed(1),
                     style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
@@ -240,7 +240,7 @@ class _ReviewSectionState extends State<ReviewSection> {
       children: [
         ...reviewProvider.reviews.map((review) {
           return _buildReviewCard(review, reviewProvider);
-        }).toList(),
+        }),
         if (reviewProvider.reviews.length >= _reviewsPerPage)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16),

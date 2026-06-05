@@ -116,7 +116,7 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
           const SizedBox(height: 4),
           Text(
             '${widget.missingItem.quantity} × ₹${widget.missingItem.price.round()}',
-            style: TextStyle(color: AppTheme.grey600, fontSize: 13),
+            style: const TextStyle(color: AppTheme.grey600, fontSize: 13),
           ),
           const SizedBox(height: 12),
           Container(
@@ -235,7 +235,7 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
                     ],
                   ),
                   const SizedBox(height: 3),
-                  Text(subtitle, style: TextStyle(color: AppTheme.grey500, fontSize: 12)),
+                  Text(subtitle, style: const TextStyle(color: AppTheme.grey500, fontSize: 12)),
                 ],
               ),
             ),
@@ -334,7 +334,7 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
           activeColor: AppTheme.primary,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
         ),
-        Expanded(
+        const Expanded(
           child: Text(
             'Remember my preference for future orders',
             style: TextStyle(color: AppTheme.grey700, fontSize: 13),

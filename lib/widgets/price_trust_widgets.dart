@@ -232,27 +232,27 @@ class HonestPriceBadges extends StatelessWidget {
     final badges = <_BadgeData>[];
 
     if (priceStableFor60Days) {
-      badges.add(_BadgeData(
+      badges.add(const _BadgeData(
         icon: Icons.lock_outline,
         label: 'Fixed Price',
-        color: const Color(0xFF1565C0),
-        bg: const Color(0xFFE3F2FD),
+        color: Color(0xFF1565C0),
+        bg: Color(0xFFE3F2FD),
       ));
     }
 
-    badges.add(_BadgeData(
+    badges.add(const _BadgeData(
       icon: Icons.no_meals_outlined,
       label: 'No Hidden Charges',
-      color: const Color(0xFF2E7D32),
-      bg: const Color(0xFFE8F5E9),
+      color: Color(0xFF2E7D32),
+      bg: Color(0xFFE8F5E9),
     ));
 
     if (isLocallySourced) {
-      badges.add(_BadgeData(
+      badges.add(const _BadgeData(
         icon: Icons.store_outlined,
         label: 'Trusted Local Price',
-        color: const Color(0xFFE65100),
-        bg: const Color(0xFFFFF3E0),
+        color: Color(0xFFE65100),
+        bg: Color(0xFFFFF3E0),
       ));
     }
 

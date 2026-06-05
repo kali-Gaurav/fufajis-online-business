@@ -33,7 +33,10 @@ class LocationService {
   }
 
   /// Reverse geocodes the coordinates to get address details (District/Village)
-  Future<Map<String, String>> getAddressFromCoords(double lat, double lng) async {
+  Future<Map<String, String>> getAddressFromCoords(
+    double lat,
+    double lng,
+  ) async {
     try {
       List<Placemark> placemarks = await placemarkFromCoordinates(lat, lng);
       if (placemarks.isNotEmpty) {
@@ -60,7 +63,12 @@ class LocationService {
     required double targetLng,
     double radiusKm = 15.0,
   }) {
-    final distanceInMeters = Geolocator.distanceBetween(userLat, userLng, targetLat, targetLng);
+    final distanceInMeters = Geolocator.distanceBetween(
+      userLat,
+      userLng,
+      targetLat,
+      targetLng,
+    );
     return distanceInMeters <= (radiusKm * 1000);
   }
 }

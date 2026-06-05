@@ -1,6 +1,4 @@
-﻿import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../models/user_model.dart';
+import 'package:flutter/material.dart';
 import '../../services/user_service.dart';
 import '../../utils/app_theme.dart';
 
@@ -110,7 +108,7 @@ class _KhataScreenState extends State<KhataScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(customer['name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    Text(customer['phone'], style: TextStyle(color: AppTheme.grey500, fontSize: 12)),
+                    Text(customer['phone'], style: const TextStyle(color: AppTheme.grey500, fontSize: 12)),
                   ],
                 ),
               ),

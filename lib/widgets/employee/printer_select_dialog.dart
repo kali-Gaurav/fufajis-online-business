@@ -45,7 +45,10 @@ class _PrinterSelectDialogState extends State<PrinterSelectDialog> {
       if (!mounted) return;
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load Bluetooth devices: $e'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('Failed to load Bluetooth devices: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -58,10 +61,10 @@ class _PrinterSelectDialogState extends State<PrinterSelectDialog> {
       if (!isConnected) {
         await _printerService.bluetooth.connect(device);
       }
-      
+
       // Save device as default
       await _printerService.saveDefaultPrinter(device, _selectedWidth);
-      
+
       if (!mounted) return;
       setState(() {
         _isConnected = true;
@@ -73,7 +76,10 @@ class _PrinterSelectDialogState extends State<PrinterSelectDialog> {
       if (!mounted) return;
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to connect to printer: $e'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('Failed to connect to printer: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -106,8 +112,14 @@ class _PrinterSelectDialogState extends State<PrinterSelectDialog> {
                 DropdownButton<String>(
                   value: _selectedWidth,
                   items: const [
-                    DropdownMenuItem(value: '58mm', child: Text('58mm (2-inch)')),
-                    DropdownMenuItem(value: '80mm', child: Text('80mm (3-inch)')),
+                    DropdownMenuItem(
+                      value: '58mm',
+                      child: Text('58mm (2-inch)'),
+                    ),
+                    DropdownMenuItem(
+                      value: '80mm',
+                      child: Text('80mm (3-inch)'),
+                    ),
                   ],
                   onChanged: (val) {
                     if (val != null) {
@@ -124,66 +136,73 @@ class _PrinterSelectDialogState extends State<PrinterSelectDialog> {
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : _devices.isEmpty
-                      ? const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text(
-                              'No bonded devices found.\nPlease pair your printer in your system settings first.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: Colors.grey),
-                            ),
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          'No bonded devices found.\nPlease pair your printer in your system settings first.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: _devices.length,
+                      itemBuilder: (context, index) {
+                        final device = _devices[index];
+                        final isDefault = device.address == _defaultAddress;
+                        return ListTile(
+                          leading: Icon(
+                            Icons.print,
+                            color: isDefault ? Colors.green : null,
                           ),
-                        )
-                      : ListView.builder(
-                          itemCount: _devices.length,
-                          itemBuilder: (context, index) {
-                            final device = _devices[index];
-                            final isDefault = device.address == _defaultAddress;
-                            return ListTile(
-                              leading: Icon(
-                                Icons.print,
-                                color: isDefault ? Colors.green : null,
+                          title: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  device.name ?? 'Unknown Device',
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                              title: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      device.name ?? 'Unknown Device',
-                                      overflow: TextOverflow.ellipsis,
+                              if (isDefault)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.shade100,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Text(
+                                    'Default',
+                                    style: TextStyle(
+                                      color: Colors.green,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  if (isDefault)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: Colors.green.shade100,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: const Text(
-                                        'Default',
-                                        style: TextStyle(
-                                          color: Colors.green,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                              subtitle: Text(device.address ?? ''),
-                              trailing: ElevatedButton(
-                                onPressed: () => _connectToDevice(device),
-                                style: isDefault
-                                    ? ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.green,
-                                        foregroundColor: Colors.white,
-                                      )
-                                    : null,
-                                child: Text(isDefault && _isConnected ? 'Connected' : 'Connect'),
-                              ),
-                            );
-                          },
-                        ),
+                                ),
+                            ],
+                          ),
+                          subtitle: Text(device.address ?? ''),
+                          trailing: ElevatedButton(
+                            onPressed: () => _connectToDevice(device),
+                            style: isDefault
+                                ? ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    foregroundColor: Colors.white,
+                                  )
+                                : null,
+                            child: Text(
+                              isDefault && _isConnected
+                                  ? 'Connected'
+                                  : 'Connect',
+                            ),
+                          ),
+                        );
+                      },
+                    ),
             ),
           ],
         ),

@@ -105,12 +105,15 @@ class _DisputeScreenState extends State<DisputeScreen> {
                 activeColor: AppTheme.primary,
                 onChanged: (val) {
                   setState(() {
-                    if (val == true) _selectedItemIds.add(item.productId);
-                    else _selectedItemIds.remove(item.productId);
+                    if (val == true) {
+                      _selectedItemIds.add(item.productId);
+                    } else {
+                      _selectedItemIds.remove(item.productId);
+                    }
                   });
                 },
               );
-            }).toList(),
+            }),
             const Divider(height: 40),
             const Text('Describe the issue', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             const SizedBox(height: 12),
@@ -145,7 +148,7 @@ class _DisputeScreenState extends State<DisputeScreen> {
                       borderRadius: BorderRadius.circular(12),
                       image: DecorationImage(image: FileImage(File(img.path)), fit: BoxFit.cover),
                     ),
-                  )).toList(),
+                  )),
                 ],
               ),
             ),

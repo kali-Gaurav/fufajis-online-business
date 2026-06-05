@@ -1,4 +1,4 @@
-﻿import 'dart:ui' as ui;
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import '../utils/app_theme.dart';
 
@@ -40,10 +40,7 @@ class _ScratchCardWidgetState extends State<ScratchCardWidget> {
         const SizedBox(height: 8),
         Text(
           widget.subtitle,
-          style: const TextStyle(
-            fontSize: 14,
-            color: AppTheme.grey600,
-          ),
+          style: const TextStyle(fontSize: 14, color: AppTheme.grey600),
         ),
         const SizedBox(height: 24),
         Container(
@@ -78,9 +75,12 @@ class _ScratchCardWidgetState extends State<ScratchCardWidget> {
                   GestureDetector(
                     onPanUpdate: (details) {
                       setState(() {
-                        final RenderBox renderBox = context.findRenderObject() as RenderBox;
-                        final localOffset = renderBox.globalToLocal(details.globalPosition);
-                        
+                        final RenderBox renderBox =
+                            context.findRenderObject() as RenderBox;
+                        final localOffset = renderBox.globalToLocal(
+                          details.globalPosition,
+                        );
+
                         // Limit tracking to bounds of box to prevent errors
                         if (localOffset.dx >= 0 &&
                             localOffset.dx <= 250 &&
@@ -121,17 +121,14 @@ class ScratchPainter extends CustomPainter {
 
     // 1. Draw the beautiful premium silver-gray overlay
     final Paint silverPaint = Paint()
-      ..shader = ui.Gradient.linear(
-        Offset.zero,
-        Offset(size.width, size.height),
-        [
-          Colors.grey[300]!,
-          Colors.grey[400]!,
-          Colors.grey[500]!,
-          Colors.grey[400]!,
-          Colors.grey[300]!,
-        ],
-      );
+      ..shader =
+          ui.Gradient.linear(Offset.zero, Offset(size.width, size.height), [
+            Colors.grey[300]!,
+            Colors.grey[400]!,
+            Colors.grey[500]!,
+            Colors.grey[400]!,
+            Colors.grey[300]!,
+          ]);
 
     canvas.drawRRect(
       ui.RRect.fromRectAndRadius(
@@ -148,7 +145,11 @@ class ScratchPainter extends CustomPainter {
       ..strokeWidth = 2.0;
 
     for (double i = -size.width; i < size.width * 2; i += 20) {
-      canvas.drawLine(Offset(i, 0), Offset(i + size.height, size.height), patternPaint);
+      canvas.drawLine(
+        Offset(i, 0),
+        Offset(i + size.height, size.height),
+        patternPaint,
+      );
     }
 
     // 3. Clear/erase along the scratch paths
@@ -174,4 +175,3 @@ class ScratchPainter extends CustomPainter {
     return oldDelegate.points.length != points.length;
   }
 }
-

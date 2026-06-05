@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dart:io';
 import '../../utils/app_theme.dart';
 
 class VoiceLandmarkWidget extends StatefulWidget {
@@ -39,7 +37,7 @@ class _VoiceLandmarkWidgetState extends State<VoiceLandmarkWidget> {
         final directory = await getApplicationDocumentsDirectory();
         final path = '${directory.path}/landmark_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
-        final config = RecordConfig();
+        const config = RecordConfig();
         await _audioRecorder.start(config, path: path);
 
         setState(() {

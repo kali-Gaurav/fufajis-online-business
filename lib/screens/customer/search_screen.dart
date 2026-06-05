@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
@@ -8,7 +8,6 @@ import '../../providers/auth_provider.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../utils/app_theme.dart';
-import 'product_detail_screen.dart';
 import 'barcode_scanner_screen.dart';
 import 'package:flutter/services.dart';
 import '../../services/gemini_service.dart' show GeminiService;
@@ -418,10 +417,10 @@ class _SearchScreenState extends State<SearchScreen> {
       listenOptions: stt.SpeechListenOptions(
         cancelOnError: true,
         partialResults: true,
+        localeId: _voiceLocale,
+        listenFor: const Duration(seconds: 30),
+        pauseFor: const Duration(seconds: 3),
       ),
-      localeId: _voiceLocale,
-      listenFor: const Duration(seconds: 30),
-      pauseFor: const Duration(seconds: 3),
     );
   }
 
@@ -700,7 +699,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildNoResults() {
-    return Center(
+    return const Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -709,8 +708,8 @@ class _SearchScreenState extends State<SearchScreen> {
             size: 80,
             color: AppTheme.grey300,
           ),
-          const SizedBox(height: 16),
-          const Text(
+          SizedBox(height: 16),
+          Text(
             'No products found',
             style: TextStyle(
               fontSize: 18,
@@ -718,8 +717,8 @@ class _SearchScreenState extends State<SearchScreen> {
               color: AppTheme.grey700,
             ),
           ),
-          const SizedBox(height: 8),
-          const Text(
+          SizedBox(height: 8),
+          Text(
             'Try different keywords or browse categories',
             style: TextStyle(
               fontSize: 14,

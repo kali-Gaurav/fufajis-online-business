@@ -112,23 +112,23 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cash Collection'),
+        title: const Text('Cash Collection'),
         actions: [
           IconButton(
-            icon: Icon(Icons.qr_code_scanner),
+            icon: const Icon(Icons.qr_code_scanner),
             onPressed: () => _showScannerDialog(),
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Order Input
             Card(
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -136,18 +136,18 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
                       'Order Details',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     if (_orderId != null)
                       Container(
-                        padding: EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: Colors.green.shade50,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.check_circle, color: Colors.green),
-                            SizedBox(width: 8),
+                            const Icon(Icons.check_circle, color: Colors.green),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,7 +155,7 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
                                   Text(
                                     'Order: $_orderId',
                                     style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                        const TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                   if (_order != null)
                                     Text('Customer: ${_order!.customerName}'),
@@ -168,8 +168,8 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
                     else
                       ElevatedButton.icon(
                         onPressed: () => _showScannerDialog(),
-                        icon: Icon(Icons.qr_code_scanner),
-                        label: Text('Scan Order QR'),
+                        icon: const Icon(Icons.qr_code_scanner),
+                        label: const Text('Scan Order QR'),
                       ),
                   ],
                 ),
@@ -178,10 +178,10 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
 
             // Order Info
             if (_order != null) ...[
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Card(
                 child: Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -189,7 +189,7 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
                         'Order Information',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       _buildDetailRow('Order #', _order!.orderNumber),
                       _buildDetailRow('Customer', _order!.customerName),
                       _buildDetailRow('Phone', _order!.customerPhone),
@@ -201,12 +201,12 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
                 ),
               ),
 
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               // Collection Form
               Card(
                 child: Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -214,26 +214,26 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
                         'Cash Collection',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       TextField(
                         controller: _amountController,
                         keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Amount Collected (₹)',
                           prefixIcon: Icon(Icons.currency_rupee),
                           border: OutlineInputBorder(),
                         ),
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       TextField(
                         controller: _notesController,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Notes (optional)',
                           border: OutlineInputBorder(),
                         ),
                         maxLines: 2,
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
@@ -241,11 +241,11 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.indigo,
                             foregroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(vertical: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
                           child: _isLoading
-                              ? CircularProgressIndicator(color: Colors.white)
-                              : Text('Record Collection'),
+                              ? const CircularProgressIndicator(color: Colors.white)
+                              : const Text('Record Collection'),
                         ),
                       ),
                     ],
@@ -256,26 +256,26 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
 
             // Recent Collections
             if (_collections.isNotEmpty) ...[
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               Text(
                 'Today\'s Collections',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Card(
                 color: Colors.green.shade50,
                 child: Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'Total Collected',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Text(
                         '₹${_collections.fold<double>(0, (sum, c) => sum + c.amount).toStringAsFixed(2)}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
                           color: Colors.green,
@@ -285,18 +285,18 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
                   ),
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               ..._collections.map((collection) => Card(
                     child: ListTile(
-                      leading: CircleAvatar(
-                        child: Icon(Icons.payments, color: Colors.white),
+                      leading: const CircleAvatar(
                         backgroundColor: Colors.indigo,
+                        child: Icon(Icons.payments, color: Colors.white),
                       ),
                       title: Text('Order #${collection.orderId}'),
                       subtitle: Text(collection.deliveryEmployeeName),
                       trailing: Text(
                         '₹${collection.amount.toStringAsFixed(2)}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.green,
                         ),
@@ -312,12 +312,12 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
 
   Widget _buildDetailRow(String label, String value) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(color: Colors.grey)),
-          Text(value, style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(label, style: const TextStyle(color: Colors.grey)),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -327,10 +327,10 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Enter Order ID'),
+        title: const Text('Enter Order ID'),
         content: TextField(
           autofocus: true,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             labelText: 'Order ID',
             border: OutlineInputBorder(),
           ),
@@ -344,7 +344,7 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
+            child: const Text('Cancel'),
           ),
         ],
       ),

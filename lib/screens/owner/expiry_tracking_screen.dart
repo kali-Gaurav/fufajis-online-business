@@ -8,7 +8,7 @@ import '../../models/product_model.dart';
 /// Expiry Tracking Screen
 /// Displays products with expiry dates and dynamic markdown pricing
 class ExpiryTrackingScreen extends StatefulWidget {
-  const ExpiryTrackingScreen({Key? key}) : super(key: key);
+  const ExpiryTrackingScreen({super.key});
 
   @override
   State<ExpiryTrackingScreen> createState() => _ExpiryTrackingScreenState();

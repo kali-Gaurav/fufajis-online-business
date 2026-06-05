@@ -5,8 +5,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'remote_config_service.dart';
 
 /// Enterprise WhatsApp Service using Meta Business API
-/// 
-/// Requirements: 
+///
+/// Requirements:
 /// 1. Meta App ID
 /// 2. Permanent Access Token
 /// 3. Verified Phone Number ID
@@ -33,7 +33,9 @@ class MetaWhatsAppService {
     final String phoneId = dotenv.get('WHATSAPP_PHONE_ID', fallback: '');
 
     if (accessToken.isEmpty || phoneId.isEmpty) {
-      debugPrint('WhatsApp Error: Live API Credentials not found in environment.');
+      debugPrint(
+        'WhatsApp Error: Live API Credentials not found in environment.',
+      );
       return false;
     }
 
@@ -56,10 +58,12 @@ class MetaWhatsAppService {
             "components": [
               {
                 "type": "body",
-                "parameters": parameters.map((p) => {"type": "text", "text": p}).toList(),
-              }
-            ]
-          }
+                "parameters": parameters
+                    .map((p) => {"type": "text", "text": p})
+                    .toList(),
+              },
+            ],
+          },
         }),
       );
 
@@ -77,7 +81,12 @@ class MetaWhatsAppService {
   }
 
   /// Sends the delivery OTP to the customer (Feature 29/37)
-  Future<void> sendDeliveryOTP(String phone, String name, String orderNum, String otp) async {
+  Future<void> sendDeliveryOTP(
+    String phone,
+    String name,
+    String orderNum,
+    String otp,
+  ) async {
     await sendTemplateMessage(
       recipientPhone: phone,
       templateName: templateOrderOutForDelivery,

@@ -226,7 +226,7 @@ class ReviewProvider extends ChangeNotifier {
           .get();
 
       return snapshot.docs
-          .map((doc) => ProductReviewModel.fromMap(doc.data() as Map<String, dynamic>))
+          .map((doc) => ProductReviewModel.fromMap(doc.data()))
           .toList();
     } catch (e) {
       _error = e.toString();

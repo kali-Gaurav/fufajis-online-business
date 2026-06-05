@@ -97,16 +97,16 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Delivery'),
+        title: const Text('Delivery'),
         actions: [
           IconButton(
-            icon: Icon(Icons.qr_code_scanner),
+            icon: const Icon(Icons.qr_code_scanner),
             onPressed: () => _showScannerDialog(),
           ),
         ],
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : _currentOrder == null
               ? _buildNoDeliveryView()
               : _buildDeliveryView(),
@@ -118,22 +118,22 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.delivery_dining, size: 64, color: Colors.grey),
-          SizedBox(height: 16),
+          const Icon(Icons.delivery_dining, size: 64, color: Colors.grey),
+          const SizedBox(height: 16),
           Text(
             'No Delivery Assigned',
             style: Theme.of(context).textTheme.titleLarge,
           ),
-          SizedBox(height: 8),
-          Text(
+          const SizedBox(height: 8),
+          const Text(
             'Scan a parcel QR code to start delivery',
             style: TextStyle(color: Colors.grey),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: () => _showScannerDialog(),
-            icon: Icon(Icons.qr_code_scanner),
-            label: Text('Scan Parcel QR'),
+            icon: const Icon(Icons.qr_code_scanner),
+            label: const Text('Scan Parcel QR'),
           ),
         ],
       ),
@@ -145,7 +145,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
     final isDelivered = _deliveryStatus == 'delivered';
 
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -153,7 +153,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
           Card(
             color: isDelivered ? Colors.green.shade50 : Colors.blue.shade50,
             child: Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -167,13 +167,13 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
                       Chip(
                         label: Text(
                             order.status.name.replaceAll('_', ' ').toUpperCase()),
-                        color: MaterialStateProperty.all(
+                        color: WidgetStateProperty.all(
                           isDelivered ? Colors.green : Colors.blue,
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   _buildInfoRow(Icons.person, 'Customer', order.customerName),
                   _buildInfoRow(Icons.phone, 'Phone', order.customerPhone),
                   _buildInfoRow(
@@ -183,12 +183,12 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
             ),
           ),
 
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Order Items
           Card(
             child: Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -196,20 +196,20 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
                     'Items to Deliver',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   ...order.items.map((item) => ListTile(
                         title: Text(item.productName),
                         subtitle: Text('Qty: ${item.quantity}'),
                         trailing: Text('₹${item.price * item.quantity}'),
                       )),
-                  Divider(),
+                  const Divider(),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Total',
+                      const Text('Total',
                           style: TextStyle(fontWeight: FontWeight.bold)),
                       Text('₹${order.totalAmount}',
-                          style: TextStyle(
+                          style: const TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 18)),
                     ],
                   ),
@@ -218,13 +218,13 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
             ),
           ),
 
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // OTP Verification
           if (!isDelivered) ...[
             Card(
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -232,24 +232,24 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
                       'Customer OTP Verification',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    SizedBox(height: 12),
-                    Text(
+                    const SizedBox(height: 12),
+                    const Text(
                       'Ask the customer for their OTP to complete delivery',
                       style: TextStyle(color: Colors.grey),
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     TextField(
                       controller: _otpController,
                       keyboardType: TextInputType.number,
                       maxLength: 4,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Enter OTP',
                         prefixIcon: Icon(Icons.lock),
                         border: OutlineInputBorder(),
                         counterText: '',
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -257,11 +257,11 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
                           foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(vertical: 16),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
                         child: _isLoading
-                            ? CircularProgressIndicator(color: Colors.white)
-                            : Text('Complete Delivery'),
+                            ? const CircularProgressIndicator(color: Colors.white)
+                            : const Text('Complete Delivery'),
                       ),
                     ),
                   ],
@@ -275,17 +275,17 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
             Card(
               color: Colors.green.shade50,
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    Icon(Icons.check_circle, size: 64, color: Colors.green),
-                    SizedBox(height: 16),
+                    const Icon(Icons.check_circle, size: 64, color: Colors.green),
+                    const SizedBox(height: 16),
                     Text(
                       'Delivery Completed!',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
-                    SizedBox(height: 8),
-                    Text(
+                    const SizedBox(height: 8),
+                    const Text(
                       'Stock finalized, loyalty points awarded, invoice finalized',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.grey),
@@ -301,12 +301,12 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
 
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
           Icon(icon, size: 18, color: Colors.grey),
-          SizedBox(width: 8),
-          Text('$label: ', style: TextStyle(color: Colors.grey)),
+          const SizedBox(width: 8),
+          Text('$label: ', style: const TextStyle(color: Colors.grey)),
           Expanded(child: Text(value)),
         ],
       ),
@@ -317,10 +317,10 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Enter Parcel ID'),
+        title: const Text('Enter Parcel ID'),
         content: TextField(
           autofocus: true,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             labelText: 'Parcel ID (e.g., PARCEL-12345)',
             border: OutlineInputBorder(),
           ),
@@ -338,7 +338,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
+            child: const Text('Cancel'),
           ),
         ],
       ),

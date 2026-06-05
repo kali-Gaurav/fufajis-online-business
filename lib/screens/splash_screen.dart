@@ -1,10 +1,27 @@
+// ============================================================
+//  SplashScreen — App entry point with full auth resolution
+//
+//  BOOT SEQUENCE:
+//  1. Version & maintenance check
+//  2. Background tasks (lightning deals, cache)
+//  3. Check Firebase auth token validity
+//  4. If token valid: validate Firestore session liveness
+//  5. Auto-login → route to correct role dashboard
+//  6. If no valid session: route to /login (not /customer/home)
+//     so user explicitly chooses Guest or Login
+//
+//  QUICK-LOGIN USERS:
+//  Guest mode is now purely local (GuestProvider).
+//  Splash never creates a Firebase user for guests.
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/guest_provider.dart';
 import '../models/user_model.dart';
 import '../providers/order_provider.dart';
-import '../providers/product_provider.dart';
 import '../services/update_service.dart';
 import '../services/lightning_deals_service.dart';
 import '../services/cache_service.dart';
@@ -16,21 +33,22 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _animation;
+  late Animation<double> _scaleAnim;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1200),
       vsync: this,
     )..repeat(reverse: true);
-    _animation = Tween<double>(begin: 0.85, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
+    _scaleAnim = Tween<double>(begin: 0.9, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
-    _navigateToNextScreen();
+    _bootSequence();
   }
 
   @override
@@ -39,55 +57,86 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     super.dispose();
   }
 
-  Future<void> _navigateToNextScreen() async {
-    // 1. Mandatory Version & Maintenance Check (Step 1.1)
-    final bool canProceed = await UpdateService().handleVersionCheck(context);
-    if (!canProceed) return; // Blocked by mandatory dialog
+  Future<void> _bootSequence() async {
+    // ── Step 1: Mandatory version / maintenance gate ──────────
+    final canProceed = await UpdateService().handleVersionCheck(context);
+    if (!canProceed) return;
 
-    // 2. Background Fetch for Lightning Deals (Step 1.2)
+    // ── Step 2: Background prefetch (non-blocking) ────────────
     LightningDealsService().fetchActiveDeals();
-
-    // 3. Ensure Cache Service is ready (Step 1.3)
     await CacheService().init();
 
-    await Future.delayed(const Duration(seconds: 1));
+    // ── Step 3: Initialise guest state ────────────────────────
+    final guest = Provider.of<GuestProvider>(context, listen: false);
+    await guest.init();
 
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final isLoggedIn = await authProvider.checkAuthStatus();
+    // ── Step 4: Minimum splash display ────────────────────────
+    await Future.delayed(const Duration(milliseconds: 1200));
+    if (!mounted) return;
 
-    if (mounted) {
-      if (isLoggedIn) {
-        // Step 1.5: Wait for profile to load to prevent race conditions
-        int retryCount = 0;
-        while (authProvider.currentUser == null && retryCount < 50) {
-          await Future.delayed(const Duration(milliseconds: 100));
-          if (!mounted) return;
-          retryCount++;
-          debugPrint('[SplashScreen] Waiting for profile... ($retryCount)');
+    // ── Step 5: Check Firebase auth ───────────────────────────
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final isLoggedIn = await auth.checkAuthStatus();
+
+    if (!mounted) return;
+
+    if (isLoggedIn) {
+      // ── Step 6: Wait for Firestore user profile ─────────────
+      int retries = 0;
+      while (auth.currentUser == null && retries < 50) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        if (!mounted) return;
+        retries++;
+      }
+
+      if (auth.currentUser != null) {
+        final user = auth.currentUser!;
+
+        // Preload orders
+        Provider.of<OrderProvider>(context, listen: false)
+            .loadOrders(user.id);
+
+        // ── Step 7: Route by role ────────────────────────────
+        if (!mounted) return;
+
+        // Owner/Admin → PIN screen (handled by router redirect)
+        if (auth.isPinRequired || auth.isDeviceVerificationRequired) {
+          context.go('/security-pin');
+          return;
         }
 
-        if (authProvider.currentUser != null) {
-          if (!mounted) return;
-          Provider.of<OrderProvider>(context, listen: false)
-              .loadOrders(authProvider.currentUser!.id);
-          
-          final user = authProvider.currentUser!;
-          
-          // Route based on active role and profile completion
-          if (user.role == UserRole.customer && 
-              (user.name == null || user.name!.isEmpty || user.district == null || user.district!.isEmpty)) {
-            context.go('/profile-creation');
-          } else {
-            context.go('/');
-          }
-        } else {
-          // Profile failed to load after 5 seconds
-          debugPrint('[SplashScreen] Profile load timeout. Routing to login.');
-          if (mounted) context.go('/login');
+        // Customer profile incomplete
+        if (user.role == UserRole.customer &&
+            (user.name == null || user.name!.isEmpty)) {
+          context.go('/profile-creation');
+          return;
         }
+
+        _routeByRole(user.role);
       } else {
+        // Profile timed out — go to login
+        debugPrint('[Splash] Profile load timeout → /login');
         context.go('/login');
       }
+    } else {
+      // ── Not logged in — go to login screen ──────────────────
+      // Login screen offers both "Login" and "Continue as Guest"
+      context.go('/login');
+    }
+  }
+
+  void _routeByRole(UserRole role) {
+    switch (role) {
+      case UserRole.shopOwner:
+        context.go('/owner');
+      case UserRole.admin:
+        context.go('/admin');
+      case UserRole.deliveryAgent:
+        context.go('/delivery');
+      case UserRole.employee:
+        context.go('/employee');
+      case UserRole.customer:
+        context.go('/customer/home');
     }
   }
 
@@ -107,48 +156,55 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ScaleTransition(
-                scale: _animation,
+                scale: _scaleAnim,
                 child: Container(
                   width: 120,
                   height: 120,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(28),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
+                        color: Colors.black.withValues(alpha: 0.15),
+                        blurRadius: 24,
+                        offset: const Offset(0, 12),
                       ),
                     ],
                   ),
                   child: const Icon(
-                    Icons.shopping_bag,
-                    size: 60,
+                    Icons.shopping_bag_rounded,
+                    size: 62,
                     color: Color(0xFFFF5722),
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 28),
               const Text(
                 "Fufaji's Online",
                 style: TextStyle(
-                  fontSize: 28,
+                  fontSize: 30,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
+                  letterSpacing: 0.5,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               const Text(
-                'Your District Shopping App',
+                'आपकी अपनी दुकान',
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.white,
+                  color: Colors.white70,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
-              const SizedBox(height: 48),
-              const CircularProgressIndicator(
-                color: Colors.white,
+              const SizedBox(height: 56),
+              const SizedBox(
+                width: 32,
+                height: 32,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2.5,
+                ),
               ),
             ],
           ),

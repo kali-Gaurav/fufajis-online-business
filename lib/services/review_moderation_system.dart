@@ -62,7 +62,7 @@ class ReviewModerationSystem {
       final results = <Map<String, dynamic>>[];
 
       for (var doc in snapshot.docs) {
-        final data = doc.data() as Map<String, dynamic>;
+        final data = doc.data();
         final pathSegments = doc.reference.path.split('/');
         final productId = pathSegments[1];
 
@@ -186,7 +186,7 @@ class ReviewModerationSystem {
       final reasonCounts = <String, int>{};
 
       for (var doc in snapshot.docs) {
-        final data = doc.data() as Map<String, dynamic>;
+        final data = doc.data();
         final reasons = List<String>.from(data['flagReasons'] ?? []);
 
         for (var reason in reasons) {
@@ -211,7 +211,7 @@ class ReviewModerationSystem {
           .get();
 
       return snapshot.docs
-          .map((doc) => ProductReviewModel.fromMap(doc.data() as Map<String, dynamic>))
+          .map((doc) => ProductReviewModel.fromMap(doc.data()))
           .toList();
     } catch (e) {
       print('Error getting user reviews: $e');
@@ -249,7 +249,7 @@ class ReviewModerationSystem {
       final suspicious = <Map<String, dynamic>>[];
 
       for (var doc in snapshot.docs) {
-        final data = doc.data() as Map<String, dynamic>;
+        final data = doc.data();
         final review = ProductReviewModel.fromMap(data);
 
         // Check for suspicious patterns

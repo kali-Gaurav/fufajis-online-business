@@ -22,7 +22,11 @@ class ForceUpdateOverlay extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.system_update, size: 64, color: AppTheme.primary),
+              const Icon(
+                Icons.system_update,
+                size: 64,
+                color: AppTheme.primary,
+              ),
               const SizedBox(height: 24),
               const Text(
                 'Update Required',
@@ -45,7 +49,10 @@ class ForceUpdateOverlay extends StatelessWidget {
                   onPressed: () async {
                     final url = Uri.parse(updateUrl);
                     if (await canLaunchUrl(url)) {
-                      await launchUrl(url, mode: LaunchMode.externalApplication);
+                      await launchUrl(
+                        url,
+                        mode: LaunchMode.externalApplication,
+                      );
                     }
                   },
                   style: ElevatedButton.styleFrom(

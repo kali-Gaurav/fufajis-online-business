@@ -7,8 +7,8 @@ import '../../providers/order_provider.dart';
 import '../../models/order_model.dart';
 import '../../models/user_model.dart';
 import '../../models/payment_method.dart';
-import '../../services/upi_payment_service.dart';
 import '../../utils/app_theme.dart';
+import '../../providers/payment_provider.dart';
 
 class FastCheckoutScreen extends StatefulWidget {
   const FastCheckoutScreen({super.key});
@@ -56,9 +56,9 @@ class _FastCheckoutScreenState extends State<FastCheckoutScreen> {
     final cart = context.read<CartProvider>();
     final auth = context.read<AuthProvider>();
     final orderProvider = context.read<OrderProvider>();
-    final user = auth.currentUser;
 
     final userId = auth.currentUser?.id ?? 'user_001';
+    final userEmail = auth.currentUser?.email ?? 'customer@fufajionline.com';
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     _stableOrderId ??= 'ord_${userId}_$timestamp';
     _stableOrderNumber ??= auth.generateOrderNumber();
@@ -99,7 +99,7 @@ class _FastCheckoutScreenState extends State<FastCheckoutScreen> {
       if (_paymentMethod == PaymentMethod.upi) {
         final finalizedOrder = await orderProvider.checkoutOnline(
           order: order,
-          email: user?.email ?? 'customer@fufajionline.com',
+          email: userEmail,
           onPaymentStarted: () => setState(() => _isProcessing = true),
           onPaymentError: (error) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error))),
         );
@@ -107,6 +107,27 @@ class _FastCheckoutScreenState extends State<FastCheckoutScreen> {
         if (finalizedOrder != null && mounted) {
            cart.clearCart();
            context.go('/customer/order-confirmation?orderId=${finalizedOrder.id}&orderNumber=${finalizedOrder.orderNumber}');
+        }
+      } else if (_paymentMethod == PaymentMethod.credit) {
+        // Fufaji Credit Path
+        final paymentProvider = context.read<PaymentProvider>();
+        final success = await paymentProvider.processCreditPayment(
+          order.totalAmount,
+          auth.currentUser!,
+          auth,
+        );
+        if (success) {
+          await orderProvider.createOrder(order.copyWith(status: OrderStatus.confirmed));
+          cart.clearCart();
+          if (mounted) {
+            context.go('/customer/order-confirmation?orderId=${order.id}&orderNumber=${order.orderNumber}');
+          }
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(paymentProvider.errorMessage ?? 'Credit check failed')),
+            );
+          }
         }
       } else {
         // COD path
@@ -128,7 +149,6 @@ class _FastCheckoutScreenState extends State<FastCheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     final cart = context.watch<CartProvider>();
-    final user = context.watch<AuthProvider>().currentUser;
 
     return Scaffold(
       appBar: AppBar(
@@ -196,7 +216,7 @@ class _FastCheckoutScreenState extends State<FastCheckoutScreen> {
                             Text('₹${item.totalPrice.round()}', style: const TextStyle(fontWeight: FontWeight.w600)),
                           ],
                         ),
-                      )).toList(),
+                      )),
                       const Divider(height: 24),
                       _buildPriceRow('Items Subtotal', '₹${cart.subtotal.round()}'),
                       if (cart.deliveryCharge > 0)
@@ -304,6 +324,8 @@ class _FastCheckoutScreenState extends State<FastCheckoutScreen> {
                 _buildPaymentOption(PaymentMethod.upi, 'UPI (GPay / PhonePe)', Icons.account_balance_wallet_outlined),
                 const SizedBox(height: 8),
                 _buildPaymentOption(PaymentMethod.cod, 'Cash on Delivery', Icons.money),
+                const SizedBox(height: 8),
+                _buildPaymentOption(PaymentMethod.credit, 'Fufaji Credit (Khata)', Icons.menu_book),
                 
                 const SizedBox(height: 100), // Space for button
               ],

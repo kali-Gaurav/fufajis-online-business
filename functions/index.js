@@ -109,10 +109,12 @@ exports.razorpayWebhook = functions.https.onRequest(async (req, res) => {
                 transaction.update(orderRef, {
                     paymentStatus: 'paid',
                     paymentId: payment.id,
+                    paymentMethod: 'PaymentMethod.' + (payment.method || 'razorpay'),
                     status: 'OrderStatus.confirmed',
                     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
                     reconciliationSource: 'razorpay_webhook',
                     reconciledAt: admin.firestore.FieldValue.serverTimestamp(),
+                    financeCategory: 'online_revenue'
                 });
 
                 // Create/update payment record
@@ -130,6 +132,7 @@ exports.razorpayWebhook = functions.https.onRequest(async (req, res) => {
                     source: 'webhook',
                     customerId: orderData.customerId || '',
                     createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                    financeType: 'credit'
                 }, { merge: true });
 
                 // Mark webhook event as processed
@@ -656,7 +659,9 @@ exports.onOrderUpdate = functions.firestore
                 body = "Your order has been packed and is ready!";
                 break;
             case 'outForDelivery':
-                body = "Our rider is on the way to your location! 🚴";
+                const otp = newValue.otp || 'N/A';
+                const rider = newValue.deliveryEmployeeName || 'a rider';
+                body = `Our rider (${rider}) is on the way! 🚴 Your Delivery OTP is: ${otp}`;
                 break;
             case 'delivered':
                 body = "Order delivered! Enjoy your purchase. 🎉";
@@ -680,8 +685,133 @@ exports.onOrderUpdate = functions.firestore
         try {
             await admin.messaging().send(message);
             console.log(`Notification sent to ${customerId} for order ${orderNumber} (${status})`);
+
+            // Populate In-App Notification Center
+            await admin.firestore()
+                .collection('users')
+                .doc(customerId)
+                .collection('notifications')
+                .add({
+                    title: title,
+                    body: body,
+                    type: 'orderUpdate',
+                    timestamp: admin.firestore.FieldValue.serverTimestamp(),
+                    isRead: false,
+                    data: { orderId: context.params.orderId }
+                });
+
+            // TRIGGER WHATSAPP for Confirmed and OutForDelivery
+            if (status === 'confirmed' || status === 'outForDelivery') {
+                const userDoc = await admin.firestore().collection('users').doc(customerId).get();
+                const phone = userDoc.data()?.phoneNumber;
+                if (phone) {
+                    const WHATSAPP_TOKEN = functions.config().whatsapp?.token;
+                    const WHATSAPP_PHONE_ID = functions.config().whatsapp?.phone_id;
+                    if (WHATSAPP_TOKEN && WHATSAPP_PHONE_ID) {
+                        const cleanPhone = phone.replace(/\D/g, '');
+                        const waPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
+
+                        await fetch(`https://graph.facebook.com/v25.0/${WHATSAPP_PHONE_ID}/messages`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${WHATSAPP_TOKEN}`,
+                            },
+                            body: JSON.stringify({
+                                messaging_product: 'whatsapp',
+                                to: waPhone,
+                                type: 'text',
+                                text: { body: `Fufaji Update: ${body}\nTrack here: https://fufajionline.com/track/${context.params.orderId}` },
+                            }),
+                        });
+                    }
+                }
+            }
         } catch (error) {
             console.error('Error sending FCM message:', error);
+        }
+
+        return null;
+    });
+
+/**
+ * Trigger push notifications when a new order is created
+ */
+exports.onOrderCreate = functions.firestore
+    .document('orders/{orderId}')
+    .onCreate(async (snap, context) => {
+        const newValue = snap.data();
+        const customerId = newValue.customerId;
+        const orderNumber = newValue.orderNumber;
+
+        // Get customer's FCM token
+        const userRef = admin.firestore().collection('users').doc(customerId);
+        const userDoc = await userRef.get();
+
+        if (!userDoc.exists || !userDoc.data().fcmToken) {
+            console.log(`No FCM token for user ${customerId}. Skipping notification.`);
+            return null;
+        }
+
+        const fcmToken = userDoc.data().fcmToken;
+        const title = `📦 Order Placed!`;
+        const body = `We have received your order #${orderNumber}!`;
+
+        const message = {
+            notification: { title, body },
+            data: {
+                orderId: context.params.orderId,
+                status: 'pending',
+                click_action: 'FLUTTER_NOTIFICATION_CLICK',
+                type: 'orderUpdate'
+            },
+            token: fcmToken
+        };
+
+        try {
+            await admin.messaging().send(message);
+            console.log(`Notification sent to ${customerId} for new order ${orderNumber}`);
+
+            // Populate In-App Notification Center
+            await admin.firestore()
+                .collection('users')
+                .doc(customerId)
+                .collection('notifications')
+                .add({
+                    title: title,
+                    body: body,
+                    type: 'orderUpdate',
+                    timestamp: admin.firestore.FieldValue.serverTimestamp(),
+                    isRead: false,
+                    data: { orderId: context.params.orderId }
+                });
+
+            // TRIGGER WHATSAPP
+            const phone = userDoc.data()?.phoneNumber;
+            if (phone) {
+                const WHATSAPP_TOKEN = functions.config().whatsapp?.token;
+                const WHATSAPP_PHONE_ID = functions.config().whatsapp?.phone_id;
+                if (WHATSAPP_TOKEN && WHATSAPP_PHONE_ID) {
+                    const cleanPhone = phone.replace(/\D/g, '');
+                    const waPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
+
+                    await fetch(`https://graph.facebook.com/v25.0/${WHATSAPP_PHONE_ID}/messages`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${WHATSAPP_TOKEN}`,
+                        },
+                        body: JSON.stringify({
+                            messaging_product: 'whatsapp',
+                            to: waPhone,
+                            type: 'text',
+                            text: { body: `Fufaji Update: ${body}\nTrack here: https://fufajionline.com/track/${context.params.orderId}` },
+                        }),
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Error sending FCM message on create:', error);
         }
 
         return null;
@@ -1413,6 +1543,291 @@ exports.dailyFirestoreBackup = functions.pubsub
  * Scheduled: Weekly cleanup of processed notifications (Sunday 3 AM IST)
  * Deletes notification_queue documents that were processed >7 days ago.
  */
+// ═══════════════════════════════════════════════════════════════════════
+// DAILY OWNER REPORT — WhatsApp Summary at 10 PM IST
+// ═══════════════════════════════════════════════════════════════════════
+
+/**
+ * Sends a daily WhatsApp business summary to the shop owner at 10 PM IST.
+ * Calculates: order count, revenue, pending vs delivered, top 3 products.
+ * Owner phone is read from Firestore settings/shop_config → ownerPhone.
+ */
+exports.sendDailyOwnerReport = functions.pubsub
+    .schedule('0 22 * * *')
+    .timeZone('Asia/Kolkata')
+    .onRun(async (context) => {
+        console.log('[DailyReport] Starting daily owner report...');
+
+        try {
+            const WHATSAPP_TOKEN = functions.config().whatsapp?.token || '';
+            const WHATSAPP_PHONE_ID = functions.config().whatsapp?.phone_id || '';
+
+            if (!WHATSAPP_TOKEN || !WHATSAPP_PHONE_ID) {
+                console.error('[DailyReport] Missing WHATSAPP_TOKEN or WHATSAPP_PHONE_ID config.');
+                return null;
+            }
+
+            // Get owner phone from settings
+            const settingsDoc = await admin.firestore()
+                .collection('settings')
+                .doc('shop_config')
+                .get();
+
+            if (!settingsDoc.exists) {
+                console.error('[DailyReport] settings/shop_config not found.');
+                return null;
+            }
+
+            const ownerPhone = settingsDoc.data().ownerPhone;
+            if (!ownerPhone) {
+                console.error('[DailyReport] ownerPhone not set in shop_config.');
+                return null;
+            }
+
+            // Normalize phone
+            let cleanPhone = ownerPhone.replace(/\D/g, '');
+            if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
+            else if (!cleanPhone.startsWith('91')) cleanPhone = '91' + cleanPhone;
+
+            // Today's midnight IST → UTC offset is -5.5h, so midnight IST = 18:30 UTC previous day
+            const now = new Date();
+            const istOffset = 5.5 * 60 * 60 * 1000;
+            const nowIST = new Date(now.getTime() + istOffset);
+            const midnightIST = new Date(nowIST);
+            midnightIST.setHours(0, 0, 0, 0);
+            const midnightUTC = new Date(midnightIST.getTime() - istOffset);
+            const midnightTimestamp = admin.firestore.Timestamp.fromDate(midnightUTC);
+
+            // Query today's orders
+            const ordersSnap = await admin.firestore()
+                .collection('orders')
+                .where('createdAt', '>=', midnightTimestamp)
+                .get();
+
+            const orders = ordersSnap.docs.map(d => d.data());
+
+            const totalOrders = orders.length;
+            const totalRevenue = orders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+            const deliveredOrders = orders.filter(o =>
+                (o.status || '').toLowerCase().includes('delivered')
+            ).length;
+            const pendingOrders = orders.filter(o =>
+                !(o.status || '').toLowerCase().includes('delivered') &&
+                !(o.status || '').toLowerCase().includes('cancelled')
+            ).length;
+            const avgOrder = totalOrders > 0 ? (totalRevenue / totalOrders) : 0;
+
+            // Top 3 products by order frequency
+            const productCount = {};
+            for (const order of orders) {
+                const items = order.items || [];
+                for (const item of items) {
+                    const name = item.productName || 'Unknown';
+                    productCount[name] = (productCount[name] || 0) + (item.quantity || 1);
+                }
+            }
+            const topProducts = Object.entries(productCount)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3);
+
+            // Format date in IST
+            const dateStr = nowIST.toLocaleDateString('en-IN', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                timeZone: 'Asia/Kolkata',
+            });
+
+            // Build message
+            let topProductsText = '';
+            if (topProducts.length === 0) {
+                topProductsText = '• Koi bhi orders nahi aaye aaj';
+            } else {
+                topProductsText = topProducts
+                    .map(([name, count]) => `• ${name} - ${count} orders`)
+                    .join('\n');
+            }
+
+            const message =
+`🏪 *Fufaji's Online - Aaj Ki Report*
+📅 ${dateStr}
+
+📦 Total Orders: ${totalOrders}
+✅ Delivered: ${deliveredOrders}
+⏳ Pending: ${pendingOrders}
+💰 Revenue: ₹${Math.round(totalRevenue)}
+📈 Average Order: ₹${Math.round(avgOrder)}
+
+🔥 Top Products:
+${topProductsText}
+
+Kal bhi badiya din ho! 🙏
+- Fufaji's Online Team`;
+
+            // Send via Meta WhatsApp API (uses Node 18+ native fetch)
+            const response = await fetch(
+                `https://graph.facebook.com/v25.0/${WHATSAPP_PHONE_ID}/messages`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${WHATSAPP_TOKEN}`,
+                    },
+                    body: JSON.stringify({
+                        messaging_product: 'whatsapp',
+                        to: cleanPhone,
+                        type: 'text',
+                        text: { body: message },
+                    }),
+                }
+            );
+
+            const result = await response.json();
+
+            if (response.ok) {
+                console.log(`[DailyReport] Report sent to owner ${cleanPhone}. MsgId: ${result.messages?.[0]?.id}`);
+            } else {
+                console.error('[DailyReport] WhatsApp API error:', JSON.stringify(result));
+            }
+
+            // Log the report for records
+            await admin.firestore().collection('daily_reports').add({
+                date: dateStr,
+                totalOrders,
+                totalRevenue,
+                deliveredOrders,
+                pendingOrders,
+                avgOrder,
+                topProducts: topProducts.map(([name, count]) => ({ name, count })),
+                sentTo: cleanPhone,
+                sentAt: admin.firestore.FieldValue.serverTimestamp(),
+                status: response.ok ? 'sent' : 'failed',
+            });
+
+            return null;
+        } catch (error) {
+            console.error('[DailyReport] Error:', error);
+            return null;
+        }
+    });
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// SMART DELIVERY CLUSTERING — Group nearby orders into trips
+// ═══════════════════════════════════════════════════════════════════════
+
+/**
+ * HTTP Callable: clusterDeliveryOrders
+ * Input:  { orderIds: string[] }
+ * Output: { clusters: string[][] }  — each sub-array is a trip of order IDs
+ *
+ * Algorithm: Sorts orders by latitude, then groups consecutive orders
+ * within 1.5 km of each other into a single delivery trip/cluster.
+ */
+exports.clusterDeliveryOrders = functions.https.onCall(async (data, context) => {
+    const { orderIds } = data;
+
+    if (!Array.isArray(orderIds) || orderIds.length === 0) {
+        throw new functions.https.HttpsError(
+            'invalid-argument',
+            'orderIds must be a non-empty array of strings.'
+        );
+    }
+
+    const MAX_CLUSTER_RADIUS_KM = 1.5;
+
+    /**
+     * Haversine distance between two lat/lng points in km.
+     */
+    function haversineKm(lat1, lng1, lat2, lng2) {
+        const R = 6371;
+        const dLat = ((lat2 - lat1) * Math.PI) / 180;
+        const dLng = ((lng2 - lng1) * Math.PI) / 180;
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos((lat1 * Math.PI) / 180) *
+                Math.cos((lat2 * Math.PI) / 180) *
+                Math.sin(dLng / 2) *
+                Math.sin(dLng / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+    }
+
+    try {
+        // Fetch all requested orders in parallel
+        const orderDocs = await Promise.all(
+            orderIds.map(id => admin.firestore().collection('orders').doc(id).get())
+        );
+
+        // Build array of { id, lat, lng } — skip orders with no location
+        const located = [];
+        for (const doc of orderDocs) {
+            if (!doc.exists) continue;
+            const d = doc.data();
+            const addr = d.deliveryAddress || {};
+            const lat = addr.latitude ?? addr.lat ?? null;
+            const lng = addr.longitude ?? addr.lng ?? null;
+            if (lat !== null && lng !== null) {
+                located.push({ id: doc.id, lat: Number(lat), lng: Number(lng) });
+            } else {
+                // No geo-data: put each such order in its own cluster
+                located.push({ id: doc.id, lat: null, lng: null });
+            }
+        }
+
+        // Separate orders with and without location data
+        const withLocation = located.filter(o => o.lat !== null);
+        const withoutLocation = located.filter(o => o.lat === null);
+
+        // Sort by latitude for simple consecutive grouping
+        withLocation.sort((a, b) => a.lat - b.lat);
+
+        // Greedy clustering: start a new cluster whenever distance to
+        // cluster centroid exceeds MAX_CLUSTER_RADIUS_KM
+        const clusters = [];
+        let currentCluster = [];
+        let clusterCentroidLat = null;
+        let clusterCentroidLng = null;
+
+        for (const order of withLocation) {
+            if (currentCluster.length === 0) {
+                currentCluster.push(order.id);
+                clusterCentroidLat = order.lat;
+                clusterCentroidLng = order.lng;
+            } else {
+                const dist = haversineKm(
+                    clusterCentroidLat, clusterCentroidLng,
+                    order.lat, order.lng
+                );
+                if (dist <= MAX_CLUSTER_RADIUS_KM) {
+                    currentCluster.push(order.id);
+                    // Update centroid as average
+                    clusterCentroidLat = (clusterCentroidLat * (currentCluster.length - 1) + order.lat) / currentCluster.length;
+                    clusterCentroidLng = (clusterCentroidLng * (currentCluster.length - 1) + order.lng) / currentCluster.length;
+                } else {
+                    clusters.push([...currentCluster]);
+                    currentCluster = [order.id];
+                    clusterCentroidLat = order.lat;
+                    clusterCentroidLng = order.lng;
+                }
+            }
+        }
+        if (currentCluster.length > 0) clusters.push([...currentCluster]);
+
+        // Each order without location becomes its own solo cluster
+        for (const o of withoutLocation) {
+            clusters.push([o.id]);
+        }
+
+        console.log(`[ClusterDelivery] ${orderIds.length} orders → ${clusters.length} clusters`);
+        return { clusters };
+    } catch (error) {
+        console.error('[ClusterDelivery] Error:', error);
+        throw new functions.https.HttpsError('internal', 'Clustering failed: ' + error.message);
+    }
+});
+
+
 exports.cleanupNotificationQueue = functions.pubsub
     .schedule('0 21 * * 0') // Sunday 3 AM IST = Saturday 9:30 PM UTC
     .timeZone('Asia/Kolkata')
@@ -1446,3 +1861,905 @@ exports.cleanupNotificationQueue = functions.pubsub
             return null;
         }
     });
+
+// ═══════════════════════════════════════════════════════════════════════
+// ON-DEMAND DAILY OWNER REPORT — Triggered by app's "Send Test Report" button
+// ═══════════════════════════════════════════════════════════════════════
+
+/**
+ * Firestore-triggered function: watches 'report_trigger_queue' collection.
+ * When the Flutter app writes a doc with type='daily_owner_report',
+ * this function runs the same report as sendDailyOwnerReport immediately.
+ * This powers the "Send Test Report Now" button in Shop Settings.
+ */
+exports.onReportTriggerRequest = functions.firestore
+    .document('report_trigger_queue/{docId}')
+    .onCreate(async (snap, context) => {
+        const data = snap.data();
+
+        if (data.type !== 'daily_owner_report') return null;
+        if (data.status !== 'pending') return null;
+
+        console.log('[OnDemandReport] Test report requested by owner...');
+
+        // Mark as processing
+        await snap.ref.update({ status: 'processing', startedAt: admin.firestore.FieldValue.serverTimestamp() });
+
+        try {
+            const WHATSAPP_TOKEN = functions.config().whatsapp?.token || '';
+            const WHATSAPP_PHONE_ID = functions.config().whatsapp?.phone_id || '';
+
+            if (!WHATSAPP_TOKEN || !WHATSAPP_PHONE_ID) {
+                console.error('[OnDemandReport] Missing WhatsApp config.');
+                await snap.ref.update({ status: 'failed', error: 'Missing WhatsApp config' });
+                return null;
+            }
+
+            const settingsDoc = await admin.firestore().collection('settings').doc('shop_config').get();
+            if (!settingsDoc.exists) {
+                await snap.ref.update({ status: 'failed', error: 'shop_config not found' });
+                return null;
+            }
+
+            const ownerPhone = settingsDoc.data().ownerPhone;
+            if (!ownerPhone) {
+                await snap.ref.update({ status: 'failed', error: 'ownerPhone not set' });
+                return null;
+            }
+
+            let cleanPhone = ownerPhone.replace(/\D/g, '');
+            if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
+            else if (!cleanPhone.startsWith('91')) cleanPhone = '91' + cleanPhone;
+
+            // Calculate today's stats
+            const now = new Date();
+            const istOffset = 5.5 * 60 * 60 * 1000;
+            const nowIST = new Date(now.getTime() + istOffset);
+            const midnightIST = new Date(nowIST);
+            midnightIST.setHours(0, 0, 0, 0);
+            const midnightUTC = new Date(midnightIST.getTime() - istOffset);
+            const midnightTimestamp = admin.firestore.Timestamp.fromDate(midnightUTC);
+
+            const ordersSnap = await admin.firestore()
+                .collection('orders')
+                .where('createdAt', '>=', midnightTimestamp)
+                .get();
+
+            const orders = ordersSnap.docs.map(d => d.data());
+            const totalOrders = orders.length;
+            const totalRevenue = orders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+            const deliveredOrders = orders.filter(o => (o.status || '').toLowerCase().includes('delivered')).length;
+            const pendingOrders = orders.filter(o =>
+                !(o.status || '').toLowerCase().includes('delivered') &&
+                !(o.status || '').toLowerCase().includes('cancelled')
+            ).length;
+            const avgOrder = totalOrders > 0 ? (totalRevenue / totalOrders) : 0;
+
+            const productCount = {};
+            for (const order of orders) {
+                for (const item of (order.items || [])) {
+                    const name = item.productName || 'Unknown';
+                    productCount[name] = (productCount[name] || 0) + (item.quantity || 1);
+                }
+            }
+            const topProducts = Object.entries(productCount).sort((a, b) => b[1] - a[1]).slice(0, 3);
+
+            const dateStr = nowIST.toLocaleDateString('en-IN', {
+                day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata',
+            });
+
+            const topProductsText = topProducts.length === 0
+                ? '• Koi bhi orders nahi aaye aaj'
+                : topProducts.map(([name, count]) => `• ${name} - ${count} orders`).join('\n');
+
+            const message =
+`🧪 *TEST REPORT — Fufaji's Online*
+📅 ${dateStr} (on-demand)
+
+📦 Total Orders: ${totalOrders}
+✅ Delivered: ${deliveredOrders}
+⏳ Pending: ${pendingOrders}
+💰 Revenue: ₹${Math.round(totalRevenue)}
+📈 Average Order: ₹${Math.round(avgOrder)}
+
+🔥 Top Products:
+${topProductsText}
+
+Yeh test report tha. Real report 10 PM pe aayega! 🙏
+- Fufaji's Online Team`;
+
+            const response = await fetch(
+                `https://graph.facebook.com/v25.0/${WHATSAPP_PHONE_ID}/messages`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${WHATSAPP_TOKEN}`,
+                    },
+                    body: JSON.stringify({
+                        messaging_product: 'whatsapp',
+                        to: cleanPhone,
+                        type: 'text',
+                        text: { body: message },
+                    }),
+                }
+            );
+
+            const result = await response.json();
+            const success = response.ok;
+
+            await snap.ref.update({
+                status: success ? 'sent' : 'failed',
+                completedAt: admin.firestore.FieldValue.serverTimestamp(),
+                whatsappResponse: JSON.stringify(result).substring(0, 200),
+            });
+
+            console.log(`[OnDemandReport] ${success ? 'Sent to' : 'Failed for'} ${cleanPhone}`);
+            return null;
+
+        } catch (error) {
+            console.error('[OnDemandReport] Error:', error);
+            await snap.ref.update({ status: 'error', error: error.message });
+            return null;
+        }
+    });
+
+// ═══════════════════════════════════════════════════════════════════════
+// LOW STOCK WHATSAPP ALERT — Firestore trigger on product update
+// ═══════════════════════════════════════════════════════════════════════
+
+/**
+ * Firestore trigger: fires when a product document is updated.
+ * If stockQuantity drops below minimumStock, sends WhatsApp to:
+ *   1. Owner (from settings/shop_config.ownerPhone)
+ *   2. Supplier (from product.supplierPhone, if set)
+ */
+exports.sendLowStockWhatsAppAlert = functions.firestore
+    .document('products/{productId}')
+    .onUpdate(async (change, context) => {
+        const before = change.before.data();
+        const after = change.after.data();
+
+        const stockBefore = before.stockQuantity ?? Infinity;
+        const stockAfter = after.stockQuantity ?? 0;
+        const minimumStock = after.minimumStock ?? 10;
+
+        // Only fire if stock just crossed below minimum
+        const justWentLow = stockAfter < minimumStock && stockBefore >= minimumStock;
+        if (!justWentLow) return null;
+
+        const WHATSAPP_TOKEN = functions.config().whatsapp?.token || '';
+        const PHONE_ID = functions.config().whatsapp?.phone_id || '';
+
+        if (!WHATSAPP_TOKEN || !PHONE_ID) {
+            console.warn('[LowStockAlert] Missing WhatsApp config. Skipping.');
+            return null;
+        }
+
+        const productName = after.name || 'Unknown Product';
+        const unit = after.unit || 'units';
+        const productId = context.params.productId;
+
+        const ownerMessage =
+`⚠️ *Low Stock Alert — Fufaji's Online*
+
+📦 *Product:* ${productName}
+📉 *Current Stock:* ${stockAfter} ${unit}
+🔴 *Minimum Level:* ${minimumStock} ${unit}
+
+Jaldi reorder karein ya supplier ko contact karein!
+- Fufaji's Online System`;
+
+        const supplierMessage =
+`📦 *Reorder Request — Fufaji's Online*
+
+Namaste! Hamara ${productName} ka stock low ho gaya hai.
+
+📉 Current: ${stockAfter} ${unit}
+📋 Product ID: ${productId}
+
+Kripya jald se jald supply bhejein.
+- Fufaji's Online, Baran`;
+
+        // Helper to send WhatsApp
+        const sendWA = async (toPhone, body) => {
+            let cleanPhone = toPhone.replace(/\D/g, '');
+            if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
+            else if (!cleanPhone.startsWith('91')) cleanPhone = '91' + cleanPhone;
+
+            const res = await fetch(
+                `https://graph.facebook.com/v18.0/${PHONE_ID}/messages`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${WHATSAPP_TOKEN}`,
+                    },
+                    body: JSON.stringify({
+                        messaging_product: 'whatsapp',
+                        to: cleanPhone,
+                        type: 'text',
+                        text: { body },
+                    }),
+                }
+            );
+            const json = await res.json();
+            if (!res.ok) {
+                console.error(`[LowStockAlert] WA send failed to ${cleanPhone}:`, JSON.stringify(json));
+            } else {
+                console.log(`[LowStockAlert] WA sent to ${cleanPhone}: ${json.messages?.[0]?.id}`);
+            }
+        };
+
+        try {
+            // 1. Send to owner
+            const settingsDoc = await admin.firestore().collection('settings').doc('shop_config').get();
+            if (settingsDoc.exists && settingsDoc.data().ownerPhone) {
+                await sendWA(settingsDoc.data().ownerPhone, ownerMessage);
+            }
+
+            // 2. Send to supplier (if configured on the product)
+            const supplierPhone = after.supplierPhone;
+            if (supplierPhone) {
+                await sendWA(supplierPhone, supplierMessage);
+            }
+
+            // 3. Log the alert
+            await admin.firestore().collection('low_stock_alerts').add({
+                productId,
+                productName,
+                stockAfter,
+                minimumStock,
+                unit,
+                supplierPhone: supplierPhone || null,
+                alertSentAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+        } catch (err) {
+            console.error('[LowStockAlert] Error:', err);
+        }
+
+        return null;
+    });
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// GENERATE AND SEND INVOICE — HTTP Callable
+// ═══════════════════════════════════════════════════════════════════════
+
+/**
+ * HTTP Callable: generateAndSendInvoice
+ * Input:  { orderId: string }
+ * Builds an invoice from the order in Firestore and sends it
+ * via WhatsApp to the customer's phone number.
+ */
+exports.generateAndSendInvoice = functions.https.onCall(async (data, context) => {
+    const { orderId } = data;
+
+    if (!orderId) {
+        throw new functions.https.HttpsError(
+            'invalid-argument',
+            'orderId is required.'
+        );
+    }
+
+    const WHATSAPP_TOKEN = functions.config().whatsapp?.token || '';
+    const PHONE_ID = functions.config().whatsapp?.phone_id || '';
+
+    if (!WHATSAPP_TOKEN || !PHONE_ID) {
+        throw new functions.https.HttpsError(
+            'failed-precondition',
+            'WhatsApp not configured on the backend.'
+        );
+    }
+
+    try {
+        const orderDoc = await admin.firestore().collection('orders').doc(orderId).get();
+        if (!orderDoc.exists) {
+            throw new functions.https.HttpsError('not-found', `Order ${orderId} not found.`);
+        }
+
+        const order = orderDoc.data();
+        const orderNumber = order.orderNumber || orderId.substring(0, 8).toUpperCase();
+        const customerPhone = order.customerPhone || order.deliveryAddress?.phone;
+
+        if (!customerPhone) {
+            throw new functions.https.HttpsError(
+                'failed-precondition',
+                'Customer phone not found on order.'
+            );
+        }
+
+        // Build invoice text
+        const items = order.items || [];
+        let itemLines = '';
+        for (const item of items) {
+            const name = item.productName || item.name || 'Item';
+            const qty = item.quantity || 1;
+            const unit = item.unit || 'pcs';
+            const price = item.price || item.unitPrice || 0;
+            const total = (qty * price).toFixed(2);
+            itemLines += `  • ${name}: ${qty} ${unit} × ₹${price} = ₹${total}\n`;
+        }
+
+        const subtotal = order.subtotal ?? order.totalAmount ?? 0;
+        const deliveryFee = order.deliveryFee ?? 0;
+        const discount = order.discount ?? 0;
+        const total = order.totalAmount ?? subtotal;
+
+        const createdAt = order.createdAt?.toDate
+            ? order.createdAt.toDate().toLocaleDateString('en-IN', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                timeZone: 'Asia/Kolkata',
+            })
+            : new Date().toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' });
+
+        const paymentMethod = order.paymentMethod || 'COD';
+        const paymentStatus = order.paymentStatus || 'pending';
+
+        const invoiceMessage =
+`🧾 *INVOICE — Fufaji's Online*
+━━━━━━━━━━━━━━━━━━━━━━
+📋 Order #${orderNumber}
+📅 Date: ${createdAt}
+━━━━━━━━━━━━━━━━━━━━━━
+
+*Items:*
+${itemLines}
+━━━━━━━━━━━━━━━━━━━━━━
+🛒 Subtotal:    ₹${subtotal.toFixed ? subtotal.toFixed(2) : subtotal}
+🚴 Delivery:    ₹${deliveryFee}
+${discount > 0 ? `🎁 Discount:    -₹${discount}\n` : ''}💰 *TOTAL:       ₹${total.toFixed ? total.toFixed(2) : total}*
+━━━━━━━━━━━━━━━━━━━━━━
+💳 Payment: ${paymentMethod.toUpperCase()} (${paymentStatus})
+
+Aapka shukriya! 🙏
+Fufaji's Online — Baran, Rajasthan
+`;
+
+        // Normalize phone
+        let cleanPhone = customerPhone.replace(/\D/g, '');
+        if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
+        else if (!cleanPhone.startsWith('91')) cleanPhone = '91' + cleanPhone;
+
+        const response = await fetch(
+            `https://graph.facebook.com/v18.0/${PHONE_ID}/messages`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${WHATSAPP_TOKEN}`,
+                },
+                body: JSON.stringify({
+                    messaging_product: 'whatsapp',
+                    to: cleanPhone,
+                    type: 'text',
+                    text: { body: invoiceMessage },
+                }),
+            }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            console.error(`[Invoice] WA send failed: ${JSON.stringify(result)}`);
+            throw new functions.https.HttpsError('internal', 'WhatsApp send failed.');
+        }
+
+        // Mark invoice as sent on the order
+        await orderDoc.ref.update({
+            invoiceSentAt: admin.firestore.FieldValue.serverTimestamp(),
+            invoiceMessageId: result.messages?.[0]?.id || '',
+        });
+
+        console.log(`[Invoice] Invoice sent for order ${orderNumber} to ${cleanPhone}`);
+
+        return {
+            success: true,
+            messageId: result.messages?.[0]?.id,
+            sentTo: cleanPhone,
+            orderNumber,
+        };
+
+    } catch (err) {
+        if (err instanceof functions.https.HttpsError) throw err;
+        console.error('[Invoice] Error:', err);
+        throw new functions.https.HttpsError('internal', 'Invoice generation failed: ' + err.message);
+    }
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// [DUPLICATE REMOVED] sendDailyOwnerReport already defined above (line ~1425)
+// ═══════════════════════════════════════════════════════════════════════
+
+// NOTE: The duplicate sendDailyOwnerReport that was here has been replaced
+// by the new sendLowStockWhatsAppAlert and generateAndSendInvoice functions.
+// See the first sendDailyOwnerReport definition (pubsub schedule '0 22 * * *').
+
+/**
+ * Create Razorpay Order
+ * Initiates an order on Razorpay and returns the order ID to the client
+ */
+exports.createRazorpayOrder = functions.https.onCall(async (data, context) => {
+    try {
+        const { amount, currency, receipt, notes } = data;
+
+        if (!amount) {
+            throw new functions.https.HttpsError(
+                'invalid-argument',
+                'Missing required parameter: amount'
+            );
+        }
+
+        const razorpayConfig = functions.config().razorpay || {};
+        const keyId = razorpayConfig.key_id;
+        const keySecret = razorpayConfig.key_secret;
+
+        if (!keyId || !keySecret) {
+            throw new functions.https.HttpsError(
+                'failed-precondition',
+                'Razorpay is not configured on the backend.'
+            );
+        }
+
+        const auth = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
+        const postData = JSON.stringify({
+            amount: Math.round(amount * 100), // convert to paise
+            currency: currency || 'INR',
+            receipt: receipt || `receipt_${Date.now()}`,
+            notes: notes || {}
+        });
+
+        const https = require('https');
+        const result = await new Promise((resolve, reject) => {
+            const req = https.request({
+                hostname: 'api.razorpay.com',
+                port: 443,
+                path: '/v1/orders',
+                method: 'POST',
+                headers: {
+                    'Authorization': `Basic ${auth}`,
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(postData)
+                }
+            }, (res) => {
+                let responseBody = '';
+                res.on('data', (chunk) => responseBody += chunk);
+                res.on('end', () => {
+                    try {
+                        resolve({ statusCode: res.statusCode, body: JSON.parse(responseBody) });
+                    } catch (e) {
+                        resolve({ statusCode: res.statusCode, body: responseBody });
+                    }
+                });
+            });
+
+            req.on('error', (err) => reject(err));
+            req.write(postData);
+            req.end();
+        });
+
+        if (result.statusCode >= 200 && result.statusCode < 300) {
+            return {
+                success: true,
+                razorpayOrderId: result.body.id,
+                amount: result.body.amount,
+                currency: result.body.currency
+            };
+        } else {
+            console.error('Razorpay Order Creation Error:', result.body);
+            throw new functions.https.HttpsError('internal', 'Failed to create Razorpay order');
+        }
+    } catch (error) {
+        console.error('Error creating Razorpay order:', error);
+        throw new functions.https.HttpsError('internal', error.message);
+    }
+});
+
+/**
+ * Razorpay Refund Handler
+ * Initiates a refund for a payment
+ */
+exports.initiateRazorpayRefund = functions.https.onCall(async (data, context) => {
+    try {
+        // 1. Authorization check
+        if (!context.auth) {
+            throw new functions.https.HttpsError('unauthenticated', 'Login required');
+        }
+
+        const requesterRef = admin.firestore().collection('users').doc(context.auth.uid);
+        const requesterDoc = await requesterRef.get();
+        if (!requesterDoc.exists || (requesterDoc.data().role !== 'UserRole.admin' && requesterDoc.data().role !== 'UserRole.shopOwner')) {
+            throw new functions.https.HttpsError('permission-denied', 'Unauthorized');
+        }
+
+        const { paymentId, amount, notes } = data;
+
+        if (!paymentId) {
+            throw new functions.https.HttpsError('invalid-argument', 'Missing paymentId');
+        }
+
+        const razorpayConfig = functions.config().razorpay || {};
+        const keyId = razorpayConfig.key_id;
+        const keySecret = razorpayConfig.key_secret;
+        const auth = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
+
+        const postData = JSON.stringify({
+            amount: amount ? Math.round(amount * 100) : undefined, // in paise
+            notes: notes || { reason: 'Refund from Owner Panel' }
+        });
+
+        const https = require('https');
+        const result = await new Promise((resolve, reject) => {
+            const req = https.request({
+                hostname: 'api.razorpay.com', port: 443,
+                path: `/v1/payments/${paymentId}/refund`,
+                method: 'POST',
+                headers: {
+                    'Authorization': `Basic ${auth}`,
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(postData)
+                }
+            }, (res) => {
+                let body = '';
+                res.on('data', (chunk) => body += chunk);
+                res.on('end', () => resolve({ statusCode: res.statusCode, body: JSON.parse(body) }));
+            });
+            req.on('error', reject);
+            req.write(postData);
+            req.end();
+        });
+
+        if (result.statusCode >= 200 && result.statusCode < 300) {
+            // Record Refund Transaction in Ledger
+            const ordersQuery = await admin.firestore().collection('orders')
+                .where('paymentId', '==', paymentId)
+                .limit(1).get();
+
+            if (!ordersQuery.empty) {
+                const order = ordersQuery.docs[0].data();
+                await admin.firestore().collection('transactions').add({
+                    orderId: order.id,
+                    orderNumber: order.orderNumber,
+                    customerId: order.customerId,
+                    amount: amount || (order.totalAmount),
+                    type: 'TransactionType.refund',
+                    status: 'TransactionStatus.completed',
+                    paymentMethod: 'razorpay',
+                    gatewayTransactionId: result.body.id,
+                    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                    notes: 'Refund initiated via Owner Panel'
+                });
+            }
+
+            return { success: true, refundId: result.body.id };
+        } else {
+            console.error('Razorpay Refund Error:', result.body);
+            return { success: false, error: result.body.error?.description || 'Refund failed' };
+        }
+    } catch (error) {
+        console.error('Refund Exception:', error);
+        throw new functions.https.HttpsError('internal', error.message);
+    }
+});
+
+/**
+ * Notify Admin of a new device registration request
+ */
+exports.notifyNewDevice = functions.https.onCall(async (data, context) => {
+    const { userId, deviceName } = data;
+
+    if (!userId || !deviceName) {
+        throw new functions.https.HttpsError('invalid-argument', 'Missing userId or deviceName');
+    }
+
+    try {
+        const userDoc = await admin.firestore().collection('users').doc(userId).get();
+        const userName = userDoc.data()?.name || 'Unknown Owner';
+
+        // Notify Admins
+        const adminsSnapshot = await admin.firestore().collection('users')
+            .where('role', '==', 'UserRole.admin').get();
+
+        const notifications = adminsSnapshot.docs.map(adminDoc => {
+            const token = adminDoc.data().fcmToken;
+            if (token) {
+                return admin.messaging().send({
+                    notification: {
+                        title: '🔒 New Device Security Alert',
+                        body: `${userName} is trying to log in from a new device: ${deviceName}. Please approve in Admin Panel.`,
+                    },
+                    token: token,
+                    data: { type: 'deviceApproval', userId }
+                });
+            }
+            return null;
+        }).filter(n => n !== null);
+
+        await Promise.all(notifications);
+        return { success: true };
+    } catch (error) {
+        console.error('Error notifying admin of new device:', error);
+        throw new functions.https.HttpsError('internal', error.message);
+    }
+});
+
+exports._placeholder_end = functions.pubsub
+    .schedule('30 16 * * *') // 16:30 UTC = 22:00 IST
+    .timeZone('UTC') // Using UTC to explicitly map 16:30
+    .onRun(async (context) => {
+        console.log('[DailyReport] Generating 10 PM owner report...');
+
+        try {
+            const WHATSAPP_TOKEN = functions.config().whatsapp?.token || '';
+            const WHATSAPP_PHONE_ID = functions.config().whatsapp?.phone_id || '';
+
+            if (!WHATSAPP_TOKEN || !WHATSAPP_PHONE_ID) {
+                console.error('[DailyReport] Missing WhatsApp config. Skipping.');
+                return null;
+            }
+
+            const settingsDoc = await admin.firestore().collection('settings').doc('shop_config').get();
+            if (!settingsDoc.exists) {
+                console.error('[DailyReport] shop_config not found.');
+                return null;
+            }
+
+            const ownerPhone = settingsDoc.data().ownerPhone;
+            if (!ownerPhone) {
+                console.error('[DailyReport] ownerPhone not set.');
+                return null;
+            }
+
+            let cleanPhone = ownerPhone.replace(/\D/g, '');
+            if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
+            else if (!cleanPhone.startsWith('91')) cleanPhone = '91' + cleanPhone;
+
+            // Calculate today's stats
+            const now = new Date();
+            const istOffset = 5.5 * 60 * 60 * 1000;
+            const nowIST = new Date(now.getTime() + istOffset);
+            const midnightIST = new Date(nowIST);
+            midnightIST.setHours(0, 0, 0, 0);
+            const midnightUTC = new Date(midnightIST.getTime() - istOffset);
+            const midnightTimestamp = admin.firestore.Timestamp.fromDate(midnightUTC);
+
+            const ordersSnap = await admin.firestore()
+                .collection('orders')
+                .where('createdAt', '>=', midnightTimestamp)
+                .get();
+
+            const orders = ordersSnap.docs.map(d => d.data());
+            const totalOrders = orders.length;
+            const totalRevenue = orders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+            const deliveredOrders = orders.filter(o => (o.status || '').toLowerCase().includes('delivered')).length;
+            const pendingOrders = orders.filter(o =>
+                !(o.status || '').toLowerCase().includes('delivered') &&
+                !(o.status || '').toLowerCase().includes('cancelled')
+            ).length;
+            const avgOrder = totalOrders > 0 ? (totalRevenue / totalOrders) : 0;
+
+            const productCount = {};
+            for (const order of orders) {
+                for (const item of (order.items || [])) {
+                    const name = item.productName || 'Unknown';
+                    productCount[name] = (productCount[name] || 0) + (item.quantity || 1);
+                }
+            }
+            const topProducts = Object.entries(productCount).sort((a, b) => b[1] - a[1]).slice(0, 3);
+
+            const dateStr = nowIST.toLocaleDateString('en-IN', {
+                day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata',
+            });
+
+            const topProductsText = topProducts.length === 0
+                ? '• Aaj koi order nahi aaya'
+                : topProducts.map(([name, count]) => `• ${name} - ${count} orders`).join('\n');
+
+            const message =
+`📊 *Daily Shop Report — Fufaji's Online*
+📅 ${dateStr}
+
+📦 *Total Orders:* ${totalOrders}
+✅ *Delivered:* ${deliveredOrders}
+⏳ *Pending:* ${pendingOrders}
+💰 *Revenue:* ₹${Math.round(totalRevenue)}
+📈 *Avg Order:* ₹${Math.round(avgOrder)}
+
+🔥 *Top Selling Items:*
+${topProductsText}
+
+Great job today! Aaraam se so jao. 🌙
+- Fufaji's Online Automation`;
+
+            const response = await fetch(
+                `https://graph.facebook.com/v25.0/${WHATSAPP_PHONE_ID}/messages`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${WHATSAPP_TOKEN}`,
+                    },
+                    body: JSON.stringify({
+                        messaging_product: 'whatsapp',
+                        to: cleanPhone,
+                        type: 'text',
+                        text: { body: message },
+                    }),
+                }
+            );
+
+            const result = await response.json();
+            if (response.ok) {
+                console.log(`[DailyReport] Sent successfully to ${cleanPhone}`);
+            } else {
+                console.error(`[DailyReport] Failed to send: ${JSON.stringify(result)}`);
+            }
+            
+            // Log run
+            await admin.firestore().collection('system_logs').add({
+                action: 'daily_report_sent',
+                phone: cleanPhone,
+                success: response.ok,
+                timestamp: admin.firestore.FieldValue.serverTimestamp()
+            });
+
+            return null;
+
+        } catch (error) {
+            console.error('[DailyReport] Fatal Error:', error);
+            return null;
+        }
+    });
+
+/**
+ * Synchronize User Claims based on Firestore records.
+ * This is a callable function that checks if the caller's email exists in owners or employees,
+ * and sets their Custom User Claims accordingly in Firebase Auth.
+ */
+exports.syncUserClaims = functions.https.onCall(async (data, context) => {
+    if (!context.auth) {
+        throw new functions.https.HttpsError(
+            'unauthenticated',
+            'The function must be called while authenticated.'
+        );
+    }
+
+    const uid = context.auth.uid;
+    const email = context.auth.token.email;
+
+    if (!email) {
+        throw new functions.https.HttpsError(
+            'invalid-argument',
+            'Authenticated user does not have an email address associated with their account.'
+        );
+    }
+
+    try {
+        // 1. Check if owner
+        const ownerSnapshot = await admin.firestore()
+            .collection('owners')
+            .where('email', '==', email)
+            .limit(1)
+            .get();
+
+        if (!ownerSnapshot.empty) {
+            const ownerData = ownerSnapshot.docs[0].data();
+            const claims = { role: 'owner', employeeRole: null, isActive: true };
+            await admin.auth().setCustomUserClaims(uid, claims);
+            console.log(`[syncUserClaims] Assigned OWNER claims to ${email} (${uid})`);
+            return { success: true, ...claims };
+        }
+
+        // 2. Check if employee
+        const employeeSnapshot = await admin.firestore()
+            .collection('employees')
+            .where('email', '==', email)
+            .limit(1)
+            .get();
+
+        if (!employeeSnapshot.empty) {
+            const employeeData = employeeSnapshot.docs[0].data();
+            const claims = { 
+                role: 'employee', 
+                employeeRole: employeeData.role || 'packer', 
+                isActive: employeeData.isActive !== false 
+            };
+            
+            // Also link the UID to the employee record if it isn't set yet
+            if (!employeeData.uid || employeeData.uid !== uid) {
+                await employeeSnapshot.docs[0].ref.update({
+                    uid: uid,
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                });
+            }
+
+            await admin.auth().setCustomUserClaims(uid, claims);
+            console.log(`[syncUserClaims] Assigned EMPLOYEE claims to ${email} (${uid}), role: ${claims.employeeRole}, isActive: ${claims.isActive}`);
+            return { success: true, ...claims };
+        }
+
+        // 3. Fallback: No admin/employee privileges
+        const claims = { role: null, employeeRole: null, isActive: false };
+        await admin.auth().setCustomUserClaims(uid, claims);
+        console.log(`[syncUserClaims] Removed claims for ${email} (${uid})`);
+        return { success: true, ...claims };
+
+    } catch (error) {
+        console.error('[syncUserClaims] Error setting claims:', error);
+        throw new functions.https.HttpsError('internal', 'Internal error synchronizing custom claims: ' + error.message);
+    }
+});
+
+/**
+ * Firestore Trigger: Sync claims on Owner Write.
+ * Automatically updates claims for owners when their document changes.
+ */
+exports.onOwnerWrite = functions.firestore
+    .document('owners/{ownerId}')
+    .onWrite(async (change, context) => {
+        const data = change.after.exists ? change.after.data() : null;
+        const oldData = change.before.exists ? change.before.data() : null;
+        
+        const email = data ? data.email : (oldData ? oldData.email : null);
+        if (!email) return null;
+
+        try {
+            const userRecord = await admin.auth().getUserByEmail(email);
+            if (!change.after.exists) {
+                // Document deleted, clear claims
+                await admin.auth().setCustomUserClaims(userRecord.uid, { role: null, employeeRole: null, isActive: false });
+                console.log(`[onOwnerWrite] Cleared owner claims for deleted owner ${email}`);
+            } else {
+                // Document created/updated, set claims
+                await admin.auth().setCustomUserClaims(userRecord.uid, { role: 'owner', employeeRole: null, isActive: true });
+                console.log(`[onOwnerWrite] Synchronized owner claims for ${email}`);
+            }
+        } catch (error) {
+            // User might not have logged in / signed up yet, ignore user-not-found
+            if (error.code !== 'auth/user-not-found') {
+                console.error(`[onOwnerWrite] Error syncing claims for owner ${email}:`, error);
+            }
+        }
+        return null;
+    });
+
+/**
+ * Firestore Trigger: Sync claims on Employee Write.
+ * Automatically updates claims for employees when their document changes.
+ */
+exports.onEmployeeWrite = functions.firestore
+    .document('employees/{employeeId}')
+    .onWrite(async (change, context) => {
+        const data = change.after.exists ? change.after.data() : null;
+        const oldData = change.before.exists ? change.before.data() : null;
+        
+        const email = data ? data.email : (oldData ? oldData.email : null);
+        if (!email) return null;
+
+        try {
+            const userRecord = await admin.auth().getUserByEmail(email);
+            if (!change.after.exists) {
+                // Document deleted, clear claims
+                await admin.auth().setCustomUserClaims(userRecord.uid, { role: null, employeeRole: null, isActive: false });
+                console.log(`[onEmployeeWrite] Cleared employee claims for deleted employee ${email}`);
+            } else {
+                // Document created/updated, sync claims
+                const claims = {
+                    role: 'employee',
+                    employeeRole: data.role || 'packer',
+                    isActive: data.isActive !== false
+                };
+                await admin.auth().setCustomUserClaims(userRecord.uid, claims);
+                console.log(`[onEmployeeWrite] Synchronized employee claims for ${email}:`, claims);
+            }
+        } catch (error) {
+            // Ignore user-not-found
+            if (error.code !== 'auth/user-not-found') {
+                console.error(`[onEmployeeWrite] Error syncing claims for employee ${email}:`, error);
+            }
+        }
+        return null;
+    });
+

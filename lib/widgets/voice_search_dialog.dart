@@ -85,7 +85,9 @@ class _VoiceSearchDialogState extends State<VoiceSearchDialog> {
               elevation: _isListening ? 12.0 : 4.0,
               shape: const CircleBorder(),
               child: CircleAvatar(
-                backgroundColor: _isListening ? AppTheme.primary : AppTheme.grey300,
+                backgroundColor: _isListening
+                    ? AppTheme.primary
+                    : AppTheme.grey300,
                 radius: _isListening ? 45 : 40,
                 child: Icon(
                   _isListening ? Icons.mic : Icons.mic_none,
@@ -114,7 +116,10 @@ class _VoiceSearchDialogState extends State<VoiceSearchDialog> {
             const SizedBox(height: 24),
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel', style: TextStyle(color: AppTheme.error)),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: AppTheme.error),
+              ),
             ),
           ],
         ),

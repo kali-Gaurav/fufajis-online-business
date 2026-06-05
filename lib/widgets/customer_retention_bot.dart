@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../utils/app_theme.dart';
 
 class CustomerRetentionBot extends StatelessWidget {
   const CustomerRetentionBot({super.key});
@@ -19,11 +18,11 @@ class CustomerRetentionBot extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.person_search, color: Colors.white, size: 28),
-              const SizedBox(width: 12),
-              const Expanded(
+              Icon(Icons.person_search, color: Colors.white, size: 28),
+              SizedBox(width: 12),
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

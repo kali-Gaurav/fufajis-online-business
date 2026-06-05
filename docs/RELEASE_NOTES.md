@@ -1,8 +1,20 @@
-# 🚀 Fufaji Online v1.2.0 - Release Notes
+# 🚀 Fufaji Online v1.1.0 — Production Readiness Release
 
-- **Version Bump**: Updated to v1.2.0+4.
-- **Performance Improvements**: Optimized app startup and asset loading.
-- **Bug Fixes**: Resolved minor UI glitches in the checkout flow.
+**Released:** June 2026 | **Version Code:** 3 | **Build:** Stable
+
+## 🔧 Bug Fixes & Improvements
+- **🔴 Fixed Redis Cache:** Upstash REST API endpoints corrected (`/ping`, `/get/{key}`, `/set/{key}`) — resolves known Redis authentication failure
+- **🔔 FCM Deep-Link Navigation:** Tapping push notifications now routes directly to the relevant order detail screen
+- **🛒 Dynamic Coupons:** Coupon validation now fetches from Firestore `coupons` collection (with offline fallback)
+- **📊 Sentry Error Reporting:** Crash reporting now properly wired via `--dart-define=SENTRY_DSN` in CI build
+- **⚡ Faster CI Builds:** Flutter 3.32.0 pinned, analyzer step added, JVM heap increased to 6GB
+- **⚠️ Email OTP Documented:** Security limitations of client-side OTP generation clearly documented for future server-side upgrade
+
+## ✅ Verified Production Features (25/25)
+- Firebase Auth (phone + email OTP), role-based access, cart & checkout
+- Razorpay live payments, order state machine, OTP delivery verification
+- FCM + WhatsApp real-time notifications, offline sync, Hive caching
+- GST PDF invoicing, Shorebird OTA, Multi-language (Hindi/English), Accessibility
 
 ---
 

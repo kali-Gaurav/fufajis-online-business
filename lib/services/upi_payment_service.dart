@@ -24,11 +24,15 @@ class UpiPaymentService {
           _upiId = data['upiId'] ?? defaultUpiId;
           _merchantName = data['merchantName'] ?? defaultMerchantName;
           _isLoaded = true;
-          debugPrint('[UpiPaymentService] Loaded dynamic UPI Config: $_upiId ($_merchantName)');
+          debugPrint(
+            '[UpiPaymentService] Loaded dynamic UPI Config: $_upiId ($_merchantName)',
+          );
         }
       }
     } catch (e) {
-      debugPrint('[UpiPaymentService] Error loading dynamic UPI VPA, using defaults: $e');
+      debugPrint(
+        '[UpiPaymentService] Error loading dynamic UPI VPA, using defaults: $e',
+      );
     }
   }
 
@@ -53,10 +57,7 @@ class UpiPaymentService {
     final Uri url = Uri.parse(upiUri);
     try {
       if (await canLaunchUrl(url)) {
-        return await launchUrl(
-          url,
-          mode: LaunchMode.externalApplication,
-        );
+        return await launchUrl(url, mode: LaunchMode.externalApplication);
       }
       return false;
     } catch (e) {

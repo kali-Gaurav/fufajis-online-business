@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:fufajis_online/models/order_model.dart';
 import 'package:fufajis_online/models/user_model.dart';
 import 'package:fufajis_online/models/payment_method.dart';
-import 'package:fufajis_online/models/delivery_type.dart';
 
 void main() {
   group('OrderStatus Enum Tests', () {

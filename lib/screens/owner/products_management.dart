@@ -1644,9 +1644,9 @@ class _BulkUploadDialogState extends State<BulkUploadDialog> {
                             maxLines: null,
                             expands: true,
                             style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               hintText: 'Paste CSV rows here...',
-                              border: const OutlineInputBorder(),
+                              border: OutlineInputBorder(),
                               fillColor: AppTheme.grey50,
                               filled: true,
                             ),

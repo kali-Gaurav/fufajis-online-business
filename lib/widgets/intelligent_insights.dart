@@ -47,14 +47,21 @@ class GaonIntelligentInsights extends StatelessWidget {
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.green[50],
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.auto_awesome, size: 14, color: Colors.green[700]),
+                    Icon(
+                      Icons.auto_awesome,
+                      size: 14,
+                      color: Colors.green[700],
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       'AI UPDATED',
@@ -75,9 +82,24 @@ class GaonIntelligentInsights extends StatelessWidget {
             'Trending Demands',
             'AI analysis of local buying patterns',
             [
-              _VillageInsight(name: 'Cold Drinks', growth: '+45%', items: 'Surge after 4 PM', color: Colors.blue),
-              _VillageInsight(name: 'Milk/Dairy', growth: '+15%', items: 'Morning 7-9 AM', color: Colors.orange),
-              _VillageInsight(name: 'Snacks', growth: '+30%', items: 'Combo with Soda', color: Colors.purple),
+              _VillageInsight(
+                name: 'Cold Drinks',
+                growth: '+45%',
+                items: 'Surge after 4 PM',
+                color: Colors.blue,
+              ),
+              _VillageInsight(
+                name: 'Milk/Dairy',
+                growth: '+15%',
+                items: 'Morning 7-9 AM',
+                color: Colors.orange,
+              ),
+              _VillageInsight(
+                name: 'Snacks',
+                growth: '+30%',
+                items: 'Combo with Soda',
+                color: Colors.purple,
+              ),
             ],
           ),
           const Divider(height: 32),
@@ -89,47 +111,77 @@ class GaonIntelligentInsights extends StatelessWidget {
     );
   }
 
-  Widget _buildInsightSection(BuildContext context, String title, String subtitle, List<_VillageInsight> insights) {
+  Widget _buildInsightSection(
+    BuildContext context,
+    String title,
+    String subtitle,
+    List<_VillageInsight> insights,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+        Text(
+          title,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        ),
         Text(subtitle, style: TextStyle(color: Colors.grey[500], fontSize: 12)),
         const SizedBox(height: 16),
         Row(
-          children: insights.map((insight) => Expanded(
-            child: Container(
-              margin: const EdgeInsets.only(right: 12),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey[100]!),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(insight.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      Text(insight.growth, style: TextStyle(color: insight.color, fontSize: 10, fontWeight: FontWeight.bold)),
-                    ],
+          children: insights
+              .map(
+                (insight) => Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 12),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey[100]!),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              insight.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              insight.growth,
+                              style: TextStyle(
+                                color: insight.color,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'High Demand:',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        Text(
+                          insight.items,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'High Demand:',
-                    style: TextStyle(fontSize: 10, color: Colors.grey[600]),
-                  ),
-                  Text(
-                    insight.items,
-                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          )).toList(),
+                ),
+              )
+              .toList(),
         ),
       ],
     );
@@ -139,7 +191,10 @@ class GaonIntelligentInsights extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Community Trust Leaderboard', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+        const Text(
+          'Community Trust Leaderboard',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        ),
         const SizedBox(height: 12),
         Row(
           children: [
@@ -164,18 +219,38 @@ class GaonIntelligentInsights extends StatelessWidget {
         ),
         child: Row(
           children: [
-            CircleAvatar(radius: 12, backgroundColor: Colors.amber[100], child: Text(name[0], style: const TextStyle(fontSize: 10))),
+            CircleAvatar(
+              radius: 12,
+              backgroundColor: Colors.amber[100],
+              child: Text(name[0], style: const TextStyle(fontSize: 10)),
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(name, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                  Text(village, style: const TextStyle(fontSize: 9, color: Colors.grey)),
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    village,
+                    style: const TextStyle(fontSize: 9, color: Colors.grey),
+                  ),
                 ],
               ),
             ),
-            Text(rating, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.amber)),
+            Text(
+              rating,
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: Colors.amber,
+              ),
+            ),
           ],
         ),
       ),
@@ -201,7 +276,11 @@ class GaonIntelligentInsights extends StatelessWidget {
               children: [
                 Text(
                   'Automated Logic for Fufaji',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
                 ),
                 Text(
                   'Based on trends, I suggest ordering +50kg Tomatoes for Bassi tomorrow.',
@@ -214,7 +293,9 @@ class GaonIntelligentInsights extends StatelessWidget {
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('✅ Automated order for 50kg Tomatoes placed with Mandi Supplier for Bassi route.'),
+                  content: Text(
+                    '✅ Automated order for 50kg Tomatoes placed with Mandi Supplier for Bassi route.',
+                  ),
                   backgroundColor: Colors.indigo,
                 ),
               );
@@ -223,9 +304,14 @@ class GaonIntelligentInsights extends StatelessWidget {
               backgroundColor: Colors.white,
               foregroundColor: Colors.indigo[900],
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
-            child: const Text('Confirm Order', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Confirm Order',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
@@ -239,5 +325,10 @@ class _VillageInsight {
   final String items;
   final Color color;
 
-  _VillageInsight({required this.name, required this.growth, required this.items, required this.color});
+  _VillageInsight({
+    required this.name,
+    required this.growth,
+    required this.items,
+    required this.color,
+  });
 }

@@ -1,16 +1,17 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
+import 'package:image/image.dart' as img;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Service for AI-powered image processing including background removal
 /// Integrates with various background removal APIs
 class ImageProcessingService {
-  final FirebaseStorage _storage = FirebaseStorage.instance;
+  FirebaseStorage get _storage => FirebaseStorage.instance;
   final ImagePicker _picker = ImagePicker();
   final Uuid _uuid = const Uuid();
 
@@ -88,7 +89,12 @@ class ImageProcessingService {
   /// Remove background from image using AI
   /// Note: This requires an API key from remove.bg or similar service
   Future<File> removeBackgroundAI(File imageFile) async {
-    final String apiKey = const String.fromEnvironment('REMOVE_BG_API_KEY', defaultValue: '');
+    String apiKey = const String.fromEnvironment('REMOVE_BG_API_KEY', defaultValue: '');
+    if (apiKey.isEmpty) {
+      try {
+        apiKey = dotenv.env['REMOVE_BG_API_KEY'] ?? '';
+      } catch (_) {}
+    }
     
     if (apiKey.isEmpty) {
       debugPrint('No Background Removal API Key found. Returning original image.');
@@ -123,11 +129,48 @@ class ImageProcessingService {
   }
 
   Future<File> enhanceColorsAI(File imageFile, double brightness, double contrast) async {
-    return imageFile;
+    try {
+      final bytes = await imageFile.readAsBytes();
+      img.Image? image = img.decodeImage(bytes);
+      if (image == null) return imageFile;
+
+      final double targetContrast = 1.0 + contrast;
+      final double targetBrightness = 1.0 + brightness;
+
+      image = img.adjustColor(image, contrast: targetContrast, brightness: targetBrightness);
+
+      final directory = await getTemporaryDirectory();
+      final outputPath = '${directory.path}/enhanced_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final outputFile = File(outputPath);
+      await outputFile.writeAsBytes(img.encodeJpg(image));
+      return outputFile;
+    } catch (e) {
+      debugPrint('Error enhancing colors: $e');
+      return imageFile;
+    }
   }
 
   Future<File> sharpenImage(File imageFile) async {
-    return imageFile;
+    try {
+      final bytes = await imageFile.readAsBytes();
+      img.Image? image = img.decodeImage(bytes);
+      if (image == null) return imageFile;
+
+      image = img.convolution(image, filter: [
+         0, -1,  0,
+        -1,  5, -1,
+         0, -1,  0
+      ]);
+
+      final directory = await getTemporaryDirectory();
+      final outputPath = '${directory.path}/sharpened_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final outputFile = File(outputPath);
+      await outputFile.writeAsBytes(img.encodeJpg(image));
+      return outputFile;
+    } catch (e) {
+      debugPrint('Error sharpening image: $e');
+      return imageFile;
+    }
   }
 
   /// Uploads a compressed image to Firebase Storage (Step 8.2)

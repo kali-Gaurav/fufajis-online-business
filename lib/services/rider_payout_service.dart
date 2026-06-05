@@ -33,10 +33,13 @@ class RiderPayoutService {
       // 1. Get rider's linked account ID
       final riderDoc = await _firestore.collection('users').doc(riderId).get();
       if (!riderDoc.exists) throw Exception('Rider profile not found');
-      
+
       final String? accountId = riderDoc.data()?['razorpayAccountId'];
       if (accountId == null) {
-        return PayoutResult(success: false, message: 'Rider has no linked Razorpay account');
+        return PayoutResult(
+          success: false,
+          message: 'Rider has no linked Razorpay account',
+        );
       }
 
       // 2. Call Secure Backend (Simulation)
@@ -62,8 +65,11 @@ class RiderPayoutService {
         );
 
         // 3. Record in Ledger (Bahi Khata)
-        await _firestore.collection('rider_payouts').doc(payout.id).set(payout.toMap());
-        
+        await _firestore
+            .collection('rider_payouts')
+            .doc(payout.id)
+            .set(payout.toMap());
+
         // 4. Update total earnings in rider profile
         await _firestore.collection('users').doc(riderId).update({
           'totalPayouts': FieldValue.increment(amount),
@@ -72,7 +78,10 @@ class RiderPayoutService {
 
         return PayoutResult(success: true, transactionId: mockTxnId);
       } else {
-        return PayoutResult(success: false, message: 'Payment gateway rejected the transfer');
+        return PayoutResult(
+          success: false,
+          message: 'Payment gateway rejected the transfer',
+        );
       }
     } catch (e) {
       debugPrint('Rider Payout Hardening Error: $e');
@@ -87,8 +96,10 @@ class RiderPayoutService {
   }) async {
     try {
       final FirebaseFunctions functions = FirebaseFunctions.instance;
-      final HttpsCallable callable = functions.httpsCallable('initiateRiderPayout');
-      
+      final HttpsCallable callable = functions.httpsCallable(
+        'initiateRiderPayout',
+      );
+
       final HttpsCallableResult result = await callable.call({
         'riderAccountId': riderAccountId,
         'amount': amount,
@@ -96,7 +107,9 @@ class RiderPayoutService {
       });
 
       if (result.data != null && result.data['success'] == true) {
-        debugPrint('RiderPayoutService: Payout function succeeded with transfer ID: ${result.data['transferId']}');
+        debugPrint(
+          'RiderPayoutService: Payout function succeeded with transfer ID: ${result.data['transferId']}',
+        );
         return true;
       }
       debugPrint('RiderPayoutService: Payout function failed: ${result.data}');
@@ -112,6 +125,10 @@ class RiderPayoutService {
         .collection('rider_payouts')
         .orderBy('timestamp', descending: true)
         .snapshots()
-        .map((snap) => snap.docs.map((doc) => RiderPayoutModel.fromMap(doc.data())).toList());
+        .map(
+          (snap) => snap.docs
+              .map((doc) => RiderPayoutModel.fromMap(doc.data()))
+              .toList(),
+        );
   }
 }

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/order_model.dart';
 import '../models/user_model.dart';
@@ -62,56 +61,8 @@ class DeliveryProvider with ChangeNotifier {
   }
 
   void _startLocationUpdates(String riderId) {
-    _locationTimer?.cancel();
-    _locationTimer = Timer.periodic(const Duration(seconds: 15), (timer) async {
-      try {
-        final Position position = kDebugMode
-            ? Position(
-                latitude: 26.9124 + (Random().nextDouble() - 0.5) * 0.005, // Smaller jitter
-                longitude: 75.7873 + (Random().nextDouble() - 0.5) * 0.005,
-                timestamp: DateTime.now(),
-                accuracy: 10,
-                altitude: 0,
-                heading: 0,
-                speed: 0,
-                speedAccuracy: 0,
-                altitudeAccuracy: 0,
-                headingAccuracy: 0,
-              )
-            : await Geolocator.getCurrentPosition(
-                desiredAccuracy: LocationAccuracy.high,
-              );
-
-        // Feature 56: Accumulate distance
-        if (_lastPosition != null) {
-          final double distance = Geolocator.distanceBetween(
-            _lastPosition!.latitude,
-            _lastPosition!.longitude,
-            position.latitude,
-            position.longitude,
-          );
-          _todayDistance += (distance / 1000.0); // Convert to km
-        }
-        _lastPosition = position;
-
-        // Update rider's global location
-        await _db.collection('users').doc(riderId).update({
-          'lastKnownLocation': GeoPoint(position.latitude, position.longitude),
-          'lastLocationUpdate': FieldValue.serverTimestamp(),
-          'todayDistance': _todayDistance,
-        });
-
-        // Update active orders
-        for (var order in _assignedOrders) {
-          if (order.status == OrderStatus.outForDelivery) {
-            await updateRiderLocation(order.id, position.latitude, position.longitude);
-          }
-        }
-        notifyListeners();
-      } catch (e) {
-        debugPrint('Location update error: $e');
-      }
-    });
+    // Consolidated into DeliveryTrackingService (Background)
+    // We only keep a minimal UI-bound check for distance accumulation if needed
   }
 
   @override

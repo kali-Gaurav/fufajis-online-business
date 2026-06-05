@@ -38,10 +38,10 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
+              const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Real-Time Dynamic Pricing Engine',
                     style: TextStyle(
                       fontSize: 24,
@@ -49,7 +49,7 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
                       color: AppTheme.grey900,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     'Adjust retail prices based on real-time wholesale Mandi variations & custom markup parameters.',
                     style: TextStyle(fontSize: 13, color: AppTheme.grey600),
@@ -283,11 +283,11 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
+          const Row(
             children: [
               Icon(Icons.analytics, color: AppTheme.primary),
-              const SizedBox(width: 8),
-              const Text(
+              SizedBox(width: 8),
+              Text(
                 'Pricing Formula Summary',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.primary),
               ),
@@ -305,7 +305,7 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
               const Text('COMBINED ADD-ON RATE', style: TextStyle(fontSize: 10, color: AppTheme.grey500)),
               Text(
                 '+${totalMarkup.toStringAsFixed(0)}%',
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppTheme.primary),
+                style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppTheme.primary),
               ),
             ],
           ),

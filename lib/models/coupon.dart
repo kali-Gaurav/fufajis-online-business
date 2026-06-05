@@ -37,13 +37,13 @@ class Coupon {
       maximumDiscountAmount: (map['maximumDiscountAmount'] ?? 0.0).toDouble(),
       startDate: map['startDate'] != null
           ? (map['startDate'] is DateTime
-              ? map['startDate']
-              : (map['startDate'] as Timestamp).toDate())
+                ? map['startDate']
+                : (map['startDate'] as Timestamp).toDate())
           : DateTime.now(),
       endDate: map['endDate'] != null
           ? (map['endDate'] is DateTime
-              ? map['endDate']
-              : (map['endDate'] as Timestamp).toDate())
+                ? map['endDate']
+                : (map['endDate'] as Timestamp).toDate())
           : DateTime.now(),
     );
   }
@@ -65,7 +65,7 @@ class Coupon {
 
   double calculateDiscount(double subtotal) {
     if (subtotal < minimumOrderAmount) return 0.0;
-    
+
     double discount = 0.0;
     if (discountType == 'percentage') {
       discount = subtotal * (discountValue / 100.0);

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../utils/app_router.dart';
 
 // Background message entry point (must be top-level static)
 @pragma('vm:entry-point')
@@ -45,9 +46,12 @@ class NotificationService {
     );
 
     await _localNotifications.initialize(
-      initializationSettings,
+      settings: initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
-        debugPrint("Notification clicked: ${response.payload}");
+        debugPrint("Notification tapped: ${response.payload}");
+        if (response.payload != null) {
+          _navigateFromPayload(response.payload!);
+        }
       },
     );
 
@@ -78,9 +82,49 @@ class NotificationService {
     // 6. Handle App opening from background state via push notification
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       debugPrint("App brought to foreground via notification: ${message.messageId}");
+      _navigateFromMessage(message);
     });
 
     _initialized = true;
+  }
+
+  /// Navigate to the appropriate screen based on notification data
+  void _navigateFromPayload(String payload) {
+    try {
+      final data = jsonDecode(payload) as Map<String, dynamic>;
+      _navigateFromData(data);
+    } catch (e) {
+      debugPrint('[NotificationService] Could not parse payload for navigation: $e');
+    }
+  }
+
+  void _navigateFromMessage(RemoteMessage message) {
+    _navigateFromData(message.data);
+  }
+
+  void _navigateFromData(Map<String, dynamic> data) {
+    final router = AppRouter.router;
+    final String type = data['type']?.toString() ?? '';
+    final String orderId = data['orderId']?.toString() ?? '';
+
+    switch (type) {
+      case 'orderUpdate':
+        if (orderId.isNotEmpty) {
+          router.push('/customer/order-detail/$orderId');
+        } else {
+          router.push('/customer/orders');
+        }
+        break;
+      case 'promotion':
+      case 'priceDrop':
+        router.push('/customer/home');
+        break;
+      case 'stapleRefill':
+        router.push('/customer/home');
+        break;
+      default:
+        router.push('/customer/notifications');
+    }
   }
 
   // Retrieve current FCM token for registration
@@ -117,10 +161,10 @@ class NotificationService {
     );
 
     await _localNotifications.show(
-      DateTime.now().millisecond,
-      title,
-      body,
-      platformChannelSpecifics,
+      id: DateTime.now().millisecond,
+      title: title,
+      body: body,
+      notificationDetails: platformChannelSpecifics,
       payload: payload,
     );
   }
@@ -184,32 +228,15 @@ class NotificationService {
 
   // Trigger staple refill notification (Idea 27)
   void triggerStapleRefillNotification(String productName, int daysLeft) {
-    final title = "🛒 Smart Kitchen Reminder";
+    const title = "🛒 Smart Kitchen Reminder";
     final body = daysLeft <= 0 
         ? "You've likely run out of $productName! Refill now from your Smart Kitchen."
         : "You're running low on $productName! (Estimated: $daysLeft days left).";
     showLocalNotification(title, body, type: 'stapleRefill');
   }
 
-  // Get notification color based on type
-  Color _getNotificationColor(String? type) {
-    switch (type) {
-      case 'orderUpdate':
-        return Colors.blue;
-      case 'promotion':
-        return Colors.orange;
-      case 'priceDrop':
-        return Colors.green;
-      case 'shopUpdate':
-        return Colors.purple;
-      case 'systemMessage':
-        return Colors.grey;
-      default:
-        return Colors.blue;
-    }
-  }
 
-  /// Send notification to a specific user by saving it to Firestore
+/// Send notification to a specific user by saving it to Firestore
   Future<void> sendNotificationToUser({
     required String userId,
     required String title,

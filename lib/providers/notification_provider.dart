@@ -93,8 +93,9 @@ class NotificationSettings {
     TimeOfDay? quietHoursStart,
     TimeOfDay? quietHoursEnd,
     this.frequencyLimitPerHour = 10,
-  })  : quietHoursStart = quietHoursStart ?? const TimeOfDay(hour: 22, minute: 0),
-        quietHoursEnd = quietHoursEnd ?? const TimeOfDay(hour: 8, minute: 0);
+  }) : quietHoursStart =
+           quietHoursStart ?? const TimeOfDay(hour: 22, minute: 0),
+       quietHoursEnd = quietHoursEnd ?? const TimeOfDay(hour: 8, minute: 0);
 
   factory NotificationSettings.fromMap(Map<String, dynamic> map) {
     return NotificationSettings(
@@ -149,7 +150,8 @@ class NotificationSettings {
 class NotificationProvider with ChangeNotifier {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final OfflineNotificationQueueService _queueService = OfflineNotificationQueueService();
+  final OfflineNotificationQueueService _queueService =
+      OfflineNotificationQueueService();
   final Connectivity _connectivity = Connectivity();
 
   bool _isLoading = false;
@@ -198,7 +200,9 @@ class NotificationProvider with ChangeNotifier {
       _updateConnectivityStatus(result, userId);
 
       // Listen for connectivity changes
-      _connectivitySubscription = _connectivity.onConnectivityChanged.listen((result) {
+      _connectivitySubscription = _connectivity.onConnectivityChanged.listen((
+        result,
+      ) {
         _updateConnectivityStatus(result, userId);
       });
     } catch (e) {
@@ -241,11 +245,14 @@ class NotificationProvider with ChangeNotifier {
           .limit(100)
           .snapshots()
           .listen((data) {
-        _notifications = data.docs
-            .map((doc) => NotificationModel.fromMap({...doc.data(), 'id': doc.id}))
-            .toList();
-        notifyListeners();
-      });
+            _notifications = data.docs
+                .map(
+                  (doc) =>
+                      NotificationModel.fromMap({...doc.data(), 'id': doc.id}),
+                )
+                .toList();
+            notifyListeners();
+          });
     } catch (e) {
       debugPrint('Error fetching notifications: $e');
     } finally {
@@ -420,10 +427,9 @@ class NotificationProvider with ChangeNotifier {
       debugPrint('FCM Token: $_fcmToken');
 
       if (userId != null && _fcmToken != null) {
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .update({'fcmToken': _fcmToken});
+        await FirebaseFirestore.instance.collection('users').doc(userId).update(
+          {'fcmToken': _fcmToken},
+        );
       }
     } catch (e) {
       debugPrint('Error getting FCM token: $e');
@@ -437,10 +443,9 @@ class NotificationProvider with ChangeNotifier {
       debugPrint('Refreshed FCM Token: $token');
 
       if (userId != null) {
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .update({'fcmToken': token});
+        await FirebaseFirestore.instance.collection('users').doc(userId).update(
+          {'fcmToken': token},
+        );
       }
     });
   }
@@ -604,5 +609,3 @@ class NotificationProvider with ChangeNotifier {
     super.dispose();
   }
 }
-
-

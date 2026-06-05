@@ -39,10 +39,7 @@ class CartItem {
 
   double get totalPrice => price * quantity;
 
-  CartItem copyWith({
-    int? quantity,
-    String? itemNotes,
-  }) {
+  CartItem copyWith({int? quantity, String? itemNotes}) {
     return CartItem(
       id: id,
       productId: productId,
@@ -104,7 +101,9 @@ class CartItem {
       selectedSize: map['selectedSize'],
       selectedColor: map['selectedColor'],
       itemNotes: map['itemNotes'],
-      addedAt: map['addedAt'] != null ? DateTime.parse(map['addedAt']) : DateTime.now(),
+      addedAt: map['addedAt'] != null
+          ? DateTime.parse(map['addedAt'])
+          : DateTime.now(),
     );
   }
 }

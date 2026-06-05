@@ -9,13 +9,13 @@ class EmployeeProvider with ChangeNotifier {
   final String _employeeId;
 
   EmployeeProvider({
-    required String shopId,
-    required String branchId,
-    required String employeeId,
-    required String employeeName,
-  })  : _shopId = shopId,
-        _branchId = branchId,
-        _employeeId = employeeId;
+    String? shopId,
+    String? branchId,
+    String? employeeId,
+    String? employeeName,
+  })  : _shopId = shopId ?? '',
+        _branchId = branchId ?? '',
+        _employeeId = employeeId ?? '';
 
   // Inventory Alerts
   Stream<QuerySnapshot> getInventoryAlerts() {
@@ -43,7 +43,7 @@ class EmployeeProvider with ChangeNotifier {
   // Expiry Alerts
   Stream<QuerySnapshot> getExpiringProducts() {
     final now = DateTime.now();
-    final weekFromNow = now.add(Duration(days: 7));
+    final weekFromNow = now.add(const Duration(days: 7));
 
     return _firestore
         .collection('shops')

@@ -14,7 +14,8 @@ import 'package:uuid/uuid.dart';
 ///   • If packed weight < ordered weight: partial refund automatically issued
 ///   • Photo proof stored in Firebase Storage; URL saved to order record
 class WeightVerificationService {
-  static final WeightVerificationService _instance = WeightVerificationService._internal();
+  static final WeightVerificationService _instance =
+      WeightVerificationService._internal();
   factory WeightVerificationService() => _instance;
   WeightVerificationService._internal();
 
@@ -149,7 +150,9 @@ class WeightVerificationService {
       'updatedAt': FieldValue.serverTimestamp(),
     });
 
-    debugPrint('[WeightVerification] Recorded: ${record.productName} ${record.orderedWeightKg}kg → ${record.packedWeightKg}kg (${record.outcome.name})');
+    debugPrint(
+      '[WeightVerification] Recorded: ${record.productName} ${record.orderedWeightKg}kg → ${record.packedWeightKg}kg (${record.outcome.name})',
+    );
   }
 
   Future<String?> _uploadProofPhoto({
@@ -223,22 +226,23 @@ class WeightProofRecord {
       'Ordered: ${orderedWeightKg.toStringAsFixed(2)} kg  •  Packed: ${packedWeightKg.toStringAsFixed(2)} kg';
 
   Map<String, dynamic> toMap() => {
-        'id': id,
-        'orderId': orderId,
-        'orderItemId': orderItemId,
-        'productId': productId,
-        'productName': productName,
-        'orderedWeightKg': orderedWeightKg,
-        'packedWeightKg': packedWeightKg,
-        'outcome': outcome.name,
-        'refundAmountIfAny': refundAmountIfAny,
-        'photoUrl': photoUrl ?? '',
-        'employeeId': employeeId,
-        'employeeName': employeeName,
-        'recordedAt': Timestamp.fromDate(recordedAt),
-      };
+    'id': id,
+    'orderId': orderId,
+    'orderItemId': orderItemId,
+    'productId': productId,
+    'productName': productName,
+    'orderedWeightKg': orderedWeightKg,
+    'packedWeightKg': packedWeightKg,
+    'outcome': outcome.name,
+    'refundAmountIfAny': refundAmountIfAny,
+    'photoUrl': photoUrl ?? '',
+    'employeeId': employeeId,
+    'employeeName': employeeName,
+    'recordedAt': Timestamp.fromDate(recordedAt),
+  };
 
-  factory WeightProofRecord.fromMap(Map<String, dynamic> map) => WeightProofRecord(
+  factory WeightProofRecord.fromMap(Map<String, dynamic> map) =>
+      WeightProofRecord(
         id: map['id'] ?? '',
         orderId: map['orderId'] ?? '',
         orderItemId: map['orderItemId'] ?? '',

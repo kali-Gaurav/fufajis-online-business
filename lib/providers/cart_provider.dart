@@ -1,12 +1,17 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/product_model.dart';
 import '../models/delivery_type.dart';
 import '../services/delivery_charge_calculator.dart';
 import '../models/coupon.dart';
 import '../models/cart_item.dart';
+import '../models/cart_item_model.dart';
+import '../services/cart_sync_service.dart';
+
 class CartProvider with ChangeNotifier {
+  final CartSyncService _cartSyncService = CartSyncService();
   List<CartItem> _cartItems = [];
   Coupon? _appliedCoupon;
   double _walletAmountUsed = 0.0;
@@ -21,9 +26,11 @@ class CartProvider with ChangeNotifier {
   double get tipAmount => _tipAmount;
   DeliveryType get deliveryType => _deliveryType;
 
-  int get totalItems => _cartItems.fold(0, (total, item) => total + item.quantity);
+  int get totalItems =>
+      _cartItems.fold(0, (total, item) => total + item.quantity);
 
-  double get subtotal => _cartItems.fold(0.0, (total, item) => total + item.totalPrice);
+  double get subtotal =>
+      _cartItems.fold(0.0, (total, item) => total + item.totalPrice);
 
   double get discount {
     double discount = 0.0;
@@ -34,7 +41,10 @@ class CartProvider with ChangeNotifier {
   }
 
   double get deliveryCharge {
-    return DeliveryChargeCalculator.calculateDeliveryCharge(_deliveryType, subtotal);
+    return DeliveryChargeCalculator.calculateDeliveryCharge(
+      _deliveryType,
+      subtotal,
+    );
   }
 
   /// Get the delivery charge for the current delivery type
@@ -64,7 +74,8 @@ class CartProvider with ChangeNotifier {
   }
 
   double get total {
-    final total = subtotal - discount + deliveryCharge + _tipAmount - _walletAmountUsed;
+    final total =
+        subtotal - discount + deliveryCharge + _tipAmount - _walletAmountUsed;
     return total.clamp(0, total);
   }
 
@@ -94,7 +105,8 @@ class CartProvider with ChangeNotifier {
       );
     } else {
       final price = selectedUnit?.price ?? product.price;
-      final originalPrice = selectedUnit?.originalPrice ?? product.originalPrice;
+      final originalPrice =
+          selectedUnit?.originalPrice ?? product.originalPrice;
       final unitName = selectedUnit?.name ?? product.unit;
 
       final cartItem = CartItem(
@@ -151,7 +163,70 @@ class CartProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Apply coupon
+  // ── Dynamic coupon validation via Firestore ──
+  /// Returns the applied coupon on success, or throws an Exception with a user-friendly message.
+  Future<bool> applyCouponDynamic(String couponCode) async {
+    if (couponCode.isEmpty) return false;
+    final code = couponCode.trim().toUpperCase();
+
+    try {
+      // 1. Try Firestore first
+      final snapshot = await FirebaseFirestore.instance
+          .collection('coupons')
+          .where('code', isEqualTo: code)
+          .where('isActive', isEqualTo: true)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        final data = snapshot.docs.first.data();
+        final now = DateTime.now();
+        final endDate = (data['endDate'] as dynamic)?.toDate() as DateTime?;
+        final startDate = (data['startDate'] as dynamic)?.toDate() as DateTime?;
+
+        if (startDate != null && now.isBefore(startDate)) {
+          throw Exception('This coupon is not active yet.');
+        }
+        if (endDate != null && now.isAfter(endDate)) {
+          throw Exception('This coupon has expired.');
+        }
+
+        final minimumOrder = (data['minimumOrderAmount'] ?? 0.0).toDouble();
+        if (subtotal < minimumOrder) {
+          throw Exception(
+            'Minimum order of ₹${minimumOrder.toStringAsFixed(0)} required for this coupon.',
+          );
+        }
+
+        _appliedCoupon = Coupon(
+          id: snapshot.docs.first.id,
+          code: code,
+          name: data['name'] ?? code,
+          description: data['description'] ?? '',
+          discountType: data['discountType'] ?? 'percentage',
+          discountValue: (data['discountValue'] ?? 0).toDouble(),
+          minimumOrderAmount: minimumOrder,
+          maximumDiscountAmount: (data['maximumDiscountAmount'] ?? 0.0)
+              .toDouble(),
+          startDate:
+              startDate ?? DateTime.now().subtract(const Duration(days: 1)),
+          endDate: endDate ?? DateTime.now().add(const Duration(days: 365)),
+        );
+        notifyListeners();
+        return true;
+      }
+    } catch (e) {
+      if (e is Exception && e.toString().contains('coupon')) rethrow;
+      debugPrint(
+        '[CartProvider] Firestore coupon fetch failed, trying fallback: $e',
+      );
+    }
+
+    // 2. Fallback to hardcoded coupons (offline/demo mode)
+    return applyCoupon(code);
+  }
+
+  // Hardcoded fallback coupons (used when Firestore is unavailable)
   bool applyCoupon(String couponCode) {
     if (couponCode.toUpperCase() == 'SAVE10') {
       _appliedCoupon = Coupon(
@@ -169,7 +244,7 @@ class CartProvider with ChangeNotifier {
       notifyListeners();
       return true;
     }
-    
+
     if (couponCode.toUpperCase() == 'FIRST20') {
       _appliedCoupon = Coupon(
         id: 'coupon_2',
@@ -186,7 +261,7 @@ class CartProvider with ChangeNotifier {
       notifyListeners();
       return true;
     }
-    
+
     return false;
   }
 
@@ -232,9 +307,7 @@ class CartProvider with ChangeNotifier {
   // Save cart to local storage
   Future<void> _saveCart() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final cartData = _cartItems.map((item) => item.toMap()).toList();
-      await prefs.setString('cart_items', jsonEncode(cartData));
+      await _cartSyncService.saveLocalCart(_cartItems);
     } catch (e) {
       debugPrint('Error saving cart: $e');
     }
@@ -245,18 +318,104 @@ class CartProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final cartString = prefs.getString('cart_items');
-      if (cartString != null && cartString.isNotEmpty) {
-        final List<dynamic> cartData = jsonDecode(cartString);
-        _cartItems = cartData.map((item) => CartItem.fromMap(item)).toList();
-      }
+      _cartItems = await _cartSyncService.loadLocalCart();
     } catch (e) {
       debugPrint('Error loading cart: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  // Sync to cloud
+  Future<void> syncToCloud(String uid) async {
+    await _cartSyncService.syncToCloud(uid, _cartItems);
+  }
+
+  // Load from cloud
+  Future<void> loadFromCloud(String uid) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      _cartItems = await _cartSyncService.loadCloudCart(uid);
+      await _saveCart();
+    } catch (e) {
+      debugPrint('Error loading cloud cart: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Merge carts on login
+  Future<void> mergeCartOnLogin(String uid) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      _cartItems = await _cartSyncService.mergeCarts(uid);
+    } catch (e) {
+      debugPrint('Error merging cart on login: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // ── Guest cart migration ───────────────────────────────────
+  /// Called after a guest verifies their identity (OTP or Google).
+  ///
+  /// Converts each [CartItemModel] (local guest format) to a [CartItem]
+  /// (CartProvider format) and merges into the existing verified cart:
+  ///  • If the product is already in cart → add quantities
+  ///  • If not → insert as new item
+  /// Saves locally and syncs to Firestore under the verified [userId].
+  Future<void> migrateGuestCart(
+      List<CartItemModel> guestItems, String userId) async {
+    if (guestItems.isEmpty) return;
+
+    for (final guest in guestItems) {
+      final existingIdx = _cartItems.indexWhere(
+        (c) => c.productId == guest.productId,
+      );
+
+      if (existingIdx >= 0) {
+        // Merge quantity — cap at 99 to avoid insane quantities
+        final merged = (_cartItems[existingIdx].quantity + guest.quantity)
+            .clamp(1, 99);
+        _cartItems[existingIdx] =
+            _cartItems[existingIdx].copyWith(quantity: merged);
+      } else {
+        // Convert CartItemModel → CartItem
+        _cartItems.add(CartItem(
+          id: '${guest.productId}_${DateTime.now().millisecondsSinceEpoch}',
+          productId: guest.productId,
+          productName: guest.productName,
+          productImage: guest.imageUrl,
+          unit: guest.selectedUnit,
+          quantity: guest.quantity,
+          price: guest.price,
+          originalPrice: guest.originalPrice,
+          stockQuantity: 999, // unknown at migration time; refreshed on next load
+          shopId: guest.shopId,
+          shopName: '',       // refreshed from Firestore on next product load
+          addedAt: DateTime.now(),
+        ));
+      }
+    }
+
+    // Persist locally first (works offline)
+    await _saveCart();
+
+    // Then sync to Firestore (background — failure is non-fatal)
+    try {
+      await _cartSyncService.syncToCloud(userId, _cartItems);
+    } catch (e) {
+      debugPrint('[CartProvider] Guest cart cloud sync failed (non-fatal): $e');
+    }
+
+    notifyListeners();
+    debugPrint(
+        '[CartProvider] Migrated ${guestItems.length} guest item(s) into verified cart.');
   }
 
   // Clear cart
@@ -277,7 +436,9 @@ class CartProvider with ChangeNotifier {
   // Get quantity of product in cart
   int getQuantity(String productId) {
     try {
-      return _cartItems.firstWhere((item) => item.productId == productId).quantity;
+      return _cartItems
+          .firstWhere((item) => item.productId == productId)
+          .quantity;
     } catch (e) {
       return 0;
     }
@@ -307,9 +468,13 @@ class CartProvider with ChangeNotifier {
   // Variant/Option specific helpers for multi-unit selection
   int getQuantityForVariant(String productId, String? selectedVariant) {
     try {
-      return _cartItems.firstWhere(
-        (item) => item.productId == productId && item.selectedVariant == selectedVariant
-      ).quantity;
+      return _cartItems
+          .firstWhere(
+            (item) =>
+                item.productId == productId &&
+                item.selectedVariant == selectedVariant,
+          )
+          .quantity;
     } catch (e) {
       return 0;
     }
@@ -317,7 +482,9 @@ class CartProvider with ChangeNotifier {
 
   void incrementQuantityForVariant(String productId, String? selectedVariant) {
     final index = _cartItems.indexWhere(
-      (item) => item.productId == productId && item.selectedVariant == selectedVariant
+      (item) =>
+          item.productId == productId &&
+          item.selectedVariant == selectedVariant,
     );
     if (index >= 0) {
       final currentQty = _cartItems[index].quantity;
@@ -327,7 +494,9 @@ class CartProvider with ChangeNotifier {
 
   void decrementQuantityForVariant(String productId, String? selectedVariant) {
     final index = _cartItems.indexWhere(
-      (item) => item.productId == productId && item.selectedVariant == selectedVariant
+      (item) =>
+          item.productId == productId &&
+          item.selectedVariant == selectedVariant,
     );
     if (index >= 0) {
       final currentQty = _cartItems[index].quantity;
@@ -336,35 +505,53 @@ class CartProvider with ChangeNotifier {
   }
 
   /// Bulk add items from voice results (Feature: High-Speed One-Click Order)
-  Future<void> bulkAddByVoice(List<Map<String, dynamic>> items, List<ProductModel> shopProducts) async {
+  Future<void> bulkAddByVoice(
+    List<Map<String, dynamic>> items,
+    List<ProductModel> shopProducts,
+  ) async {
     for (var item in items) {
       final String name = (item['name'] ?? '').toString().toLowerCase();
-      final double qty = double.tryParse(item['quantity']?.toString() ?? '1.0') ?? 1.0;
+      final double qty =
+          double.tryParse(item['quantity']?.toString() ?? '1.0') ?? 1.0;
       String unit = (item['unit'] ?? '').toString().toLowerCase();
 
       // Normalize Hindi voice quantities/units
-      if (unit.contains('kilo') || unit.contains('kilogram') || unit == 'किलो' || unit == 'किग्रा') {
+      if (unit.contains('kilo') ||
+          unit.contains('kilogram') ||
+          unit == 'किलो' ||
+          unit == 'किग्रा') {
         unit = 'kg';
-      } else if (unit.contains('gram') || unit == 'ग्राम' || unit == 'जी' || unit == 'g') {
+      } else if (unit.contains('gram') ||
+          unit == 'ग्राम' ||
+          unit == 'जी' ||
+          unit == 'g') {
         unit = 'g';
-      } else if (unit.contains('liter') || unit.contains('litre') || unit == 'लीटर') {
+      } else if (unit.contains('liter') ||
+          unit.contains('litre') ||
+          unit == 'लीटर') {
         unit = 'l';
       }
 
       // Find matching product in shop inventory
       ProductModel? match;
-      
+
       // 1. Exact name match
       try {
         match = shopProducts.firstWhere((p) => p.name.toLowerCase() == name);
       } catch (_) {
         // 2. Contains match
         try {
-          match = shopProducts.firstWhere((p) => p.name.toLowerCase().contains(name) || name.contains(p.name.toLowerCase()));
+          match = shopProducts.firstWhere(
+            (p) =>
+                p.name.toLowerCase().contains(name) ||
+                name.contains(p.name.toLowerCase()),
+          );
         } catch (_) {
           // 3. Tag match
           try {
-            match = shopProducts.firstWhere((p) => p.tags.any((tag) => tag.toLowerCase().contains(name)));
+            match = shopProducts.firstWhere(
+              (p) => p.tags.any((tag) => tag.toLowerCase().contains(name)),
+            );
           } catch (_) {
             match = null;
           }
@@ -376,7 +563,9 @@ class CartProvider with ChangeNotifier {
         ProductUnitOption? selectedUnit;
         if (match.unitOptions.isNotEmpty) {
           try {
-            selectedUnit = match.unitOptions.firstWhere((u) => u.name.toLowerCase().contains(unit));
+            selectedUnit = match.unitOptions.firstWhere(
+              (u) => u.name.toLowerCase().contains(unit),
+            );
           } catch (_) {
             selectedUnit = null;
           }

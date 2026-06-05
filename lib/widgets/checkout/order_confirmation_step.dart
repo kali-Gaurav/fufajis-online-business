@@ -1,6 +1,5 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:go_router/go_router.dart';
 import '../../models/order_model.dart';
 import '../../utils/app_theme.dart';
 
@@ -156,11 +155,11 @@ class _OrderConfirmationStepState extends State<OrderConfirmationStep> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.receipt_long, color: AppTheme.primary, size: 20),
-              const SizedBox(width: 8),
-              const Text(
+              Icon(Icons.receipt_long, color: AppTheme.primary, size: 20),
+              SizedBox(width: 8),
+              Text(
                 'Order Summary',
                 style: TextStyle(
                   fontSize: 16,
@@ -321,11 +320,11 @@ class _OrderConfirmationStepState extends State<OrderConfirmationStep> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.local_shipping, color: AppTheme.primary, size: 20),
-              const SizedBox(width: 8),
-              const Text(
+              Icon(Icons.local_shipping, color: AppTheme.primary, size: 20),
+              SizedBox(width: 8),
+              Text(
                 'Delivery Details',
                 style: TextStyle(
                   fontSize: 16,
@@ -410,11 +409,11 @@ class _OrderConfirmationStepState extends State<OrderConfirmationStep> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.payment, color: AppTheme.primary, size: 20),
-              const SizedBox(width: 8),
-              const Text(
+              Icon(Icons.payment, color: AppTheme.primary, size: 20),
+              SizedBox(width: 8),
+              Text(
                 'Payment Information',
                 style: TextStyle(
                   fontSize: 16,

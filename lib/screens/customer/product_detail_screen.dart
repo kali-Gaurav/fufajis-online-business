@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:async';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -7,13 +6,9 @@ import 'package:share_plus/share_plus.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/cart_provider.dart';
-import '../../providers/subscription_provider.dart';
-import '../../providers/auth_provider.dart';
-import '../../models/subscription_model.dart';
 import '../../models/product_model.dart';
 import '../../models/product_review_model.dart';
 import '../../services/product_service.dart';
-import '../../services/storage_service.dart';
 import '../../utils/app_theme.dart';
 import '../../widgets/qna_section.dart';
 import '../../widgets/group_buy_widget.dart';
@@ -35,11 +30,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   ProductModel? _product;
   ProductUnitOption? _selectedUnitOption;
   final ProductService _productService = ProductService();
-  final StorageService _storageService = StorageService();
-  final ImagePicker _imagePicker = ImagePicker();
   StreamSubscription<List<ProductReviewModel>>? _reviewsSubscription;
   List<ProductReviewModel> _reviews = [];
-  bool _isSubmittingReview = false;
 
   @override
   void initState() {
@@ -108,7 +100,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               final shareText = 'Check out ${_product!.name} on Fufaji\'s Online!\n'
                   'Price: ₹${(_product!.isLightningDealActive ? _product!.lightningDealPrice : _product!.price)?.round()}\n'
                   'Link: https://fufajis.online/product/${widget.productId}';
-              var share = Share.share(shareText);
+              Share.share(shareText);
             },
           ),
           IconButton(

@@ -19,7 +19,7 @@ enum ProductCategory {
   toys,
   medicines,
   agricultural,
-  other
+  other,
 }
 
 class ProductUnitOption {
@@ -244,8 +244,11 @@ class ProductModel {
       origin: map['origin'],
       expiryDate: _parseDate(map['expiryDate']),
       isExpired: map['isExpired'] ?? false,
-      competitorPrices: (map['competitorPrices'] as List?)
-              ?.map((x) => CompetitorPrice.fromMap(Map<String, dynamic>.from(x)))
+      competitorPrices:
+          (map['competitorPrices'] as List?)
+              ?.map(
+                (x) => CompetitorPrice.fromMap(Map<String, dynamic>.from(x)),
+              )
               .toList() ??
           const [],
       costPrice: (map['costPrice'] as num?)?.toDouble(),
@@ -261,8 +264,11 @@ class ProductModel {
       sourceName: map['sourceName'],
       createdAt: _parseDate(map['createdAt']) ?? DateTime.now(),
       updatedAt: _parseDate(map['updatedAt']) ?? DateTime.now(),
-      unitOptions: (map['unitOptions'] as List?)
-              ?.map((x) => ProductUnitOption.fromMap(Map<String, dynamic>.from(x)))
+      unitOptions:
+          (map['unitOptions'] as List?)
+              ?.map(
+                (x) => ProductUnitOption.fromMap(Map<String, dynamic>.from(x)),
+              )
               .toList() ??
           const [],
       lightningDealPrice: (map['lightningDealPrice'] as num?)?.toDouble(),
@@ -272,32 +278,35 @@ class ProductModel {
       farmerImageUrl: map['farmerImageUrl'],
       harvestDate: _parseDate(map['harvestDate']),
       isOrganicCertified: map['isOrganicCertified'] ?? false,
-      branchStock: (map['branchStock'] as Map<dynamic, dynamic>?)?.map(
+      branchStock:
+          (map['branchStock'] as Map<dynamic, dynamic>?)?.map(
             (k, v) => MapEntry(k.toString(), v as int),
           ) ??
           const {},
-      branchLocations: (map['branchLocations'] as Map<dynamic, dynamic>?)?.map(
-            (k, v) {
-              if (v is Map) {
-                return MapEntry(k.toString(), Map<String, dynamic>.from(v));
-              } else if (v is String) {
-                final regAisle = RegExp(r'Aisle\s+([A-Za-z0-9]+)', caseSensitive: false);
-                final regShelf = RegExp(r'Shelf\s+(\d+)', caseSensitive: false);
-                final matchAisle = regAisle.firstMatch(v);
-                final matchShelf = regShelf.firstMatch(v);
-                final zoneStr = matchAisle?.group(1) ?? 'A';
-                final shelfNum = int.tryParse(matchShelf?.group(1) ?? '1') ?? 1;
-                return MapEntry(k.toString(), {
-                  'zone': zoneStr,
-                  'aisle': 1,
-                  'shelf': shelfNum,
-                  'bin': 1,
-                });
-              } else {
-                return MapEntry(k.toString(), <String, dynamic>{});
-              }
-            },
-          ) ??
+      branchLocations:
+          (map['branchLocations'] as Map<dynamic, dynamic>?)?.map((k, v) {
+            if (v is Map) {
+              return MapEntry(k.toString(), Map<String, dynamic>.from(v));
+            } else if (v is String) {
+              final regAisle = RegExp(
+                r'Aisle\s+([A-Za-z0-9]+)',
+                caseSensitive: false,
+              );
+              final regShelf = RegExp(r'Shelf\s+(\d+)', caseSensitive: false);
+              final matchAisle = regAisle.firstMatch(v);
+              final matchShelf = regShelf.firstMatch(v);
+              final zoneStr = matchAisle?.group(1) ?? 'A';
+              final shelfNum = int.tryParse(matchShelf?.group(1) ?? '1') ?? 1;
+              return MapEntry(k.toString(), {
+                'zone': zoneStr,
+                'aisle': 1,
+                'shelf': shelfNum,
+                'bin': 1,
+              });
+            } else {
+              return MapEntry(k.toString(), <String, dynamic>{});
+            }
+          }) ??
           const {},
       shelfPhotoUrl: map['shelfPhotoUrl'],
       shelfPhotoUpdatedAt: _parseDate(map['shelfPhotoUpdatedAt']),
@@ -471,7 +480,9 @@ class ProductModel {
   }
 
   bool get isLightningDealActive {
-    if (lightningDealPrice == null || lightningDealEndTime == null) return false;
+    if (lightningDealPrice == null || lightningDealEndTime == null) {
+      return false;
+    }
     return DateTime.now().isBefore(lightningDealEndTime!);
   }
 
@@ -490,7 +501,8 @@ class ProductModel {
     return price;
   }
 
-  double? get mrp => isLightningDealActive ? (originalPrice ?? price) : originalPrice;
+  double? get mrp =>
+      isLightningDealActive ? (originalPrice ?? price) : originalPrice;
 
   double get effectiveDiscount {
     if (isLightningDealActive) {

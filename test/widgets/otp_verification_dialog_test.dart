@@ -5,8 +5,9 @@ import 'package:fufajis_online/widgets/otp_verification_dialog.dart';
 void main() {
   group('OTPVerificationDialog Tests', () {
     /// Test 5.5.1: OTPVerificationDialog displays 4-digit OTP input fields
-    testWidgets('OTPVerificationDialog displays 4 OTP input fields',
-        (WidgetTester tester) async {
+    testWidgets('OTPVerificationDialog displays 4 OTP input fields', (
+      WidgetTester tester,
+    ) async {
       bool verified = false;
 
       await tester.pumpWidget(
@@ -32,8 +33,9 @@ void main() {
     });
 
     /// Test 5.5.2: OTPVerificationDialog verifies correct OTP
-    testWidgets('OTPVerificationDialog verifies correct OTP',
-        (WidgetTester tester) async {
+    testWidgets('OTPVerificationDialog verifies correct OTP', (
+      WidgetTester tester,
+    ) async {
       bool verified = false;
 
       await tester.pumpWidget(
@@ -68,8 +70,9 @@ void main() {
     });
 
     /// Test 5.5.3: OTPVerificationDialog rejects incorrect OTP
-    testWidgets('OTPVerificationDialog rejects incorrect OTP',
-        (WidgetTester tester) async {
+    testWidgets('OTPVerificationDialog rejects incorrect OTP', (
+      WidgetTester tester,
+    ) async {
       bool verified = false;
 
       await tester.pumpWidget(
@@ -105,8 +108,9 @@ void main() {
     });
 
     /// Test 5.5.4: OTPVerificationDialog auto-focuses next field
-    testWidgets('OTPVerificationDialog auto-focuses next field',
-        (WidgetTester tester) async {
+    testWidgets('OTPVerificationDialog auto-focuses next field', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -132,8 +136,9 @@ void main() {
     });
 
     /// Test 5.5.5: OTPVerificationDialog displays order number
-    testWidgets('OTPVerificationDialog displays order number',
-        (WidgetTester tester) async {
+    testWidgets('OTPVerificationDialog displays order number', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -152,34 +157,36 @@ void main() {
     });
 
     /// Test 5.5.6: OTPVerificationDialog disables verify button when OTP incomplete
-    testWidgets('OTPVerificationDialog disables verify button when OTP incomplete',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Center(
-              child: OTPVerificationDialog(
-                orderNumber: 'HLM-20240101-0001',
-                otp: '1234',
-                onVerified: () {},
+    testWidgets(
+      'OTPVerificationDialog disables verify button when OTP incomplete',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Center(
+                child: OTPVerificationDialog(
+                  orderNumber: 'HLM-20240101-0001',
+                  otp: '1234',
+                  onVerified: () {},
+                ),
               ),
             ),
           ),
-        ),
-      );
+        );
 
-      // Verify button should be disabled initially
-      final verifyButton = find.byType(ElevatedButton);
-      expect(verifyButton, findsOneWidget);
+        // Verify button should be disabled initially
+        final verifyButton = find.byType(ElevatedButton);
+        expect(verifyButton, findsOneWidget);
 
-      // Enter only 2 digits
-      final textFields = find.byType(TextField);
-      await tester.enterText(textFields.at(0), '1');
-      await tester.enterText(textFields.at(1), '2');
-      await tester.pumpAndSettle();
+        // Enter only 2 digits
+        final textFields = find.byType(TextField);
+        await tester.enterText(textFields.at(0), '1');
+        await tester.enterText(textFields.at(1), '2');
+        await tester.pumpAndSettle();
 
-      // Verify button should still be disabled
-      expect(verifyButton, findsOneWidget);
-    });
+        // Verify button should still be disabled
+        expect(verifyButton, findsOneWidget);
+      },
+    );
   });
 }

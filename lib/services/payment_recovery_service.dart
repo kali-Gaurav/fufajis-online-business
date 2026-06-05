@@ -74,7 +74,7 @@ class PaymentRecoveryService {
         status: PaymentLedgerStatus.success,
         resolvedBy: 'auto_reconciliation',
       );
-      return PaymentRecoveryResult(
+      return const PaymentRecoveryResult(
         status: RecoveryStatus.autoResolved,
         message: 'Order already paid via another method.',
         requiresManualAction: false,
@@ -112,7 +112,7 @@ class PaymentRecoveryService {
       orderNumber: orderNumber ?? orderId,
     );
 
-    return PaymentRecoveryResult(
+    return const PaymentRecoveryResult(
       status: RecoveryStatus.maxRetriesExceeded,
       message: 'Payment recovery failed after $_maxRetries retries. Customer notified. Manual review required.',
       requiresManualAction: true,

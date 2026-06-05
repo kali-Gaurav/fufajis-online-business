@@ -25,7 +25,7 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
     setState(() => _isLoading = true);
     try {
       final productProvider = context.read<ProductProvider>();
-      final products = await productProvider.getProductsWithExpiry();
+      final products = productProvider.getProductsWithExpiry();
       setState(() {
         _expiringProducts = products;
         _isLoading = false;
@@ -69,10 +69,10 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Expiry Management'),
+        title: const Text('Expiry Management'),
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
             onPressed: _loadExpiringProducts,
           ),
         ],
@@ -81,15 +81,15 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
         children: [
           // Filter Tabs
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               children: [
                 _buildFilterChip('All', 'all'),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 _buildFilterChip('Critical', 'critical', color: Colors.red),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 _buildFilterChip('Warning', 'warning', color: Colors.orange),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 _buildFilterChip('OK', 'ok', color: Colors.green),
               ],
             ),
@@ -101,9 +101,9 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
           // Product List
           Expanded(
             child: _isLoading
-                ? Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator())
                 : filteredProducts.isEmpty
-                    ? Center(
+                    ? const Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -118,7 +118,7 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
                         ),
                       )
                     : ListView.builder(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         itemCount: filteredProducts.length,
                         itemBuilder: (context, index) {
                           final product = filteredProducts[index];
@@ -139,7 +139,7 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
     return FilterChip(
       label: Text(label),
       selected: isSelected,
-      selectedColor: color?.withOpacity(0.3),
+      selectedColor: color?.withValues(alpha: 0.3),
       checkmarkColor: color,
       onSelected: (selected) {
         if (selected) {
@@ -161,9 +161,9 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
         .length;
 
     return Card(
-      margin: EdgeInsets.all(16),
+      margin: const EdgeInsets.all(16),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
@@ -190,7 +190,7 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
         ),
         Text(
           label,
-          style: TextStyle(fontSize: 12, color: Colors.grey),
+          style: const TextStyle(fontSize: 12, color: Colors.grey),
         ),
       ],
     );
@@ -202,15 +202,15 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
     final markdownPercent = _calculateMarkdown(status);
 
     return Card(
-      margin: EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 12),
       child: Column(
         children: [
           // Header
           Container(
-            padding: EdgeInsets.all(12),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.only(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(12),
                 topRight: Radius.circular(12),
               ),
@@ -225,17 +225,17 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
                           : Icons.info,
                   color: color,
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     product.name,
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 Chip(
                   label: Text(
                     status == ExpiryStatus.expired ? 'EXPIRED' : '$days days',
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
@@ -247,7 +247,7 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
           ),
           // Details
           Padding(
-            padding: EdgeInsets.all(12),
+            padding: const EdgeInsets.all(12),
             child: Column(
               children: [
                 Row(
@@ -257,25 +257,25 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
                     if (product.expiryDate != null)
                       Text(
                         'Exp: ${_formatDate(product.expiryDate!)}',
-                        style: TextStyle(color: Colors.grey),
+                        style: const TextStyle(color: Colors.grey),
                       ),
                   ],
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 if (status != ExpiryStatus.ok && markdownPercent > 0)
                   Container(
-                    padding: EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: Colors.green.shade50,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.discount, color: Colors.green),
-                        SizedBox(width: 8),
+                        const Icon(Icons.discount, color: Colors.green),
+                        const SizedBox(width: 8),
                         Text(
                           'Suggested Markdown: $markdownPercent%',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.green,
                           ),
@@ -283,23 +283,23 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
                       ],
                     ),
                   ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Row(
                   children: [
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: () => _markAsSold(product),
-                        icon: Icon(Icons.sell),
-                        label: Text('Mark as Sold'),
+                        icon: const Icon(Icons.sell),
+                        label: const Text('Mark as Sold'),
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     if (status == ExpiryStatus.expired)
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () => _disposeExpired(product),
-                          icon: Icon(Icons.delete),
-                          label: Text('Dispose'),
+                          icon: const Icon(Icons.delete),
+                          label: const Text('Dispose'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
                             foregroundColor: Colors.white,

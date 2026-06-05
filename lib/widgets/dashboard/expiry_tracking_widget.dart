@@ -1,11 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/product_provider.dart';
 
 /// Expiry Tracking Widget
 /// Displays expiry tracking metrics on the owner dashboard
 class ExpiryTrackingWidget extends StatefulWidget {
-  const ExpiryTrackingWidget({Key? key}) : super(key: key);
+  const ExpiryTrackingWidget({super.key});
 
   @override
   State<ExpiryTrackingWidget> createState() => _ExpiryTrackingWidgetState();
@@ -26,10 +26,10 @@ class _ExpiryTrackingWidgetState extends State<ExpiryTrackingWidget> {
     try {
       final provider = context.read<ProductProvider>();
       // Load expiry data from provider
-      final expiringToday = 0;
-      final expiringThisWeek = 0;
-      final expired = 0;
-      final totalLoss = 0.0;
+      const expiringToday = 0;
+      const expiringThisWeek = 0;
+      const expired = 0;
+      const totalLoss = 0.0;
 
       setState(() {
         _expiryData = {

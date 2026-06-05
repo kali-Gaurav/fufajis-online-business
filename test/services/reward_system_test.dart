@@ -89,14 +89,17 @@ void main() {
     });
 
     group('Reward calculations', () {
-      test('should calculate total points for order with first order bonus', () {
-        // Order amount: ₹500 = 50 points
-        // First order bonus: 100 points
-        // Total: 150 points
-        final orderPoints = rewardSystem.calculateOrderPoints(500.0);
-        final totalPoints = orderPoints + RewardSystem.firstOrderPoints;
-        expect(totalPoints, 150);
-      });
+      test(
+        'should calculate total points for order with first order bonus',
+        () {
+          // Order amount: ₹500 = 50 points
+          // First order bonus: 100 points
+          // Total: 150 points
+          final orderPoints = rewardSystem.calculateOrderPoints(500.0);
+          final totalPoints = orderPoints + RewardSystem.firstOrderPoints;
+          expect(totalPoints, 150);
+        },
+      );
 
       test('should calculate total points with review bonus', () {
         // Order amount: ₹500 = 50 points

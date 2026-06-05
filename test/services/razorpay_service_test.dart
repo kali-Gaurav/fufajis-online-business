@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fufajis_online/models/payment_result.dart';
-import 'package:fufajis_online/services/razorpay_service.dart';
 
 void main() {
   group('PaymentResult', () {

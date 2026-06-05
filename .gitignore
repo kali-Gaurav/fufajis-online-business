@@ -17,3 +17,8 @@ android/upload-keystore.jks
 
 google-services.json
 GoogleService-Info.plist
+
+# Node dependencies
+node_modules/
+functions/node_modules/
+

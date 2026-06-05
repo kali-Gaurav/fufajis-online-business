@@ -70,7 +70,8 @@ class OfflineManager {
 
   // ─────────────── CART ───────────────
 
-  Future<void> saveCartItem(Map<String, dynamic> item) => _sqlite.saveCartItem(item);
+  Future<void> saveCartItem(Map<String, dynamic> item) =>
+      _sqlite.saveCartItem(item);
   Future<List<Map<String, dynamic>>> getCartItems() => _sqlite.getCartItems();
   Future<void> updateCartItemQuantity(String itemId, int qty) =>
       _sqlite.updateCartItemQuantity(itemId, qty);
@@ -96,14 +97,13 @@ class OfflineManager {
     required String collection,
     required String documentId,
     required Map<String, dynamic> data,
-  }) =>
-      _sqlite.enqueuePendingSync(
-        id: id,
-        actionType: actionType,
-        collection: collection,
-        documentId: documentId,
-        data: data,
-      );
+  }) => _sqlite.enqueuePendingSync(
+    id: id,
+    actionType: actionType,
+    collection: collection,
+    documentId: documentId,
+    data: data,
+  );
 
   Future<List<Map<String, dynamic>>> getPendingSyncItems() =>
       _sqlite.getPendingSyncItems();
@@ -121,15 +121,14 @@ class OfflineManager {
     String? entityId,
     String? userId,
     String? details,
-  }) =>
-      _sqlite.writeAuditLog(
-        id: id,
-        action: action,
-        entityType: entityType,
-        entityId: entityId,
-        userId: userId,
-        details: details,
-      );
+  }) => _sqlite.writeAuditLog(
+    id: id,
+    action: action,
+    entityType: entityType,
+    entityId: entityId,
+    userId: userId,
+    details: details,
+  );
 
   // ─────────────── UTILITY ───────────────
 

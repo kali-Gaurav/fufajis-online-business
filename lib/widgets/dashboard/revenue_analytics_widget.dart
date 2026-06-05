@@ -81,13 +81,26 @@ class RevenueAnalyticsWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 11, color: AppTheme.grey600)),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 11, color: AppTheme.grey600),
+        ),
         const SizedBox(height: 4),
         Row(
           children: [
-            Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              value,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(width: 4),
-            Text(growth, style: const TextStyle(fontSize: 10, color: AppTheme.success, fontWeight: FontWeight.bold)),
+            Text(
+              growth,
+              style: const TextStyle(
+                fontSize: 10,
+                color: AppTheme.success,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
       ],

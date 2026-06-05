@@ -32,7 +32,7 @@ class ScannerOverlay extends StatelessWidget {
               return Stack(
                 children: [
                   // Darkened background
-                  Container(color: Colors.black.withOpacity(0.6)),
+                  Container(color: Colors.black.withValues(alpha: 0.6)),
                   // Transparent scan area
                   Center(
                     child: Container(
@@ -64,7 +64,7 @@ class ScannerOverlay extends StatelessWidget {
                     child: Container(
                       width: 30,
                       height: 30,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         border: Border(
                           left: BorderSide(color: Colors.white, width: 4),
                           top: BorderSide(color: Colors.white, width: 4),
@@ -78,7 +78,7 @@ class ScannerOverlay extends StatelessWidget {
                     child: Container(
                       width: 30,
                       height: 30,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         border: Border(
                           right: BorderSide(color: Colors.white, width: 4),
                           top: BorderSide(color: Colors.white, width: 4),
@@ -92,7 +92,7 @@ class ScannerOverlay extends StatelessWidget {
                     child: Container(
                       width: 30,
                       height: 30,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         border: Border(
                           left: BorderSide(color: Colors.white, width: 4),
                           bottom: BorderSide(color: Colors.white, width: 4),
@@ -106,7 +106,7 @@ class ScannerOverlay extends StatelessWidget {
                     child: Container(
                       width: 30,
                       height: 30,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         border: Border(
                           right: BorderSide(color: Colors.white, width: 4),
                           bottom: BorderSide(color: Colors.white, width: 4),
@@ -126,12 +126,12 @@ class ScannerOverlay extends StatelessWidget {
           right: 0,
           child: Center(
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.7),
+                color: Colors.black.withValues(alpha: 0.7),
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: Text(
+              child: const Text(
                 'Position barcode within the frame',
                 style: TextStyle(color: Colors.white),
               ),
@@ -173,19 +173,19 @@ class CompactScanner extends StatelessWidget {
           ),
           if (initialCode != null)
             Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  Icon(Icons.qr_code, color: Colors.green),
-                  SizedBox(width: 8),
+                  const Icon(Icons.qr_code, color: Colors.green),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       initialCode!,
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.close),
+                    icon: const Icon(Icons.close),
                     onPressed: () => onCode(''),
                   ),
                 ],

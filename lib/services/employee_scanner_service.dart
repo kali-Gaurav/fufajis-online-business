@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import '../models/scanner_models.dart';
 import '../models/product_batch_model.dart';
 import 'offline_sync_service.dart';
-import 'whatsapp_notification_service.dart';
+import '../services/notification_service.dart';
 
 /// Service for employee operations - inventory receiving, packing, delivery, etc.
 class EmployeeScannerService {
@@ -21,10 +21,10 @@ class EmployeeScannerService {
     required String branchId,
     required String employeeId,
     required String employeeName,
-  })  : _shopId = shopId,
-      _branchId = branchId,
-      _employeeId = employeeId,
-      _employeeName = employeeName;
+  }) : _shopId = shopId,
+       _branchId = branchId,
+       _employeeId = employeeId,
+       _employeeName = employeeName;
 
   // ==================== INVENTORY RECEIVING ====================
 
@@ -137,26 +137,81 @@ class EmployeeScannerService {
   /// Get pending orders for packing
   Stream<QuerySnapshot> getPendingOrders() {
     return _firestore
-        .collection('shops')
-        .doc(_shopId)
-        .collection('branches')
-        .doc(_branchId)
         .collection('orders')
-        .where('status', isEqualTo: 'ready_for_packing')
+        .where('shopId', isEqualTo: _branchId)
+        .where('status', whereIn: ['OrderStatus.confirmed', 'OrderStatus.processing', 'OrderStatus.packed'])
         .snapshots();
   }
 
-  /// Get order items for packing
-  Future<QuerySnapshot> getOrderItems(String orderId) {
-    return _firestore
-        .collection('shops')
-        .doc(_shopId)
-        .collection('branches')
-        .doc(_branchId)
-        .collection('orders')
-        .doc(orderId)
-        .collection('items')
-        .get();
+  /// Start order packing
+  Future<void> startPacking(String orderId) async {
+    final orderRef = _firestore.collection('orders').doc(orderId);
+
+    bool shouldNotify = false;
+    String customerPhone = '';
+    String customerName = '';
+    String customerId = '';
+    String orderNumber = '';
+
+    await _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(orderRef);
+      if (!snapshot.exists) throw Exception('Order not found');
+
+      final orderData = snapshot.data()!;
+      String currentPackingStatus = orderData['packingStatus']?.toString() ?? 'not_started';
+      String currentStatus = orderData['status']?.toString() ?? 'OrderStatus.pending';
+
+      final updates = <String, dynamic>{};
+
+      if (currentStatus == 'OrderStatus.confirmed') {
+        updates['status'] = 'OrderStatus.processing';
+        final List<dynamic> statusHistory = orderData['statusHistory'] as List<dynamic>? ?? [];
+        updates['statusHistory'] = List<dynamic>.from(statusHistory)
+          ..add({
+            'status': 'OrderStatus.processing',
+            'timestamp': Timestamp.now(),
+            'note': 'Order processing started (packing).',
+          });
+
+        shouldNotify = true;
+        customerPhone = orderData['customerPhone']?.toString() ?? '';
+        customerName = orderData['customerName']?.toString() ?? '';
+        customerId = orderData['customerId']?.toString() ?? '';
+        orderNumber = orderData['orderNumber']?.toString() ?? '';
+      }
+
+      if (currentPackingStatus != 'packing') {
+        final List<dynamic> historyList = orderData['packingHistory'] as List<dynamic>? ?? [];
+        final updatedHistory = List<dynamic>.from(historyList)
+          ..add({
+            'timestamp': Timestamp.now(),
+            'status': 'packing',
+            'actorId': _employeeId,
+            'actorName': _employeeName,
+            'note': 'Packing started by employee.',
+          });
+
+        updates['packingStatus'] = 'packing';
+        updates['packerId'] = _employeeId;
+        updates['packerName'] = _employeeName;
+        updates['packingStartedAt'] = FieldValue.serverTimestamp();
+        updates['packingHistory'] = updatedHistory;
+      }
+
+      if (updates.isNotEmpty) {
+        updates['updatedAt'] = FieldValue.serverTimestamp();
+        transaction.update(orderRef, updates);
+      }
+    });
+
+    if (shouldNotify && customerId.isNotEmpty) {
+      NotificationService().sendNotificationToUser(
+        userId: customerId,
+        title: 'Order Processing',
+        body: 'Your order #$orderNumber is now being packed!',
+        data: {'type': 'orderUpdate', 'orderId': orderId},
+      );
+    }
   }
 
   /// Verify item during packing
@@ -165,47 +220,128 @@ class EmployeeScannerService {
     required String productId,
     required int quantity,
   }) async {
-    final itemRef = _firestore
-        .collection('shops')
-        .doc(_shopId)
-        .collection('branches')
-        .doc(_branchId)
-        .collection('orders')
-        .doc(orderId)
-        .collection('items')
-        .doc(productId);
+    final orderRef = _firestore.collection('orders').doc(orderId);
 
-    await itemRef.update({
-      'packed': true,
-      'packedBy': _employeeId,
-      'packedAt': DateTime.now(),
+    await _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(orderRef);
+      if (!snapshot.exists) throw Exception('Order not found');
+
+      final orderData = snapshot.data()!;
+      final List<dynamic> itemsList = orderData['items'] as List<dynamic>? ?? [];
+
+      final updatedItems = itemsList.map((itemMap) {
+        final map = Map<String, dynamic>.from(itemMap as Map);
+        if (map['productId'] == productId) {
+          map['isPacked'] = true;
+          map['packedBy'] = _employeeId;
+          map['packedAt'] = Timestamp.now();
+        }
+        return map;
+      }).toList();
+
+      // Ensure packingStatus is set to 'packing' if not already
+      String currentPackingStatus = orderData['packingStatus']?.toString() ?? 'not_started';
+      final updates = <String, dynamic>{
+        'items': updatedItems,
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+
+      if (currentPackingStatus != 'packing') {
+        updates['packingStatus'] = 'packing';
+        updates['packerId'] = _employeeId;
+        updates['packerName'] = _employeeName;
+        updates['packingStartedAt'] = FieldValue.serverTimestamp();
+
+        final List<dynamic> historyList = orderData['packingHistory'] as List<dynamic>? ?? [];
+        updates['packingHistory'] = List<dynamic>.from(historyList)
+          ..add({
+            'timestamp': Timestamp.now(),
+            'status': 'packing',
+            'actorId': _employeeId,
+            'actorName': _employeeName,
+            'note': 'Packing started by employee.',
+          });
+      }
+
+      transaction.update(orderRef, updates);
     });
   }
 
-  /// Complete order packing and generate parcel QR
-  Future<String> completePacking({
+  /// Complete order packing (Auto-advances main status to Packed)
+  Future<void> completePacking({
     required String orderId,
     required List<String> verifiedItems,
+    String? photoUrl,
   }) async {
-    final orderRef = _firestore
-        .collection('shops')
-        .doc(_shopId)
-        .collection('branches')
-        .doc(_branchId)
-        .collection('orders')
-        .doc(orderId);
+    final orderRef = _firestore.collection('orders').doc(orderId);
+    
+    bool shouldNotify = false;
+    String customerPhone = '';
+    String customerName = '';
+    String customerId = '';
+    String orderNumber = '';
 
-    final parcelId = 'PARCEL-${DateTime.now().millisecondsSinceEpoch}';
+    await _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(orderRef);
+      if (!snapshot.exists) throw Exception('Order not found');
 
-    await orderRef.update({
-      'status': 'packed',
-      'packedBy': _employeeId,
-      'packedAt': DateTime.now(),
-      'parcelId': parcelId,
-      'verifiedItems': verifiedItems,
+      final orderData = snapshot.data()!;
+      final List<dynamic> historyList = orderData['packingHistory'] as List<dynamic>? ?? [];
+
+      final updatedHistory = List<dynamic>.from(historyList)
+        ..add({
+          'timestamp': Timestamp.now(),
+          'status': 'approved', // Skip pending_approval
+          'actorId': _employeeId,
+          'actorName': _employeeName,
+          'note': 'Packing completed and verified by employee.',
+        });
+
+      final updates = <String, dynamic>{
+        'packingStatus': 'approved',
+        'packingCompletedAt': FieldValue.serverTimestamp(),
+        'packingHistory': updatedHistory,
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+
+      String currentStatus = orderData['status']?.toString() ?? 'OrderStatus.pending';
+      if (currentStatus == 'OrderStatus.processing') {
+        updates['status'] = 'OrderStatus.packed';
+        final List<dynamic> statusHistory = orderData['statusHistory'] as List<dynamic>? ?? [];
+        updates['statusHistory'] = List<dynamic>.from(statusHistory)
+          ..add({
+            'status': 'OrderStatus.packed',
+            'timestamp': Timestamp.now(),
+            'note': 'Order successfully packed and sealed.',
+          });
+          
+        shouldNotify = true;
+        customerPhone = orderData['customerPhone']?.toString() ?? '';
+        customerName = orderData['customerName']?.toString() ?? '';
+        customerId = orderData['customerId']?.toString() ?? '';
+        orderNumber = orderData['orderNumber']?.toString() ?? '';
+      }
+
+      if (photoUrl != null && photoUrl.isNotEmpty) {
+        updates['packingProof'] = {
+          'photoUrl': photoUrl,
+          'packedBy': _employeeName,
+          'employeeId': _employeeId,
+          'packedAt': Timestamp.now(),
+        };
+      }
+
+      transaction.update(orderRef, updates);
     });
 
-    return parcelId;
+    if (shouldNotify && customerId.isNotEmpty) {
+      NotificationService().sendNotificationToUser(
+        userId: customerId,
+        title: 'Order Packed',
+        body: 'Your order #$orderNumber is packed and ready for delivery!',
+        data: {'type': 'orderUpdate', 'orderId': orderId},
+      );
+    }
   }
 
   // ==================== DELIVERY ====================
@@ -215,32 +351,40 @@ class EmployeeScannerService {
     required String orderId,
     required String parcelId,
   }) async {
-    final orderRef = _firestore
-        .collection('shops')
-        .doc(_shopId)
-        .collection('branches')
-        .doc(_branchId)
-        .collection('orders')
-        .doc(orderId);
-
+    final orderRef = _firestore.collection('orders').doc(orderId);
+    final snapshot = await orderRef.get();
+    
     await orderRef.update({
-      'status': 'out_for_delivery',
+      'status': 'OrderStatus.outForDelivery',
       'deliveryEmployeeId': _employeeId,
       'deliveryEmployeeName': _employeeName,
       'assignedAt': DateTime.now(),
     });
+
+    if (snapshot.exists) {
+      final data = snapshot.data()!;
+      final customerId = data['customerId']?.toString() ?? '';
+      final orderNumber = data['orderNumber']?.toString() ?? orderId;
+      final otp = data['otp']?.toString() ?? 'N/A';
+      
+      if (customerId.isNotEmpty) {
+        NotificationService().sendNotificationToUser(
+          userId: customerId,
+          title: 'Out for Delivery 🚚',
+          body: 'Order #$orderNumber is on the way! Your delivery OTP is $otp. Rider: $_employeeName.',
+          data: {'type': 'orderUpdate', 'orderId': orderId},
+        );
+      }
+    }
   }
 
   /// Get assigned deliveries
   Stream<QuerySnapshot> getAssignedDeliveries() {
     return _firestore
-        .collection('shops')
-        .doc(_shopId)
-        .collection('branches')
-        .doc(_branchId)
         .collection('orders')
+        .where('shopId', isEqualTo: _branchId)
         .where('deliveryEmployeeId', isEqualTo: _employeeId)
-        .where('status', whereIn: ['out_for_delivery', 'assigned'])
+        .where('status', whereIn: ['OrderStatus.outForDelivery'])
         .snapshots();
   }
 
@@ -251,16 +395,11 @@ class EmployeeScannerService {
     required String customerOtp,
     LocationData? location,
   }) async {
-    final orderRef = _firestore
-        .collection('shops')
-        .doc(_shopId)
-        .collection('branches')
-        .doc(_branchId)
-        .collection('orders')
-        .doc(orderId);
+    final orderRef = _firestore.collection('orders').doc(orderId);
+    final snapshot = await orderRef.get();
 
     await orderRef.update({
-      'status': 'delivered',
+      'status': 'OrderStatus.delivered',
       'deliveredAt': DateTime.now(),
       'deliveryVerification': {
         'otp': customerOtp,
@@ -268,6 +407,21 @@ class EmployeeScannerService {
         'location': location?.toMap(),
       },
     });
+
+    if (snapshot.exists) {
+      final data = snapshot.data()!;
+      final customerId = data['customerId']?.toString() ?? '';
+      final orderNumber = data['orderNumber']?.toString() ?? orderId;
+      
+      if (customerId.isNotEmpty) {
+        NotificationService().sendNotificationToUser(
+          userId: customerId,
+          title: 'Order Delivered 🎉',
+          body: 'Order #$orderNumber has been delivered. Thank you for shopping with us!',
+          data: {'type': 'orderUpdate', 'orderId': orderId},
+        );
+      }
+    }
   }
 
   // ==================== INVENTORY AUDIT ====================
@@ -317,21 +471,21 @@ class EmployeeScannerService {
         .collection('inventory_audits')
         .doc(auditId)
         .set({
-      'id': auditId,
-      'shopId': _shopId,
-      'branchId': _branchId,
-      'productId': productId,
-      'productName': productName,
-      'barcode': barcode,
-      'expectedStock': expectedStock,
-      'actualStock': actualStock,
-      'difference': actualStock - expectedStock,
-      'employeeId': _employeeId,
-      'employeeName': _employeeName,
-      'auditDate': DateTime.now(),
-      'notes': notes,
-      'status': 'pending',
-    });
+          'id': auditId,
+          'shopId': _shopId,
+          'branchId': _branchId,
+          'productId': productId,
+          'productName': productName,
+          'barcode': barcode,
+          'expectedStock': expectedStock,
+          'actualStock': actualStock,
+          'difference': actualStock - expectedStock,
+          'employeeId': _employeeId,
+          'employeeName': _employeeName,
+          'auditDate': DateTime.now(),
+          'notes': notes,
+          'status': 'pending',
+        });
 
     return auditId;
   }
@@ -448,8 +602,8 @@ class EmployeeScannerService {
         final logData = logDoc.data();
         final timestamp = logData['createdAt'] != null
             ? (logData['createdAt'] is Timestamp
-                ? (logData['createdAt'] as Timestamp).toDate()
-                : DateTime.tryParse(logData['createdAt'].toString()))
+                  ? (logData['createdAt'] as Timestamp).toDate()
+                  : DateTime.tryParse(logData['createdAt'].toString()))
             : null;
 
         if (timestamp != null) {
@@ -466,19 +620,19 @@ class EmployeeScannerService {
                   .collection('supplier_returns')
                   .doc(returnId)
                   .set({
-                'id': returnId,
-                'shopId': _shopId,
-                'branchId': _branchId,
-                'productId': productId,
-                'productName': productName,
-                'barcode': barcode,
-                'quantity': quantity,
-                'supplier': supplier,
-                'damageReportId': reportId,
-                'damageType': damageType.name,
-                'status': 'pending_credit',
-                'createdAt': DateTime.now(),
-              });
+                    'id': returnId,
+                    'shopId': _shopId,
+                    'branchId': _branchId,
+                    'productId': productId,
+                    'productName': productName,
+                    'barcode': barcode,
+                    'quantity': quantity,
+                    'supplier': supplier,
+                    'damageReportId': reportId,
+                    'damageType': damageType.name,
+                    'status': 'pending_credit',
+                    'createdAt': DateTime.now(),
+                  });
             }
           }
         }
@@ -566,20 +720,20 @@ class EmployeeScannerService {
         .collection('attendance')
         .doc(attendanceId)
         .set({
-      'id': attendanceId,
-      'shopId': _shopId,
-      'branchId': _branchId,
-      'employeeId': _employeeId,
-      'employeeName': _employeeName,
-      'date': today,
-      'checkInTime': DateTime.now(),
-      'checkInLocation': location?.toMap(),
-      'qrCodeId': qrCodeId,
-      'status': 'present',
-      'isHighGpsVariance': isHighGpsVariance,
-      'gpsAccuracy': accuracy,
-      'gpsDistanceMeters': distance,
-    });
+          'id': attendanceId,
+          'shopId': _shopId,
+          'branchId': _branchId,
+          'employeeId': _employeeId,
+          'employeeName': _employeeName,
+          'date': today,
+          'checkInTime': DateTime.now(),
+          'checkInLocation': location?.toMap(),
+          'qrCodeId': qrCodeId,
+          'status': 'present',
+          'isHighGpsVariance': isHighGpsVariance,
+          'gpsAccuracy': accuracy,
+          'gpsDistanceMeters': distance,
+        });
 
     if (isHighGpsVariance) {
       await _notifyManagerGpsVariance(accuracy ?? 0.0, distance);
@@ -588,7 +742,10 @@ class EmployeeScannerService {
     return attendanceId;
   }
 
-  Future<void> _notifyManagerGpsVariance(double accuracy, double distance) async {
+  Future<void> _notifyManagerGpsVariance(
+    double accuracy,
+    double distance,
+  ) async {
     try {
       final branchSnapshot = await _firestore
           .collection('shops')
@@ -604,13 +761,17 @@ class EmployeeScannerService {
         final branchData = branchSnapshot.data();
         if (branchData != null) {
           final managerId = branchData['managerId'] as String?;
-          final assistantManagerId = branchData['assistantManagerId'] as String?;
+          final assistantManagerId =
+              branchData['assistantManagerId'] as String?;
           final contactPhone = branchData['contactPhone'] as String?;
           final escalationPhone = branchData['escalationPhone'] as String?;
 
           // 1. Fetch Manager
           if (managerId != null && managerId.isNotEmpty) {
-            final managerDoc = await _firestore.collection('users').doc(managerId).get();
+            final managerDoc = await _firestore
+                .collection('users')
+                .doc(managerId)
+                .get();
             if (managerDoc.exists) {
               targetPhone = managerDoc.data()?['phoneNumber'] ?? '';
               targetName = managerDoc.data()?['name'] ?? 'Manager';
@@ -618,8 +779,13 @@ class EmployeeScannerService {
           }
 
           // 2. Fetch Assistant Manager
-          if (targetPhone.isEmpty && assistantManagerId != null && assistantManagerId.isNotEmpty) {
-            final assistantDoc = await _firestore.collection('users').doc(assistantManagerId).get();
+          if (targetPhone.isEmpty &&
+              assistantManagerId != null &&
+              assistantManagerId.isNotEmpty) {
+            final assistantDoc = await _firestore
+                .collection('users')
+                .doc(assistantManagerId)
+                .get();
             if (assistantDoc.exists) {
               targetPhone = assistantDoc.data()?['phoneNumber'] ?? '';
               targetName = assistantDoc.data()?['name'] ?? 'Assistant Manager';
@@ -627,13 +793,17 @@ class EmployeeScannerService {
           }
 
           // 3. Fallback to Branch Contact Phone
-          if (targetPhone.isEmpty && contactPhone != null && contactPhone.isNotEmpty) {
+          if (targetPhone.isEmpty &&
+              contactPhone != null &&
+              contactPhone.isNotEmpty) {
             targetPhone = contactPhone;
             targetName = branchData['branchName'] ?? 'Branch Manager';
           }
 
           // 4. Fallback to Escalation Phone
-          if (targetPhone.isEmpty && escalationPhone != null && escalationPhone.isNotEmpty) {
+          if (targetPhone.isEmpty &&
+              escalationPhone != null &&
+              escalationPhone.isNotEmpty) {
             targetPhone = escalationPhone;
             targetName = 'Operations Escalation Desk';
           }
@@ -642,7 +812,10 @@ class EmployeeScannerService {
 
       // 5. Fallback to global operations phone
       if (targetPhone.isEmpty) {
-        targetPhone = dotenv.get('WHATSAPP_OPERATIONS_PHONE', fallback: '919876543210');
+        targetPhone = dotenv.get(
+          'WHATSAPP_OPERATIONS_PHONE',
+          fallback: '919876543210',
+        );
         targetName = 'Global Operations Support';
       }
 
@@ -699,7 +872,10 @@ class EmployeeScannerService {
         .doc(_branchId)
         .collection('attendance')
         .where('employeeId', isEqualTo: _employeeId)
-        .where('date', isGreaterThanOrEqualTo: DateTime(today.year, today.month, today.day))
+        .where(
+          'date',
+          isGreaterThanOrEqualTo: DateTime(today.year, today.month, today.day),
+        )
         .limit(1)
         .get();
 
@@ -724,31 +900,27 @@ class EmployeeScannerService {
         .collection('cash_collections')
         .doc(collectionId)
         .set({
-      'id': collectionId,
-      'shopId': _shopId,
-      'branchId': _branchId,
-      'orderId': orderId,
-      'deliveryEmployeeId': _employeeId,
-      'deliveryEmployeeName': _employeeName,
-      'amount': amount,
-      'collectionTime': DateTime.now(),
-      'notes': notes,
-      'status': 'collected',
-    });
+          'id': collectionId,
+          'shopId': _shopId,
+          'branchId': _branchId,
+          'orderId': orderId,
+          'deliveryEmployeeId': _employeeId,
+          'deliveryEmployeeName': _employeeName,
+          'amount': amount,
+          'collectionTime': DateTime.now(),
+          'notes': notes,
+          'status': 'collected',
+        });
 
     // Update order
     await _firestore
-        .collection('shops')
-        .doc(_shopId)
-        .collection('branches')
-        .doc(_branchId)
         .collection('orders')
         .doc(orderId)
         .update({
-      'paymentStatus': 'cod_collected',
-      'codCollectedBy': _employeeId,
-      'codCollectedAt': DateTime.now(),
-    });
+          'paymentStatus': 'cod_collected',
+          'codCollectedBy': _employeeId,
+          'codCollectedAt': DateTime.now(),
+        });
   }
 
   // ==================== RETURNS ====================
@@ -885,22 +1057,22 @@ class EmployeeScannerService {
         .collection('inventory_transfers')
         .doc(transferId)
         .set({
-      'id': transferId,
-      'shopId': _shopId,
-      'sourceBranchId': _branchId,
-      'sourceBranchName': '', // Will be filled by backend
-      'destinationBranchId': destinationBranchId,
-      'destinationBranchName': destinationBranchName,
-      'productId': productId,
-      'productName': productName,
-      'barcode': barcode,
-      'quantity': quantity,
-      'status': 'pending',
-      'requestedBy': _employeeId,
-      'requestedByName': _employeeName,
-      'requestedAt': DateTime.now(),
-      'notes': notes,
-    });
+          'id': transferId,
+          'shopId': _shopId,
+          'sourceBranchId': _branchId,
+          'sourceBranchName': '', // Will be filled by backend
+          'destinationBranchId': destinationBranchId,
+          'destinationBranchName': destinationBranchName,
+          'productId': productId,
+          'productName': productName,
+          'barcode': barcode,
+          'quantity': quantity,
+          'status': 'pending',
+          'requestedBy': _employeeId,
+          'requestedByName': _employeeName,
+          'requestedAt': DateTime.now(),
+          'notes': notes,
+        });
 
     return transferId;
   }
@@ -922,21 +1094,25 @@ class EmployeeScannerService {
     bool isAuthorized = false;
     if (userDoc.exists) {
       final userRoleStr = userDoc.data()?['role'] ?? '';
-      if (userRoleStr == 'UserRole.shopOwner' || userRoleStr == 'UserRole.admin') {
+      if (userRoleStr == 'UserRole.shopOwner' ||
+          userRoleStr == 'UserRole.admin') {
         isAuthorized = true;
       }
     }
 
     if (!isAuthorized && branchDoc.exists) {
       final managerId = branchDoc.data()?['managerId'] as String?;
-      final assistantManagerId = branchDoc.data()?['assistantManagerId'] as String?;
+      final assistantManagerId =
+          branchDoc.data()?['assistantManagerId'] as String?;
       if (_employeeId == managerId || _employeeId == assistantManagerId) {
         isAuthorized = true;
       }
     }
 
     if (!isAuthorized) {
-      throw Exception('Unauthorized: Only branch managers or assistant managers can sign off stock transfers.');
+      throw Exception(
+        'Unauthorized: Only branch managers or assistant managers can sign off stock transfers.',
+      );
     }
 
     final transferRef = _firestore
@@ -999,20 +1175,20 @@ class EmployeeScannerService {
         .collection('shelf_refill_alerts')
         .doc(alertId)
         .set({
-      'id': alertId,
-      'shopId': _shopId,
-      'branchId': _branchId,
-      'shelfId': shelfId,
-      'shelfName': shelfName,
-      'productId': productId,
-      'productName': productName,
-      'barcode': barcode,
-      'currentShelfQuantity': currentShelfQuantity,
-      'minimumQuantity': minimumQuantity,
-      'alertDate': DateTime.now(),
-      'status': 'pending',
-      'notes': notes,
-    });
+          'id': alertId,
+          'shopId': _shopId,
+          'branchId': _branchId,
+          'shelfId': shelfId,
+          'shelfName': shelfName,
+          'productId': productId,
+          'productName': productName,
+          'barcode': barcode,
+          'currentShelfQuantity': currentShelfQuantity,
+          'minimumQuantity': minimumQuantity,
+          'alertDate': DateTime.now(),
+          'status': 'pending',
+          'notes': notes,
+        });
   }
 
   /// Get shelf refill alerts

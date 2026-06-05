@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/product_model.dart';
 import '../models/product_review_model.dart';
 import '../models/low_stock_alert_model.dart';
@@ -8,7 +9,7 @@ import 'audit_service.dart';
 import 'inventory_alert_service.dart';
 
 class ProductService {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  FirebaseFirestore get _db => FirebaseFirestore.instance;
 
   static final ProductService _instance = ProductService._internal();
   factory ProductService() => _instance;
@@ -16,13 +17,17 @@ class ProductService {
 
   Stream<List<ProductModel>> getProductsStream() {
     return _db.collection('products').snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) => ProductModel.fromMap(doc.data())).toList();
+      return snapshot.docs
+          .map((doc) => ProductModel.fromMap(doc.data()))
+          .toList();
     });
   }
 
   Future<List<ProductModel>> getProducts() async {
     final snapshot = await _db.collection('products').get();
-    return snapshot.docs.map((doc) => ProductModel.fromMap(doc.data())).toList();
+    return snapshot.docs
+        .map((doc) => ProductModel.fromMap(doc.data()))
+        .toList();
   }
 
   Future<void> addProduct(ProductModel product) async {
@@ -58,17 +63,24 @@ class ProductService {
     }
   }
 
-  Future<void> updateProduct(String productId, Map<String, dynamic> data) async {
+  Future<void> updateProduct(
+    String productId,
+    Map<String, dynamic> data,
+  ) async {
     try {
       final doc = await _db.collection('products').doc(productId).get();
       final oldData = doc.data() ?? {};
-      
+
       await _db.collection('products').doc(productId).update(data);
+
+      final currentUser = FirebaseAuth.instance.currentUser;
+      final currentUid = currentUser?.uid ?? 'system';
+      final currentName = currentUser?.displayName ?? currentUser?.email ?? 'Owner/Admin';
 
       if (data.containsKey('stockQuantity')) {
         await AuditService().logAction(
-          userId: 'system',
-          userName: 'Owner/Admin',
+          userId: currentUid,
+          userName: currentName,
           action: AuditAction.stockAdjustment,
           description: 'Stock updated for ${oldData['name'] ?? productId}',
           metadata: {
@@ -79,9 +91,27 @@ class ProductService {
         );
       }
 
-      if (data.containsKey('stockQuantity') || data.containsKey('minimumStock')) {
+      if (data.containsKey('price')) {
+        await AuditService().logAction(
+          userId: currentUid,
+          userName: currentName,
+          action: AuditAction.priceUpdate,
+          description: 'Price updated for ${oldData['name'] ?? productId}',
+          metadata: {
+            'productId': productId,
+            'oldPrice': oldData['price'],
+            'newPrice': data['price'],
+          },
+        );
+      }
+
+      if (data.containsKey('stockQuantity') ||
+          data.containsKey('minimumStock')) {
         if (doc.exists) {
-          final freshDoc = await _db.collection('products').doc(productId).get();
+          final freshDoc = await _db
+              .collection('products')
+              .doc(productId)
+              .get();
           final freshProduct = ProductModel.fromMap(freshDoc.data()!);
 
           if (freshProduct.stockQuantity < freshProduct.minimumStock) {
@@ -106,11 +136,26 @@ class ProductService {
 
   Future<void> createLowStockAlert(ProductModel product) async {
     final alertService = InventoryAlertService();
-    final velocityData = await alertService.calculateSalesVelocityWithTrend(product.id);
-    final double velocity = (velocityData['velocity'] as num?)?.toDouble() ?? 0.0;
-    final int daysUntilStockout = await alertService.predictDaysUntilStockout(product.id, product.stockQuantity, precalculatedVelocity: velocityData);
-    final int recommendedReorder = await alertService.calculateReorderQuantity(product.id, product.stockQuantity, precalculatedVelocity: velocityData);
-    final String severityScore = daysUntilStockout <= 1 ? 'Critical' : (daysUntilStockout <= 3 ? 'High' : (daysUntilStockout <= 7 ? 'Medium' : 'Low'));
+    final velocityData = await alertService.calculateSalesVelocityWithTrend(
+      product.id,
+    );
+    final double velocity =
+        (velocityData['velocity'] as num?)?.toDouble() ?? 0.0;
+    final int daysUntilStockout = await alertService.predictDaysUntilStockout(
+      product.id,
+      product.stockQuantity,
+      precalculatedVelocity: velocityData,
+    );
+    final int recommendedReorder = await alertService.calculateReorderQuantity(
+      product.id,
+      product.stockQuantity,
+      precalculatedVelocity: velocityData,
+    );
+    final String severityScore = daysUntilStockout <= 1
+        ? 'Critical'
+        : (daysUntilStockout <= 3
+              ? 'High'
+              : (daysUntilStockout <= 7 ? 'Medium' : 'Low'));
 
     final alert = LowStockAlert(
       id: 'alert_${DateTime.now().millisecondsSinceEpoch}',
@@ -140,12 +185,16 @@ class ProductService {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) => LowStockAlert.fromMap(doc.data())).toList();
-    });
+          return snapshot.docs
+              .map((doc) => LowStockAlert.fromMap(doc.data()))
+              .toList();
+        });
   }
 
   Future<void> dismissLowStockAlert(String alertId) async {
-    await _db.collection('low_stock_alerts').doc(alertId).update({'isDismissed': true});
+    await _db.collection('low_stock_alerts').doc(alertId).update({
+      'isDismissed': true,
+    });
   }
 
   Stream<List<ProductReviewModel>> getProductReviewsStream(String productId) {
@@ -156,10 +205,10 @@ class ProductService {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs
-          .map((doc) => ProductReviewModel.fromMap(doc.data()))
-          .toList();
-    });
+          return snapshot.docs
+              .map((doc) => ProductReviewModel.fromMap(doc.data()))
+              .toList();
+        });
   }
 
   Future<void> addProductReview(ProductReviewModel review) async {
@@ -183,23 +232,41 @@ class ProductService {
     });
   }
 
-  Future<void> addOwnerResponse(String productId, String reviewId, String response) async {
-    await _db.collection('products').doc(productId).collection('reviews').doc(reviewId).update({
-      'ownerReply': response,
-      'ownerReplyDate': FieldValue.serverTimestamp(),
-    });
+  Future<void> addOwnerResponse(
+    String productId,
+    String reviewId,
+    String response,
+  ) async {
+    await _db
+        .collection('products')
+        .doc(productId)
+        .collection('reviews')
+        .doc(reviewId)
+        .update({
+          'ownerReply': response,
+          'ownerReplyDate': FieldValue.serverTimestamp(),
+        });
   }
 
-  Future<void> flagReview(String productId, String reviewId, List<String> reasons) async {
-    await _db.collection('products').doc(productId).collection('reviews').doc(reviewId).update({
-      'isFlagged': true,
-      'flagReasons': reasons,
-    });
+  Future<void> flagReview(
+    String productId,
+    String reviewId,
+    List<String> reasons,
+  ) async {
+    await _db
+        .collection('products')
+        .doc(productId)
+        .collection('reviews')
+        .doc(reviewId)
+        .update({'isFlagged': true, 'flagReasons': reasons});
   }
 
   Future<void> markReviewAsHelpful(String productId, String reviewId) async {
-    await _db.collection('products').doc(productId).collection('reviews').doc(reviewId).update({
-      'helpfulCount': FieldValue.increment(1),
-    });
+    await _db
+        .collection('products')
+        .doc(productId)
+        .collection('reviews')
+        .doc(reviewId)
+        .update({'helpfulCount': FieldValue.increment(1)});
   }
 }

@@ -11,7 +11,7 @@ class AttendanceModel {
   final double? clockOutLatitude;
   final double? clockOutLongitude;
   final String status; // 'active' or 'completed'
-  final String date;   // 'YYYY-MM-DD'
+  final String date; // 'YYYY-MM-DD'
 
   AttendanceModel({
     required this.id,
@@ -33,7 +33,9 @@ class AttendanceModel {
       'riderId': riderId,
       'riderName': riderName,
       'clockInTime': Timestamp.fromDate(clockInTime),
-      'clockOutTime': clockOutTime != null ? Timestamp.fromDate(clockOutTime!) : null,
+      'clockOutTime': clockOutTime != null
+          ? Timestamp.fromDate(clockOutTime!)
+          : null,
       'clockInLatitude': clockInLatitude,
       'clockInLongitude': clockInLongitude,
       'clockOutLatitude': clockOutLatitude,
@@ -49,11 +51,17 @@ class AttendanceModel {
       riderId: map['riderId'] ?? '',
       riderName: map['riderName'] ?? '',
       clockInTime: (map['clockInTime'] as Timestamp).toDate(),
-      clockOutTime: map['clockOutTime'] != null ? (map['clockOutTime'] as Timestamp).toDate() : null,
+      clockOutTime: map['clockOutTime'] != null
+          ? (map['clockOutTime'] as Timestamp).toDate()
+          : null,
       clockInLatitude: (map['clockInLatitude'] ?? 0.0).toDouble(),
       clockInLongitude: (map['clockInLongitude'] ?? 0.0).toDouble(),
-      clockOutLatitude: map['clockOutLatitude'] != null ? (map['clockOutLatitude'] as double).toDouble() : null,
-      clockOutLongitude: map['clockOutLongitude'] != null ? (map['clockOutLongitude'] as double).toDouble() : null,
+      clockOutLatitude: map['clockOutLatitude'] != null
+          ? (map['clockOutLatitude'] as double).toDouble()
+          : null,
+      clockOutLongitude: map['clockOutLongitude'] != null
+          ? (map['clockOutLongitude'] as double).toDouble()
+          : null,
       status: map['status'] ?? 'active',
       date: map['date'] ?? '',
     );

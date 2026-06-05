@@ -46,7 +46,9 @@ class WalletProvider with ChangeNotifier {
       _membershipTier = await _tierCalculator.getUserTier(userId);
 
       // Fetch transaction history
-      _transactions = await _walletService.getTransactionHistory(userId: userId);
+      _transactions = await _walletService.getTransactionHistory(
+        userId: userId,
+      );
 
       _isLoading = false;
       notifyListeners();
@@ -59,7 +61,7 @@ class WalletProvider with ChangeNotifier {
   }
 
   /// Fetches wallet transactions with pagination
-  /// 
+  ///
   /// [Requirements 11.7]: Displays transaction history with pagination
   Future<void> fetchTransactions(String userId, {int limit = 20}) async {
     _isLoading = true;
@@ -82,7 +84,7 @@ class WalletProvider with ChangeNotifier {
   }
 
   /// Filters transactions by type
-  /// 
+  ///
   /// [Requirements 11.7]: Add filter by transaction type
   Future<void> filterTransactionsByType(
     String userId,
@@ -108,7 +110,7 @@ class WalletProvider with ChangeNotifier {
   }
 
   /// Applies cashback for an order
-  /// 
+  ///
   /// [Requirements 11.1]: Calculates 1% cashback on order completion
   Future<bool> applyCashback({
     required String userId,
@@ -136,7 +138,11 @@ class WalletProvider with ChangeNotifier {
   }
 
   /// Alias for applyCashback for backward compatibility
-  Future<bool> addCashback(String userId, double orderAmount, String orderId) async {
+  Future<bool> addCashback(
+    String userId,
+    double orderAmount,
+    String orderId,
+  ) async {
     return applyCashback(
       userId: userId,
       orderAmount: orderAmount,
@@ -145,7 +151,7 @@ class WalletProvider with ChangeNotifier {
   }
 
   /// Processes an auto-refund for a cancelled order (Feature 13)
-  /// 
+  ///
   /// Insight: Return money instantly to minimize customer friction.
   Future<bool> refundOrder({
     required String userId,
@@ -155,7 +161,7 @@ class WalletProvider with ChangeNotifier {
   }) async {
     _isLoading = true;
     notifyListeners();
-    
+
     try {
       final success = await _walletService.addToWallet(
         userId: userId,
@@ -168,7 +174,9 @@ class WalletProvider with ChangeNotifier {
 
       if (success) {
         _walletBalance = await _walletService.getWalletBalance(userId);
-        _transactions = await _walletService.getTransactionHistory(userId: userId);
+        _transactions = await _walletService.getTransactionHistory(
+          userId: userId,
+        );
       }
 
       _isLoading = false;
@@ -211,7 +219,7 @@ class WalletProvider with ChangeNotifier {
   }
 
   /// Awards reward points for order completion
-  /// 
+  ///
   /// [Requirements 11.2]: Awards 1 point per ₹10 spent
   Future<bool> awardOrderPoints({
     required String userId,
@@ -239,7 +247,7 @@ class WalletProvider with ChangeNotifier {
   }
 
   /// Awards first order bonus points
-  /// 
+  ///
   /// [Requirements 11.2]: Awards 100 points for first order
   Future<bool> awardFirstOrderBonus(String userId) async {
     try {
@@ -258,7 +266,7 @@ class WalletProvider with ChangeNotifier {
   }
 
   /// Awards review bonus points
-  /// 
+  ///
   /// [Requirements 11.2]: Awards 20 points for reviews
   Future<bool> awardReviewBonus(String userId) async {
     try {
@@ -277,7 +285,7 @@ class WalletProvider with ChangeNotifier {
   }
 
   /// Awards referral bonus points
-  /// 
+  ///
   /// [Requirements 11.2]: Awards 50 points for referrals
   Future<bool> awardReferralBonus(String userId) async {
     try {
@@ -296,7 +304,7 @@ class WalletProvider with ChangeNotifier {
   }
 
   /// Redeems reward points for wallet credit
-  /// 
+  ///
   /// [Requirements 11.3]: Implements points-to-currency conversion (100 points = ₹1)
   Future<bool> redeemRewardPoints({
     required String userId,
@@ -324,7 +332,7 @@ class WalletProvider with ChangeNotifier {
   }
 
   /// Updates membership tier based on lifetime spending
-  /// 
+  ///
   /// [Requirements 11.5]: Updates tier on order completion
   Future<bool> updateMembershipTier(String userId) async {
     try {

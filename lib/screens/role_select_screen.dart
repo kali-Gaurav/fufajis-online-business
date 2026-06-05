@@ -21,7 +21,7 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> {
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       UserRole role;
-      
+
       switch (roleStr) {
         case 'shopOwner':
           role = UserRole.shopOwner;
@@ -46,9 +46,9 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) {
@@ -95,10 +95,7 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> {
               const SizedBox(height: 8),
               const Text(
                 'Choose how you want to use the app',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppTheme.grey600,
-                ),
+                style: TextStyle(fontSize: 16, color: AppTheme.grey600),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 48),
@@ -135,7 +132,8 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> {
               _buildRoleCard(
                 icon: Icons.badge_outlined,
                 title: 'Store Staff / Employee',
-                description: 'Perform operational tasks, scanning, audits, etc.',
+                description:
+                    'Perform operational tasks, scanning, audits, etc.',
                 tooltip: 'For store managers, packing, and inventory staff',
                 color: Colors.deepOrange,
                 onTap: () => _selectRole('employee'),
@@ -164,9 +162,7 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> {
       message: tooltip,
       child: Card(
         elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: InkWell(
           onTap: _isLoading ? null : onTap,
           borderRadius: BorderRadius.circular(16),

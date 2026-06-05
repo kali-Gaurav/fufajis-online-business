@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../services/employee_scanner_service.dart';
+import '../../services/smart_scan_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/product_provider.dart';
 import '../../models/product_model.dart';
@@ -22,6 +24,13 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
   bool _isLoading = false;
   final List<ShelfRefillAlert> _alerts = [];
 
+  // Auto-complete additions
+  final _countFocusNode = FocusNode();     // auto-focused after scan
+  final SmartScanService _smartScan = SmartScanService();
+  int _batchCount = 0;                     // scans processed this session
+  int _dbStock = 0;                        // stock level from Firestore
+  bool _autoFilled = false;
+
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: Colors.red),
@@ -35,19 +44,69 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
   }
 
   Future<void> _lookupProduct(String barcode) async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _autoFilled = false;
+    });
+
+    final auth = context.read<AuthProvider>();
+
     try {
-      final productProvider = context.read<ProductProvider>();
-      final product = await productProvider.getProductByBarcode(barcode);
-      setState(() {
-        _scannedBarcode = barcode;
-        _product = product;
-        _currentQuantityController.text = '3';
-        _isLoading = false;
-      });
+      final result = await _smartScan.autoProduct(
+        barcode: barcode,
+        shopId: auth.currentShop?.id ?? '',
+        branchId: auth.currentBranch?.id ?? '',
+      );
+
+      if (result.found) {
+        setState(() {
+          _scannedBarcode = barcode;
+          _product = result.product;
+          _dbStock = result.dbStock;
+          // Auto-fill current qty from real DB stock — employee just
+          // counts what's actually on the shelf and compares
+          _currentQuantityController.text = result.dbStock.toString();
+          _isLoading = false;
+          _autoFilled = true;
+        });
+        await SmartScanService.hapticSuccess();
+        // Auto-focus the count field so employee just types the real count
+        await Future.delayed(const Duration(milliseconds: 120));
+        _countFocusNode.requestFocus();
+        _currentQuantityController.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: _currentQuantityController.text.length,
+        );
+      } else {
+        // Fallback to in-memory cache
+        final product =
+            context.read<ProductProvider>().getProductByBarcode(barcode);
+        setState(() {
+          _scannedBarcode = barcode;
+          _product = product;
+          _dbStock = product?.stockQuantity ?? 0;
+          _currentQuantityController.text =
+              product != null ? product.stockQuantity.toString() : '';
+          _isLoading = false;
+          _autoFilled = product != null;
+        });
+        if (product != null) {
+          await SmartScanService.hapticSuccess();
+          await Future.delayed(const Duration(milliseconds: 120));
+          _countFocusNode.requestFocus();
+          _currentQuantityController.selection = TextSelection(
+            baseOffset: 0,
+            extentOffset: _currentQuantityController.text.length,
+          );
+        } else {
+          await SmartScanService.hapticError();
+          _showError('Product not found: $barcode');
+        }
+      }
     } catch (e) {
       setState(() => _isLoading = false);
-      _showError('Product not found: $barcode');
+      await SmartScanService.hapticError();
+      _showError('Lookup error: $e');
     }
   }
 
@@ -105,9 +164,14 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
         _scannedShelfId = null;
         _currentQuantityController.clear();
         _isLoading = false;
+        _autoFilled = false;
+        _dbStock = 0;
+        _batchCount++;
       });
 
-      _showSuccess('Shelf refill alert created');
+      await SmartScanService.hapticComplete();
+      _showSuccess(
+          '✓ Shelf alert saved  •  $_batchCount item${_batchCount == 1 ? '' : 's'} audited this session');
     } catch (e) {
       setState(() => _isLoading = false);
       _showError('Failed: $e');
@@ -118,23 +182,23 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Shelf Refill'),
+        title: const Text('Shelf Refill'),
         actions: [
           IconButton(
-            icon: Icon(Icons.qr_code_scanner),
+            icon: const Icon(Icons.qr_code_scanner),
             onPressed: () => _showScannerDialog(),
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Scan Section
             Card(
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -142,18 +206,18 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
                       'Scan Shelf or Product',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     if (_scannedBarcode != null)
                       Container(
-                        padding: EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: Colors.amber.shade50,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.warning, color: Colors.amber),
-                            SizedBox(width: 8),
+                            const Icon(Icons.warning, color: Colors.amber),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,7 +225,7 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
                                   Text(
                                     'Barcode: $_scannedBarcode',
                                     style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                        const TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                   if (_product != null) Text(_product!.name),
                                 ],
@@ -173,8 +237,8 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
                     else
                       ElevatedButton.icon(
                         onPressed: () => _showScannerDialog(),
-                        icon: Icon(Icons.qr_code_scanner),
-                        label: Text('Scan Product'),
+                        icon: const Icon(Icons.qr_code_scanner),
+                        label: const Text('Scan Product'),
                       ),
                   ],
                 ),
@@ -183,10 +247,10 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
 
             // Refill Form
             if (_product != null) ...[
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Card(
                 child: Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -194,27 +258,67 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
                         'Shelf Details',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
+                      // DB stock hint
+                      if (_autoFilled && _dbStock > 0)
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                                color: Colors.blue.shade200),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.info_outline,
+                                  size: 14,
+                                  color: Colors.blue.shade700),
+                              const SizedBox(width: 6),
+                              Text(
+                                'DB stock: $_dbStock  —  enter what you actually see on the shelf',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.blue.shade700),
+                              ),
+                            ],
+                          ),
+                        ),
                       TextField(
                         controller: _currentQuantityController,
+                        focusNode: _countFocusNode, // auto-focused after scan
                         keyboardType: TextInputType.number,
+                        textInputAction: TextInputAction.done,
+                        onSubmitted: (_) => _reportRefillNeeded(),
                         decoration: InputDecoration(
-                          labelText: 'Current Shelf Quantity',
-                          prefixIcon: Icon(Icons.numbers),
-                          border: OutlineInputBorder(),
+                          labelText: 'Actual Shelf Count *',
+                          prefixIcon: const Icon(Icons.numbers),
+                          border: const OutlineInputBorder(),
+                          enabledBorder: _autoFilled
+                              ? OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors.orange.shade400,
+                                      width: 2))
+                              : null,
+                          helperText:
+                              _autoFilled ? 'Auto-filled from DB — update if different' : null,
+                          helperStyle: const TextStyle(
+                              color: Colors.orange),
                         ),
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       TextField(
                         controller: _minimumQuantityController,
                         keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Minimum Required',
                           prefixIcon: Icon(Icons.warning),
                           border: OutlineInputBorder(),
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
@@ -222,11 +326,11 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.amber,
                             foregroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(vertical: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
                           child: _isLoading
-                              ? CircularProgressIndicator(color: Colors.white)
-                              : Text('Report Refill Needed'),
+                              ? const CircularProgressIndicator(color: Colors.white)
+                              : const Text('Report Refill Needed'),
                         ),
                       ),
                     ],
@@ -237,19 +341,19 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
 
             // Recent Alerts
             if (_alerts.isNotEmpty) ...[
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               Text(
                 'Recent Alerts',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               ..._alerts.map((alert) => Card(
                     color:
                         alert.needsRefill ? Colors.amber.shade50 : Colors.white,
                     child: ListTile(
-                      leading: CircleAvatar(
-                        child: Icon(Icons.warning, color: Colors.white),
+                      leading: const CircleAvatar(
                         backgroundColor: Colors.amber,
+                        child: Icon(Icons.warning, color: Colors.white),
                       ),
                       title: Text(alert.productName),
                       subtitle: Text('Shelf: ${alert.shelfName}'),
@@ -258,7 +362,7 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
                         children: [
                           Text(
                             '${alert.currentShelfQuantity}/${alert.minimumQuantity}',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           Text(
                             alert.needsRefill ? 'Refill!' : 'OK',
@@ -283,10 +387,10 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Enter Barcode'),
+        title: const Text('Enter Barcode'),
         content: TextField(
           autofocus: true,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             labelText: 'Barcode',
             border: OutlineInputBorder(),
           ),
@@ -303,7 +407,7 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
+            child: const Text('Cancel'),
           ),
         ],
       ),

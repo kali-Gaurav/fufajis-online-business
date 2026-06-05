@@ -40,7 +40,10 @@ class DynamicPricingConfigService {
 
   Future<PricingConfig> _refreshGlobalConfig() async {
     try {
-      final doc = await _firestore.collection('settings').doc('pricing_config').get();
+      final doc = await _firestore
+          .collection('settings')
+          .doc('pricing_config')
+          .get();
       if (doc.exists) {
         _globalCache = PricingConfig.fromMap(doc.data()!);
       } else {
@@ -49,9 +52,13 @@ class DynamicPricingConfigService {
         await _writeDefaultConfig(_globalCache!);
       }
       _cacheExpiry = DateTime.now().add(_cacheTTL);
-      debugPrint('[DynamicPricingConfig] Config loaded: minimumMargin=${_globalCache!.minimumMarginPercent}%');
+      debugPrint(
+        '[DynamicPricingConfig] Config loaded: minimumMargin=${_globalCache!.minimumMarginPercent}%',
+      );
     } catch (e) {
-      debugPrint('[DynamicPricingConfig] Config load failed, using defaults: $e');
+      debugPrint(
+        '[DynamicPricingConfig] Config load failed, using defaults: $e',
+      );
       _globalCache ??= PricingConfig.defaultConfig();
     }
     return _globalCache!;
@@ -121,25 +128,30 @@ class DynamicPricingConfigService {
   }) async {
     final ruleId = 'rule_$category';
     await _firestore
-        .collection('shops').doc(shopId)
-        .collection('pricing_rules').doc(ruleId)
+        .collection('shops')
+        .doc(shopId)
+        .collection('pricing_rules')
+        .doc(ruleId)
         .set({
-      'category': category,
-      'marginPercent': marginPercent,
-      'strategy': strategy,
-      'isActive': isActive,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+          'category': category,
+          'marginPercent': marginPercent,
+          'strategy': strategy,
+          'isActive': isActive,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
     // Invalidate category cache
     _categoryCache.remove('${shopId}_$category');
-    debugPrint('[DynamicPricingConfig] Category rule set: $category → $marginPercent%');
+    debugPrint(
+      '[DynamicPricingConfig] Category rule set: $category → $marginPercent%',
+    );
   }
 
   /// Lists all active margin rules for a shop (for admin UI).
   Future<List<CategoryMarginRule>> listCategoryRules(String shopId) async {
     try {
       final snap = await _firestore
-          .collection('shops').doc(shopId)
+          .collection('shops')
+          .doc(shopId)
           .collection('pricing_rules')
           .where('isActive', isEqualTo: true)
           .get();
@@ -157,10 +169,10 @@ class DynamicPricingConfigService {
 
   /// Updates global pricing configuration (owner/admin action).
   Future<void> updateGlobalConfig(PricingConfig config) async {
-    await _firestore.collection('settings').doc('pricing_config').set(
-      config.toMap(),
-      SetOptions(merge: true),
-    );
+    await _firestore
+        .collection('settings')
+        .doc('pricing_config')
+        .set(config.toMap(), SetOptions(merge: true));
     _globalCache = config;
     _cacheExpiry = DateTime.now().add(_cacheTTL);
     debugPrint('[DynamicPricingConfig] Global config updated.');
@@ -188,9 +200,11 @@ class DynamicPricingConfigService {
         .collection('settings')
         .doc('pricing_config')
         .snapshots()
-        .map((snap) => snap.exists
-            ? PricingConfig.fromMap(snap.data()!)
-            : PricingConfig.defaultConfig());
+        .map(
+          (snap) => snap.exists
+              ? PricingConfig.fromMap(snap.data()!)
+              : PricingConfig.defaultConfig(),
+        );
   }
 }
 
@@ -198,7 +212,8 @@ class DynamicPricingConfigService {
 
 /// Global pricing configuration stored in Firestore /settings/pricing_config
 class PricingConfig {
-  final double minimumMarginPercent; // Hard floor — price never goes below cost + this
+  final double
+  minimumMarginPercent; // Hard floor — price never goes below cost + this
   final double defaultCompetitorMatchThreshold; // 2% = match if within 2%
   final String defaultStrategy; // 'match' | 'beat' | 'cost_plus' | 'premium'
   final bool autoApplyPriceChanges; // If false, owner must manually approve
@@ -215,32 +230,32 @@ class PricingConfig {
   });
 
   factory PricingConfig.defaultConfig() => const PricingConfig(
-        minimumMarginPercent: 5.0,
-        defaultCompetitorMatchThreshold: 2.0,
-        defaultStrategy: 'match',
-        autoApplyPriceChanges: false,
-        priceHistoryRetentionDays: 90,
-        enableCompetitorTracking: true,
-      );
+    minimumMarginPercent: 5.0,
+    defaultCompetitorMatchThreshold: 2.0,
+    defaultStrategy: 'match',
+    autoApplyPriceChanges: false,
+    priceHistoryRetentionDays: 90,
+    enableCompetitorTracking: true,
+  );
 
   factory PricingConfig.fromMap(Map<String, dynamic> map) => PricingConfig(
-        minimumMarginPercent: (map['minimumMarginPercent'] ?? 5.0).toDouble(),
-        defaultCompetitorMatchThreshold:
-            (map['defaultCompetitorMatchThreshold'] ?? 2.0).toDouble(),
-        defaultStrategy: map['defaultStrategy'] ?? 'match',
-        autoApplyPriceChanges: map['autoApplyPriceChanges'] ?? false,
-        priceHistoryRetentionDays: map['priceHistoryRetentionDays'] ?? 90,
-        enableCompetitorTracking: map['enableCompetitorTracking'] ?? true,
-      );
+    minimumMarginPercent: (map['minimumMarginPercent'] ?? 5.0).toDouble(),
+    defaultCompetitorMatchThreshold:
+        (map['defaultCompetitorMatchThreshold'] ?? 2.0).toDouble(),
+    defaultStrategy: map['defaultStrategy'] ?? 'match',
+    autoApplyPriceChanges: map['autoApplyPriceChanges'] ?? false,
+    priceHistoryRetentionDays: map['priceHistoryRetentionDays'] ?? 90,
+    enableCompetitorTracking: map['enableCompetitorTracking'] ?? true,
+  );
 
   Map<String, dynamic> toMap() => {
-        'minimumMarginPercent': minimumMarginPercent,
-        'defaultCompetitorMatchThreshold': defaultCompetitorMatchThreshold,
-        'defaultStrategy': defaultStrategy,
-        'autoApplyPriceChanges': autoApplyPriceChanges,
-        'priceHistoryRetentionDays': priceHistoryRetentionDays,
-        'enableCompetitorTracking': enableCompetitorTracking,
-      };
+    'minimumMarginPercent': minimumMarginPercent,
+    'defaultCompetitorMatchThreshold': defaultCompetitorMatchThreshold,
+    'defaultStrategy': defaultStrategy,
+    'autoApplyPriceChanges': autoApplyPriceChanges,
+    'priceHistoryRetentionDays': priceHistoryRetentionDays,
+    'enableCompetitorTracking': enableCompetitorTracking,
+  };
 }
 
 /// Per-category margin override for a specific shop
@@ -257,7 +272,8 @@ class CategoryMarginRule {
     required this.isActive,
   });
 
-  factory CategoryMarginRule.fromMap(Map<String, dynamic> map) => CategoryMarginRule(
+  factory CategoryMarginRule.fromMap(Map<String, dynamic> map) =>
+      CategoryMarginRule(
         category: map['category'] ?? '',
         marginPercent: (map['marginPercent'] ?? 5.0).toDouble(),
         strategy: map['strategy'] ?? 'match',

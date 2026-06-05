@@ -18,7 +18,11 @@ class ChatService {
         .where('chatChannelId', isEqualTo: riderId)
         .orderBy('timestamp', descending: false)
         .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => ChatMessageModel.fromMap(doc.data())).toList());
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => ChatMessageModel.fromMap(doc.data()))
+              .toList(),
+        );
   }
 
   Stream<List<ChatMessageModel>> getOwnerChatChannelsStream() {
@@ -27,15 +31,15 @@ class ChatService {
         .orderBy('timestamp', descending: true)
         .snapshots()
         .map((snapshot) {
-      final Map<String, ChatMessageModel> latestMessages = {};
-      for (var doc in snapshot.docs) {
-        final msg = ChatMessageModel.fromMap(doc.data());
-        if (!latestMessages.containsKey(msg.chatChannelId)) {
-          latestMessages[msg.chatChannelId] = msg;
-        }
-      }
-      return latestMessages.values.toList();
-    });
+          final Map<String, ChatMessageModel> latestMessages = {};
+          for (var doc in snapshot.docs) {
+            final msg = ChatMessageModel.fromMap(doc.data());
+            if (!latestMessages.containsKey(msg.chatChannelId)) {
+              latestMessages[msg.chatChannelId] = msg;
+            }
+          }
+          return latestMessages.values.toList();
+        });
   }
 
   Stream<List<ChatMessageModel>> getCustomerChatStream(String customerId) {
@@ -44,7 +48,11 @@ class ChatService {
         .where('chatChannelId', isEqualTo: customerId)
         .orderBy('timestamp', descending: false)
         .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => ChatMessageModel.fromMap(doc.data())).toList());
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => ChatMessageModel.fromMap(doc.data()))
+              .toList(),
+        );
   }
 
   Future<void> markMessagesAsRead(String chatChannelId, String readerId) async {

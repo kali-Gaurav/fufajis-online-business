@@ -1,4 +1,5 @@
 enum SubscriptionFrequency { daily, weekly, alternateDays, custom }
+
 enum SubscriptionStatus { active, paused, cancelled }
 
 class SubscriptionModel {
@@ -14,12 +15,17 @@ class SubscriptionModel {
   final SubscriptionStatus status;
   final DateTime startDate;
   final DateTime? pauseUntil; // Feature 14: Vacation Mode support
-  final List<DateTime> deliveryDates; // Feature 14: Specific dates for custom frequency
+  final List<DateTime>
+  deliveryDates; // Feature 14: Specific dates for custom frequency
   final String timeSlot;
   final DateTime createdAt;
-  
-  bool get isActive => status == SubscriptionStatus.active && (pauseUntil == null || DateTime.now().isAfter(pauseUntil!));
-  bool get isPaused => status == SubscriptionStatus.paused || (pauseUntil != null && DateTime.now().isBefore(pauseUntil!));
+
+  bool get isActive =>
+      status == SubscriptionStatus.active &&
+      (pauseUntil == null || DateTime.now().isAfter(pauseUntil!));
+  bool get isPaused =>
+      status == SubscriptionStatus.paused ||
+      (pauseUntil != null && DateTime.now().isBefore(pauseUntil!));
 
   SubscriptionModel({
     required this.id,
@@ -77,14 +83,21 @@ class SubscriptionModel {
         (e) => e.toString() == map['status'],
         orElse: () => SubscriptionStatus.active,
       ),
-      startDate: map['startDate'] != null ? DateTime.parse(map['startDate']) : DateTime.now(),
-      pauseUntil: map['pauseUntil'] != null ? DateTime.parse(map['pauseUntil']) : null,
-      deliveryDates: (map['deliveryDates'] as List?)
+      startDate: map['startDate'] != null
+          ? DateTime.parse(map['startDate'])
+          : DateTime.now(),
+      pauseUntil: map['pauseUntil'] != null
+          ? DateTime.parse(map['pauseUntil'])
+          : null,
+      deliveryDates:
+          (map['deliveryDates'] as List?)
               ?.map((d) => DateTime.parse(d as String))
               .toList() ??
           [],
       timeSlot: map['timeSlot'] ?? '',
-      createdAt: map['createdAt'] != null ? DateTime.parse(map['createdAt']) : DateTime.now(),
+      createdAt: map['createdAt'] != null
+          ? DateTime.parse(map['createdAt'])
+          : DateTime.now(),
     );
   }
 

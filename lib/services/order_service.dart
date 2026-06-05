@@ -9,10 +9,7 @@ import '../models/order_model.dart';
 import '../models/delivery_type.dart';
 import 'notification_service.dart';
 import 'whatsapp_notification_service.dart';
-import 'audit_service.dart';
 import 'shop_config_service.dart';
-import '../models/shop_config_model.dart';
-import '../models/shop_branch_model.dart';
 import 'hyperlocal_expansion_service.dart';
 import 'smart_kitchen_service.dart';
 
@@ -352,9 +349,8 @@ class OrderService {
   /// Valid order status transitions — enforces sequential state machine
   static const Map<String, List<String>> _validTransitions = {
     'pending': ['confirmed', 'cancelled'],
-    'confirmed': ['accepted', 'cancelled'],
-    'accepted': ['packing', 'cancelled'],
-    'packing': ['packed', 'cancelled'],
+    'confirmed': ['processing', 'cancelled'],
+    'processing': ['packed', 'cancelled'],
     'packed': ['outForDelivery', 'cancelled'],
     'outForDelivery': ['delivered'],
     'delivered': [], // Terminal state — no further transitions allowed
@@ -365,6 +361,114 @@ class OrderService {
   String _normalizeStatus(String? rawStatus) {
     if (rawStatus == null) return 'pending';
     return rawStatus.replaceAll('OrderStatus.', '');
+  }
+
+  /// Approves the packing for an order, advancing status to packed (Owner Flow)
+  Future<void> approvePacking(String orderId, String ownerId, String ownerName) async {
+    final orderRef = _db.collection('orders').doc(orderId);
+    final parcelId = 'PARCEL-${DateTime.now().millisecondsSinceEpoch}';
+
+    await _db.runTransaction((transaction) async {
+      final snapshot = await transaction.get(orderRef);
+      if (!snapshot.exists) throw Exception('Order not found');
+
+      final orderData = snapshot.data()!;
+      final currentStatus = _normalizeStatus(orderData['status']?.toString());
+      final currentPackingStatus = orderData['packingStatus']?.toString();
+
+      if (currentStatus != 'processing' || currentPackingStatus != 'pending_approval') {
+        throw Exception('Order is not awaiting packing approval.');
+      }
+
+      final List<dynamic> historyList = orderData['packingHistory'] as List<dynamic>? ?? [];
+      final updatedHistory = List<dynamic>.from(historyList)
+        ..add({
+          'timestamp': Timestamp.now(),
+          'status': 'approved',
+          'actorId': ownerId,
+          'actorName': ownerName,
+          'note': 'Packing approved by owner.',
+        });
+
+      final List<dynamic> statusHistory = orderData['statusHistory'] as List<dynamic>? ?? [];
+      final updatedStatusHistory = List<dynamic>.from(statusHistory)
+        ..add({
+          'status': 'OrderStatus.packed',
+          'timestamp': Timestamp.now(),
+          'note': 'Order packing approved and ready.',
+        });
+
+      transaction.update(orderRef, {
+        'status': 'OrderStatus.packed',
+        'packingStatus': 'approved',
+        'parcelId': parcelId,
+        'packingApprovedBy': ownerName,
+        'packingApprovedById': ownerId,
+        'packingApprovedAt': FieldValue.serverTimestamp(),
+        'packingHistory': updatedHistory,
+        'statusHistory': updatedStatusHistory,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    });
+
+    // Send WhatsApp notification
+    try {
+      final doc = await orderRef.get();
+      if (doc.exists) {
+        final data = doc.data();
+        final orderNumber = data?['orderNumber'] ?? 'FufajiOrder';
+        final customerName = data?['customerName'] ?? 'Customer';
+        final customerPhone = data?['customerPhone'] ?? '';
+
+        NotificationService().triggerLocalOrderStatusNotification(orderNumber.toString(), 'packed');
+
+        if (customerPhone.isNotEmpty) {
+          await WhatsAppNotificationService.sendStatusUpdate(
+            phoneNumber: customerPhone.toString(),
+            customerName: customerName.toString(),
+            orderNumber: orderNumber.toString(),
+            status: 'packed',
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('[OrderService] Notification Error: $e');
+    }
+  }
+
+  /// Rejects the packing for an order, keeping status at processing but marking as rejected
+  Future<void> rejectPacking(String orderId, String ownerId, String ownerName, String reason) async {
+    final orderRef = _db.collection('orders').doc(orderId);
+
+    await _db.runTransaction((transaction) async {
+      final snapshot = await transaction.get(orderRef);
+      if (!snapshot.exists) throw Exception('Order not found');
+
+      final orderData = snapshot.data()!;
+      final currentStatus = _normalizeStatus(orderData['status']?.toString());
+      final currentPackingStatus = orderData['packingStatus']?.toString();
+
+      if (currentStatus != 'processing' || currentPackingStatus != 'pending_approval') {
+        throw Exception('Order is not awaiting packing approval.');
+      }
+
+      final List<dynamic> historyList = orderData['packingHistory'] as List<dynamic>? ?? [];
+      final updatedHistory = List<dynamic>.from(historyList)
+        ..add({
+          'timestamp': Timestamp.now(),
+          'status': 'rejected',
+          'actorId': ownerId,
+          'actorName': ownerName,
+          'note': reason,
+        });
+
+      transaction.update(orderRef, {
+        'packingStatus': 'rejected',
+        'packingRejectionReason': reason,
+        'packingHistory': updatedHistory,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    });
   }
 
   Future<void> updateOrderStatus(String orderId, String status, {String? employeeId}) async {
@@ -389,7 +493,7 @@ class OrderService {
     }
 
     // ── Step 2: Packer lock — prevent two employees packing the same order ──
-    if (status == 'packing') {
+    if (status == 'processing') {
       final existingPackerId = orderDoc.data()?['packerId']?.toString();
       if (existingPackerId != null && existingPackerId.isNotEmpty && employeeId != null && existingPackerId != employeeId) {
         throw Exception('This order is already being packed by another employee ($existingPackerId).');
@@ -401,8 +505,8 @@ class OrderService {
       'updatedAt': FieldValue.serverTimestamp(),
     };
 
-    // Assign packer when entering packing state
-    if (status == 'packing' && employeeId != null) {
+    // Assign packer when entering processing state
+    if (status == 'processing' && employeeId != null) {
       updates['packerId'] = employeeId;
       updates['packingStartedAt'] = FieldValue.serverTimestamp();
     }

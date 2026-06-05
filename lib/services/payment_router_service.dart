@@ -51,10 +51,10 @@ class PaymentRouterService {
     // Below threshold → prefer UPI (zero fee)
     if (orderAmount < minThreshold) {
       if (availableMethods.contains('upi')) {
-        return PaymentRoute(method: 'upi', reason: 'low_order_value', estimatedFee: 0);
+        return const PaymentRoute(method: 'upi', reason: 'low_order_value', estimatedFee: 0);
       }
       if (availableMethods.contains('cod')) {
-        return PaymentRoute(method: 'cod', reason: 'low_order_value_fallback', estimatedFee: 0);
+        return const PaymentRoute(method: 'cod', reason: 'low_order_value_fallback', estimatedFee: 0);
       }
     }
 

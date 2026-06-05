@@ -1,80 +1,194 @@
-import 'dart:io';
-import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import '../models/order_model.dart';
+import '../config/app_config.dart';
 import 'package:intl/intl.dart';
 
 class InvoiceService {
-  static Future<void> generateAndPrintInvoice(OrderModel order) async {
+  /// Generates a professional Invoice ID and updates Firestore
+  static Future<String> finalizeInvoice(String orderId) async {
+    final year = DateTime.now().year;
+    final timestamp = DateTime.now().millisecondsSinceEpoch.toString().substring(8);
+    final invoiceId = "INV-$year-$timestamp";
+    
+    await FirebaseFirestore.instance.collection('orders').doc(orderId).update({
+      'invoiceId': invoiceId,
+      'invoiceGeneratedAt': FieldValue.serverTimestamp(),
+    });
+    
+    return invoiceId;
+  }
+
+  /// Generate and print/share an invoice for [order].
+  ///
+  /// Supports thermal (58 mm / 80 mm) and A4 page formats.
+  /// Pass [pageFormat] to override – defaults to A4.
+  static Future<void> generateAndPrintInvoice(
+    OrderModel order, {
+    PdfPageFormat pageFormat = PdfPageFormat.a4,
+  }) async {
     final pdf = pw.Document();
 
     final font = await PdfGoogleFonts.notoSansRegular();
     final boldFont = await PdfGoogleFonts.notoSansBold();
 
+    // Thermal widths (58 mm ≈ 164 pt, 80 mm ≈ 227 pt)
+    final isThermal = pageFormat.width < 300;
+
     pdf.addPage(
       pw.Page(
-        pageFormat: PdfPageFormat.a4,
+        pageFormat: pageFormat,
+        margin: isThermal
+            ? const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 8)
+            : const pw.EdgeInsets.all(24),
         build: (pw.Context context) {
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              // Header
+              // ── Header ────────────────────────────────────────────────
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
                   pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
-                      pw.Text('TAX INVOICE', style: pw.TextStyle(font: boldFont, fontSize: 24, color: PdfColors.blue900)),
-                      pw.Text('Fufaji Online Business', style: pw.TextStyle(font: boldFont, fontSize: 14)),
-                      pw.Text('Jaipur, Rajasthan, India', style: pw.TextStyle(font: font, fontSize: 10)),
-                      pw.Text('GSTIN: 08AAACF1234A1Z1', style: pw.TextStyle(font: font, fontSize: 10)),
-                    ],
-                  ),
-                  pw.Container(
-                    height: 60,
-                    width: 60,
-                    child: pw.BarcodeWidget(
-                      barcode: pw.Barcode.qrCode(),
-                      data: 'https://fufajionline.com/track/${order.orderNumber}',
-                    ),
-                  ),
-                ],
-              ),
-              pw.SizedBox(height: 30),
-              
-              // Bill To & Order Info
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                children: [
-                  pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      pw.Text('BILL TO:', style: pw.TextStyle(font: boldFont, fontSize: 10)),
-                      pw.Text(order.customerName, style: pw.TextStyle(font: boldFont, fontSize: 12)),
-                      pw.Text(order.customerPhone, style: pw.TextStyle(font: font, fontSize: 10)),
-                      pw.Container(
-                        width: 200,
-                        child: pw.Text(order.deliveryAddress.fullAddress, style: pw.TextStyle(font: font, fontSize: 10)),
+                      pw.Text(
+                        'TAX INVOICE',
+                        style: pw.TextStyle(
+                          font: boldFont,
+                          fontSize: isThermal ? 14 : 22,
+                          color: PdfColors.blue900,
+                        ),
+                      ),
+                      pw.SizedBox(height: 2),
+                      pw.Text(
+                        "Fufaji's Online Business",
+                        style: pw.TextStyle(
+                            font: boldFont, fontSize: isThermal ? 10 : 14),
+                      ),
+                      pw.Text(
+                        'Routemaster Intelligent Systems Pvt. Ltd.',
+                        style: pw.TextStyle(
+                            font: font, fontSize: isThermal ? 8 : 10),
+                      ),
+                      pw.Text(
+                        AppConfig.shopAddress,
+                        style: pw.TextStyle(
+                            font: font, fontSize: isThermal ? 7 : 9),
+                      ),
+                      pw.Text(
+                        'Ph: ${AppConfig.shopPhone}',
+                        style: pw.TextStyle(
+                            font: font, fontSize: isThermal ? 7 : 9),
+                      ),
+                      pw.Text(
+                        'GSTIN: 08AAACF1234A1Z1',
+                        style: pw.TextStyle(
+                            font: font, fontSize: isThermal ? 7 : 9),
                       ),
                     ],
                   ),
-                  pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.end,
-                    children: [
-                      pw.Text('Order #: ${order.orderNumber}', style: pw.TextStyle(font: font, fontSize: 10)),
-                      pw.Text('Date: ${DateFormat('dd MMM yyyy').format(order.createdAt)}', style: pw.TextStyle(font: font, fontSize: 10)),
-                      pw.Text('Payment: ${order.paymentMethod.toString().split('.').last.toUpperCase()}', style: pw.TextStyle(font: font, fontSize: 10)),
-                    ],
-                  ),
+                  if (!isThermal)
+                    pw.Container(
+                      height: 60,
+                      width: 60,
+                      child: pw.BarcodeWidget(
+                        barcode: pw.Barcode.qrCode(),
+                        data:
+                            'https://fufajionline.com/track/${order.orderNumber}',
+                      ),
+                    ),
                 ],
               ),
-              pw.SizedBox(height: 30),
+              pw.SizedBox(height: isThermal ? 8 : 20),
 
-              // Items Table
+              // ── QR / Order ID section ────────────────────────────────
+              pw.Container(
+                padding: const pw.EdgeInsets.all(6),
+                decoration: pw.BoxDecoration(
+                  border: pw.Border.all(color: PdfColors.grey400),
+                  borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
+                ),
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(
+                      'Order Reference: ${order.orderNumber}',
+                      style: pw.TextStyle(
+                          font: boldFont, fontSize: isThermal ? 8 : 10),
+                    ),
+                    pw.Text(
+                      'Order ID: ${order.id}',
+                      style: pw.TextStyle(
+                          font: font, fontSize: isThermal ? 7 : 8),
+                    ),
+                  ],
+                ),
+              ),
+              pw.SizedBox(height: isThermal ? 6 : 16),
+
+              // ── Bill To & Order Info ─────────────────────────────────
+              if (!isThermal)
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Text('BILL TO:',
+                            style: pw.TextStyle(
+                                font: boldFont, fontSize: 10)),
+                        pw.Text(order.customerName,
+                            style: pw.TextStyle(
+                                font: boldFont, fontSize: 12)),
+                        pw.Text(order.customerPhone,
+                            style:
+                                pw.TextStyle(font: font, fontSize: 10)),
+                        pw.Container(
+                          width: 200,
+                          child: pw.Text(
+                            order.deliveryAddress.fullAddress,
+                            style:
+                                pw.TextStyle(font: font, fontSize: 10),
+                          ),
+                        ),
+                      ],
+                    ),
+                    pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.end,
+                      children: [
+                        pw.Text(
+                          'Date: ${DateFormat('dd MMM yyyy').format(order.createdAt)}',
+                          style: pw.TextStyle(font: font, fontSize: 10),
+                        ),
+                        pw.Text(
+                          'Payment: ${order.paymentMethod.toString().split('.').last.toUpperCase()}',
+                          style: pw.TextStyle(font: font, fontSize: 10),
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+              else
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(order.customerName,
+                        style:
+                            pw.TextStyle(font: boldFont, fontSize: 9)),
+                    pw.Text(order.customerPhone,
+                        style: pw.TextStyle(font: font, fontSize: 8)),
+                    pw.Text(
+                        DateFormat('dd MMM yyyy')
+                            .format(order.createdAt),
+                        style: pw.TextStyle(font: font, fontSize: 8)),
+                  ],
+                ),
+              pw.SizedBox(height: isThermal ? 6 : 20),
+
+              // ── Items Table ──────────────────────────────────────────
               pw.Table(
                 border: pw.TableBorder.all(color: PdfColors.grey300),
                 columnWidths: {
@@ -84,51 +198,69 @@ class InvoiceService {
                   3: const pw.FlexColumnWidth(1),
                 },
                 children: [
-                  // Table Header
                   pw.TableRow(
-                    decoration: const pw.BoxDecoration(color: PdfColors.grey200),
+                    decoration:
+                        const pw.BoxDecoration(color: PdfColors.grey200),
                     children: [
-                      pw.Padding(padding: const pw.EdgeInsets.all(5), child: pw.Text('Item Description', style: pw.TextStyle(font: boldFont, fontSize: 10))),
-                      pw.Padding(padding: const pw.EdgeInsets.all(5), child: pw.Text('Qty', style: pw.TextStyle(font: boldFont, fontSize: 10))),
-                      pw.Padding(padding: const pw.EdgeInsets.all(5), child: pw.Text('Price', style: pw.TextStyle(font: boldFont, fontSize: 10))),
-                      pw.Padding(padding: const pw.EdgeInsets.all(5), child: pw.Text('Total', style: pw.TextStyle(font: boldFont, fontSize: 10))),
+                      _cell('Item', boldFont, 9),
+                      _cell('Qty', boldFont, 9),
+                      _cell('Rate', boldFont, 9),
+                      _cell('Amt', boldFont, 9),
                     ],
                   ),
-                  // Table Items
-                  ...order.items.map((item) {
-                    return pw.TableRow(
-                      children: [
-                        pw.Padding(padding: const pw.EdgeInsets.all(5), child: pw.Text(item.productName, style: pw.TextStyle(font: font, fontSize: 9))),
-                        pw.Padding(padding: const pw.EdgeInsets.all(5), child: pw.Text('${item.quantity}', style: pw.TextStyle(font: font, fontSize: 9))),
-                        pw.Padding(padding: const pw.EdgeInsets.all(5), child: pw.Text('Rs ${item.price.toStringAsFixed(2)}', style: pw.TextStyle(font: font, fontSize: 9))),
-                        pw.Padding(padding: const pw.EdgeInsets.all(5), child: pw.Text('Rs ${item.totalPrice.toStringAsFixed(2)}', style: pw.TextStyle(font: font, fontSize: 9, fontBold: boldFont))),
-                      ],
-                    );
-                  }),
+                  ...order.items.map((item) => pw.TableRow(
+                        children: [
+                          _cell(item.productName, font, 8),
+                          _cell('${item.quantity}', font, 8),
+                          _cell(
+                              'Rs ${item.price.toStringAsFixed(2)}',
+                              font,
+                              8),
+                          _cell(
+                              'Rs ${item.totalPrice.toStringAsFixed(2)}',
+                              boldFont,
+                              8),
+                        ],
+                      )),
                 ],
               ),
+              pw.SizedBox(height: isThermal ? 6 : 16),
 
-              pw.SizedBox(height: 20),
-
-              // Totals
+              // ── Totals ───────────────────────────────────────────────
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.end,
                 children: [
                   pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.end,
                     children: [
-                      _buildSummaryRow('Subtotal', order.subtotal, font),
-                      _buildSummaryRow('Delivery Charge', order.deliveryCharge, font),
-                      if (order.discount > 0) _buildSummaryRow('Discount', -order.discount, font),
+                      _summaryRow('Subtotal',
+                          order.subtotal, font, isThermal),
+                      _summaryRow('Delivery',
+                          order.deliveryCharge, font, isThermal),
+                      if (order.discount > 0)
+                        _summaryRow(
+                            'Discount', -order.discount, font, isThermal),
+                      // GST – configurable; currently 0% as per shop setup
+                      _summaryRow(
+                          'GST (0%)', 0.0, font, isThermal,
+                          note: true),
                       pw.Divider(color: PdfColors.grey400),
                       pw.Row(
                         children: [
-                          pw.Text('GRAND TOTAL: ', style: pw.TextStyle(font: boldFont, fontSize: 14)),
-                          pw.Text('Rs ${order.totalAmount.toStringAsFixed(2)}', style: pw.TextStyle(font: boldFont, fontSize: 14, color: PdfColors.blue900)),
+                          pw.Text('GRAND TOTAL: ',
+                              style: pw.TextStyle(
+                                  font: boldFont,
+                                  fontSize: isThermal ? 10 : 14)),
+                          pw.Text(
+                            'Rs ${order.totalAmount.toStringAsFixed(2)}',
+                            style: pw.TextStyle(
+                              font: boldFont,
+                              fontSize: isThermal ? 10 : 14,
+                              color: PdfColors.blue900,
+                            ),
+                          ),
                         ],
                       ),
-                      pw.SizedBox(height: 5),
-                      pw.Text('Inclusive of GST (5%)', style: pw.TextStyle(font: font, fontSize: 8, color: PdfColors.grey600)),
                     ],
                   ),
                 ],
@@ -137,10 +269,22 @@ class InvoiceService {
               pw.Spacer(),
               pw.Divider(color: PdfColors.grey400),
               pw.Center(
-                child: pw.Text('Thank you for shopping with Fufaji Online!', style: pw.TextStyle(font: font, fontSize: 10, color: PdfColors.grey600)),
+                child: pw.Text(
+                  'Thank you for shopping with Fufaji\'s Online!',
+                  style: pw.TextStyle(
+                      font: font,
+                      fontSize: isThermal ? 8 : 10,
+                      color: PdfColors.grey600),
+                ),
               ),
               pw.Center(
-                child: pw.Text('This is a computer generated invoice and does not require a signature.', style: pw.TextStyle(font: font, fontSize: 8, color: PdfColors.grey400)),
+                child: pw.Text(
+                  'Computer generated invoice. No signature required.',
+                  style: pw.TextStyle(
+                      font: font,
+                      fontSize: isThermal ? 7 : 8,
+                      color: PdfColors.grey400),
+                ),
               ),
             ],
           );
@@ -148,17 +292,41 @@ class InvoiceService {
       ),
     );
 
-    await Printing.layoutPdf(onLayout: (PdfPageFormat format) async => pdf.save());
+    await Printing.layoutPdf(
+        onLayout: (PdfPageFormat format) async => pdf.save());
   }
 
-  static pw.Widget _buildSummaryRow(String label, double value, pw.Font font) {
+  static pw.Widget _cell(String text, pw.Font font, double size) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.all(4),
+      child: pw.Text(text, style: pw.TextStyle(font: font, fontSize: size)),
+    );
+  }
+
+  static pw.Widget _summaryRow(
+    String label,
+    double value,
+    pw.Font font,
+    bool compact, {
+    bool note = false,
+  }) {
     return pw.Padding(
       padding: const pw.EdgeInsets.symmetric(vertical: 2),
       child: pw.Row(
         mainAxisSize: pw.MainAxisSize.min,
         children: [
-          pw.Text('$label: ', style: pw.TextStyle(font: font, fontSize: 10)),
-          pw.Text('Rs ${value.toStringAsFixed(2)}', style: pw.TextStyle(font: font, fontSize: 10)),
+          pw.Text('$label: ',
+              style: pw.TextStyle(
+                  font: font,
+                  fontSize: compact ? 8 : 10,
+                  color: note ? PdfColors.grey500 : PdfColors.black)),
+          pw.Text(
+            note ? 'Included' : 'Rs ${value.toStringAsFixed(2)}',
+            style: pw.TextStyle(
+                font: font,
+                fontSize: compact ? 8 : 10,
+                color: note ? PdfColors.grey500 : PdfColors.black),
+          ),
         ],
       ),
     );

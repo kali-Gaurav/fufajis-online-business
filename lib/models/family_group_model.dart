@@ -1,11 +1,10 @@
-
 /// Family member roles with hierarchical permissions
 enum FamilyRole {
-  owner,       // Full control, billing, can't be removed
-  parent,      // Approve child orders, manage members
-  adult,       // Can checkout independently with optional limits
-  child,       // Needs approval for checkout
-  guest,       // View-only + limited cart (temporary access)
+  owner, // Full control, billing, can't be removed
+  parent, // Approve child orders, manage members
+  adult, // Can checkout independently with optional limits
+  child, // Needs approval for checkout
+  guest, // View-only + limited cart (temporary access)
 }
 
 /// Permission actions for the family system
@@ -29,9 +28,9 @@ class FamilyMember {
   final String phoneNumber;
   final String? profileImageUrl;
   final FamilyRole role;
-  final double monthlySpendingLimit;  // ₹0 = unlimited
+  final double monthlySpendingLimit; // ₹0 = unlimited
   final double currentMonthSpending;
-  final bool requiresApproval;        // If true, orders need parent/owner sign-off
+  final bool requiresApproval; // If true, orders need parent/owner sign-off
   final bool isActive;
   final DateTime joinedAt;
   final DateTime? lastOrderAt;
@@ -66,7 +65,10 @@ class FamilyMember {
   /// Remaining budget for the month
   double get remainingBudget {
     if (monthlySpendingLimit <= 0) return double.infinity;
-    return (monthlySpendingLimit - currentMonthSpending).clamp(0, monthlySpendingLimit);
+    return (monthlySpendingLimit - currentMonthSpending).clamp(
+      0,
+      monthlySpendingLimit,
+    );
   }
 
   static const Map<FamilyRole, Set<FamilyPermission>> _permissionMatrix = {
@@ -98,13 +100,8 @@ class FamilyMember {
       FamilyPermission.viewOrders,
       FamilyPermission.editAddress,
     },
-    FamilyRole.child: {
-      FamilyPermission.addToCart,
-      FamilyPermission.viewOrders,
-    },
-    FamilyRole.guest: {
-      FamilyPermission.addToCart,
-    },
+    FamilyRole.child: {FamilyPermission.addToCart, FamilyPermission.viewOrders},
+    FamilyRole.guest: {FamilyPermission.addToCart},
   };
 
   factory FamilyMember.fromMap(Map<String, dynamic> map) {
@@ -179,11 +176,11 @@ class FamilyMember {
 class FamilyApprovalRequest {
   final String id;
   final String orderId;
-  final String requestedBy;        // userId of requester
+  final String requestedBy; // userId of requester
   final String requestedByName;
   final double orderAmount;
   final List<String> itemNames;
-  final String status;             // pending, approved, rejected
+  final String status; // pending, approved, rejected
   final String? approvedBy;
   final String? rejectionReason;
   final DateTime createdAt;
@@ -297,10 +294,10 @@ class FamilyGroup {
   final List<FamilyMember> members;
   final List<SharedCartItem> sharedCart;
   final List<FamilyApprovalRequest> pendingApprovals;
-  final double monthlyBudget;            // Household monthly budget cap (₹0 = unlimited)
+  final double monthlyBudget; // Household monthly budget cap (₹0 = unlimited)
   final double currentMonthSpending;
-  final bool autoApproveUnderLimit;      // Auto-approve child orders under ₹X
-  final double autoApproveThreshold;     // The ₹X limit
+  final bool autoApproveUnderLimit; // Auto-approve child orders under ₹X
+  final double autoApproveThreshold; // The ₹X limit
   final String? defaultAddressId;
   final String? defaultPaymentMethod;
   final DateTime createdAt;
@@ -349,16 +346,29 @@ class FamilyGroup {
       id: map['id'] ?? '',
       familyName: map['familyName'] ?? '',
       ownerUserId: map['ownerUserId'] ?? '',
-      members: (map['members'] as List<dynamic>?)
-              ?.map((m) => FamilyMember.fromMap(Map<String, dynamic>.from(m as Map)))
+      members:
+          (map['members'] as List<dynamic>?)
+              ?.map(
+                (m) =>
+                    FamilyMember.fromMap(Map<String, dynamic>.from(m as Map)),
+              )
               .toList() ??
           [],
-      sharedCart: (map['sharedCart'] as List<dynamic>?)
-              ?.map((c) => SharedCartItem.fromMap(Map<String, dynamic>.from(c as Map)))
+      sharedCart:
+          (map['sharedCart'] as List<dynamic>?)
+              ?.map(
+                (c) =>
+                    SharedCartItem.fromMap(Map<String, dynamic>.from(c as Map)),
+              )
               .toList() ??
           [],
-      pendingApprovals: (map['pendingApprovals'] as List<dynamic>?)
-              ?.map((a) => FamilyApprovalRequest.fromMap(Map<String, dynamic>.from(a as Map)))
+      pendingApprovals:
+          (map['pendingApprovals'] as List<dynamic>?)
+              ?.map(
+                (a) => FamilyApprovalRequest.fromMap(
+                  Map<String, dynamic>.from(a as Map),
+                ),
+              )
               .toList() ??
           [],
       monthlyBudget: (map['monthlyBudget'] ?? 0.0).toDouble(),

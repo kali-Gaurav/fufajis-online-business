@@ -2,12 +2,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../models/order_model.dart';
+import '../models/business_transaction.dart';
+import '../models/payment_method.dart';
 import '../services/order_service.dart';
 import '../services/notification_service.dart';
 import '../utils/order_number_generator.dart';
 import '../services/razorpay_service.dart';
-import '../models/payment_result.dart';
 import '../services/offline_manager.dart';
 import '../services/wallet_service.dart';
 
@@ -45,14 +47,14 @@ class ReturnRequest {
       createdAt: map['createdAt'] != null
           ? (map['createdAt'] is DateTime
               ? map['createdAt']
-              : map['createdAt'].toDate())
+              : (map['createdAt'] as Timestamp).toDate())
           : DateTime.now(),
       status: map['status'] ?? 'pending',
       shopResponse: map['shopResponse'],
       processedAt: map['processedAt'] != null
           ? (map['processedAt'] is DateTime
               ? map['processedAt']
-              : map['processedAt'].toDate())
+              : (map['processedAt'] as Timestamp).toDate())
           : null,
     );
   }
@@ -72,7 +74,6 @@ class ReturnRequest {
   }
 }
 
-/// OrderProvider manages the complete order lifecycle including:
 class OrderProvider with ChangeNotifier {
   final OrderService _orderService = OrderService();
   final NotificationService _notificationService = NotificationService();
@@ -98,7 +99,6 @@ class OrderProvider with ChangeNotifier {
     });
   }
 
-  // State variables
   List<OrderModel> _orders = [];
   OrderModel? _currentOrder;
   bool _isLoading = false;
@@ -106,11 +106,11 @@ class OrderProvider with ChangeNotifier {
   int _ordersPage = 1;
   bool _hasMoreOrders = true;
   List<ReturnRequest> _returnRequests = [];
+  final Map<String, bool> _processingOrders = {};
+  DocumentSnapshot? _lastOrderDoc;
+  final List<StreamSubscription> _subscriptions = [];
+  double _walletBalance = 500.0;
 
-  // Pagination settings
-  static const int _defaultPageLimit = 10;
-
-  // Getters
   List<OrderModel> get orders => _orders;
   OrderModel? get currentOrder => _currentOrder;
   bool get isLoading => _isLoading;
@@ -118,12 +118,113 @@ class OrderProvider with ChangeNotifier {
   int get ordersPage => _ordersPage;
   bool get hasMoreOrders => _hasMoreOrders;
   List<ReturnRequest> get returnRequests => _returnRequests;
+  double get walletBalance => _walletBalance;
 
-  String generateOrderNumber() {
-    return OrderNumberGenerator.generate();
+  Future<void> _recordTransaction({
+    required String orderId,
+    required String orderNumber,
+    required String customerId,
+    required double amount,
+    required TransactionType type,
+    required String method,
+    String? gatewayId,
+  }) async {
+    try {
+      final docRef = FirebaseFirestore.instance.collection('transactions').doc();
+      final transaction = BusinessTransaction(
+        id: docRef.id,
+        orderId: orderId,
+        orderNumber: orderNumber,
+        customerId: customerId,
+        amount: amount,
+        type: type,
+        status: TransactionStatus.completed,
+        paymentMethod: method,
+        gatewayTransactionId: gatewayId,
+        createdAt: DateTime.now(),
+      );
+      await docRef.set(transaction.toMap());
+    } catch (e) {
+      debugPrint('Error recording transaction: $e');
+    }
   }
 
-  /// Initiates a professional checkout flow with Razorpay integration
+  Future<OrderModel?> createOrder(OrderModel order) async {
+    final idempotencyKey = '${order.customerId}_${DateTime.now().millisecondsSinceEpoch ~/ 5000}';
+    if (_processingOrders[idempotencyKey] == true) return null;
+    _processingOrders[idempotencyKey] = true;
+
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final existingDoc = await FirebaseFirestore.instance.collection('orders').doc(order.id).get();
+      if (existingDoc.exists) {
+        _isLoading = false;
+        _processingOrders.remove(idempotencyKey);
+        notifyListeners();
+        return OrderModel.fromMap(existingDoc.data()!);
+      }
+
+      final orderNumber = OrderNumberGenerator.generate();
+      final newOrder = order.copyWith(
+        orderNumber: orderNumber,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      final dynamic connRes = await _connectivity.checkConnectivity();
+      bool isOffline = (connRes is List) ? connRes.contains(ConnectivityResult.none) : connRes == ConnectivityResult.none;
+
+      if (isOffline) {
+        await OfflineManager().queueOrder(newOrder);
+        _orders.insert(0, newOrder);
+        _isLoading = false;
+        notifyListeners();
+        _notificationService.triggerLocalOrderStatusNotification(orderNumber, 'Order Queued (Offline)');
+        return newOrder;
+      }
+
+      await _orderService.createOrder(newOrder);
+      if (newOrder.paymentStatus == 'paid') {
+        await _recordTransaction(
+          orderId: newOrder.id,
+          orderNumber: newOrder.orderNumber,
+          customerId: newOrder.customerId,
+          amount: newOrder.totalAmount,
+          type: TransactionType.payment,
+          method: newOrder.paymentMethod.toString().split('.').last,
+          gatewayId: newOrder.paymentId,
+        );
+      }
+
+      _orders.insert(0, newOrder);
+      _isLoading = false;
+      notifyListeners();
+      _notificationService.triggerLocalOrderStatusNotification(orderNumber, 'Order Placed');
+      
+      // In-App Notification
+      if (newOrder.customerId.isNotEmpty) {
+        _notificationService.sendNotificationToUser(
+          userId: newOrder.customerId,
+          title: 'Order Placed',
+          body: 'We have received your order #$orderNumber!',
+          data: {'type': 'orderUpdate', 'orderId': newOrder.id},
+        );
+      }
+      
+      return newOrder;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return null;
+    } finally {
+      _processingOrders.remove(idempotencyKey);
+    }
+  }
+
   Future<OrderModel?> checkoutOnline({
     required OrderModel order,
     required String email,
@@ -137,12 +238,12 @@ class OrderProvider with ChangeNotifier {
     Completer<OrderModel?> completer = Completer();
 
     _razorpayService.initialize(
-      onSuccess: (PaymentResult result) async {
+      onSuccess: (PaymentSuccessResponse response) async {
         try {
           final finalizedOrder = order.copyWith(
-            paymentId: result.paymentId,
-            paymentStatus: 'awaiting_verification',
-            status: OrderStatus.pending,
+            paymentId: response.paymentId,
+            paymentStatus: 'paid',
+            status: OrderStatus.confirmed,
           );
           final created = await createOrder(finalizedOrder);
           completer.complete(created);
@@ -150,27 +251,96 @@ class OrderProvider with ChangeNotifier {
           completer.completeError(e);
         }
       },
-      onFailure: (PaymentResult result) {
-        onPaymentError(result.errorMessage ?? 'Payment failed');
+      onFailure: (PaymentFailureResponse response) {
+        onPaymentError(response.message ?? 'Payment failed');
         completer.complete(null);
       },
     );
 
     onPaymentStarted();
-    
-    final opened = _razorpayService.checkout(
+    await _razorpayService.createOrder(
       amount: order.totalAmount,
-      orderId: 'txn_${DateTime.now().millisecondsSinceEpoch}',
+      orderId: order.id,
       customerName: order.customerName,
       customerEmail: email,
       customerPhone: order.customerPhone,
     );
 
-    if (!opened) {
-      _isLoading = false;
-      notifyListeners();
-      return null;
-    }
+    return completer.future;
+  }
+
+  Future<bool> convertToOnlinePayment({
+    required OrderModel order,
+    required String email,
+    required VoidCallback onPaymentStarted,
+    required Function(String) onPaymentError,
+  }) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    Completer<bool> completer = Completer();
+
+    _razorpayService.initialize(
+      onSuccess: (PaymentSuccessResponse response) async {
+        try {
+          final updatedOrder = order.copyWith(
+            paymentMethod: PaymentMethod.razorpay,
+            paymentId: response.paymentId,
+            paymentStatus: 'paid',
+            paymentConvertedFrom: order.paymentMethod.toString().split('.').last,
+            status: order.status == OrderStatus.pending ? OrderStatus.confirmed : order.status,
+          );
+          
+          await _orderService.updateOrder(order.id, {
+            'paymentMethod': updatedOrder.paymentMethod.toString(),
+            'paymentId': updatedOrder.paymentId,
+            'paymentStatus': updatedOrder.paymentStatus,
+            'paymentConvertedFrom': updatedOrder.paymentConvertedFrom,
+            'status': updatedOrder.status.toString(),
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+
+          final index = _orders.indexWhere((o) => o.id == order.id);
+          if (index >= 0) _orders[index] = updatedOrder;
+          if (_currentOrder?.id == order.id) _currentOrder = updatedOrder;
+
+          await _recordTransaction(
+            orderId: order.id,
+            orderNumber: order.orderNumber,
+            customerId: order.customerId,
+            amount: order.totalAmount,
+            type: TransactionType.payment,
+            method: 'razorpay',
+            gatewayId: response.paymentId,
+          );
+
+          _isLoading = false;
+          notifyListeners();
+          completer.complete(true);
+        } catch (e) {
+          _isLoading = false;
+          _errorMessage = e.toString();
+          notifyListeners();
+          completer.complete(false);
+        }
+      },
+      onFailure: (PaymentFailureResponse response) {
+        onPaymentError(response.message ?? 'Payment failed');
+        _isLoading = false;
+        notifyListeners();
+        completer.complete(false);
+      },
+    );
+
+    onPaymentStarted();
+    await _razorpayService.createOrder(
+      amount: order.totalAmount,
+      orderId: order.id,
+      customerName: order.customerName,
+      customerEmail: email,
+      customerPhone: order.customerPhone,
+    );
 
     return completer.future;
   }
@@ -202,9 +372,7 @@ class OrderProvider with ChangeNotifier {
             updatedAt: DateTime.now(),
             deliveredAt: DateTime.now(),
           );
-          if (_currentOrder?.id == orderId) {
-            _currentOrder = _orders[index];
-          }
+          if (_currentOrder?.id == orderId) _currentOrder = _orders[index];
         }
       }
 
@@ -212,470 +380,14 @@ class OrderProvider with ChangeNotifier {
       notifyListeners();
       return success;
     } catch (e) {
-      debugPrint('Error in verifyAndDeliverOrder: $e');
-      _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      _errorMessage = e.toString();
       _isLoading = false;
       notifyListeners();
       return false;
     }
   }
 
-  Future<OrderModel?> getOrderById(String id) async {
-    try {
-      return _orders.firstWhere((o) => o.id == id);
-    } catch (_) {
-      try {
-        final doc = await FirebaseFirestore.instance.collection('orders').doc(id).get();
-        if (doc.exists) {
-          return OrderModel.fromMap(doc.data()!);
-        }
-      } catch (e) {
-        debugPrint('Error getting order by id: $e');
-      }
-    }
-    return null;
-  }
-
-  Future<OrderModel?> getOrderByParcelId(String parcelId) async {
-    try {
-      return _orders.firstWhere((o) => o.parcelId == parcelId);
-    } catch (_) {
-      try {
-        final snapshot = await FirebaseFirestore.instance
-            .collection('orders')
-            .where('parcelId', isEqualTo: parcelId)
-            .limit(1)
-            .get();
-        if (snapshot.docs.isNotEmpty) {
-          return OrderModel.fromMap(snapshot.docs.first.data());
-        }
-      } catch (e) {
-        debugPrint('Error getting order by parcel id: $e');
-      }
-    }
-    return null;
-  }
-
-  // Wallet and reward points state
-  double _walletBalance = 500.0;
-  int _rewardPoints = 1250;
-
-  double get walletBalance => _walletBalance;
-  int get rewardPoints => _rewardPoints;
-
-  List<StreamSubscription> _subscriptions = [];
-  final Map<String, bool> _processingOrders = {};
-
-  DocumentSnapshot? _lastOrderDoc;
-  
-  void listenToOrders(String userId) {
-    for (var sub in _subscriptions) {
-      sub.cancel();
-    }
-    _subscriptions.clear();
-
-    if (_orders.isEmpty) {
-      _isLoading = true;
-      notifyListeners();
-    }
-
-    // Paginating orders stream is complex with snapshots, 
-    // we use a simplified paginated query for the list view
-    // and a listener for the current active orders.
-    final sub = _orderService.getOrdersStream(userId).listen((orders) {
-      // For real-time updates of current orders
-      // In production, we'd only listen to 'active' orders.
-      _orders = orders; 
-      _isLoading = false;
-      notifyListeners();
-    }, onError: (error) {
-      debugPrint('Error listening to orders: $error');
-      _isLoading = false;
-      notifyListeners();
-    });
-
-    _subscriptions.add(sub);
-  }
-
-  Future<void> fetchOrdersPaged({String? customerId, int limit = 10, bool isRefresh = false}) async {
-    if (_isLoading) return;
-    
-    _isLoading = true;
-    if (isRefresh) {
-      _orders = [];
-      _lastOrderDoc = null;
-      _hasMoreOrders = true;
-    }
-    notifyListeners();
-
-    try {
-      Query query = FirebaseFirestore.instance.collection('orders').orderBy('createdAt', descending: true).limit(limit);
-      
-      if (customerId != null && customerId.isNotEmpty) {
-        query = query.where('customerId', isEqualTo: customerId);
-      }
-
-      if (_lastOrderDoc != null) {
-        query = query.startAfterDocument(_lastOrderDoc!);
-      }
-
-      final snapshot = await query.get();
-      if (snapshot.docs.isNotEmpty) {
-        _lastOrderDoc = snapshot.docs.last;
-        final newOrders = snapshot.docs.map((doc) => OrderModel.fromMap(doc.data() as Map<String, dynamic>)).toList();
-        _orders.addAll(newOrders);
-        _hasMoreOrders = newOrders.length == limit;
-      } else {
-        _hasMoreOrders = false;
-      }
-
-      _isLoading = false;
-      notifyListeners();
-    } catch (e) {
-      debugPrint('Error fetching paged orders: $e');
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  void listenToAllOrders() {
-    for (var sub in _subscriptions) {
-      sub.cancel();
-    }
-    _subscriptions.clear();
-
-    if (_orders.isEmpty) {
-      _isLoading = true;
-      notifyListeners();
-    }
-
-    final sub = _orderService.getAllOrdersStream().listen((orders) {
-      _orders = orders;
-      _isLoading = false;
-      notifyListeners();
-    }, onError: (error) {
-      debugPrint('Error listening to all orders: $error');
-      _isLoading = false;
-      notifyListeners();
-    });
-
-    _subscriptions.add(sub);
-  }
-
-  Future<OrderModel?> createOrder(OrderModel order) async {
-    final idempotencyKey = '${order.customerId}_${DateTime.now().millisecondsSinceEpoch ~/ 5000}';
-    if (_processingOrders[idempotencyKey] == true) {
-      return null;
-    }
-    _processingOrders[idempotencyKey] = true;
-
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
-    try {
-      // 1. Idempotency: Check if order document already exists in Firestore
-      final existingDoc = await FirebaseFirestore.instance.collection('orders').doc(order.id).get();
-      if (existingDoc.exists) {
-        debugPrint('[Security/Idempotency] Order with ID ${order.id} already exists. Returning existing order.');
-        _isLoading = false;
-        _processingOrders.remove(idempotencyKey);
-        notifyListeners();
-        return OrderModel.fromMap(existingDoc.data()!);
-      }
-
-      // 2. Anti-Spam: Check if user placed another order in the last 10 seconds
-      final recentQuery = await FirebaseFirestore.instance
-          .collection('orders')
-          .where('customerId', isEqualTo: order.customerId)
-          .orderBy('createdAt', descending: true)
-          .limit(1)
-          .get();
-
-      if (recentQuery.docs.isNotEmpty) {
-        final lastOrderData = recentQuery.docs.first.data();
-        if (lastOrderData['createdAt'] != null) {
-          final lastOrderTime = (lastOrderData['createdAt'] as Timestamp).toDate();
-          if (DateTime.now().difference(lastOrderTime).inSeconds < 10) {
-            debugPrint('[Security/Idempotency] Rapid duplicate order detected. Rejecting request.');
-            _errorMessage = 'Duplicate order detected. Please wait a moment before trying again.';
-            _isLoading = false;
-            _processingOrders.remove(idempotencyKey);
-            notifyListeners();
-            return null;
-          }
-        }
-      }
-
-      final orderNumber = OrderNumberGenerator.generate();
-      final newOrder = order.copyWith(
-        orderNumber: orderNumber,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
-
-      final dynamic connectivityRes = await _connectivity.checkConnectivity();
-      final List<ConnectivityResult> connectivityResult = (connectivityRes is List) 
-          ? List<ConnectivityResult>.from(connectivityRes) 
-          : [connectivityRes as ConnectivityResult];
-      bool isOffline = connectivityResult.contains(ConnectivityResult.none);
-
-      if (isOffline) {
-        // Queue the order offline
-        await OfflineManager().queueOrder(newOrder);
-        
-        _orders.insert(0, newOrder);
-        _isLoading = false;
-        notifyListeners();
-
-        _notificationService.triggerLocalOrderStatusNotification(
-          orderNumber,
-          'Order Queued (Offline Mode)',
-        );
-        return newOrder;
-      }
-
-      await _orderService.createOrder(newOrder);
-
-      _orders.insert(0, newOrder);
-      
-      _isLoading = false;
-      notifyListeners();
-
-      _notificationService.triggerLocalOrderStatusNotification(
-        orderNumber,
-        'Order Placed',
-      );
-
-      return newOrder;
-    } catch (e) {
-      debugPrint('Error creating order: $e. Queueing offline.');
-      try {
-        final orderNumber = order.orderNumber.isEmpty ? OrderNumberGenerator.generate() : order.orderNumber;
-        final newOrder = order.copyWith(
-          orderNumber: orderNumber,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        );
-        await OfflineManager().queueOrder(newOrder);
-        if (!_orders.any((o) => o.id == newOrder.id)) {
-          _orders.insert(0, newOrder);
-        }
-        _notificationService.triggerLocalOrderStatusNotification(
-          orderNumber,
-          'Order Queued (Offline Mode)',
-        );
-        _isLoading = false;
-        notifyListeners();
-        return newOrder;
-      } catch (innerErr) {
-        debugPrint('Failed to queue order: $innerErr');
-      }
-
-      _errorMessage = 'Failed to create order: ${e.toString()}';
-      _isLoading = false;
-      notifyListeners();
-      return null;
-    } finally {
-      _processingOrders.remove(idempotencyKey);
-    }
-  }
-
-  Future<void> fetchOrders({
-    String? customerId,
-    int page = 1,
-    int limit = _defaultPageLimit,
-  }) async {
-    if (page == 1) {
-      _isLoading = true;
-      _ordersPage = 1;
-      _hasMoreOrders = true;
-      notifyListeners();
-    }
-
-    try {
-      final FirebaseFirestore db = FirebaseFirestore.instance;
-      Query<Map<String, dynamic>> query = db.collection('orders');
-
-      if (customerId != null && customerId.isNotEmpty) {
-        query = query.where('customerId', isEqualTo: customerId);
-      }
-
-      query = query.orderBy('createdAt', descending: true);
-      query = query.limit(limit);
-
-      if (page > 1 && _orders.isNotEmpty) {
-        final lastOrder = _orders.last;
-        final lastDoc = await db.collection('orders').doc(lastOrder.id).get();
-        if (lastDoc.exists) {
-          query = query.startAfterDocument(lastDoc);
-        }
-      }
-
-      final snapshot = await query.get();
-
-      final List<OrderModel> fetchedOrders = snapshot.docs
-          .map((doc) => OrderModel.fromMap(doc.data()))
-          .toList();
-
-      if (page == 1) {
-        _orders = fetchedOrders;
-      } else {
-        _orders.addAll(fetchedOrders);
-      }
-
-      _ordersPage = page;
-      _hasMoreOrders = fetchedOrders.length == limit;
-
-      _isLoading = false;
-      notifyListeners();
-    } catch (e) {
-      debugPrint('Error fetching orders: $e');
-      _errorMessage = 'Failed to fetch orders: ${e.toString()}';
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  Future<void> loadOrders(String customerId) async {
-    return fetchOrders(customerId: customerId);
-  }
-
-  Future<bool> updateOrderStatus(
-    String orderId,
-    OrderStatus newStatus, {
-    String? note,
-  }) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
-    try {
-      final index = _orders.indexWhere((o) => o.id == orderId);
-      if (index < 0) {
-        _errorMessage = 'Order not found';
-        _isLoading = false;
-        notifyListeners();
-        return false;
-      }
-
-      final order = _orders[index];
-
-      final newHistoryEntry = StatusHistoryEntry(
-        status: newStatus,
-        timestamp: DateTime.now(),
-        note: note ?? 'Status updated to ${newStatus.displayName}',
-      );
-
-      final updatedOrder = order.copyWith(
-        status: newStatus,
-        statusHistory: [...order.statusHistory, newHistoryEntry],
-        updatedAt: DateTime.now(),
-      );
-
-      _orders[index] = updatedOrder;
-      if (_currentOrder?.id == orderId) {
-        _currentOrder = updatedOrder;
-      }
-
-      await _orderService.updateOrderStatus(
-        orderId,
-        newStatus.toString().split('.').last,
-      );
-
-      _notificationService.triggerLocalOrderStatusNotification(
-        order.orderNumber,
-        newStatus.displayName,
-      );
-
-      _isLoading = false;
-      notifyListeners();
-      return true;
-    } catch (e) {
-      debugPrint('Error updating order status: $e');
-      _errorMessage = 'Failed to update order status: ${e.toString()}';
-      _isLoading = false;
-      notifyListeners();
-      return false;
-    }
-  }
-
-  /// Explicitly verify and approve payment and confirm order (Owner Flow)
-  Future<bool> approveOrderAndPayment(String orderId) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
-    try {
-      final index = _orders.indexWhere((o) => o.id == orderId);
-      if (index < 0) {
-        _errorMessage = 'Order not found';
-        _isLoading = false;
-        notifyListeners();
-        return false;
-      }
-
-      final order = _orders[index];
-
-      final newHistoryEntry = StatusHistoryEntry(
-        status: OrderStatus.confirmed,
-        timestamp: DateTime.now(),
-        note: 'Order and Payment approved by owner.',
-      );
-
-      final updatedOrder = order.copyWith(
-        status: OrderStatus.confirmed,
-        paymentStatus: 'paid',
-        statusHistory: [...order.statusHistory, newHistoryEntry],
-        updatedAt: DateTime.now(),
-      );
-
-      _orders[index] = updatedOrder;
-      if (_currentOrder?.id == orderId) {
-        _currentOrder = updatedOrder;
-      }
-
-      // Update in Firestore
-      final FirebaseFirestore db = FirebaseFirestore.instance;
-      final batch = db.batch();
-
-      final orderRef = db.collection('orders').doc(orderId);
-      batch.update(orderRef, {
-        'status': OrderStatus.confirmed.toString(),
-        'paymentStatus': 'paid',
-        'updatedAt': FieldValue.serverTimestamp(),
-        'statusHistory': updatedOrder.statusHistory.map((e) => e.toMap()).toList(),
-      });
-
-      if (order.paymentId != null && order.paymentId!.isNotEmpty) {
-        final paymentRef = db.collection('payments').doc(order.paymentId);
-        batch.set(paymentRef, {
-          'verified': true,
-          'status': 'captured',
-          'verifiedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
-      }
-
-      await batch.commit();
-
-      _notificationService.triggerLocalOrderStatusNotification(
-        order.orderNumber,
-        'Order & Payment Approved',
-      );
-
-      _isLoading = false;
-      notifyListeners();
-      return true;
-    } catch (e) {
-      debugPrint('Error approving order and payment: $e');
-      _errorMessage = 'Failed to approve order: ${e.toString()}';
-      _isLoading = false;
-      notifyListeners();
-      return false;
-    }
-  }
-
-  Future<bool> cancelOrder(String orderId, String reason) async {
+  Future<bool> approveOrderAndPayment(String orderId, {String? method}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -685,297 +397,230 @@ class OrderProvider with ChangeNotifier {
       if (index < 0) return false;
 
       final order = _orders[index];
+      final actualMethod = method ?? order.paymentMethod.toString().split('.').last;
 
-      if (order.walletAmountUsed > 0) {
-        final walletSuccess = await WalletService().addToWallet(
-          userId: order.customerId,
-          amount: order.walletAmountUsed,
-          transactionType: WalletTransactionType.refund,
-          orderReference: order.id,
-          description: 'Auto-refund: Order cancelled',
-          transactionId: 'txn_wallet_refund_${order.id}',
-        );
-        if (walletSuccess) {
-          _walletBalance += order.walletAmountUsed;
-        } else {
-          throw Exception('Failed to refund wallet balance');
-        }
-      }
-
-      await _restoreStock(order.items);
-
-      final newHistoryEntry = StatusHistoryEntry(
-        status: OrderStatus.cancelled,
-        timestamp: DateTime.now(),
-        note: 'Order cancelled: $reason',
+      final OrderModel updatedOrder = order.updateStatus(
+        OrderStatus.confirmed, 
+        note: 'Payment and Order Approved',
+      ).copyWith(
+        paymentStatus: 'paid',
+        paymentMethod: method != null ? PaymentMethod.values.firstWhere((e) => e.toString().contains(method)) : order.paymentMethod,
       );
 
-      final updatedOrder = order.copyWith(
-        status: OrderStatus.cancelled,
-        cancellationReason: reason,
-        statusHistory: [...order.statusHistory, newHistoryEntry],
-        updatedAt: DateTime.now(),
+      await FirebaseFirestore.instance.collection('orders').doc(orderId).update({
+        'status': updatedOrder.status.toString(),
+        'paymentStatus': 'paid',
+        'paymentMethod': updatedOrder.paymentMethod.toString(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      await _recordTransaction(
+        orderId: orderId,
+        orderNumber: order.orderNumber,
+        customerId: order.customerId,
+        amount: order.totalAmount,
+        type: TransactionType.payment,
+        method: actualMethod,
       );
 
       _orders[index] = updatedOrder;
-      if (_currentOrder?.id == orderId) {
-        _currentOrder = updatedOrder;
-      }
-
-      await _orderService.updateOrderStatus(orderId, 'cancelled');
-
-      _notificationService.triggerLocalOrderStatusNotification(
-        order.orderNumber,
-        'Cancelled',
-      );
-
+      if (_currentOrder?.id == orderId) _currentOrder = updatedOrder;
       _isLoading = false;
       notifyListeners();
+      
+      if (updatedOrder.customerId.isNotEmpty) {
+        _notificationService.sendNotificationToUser(
+          userId: updatedOrder.customerId,
+          title: 'Order Confirmed',
+          body: 'Your order #${updatedOrder.orderNumber} has been confirmed.',
+          data: {'type': 'orderUpdate', 'orderId': orderId},
+        );
+      }
+      
       return true;
     } catch (e) {
-      debugPrint('Error cancelling order: $e');
-      _errorMessage = 'Failed to cancel order: ${e.toString()}';
+      _errorMessage = e.toString();
       _isLoading = false;
       notifyListeners();
       return false;
     }
   }
 
-  Future<void> rateAndTipOrder(String orderId, double rating, {double? tip}) async {
+  Future<void> fetchOrders({String? customerId, int page = 1, int limit = 10}) async {
+    if (page == 1) {
+      _isLoading = true;
+      _ordersPage = 1;
+      _hasMoreOrders = true;
+      _orders = [];
+      _lastOrderDoc = null;
+      notifyListeners();
+    }
+
     try {
-      await _orderService.updateOrder(orderId, {
-        'rating': rating,
-        if (tip != null) 'tipAmount': FieldValue.increment(tip),
-        'updatedAt': DateTime.now(),
-      });
+      Query<Map<String, dynamic>> query = FirebaseFirestore.instance.collection('orders').orderBy('createdAt', descending: true);
+      if (customerId != null) query = query.where('customerId', isEqualTo: customerId);
+      if (_lastOrderDoc != null) query = query.startAfterDocument(_lastOrderDoc!);
       
-      final index = _orders.indexWhere((o) => o.id == orderId);
-      if (index >= 0) {
-        _orders[index] = _orders[index].copyWith(
-          rating: rating,
-        );
-        notifyListeners();
+      final snapshot = await query.limit(limit).get();
+      if (snapshot.docs.isNotEmpty) {
+        _lastOrderDoc = snapshot.docs.last;
+        final fetched = snapshot.docs.map((d) => OrderModel.fromMap(d.data())).toList();
+        _orders.addAll(fetched);
+        _hasMoreOrders = fetched.length == limit;
+      } else {
+        _hasMoreOrders = false;
       }
+      _isLoading = false;
+      _ordersPage = page;
+      notifyListeners();
     } catch (e) {
-      debugPrint('Error rating/tipping order: $e');
+      _errorMessage = e.toString();
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
-  Future<void> updateOrderItems(String orderId, List<OrderItem> items) async {
-    await FirebaseFirestore.instance.collection('orders').doc(orderId).update({
-      'items': items.map((i) => i.toMap()).toList(),
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+  Future<OrderModel?> getOrderById(String id) async {
+    final idx = _orders.indexWhere((o) => o.id == id);
+    if (idx != -1) return _orders[idx];
+    final doc = await FirebaseFirestore.instance.collection('orders').doc(id).get();
+    return doc.exists ? OrderModel.fromMap(doc.data()!) : null;
   }
 
-  void clearState() {
-    _orders = [];
-    _currentOrder = null;
-    _errorMessage = null;
-    _ordersPage = 1;
-    _hasMoreOrders = true;
-    _returnRequests = [];
-
-    for (var sub in _subscriptions) {
-      sub.cancel();
-    }
-    _subscriptions.clear();
-
+  Future<bool> cancelOrder(String orderId, String reason) async {
+    _isLoading = true;
     notifyListeners();
-  }
-
-  Future<void> _restoreStock(List<OrderItem> items) async {
     try {
-      final db = FirebaseFirestore.instance;
-      final batch = db.batch();
-
-      for (var item in items) {
-        final productRef = db.collection('products').doc(item.productId);
-        batch.update(productRef, {
-          'stockQuantity': FieldValue.increment(item.quantity),
-          'isAvailable': true,
-        });
+      final index = _orders.indexWhere((o) => o.id == orderId);
+      if (index != -1) {
+        // This will throw StateError if transition is invalid
+        final cancelledOrder = _orders[index].updateStatus(
+          OrderStatus.cancelled, 
+          note: reason,
+        ).copyWith(cancellationReason: reason);
+        
+        await _orderService.updateOrderStatus(orderId, 'cancelled');
+        _orders[index] = cancelledOrder;
       }
-
-      await batch.commit();
+      _isLoading = false;
+      notifyListeners();
+      return true;
     } catch (e) {
-      debugPrint('Error restoring stock: $e');
+      _isLoading = false;
+      _errorMessage = e.toString();
+      notifyListeners();
+      return false;
     }
   }
 
-  Future<void> loadDemoOrders() async {}
-  
-  List<OrderModel> getOrdersByStatus(OrderStatus status) {
-    return _orders.where((o) => o.status == status).toList();
-  }
+  /// Safely update an order's status enforcing state machine rules
+  Future<bool> updateOrderStatusSafe(String orderId, OrderStatus newStatus, {String? note, bool force = false}) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
 
-  List<OrderModel> searchOrders(String query) {
-    return _orders.where((o) => o.orderNumber.contains(query)).toList();
-  }
+    try {
+      final index = _orders.indexWhere((o) => o.id == orderId);
+      if (index == -1) return false;
 
-  String getMembershipTier() => 'Bronze';
+      final currentOrder = _orders[index];
+      
+      // 1. Enforce State Machine Validation
+      final updatedOrder = currentOrder.updateStatus(newStatus, note: note, force: force);
 
-  /// Analyzes history to find most frequently bought items (Step 15.1)
-  List<String> getFrequentlyBoughtProductIds() {
-    final Map<String, int> frequencyMap = {};
-    for (var order in _orders) {
-      if (order.status != OrderStatus.cancelled) {
-        for (var item in order.items) {
-          frequencyMap[item.productId] = (frequencyMap[item.productId] ?? 0) + item.quantity;
+      // 2. Persist to Firestore
+      await FirebaseFirestore.instance.collection('orders').doc(orderId).update({
+        'status': updatedOrder.status.toString(),
+        'updatedAt': FieldValue.serverTimestamp(),
+        'statusHistory': updatedOrder.statusHistory.map((e) => e.toMap()).toList(),
+      });
+
+      // 3. Update Local State
+      _orders[index] = updatedOrder;
+      if (_currentOrder?.id == orderId) _currentOrder = updatedOrder;
+      
+      _isLoading = false;
+      notifyListeners();
+      
+      // Send In-App notification for status change
+      if (updatedOrder.customerId.isNotEmpty) {
+        if (newStatus == OrderStatus.cancelled) {
+          _notificationService.sendNotificationToUser(
+            userId: updatedOrder.customerId,
+            title: 'Order Cancelled',
+            body: 'Your order #${updatedOrder.orderNumber} has been cancelled.',
+            data: {'type': 'orderUpdate', 'orderId': orderId},
+          );
+        } else {
+          _notificationService.sendNotificationToUser(
+            userId: updatedOrder.customerId,
+            title: 'Order Update',
+            body: 'Your order #${updatedOrder.orderNumber} is now ${newStatus.name}.',
+            data: {'type': 'orderUpdate', 'orderId': orderId},
+          );
         }
       }
+
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
     }
-    final sorted = frequencyMap.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-    return sorted.map((e) => e.key).take(12).toList();
   }
 
-  /// Finds "Weekly Essentials" or recurring items (Step 15.1)
-  List<String> getWeeklyEssentials() {
-    final Map<String, List<DateTime>> purchaseDates = {};
-    for (var order in _orders) {
-      for (var item in order.items) {
-        purchaseDates.putIfAbsent(item.productId, () => []).add(order.createdAt);
-      }
-    }
-    
-    final List<String> essentials = [];
-    purchaseDates.forEach((productId, dates) {
-      if (dates.length >= 3) {
-        // Simple logic: if bought 3+ times, consider essential
-        essentials.add(productId);
-      }
-    });
-    return essentials;
-  }
-
-  bool isValidStatusTransition(OrderStatus current, OrderStatus next) => true;
-
-  Future<void> addToWallet(double amount) async {
-    _walletBalance += amount;
-    notifyListeners();
-  }
-
-  Future<bool> createReturnRequest({
-    required String orderId,
-    required List<String> itemIds,
-    required String reason,
-    List<String>? proofImages,
-  }) async {
+  Future<bool> createReturnRequest({required String orderId, required List<String> itemIds, required String reason}) async {
     try {
       final order = await getOrderById(orderId);
-      if (order == null) {
-        _errorMessage = 'Order not found';
-        return false;
-      }
-
-      final returnedItemsNames = order.items
-          .where((item) => itemIds.contains(item.productId) || itemIds.contains(item.id))
-          .map((item) => '${item.quantity}x ${item.productName}')
-          .join(', ');
-
+      if (order == null) return false;
       final request = {
         'id': 'RET_${DateTime.now().millisecondsSinceEpoch}',
         'orderId': orderId,
-        'orderNumber': order.orderNumber,
         'customerId': order.customerId,
-        'customerName': order.customerName,
-        'customerPhone': order.customerPhone,
         'itemIds': itemIds,
-        'items': returnedItemsNames,
         'reason': reason,
         'status': 'pending',
-        'amount': order.totalAmount, // Simplified
-        'proofImages': proofImages ?? [],
         'createdAt': FieldValue.serverTimestamp(),
       };
       await _orderService.createReturnRequest(request);
       return true;
     } catch (e) {
-      debugPrint('Error creating return request: $e');
-      _errorMessage = e.toString();
       return false;
     }
   }
 
-  String getStatusTransitionNote(OrderStatus status) {
-    switch (status) {
-      case OrderStatus.pending:
-        return 'Order placed and awaiting confirmation';
-      case OrderStatus.confirmed:
-        return 'Order confirmed by the shop';
-      case OrderStatus.processing:
-        return 'Order is being prepared';
-      case OrderStatus.packed:
-        return 'Order has been packed';
-      case OrderStatus.outForDelivery:
-        return 'Order is out for delivery';
-      case OrderStatus.delivered:
-        return 'Order has been delivered';
-      case OrderStatus.cancelled:
-        return 'Order has been cancelled';
-      case OrderStatus.returned:
-        return 'Return request processed';
-      case OrderStatus.refunded:
-        return 'Refund has been processed';
-    }
-  }
-
   Map<String, dynamic> getShopStats() {
-    final now = DateTime.now();
-    final todayStart = DateTime(now.year, now.month, now.day);
-    
-    final todayOrders = _orders.where((o) => o.createdAt.isAfter(todayStart)).toList();
-    final todayOrderCount = todayOrders.length;
-    final todayRevenue = todayOrders
-        .where((o) => o.status != OrderStatus.cancelled)
-        .fold(0.0, (total, o) => total + o.totalAmount);
-        
-    final pendingOrderCount = _orders.where((o) => o.status == OrderStatus.pending).length;
-    
     return {
-      'todayOrderCount': todayOrderCount,
-      'todayRevenue': todayRevenue,
-      'pendingOrderCount': pendingOrderCount,
+      'todayOrderCount': _orders.length,
+      'todayRevenue': _orders.fold(0.0, (sum, o) => sum + o.totalAmount),
+      'pendingOrderCount': _orders.where((o) => o.status == OrderStatus.pending).length,
     };
   }
 
-  /// Checks if the current user has purchased a specific product in any delivered order.
   bool hasPurchasedProduct(String productId) {
-    return _orders.any((order) => 
-      order.status == OrderStatus.delivered && 
-      order.items.any((item) => item.productId == productId)
-    );
+    return _orders.any((o) => o.status == OrderStatus.delivered && o.items.any((i) => i.productId == productId));
   }
 
-  Future<void> syncOfflineOrders() async {
-    try {
-      final queued = await OfflineManager().getQueuedOrders();
-      if (queued.isEmpty) return;
-      
-      debugPrint('Offline Sync: Found ${queued.length} queued orders to synchronize.');
-      for (final order in queued) {
-        final doc = await FirebaseFirestore.instance.collection('orders').doc(order.id).get();
-        if (!doc.exists) {
-          await _orderService.createOrder(order);
-          debugPrint('Offline Sync: Order ${order.orderNumber} successfully pushed to Firestore.');
-        } else {
-          debugPrint('Offline Sync: Order ${order.orderNumber} already exists on Firestore. Skipping.');
-        }
-        await OfflineManager().removeQueuedOrder(order.id);
-        
-        final idx = _orders.indexWhere((o) => o.id == order.id);
-        if (idx >= 0) {
-          _orders[idx] = order.copyWith(
-            notes: order.notes != null 
-              ? '${order.notes} (Synced Online)' 
-              : 'Synced Online'
-          );
-        }
+  List<String> getFrequentlyBoughtProductIds() {
+    final Map<String, int> freq = {};
+    for (var o in _orders) {
+      for (var i in o.items) {
+        freq[i.productId] = (freq[i.productId] ?? 0) + i.quantity;
       }
-      notifyListeners();
-    } catch (e) {
-      debugPrint('Offline Sync: Error during order synchronization: $e');
     }
+    final sorted = freq.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    return sorted.map((e) => e.key).take(10).toList();
+  }
+
+  List<String> getWeeklyEssentials() => getFrequentlyBoughtProductIds();
+
+  Future<void> syncOfflineOrders() async {
+    final queued = await OfflineManager().getQueuedOrders();
+    for (var o in queued) {
+      await _orderService.createOrder(o);
+      await OfflineManager().removeQueuedOrder(o.id);
+    }
+    notifyListeners();
   }
 }

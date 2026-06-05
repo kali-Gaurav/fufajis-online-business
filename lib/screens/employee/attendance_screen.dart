@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../services/employee_scanner_service.dart';
@@ -18,19 +19,67 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   AttendanceRecord? _todayRecord;
   bool _isLoading = false;
   LocationData? _currentLocation;
-  String _attendanceStatus = '';
+  final String _attendanceStatus = '';
+
+  bool _autoCheckInDone = false;
 
   @override
   void initState() {
     super.initState();
     _loadTodayAttendance();
-    _getCurrentLocation();
+    _getCurrentLocationThenAutoAct();
+  }
+
+  /// Gets GPS then, if this screen was opened via QR scan, auto check-in/out.
+  Future<void> _getCurrentLocationThenAutoAct() async {
+    await _getCurrentLocation();
+    // Only auto-act when opened by the scanner (qrCodeId passed in)
+    if (widget.qrCodeId != null &&
+        widget.qrCodeId!.isNotEmpty &&
+        !_autoCheckInDone) {
+      _autoCheckInDone = true;
+      await Future.delayed(
+          const Duration(milliseconds: 300)); // let UI render first
+      if (mounted) await _autoActFromQr();
+    }
+  }
+
+  /// Auto check-in or check-out depending on today's record — no button needed.
+  Future<void> _autoActFromQr() async {
+    final isCheckedIn = _todayRecord?.isCheckedIn == true &&
+        !(_todayRecord?.isCheckedOut == true);
+
+    if (isCheckedIn) {
+      await _checkOut();
+    } else {
+      await _checkIn();
+    }
+
+    // Haptic celebration + show overlay
+    await HapticFeedback.heavyImpact();
+    await Future.delayed(const Duration(milliseconds: 80));
+    await HapticFeedback.mediumImpact();
+
+    if (mounted) _showAutoConfirmOverlay(isCheckedIn ? 'Out' : 'In');
+  }
+
+  void _showAutoConfirmOverlay(String type) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => _AttendanceConfirmOverlay(
+        type: type,
+        employeeName:
+            context.read<AuthProvider>().currentUser?.name ?? 'Employee',
+        onDismiss: () => Navigator.pop(context),
+      ),
+    );
   }
 
   Future<void> _getCurrentLocation() async {
     try {
       final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
       );
       setState(() {
         _currentLocation = LocationData.fromPosition(position);
@@ -138,52 +187,52 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Attendance'),
+        title: const Text('Attendance'),
         actions: [
           IconButton(
-            icon: Icon(Icons.qr_code_scanner),
+            icon: const Icon(Icons.qr_code_scanner),
             onPressed: () => _showScannerDialog(),
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             // Employee Info Card
             Card(
               color: Colors.blue.shade50,
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
                     CircleAvatar(
                       radius: 40,
                       child: Text(
                         employeeName[0].toUpperCase(),
-                        style: TextStyle(fontSize: 32),
+                        style: const TextStyle(fontSize: 32),
                       ),
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     Text(
                       employeeName,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     Text(
                       authProvider.currentBranch?.name ?? 'Branch',
-                      style: TextStyle(color: Colors.grey),
+                      style: const TextStyle(color: Colors.grey),
                     ),
                   ],
                 ),
               ),
             ),
 
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // Location Status
             Card(
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
                     Icon(
@@ -193,7 +242,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                       color:
                           _currentLocation != null ? Colors.green : Colors.grey,
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         _currentLocation != null
@@ -211,12 +260,12 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               ),
             ),
 
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // Attendance Card
             Card(
               child: Padding(
-                padding: EdgeInsets.all(24),
+                padding: const EdgeInsets.all(24),
                 child: Column(
                   children: [
                     Text(
@@ -225,14 +274,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           : (isCheckedIn ? 'Checked In' : 'Not Checked In'),
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
                     if (isCheckedIn && !isCheckedOut) ...[
                       // Show check-in time
                       _buildTimeDisplay(
                         'Check-in Time',
                         _todayRecord?.checkInTime,
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       // Working hours
                       if (_todayRecord?.workingHours != null)
                         _buildTimeDisplay(
@@ -241,7 +290,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           customValue:
                               '${_todayRecord!.workingHours!.toStringAsFixed(1)} hrs',
                         ),
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
                       // Check-out button
                       SizedBox(
                         width: double.infinity,
@@ -250,11 +299,11 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
                             foregroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(vertical: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
                           child: _isLoading
-                              ? CircularProgressIndicator(color: Colors.white)
-                              : Text('Check Out'),
+                              ? const CircularProgressIndicator(color: Colors.white)
+                              : const Text('Check Out'),
                         ),
                       ),
                     ] else if (!isCheckedIn) ...[
@@ -266,21 +315,21 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green,
                             foregroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(vertical: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
                           child: _isLoading
-                              ? CircularProgressIndicator(color: Colors.white)
-                              : Text('Check In'),
+                              ? const CircularProgressIndicator(color: Colors.white)
+                              : const Text('Check In'),
                         ),
                       ),
                     ] else ...[
                       // Show complete record
                       _buildTimeDisplay(
                           'Check-in Time', _todayRecord?.checkInTime),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       _buildTimeDisplay(
                           'Check-out Time', _todayRecord?.checkOutTime),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       if (_todayRecord?.workingHours != null)
                         _buildTimeDisplay(
                           'Total Hours',
@@ -294,14 +343,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               ),
             ),
 
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // Scan QR Button
             if (widget.qrCodeId == null)
               OutlinedButton.icon(
                 onPressed: () => _showScannerDialog(),
-                icon: Icon(Icons.qr_code_scanner),
-                label: Text('Scan Attendance QR'),
+                icon: const Icon(Icons.qr_code_scanner),
+                label: const Text('Scan Attendance QR'),
               ),
           ],
         ),
@@ -314,13 +363,13 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: TextStyle(color: Colors.grey)),
+        Text(label, style: const TextStyle(color: Colors.grey)),
         Text(
           customValue ??
               (time != null
                   ? '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}'
                   : '--:--'),
-          style: TextStyle(
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -333,10 +382,10 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Enter Attendance QR'),
+        title: const Text('Enter Attendance QR'),
         content: TextField(
           autofocus: true,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             labelText: 'Attendance ID',
             border: OutlineInputBorder(),
           ),
@@ -356,10 +405,115 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
+            child: const Text('Cancel'),
           ),
         ],
       ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// _AttendanceConfirmOverlay
+//
+// Shown immediately after auto check-in or check-out from QR scan.
+// Auto-dismisses after 3 seconds.
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _AttendanceConfirmOverlay extends StatefulWidget {
+  final String type;          // 'In' or 'Out'
+  final String employeeName;
+  final VoidCallback onDismiss;
+
+  const _AttendanceConfirmOverlay({
+    required this.type,
+    required this.employeeName,
+    required this.onDismiss,
+  });
+
+  @override
+  State<_AttendanceConfirmOverlay> createState() =>
+      _AttendanceConfirmOverlayState();
+}
+
+class _AttendanceConfirmOverlayState
+    extends State<_AttendanceConfirmOverlay> {
+  int _countdown = 3;
+
+  @override
+  void initState() {
+    super.initState();
+    _startCountdown();
+  }
+
+  void _startCountdown() async {
+    for (int i = 3; i > 0; i--) {
+      if (!mounted) return;
+      setState(() => _countdown = i);
+      await Future.delayed(const Duration(seconds: 1));
+    }
+    if (mounted) widget.onDismiss();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isIn = widget.type == 'In';
+    final color = isIn ? Colors.green : const Color(0xFFE65100);
+    final icon = isIn ? Icons.login : Icons.logout;
+    final label = isIn ? 'Checked In' : 'Checked Out';
+    final now = TimeOfDay.now();
+    final timeStr =
+        '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+
+    return AlertDialog(
+      shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      contentPadding: const EdgeInsets.all(28),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 72,
+            height: 72,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 36),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            label,
+            style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: color),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            widget.employeeName,
+            style: const TextStyle(fontSize: 16),
+          ),
+          Text(
+            timeStr,
+            style: const TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Closing in $_countdown…',
+            style: const TextStyle(color: Colors.grey, fontSize: 12),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: widget.onDismiss,
+          child: const Text('OK'),
+        ),
+      ],
     );
   }
 }

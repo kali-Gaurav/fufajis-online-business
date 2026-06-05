@@ -93,7 +93,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: TextStyle(color: AppTheme.grey500, fontSize: 14)),
+                Text(title, style: const TextStyle(color: AppTheme.grey500, fontSize: 14)),
                 const SizedBox(height: 8),
                 Text(value, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
               ],

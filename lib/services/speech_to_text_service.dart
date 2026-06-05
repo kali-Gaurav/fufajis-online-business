@@ -4,6 +4,14 @@ import 'package:flutter/foundation.dart';
 class SpeechToTextService {
   final SpeechToText _speech = SpeechToText();
   bool _isInitialized = false;
+  String _lastRecognizedWords = '';
+  
+  // Available Locales
+  static const String localeHindi = 'hi_IN';
+  static const String localeEnglish = 'en_IN';
+  
+  String _currentLocale = localeHindi;
+  String get currentLocale => _currentLocale;
 
   Future<bool> initialize() async {
     if (_isInitialized) return true;
@@ -13,15 +21,26 @@ class SpeechToTextService {
     );
     return _isInitialized;
   }
+  
+  void setLocale(String locale) {
+    _currentLocale = locale;
+  }
 
   Future<void> startListening({
     required Function(String) onResult,
     required Function(String) onError,
+    String? overrideLocale,
   }) async {
     final available = await initialize();
     if (available) {
+      _lastRecognizedWords = '';
+      
+      final localeId = overrideLocale ?? _currentLocale;
+      debugPrint('[STT] Listening with locale: $localeId');
+      
       await _speech.listen(
         onResult: (result) {
+          _lastRecognizedWords = result.recognizedWords;
           onResult(result.recognizedWords);
         },
         listenFor: const Duration(seconds: 30),
@@ -29,6 +48,7 @@ class SpeechToTextService {
         partialResults: true,
         cancelOnError: true,
         listenMode: ListenMode.confirmation,
+        localeId: localeId,
       );
     } else {
       onError('Speech recognition not available');
@@ -37,7 +57,7 @@ class SpeechToTextService {
 
   Future<String> stopListening() async {
     await _speech.stop();
-    return ''; // SpeechToText usually provides results via callback
+    return _lastRecognizedWords;
   }
 
   bool get isListening => _speech.isListening;

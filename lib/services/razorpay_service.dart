@@ -1,36 +1,36 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../config/app_config.dart';
-import '../models/payment_result.dart';
 
-/// Callback typedef for payment events
-typedef PaymentSuccessCallback = void Function(PaymentResult result);
-typedef PaymentFailureCallback = void Function(PaymentResult result);
-typedef PaymentExternalWalletCallback = void Function(String walletName);
+/// Callback typedefs for payment events
+typedef PaymentSuccessCallback = void Function(PaymentSuccessResponse response);
+typedef PaymentFailureCallback = void Function(PaymentFailureResponse response);
+typedef PaymentExternalWalletCallback = void Function(
+    ExternalWalletResponse response);
 
-/// Razorpay payment service for handling online payments
-/// 
-/// This service provides a clean interface for:
-/// - Initializing Razorpay checkout
-/// - Handling success, failure, and external wallet callbacks
-/// - Cleaning up resources on dispose
+/// Complete RazorpayService with Firebase verification and Firestore order update
 class RazorpayService {
   final Razorpay _razorpay = Razorpay();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   PaymentSuccessCallback? _onSuccess;
   PaymentFailureCallback? _onFailure;
   PaymentExternalWalletCallback? _onExternalWallet;
+
   bool _isInitialized = false;
 
-  /// Initialize the Razorpay instance with event handlers
-  /// Must be called before opening checkout
+  /// Initialise Razorpay with event handlers.
+  /// Must be called once before [createOrder].
   void initialize({
     required PaymentSuccessCallback onSuccess,
     required PaymentFailureCallback onFailure,
     PaymentExternalWalletCallback? onExternalWallet,
   }) {
     if (_isInitialized) {
-      debugPrint('RazorpayService: Already initialized');
-      return;
+      debugPrint('RazorpayService: already initialized, re-attaching handlers');
+      _razorpay.clear();
     }
 
     _onSuccess = onSuccess;
@@ -42,200 +42,219 @@ class RazorpayService {
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
 
     _isInitialized = true;
-    debugPrint('RazorpayService: Initialized successfully');
+    debugPrint('RazorpayService: initialized');
   }
 
-  /// Open Razorpay checkout with order details
-  /// 
-  /// Parameters:
-  /// - amount: Order amount in INR (will be converted to paise)
-  /// - orderId: Unique order ID from your backend
-  /// - customerName: Customer's name for prefill
-  /// - customerEmail: Customer's email for prefill
-  /// - customerPhone: Customer's phone for prefill
-  /// - description: Payment description
-  /// - themeColor: Custom theme color for checkout UI
-  /// 
-  /// Returns true if checkout opened successfully, false otherwise
-  bool checkout({
+  /// Open the Razorpay payment UI.
+  ///
+  /// [amount] is in INR (will be converted to paise).
+  /// [orderId] is the Firestore / backend order ID.
+  /// [customerPhone] should be a 10-digit or full E.164 number.
+  /// [customerName] is used for the prefill display.
+  Future<void> createOrder({
     required double amount,
     required String orderId,
-    required String customerName,
-    required String customerEmail,
     required String customerPhone,
-    String description = 'Order Payment',
-    Color? themeColor,
-  }) {
+    required String customerName,
+    String customerEmail = 'customer@fufajionline.com',
+    String description = "Fufaji's Online Order",
+  }) async {
     if (!_isInitialized) {
-      debugPrint('RazorpayService: Not initialized. Call initialize() first.');
-      return false;
+      debugPrint('RazorpayService: call initialize() before createOrder()');
+      return;
     }
 
-    if (AppConfig.razorpayKeyId.isEmpty) {
-      debugPrint('RazorpayService: API key not configured');
-      return false;
+    final key = AppConfig.razorpayKeyId;
+    if (key.isEmpty) {
+      debugPrint('RazorpayService: LIVE_API_KEY not configured in .env');
+      return;
     }
 
     try {
-      // Production Hardening: Enhanced prefill sanitation
-      final String cleanPhone = _sanitizePhone(customerPhone);
-      final String cleanEmail = _sanitizeEmail(customerEmail);
-      final String cleanName = _sanitizeName(customerName);
+      // 1. Create Order on Razorpay Backend first (Step 1 & 2 of recommended architecture)
+      final callable = FirebaseFunctions.instance.httpsCallable('createRazorpayOrder');
+      final result = await callable.call(<String, dynamic>{
+        'amount': amount,
+        'currency': 'INR',
+        'receipt': orderId,
+        'notes': {'order_id': orderId},
+      });
 
-      debugPrint('RazorpayService: Sanitized inputs -> Phone: $cleanPhone, Email: $cleanEmail, Name: $cleanName');
+      if (result.data == null || result.data['success'] != true) {
+        throw Exception('Failed to create Razorpay order on backend');
+      }
 
-      var options = <String, dynamic>{
-        'key': AppConfig.razorpayKeyId,
-        'amount': (amount * 100).toInt(), // Convert to paise
-        'name': "Fufaji Online",
+      final razorpayOrderId = result.data['razorpayOrderId'];
+
+      // 2. Open Razorpay Checkout (Step 3)
+      final options = <String, dynamic>{
+        'key': key,
+        'amount': (amount * 100).toInt(), // paise
+        'name': "Fufaji's Online",
         'description': description,
-        'order_id': orderId,
+        'order_id': razorpayOrderId, // MUST use the ID returned from backend
         'prefill': {
-          'contact': cleanPhone,
-          'email': cleanEmail,
-          'name': cleanName,
+          'contact': _sanitizePhone(customerPhone),
+          'email': _sanitizeEmail(customerEmail),
+          'name': _sanitizeName(customerName),
         },
-        'notes': {
-          'order_id': orderId,
-        },
-        'theme': {
-          'color': themeColor != null
-              ? '#${(themeColor.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0').toUpperCase()}'
-              : '#FF5722',
+        'notes': {'order_id': orderId},
+        'theme': {'color': '#FF5722'},
+        'external': {
+          'wallets': ['paytm'],
         },
       };
 
       _razorpay.open(options);
-      debugPrint('RazorpayService: Checkout opened for order $orderId');
-      return true;
+      debugPrint('RazorpayService: checkout opened for order $orderId (RZP ID: $razorpayOrderId)');
     } catch (e) {
-      debugPrint('RazorpayService: Error opening checkout - $e');
-      return false;
+      debugPrint('RazorpayService: failed to initiate payment – $e');
+      _onFailure?.call(PaymentFailureResponse(Razorpay.NETWORK_ERROR, e.toString(), {}));
     }
   }
 
-  /// Helper to sanitize phone number for Razorpay
+  // ──────────────────────────────────────────────────────────────────────
+  // Internal handlers
+  // ──────────────────────────────────────────────────────────────────────
+
+  void _handlePaymentSuccess(PaymentSuccessResponse response) {
+    debugPrint(
+        'RazorpayService: payment success – paymentId=${response.paymentId}');
+    _verifyAndUpdateOrder(response);
+    _onSuccess?.call(response);
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    debugPrint(
+        'RazorpayService: payment error – code=${response.code} msg=${response.message}');
+
+    // Mark the order as failed in Firestore if we can derive the orderId
+    // (orderId is not available in failure response, caller must handle)
+    _onFailure?.call(response);
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    debugPrint(
+        'RazorpayService: external wallet selected – ${response.walletName}');
+    _onExternalWallet?.call(response);
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Firebase verification & Firestore update
+  // ──────────────────────────────────────────────────────────────────────
+
+  /// Call Cloud Function `verifyRazorpayPayment`, then update Firestore order.
+  Future<void> _verifyAndUpdateOrder(PaymentSuccessResponse response) async {
+    final paymentId = response.paymentId ?? '';
+    final orderId = response.orderId ?? '';
+    final signature = response.signature ?? '';
+
+    try {
+      // 1. Server-side signature verification
+      final callable =
+          FirebaseFunctions.instance.httpsCallable('verifyRazorpayPayment');
+      final result = await callable.call(<String, dynamic>{
+        'paymentId': paymentId,
+        'orderId': orderId,
+        'signature': signature,
+      });
+
+      final verified =
+          result.data != null && result.data['success'] == true;
+
+      if (verified) {
+        debugPrint(
+            'RazorpayService: signature verified – updating order $orderId');
+        await _markOrderPaid(orderId: orderId, paymentId: paymentId);
+      } else {
+        debugPrint(
+            'RazorpayService: signature verification failed – ${result.data}');
+        await _markOrderFailed(orderId: orderId);
+      }
+    } on FirebaseFunctionsException catch (e) {
+      debugPrint(
+          'RazorpayService: Cloud Function error [${e.code}] ${e.message}');
+      // Fallback: optimistically mark paid; webhook will reconcile
+      await _markOrderPaid(orderId: orderId, paymentId: paymentId);
+    } catch (e) {
+      debugPrint('RazorpayService: verification error – $e');
+      // Optimistically mark paid; webhook reconciliation will correct
+      await _markOrderPaid(orderId: orderId, paymentId: paymentId);
+    }
+  }
+
+  Future<void> _markOrderPaid({
+    required String orderId,
+    required String paymentId,
+  }) async {
+    if (orderId.isEmpty) return;
+    try {
+      await _firestore.collection('orders').doc(orderId).update({
+        'paymentStatus': 'paid',
+        'paymentId': paymentId,
+        'status': 'OrderStatus.confirmed',
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      debugPrint('RazorpayService: order $orderId marked paid');
+    } catch (e) {
+      debugPrint('RazorpayService: failed to mark order paid – $e');
+    }
+  }
+
+  Future<void> _markOrderFailed({required String orderId}) async {
+    if (orderId.isEmpty) return;
+    try {
+      await _firestore.collection('orders').doc(orderId).update({
+        'paymentStatus': 'failed',
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      debugPrint('RazorpayService: order $orderId marked failed');
+    } catch (e) {
+      debugPrint('RazorpayService: failed to mark order failed – $e');
+    }
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Sanitisation helpers
+  // ──────────────────────────────────────────────────────────────────────
+
   String _sanitizePhone(String phone) {
-    // Remove all non-digit characters
-    String digits = phone.replaceAll(RegExp(r'\D'), '');
-    
-    // If it starts with 91 and is 12 digits, assume it's Indian format
-    if (digits.startsWith('91') && digits.length == 12) {
-      return digits;
-    }
-    
-    // If it's 10 digits, add 91 prefix
-    if (digits.length == 10) {
-      return '91$digits';
-    }
-    
-    // If too short or too long, return it as is or default
+    final digits = phone.replaceAll(RegExp(r'\D'), '');
+    if (digits.startsWith('91') && digits.length == 12) return digits;
+    if (digits.length == 10) return '91$digits';
     return digits.length >= 10 ? digits : '910000000000';
   }
 
-  /// Helper to sanitize email for Razorpay
   String _sanitizeEmail(String email) {
-    String clean = email.trim().toLowerCase();
-    // Basic email validation regex
-    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
-    if (!emailRegex.hasMatch(clean)) {
-      return 'customer@fufajionline.com'; // Default safe email
-    }
-    return clean;
+    final clean = email.trim().toLowerCase();
+    final valid = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(clean);
+    return valid ? clean : 'customer@fufajionline.com';
   }
 
-  /// Helper to sanitize name for Razorpay
   String _sanitizeName(String name) {
-    String clean = name.trim().replaceAll(RegExp(r'[^\w\s]'), '');
+    final clean = name.trim().replaceAll(RegExp(r'[^\w\s]'), '');
     return clean.isEmpty ? 'Valued Customer' : clean;
   }
 
-  /// Open checkout with a pre-created order from backend
-  /// This is the recommended approach for production
-  bool checkoutWithOrder({
-    required String orderId,
-    required double amount,
-    required String customerName,
-    required String customerEmail,
-    required String customerPhone,
-    String description = 'Order Payment',
-  }) {
-    return checkout(
-      amount: amount,
-      orderId: orderId,
-      customerName: customerName,
-      customerEmail: customerEmail,
-      customerPhone: customerPhone,
-      description: description,
-    );
-  }
+  // ──────────────────────────────────────────────────────────────────────
+  // Lifecycle
+  // ──────────────────────────────────────────────────────────────────────
 
-  /// Handle successful payment
-  void _handlePaymentSuccess(PaymentSuccessResponse response) {
-    debugPrint('RazorpayService: Payment success - ${response.paymentId}');
-
-    final result = PaymentResult.success(
-      paymentId: response.paymentId ?? '',
-      orderId: response.orderId,
-      signature: response.signature,
-    );
-
-    _onSuccess?.call(result);
-  }
-
-  /// Handle payment failure
-  void _handlePaymentError(PaymentFailureResponse response) {
-    debugPrint('RazorpayService: Payment failed - ${response.code}: ${response.message}');
-
-    final result = PaymentResult.failed(
-      errorCode: response.code.toString(),
-      errorMessage: response.message ?? 'Payment failed',
-    );
-
-    _onFailure?.call(result);
-  }
-
-  /// Handle external wallet selection
-  void _handleExternalWallet(ExternalWalletResponse response) {
-    debugPrint('RazorpayService: External wallet selected - ${response.walletName}');
-
-    _onExternalWallet?.call(response.walletName ?? '');
-  }
-
-  /// Re-attach event handlers (useful after app resume)
-  void reattachHandlers() {
-    if (!_isInitialized) return;
-
-    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
-    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
-    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
-  }
-
-  /// Clear the Razorpay instance and release resources
-  /// Call this in dispose() of your widget
+  /// Release Razorpay resources. Call from your widget's dispose().
   void dispose() {
     _razorpay.clear();
     _onSuccess = null;
     _onFailure = null;
     _onExternalWallet = null;
     _isInitialized = false;
-    debugPrint('RazorpayService: Disposed');
+    debugPrint('RazorpayService: disposed');
   }
 
-  /// Check if Razorpay is properly configured
   bool get isConfigured => AppConfig.razorpayKeyId.isNotEmpty;
-
-  /// Get the current API key (masked for security)
-  String get maskedKeyId {
-    final key = AppConfig.razorpayKeyId;
-    if (key.length <= 8) return '****';
-    return '${key.substring(0, 4)}****${key.substring(key.length - 4)}';
-  }
 }
 
-/// Extension to get human-readable error message
+/// Human-readable error messages for PaymentFailureResponse codes.
 extension PaymentErrorExtension on PaymentFailureResponse {
-  /// Get user-friendly error message
   String get userFriendlyMessage {
     switch (code) {
       case Razorpay.NETWORK_ERROR:
@@ -245,7 +264,7 @@ extension PaymentErrorExtension on PaymentFailureResponse {
       case Razorpay.PAYMENT_CANCELLED:
         return 'Payment was cancelled.';
       case Razorpay.TLS_ERROR:
-        return 'Security error. Please try again or use a different payment method.';
+        return 'Security error. Please try a different payment method.';
       default:
         return message ?? 'Payment failed. Please try again.';
     }

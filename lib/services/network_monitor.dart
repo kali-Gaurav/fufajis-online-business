@@ -13,7 +13,9 @@ class NetworkMonitor extends ChangeNotifier {
   NetworkMonitor() {
     _initConnectivity();
     // Use dynamic to handle both ConnectivityResult (older API) and List<ConnectivityResult> (newer API)
-    _connectivitySubscription = _connectivity.onConnectivityChanged.listen((dynamic result) {
+    _connectivitySubscription = _connectivity.onConnectivityChanged.listen((
+      dynamic result,
+    ) {
       _updateConnectionStatus(result);
     });
   }
@@ -29,7 +31,7 @@ class NetworkMonitor extends ChangeNotifier {
 
   void _updateConnectionStatus(dynamic result) {
     bool wasOffline = _isOffline;
-    
+
     if (result is List) {
       // Handle newer List<ConnectivityResult> API
       _isOffline = result.contains(ConnectivityResult.none);
@@ -37,7 +39,7 @@ class NetworkMonitor extends ChangeNotifier {
       // Handle older ConnectivityResult API
       _isOffline = result == ConnectivityResult.none;
     }
-    
+
     if (wasOffline != _isOffline) {
       notifyListeners();
     }

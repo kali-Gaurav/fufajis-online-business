@@ -11,7 +11,8 @@ class WhatsAppSyncConfigScreen extends StatefulWidget {
   const WhatsAppSyncConfigScreen({super.key});
 
   @override
-  State<WhatsAppSyncConfigScreen> createState() => _WhatsAppSyncConfigScreenState();
+  State<WhatsAppSyncConfigScreen> createState() =>
+      _WhatsAppSyncConfigScreenState();
 }
 
 class _WhatsAppSyncConfigScreenState extends State<WhatsAppSyncConfigScreen> {
@@ -41,7 +42,7 @@ class _WhatsAppSyncConfigScreenState extends State<WhatsAppSyncConfigScreen> {
       // Load sync status from provider
       final provider = context.read<ProductProvider>();
       final status = await provider.getWhatsAppSyncStatus();
-      
+
       setState(() {
         _isSyncEnabled = status['enabled'] ?? false;
         _lastSyncTime = status['lastSyncTime'];
@@ -49,9 +50,9 @@ class _WhatsAppSyncConfigScreenState extends State<WhatsAppSyncConfigScreen> {
         _recentSyncedItems = status['recentItems'] ?? [];
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading sync status: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error loading sync status: $e')));
     } finally {
       setState(() => _isLoading = false);
     }
@@ -62,18 +63,22 @@ class _WhatsAppSyncConfigScreenState extends State<WhatsAppSyncConfigScreen> {
     try {
       final provider = context.read<ProductProvider>();
       await provider.testWhatsAppSync();
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Test sync initiated. Check WhatsApp for confirmation.')),
+        const SnackBar(
+          content: Text(
+            'Test sync initiated. Check WhatsApp for confirmation.',
+          ),
+        ),
       );
-      
+
       // Reload status after a delay
       await Future.delayed(const Duration(seconds: 2));
       await _loadSyncStatus();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Test sync failed: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Test sync failed: $e')));
     } finally {
       setState(() => _isLoading = false);
     }
@@ -84,18 +89,20 @@ class _WhatsAppSyncConfigScreenState extends State<WhatsAppSyncConfigScreen> {
     try {
       final provider = context.read<ProductProvider>();
       await provider.updateWhatsAppSyncStatus(!_isSyncEnabled);
-      
+
       setState(() => _isSyncEnabled = !_isSyncEnabled);
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(_isSyncEnabled ? 'WhatsApp sync enabled' : 'WhatsApp sync disabled'),
+          content: Text(
+            _isSyncEnabled ? 'WhatsApp sync enabled' : 'WhatsApp sync disabled',
+          ),
         ),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error updating sync status: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error updating sync status: $e')));
     } finally {
       setState(() => _isLoading = false);
     }
@@ -139,7 +146,9 @@ class _WhatsAppSyncConfigScreenState extends State<WhatsAppSyncConfigScreen> {
                                   vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: _isSyncEnabled ? Colors.green : Colors.grey,
+                                  color: _isSyncEnabled
+                                      ? Colors.green
+                                      : Colors.grey,
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
@@ -179,10 +188,7 @@ class _WhatsAppSyncConfigScreenState extends State<WhatsAppSyncConfigScreen> {
                   // Configuration Section
                   const Text(
                     'Configuration',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
 
@@ -266,10 +272,7 @@ class _WhatsAppSyncConfigScreenState extends State<WhatsAppSyncConfigScreen> {
                   // Recent Synced Items
                   const Text(
                     'Recent Synced Items',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
 
@@ -280,9 +283,7 @@ class _WhatsAppSyncConfigScreenState extends State<WhatsAppSyncConfigScreen> {
                         child: Center(
                           child: Text(
                             'No items synced yet',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                            ),
+                            style: TextStyle(color: Colors.grey[600]),
                           ),
                         ),
                       ),
@@ -312,8 +313,13 @@ class _WhatsAppSyncConfigScreenState extends State<WhatsAppSyncConfigScreen> {
                                   : const Icon(Icons.image_not_supported),
                             ),
                             title: Text(item.name),
-                            subtitle: Text('₹${item.price} • Stock: ${item.stockQuantity}'),
-                            trailing: const Icon(Icons.check_circle, color: Colors.green),
+                            subtitle: Text(
+                              '₹${item.price} • Stock: ${item.stockQuantity}',
+                            ),
+                            trailing: const Icon(
+                              Icons.check_circle,
+                              color: Colors.green,
+                            ),
                           ),
                         );
                       },
@@ -387,12 +393,7 @@ class _WhatsAppSyncConfigScreenState extends State<WhatsAppSyncConfigScreen> {
             ),
           ),
           const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 13),
-            ),
-          ),
+          Expanded(child: Text(text, style: const TextStyle(fontSize: 13))),
         ],
       ),
     );

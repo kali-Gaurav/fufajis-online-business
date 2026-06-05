@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../services/employee_scanner_service.dart';
+import '../../services/smart_scan_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/product_provider.dart';
 import '../../models/product_model.dart';
@@ -24,6 +26,12 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
   bool _isLoading = false;
   final List<DamageReport> _reports = [];
 
+  // Smart-scan additions
+  final _quantityFocusNode = FocusNode();
+  final SmartScanService _smartScan = SmartScanService();
+  int _batchCount = 0;
+  bool _autoFilled = false;
+
   @override
   void initState() {
     super.initState();
@@ -34,17 +42,55 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
   }
 
   Future<void> _lookupProduct(String barcode) async {
-    setState(() => _isLoading = true);
+    setState(() { _isLoading = true; _autoFilled = false; });
+
+    final auth = context.read<AuthProvider>();
     try {
-      final productProvider = context.read<ProductProvider>();
-      final product = await productProvider.getProductByBarcode(barcode);
+      final result = await _smartScan.autoProduct(
+        barcode: barcode,
+        shopId: auth.currentShop?.id ?? '',
+        branchId: auth.currentBranch?.id ?? '',
+      );
+
+      final product = result.product ??
+          context.read<ProductProvider>().getProductByBarcode(barcode);
+
       setState(() {
+        _scannedBarcode = barcode;
         _product = product;
         _isLoading = false;
+        _autoFilled = product != null;
+        // Auto-suggest damage type based on category
+        if (product != null) {
+          final cat = product.category.toLowerCase();
+          if (cat.contains('dairy') || cat.contains('doodh') ||
+              cat.contains('liquid')) {
+            _selectedDamageType = DamageType.leaking;
+          } else if (cat.contains('glass') || cat.contains('bottle')) {
+            _selectedDamageType = DamageType.broken;
+          } else if (cat.contains('biscuit') || cat.contains('snack') ||
+              cat.contains('packet')) {
+            _selectedDamageType = DamageType.damagedPackaging;
+          }
+        }
       });
+
+      if (product != null) {
+        await SmartScanService.hapticSuccess();
+        await Future.delayed(const Duration(milliseconds: 120));
+        _quantityFocusNode.requestFocus();
+        _quantityController.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: _quantityController.text.length,
+        );
+      } else {
+        await SmartScanService.hapticError();
+        _showError('Product not found: $barcode');
+      }
     } catch (e) {
       setState(() => _isLoading = false);
-      _showError('Product not found: $barcode');
+      await SmartScanService.hapticError();
+      _showError('Lookup error: $e');
     }
   }
 
@@ -116,9 +162,14 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
         _quantityController.text = '1';
         _reasonController.clear();
         _isLoading = false;
+        _autoFilled = false;
+        _selectedDamageType = DamageType.other;
+        _batchCount++;
       });
 
-      _showSuccess('Damage reported: Stock reduced by $quantity');
+      await SmartScanService.hapticComplete();
+      _showSuccess(
+          '✓ Damage reported  •  $_batchCount report${_batchCount == 1 ? '' : 's'} this session');
     } catch (e) {
       setState(() => _isLoading = false);
       _showError('Failed to report: $e');
@@ -129,23 +180,23 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Damage Report'),
+        title: const Text('Damage Report'),
         actions: [
           IconButton(
-            icon: Icon(Icons.qr_code_scanner),
+            icon: const Icon(Icons.qr_code_scanner),
             onPressed: () => _showScannerDialog(),
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Scan Section
             Card(
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -153,18 +204,18 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
                       'Scan Product',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     if (_scannedBarcode != null)
                       Container(
-                        padding: EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: Colors.red.shade50,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.warning, color: Colors.red),
-                            SizedBox(width: 8),
+                            const Icon(Icons.warning, color: Colors.red),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,7 +223,7 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
                                   Text(
                                     'Barcode: $_scannedBarcode',
                                     style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                        const TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                   if (_product != null) Text(_product!.name),
                                 ],
@@ -184,8 +235,8 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
                     else
                       ElevatedButton.icon(
                         onPressed: () => _showScannerDialog(),
-                        icon: Icon(Icons.qr_code_scanner),
-                        label: Text('Scan Damaged Product'),
+                        icon: const Icon(Icons.qr_code_scanner),
+                        label: const Text('Scan Damaged Product'),
                       ),
                   ],
                 ),
@@ -194,10 +245,10 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
 
             // Product Details
             if (_product != null) ...[
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Card(
                 child: Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -205,7 +256,7 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
                         'Product Details',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       _buildDetailRow('Name', _product!.name),
                       _buildDetailRow(
                           'Current Stock', _product!.stockQuantity.toString()),
@@ -215,12 +266,12 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
                 ),
               ),
 
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               // Damage Type Selection
               Card(
                 child: Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -228,7 +279,7 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
                         'Damage Type',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
@@ -252,12 +303,12 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
                 ),
               ),
 
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               // Quantity & Reason
               Card(
                 child: Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -265,26 +316,39 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
                         'Details',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       TextField(
                         controller: _quantityController,
+                        focusNode: _quantityFocusNode,
                         keyboardType: TextInputType.number,
+                        textInputAction: TextInputAction.done,
+                        onSubmitted: (_) => _submitReport(),
                         decoration: InputDecoration(
-                          labelText: 'Quantity Damaged',
-                          prefixIcon: Icon(Icons.numbers),
-                          border: OutlineInputBorder(),
+                          labelText: 'Quantity Damaged *',
+                          prefixIcon: const Icon(Icons.numbers),
+                          border: const OutlineInputBorder(),
+                          enabledBorder: _autoFilled
+                              ? OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: Colors.red.shade400, width: 2))
+                              : null,
+                          helperText: _autoFilled
+                              ? 'Auto-focused — enter damaged count, then press Enter'
+                              : null,
+                          helperStyle:
+                              const TextStyle(color: Colors.orange),
                         ),
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       TextField(
                         controller: _reasonController,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Additional Notes (optional)',
                           border: OutlineInputBorder(),
                         ),
                         maxLines: 2,
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
@@ -294,8 +358,8 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
                             foregroundColor: Colors.white,
                           ),
                           child: _isLoading
-                              ? CircularProgressIndicator(color: Colors.white)
-                              : Text('Report Damage'),
+                              ? const CircularProgressIndicator(color: Colors.white)
+                              : const Text('Report Damage'),
                         ),
                       ),
                     ],
@@ -306,22 +370,22 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
 
             // Recent Reports
             if (_reports.isNotEmpty) ...[
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               Text(
                 'Recent Reports',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               ..._reports.take(5).map((report) => Card(
                     child: ListTile(
-                      leading: CircleAvatar(
-                        child: Icon(Icons.report_problem, color: Colors.white),
+                      leading: const CircleAvatar(
                         backgroundColor: Colors.red,
+                        child: Icon(Icons.report_problem, color: Colors.white),
                       ),
                       title: Text(report.productName),
                       subtitle: Text(
                           '${report.damageType.name}: ${report.quantity} units'),
-                      trailing: Icon(Icons.check_circle, color: Colors.green),
+                      trailing: const Icon(Icons.check_circle, color: Colors.green),
                     ),
                   )),
             ],
@@ -333,12 +397,12 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
 
   Widget _buildDetailRow(String label, String value) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(color: Colors.grey)),
-          Text(value, style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(label, style: const TextStyle(color: Colors.grey)),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -348,10 +412,10 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Enter Barcode'),
+        title: const Text('Enter Barcode'),
         content: TextField(
           autofocus: true,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             labelText: 'Barcode',
             border: OutlineInputBorder(),
           ),
@@ -368,7 +432,7 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
+            child: const Text('Cancel'),
           ),
         ],
       ),

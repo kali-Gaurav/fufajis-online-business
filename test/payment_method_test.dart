@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter/material.dart';
 import 'package:fufajis_online/models/payment_method.dart';
 import 'package:fufajis_online/services/payment_method_validator.dart';
 

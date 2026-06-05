@@ -1,4 +1,3 @@
-import '../models/product_model.dart';
 
 class GlobalCatalogProduct {
   final String name;

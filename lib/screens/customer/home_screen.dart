@@ -22,6 +22,7 @@ import '../../providers/accessibility_provider.dart';
 import 'smart_kitchen_screen.dart';
 import '../../services/smart_kitchen_service.dart';
 import '../../services/recommendation_service.dart';
+import '../../widgets/update_announcement_banner.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -91,7 +92,11 @@ class _HomeScreenState extends State<HomeScreen> {
           
           return RefreshIndicator(
             onRefresh: () async {
-              await productProvider.refreshProducts();
+              await Future.wait([
+                productProvider.refreshProducts(),
+                Future.delayed(const Duration(milliseconds: 300)),
+              ]);
+              if (mounted) setState(() {}); // Refresh banners and deals
             },
             child: SingleChildScrollView(
               controller: _scrollController,
@@ -99,6 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: isElderly
                     ? [
+                        const UpdateAnnouncementBanner(),
                         if (!isShopOpen) _buildShopClosedBanner(),
                         _buildLocationBanner(user?.district, user?.village),
                         const SizedBox(height: 16),
@@ -114,6 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         const SizedBox(height: 80),
                       ]
                     : [
+                        const UpdateAnnouncementBanner(),
                         if (!isShopOpen) _buildShopClosedBanner(),
                         _buildLocationBanner(user?.district, user?.village),
                         const SizedBox(height: 8),
@@ -132,6 +139,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         _lightningDealsSection(productProvider: productProvider),
                         const SizedBox(height: 16),
                         _buildFlashDealsSection(productProvider),
+                        const SizedBox(height: 16),
+                        _buildCustomerSmartTools(),
+                        const SizedBox(height: 16),
+                        _buildFufajisPick(productProvider),
+                        const SizedBox(height: 16),
+                        _buildLiveDealsCounter(productProvider),
                         const SizedBox(height: 16),
                         _buildTrendingSection(productProvider),
                         const SizedBox(height: 16),
@@ -230,9 +243,9 @@ class _HomeScreenState extends State<HomeScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(color: AppTheme.error.withValues(alpha: 0.9)),
-      child: Row(
+      child: const Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
+        children: [
           Icon(Icons.door_front_door_outlined, color: Colors.white, size: 20),
           SizedBox(width: 8),
           Text(
@@ -705,10 +718,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildCategoriesSection(ProductProvider productProvider) {
     final ap = Provider.of<AccessibilityProvider>(context, listen: false);
     final user = Provider.of<AuthProvider>(context, listen: false).currentUser;
+    final orderProvider = Provider.of<OrderProvider>(context, listen: false);
     final isElderly = ap.isElderlyMode;
     
     return FutureBuilder<List<String>>(
-      future: user != null ? RecommendationService().getFavoriteCategories(user.uid) : Future.value(<String>[]),
+      future: user != null ? Future.value(RecommendationService.getFavoriteCategories(orderProvider.orders, productProvider.products)) : Future.value(<String>[]),
       builder: (context, favSnapshot) {
         final favCategories = favSnapshot.data ?? [];
         final categories = List<CategoryModel>.from(productProvider.categories);
@@ -1001,11 +1015,11 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           },
           borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              children: const [
+              children: [
                 Icon(Icons.replay_circle_filled, color: Colors.white),
                 SizedBox(width: 8),
                 Text(
@@ -1014,6 +1028,158 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+  Widget _buildCustomerSmartTools() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '🛠️ Smart Tools',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildSmartToolCard(
+                  icon: Icons.camera_alt_outlined,
+                  label: 'Snap to Shop',
+                  onTap: () => context.push('/customer/snap-to-shop'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildSmartToolCard(
+                  icon: Icons.kitchen_outlined,
+                  label: 'Smart Kitchen',
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const SmartKitchenScreen()),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildSmartToolCard(
+                  icon: Icons.group_outlined,
+                  label: 'Group Buy',
+                  onTap: () => context.push('/customer/group-buying'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSmartToolCard({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: AppTheme.grey100,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppTheme.grey200),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: AppTheme.primary, size: 28),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.grey800,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFufajisPick(ProductProvider productProvider) {
+    final picks = productProvider.featuredProducts.take(6).toList();
+    if (picks.isEmpty) return const SizedBox.shrink();
+    return _buildProductSection(
+      title: "⭐ Fufaji's Pick",
+      subtitle: 'Handpicked best quality items',
+      products: picks,
+      onSeeAll: () => context.push('/customer/search?q=featured'),
+      categoryFilter: productProvider.selectedCategory,
+    );
+  }
+
+  Widget _buildLiveDealsCounter(ProductProvider productProvider) {
+    final dealsCount = productProvider.dealsProducts.length;
+    if (dealsCount == 0) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: GestureDetector(
+        onTap: () => context.push('/customer/search?q=deals'),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF6A11CB), Color(0xFF2575FC)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF6A11CB).withValues(alpha: 0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.local_fire_department, color: Colors.white, size: 28),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '$dealsCount Live Deals Active!',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Text(
+                      'Grab them before they\'re gone',
+                      style: TextStyle(color: Colors.white70, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+            ],
           ),
         ),
       ),

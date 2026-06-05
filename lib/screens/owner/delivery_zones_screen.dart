@@ -372,7 +372,7 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
                             Switch(
                               value: zone.isActive,
                               onChanged: (_) => _toggleZoneActive(zone),
-                              activeColor: AppTheme.primary,
+                              activeThumbColor: AppTheme.primary,
                             ),
                           ],
                         ),

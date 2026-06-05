@@ -70,9 +70,14 @@ class QnaService {
     final existingQna = QnaModel.fromMap(doc.data() as Map<String, dynamic>);
 
     // Verify shop owner owns this product
-    final productDoc = await _firestore.collection('products').doc(productId).get();
+    final productDoc = await _firestore
+        .collection('products')
+        .doc(productId)
+        .get();
     if (productDoc.exists && productDoc.data() != null) {
-      final product = ProductModel.fromMap(productDoc.data() as Map<String, dynamic>);
+      final product = ProductModel.fromMap(
+        productDoc.data() as Map<String, dynamic>,
+      );
       if (product.shopId != shopOwnerId) {
         throw Exception('Only the shop owner can answer this question');
       }
@@ -113,7 +118,8 @@ class QnaService {
     final qna = QnaModel.fromMap(doc.data() as Map<String, dynamic>);
 
     // Check if user already voted
-    if (qna.helpfulVoters.contains(userId) || qna.unhelpfulVoters.contains(userId)) {
+    if (qna.helpfulVoters.contains(userId) ||
+        qna.unhelpfulVoters.contains(userId)) {
       throw Exception('User has already voted');
     }
 
@@ -140,7 +146,8 @@ class QnaService {
     final qna = QnaModel.fromMap(doc.data() as Map<String, dynamic>);
 
     // Check if user already voted
-    if (qna.helpfulVoters.contains(userId) || qna.unhelpfulVoters.contains(userId)) {
+    if (qna.helpfulVoters.contains(userId) ||
+        qna.unhelpfulVoters.contains(userId)) {
       throw Exception('User has already voted');
     }
 
@@ -264,18 +271,15 @@ class QnaService {
     query = query.limit(limit);
 
     return query.snapshots().map((snapshot) {
-      return snapshot.docs
-          .map((doc) => QnaModel.fromMap(doc.data()))
-          .toList();
+      return snapshot.docs.map((doc) => QnaModel.fromMap(doc.data())).toList();
     });
   }
 
   /// Get unanswered questions count
   Future<int> getUnansweredCount(String productId) async {
-    final snapshot = await _qnaCollection(productId)
-        .where('status', isEqualTo: 'pending')
-        .count()
-        .get();
+    final snapshot = await _qnaCollection(
+      productId,
+    ).where('status', isEqualTo: 'pending').count().get();
     return snapshot.count ?? 0;
   }
 
@@ -288,10 +292,10 @@ class QnaService {
         .limit(100)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs
-          .map((doc) => QnaModel.fromMap(doc.data()))
-          .toList();
-    });
+          return snapshot.docs
+              .map((doc) => QnaModel.fromMap(doc.data()))
+              .toList();
+        });
   }
 
   /// Resolve a question
@@ -299,29 +303,31 @@ class QnaService {
     required String productId,
     required String questionId,
   }) async {
-    await _qnaCollection(productId).doc(questionId).update({
-      'status': QnaStatus.resolved.name,
-    });
+    await _qnaCollection(
+      productId,
+    ).doc(questionId).update({'status': QnaStatus.resolved.name});
   }
 
   /// Notify shop owner of new question
   Future<void> _notifyShopOwner(String productId, QnaModel qna) async {
     // Get product to find shop owner
-    final productDoc = await _firestore.collection('products').doc(productId).get();
+    final productDoc = await _firestore
+        .collection('products')
+        .doc(productId)
+        .get();
     if (!productDoc.exists || productDoc.data() == null) return;
 
-    final product = ProductModel.fromMap(productDoc.data() as Map<String, dynamic>);
+    final product = ProductModel.fromMap(
+      productDoc.data() as Map<String, dynamic>,
+    );
 
     // Send notification to shop owner
     await _notificationService.sendNotificationToUser(
       userId: product.shopId,
       title: 'New Question on ${product.name}',
-      body: '${qna.customerName} asked: "${qna.question.substring(0, min(50, qna.question.length))}..."',
-      data: {
-        'type': 'qna_new',
-        'productId': productId,
-        'questionId': qna.id,
-      },
+      body:
+          '${qna.customerName} asked: "${qna.question.substring(0, min(50, qna.question.length))}..."',
+      data: {'type': 'qna_new', 'productId': productId, 'questionId': qna.id},
     );
   }
 
@@ -330,7 +336,8 @@ class QnaService {
     await _notificationService.sendNotificationToUser(
       userId: original.customerId,
       title: 'Your question has been answered!',
-      body: '${answered.shopOwnerName} answered your question about ${answered.answer?.substring(0, min(50, answered.answer!.length))}...',
+      body:
+          '${answered.shopOwnerName} answered your question about ${answered.answer?.substring(0, min(50, answered.answer!.length))}...',
       data: {
         'type': 'qna_answered',
         'productId': original.productId,

@@ -27,10 +27,12 @@ class ChatProvider with ChangeNotifier {
         .orderBy('timestamp', descending: true)
         .snapshots()
         .listen((snapshot) {
-      _messages = snapshot.docs.map((doc) => ChatMessageModel.fromMap(doc.data())).toList();
-      _isLoading = false;
-      notifyListeners();
-    });
+          _messages = snapshot.docs
+              .map((doc) => ChatMessageModel.fromMap(doc.data()))
+              .toList();
+          _isLoading = false;
+          notifyListeners();
+        });
   }
 
   @override

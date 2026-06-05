@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -53,27 +54,20 @@ class AppTheme {
       elevation: 0,
       centerTitle: true,
     ),
-    cardTheme: const CardThemeData(
-      color: white,
-      elevation: 2,
-    ),
+    cardTheme: const CardThemeData(color: white, elevation: 2),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: primary,
         foregroundColor: white,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: primary,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         side: const BorderSide(color: primary),
       ),
     ),
@@ -97,8 +91,7 @@ class AppTheme {
         borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: error),
       ),
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       labelStyle: const TextStyle(color: grey600),
       hintStyle: const TextStyle(color: grey400),
     ),
@@ -112,9 +105,7 @@ class AppTheme {
       backgroundColor: grey100,
       selectedColor: primary,
       labelStyle: const TextStyle(color: grey700),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     ),
   );
 
@@ -141,27 +132,20 @@ class AppTheme {
       elevation: 0,
       centerTitle: true,
     ),
-    cardTheme: const CardThemeData(
-      color: grey800,
-      elevation: 2,
-    ),
+    cardTheme: const CardThemeData(color: grey800, elevation: 2),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: primary,
         foregroundColor: white,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: primary,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         side: const BorderSide(color: primary),
       ),
     ),
@@ -185,8 +169,7 @@ class AppTheme {
         borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: error),
       ),
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       labelStyle: const TextStyle(color: grey400),
       hintStyle: const TextStyle(color: grey500),
     ),
@@ -238,121 +221,198 @@ class AppTheme {
 
   // Shadows
   static const List<BoxShadow> cardShadows = [
-    BoxShadow(
-      color: Color(0x0A000000),
-      blurRadius: 8,
-      offset: Offset(0, 2),
-    ),
-    BoxShadow(
-      color: Color(0x05000000),
-      blurRadius: 16,
-      offset: Offset(0, 4),
-    ),
+    BoxShadow(color: Color(0x0A000000), blurRadius: 8, offset: Offset(0, 2)),
+    BoxShadow(color: Color(0x05000000), blurRadius: 16, offset: Offset(0, 4)),
   ];
 
   // Text Styles
-  static TextStyle displayLarge(BuildContext context) =>
-      GoogleFonts.poppins(
-        fontSize: 57,
-        fontWeight: FontWeight.bold,
-        color: Theme.of(context).colorScheme.onSurface,
-      );
+  static TextStyle displayLarge(BuildContext context) => GoogleFonts.poppins(
+    fontSize: 57,
+    fontWeight: FontWeight.bold,
+    color: Theme.of(context).colorScheme.onSurface,
+  );
 
-  static TextStyle displayMedium(BuildContext context) =>
-      GoogleFonts.poppins(
-        fontSize: 45,
-        fontWeight: FontWeight.bold,
-        color: Theme.of(context).colorScheme.onSurface,
-      );
+  static TextStyle displayMedium(BuildContext context) => GoogleFonts.poppins(
+    fontSize: 45,
+    fontWeight: FontWeight.bold,
+    color: Theme.of(context).colorScheme.onSurface,
+  );
 
-  static TextStyle displaySmall(BuildContext context) =>
-      GoogleFonts.poppins(
-        fontSize: 36,
-        fontWeight: FontWeight.bold,
-        color: Theme.of(context).colorScheme.onSurface,
-      );
+  static TextStyle displaySmall(BuildContext context) => GoogleFonts.poppins(
+    fontSize: 36,
+    fontWeight: FontWeight.bold,
+    color: Theme.of(context).colorScheme.onSurface,
+  );
 
-  static TextStyle headlineLarge(BuildContext context) =>
-      GoogleFonts.poppins(
-        fontSize: 32,
-        fontWeight: FontWeight.bold,
-        color: Theme.of(context).colorScheme.onSurface,
-      );
+  static TextStyle headlineLarge(BuildContext context) => GoogleFonts.poppins(
+    fontSize: 32,
+    fontWeight: FontWeight.bold,
+    color: Theme.of(context).colorScheme.onSurface,
+  );
 
-  static TextStyle headlineMedium(BuildContext context) =>
-      GoogleFonts.poppins(
-        fontSize: 28,
-        fontWeight: FontWeight.bold,
-        color: Theme.of(context).colorScheme.onSurface,
-      );
+  static TextStyle headlineMedium(BuildContext context) => GoogleFonts.poppins(
+    fontSize: 28,
+    fontWeight: FontWeight.bold,
+    color: Theme.of(context).colorScheme.onSurface,
+  );
 
-  static TextStyle headlineSmall(BuildContext context) =>
-      GoogleFonts.poppins(
-        fontSize: 24,
-        fontWeight: FontWeight.bold,
-        color: Theme.of(context).colorScheme.onSurface,
-      );
+  static TextStyle headlineSmall(BuildContext context) => GoogleFonts.poppins(
+    fontSize: 24,
+    fontWeight: FontWeight.bold,
+    color: Theme.of(context).colorScheme.onSurface,
+  );
 
-  static TextStyle titleLarge(BuildContext context) =>
-      GoogleFonts.poppins(
-        fontSize: 22,
-        fontWeight: FontWeight.w600,
-        color: Theme.of(context).colorScheme.onSurface,
-      );
+  static TextStyle titleLarge(BuildContext context) => GoogleFonts.poppins(
+    fontSize: 22,
+    fontWeight: FontWeight.w600,
+    color: Theme.of(context).colorScheme.onSurface,
+  );
 
-  static TextStyle titleMedium(BuildContext context) =>
-      GoogleFonts.poppins(
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-        color: Theme.of(context).colorScheme.onSurface,
-      );
+  static TextStyle titleMedium(BuildContext context) => GoogleFonts.poppins(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: Theme.of(context).colorScheme.onSurface,
+  );
 
-  static TextStyle titleSmall(BuildContext context) =>
-      GoogleFonts.poppins(
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
-        color: Theme.of(context).colorScheme.onSurface,
-      );
+  static TextStyle titleSmall(BuildContext context) => GoogleFonts.poppins(
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    color: Theme.of(context).colorScheme.onSurface,
+  );
 
-  static TextStyle bodyLarge(BuildContext context) =>
-      GoogleFonts.poppins(
-        fontSize: 16,
-        fontWeight: FontWeight.normal,
-        color: Theme.of(context).colorScheme.onSurface,
-      );
+  static TextStyle bodyLarge(BuildContext context) => GoogleFonts.poppins(
+    fontSize: 16,
+    fontWeight: FontWeight.normal,
+    color: Theme.of(context).colorScheme.onSurface,
+  );
 
-  static TextStyle bodyMedium(BuildContext context) =>
-      GoogleFonts.poppins(
-        fontSize: 14,
-        fontWeight: FontWeight.normal,
-        color: Theme.of(context).colorScheme.onSurface,
-      );
+  static TextStyle bodyMedium(BuildContext context) => GoogleFonts.poppins(
+    fontSize: 14,
+    fontWeight: FontWeight.normal,
+    color: Theme.of(context).colorScheme.onSurface,
+  );
 
-  static TextStyle bodySmall(BuildContext context) =>
-      GoogleFonts.poppins(
-        fontSize: 12,
-        fontWeight: FontWeight.normal,
-        color: Theme.of(context).colorScheme.onSurface,
-      );
+  static TextStyle bodySmall(BuildContext context) => GoogleFonts.poppins(
+    fontSize: 12,
+    fontWeight: FontWeight.normal,
+    color: Theme.of(context).colorScheme.onSurface,
+  );
 
-  static TextStyle labelLarge(BuildContext context) =>
-      GoogleFonts.poppins(
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
-        color: Theme.of(context).colorScheme.onSurface,
-      );
+  static TextStyle labelLarge(BuildContext context) => GoogleFonts.poppins(
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    color: Theme.of(context).colorScheme.onSurface,
+  );
 
-  static TextStyle labelMedium(BuildContext context) =>
-      GoogleFonts.poppins(
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-        color: Theme.of(context).colorScheme.onSurface,
-      );
+  static TextStyle labelMedium(BuildContext context) => GoogleFonts.poppins(
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
+    color: Theme.of(context).colorScheme.onSurface,
+  );
 
-  static TextStyle labelSmall(BuildContext context) =>
-      GoogleFonts.poppins(
-        fontSize: 11,
-        fontWeight: FontWeight.w500,
-        color: Theme.of(context).colorScheme.onSurface,
-      );
+  static TextStyle labelSmall(BuildContext context) => GoogleFonts.poppins(
+    fontSize: 11,
+    fontWeight: FontWeight.w500,
+    color: Theme.of(context).colorScheme.onSurface,
+  );
+
+  // ─── Glassmorphism helpers ────────────────────────────────────────────────────
+
+  /// Standard frosted-glass card decoration (use with BackdropFilter)
+  static BoxDecoration glassDecoration({
+    Color tint = const Color(0x18FFFFFF),
+    double borderRadius = 20,
+    Color borderColor = const Color(0x33FFFFFF),
+  }) {
+    return BoxDecoration(
+      color: tint,
+      borderRadius: BorderRadius.circular(borderRadius),
+      border: Border.all(color: borderColor, width: 1.5),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.08),
+          blurRadius: 20,
+          offset: const Offset(0, 8),
+        ),
+      ],
+    );
+  }
+
+  /// Wraps child in a frosted-glass effect
+  static Widget glassMorphic({
+    required Widget child,
+    double borderRadius = 20,
+    double blur = 12,
+    Color tint = const Color(0x18FFFFFF),
+  }) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(borderRadius),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+        child: Container(
+          decoration: glassDecoration(borderRadius: borderRadius, tint: tint),
+          child: child,
+        ),
+      ),
+    );
+  }
+
+  // ─── Brand gradients ──────────────────────────────────────────────────────────
+  static const LinearGradient primaryGradient = LinearGradient(
+    colors: [Color(0xFFFF6F00), Color(0xFFFF5722)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient successGradient = LinearGradient(
+    colors: [Color(0xFF43A047), Color(0xFF2E7D32)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient darkGradient = LinearGradient(
+    colors: [Color(0xFF1A110B), Color(0xFF2D1F14)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient heroGradient = LinearGradient(
+    colors: [Color(0xFFFF8F00), Color(0xFFFF5722), Color(0xFFE64A19)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    stops: [0.0, 0.6, 1.0],
+  );
+
+  // ─── Role-specific brand colors ───────────────────────────────────────────────
+  static const Color customerAccent = primary;
+  static const Color ownerAccent = Color(0xFF1565C0);   // Deep blue
+  static const Color deliveryAccent = Color(0xFF2E7D32); // Deep green
+  static const Color employeeAccent = Color(0xFF6A1B9A); // Deep purple
+  static const Color adminAccent = Color(0xFFB71C1C);    // Deep red
+
+  // ─── Shimmer colors ───────────────────────────────────────────────────────────
+  static const Color shimmerBase = Color(0xFFEEEEEE);
+  static const Color shimmerHighlight = Color(0xFFF5F5F5);
+
+  // ─── Status badge helpers ─────────────────────────────────────────────────────
+  static Color statusColor(String status) {
+    final s = status.toLowerCase();
+    if (s.contains('delivered') || s.contains('completed')) return success;
+    if (s.contains('cancel')) return error;
+    if (s.contains('pending') || s.contains('placed')) return warning;
+    if (s.contains('confirmed') || s.contains('preparing')) return info;
+    if (s.contains('out') || s.contains('transit')) return secondary;
+    return grey500;
+  }
+
+  static String statusEmoji(String status) {
+    final s = status.toLowerCase();
+    if (s.contains('delivered')) return '✅';
+    if (s.contains('cancel')) return '❌';
+    if (s.contains('pending') || s.contains('placed')) return '🕐';
+    if (s.contains('confirmed')) return '✓';
+    if (s.contains('preparing') || s.contains('packing')) return '📦';
+    if (s.contains('out') || s.contains('transit')) return '🚚';
+    return '🔄';
+  }
 }

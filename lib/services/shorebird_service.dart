@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart';
+import 'logging_service.dart';
 
 class ShorebirdService {
   static final ShorebirdService _instance = ShorebirdService._internal();
@@ -13,14 +14,16 @@ class ShorebirdService {
     try {
       final status = await _shorebirdUpdater.checkForUpdate();
       if (status == UpdateStatus.outdated) {
-        debugPrint('[Shorebird] New patch available. Updating...');
+        LoggingService().info('[Shorebird] New patch available. Updating...');
         await _shorebirdUpdater.update();
-        debugPrint('[Shorebird] Patch downloaded. It will be applied on next app restart.');
+        LoggingService().info(
+          '[Shorebird] Patch downloaded. It will be applied on next app restart.',
+        );
       } else {
-        debugPrint('[Shorebird] No new patches found.');
+        LoggingService().info('[Shorebird] No new patches found.');
       }
-    } catch (e) {
-      debugPrint('[Shorebird] Error checking for updates: $e');
+    } catch (e, stack) {
+      LoggingService().error('[Shorebird] Error checking for updates', e, stack);
     }
   }
 

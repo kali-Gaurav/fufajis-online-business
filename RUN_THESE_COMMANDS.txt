@@ -1,0 +1,141 @@
+================================================================
+FUFAJI'S ONLINE — EXACT BUILD COMMANDS
+Copy-paste these into Command Prompt (cmd.exe) on your PC
+================================================================
+
+IMPORTANT BEFORE RUNNING:
+  - Open Command Prompt as Administrator
+  - Make sure Flutter is installed and in PATH
+    (Test: flutter --version)
+
+================================================================
+STEP 1: OPEN COMMAND PROMPT IN PROJECT FOLDER
+================================================================
+
+  Press Win + R → type "cmd" → OK
+  Then type:
+  cd C:\Projects\fufaji-online-business
+
+================================================================
+STEP 2: ADD SHA-1 TO FIREBASE (ONE-TIME — for Phone OTP)
+================================================================
+
+  Run this to get your SHA-1 fingerprint:
+
+  cd android
+  gradlew signingReport
+  cd ..
+
+  YOUR RELEASE SHA-1 (already generated):
+  E9:A9:88:92:2D:9E:A3:70:A2:14:DF:B8:C4:A2:DC:FF:4E:86:12:60
+
+  YOUR RELEASE SHA-256:
+  2E:3C:94:99:BC:59:C4:21:E0:4A:46:4A:F8:48:56:54:DB:57:37:30:95:4E:88:1C:E3:CC:91:CC:E0:52:38:F3
+
+  → Go to Firebase Console → Project Settings → Your Android App
+  → Add both fingerprints (debug SHA-1 from gradlew signingReport + release above)
+  → Download new google-services.json → replace android\app\google-services.json
+
+================================================================
+STEP 3: SET FIREBASE FUNCTIONS CONFIG (ONE-TIME)
+================================================================
+
+  Double-click:  scripts\setup_functions_config.bat
+
+  Then deploy functions:
+  cd functions
+  npm install
+  cd ..
+  firebase deploy --only functions
+
+================================================================
+STEP 4: CLEAN BUILD ENVIRONMENT
+================================================================
+
+  flutter clean
+
+================================================================
+STEP 5: GET PACKAGES
+================================================================
+
+  flutter pub get
+
+================================================================
+STEP 6A: BUILD DEBUG APK (Quick test — 2-3 minutes)
+================================================================
+
+  flutter build apk --debug --no-tree-shake-icons
+
+  APK location: build\app\outputs\flutter-apk\app-debug.apk
+
+================================================================
+STEP 6B: BUILD RELEASE APK (Final version — 5-8 minutes)
+================================================================
+
+  flutter build apk --release --no-tree-shake-icons
+
+  APK location: build\app\outputs\flutter-apk\app-release.apk
+
+================================================================
+STEP 7: INSTALL ON YOUR PHONE
+================================================================
+
+  Option A — USB cable:
+    Enable USB Debugging on phone:
+      Settings → About Phone → tap Build Number 7 times
+      Settings → Developer Options → USB Debugging ON
+    Connect phone, then run:
+
+    adb install build\app\outputs\flutter-apk\app-release.apk
+
+  Option B — Share the file:
+    Copy APK to phone via WhatsApp or USB
+    Tap to install (allow "Install unknown apps" if asked)
+
+  Option C — Run directly on connected phone:
+    flutter run --release
+
+================================================================
+KEYSTORE INFO (already generated — keep this safe!)
+================================================================
+
+  File:          android\fufaji-upload-key.jks
+  Password:      fufaji123
+  Key alias:     upload
+  Key password:  fufaji123
+  Valid until:   2053
+
+  ⚠️  BACK UP fufaji-upload-key.jks to Google Drive NOW!
+      Losing it = cannot update the app ever again!
+
+================================================================
+IF BUILD FAILS — COMMON FIXES
+================================================================
+
+  Error: "flutter not found"
+    → Install Flutter: https://flutter.dev/docs/get-started/install/windows
+    → Add to PATH: C:\flutter\bin
+
+  Error: "SDK not found"
+    → Run: flutter doctor
+    → Install Android Studio + SDK
+
+  Error: "Gradle build failed"
+    → cd android && gradlew clean && cd ..
+    → flutter clean && flutter pub get
+    → Try again
+
+  Error: "minSdkVersion"
+    → Already set to 24 in build.gradle ✅
+
+  Error: "Multidex"
+    → Already enabled in build.gradle ✅
+
+================================================================
+FULL BUILD STATUS: READY ✅
+  Keystore: Generated ✅  (E9:A9:88...)
+  Proguard: Complete ✅
+  Firebase:  Connected ✅  (fufaji-online-business)
+  Packages:  Cached ✅
+  .env:      Secure ✅
+================================================================

@@ -159,11 +159,7 @@ class StatusHistoryEntry {
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      'status': status.toString(),
-      'timestamp': timestamp,
-      'note': note,
-    };
+    return {'status': status.toString(), 'timestamp': timestamp, 'note': note};
   }
 
   StatusHistoryEntry copyWith({
@@ -251,11 +247,12 @@ class OrderItem {
       substitutionStatus: map['substitutionStatus'],
       proposedReplacementId: map['proposedReplacementId'],
       proposedReplacementName: map['proposedReplacementName'],
-      proposedReplacementPrice: (map['proposedReplacementPrice'] as num?)?.toDouble(),
+      proposedReplacementPrice: (map['proposedReplacementPrice'] as num?)
+          ?.toDouble(),
       substitutionTimestamp: map['substitutionTimestamp'] != null
           ? (map['substitutionTimestamp'] is Timestamp
-              ? (map['substitutionTimestamp'] as Timestamp).toDate()
-              : DateTime.tryParse(map['substitutionTimestamp'].toString()))
+                ? (map['substitutionTimestamp'] as Timestamp).toDate()
+                : DateTime.tryParse(map['substitutionTimestamp'].toString()))
           : null,
     );
   }
@@ -332,10 +329,14 @@ class OrderItem {
       isPacked: isPacked ?? this.isPacked,
       isOutOfStock: isOutOfStock ?? this.isOutOfStock,
       substitutionStatus: substitutionStatus ?? this.substitutionStatus,
-      proposedReplacementId: proposedReplacementId ?? this.proposedReplacementId,
-      proposedReplacementName: proposedReplacementName ?? this.proposedReplacementName,
-      proposedReplacementPrice: proposedReplacementPrice ?? this.proposedReplacementPrice,
-      substitutionTimestamp: substitutionTimestamp ?? this.substitutionTimestamp,
+      proposedReplacementId:
+          proposedReplacementId ?? this.proposedReplacementId,
+      proposedReplacementName:
+          proposedReplacementName ?? this.proposedReplacementName,
+      proposedReplacementPrice:
+          proposedReplacementPrice ?? this.proposedReplacementPrice,
+      substitutionTimestamp:
+          substitutionTimestamp ?? this.substitutionTimestamp,
     );
   }
 }
@@ -358,9 +359,11 @@ class OrderModel {
   final double cashbackEarned;
   final int rewardPointsUsed;
   final int rewardPointsEarned;
-  final PaymentMethod paymentMethod;
+  final PaymentMethod paymentMethod; // This will now represent 'actualPaymentMethod'
+  final PaymentMethod selectedPaymentMethod; // original choice
   final String? paymentId;
   final String? paymentStatus;
+  final String? paymentConvertedFrom; // e.g., 'cod' if switched later
   final OrderStatus status;
   final DeliveryType deliveryType;
   final Address deliveryAddress;
@@ -394,8 +397,15 @@ class OrderModel {
   final List<StatusHistoryEntry> statusHistory;
   final GeoPoint? liveLocation;
   final double? rating;
+  final String? packingStatus; // 'not_started', 'packing', 'pending_approval', 'approved', 'rejected'
+  final String? packingRejectionReason;
+  final Map<String, dynamic>? packingProof;
+  final List<dynamic>? packingHistory;
+  final DateTime? packingStartedAt;
+  final DateTime? packingCompletedAt;
 
   Color get statusColor => status.color;
+  bool get isAwaitingPackingApproval => packingStatus == 'pending_approval';
 
   OrderModel({
     required this.id,
@@ -415,8 +425,10 @@ class OrderModel {
     this.rewardPointsUsed = 0,
     this.rewardPointsEarned = 0,
     this.paymentMethod = PaymentMethod.cod,
+    this.selectedPaymentMethod = PaymentMethod.cod,
     this.paymentId,
     this.paymentStatus,
+    this.paymentConvertedFrom,
     this.status = OrderStatus.pending,
     this.deliveryType = DeliveryType.standard,
     required this.deliveryAddress,
@@ -450,6 +462,12 @@ class OrderModel {
     this.statusHistory = const [],
     this.liveLocation,
     this.rating,
+    this.packingStatus,
+    this.packingRejectionReason,
+    this.packingProof,
+    this.packingHistory,
+    this.packingStartedAt,
+    this.packingCompletedAt,
   });
 
   /// Creates an OrderModel from a Firestore document map
@@ -461,7 +479,8 @@ class OrderModel {
       customerName: map['customerName'] ?? '',
       customerPhone: map['customerPhone'] ?? '',
       customerEmail: map['customerEmail'],
-      items: (map['items'] as List?)
+      items:
+          (map['items'] as List?)
               ?.map((item) => OrderItem.fromMap(item))
               .toList() ??
           [],
@@ -478,8 +497,13 @@ class OrderModel {
         (e) => e.toString() == map['paymentMethod'],
         orElse: () => PaymentMethod.cod,
       ),
+      selectedPaymentMethod: PaymentMethod.values.firstWhere(
+        (e) => e.toString() == (map['selectedPaymentMethod'] ?? map['paymentMethod']),
+        orElse: () => PaymentMethod.cod,
+      ),
       paymentId: map['paymentId'],
       paymentStatus: map['paymentStatus'],
+      paymentConvertedFrom: map['paymentConvertedFrom'],
       status: OrderStatus.values.firstWhere(
         (e) => e.toString() == map['status'],
         orElse: () => OrderStatus.pending,
@@ -492,8 +516,8 @@ class OrderModel {
       deliveryInstructions: map['deliveryInstructions'],
       scheduledDeliveryDate: map['scheduledDeliveryDate'] != null
           ? (map['scheduledDeliveryDate'] is DateTime
-              ? map['scheduledDeliveryDate']
-              : map['scheduledDeliveryDate'].toDate())
+                ? map['scheduledDeliveryDate']
+                : map['scheduledDeliveryDate'].toDate())
           : null,
       timeSlot: map['timeSlot'],
       deliveryAgentId: map['deliveryAgentId'],
@@ -513,30 +537,45 @@ class OrderModel {
       notes: map['notes'],
       createdAt: map['createdAt'] != null
           ? (map['createdAt'] is DateTime
-              ? map['createdAt']
-              : map['createdAt'].toDate())
+                ? map['createdAt']
+                : map['createdAt'].toDate())
           : DateTime.now(),
       updatedAt: map['updatedAt'] != null
           ? (map['updatedAt'] is DateTime
-              ? map['updatedAt']
-              : map['updatedAt'].toDate())
+                ? map['updatedAt']
+                : map['updatedAt'].toDate())
           : DateTime.now(),
       deliveredAt: map['deliveredAt'] != null
           ? (map['deliveredAt'] is DateTime
-              ? map['deliveredAt']
-              : map['deliveredAt'].toDate())
+                ? map['deliveredAt']
+                : map['deliveredAt'].toDate())
           : null,
       deliveryFee: map['deliveryFee']?.toDouble(),
       tipAmount: (map['tipAmount'] ?? 0.0).toDouble(),
       packagingFee: (map['packagingFee'] ?? 0.0).toDouble(),
       isGift: map['isGift'] ?? false,
       giftMessage: map['giftMessage'],
-      statusHistory: (map['statusHistory'] as List?)
+      statusHistory:
+          (map['statusHistory'] as List?)
               ?.map((entry) => StatusHistoryEntry.fromMap(entry))
               .toList() ??
           [],
       liveLocation: map['liveLocation'] as GeoPoint?,
       rating: (map['rating'] as num?)?.toDouble(),
+      packingStatus: map['packingStatus'],
+      packingRejectionReason: map['packingRejectionReason'],
+      packingProof: map['packingProof'] != null ? Map<String, dynamic>.from(map['packingProof'] as Map) : null,
+      packingHistory: map['packingHistory'] as List<dynamic>?,
+      packingStartedAt: map['packingStartedAt'] != null
+          ? (map['packingStartedAt'] is Timestamp
+              ? (map['packingStartedAt'] as Timestamp).toDate()
+              : DateTime.tryParse(map['packingStartedAt'].toString()))
+          : null,
+      packingCompletedAt: map['packingCompletedAt'] != null
+          ? (map['packingCompletedAt'] is Timestamp
+              ? (map['packingCompletedAt'] as Timestamp).toDate()
+              : DateTime.tryParse(map['packingCompletedAt'].toString()))
+          : null,
     );
   }
 
@@ -560,8 +599,10 @@ class OrderModel {
       'rewardPointsUsed': rewardPointsUsed,
       'rewardPointsEarned': rewardPointsEarned,
       'paymentMethod': paymentMethod.toString(),
+      'selectedPaymentMethod': selectedPaymentMethod.toString(),
       'paymentId': paymentId,
       'paymentStatus': paymentStatus,
+      'paymentConvertedFrom': paymentConvertedFrom,
       'status': status.toString(),
       'deliveryType': deliveryType.toString(),
       'deliveryAddress': deliveryAddress.toMap(),
@@ -593,6 +634,12 @@ class OrderModel {
       'giftMessage': giftMessage,
       'statusHistory': statusHistory.map((entry) => entry.toMap()).toList(),
       'liveLocation': liveLocation,
+      'packingStatus': packingStatus,
+      'packingRejectionReason': packingRejectionReason,
+      'packingProof': packingProof,
+      'packingHistory': packingHistory,
+      'packingStartedAt': packingStartedAt != null ? Timestamp.fromDate(packingStartedAt!) : null,
+      'packingCompletedAt': packingCompletedAt != null ? Timestamp.fromDate(packingCompletedAt!) : null,
     };
   }
 
@@ -615,8 +662,10 @@ class OrderModel {
     int? rewardPointsUsed,
     int? rewardPointsEarned,
     PaymentMethod? paymentMethod,
+    PaymentMethod? selectedPaymentMethod,
     String? paymentId,
     String? paymentStatus,
+    String? paymentConvertedFrom,
     OrderStatus? status,
     DeliveryType? deliveryType,
     Address? deliveryAddress,
@@ -649,6 +698,12 @@ class OrderModel {
     List<StatusHistoryEntry>? statusHistory,
     GeoPoint? liveLocation,
     double? rating,
+    String? packingStatus,
+    String? packingRejectionReason,
+    Map<String, dynamic>? packingProof,
+    List<dynamic>? packingHistory,
+    DateTime? packingStartedAt,
+    DateTime? packingCompletedAt,
   }) {
     return OrderModel(
       id: id ?? this.id,
@@ -668,8 +723,10 @@ class OrderModel {
       rewardPointsUsed: rewardPointsUsed ?? this.rewardPointsUsed,
       rewardPointsEarned: rewardPointsEarned ?? this.rewardPointsEarned,
       paymentMethod: paymentMethod ?? this.paymentMethod,
+      selectedPaymentMethod: selectedPaymentMethod ?? this.selectedPaymentMethod,
       paymentId: paymentId ?? this.paymentId,
       paymentStatus: paymentStatus ?? this.paymentStatus,
+      paymentConvertedFrom: paymentConvertedFrom ?? this.paymentConvertedFrom,
       status: status ?? this.status,
       deliveryType: deliveryType ?? this.deliveryType,
       deliveryAddress: deliveryAddress ?? this.deliveryAddress,
@@ -703,11 +760,56 @@ class OrderModel {
       statusHistory: statusHistory ?? this.statusHistory,
       liveLocation: liveLocation ?? this.liveLocation,
       rating: rating ?? this.rating,
+      packingStatus: packingStatus ?? this.packingStatus,
+      packingRejectionReason: packingRejectionReason ?? this.packingRejectionReason,
+      packingProof: packingProof ?? this.packingProof,
+      packingHistory: packingHistory ?? this.packingHistory,
+      packingStartedAt: packingStartedAt ?? this.packingStartedAt,
+      packingCompletedAt: packingCompletedAt ?? this.packingCompletedAt,
     );
   }
 
+  /// Validates if a state transition is legal
+  bool isValidTransition(OrderStatus newStatus) {
+    if (status == newStatus) return true;
+    
+    // Terminal states cannot be changed, EXCEPT refunds on returned/cancelled orders
+    if (status.isTerminal) {
+      if (newStatus == OrderStatus.refunded && (status == OrderStatus.cancelled || status == OrderStatus.returned)) {
+        return true;
+      }
+      return false;
+    }
+
+    // Cancellation is allowed from any active state except outForDelivery
+    if (newStatus == OrderStatus.cancelled && canCancel) return true;
+    
+    // Returns are allowed only from delivered state
+    if (newStatus == OrderStatus.returned && status == OrderStatus.delivered) return true;
+
+    // Strict linear forward transitions
+    switch (status) {
+      case OrderStatus.pending:
+        return newStatus == OrderStatus.confirmed;
+      case OrderStatus.confirmed:
+        return newStatus == OrderStatus.processing;
+      case OrderStatus.processing:
+        return newStatus == OrderStatus.packed;
+      case OrderStatus.packed:
+        return newStatus == OrderStatus.outForDelivery;
+      case OrderStatus.outForDelivery:
+        return newStatus == OrderStatus.delivered;
+      default:
+        return false;
+    }
+  }
+
   /// Updates the order status and adds an entry to status history
-  OrderModel updateStatus(OrderStatus newStatus, {String? note}) {
+  OrderModel updateStatus(OrderStatus newStatus, {String? note, bool force = false}) {
+    if (!force && !isValidTransition(newStatus)) {
+      throw StateError('Invalid order status transition from $status to $newStatus');
+    }
+
     final now = DateTime.now();
     final newEntry = StatusHistoryEntry(
       status: newStatus,
@@ -738,8 +840,7 @@ class OrderModel {
   double get totalSavings {
     return items.fold(0.0, (total, item) {
       if (item.originalPrice != null && item.discountPercentage != null) {
-        return total +
-            ((item.originalPrice! - item.price) * item.quantity);
+        return total + ((item.originalPrice! - item.price) * item.quantity);
       }
       return total;
     });

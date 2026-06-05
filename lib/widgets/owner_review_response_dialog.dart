@@ -57,7 +57,10 @@ class _OwnerReviewResponseDialogState extends State<OwnerReviewResponseDialog> {
     });
 
     try {
-      final reviewProvider = Provider.of<ReviewProvider>(context, listen: false);
+      final reviewProvider = Provider.of<ReviewProvider>(
+        context,
+        listen: false,
+      );
       await reviewProvider.addOwnerResponse(
         widget.productId,
         widget.review.id,
@@ -94,10 +97,7 @@ class _OwnerReviewResponseDialogState extends State<OwnerReviewResponseDialog> {
                 children: [
                   const Text(
                     'Respond to Review',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
@@ -210,10 +210,7 @@ class _OwnerReviewResponseDialogState extends State<OwnerReviewResponseDialog> {
                   ),
                   child: Text(
                     _error!,
-                    style: TextStyle(
-                      color: Colors.red[700],
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: Colors.red[700], fontSize: 12),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -240,8 +237,9 @@ class _OwnerReviewResponseDialogState extends State<OwnerReviewResponseDialog> {
                             width: 16,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
                           )
                         : const Text('Post Response'),
@@ -261,7 +259,9 @@ class _OwnerReviewResponseDialogState extends State<OwnerReviewResponseDialog> {
       if (i <= rating) {
         stars.add(const Icon(Icons.star, color: AppTheme.primary, size: 14));
       } else if (i - rating < 1) {
-        stars.add(const Icon(Icons.star_half, color: AppTheme.primary, size: 14));
+        stars.add(
+          const Icon(Icons.star_half, color: AppTheme.primary, size: 14),
+        );
       } else {
         stars.add(Icon(Icons.star_outline, color: Colors.grey[400], size: 14));
       }

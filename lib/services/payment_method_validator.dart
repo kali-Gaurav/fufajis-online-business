@@ -22,8 +22,6 @@ class PaymentMethodValidator {
   /// Minimum order amount for EMI
   static const double emiMinimumAmount = 3000;
 
-  
-
   /// Validate if a payment method is valid for the given order total
   static bool validatePaymentMethod(
     PaymentMethod method,
@@ -62,22 +60,26 @@ class PaymentMethodValidator {
   }
 
   /// Validate Credit (Khata)
-  static bool _validateCredit(double orderTotal, double creditLimit, double creditBalance) {
+  static bool _validateCredit(
+    double orderTotal,
+    double creditLimit,
+    double creditBalance,
+  ) {
     return creditBalance + orderTotal <= creditLimit;
   }
 
   /// Validate Wallet payment
   static bool _validateWallet(double orderTotal, double walletBalance) {
     return walletBalance >= minimumWalletBalance &&
-           walletBalance > 0 &&
-           orderTotal > 0;
+        walletBalance > 0 &&
+        orderTotal > 0;
   }
 
   /// Validate Pay Later (BNPL)
   static bool _validatePayLater(double orderTotal, bool isEligible) {
     return isEligible &&
-           orderTotal >= payLaterMinimumAmount &&
-           orderTotal <= payLaterMaximumAmount;
+        orderTotal >= payLaterMinimumAmount &&
+        orderTotal <= payLaterMaximumAmount;
   }
 
   /// Validate EMI
@@ -86,9 +88,15 @@ class PaymentMethodValidator {
   }
 
   /// Validate Loyalty Points
-  static bool _validateLoyaltyPoints(double orderTotal, int userPoints, List<CartItem> cartItems) {
+  static bool _validateLoyaltyPoints(
+    double orderTotal,
+    int userPoints,
+    List<CartItem> cartItems,
+  ) {
     if (userPoints <= 0 || orderTotal <= 0) return false;
-    final hasDiscountedItem = cartItems.any((item) => item.originalPrice != null && item.originalPrice! > item.price);
+    final hasDiscountedItem = cartItems.any(
+      (item) => item.originalPrice != null && item.originalPrice! > item.price,
+    );
     if (hasDiscountedItem) return false;
     return true;
   }
@@ -108,10 +116,7 @@ class PaymentMethodValidator {
 
     // Add Pay Later badge if eligible
     if (method == PaymentMethod.payLater && isPayLaterEligible) {
-      return option.copyWith(
-        showBadge: true,
-        badgeText: 'No Interest',
-      );
+      return option.copyWith(showBadge: true, badgeText: 'No Interest');
     }
 
     return option;
@@ -218,7 +223,10 @@ class PaymentMethodValidator {
         if (userPoints <= 0) {
           return 'You have no loyalty points to redeem';
         }
-        final hasDiscountedItem = cartItems.any((item) => item.originalPrice != null && item.originalPrice! > item.price);
+        final hasDiscountedItem = cartItems.any(
+          (item) =>
+              item.originalPrice != null && item.originalPrice! > item.price,
+        );
         if (hasDiscountedItem) {
           return 'Loyalty points cannot be redeemed on orders containing discounted items';
         }
@@ -234,7 +242,9 @@ class PaymentMethodValidator {
     List<CartItem> cartItems,
   ) {
     if (userPoints <= 0 || orderTotal <= 0) return 0.0;
-    final hasDiscountedItem = cartItems.any((item) => item.originalPrice != null && item.originalPrice! > item.price);
+    final hasDiscountedItem = cartItems.any(
+      (item) => item.originalPrice != null && item.originalPrice! > item.price,
+    );
     if (hasDiscountedItem) return 0.0;
 
     final pointsValue = userPoints * 0.01;

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart' as ph;
 import 'package:connectivity_plus/connectivity_plus.dart';
 

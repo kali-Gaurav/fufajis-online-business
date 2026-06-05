@@ -1,5 +1,6 @@
 plugins {
     id "com.android.application"
+    id "org.jetbrains.kotlin.android"
     id "com.google.gms.google-services"
     id "dev.flutter.flutter-gradle-plugin"
 }
@@ -43,13 +44,17 @@ android {
         coreLibraryDesugaringEnabled true
     }
 
+    kotlinOptions {
+        jvmTarget = '21'
+    }
+
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
 
     defaultConfig {
         applicationId = "com.fufajis.online"
-        minSdkVersion = flutter.minSdkVersion
+        minSdkVersion = 24
         targetSdk = 36
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
@@ -94,7 +99,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.multidex:multidex:2.0.1'
     
-    // Firebase
+    // Firebase (BOM manages all versions)
     implementation platform('com.google.firebase:firebase-bom:34.14.0')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-auth'
@@ -102,6 +107,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage'
     implementation 'com.google.firebase:firebase-messaging'
     implementation 'com.google.firebase:firebase-functions'
+    // App Check — Play Integrity protects OTP/Firestore from bot abuse
+    implementation 'com.google.firebase:firebase-appcheck-playintegrity'
+    implementation 'com.google.firebase:firebase-appcheck-debug' // debug builds only
 
     // AdMob
     implementation 'com.google.android.gms:play-services-ads:23.0.0'
@@ -110,8 +118,3 @@ dependencies {
 flutter {
     source "../.."
 }
-
-kotlin {
-    jvmToolchain(21)
-}
-

@@ -184,8 +184,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 
   Widget _buildLoadingIndicator() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 16),
       child: Center(
         child: SizedBox(
           width: 30,
@@ -387,7 +387,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 ],
               ),
             );
-          }).toList(),
+          }),
           if (order.items.length > 2)
             Padding(
               padding: const EdgeInsets.only(top: 8),

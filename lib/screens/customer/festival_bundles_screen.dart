@@ -10,11 +10,15 @@ class FestivalBundlesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Generate simple mock products for the bundle based on the festival name
-    final List<ProductModel> bundleProducts = _getMockBundleProducts(festivalName);
+    final List<ProductModel> bundleProducts = _getMockBundleProducts(
+      festivalName,
+    );
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${festivalName.replaceAll('_', ' ').toUpperCase()} Bundle Deals'),
+        title: Text(
+          '${festivalName.replaceAll('_', ' ').toUpperCase()} Bundle Deals',
+        ),
         backgroundColor: Colors.amber[700],
         foregroundColor: Colors.white,
       ),
@@ -27,23 +31,38 @@ class FestivalBundlesScreen extends StatelessWidget {
             final p = bundleProducts[index];
             return Card(
               margin: const EdgeInsets.only(bottom: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: ListTile(
                 contentPadding: const EdgeInsets.all(12),
                 leading: CircleAvatar(
                   radius: 30,
-                  backgroundImage: p.imageUrl.isNotEmpty ? CachedNetworkImageProvider(p.imageUrl) : null,
-                  child: p.imageUrl.isEmpty ? const Icon(Icons.shopping_basket) : null,
+                  backgroundImage: p.imageUrl.isNotEmpty
+                      ? CachedNetworkImageProvider(p.imageUrl)
+                      : null,
+                  child: p.imageUrl.isEmpty
+                      ? const Icon(Icons.shopping_basket)
+                      : null,
                 ),
-                title: Text(p.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                title: Text(
+                  p.name,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
                 subtitle: Text('₹${p.price.round()} / ${p.unit}'),
                 trailing: ElevatedButton(
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('${p.name} added to cart!'), backgroundColor: AppTheme.success),
+                      SnackBar(
+                        content: Text('${p.name} added to cart!'),
+                        backgroundColor: AppTheme.success,
+                      ),
                     );
                   },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.amber[800], foregroundColor: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber[800],
+                    foregroundColor: Colors.white,
+                  ),
                   child: const Text('Add to Cart'),
                 ),
               ),
@@ -67,7 +86,8 @@ class FestivalBundlesScreen extends StatelessWidget {
           category: 'groceries',
           shopId: 's1',
           shopName: 'Fufaji Store',
-          imageUrl: 'https://images.unsplash.com/photo-1589135304675-e22b30e462c1?w=200',
+          imageUrl:
+              'https://images.unsplash.com/photo-1589135304675-e22b30e462c1?w=200',
           stockQuantity: 40,
           district: 'Jaipur',
           createdAt: DateTime.now(),
@@ -83,7 +103,8 @@ class FestivalBundlesScreen extends StatelessWidget {
           category: 'household',
           shopId: 's1',
           shopName: 'Fufaji Store',
-          imageUrl: 'https://images.unsplash.com/photo-1605847429037-124044afde3f?w=200',
+          imageUrl:
+              'https://images.unsplash.com/photo-1605847429037-124044afde3f?w=200',
           stockQuantity: 100,
           district: 'Jaipur',
           createdAt: DateTime.now(),

@@ -1,8 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../utils/app_theme.dart';
 
 /// OTP Verification Dialog for delivery completion
-/// 
+///
 /// [Requirements 5.5]: Generates 4-digit OTP for delivery completion,
 /// requires customer OTP for delivery verification, displays OTP to delivery agent,
 /// and marks otpVerified when confirmed.
@@ -25,8 +25,10 @@ class OTPVerificationDialog extends StatefulWidget {
 }
 
 class _OTPVerificationDialogState extends State<OTPVerificationDialog> {
-  final List<TextEditingController> _otpControllers =
-      List.generate(4, (_) => TextEditingController());
+  final List<TextEditingController> _otpControllers = List.generate(
+    4,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> _focusNodes = List.generate(4, (_) => FocusNode());
   bool _isVerifying = false;
   String? _errorMessage;
@@ -84,16 +86,16 @@ class _OTPVerificationDialogState extends State<OTPVerificationDialog> {
         _isVerifying = false;
       });
       widget.onVerified();
-      Navigator.pop(context);
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -125,10 +127,7 @@ class _OTPVerificationDialogState extends State<OTPVerificationDialog> {
             const SizedBox(height: 8),
             Text(
               'Order #${widget.orderNumber}',
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppTheme.grey600,
-              ),
+              style: const TextStyle(fontSize: 14, color: AppTheme.grey600),
             ),
             const SizedBox(height: 24),
             // Instructions
@@ -137,16 +136,11 @@ class _OTPVerificationDialogState extends State<OTPVerificationDialog> {
               decoration: BoxDecoration(
                 color: AppTheme.info.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: AppTheme.info.withValues(alpha: 0.3),
-                ),
+                border: Border.all(color: AppTheme.info.withValues(alpha: 0.3)),
               ),
               child: const Text(
                 'Enter the 4-digit OTP provided by the delivery agent to complete the delivery',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.grey700,
-                ),
+                style: TextStyle(fontSize: 12, color: AppTheme.grey700),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -269,9 +263,7 @@ class _OTPVerificationDialogState extends State<OTPVerificationDialog> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: _isVerifying || !_isOTPComplete()
-                        ? null
-                        : _verifyOTP,
+                    onPressed: _isVerifying ? null : _verifyOTP,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primary,
                       foregroundColor: Colors.white,
@@ -299,4 +291,3 @@ class _OTPVerificationDialogState extends State<OTPVerificationDialog> {
     );
   }
 }
-

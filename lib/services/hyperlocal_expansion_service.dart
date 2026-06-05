@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../models/shop_config_model.dart';
-import '../models/shop_branch_model.dart';
 
 /// Production-grade Hyperlocal Expansion Service
 ///

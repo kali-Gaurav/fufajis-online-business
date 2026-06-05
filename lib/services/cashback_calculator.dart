@@ -5,7 +5,7 @@ import 'membership_tier_calculator.dart';
 import 'shop_config_service.dart';
 
 /// CashbackCalculator handles cashback calculation and application
-/// 
+///
 /// [Requirements 11.1]: Calculates 1% cashback on order completion
 /// and adds cashback to wallet balance
 class CashbackCalculator {
@@ -24,14 +24,14 @@ class CashbackCalculator {
   static const double baseCashbackPercentage = 0.01;
 
   /// Calculates cashback amount for an order
-  /// 
+  ///
   /// [Requirements 11.1]: Calculates 1% cashback on order completion
   double calculateCashback(double orderAmount, {double multiplier = 1.0}) {
     return orderAmount * baseCashbackPercentage * multiplier;
   }
 
   /// Applies cashback to user's wallet on order completion
-  /// 
+  ///
   /// [Requirements 11.1]: Adds cashback to wallet balance
   Future<bool> applyCashback({
     required String userId,
@@ -94,7 +94,9 @@ class CashbackCalculator {
     } catch (e) {
       debugPrint('Error getting cashback amount: $e');
       final config = ShopConfigService().cachedConfig;
-      final basePct = config != null ? config.cashbackPercentage / 100.0 : baseCashbackPercentage;
+      final basePct = config != null
+          ? config.cashbackPercentage / 100.0
+          : baseCashbackPercentage;
       return orderAmount * basePct;
     }
   }

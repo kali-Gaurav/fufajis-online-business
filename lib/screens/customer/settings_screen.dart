@@ -45,15 +45,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final accessibilityProvider = Provider.of<AccessibilityProvider>(context);
 
     // Get localized language string
-    final currentLang = accessibilityProvider.isElderlyMode 
-        ? accessibilityProvider.preferredLanguage 
+    final currentLang = accessibilityProvider.isElderlyMode
+        ? accessibilityProvider.preferredLanguage
         : themeProvider.locale.languageCode;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(accessibilityProvider.label(en: 'Settings', hi: 'सेटिंग्स')), 
-        backgroundColor: Colors.white, 
-        foregroundColor: AppTheme.grey900
+        title: Text(
+          accessibilityProvider.label(en: 'Settings', hi: 'सेटिंग्स'),
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: AppTheme.grey900,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -63,42 +65,73 @@ class _SettingsScreenState extends State<SettingsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                accessibilityProvider.label(en: 'Profile Information', hi: 'प्रोफ़ाइल जानकारी'), 
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
+                accessibilityProvider.label(
+                  en: 'Profile Information',
+                  hi: 'प्रोफ़ाइल जानकारी',
+                ),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
-                  labelText: accessibilityProvider.label(en: 'Display Name', hi: 'नाम'), 
-                  border: const OutlineInputBorder()
+                  labelText: accessibilityProvider.label(
+                    en: 'Display Name',
+                    hi: 'नाम',
+                  ),
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _emailController,
                 decoration: InputDecoration(
-                  labelText: accessibilityProvider.label(en: 'Email Address', hi: 'ईमेल पता'), 
-                  border: const OutlineInputBorder()
+                  labelText: accessibilityProvider.label(
+                    en: 'Email Address',
+                    hi: 'ईमेल पता',
+                  ),
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _villageController,
                 decoration: InputDecoration(
-                  labelText: accessibilityProvider.label(en: 'Home Village / Area', hi: 'गांव / क्षेत्र'), 
-                  border: const OutlineInputBorder()
+                  labelText: accessibilityProvider.label(
+                    en: 'Home Village / Area',
+                    hi: 'गांव / क्षेत्र',
+                  ),
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 32),
               Text(
-                accessibilityProvider.label(en: 'Preferences', hi: 'पसंद (सेटिंग्स)'), 
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
+                accessibilityProvider.label(
+                  en: 'Preferences',
+                  hi: 'पसंद (सेटिंग्स)',
+                ),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               SwitchListTile(
-                title: Text(accessibilityProvider.label(en: 'Simple Mode (Elderly)', hi: 'सरल मोड (बुजुर्गों के लिए)')),
-                subtitle: Text(accessibilityProvider.label(en: 'Larger text, simpler buttons & Hindi language', hi: 'बड़े अक्षर, आसान बटन और हिंदी भाषा')),
+                title: Text(
+                  accessibilityProvider.label(
+                    en: 'Simple Mode (Elderly)',
+                    hi: 'सरल मोड (बुजुर्गों के लिए)',
+                  ),
+                ),
+                subtitle: Text(
+                  accessibilityProvider.label(
+                    en: 'Larger text, simpler buttons & Hindi language',
+                    hi: 'बड़े अक्षर, आसान बटन और हिंदी भाषा',
+                  ),
+                ),
                 value: accessibilityProvider.isElderlyMode,
                 onChanged: (val) => accessibilityProvider.setElderlyMode(val),
                 activeThumbColor: AppTheme.primary,
@@ -108,8 +141,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
-                    accessibilityProvider.label(en: 'Text Size', hi: 'अक्षर का आकार'), 
-                    style: const TextStyle(fontWeight: FontWeight.bold)
+                    accessibilityProvider.label(
+                      en: 'Text Size',
+                      hi: 'अक्षर का आकार',
+                    ),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 Slider(
@@ -123,19 +159,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ],
               SwitchListTile(
-                title: Text(accessibilityProvider.label(en: 'Push Notifications', hi: 'पुश नोटिफिकेशन')),
-                subtitle: Text(accessibilityProvider.label(en: 'Get alerts for order status and deals', hi: 'ऑर्डर और ऑफर के अलर्ट पाएं')),
+                title: Text(
+                  accessibilityProvider.label(
+                    en: 'Push Notifications',
+                    hi: 'पुश नोटिफिकेशन',
+                  ),
+                ),
+                subtitle: Text(
+                  accessibilityProvider.label(
+                    en: 'Get alerts for order status and deals',
+                    hi: 'ऑर्डर और ऑफर के अलर्ट पाएं',
+                  ),
+                ),
                 value: _notificationsEnabled,
                 onChanged: (val) => setState(() => _notificationsEnabled = val),
                 activeThumbColor: AppTheme.primary,
               ),
               ListTile(
-                title: Text(accessibilityProvider.label(en: 'App Language', hi: 'ऐप की भाषा')),
+                title: Text(
+                  accessibilityProvider.label(
+                    en: 'App Language',
+                    hi: 'ऐप की भाषा',
+                  ),
+                ),
                 subtitle: Text(
                   accessibilityProvider.label(
-                    en: 'Selected: ${currentLang == 'en' ? 'English' : 'हिन्दी'}', 
-                    hi: 'चुना हुआ: ${currentLang == 'en' ? 'English' : 'हिन्दी'}'
-                  )
+                    en: 'Selected: ${currentLang == 'en' ? 'English' : 'हिन्दी'}',
+                    hi: 'चुना हुआ: ${currentLang == 'en' ? 'English' : 'हिन्दी'}',
+                  ),
                 ),
                 trailing: const Icon(Icons.language),
                 onTap: () {
@@ -166,44 +217,78 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
               ),
               SwitchListTile(
-                title: Text(accessibilityProvider.label(en: 'Dark Mode', hi: 'डार्क मोड (काली स्क्रीन)')),
+                title: Text(
+                  accessibilityProvider.label(
+                    en: 'Dark Mode',
+                    hi: 'डार्क मोड (काली स्क्रीन)',
+                  ),
+                ),
                 value: themeProvider.themeMode == ThemeModeType.dark,
-                onChanged: (val) => themeProvider.setThemeMode(val ? ThemeModeType.dark : ThemeModeType.light),
+                onChanged: (val) => themeProvider.setThemeMode(
+                  val ? ThemeModeType.dark : ThemeModeType.light,
+                ),
                 activeThumbColor: AppTheme.primary,
               ),
               const SizedBox(height: 24),
               Text(
-                accessibilityProvider.label(en: 'System', hi: 'सिस्टम'), 
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
+                accessibilityProvider.label(en: 'System', hi: 'सिस्टम'),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               ListTile(
-                title: Text(accessibilityProvider.label(en: 'Check for Updates', hi: 'अपडेट के लिए जांचें')),
+                title: Text(
+                  accessibilityProvider.label(
+                    en: 'Check for Updates',
+                    hi: 'अपडेट के लिए जांचें',
+                  ),
+                ),
                 subtitle: FutureBuilder<PackageInfo>(
                   future: PackageInfo.fromPlatform(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       return Text(
                         accessibilityProvider.label(
-                          en: 'Current Version: ${snapshot.data!.version}', 
-                          hi: 'वर्तमान संस्करण: ${snapshot.data!.version}'
-                        )
+                          en: 'Current Version: ${snapshot.data!.version}',
+                          hi: 'वर्तमान संस्करण: ${snapshot.data!.version}',
+                        ),
                       );
                     }
-                    return Text(accessibilityProvider.label(en: 'Checking version...', hi: 'संस्करण की जाँच की जा रही है...'));
+                    return Text(
+                      accessibilityProvider.label(
+                        en: 'Checking version...',
+                        hi: 'संस्करण की जाँच की जा रही है...',
+                      ),
+                    );
                   },
                 ),
                 trailing: const Icon(Icons.system_update),
                 onTap: () async {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(accessibilityProvider.label(en: 'Checking for updates...', hi: 'अपडेट की जांच कर रहे हैं...'))),
+                    SnackBar(
+                      content: Text(
+                        accessibilityProvider.label(
+                          en: 'Checking for updates...',
+                          hi: 'अपडेट की जांच कर रहे हैं...',
+                        ),
+                      ),
+                    ),
                   );
-                  final hasUpdate = await UpdateService().handleVersionCheck(context);
+                  final hasUpdate = await UpdateService().handleVersionCheck(
+                    context,
+                  );
                   if (hasUpdate && mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(accessibilityProvider.label(en: 'You are on the latest version!', hi: 'आप नवीनतम संस्करण पर हैं!')), 
-                        backgroundColor: AppTheme.success
+                        content: Text(
+                          accessibilityProvider.label(
+                            en: 'You are on the latest version!',
+                            hi: 'आप नवीनतम संस्करण पर हैं!',
+                          ),
+                        ),
+                        backgroundColor: AppTheme.success,
                       ),
                     );
                   }
@@ -223,15 +308,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       );
                       if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(accessibilityProvider.label(en: 'Settings saved!', hi: 'सेटिंग्स सुरक्षित हो गईं!')))
+                          SnackBar(
+                            content: Text(
+                              accessibilityProvider.label(
+                                en: 'Settings saved!',
+                                hi: 'सेटिंग्स सुरक्षित हो गईं!',
+                              ),
+                            ),
+                          ),
                         );
                       }
                     }
                   },
-                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, foregroundColor: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primary,
+                    foregroundColor: Colors.white,
+                  ),
                   child: Text(
-                    accessibilityProvider.label(en: 'SAVE SETTINGS', hi: 'सेटिंग्स सुरक्षित करें'), 
-                    style: const TextStyle(fontWeight: FontWeight.bold)
+                    accessibilityProvider.label(
+                      en: 'SAVE SETTINGS',
+                      hi: 'सेटिंग्स सुरक्षित करें',
+                    ),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -240,9 +338,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onPressed: () => authProvider.logout(),
                 child: Center(
                   child: Text(
-                    accessibilityProvider.label(en: 'Logout from App', hi: 'ऐप से लॉगआउट करें'), 
-                    style: const TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold)
-                  )
+                    accessibilityProvider.label(
+                      en: 'Logout from App',
+                      hi: 'ऐप से लॉगआउट करें',
+                    ),
+                    style: const TextStyle(
+                      color: AppTheme.error,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ],

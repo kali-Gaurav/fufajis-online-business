@@ -9,7 +9,8 @@ class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   static final Map<String, Map<String, String>> _localizedValues = {
     'en': {
@@ -36,7 +37,7 @@ class AppLocalizations {
       'balance': 'Balance',
       'cashback': 'Cashback',
       'points': 'Points',
-      'noInternet': 'No internet connection. You are browsing offline.'
+      'noInternet': 'No internet connection. You are browsing offline.',
     },
     'hi': {
       'appTitle': 'फूफाजी ऑनलाइन',
@@ -62,7 +63,8 @@ class AppLocalizations {
       'balance': 'शेष राशि',
       'cashback': 'कैशबैक',
       'points': 'अंक',
-      'noInternet': 'कोई इंटरनेट कनेक्शन नहीं है। आप ऑफ़लाइन ब्राउज़ कर रहे हैं।'
+      'noInternet':
+          'कोई इंटरनेट कनेक्शन नहीं है। आप ऑफ़लाइन ब्राउज़ कर रहे हैं।',
     },
   };
 
@@ -97,7 +99,8 @@ class AppLocalizations {
   String get noInternet => translate('noInternet');
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override

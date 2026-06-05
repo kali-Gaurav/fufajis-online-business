@@ -12,7 +12,10 @@ void main() {
     late AISearchService aiSearchService;
 
     setUp(() {
-      productProvider = ProductProvider(MockSharedPreferences());
+      productProvider = ProductProvider(
+        MockSharedPreferences(),
+        enableRemoteData: false,
+      );
       productProvider.loadMockProducts();
       aiSearchService = AISearchService();
     });
@@ -39,25 +42,31 @@ void main() {
       expect(results.first.name, contains('Tomatoes'));
     });
 
-    test('Image file name onion heuristic should match onion product', () async {
-      // Simulate file named "onions.jpg"
-      final results = await aiSearchService.identifyProductFromImage(
-        XFile('onions.jpg'),
-        productProvider.products,
-      );
+    test(
+      'Image file name onion heuristic should match onion product',
+      () async {
+        // Simulate file named "onions.jpg"
+        final results = await aiSearchService.identifyProductFromImage(
+          XFile('onions.jpg'),
+          productProvider.products,
+        );
 
-      expect(results, isNotEmpty);
-      expect(results.first.name, contains('Onions'));
-    });
+        expect(results, isNotEmpty);
+        expect(results.first.name, contains('Onions'));
+      },
+    );
 
-    test('Unknown image file should fallback to general catalog matching gracefully', () async {
-      final results = await aiSearchService.identifyProductFromImage(
-        XFile('mysterious_object.png'),
-        productProvider.products,
-      );
+    test(
+      'Unknown image file should fallback to general catalog matching gracefully',
+      () async {
+        final results = await aiSearchService.identifyProductFromImage(
+          XFile('mysterious_object.png'),
+          productProvider.products,
+        );
 
-      // Should return the default fallback matching (1 item from catalog based on image hash)
-      expect(results.length, equals(1));
-    });
+        // Should return the default fallback matching (1 item from catalog based on image hash)
+        expect(results.length, equals(1));
+      },
+    );
   });
 }

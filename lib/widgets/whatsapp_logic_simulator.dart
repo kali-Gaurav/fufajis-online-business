@@ -23,8 +23,13 @@ class _WhatsAppLogicSimulatorState extends State<WhatsAppLogicSimulator> {
       _response = 'Processing command...';
     });
 
-    final productProvider = Provider.of<ProductProvider>(context, listen: false);
-    final result = await productProvider.processWhatsAppMessage(_messageController.text);
+    final productProvider = Provider.of<ProductProvider>(
+      context,
+      listen: false,
+    );
+    final result = await productProvider.processWhatsAppMessage(
+      _messageController.text,
+    );
 
     setState(() {
       _response = result;
@@ -56,8 +61,11 @@ class _WhatsAppLogicSimulatorState extends State<WhatsAppLogicSimulator> {
               controller: _messageController,
               maxLines: 3,
               decoration: InputDecoration(
-                hintText: 'e.g. ADD 20 apples 150\nUPDATE potato 50\nDELETE banana',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                hintText:
+                    'e.g. ADD 20 apples 150\nUPDATE potato 50\nDELETE banana',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -75,7 +83,10 @@ class _WhatsAppLogicSimulatorState extends State<WhatsAppLogicSimulator> {
             ),
             if (_response.isNotEmpty) ...[
               const SizedBox(height: 24),
-              const Text('Shop Response:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+              const Text(
+                'Shop Response:',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              ),
               const SizedBox(height: 8),
               Container(
                 width: double.infinity,

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../services/fleet_service.dart';
 import '../../models/attendance_model.dart';
@@ -383,7 +383,7 @@ class _AttendanceManagementScreenState extends State<AttendanceManagementScreen>
                     children: [
                       Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: AppTheme.grey100,
                           shape: BoxShape.circle,
                         ),

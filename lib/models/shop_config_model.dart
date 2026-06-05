@@ -1,4 +1,3 @@
-
 class ShopConfigModel {
   final String shopName;
   final String shopAddress;
@@ -6,20 +5,20 @@ class ShopConfigModel {
   final String shopEmail;
   final String? shopLogoUrl;
   final bool isOpen;
-  
+
   final double shopLatitude;
   final double shopLongitude;
-  
+
   final double maxDeliveryRadiusKm;
   final List<DeliveryZone> deliveryZones;
-  
+
   final double minOrderAmount;
   final double minOrderForFreeDelivery;
   final double flatDeliveryFee;
-  
+
   final Map<String, OperatingHours> operatingHours;
   final bool autoCloseOutsideHours;
-  
+
   final double maxCodLimit;
   final double maxCreditLimit;
   final int maxOrdersPerSlot;
@@ -29,6 +28,13 @@ class ShopConfigModel {
   final bool enableLoyaltyPoints;
   final bool isAutoPilotEnabled;
   final bool isEmergencyMode;
+  
+  // Billing/Delivery Logic
+  final double expressDeliveryFee;
+  final double baseDeliveryRadiusKm;
+  final double deliveryFeePerKm;
+  final double freeDeliveryThreshold;
+  final double standardDeliveryFee;
 
   ShopConfigModel({
     required this.shopName,
@@ -55,6 +61,11 @@ class ShopConfigModel {
     required this.enableLoyaltyPoints,
     required this.isAutoPilotEnabled,
     this.isEmergencyMode = false,
+    this.expressDeliveryFee = 50.0,
+    this.baseDeliveryRadiusKm = 5.0,
+    this.deliveryFeePerKm = 5.0,
+    this.freeDeliveryThreshold = 500.0,
+    this.standardDeliveryFee = 30.0,
   });
 
   Map<String, dynamic> toMap() {
@@ -83,6 +94,11 @@ class ShopConfigModel {
       'enableLoyaltyPoints': enableLoyaltyPoints,
       'isAutoPilotEnabled': isAutoPilotEnabled,
       'isEmergencyMode': isEmergencyMode,
+      'expressDeliveryFee': expressDeliveryFee,
+      'baseDeliveryRadiusKm': baseDeliveryRadiusKm,
+      'deliveryFeePerKm': deliveryFeePerKm,
+      'freeDeliveryThreshold': freeDeliveryThreshold,
+      'standardDeliveryFee': standardDeliveryFee,
     };
   }
 
@@ -97,15 +113,24 @@ class ShopConfigModel {
       shopLatitude: (map['shopLatitude'] ?? 26.9124).toDouble(),
       shopLongitude: (map['shopLongitude'] ?? 75.7873).toDouble(),
       maxDeliveryRadiusKm: (map['maxDeliveryRadiusKm'] ?? 8.0).toDouble(),
-      deliveryZones: (map['deliveryZones'] as List<dynamic>?)
-              ?.map((z) => DeliveryZone.fromMap(Map<String, dynamic>.from(z as Map)))
+      deliveryZones:
+          (map['deliveryZones'] as List<dynamic>?)
+              ?.map(
+                (z) =>
+                    DeliveryZone.fromMap(Map<String, dynamic>.from(z as Map)),
+              )
               .toList() ??
           [],
       minOrderAmount: (map['minOrderAmount'] ?? 0.0).toDouble(),
-      minOrderForFreeDelivery: (map['minOrderForFreeDelivery'] ?? 500.0).toDouble(),
+      minOrderForFreeDelivery: (map['minOrderForFreeDelivery'] ?? 500.0)
+          .toDouble(),
       flatDeliveryFee: (map['flatDeliveryFee'] ?? 40.0).toDouble(),
-      operatingHours: (map['operatingHours'] as Map<dynamic, dynamic>?)?.map(
-            (k, v) => MapEntry(k.toString(), OperatingHours.fromMap(Map<String, dynamic>.from(v as Map))),
+      operatingHours:
+          (map['operatingHours'] as Map<dynamic, dynamic>?)?.map(
+            (k, v) => MapEntry(
+              k.toString(),
+              OperatingHours.fromMap(Map<String, dynamic>.from(v as Map)),
+            ),
           ) ??
           {},
       autoCloseOutsideHours: map['autoCloseOutsideHours'] ?? false,
@@ -118,6 +143,11 @@ class ShopConfigModel {
       enableLoyaltyPoints: map['enableLoyaltyPoints'] ?? false,
       isAutoPilotEnabled: map['isAutoPilotEnabled'] ?? false,
       isEmergencyMode: map['isEmergencyMode'] ?? false,
+      expressDeliveryFee: (map['expressDeliveryFee'] ?? 50.0).toDouble(),
+      baseDeliveryRadiusKm: (map['baseDeliveryRadiusKm'] ?? 5.0).toDouble(),
+      deliveryFeePerKm: (map['deliveryFeePerKm'] ?? 5.0).toDouble(),
+      freeDeliveryThreshold: (map['freeDeliveryThreshold'] ?? 500.0).toDouble(),
+      standardDeliveryFee: (map['standardDeliveryFee'] ?? 30.0).toDouble(),
     );
   }
 
@@ -159,10 +189,12 @@ class ShopConfigModel {
       maxDeliveryRadiusKm: maxDeliveryRadiusKm ?? this.maxDeliveryRadiusKm,
       deliveryZones: deliveryZones ?? this.deliveryZones,
       minOrderAmount: minOrderAmount ?? this.minOrderAmount,
-      minOrderForFreeDelivery: minOrderForFreeDelivery ?? this.minOrderForFreeDelivery,
+      minOrderForFreeDelivery:
+          minOrderForFreeDelivery ?? this.minOrderForFreeDelivery,
       flatDeliveryFee: flatDeliveryFee ?? this.flatDeliveryFee,
       operatingHours: operatingHours ?? this.operatingHours,
-      autoCloseOutsideHours: autoCloseOutsideHours ?? this.autoCloseOutsideHours,
+      autoCloseOutsideHours:
+          autoCloseOutsideHours ?? this.autoCloseOutsideHours,
       maxCodLimit: maxCodLimit ?? this.maxCodLimit,
       maxCreditLimit: maxCreditLimit ?? this.maxCreditLimit,
       maxOrdersPerSlot: maxOrdersPerSlot ?? this.maxOrdersPerSlot,
@@ -252,11 +284,7 @@ class OperatingHours {
   });
 
   Map<String, dynamic> toMap() {
-    return {
-      'isOpen': isOpen,
-      'openTime': openTime,
-      'closeTime': closeTime,
-    };
+    return {'isOpen': isOpen, 'openTime': openTime, 'closeTime': closeTime};
   }
 
   factory OperatingHours.fromMap(Map<String, dynamic> map) {

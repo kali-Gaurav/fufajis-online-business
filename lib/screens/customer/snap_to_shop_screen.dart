@@ -1,10 +1,9 @@
-﻿import 'dart:io';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/product_provider.dart';
-import '../../models/product_model.dart';
 import '../../services/ai_search_service.dart';
 import '../../utils/app_theme.dart';
 
@@ -230,8 +229,8 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: const [
+                  const Row(
+                    children: [
                       Icon(Icons.bug_report_outlined, color: AppTheme.warning, size: 20),
                       SizedBox(width: 8),
                       Text(

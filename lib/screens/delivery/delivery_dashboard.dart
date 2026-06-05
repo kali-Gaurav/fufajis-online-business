@@ -15,14 +15,18 @@ import '../../services/offline_routing_service.dart';
 import 'delivery_earnings_screen.dart';
 import 'delivery_orders_screen.dart';
 import 'rider_chat.dart';
+import 'live_tracking_screen.dart';
 import '../../providers/delivery_provider.dart';
 import '../../models/order_model.dart';
 import '../../models/user_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../widgets/common/banner_ad_widget.dart';
-
 import '../../widgets/common/role_restricted_widget.dart';
+import '../employee/delivery_pod_scanner_screen.dart';
+import '../employee/unified_scanner_hub.dart';
+import '../employee/customer_membership_scanner_screen.dart';
+import '../../services/scanner_service.dart';
 
 class DeliveryDashboard extends StatefulWidget {
   const DeliveryDashboard({super.key});
@@ -40,9 +44,16 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
     const DeliveryOrdersScreen(),
     const DeliveryEarningsScreen(),
     const TripRouteSheet(),
+    const _DeliveryScannerPage(),
   ];
 
-  final List<String> _titles = ['Dashboard', 'Orders', 'Earnings', 'Trip Worksheet'];
+  final List<String> _titles = [
+    'Dashboard',
+    'Orders',
+    'Earnings',
+    'Trip Worksheet',
+    'Scanner',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -57,11 +68,19 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
                 valueListenable: _syncService.pendingSyncCount,
                 builder: (context, pendingCount, child) {
                   return Container(
-                    margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    margin: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 8,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: online
-                          ? (pendingCount > 0 ? Colors.amber.withValues(alpha: 0.15) : AppTheme.success.withValues(alpha: 0.1))
+                          ? (pendingCount > 0
+                                ? Colors.amber.withValues(alpha: 0.15)
+                                : AppTheme.success.withValues(alpha: 0.1))
                           : Colors.orange.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -70,17 +89,27 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
                         Icon(
                           online ? Icons.cloud_done : Icons.cloud_off,
                           size: 14,
-                          color: online ? (pendingCount > 0 ? Colors.amber : AppTheme.success) : Colors.orange,
+                          color: online
+                              ? (pendingCount > 0
+                                    ? Colors.amber
+                                    : AppTheme.success)
+                              : Colors.orange,
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          online 
-                              ? (pendingCount > 0 ? 'Sync ($pendingCount)' : 'Online') 
+                          online
+                              ? (pendingCount > 0
+                                    ? 'Sync ($pendingCount)'
+                                    : 'Online')
                               : 'Offline ($pendingCount)',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: online ? (pendingCount > 0 ? Colors.amber : AppTheme.success) : Colors.orange,
+                            color: online
+                                ? (pendingCount > 0
+                                      ? Colors.amber
+                                      : AppTheme.success)
+                                : Colors.orange,
                           ),
                         ),
                       ],
@@ -102,10 +131,7 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
               tooltip: 'Switch Role',
             ),
           ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.account_circle),
-          ),
+          IconButton(onPressed: () {}, icon: const Icon(Icons.account_circle)),
         ],
       ),
       body: Row(
@@ -136,6 +162,11 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
                 icon: Icon(Icons.route_outlined),
                 selectedIcon: Icon(Icons.route),
                 label: Text('Trip Sheet'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.qr_code_scanner_outlined),
+                selectedIcon: Icon(Icons.qr_code_scanner),
+                label: Text('Scanner'),
               ),
             ],
           ),
@@ -215,14 +246,18 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
         final permission = await Geolocator.checkPermission();
         if (permission == LocationPermission.denied) {
           final requested = await Geolocator.requestPermission();
-          if (requested == LocationPermission.denied || requested == LocationPermission.deniedForever) {
+          if (requested == LocationPermission.denied ||
+              requested == LocationPermission.deniedForever) {
             setState(() => _isLoadingLocation = false);
-            _showErrorDialog("Location Permissions Denied", "We need GPS permissions to verify you are at the store.");
+            _showErrorDialog(
+              "Location Permissions Denied",
+              "We need GPS permissions to verify you are at the store.",
+            );
             return;
           }
         }
         final pos = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
+          locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
           timeLimit: const Duration(seconds: 10),
         );
         currentLat = pos.latitude;
@@ -235,17 +270,22 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
     }
 
     // Calculate geofence distance
-    final double distance = _routingService.calculateHaversineDistance(currentLat, currentLng, storeLat, storeLng);
+    final double distance = _routingService.calculateHaversineDistance(
+      currentLat,
+      currentLng,
+      storeLat,
+      storeLng,
+    );
 
     if (distance > 5.0) {
       setState(() => _isLoadingLocation = false);
       _showErrorDialog(
         "Geo-Fence Violation",
         "You are too far from the store to clock in!\n\n"
-        "Current Position: (${currentLat.toStringAsFixed(4)}, ${currentLng.toStringAsFixed(4)})\n"
-        "Distance to Store: ${distance.toStringAsFixed(2)} km\n"
-        "Allowed Radius: 5.00 km\n\n"
-        "Please travel closer to the shop to begin your shift.",
+            "Current Position: (${currentLat.toStringAsFixed(4)}, ${currentLng.toStringAsFixed(4)})\n"
+            "Distance to Store: ${distance.toStringAsFixed(2)} km\n"
+            "Allowed Radius: 5.00 km\n\n"
+            "Please travel closer to the shop to begin your shift.",
       );
       return;
     }
@@ -289,7 +329,9 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
       currentLng = _mockLng;
     } else {
       try {
-        final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+        final pos = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+        );
         currentLat = pos.latitude;
         currentLng = pos.longitude;
       } catch (_) {}
@@ -330,7 +372,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('OK'),
-          )
+          ),
         ],
       ),
     );
@@ -358,7 +400,9 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
         if (snapshot.hasData) {
           final list = snapshot.data!;
           history = list;
-          final activeIndex = list.indexWhere((element) => element.status == 'active');
+          final activeIndex = list.indexWhere(
+            (element) => element.status == 'active',
+          );
           if (activeIndex != -1) {
             activeShift = list[activeIndex];
             _startTimer(activeShift.clockInTime);
@@ -370,12 +414,13 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
         }
 
         final bool isClockedIn = activeShift != null;
-        final double currentDistance = _routingService.calculateHaversineDistance(
-          _useMockLocation ? _mockLat : storeLat,
-          _useMockLocation ? _mockLng : storeLng,
-          storeLat,
-          storeLng,
-        );
+        final double currentDistance = _routingService
+            .calculateHaversineDistance(
+              _useMockLocation ? _mockLat : storeLat,
+              _useMockLocation ? _mockLng : storeLng,
+              storeLat,
+              storeLng,
+            );
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -391,7 +436,13 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
               const SizedBox(height: 24),
 
               // Attendance Check-In Panel
-              _buildAttendancePanel(isClockedIn, activeShift, currentDistance, riderId, riderName),
+              _buildAttendancePanel(
+                isClockedIn,
+                activeShift,
+                currentDistance,
+                riderId,
+                riderName,
+              ),
               const SizedBox(height: 24),
 
               // Location Simulator Panel (Developer/Demo Presets)
@@ -410,16 +461,23 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
               const SizedBox(height: 24),
 
               // Today's Deliveries (Active Tasks)
-              _buildTodayDeliveries(deliveryProvider.assignedOrders, deliveryProvider),
+              _buildTodayDeliveries(
+                deliveryProvider.assignedOrders,
+                deliveryProvider,
+              ),
               const SizedBox(height: 24),
 
               // Pickup Queue (Available Orders)
-              _buildPickupQueue(deliveryProvider.availableOrders, deliveryProvider, rider),
+              _buildPickupQueue(
+                deliveryProvider.availableOrders,
+                deliveryProvider,
+                rider,
+              ),
               const SizedBox(height: 24),
 
               // Quick Actions
               _buildQuickActions(),
-              
+
               const SizedBox(height: 32),
               const Center(
                 child: Text(
@@ -449,13 +507,24 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
           const Expanded(
             child: Text(
               'Select Vehicle Mode:',
-              style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.grey700),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: AppTheme.grey700,
+              ),
             ),
           ),
           SegmentedButton<String>(
             segments: const [
-              ButtonSegment(value: 'Bike', label: Text('Bike'), icon: Icon(Icons.motorcycle)),
-              ButtonSegment(value: 'E-Rickshaw', label: Text('E-Rickshaw'), icon: Icon(Icons.electric_rickshaw)),
+              ButtonSegment(
+                value: 'Bike',
+                label: Text('Bike'),
+                icon: Icon(Icons.motorcycle),
+              ),
+              ButtonSegment(
+                value: 'E-Rickshaw',
+                label: Text('E-Rickshaw'),
+                icon: Icon(Icons.electric_rickshaw),
+              ),
             ],
             selected: {provider.vehicleMode},
             onSelectionChanged: (Set<String> newSelection) {
@@ -563,7 +632,10 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
@@ -601,7 +673,11 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
             const SizedBox(height: 8),
             Row(
               children: [
-                const Icon(Icons.timer_outlined, color: AppTheme.success, size: 20),
+                const Icon(
+                  Icons.timer_outlined,
+                  color: AppTheme.success,
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
                 const Text(
                   'Active Duration: ',
@@ -639,14 +715,22 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
           ] else ...[
             const Text(
               'To start receiving and delivering orders, please clock in. You must be physically present within 5 km of the Jaipur shop base.',
-              style: TextStyle(fontSize: 14, color: AppTheme.grey600, height: 1.4),
+              style: TextStyle(
+                fontSize: 14,
+                color: AppTheme.grey600,
+                height: 1.4,
+              ),
             ),
             const SizedBox(height: 12),
             Row(
               children: [
                 Icon(
-                  currentDistance <= 5.0 ? Icons.check_circle_outline : Icons.cancel_outlined,
-                  color: currentDistance <= 5.0 ? AppTheme.success : AppTheme.error,
+                  currentDistance <= 5.0
+                      ? Icons.check_circle_outline
+                      : Icons.cancel_outlined,
+                  color: currentDistance <= 5.0
+                      ? AppTheme.success
+                      : AppTheme.error,
                   size: 20,
                 ),
                 const SizedBox(width: 8),
@@ -655,11 +739,15 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                   style: const TextStyle(fontSize: 14, color: AppTheme.grey700),
                 ),
                 Text(
-                  currentDistance <= 5.0 ? '(Within 5 km radius)' : '(Out of Bounds)',
+                  currentDistance <= 5.0
+                      ? '(Within 5 km radius)'
+                      : '(Out of Bounds)',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: currentDistance <= 5.0 ? AppTheme.success : AppTheme.error,
+                    color: currentDistance <= 5.0
+                        ? AppTheme.success
+                        : AppTheme.error,
                   ),
                 ),
               ],
@@ -669,7 +757,9 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
               width: double.infinity,
               height: 48,
               child: ElevatedButton(
-                onPressed: _isLoadingLocation ? null : () => _handleClockIn(riderId, riderName),
+                onPressed: _isLoadingLocation
+                    ? null
+                    : () => _handleClockIn(riderId, riderName),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primary,
                   foregroundColor: AppTheme.white,
@@ -677,12 +767,22 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: _isLoadingLocation 
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                  : const Text(
-                      'Clock In (Start Shift)',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
+                child: _isLoadingLocation
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text(
+                        'Clock In (Start Shift)',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
               ),
             ),
           ],
@@ -693,16 +793,8 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
 
   Widget _buildLocationSimulatorCard(double currentDistance) {
     final presets = [
-      {
-        'name': 'At Central Shop (0.0 km)',
-        'lat': storeLat,
-        'lng': storeLng,
-      },
-      {
-        'name': 'Nearby Crossing (1.2 km)',
-        'lat': 26.9200,
-        'lng': 75.7900,
-      },
+      {'name': 'At Central Shop (0.0 km)', 'lat': storeLat, 'lng': storeLng},
+      {'name': 'Nearby Crossing (1.2 km)', 'lat': 26.9200, 'lng': 75.7900},
       {
         'name': 'Out-of-Bounds Village (35.4 km)',
         'lat': 27.0500,
@@ -757,7 +849,11 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
           if (_useMockLocation) ...[
             const Text(
               'Select Mock Position Preset:',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.grey700),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.grey700,
+              ),
             ),
             const SizedBox(height: 8),
             Wrap(
@@ -771,7 +867,9 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                   selectedColor: AppTheme.secondary.withValues(alpha: 0.2),
                   labelStyle: TextStyle(
                     color: isSelected ? AppTheme.secondary : AppTheme.grey700,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    fontWeight: isSelected
+                        ? FontWeight.bold
+                        : FontWeight.normal,
                     fontSize: 12,
                   ),
                   onSelected: (selected) {
@@ -795,13 +893,20 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.info_outline, size: 16, color: AppTheme.grey600),
+                  const Icon(
+                    Icons.info_outline,
+                    size: 16,
+                    color: AppTheme.grey600,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Simulating Coordinates: (${_mockLat.toStringAsFixed(4)}, ${_mockLng.toStringAsFixed(4)})\n'
                       'Distance from base: ${currentDistance.toStringAsFixed(2)} km',
-                      style: const TextStyle(fontSize: 11, color: AppTheme.grey700),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppTheme.grey700,
+                      ),
                     ),
                   ),
                 ],
@@ -814,7 +919,11 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                 SizedBox(width: 8),
                 Text(
                   'Using actual physical device GPS provider',
-                  style: TextStyle(fontSize: 12, color: AppTheme.success, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.success,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -826,10 +935,26 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
 
   Widget _buildStatsGrid(DeliveryProvider provider) {
     final stats = [
-      {'title': 'Today\'s Task', 'value': provider.assignedOrders.length.toString(), 'icon': Icons.local_shipping},
-      {'title': 'Distance (km)', 'value': provider.todayDistance.toStringAsFixed(1), 'icon': Icons.straighten},
-      {'title': 'Completed', 'value': provider.completedToday.toString(), 'icon': Icons.check_circle},
-      {'title': 'Earnings', 'value': '₹${provider.todayEarnings.round()}', 'icon': Icons.account_balance_wallet},
+      {
+        'title': 'Today\'s Task',
+        'value': provider.assignedOrders.length.toString(),
+        'icon': Icons.local_shipping,
+      },
+      {
+        'title': 'Distance (km)',
+        'value': provider.todayDistance.toStringAsFixed(1),
+        'icon': Icons.straighten,
+      },
+      {
+        'title': 'Completed',
+        'value': provider.completedToday.toString(),
+        'icon': Icons.check_circle,
+      },
+      {
+        'title': 'Earnings',
+        'value': '₹${provider.todayEarnings.round()}',
+        'icon': Icons.account_balance_wallet,
+      },
     ];
 
     return GridView.builder(
@@ -886,10 +1011,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                 stat['title'] as String,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 10,
-                  color: AppTheme.grey500,
-                ),
+                style: const TextStyle(fontSize: 10, color: AppTheme.grey500),
               ),
             ],
           ),
@@ -958,12 +1080,18 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: item.status == 'active' ? AppTheme.success.withValues(alpha: 0.1) : AppTheme.grey100,
+                          color: item.status == 'active'
+                              ? AppTheme.success.withValues(alpha: 0.1)
+                              : AppTheme.grey100,
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          item.status == 'active' ? Icons.play_arrow : Icons.stop,
-                          color: item.status == 'active' ? AppTheme.success : AppTheme.grey600,
+                          item.status == 'active'
+                              ? Icons.play_arrow
+                              : Icons.stop,
+                          color: item.status == 'active'
+                              ? AppTheme.success
+                              : AppTheme.grey600,
                           size: 18,
                         ),
                       ),
@@ -974,12 +1102,18 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                           children: [
                             Text(
                               'Shift: ${DateFormat('dd MMM yyyy').format(item.clockInTime)}',
-                              style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.grey800),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.grey800,
+                              ),
                             ),
                             Text(
                               'In: ${DateFormat('hh:mm a').format(item.clockInTime)}  '
                               '${item.clockOutTime != null ? "Out: ${DateFormat('hh:mm a').format(item.clockOutTime!)}" : ""}',
-                              style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppTheme.grey500,
+                              ),
                             ),
                           ],
                         ),
@@ -988,7 +1122,9 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                         durationStr,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: item.status == 'active' ? AppTheme.success : AppTheme.grey700,
+                          color: item.status == 'active'
+                              ? AppTheme.success
+                              : AppTheme.grey700,
                         ),
                       ),
                     ],
@@ -1001,7 +1137,10 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
     );
   }
 
-  Widget _buildTodayDeliveries(List<OrderModel> orders, DeliveryProvider provider) {
+  Widget _buildTodayDeliveries(
+    List<OrderModel> orders,
+    DeliveryProvider provider,
+  ) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -1031,7 +1170,10 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
               ),
               Text(
                 '${orders.length} Active',
-                style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: AppTheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -1051,7 +1193,9 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                 decoration: BoxDecoration(
                   color: AppTheme.secondary.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.secondary.withValues(alpha: 0.2)),
+                  border: Border.all(
+                    color: AppTheme.secondary.withValues(alpha: 0.2),
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -1062,7 +1206,10 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                         color: AppTheme.secondary,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(Icons.delivery_dining, color: AppTheme.white),
+                      child: const Icon(
+                        Icons.delivery_dining,
+                        color: AppTheme.white,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -1080,8 +1227,14 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                               ),
                               const SizedBox(width: 8),
                               GestureDetector(
-                                onTap: () => launchUrl(Uri.parse('tel:${order.customerPhone}')),
-                                child: const Icon(Icons.phone, size: 16, color: AppTheme.primary),
+                                onTap: () => launchUrl(
+                                  Uri.parse('tel:${order.customerPhone}'),
+                                ),
+                                child: const Icon(
+                                  Icons.phone,
+                                  size: 16,
+                                  color: AppTheme.primary,
+                                ),
                               ),
                             ],
                           ),
@@ -1093,7 +1246,10 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                             order.deliveryAddress.fullAddress,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppTheme.grey500,
+                            ),
                           ),
                         ],
                       ),
@@ -1112,18 +1268,48 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                         Row(
                           children: [
                             IconButton(
-                              onPressed: () => _launchMap(order.deliveryAddress.latitude, order.deliveryAddress.longitude),
-                              icon: const Icon(Icons.navigation, color: AppTheme.info),
+                              onPressed: () => _launchMap(
+                                order.deliveryAddress.latitude,
+                                order.deliveryAddress.longitude,
+                              ),
+                              icon: const Icon(
+                                Icons.navigation,
+                                color: AppTheme.info,
+                              ),
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
                             ),
                             const SizedBox(width: 8),
                             ElevatedButton(
-                              onPressed: () => _showOtpVerificationDialog(order.id, provider),
+                              onPressed: () async {
+                                final snap = await FirebaseFirestore.instance
+                                    .collection('deliveries')
+                                    .where('orderId', isEqualTo: order.id)
+                                    .limit(1)
+                                    .get();
+                                if (snap.docs.isNotEmpty && mounted) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => LiveTrackingScreen(
+                                        deliveryId: snap.docs.first.id,
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  _showOtpVerificationDialog(
+                                    order.id,
+                                    provider,
+                                  );
+                                }
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.primary,
                                 foregroundColor: AppTheme.white,
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 4,
+                                ),
                               ),
                               child: const Text('Deliver'),
                             ),
@@ -1140,7 +1326,11 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
     );
   }
 
-  Widget _buildPickupQueue(List<OrderModel> orders, DeliveryProvider provider, UserModel? rider) {
+  Widget _buildPickupQueue(
+    List<OrderModel> orders,
+    DeliveryProvider provider,
+    UserModel? rider,
+  ) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -1172,7 +1362,10 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                 ElevatedButton.icon(
                   onPressed: () => _handleBulkAccept(orders, provider, rider),
                   icon: const Icon(Icons.done_all, size: 16),
-                  label: const Text('Accept All', style: TextStyle(fontSize: 12)),
+                  label: const Text(
+                    'Accept All',
+                    style: TextStyle(fontSize: 12),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primary,
                     foregroundColor: Colors.white,
@@ -1181,9 +1374,22 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                 )
               else
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(color: AppTheme.success.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-                  child: Text('${orders.length} Ready', style: const TextStyle(color: AppTheme.success, fontSize: 12, fontWeight: FontWeight.bold)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppTheme.success.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${orders.length} Ready',
+                    style: const TextStyle(
+                      color: AppTheme.success,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
             ],
           ),
@@ -1219,7 +1425,10 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                           ),
                           Text(
                             '${order.items.length} items • ₹${order.totalAmount.round()}',
-                            style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppTheme.grey600,
+                            ),
                           ),
                         ],
                       ),
@@ -1245,9 +1454,13 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
     );
   }
 
-  Future<void> _handleBulkAccept(List<OrderModel> orders, DeliveryProvider provider, UserModel? rider) async {
+  Future<void> _handleBulkAccept(
+    List<OrderModel> orders,
+    DeliveryProvider provider,
+    UserModel? rider,
+  ) async {
     if (rider == null) return;
-    
+
     int count = 0;
     for (var order in orders) {
       final success = await provider.acceptOrder(order.id, rider);
@@ -1276,9 +1489,11 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
   void _showOtpVerificationDialog(String orderId, DeliveryProvider provider) {
     final controller = TextEditingController();
     final focusNode = FocusNode();
-    
+
     // Auto-focus the OTP field
-    WidgetsBinding.instance.addPostFrameCallback((_) => focusNode.requestFocus());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => focusNode.requestFocus(),
+    );
 
     showDialog(
       context: context,
@@ -1295,7 +1510,11 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
               keyboardType: TextInputType.number,
               maxLength: 6,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 8),
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 8,
+              ),
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: '0000',
@@ -1303,25 +1522,37 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
             ),
             if (kDebugMode) // Helper for testers
               TextButton(
-                onPressed: () => controller.text = '1234', 
+                onPressed: () => controller.text = '1234',
                 child: const Text('Fill Test OTP (1234)'),
               ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
             onPressed: () async {
-              final success = await provider.verifyAndCompleteDelivery(orderId, controller.text);
+              final success = await provider.verifyAndCompleteDelivery(
+                orderId,
+                controller.text,
+              );
               if (context.mounted) {
                 if (success) {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Delivery Completed! Earnings updated.'), backgroundColor: AppTheme.success),
+                    const SnackBar(
+                      content: Text('Delivery Completed! Earnings updated.'),
+                      backgroundColor: AppTheme.success,
+                    ),
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(provider.errorMessage ?? 'Invalid OTP'), backgroundColor: AppTheme.error),
+                    SnackBar(
+                      content: Text(provider.errorMessage ?? 'Invalid OTP'),
+                      backgroundColor: AppTheme.error,
+                    ),
                   );
                 }
               }
@@ -1337,7 +1568,11 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
     final actions = [
       {'icon': Icons.navigation, 'label': 'Navigate', 'color': AppTheme.info},
       {'icon': Icons.qr_code, 'label': 'Scan OTP', 'color': AppTheme.primary},
-      {'icon': Icons.phone, 'label': 'Call Customer', 'color': AppTheme.success},
+      {
+        'icon': Icons.phone,
+        'label': 'Call Customer',
+        'color': AppTheme.success,
+      },
       {'icon': Icons.help, 'label': 'Help', 'color': AppTheme.warning},
     ];
 
@@ -1374,7 +1609,9 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                   if (action['label'] == 'Help') {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const RiderChatScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const RiderChatScreen(),
+                      ),
                     );
                   }
                 },
@@ -1384,7 +1621,9 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                       width: 56,
                       height: 56,
                       decoration: BoxDecoration(
-                        color: (action['color'] as Color).withValues(alpha: 0.1),
+                        color: (action['color'] as Color).withValues(
+                          alpha: 0.1,
+                        ),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
@@ -1395,7 +1634,10 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                     const SizedBox(height: 8),
                     Text(
                       action['label'] as String,
-                      style: const TextStyle(fontSize: 12, color: AppTheme.grey700),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.grey700,
+                      ),
                     ),
                   ],
                 ),
@@ -1408,7 +1650,11 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
   }
 
   Widget _buildCashCollectionSummaryCard(String riderId) {
-    final startOfDay = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    final startOfDay = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
 
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
@@ -1423,7 +1669,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
         }
 
         final docs = snapshot.data!.docs;
-        
+
         // Filter locally by deliveredAt >= startOfDay
         final todayDocs = docs.where((doc) {
           final data = doc.data() as Map<String, dynamic>;
@@ -1435,7 +1681,9 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
         double totalCashCollected = 0.0;
         for (var doc in todayDocs) {
           final data = doc.data() as Map<String, dynamic>;
-          totalCashCollected += (data['cashCollectedAmount'] ?? data['totalAmount'] ?? 0.0).toDouble();
+          totalCashCollected +=
+              (data['cashCollectedAmount'] ?? data['totalAmount'] ?? 0.0)
+                  .toDouble();
         }
 
         if (totalCashCollected == 0.0) {
@@ -1468,7 +1716,11 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                   color: Colors.white.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.account_balance_wallet, color: Colors.white, size: 28),
+                child: const Icon(
+                  Icons.account_balance_wallet,
+                  color: Colors.white,
+                  size: 28,
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -1500,7 +1752,11 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                 onPressed: () {
                   // Direct to settlements management or earnings page
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please submit settlement from the Earnings page.')),
+                    const SnackBar(
+                      content: Text(
+                        'Please submit settlement from the Earnings page.',
+                      ),
+                    ),
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -1519,3 +1775,265 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
     );
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// _DeliveryScannerPage — Scanner hub scoped for delivery agents
+//
+// Shows only the modes relevant to a delivery agent:
+//   • Proof of Delivery (primary action)
+//   • Product Search
+//   • Customer Membership
+//   • Payment QR
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _DeliveryScannerPage extends StatelessWidget {
+  const _DeliveryScannerPage();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF1A1A2E),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Scanner',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                'Select what you want to scan',
+                style: TextStyle(color: Colors.white54, fontSize: 13),
+              ),
+              const SizedBox(height: 24),
+
+              // Primary action — POD
+              _DeliveryScanCard(
+                title: 'Proof of Delivery',
+                titleHi: 'डिलीवरी प्रमाण',
+                subtitle: 'Scan order QR at customer door to confirm delivery',
+                icon: Icons.check_circle_outline,
+                color: const Color(0xFF2E7D32),
+                isPrimary: true,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const DeliveryPodScannerScreen(),
+                    fullscreenDialog: true,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // Grid of secondary modes
+              Row(
+                children: [
+                  Expanded(
+                    child: _DeliveryScanCard(
+                      title: 'Product Search',
+                      titleHi: 'उत्पाद',
+                      icon: Icons.inventory_2_outlined,
+                      color: const Color(0xFF1565C0),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const UnifiedScannerHub(
+                            initialMode: ScanMode.productSearch,
+                          ),
+                          fullscreenDialog: true,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _DeliveryScanCard(
+                      title: 'Payment QR',
+                      titleHi: 'भुगतान',
+                      icon: Icons.qr_code_scanner,
+                      color: const Color(0xFF4527A0),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const UnifiedScannerHub(
+                            initialMode: ScanMode.paymentQr,
+                          ),
+                          fullscreenDialog: true,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 12),
+
+              _DeliveryScanCard(
+                title: 'Member Lookup',
+                titleHi: 'सदस्य जानकारी',
+                subtitle: 'Scan customer QR to view their profile and orders',
+                icon: Icons.card_membership_outlined,
+                color: const Color(0xFFAD1457),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        const CustomerMembershipScannerScreen(),
+                    fullscreenDialog: true,
+                  ),
+                ),
+              ),
+
+              const Spacer(),
+
+              // Full scanner hub
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.apps, color: Colors.white54),
+                  label: const Text(
+                    'Open Full Scanner Hub',
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.white24),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const UnifiedScannerHub(),
+                      fullscreenDialog: true,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DeliveryScanCard extends StatelessWidget {
+  final String title;
+  final String titleHi;
+  final String? subtitle;
+  final IconData icon;
+  final Color color;
+  final bool isPrimary;
+  final VoidCallback onTap;
+
+  const _DeliveryScanCard({
+    required this.title,
+    required this.titleHi,
+    this.subtitle,
+    required this.icon,
+    required this.color,
+    this.isPrimary = false,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(isPrimary ? 20 : 16),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: color.withValues(alpha: isPrimary ? 0.6 : 0.3),
+            width: isPrimary ? 2 : 1,
+          ),
+        ),
+        child: isPrimary
+            ? Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(icon, color: color, size: 28),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          titleHi,
+                          style: TextStyle(
+                            color: color.withValues(alpha: 0.8),
+                            fontSize: 12,
+                          ),
+                        ),
+                        if (subtitle != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            subtitle!,
+                            style: const TextStyle(
+                              color: Colors.white54,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.arrow_forward_ios,
+                      color: color, size: 16),
+                ],
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(icon, color: color, size: 24),
+                  const SizedBox(height: 10),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    titleHi,
+                    style: TextStyle(
+                      color: color.withValues(alpha: 0.7),
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+}
+
+// Import needed for _DeliveryScannerPage — add at top of file if not present
+// (these are appended here for reference; actual import is at file top)

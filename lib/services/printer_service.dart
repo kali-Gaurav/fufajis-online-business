@@ -1,5 +1,4 @@
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
-import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/order_model.dart';
 import 'package:intl/intl.dart';

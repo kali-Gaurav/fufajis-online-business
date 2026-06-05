@@ -205,7 +205,7 @@ class _PaymentMethodStepState extends State<PaymentMethodStep> {
 
         // Continue button
         ElevatedButton(
-          onPressed: _selectedMethod != null ? _validateAndContinue : null,
+          onPressed: _validateAndContinue,
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.primary,
             foregroundColor: Colors.white,

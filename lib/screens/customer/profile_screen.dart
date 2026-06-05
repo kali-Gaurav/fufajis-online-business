@@ -8,10 +8,11 @@ import '../../providers/order_provider.dart';
 import '../../models/user_model.dart';
 import '../../utils/app_theme.dart';
 
-import '../../widgets/common/role_restricted_widget.dart';
 
 import '../../models/product_model.dart';
 import '../../providers/product_provider.dart';
+import '../../services/customer_state.dart';
+import 'guest_profile_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -27,6 +28,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final orderProvider = Provider.of<OrderProvider>(context);
     final productProvider = Provider.of<ProductProvider>(context);
     final user = authProvider.currentUser;
+
+    if (authProvider.customerState == CustomerState.guest || authProvider.customerState == CustomerState.guestWithCart) {
+      return const Scaffold(
+        body: GuestProfileScreen(),
+      );
+    }
 
     return Scaffold(
       body: SingleChildScrollView(

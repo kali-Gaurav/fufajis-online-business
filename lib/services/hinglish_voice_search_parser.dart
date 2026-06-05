@@ -26,6 +26,9 @@ class HinglishVoiceSearchParser {
   DateTime? _synonymCacheExpiry;
   static const Duration _cacheTTL = Duration(hours: 6);
 
+  final TranslationTrie _translationTrie = TranslationTrie();
+  bool _trieBuilt = false;
+
   // Extended built-in dictionary (supplements the static hindiProductDictionary)
   static const Map<String, String> _extendedDict = {
     // Grains & Pulses
@@ -213,29 +216,13 @@ class HinglishVoiceSearchParser {
   String _translateProduct(String text) {
     final lower = text.toLowerCase().trim();
 
-    // Check dynamic Firestore synonyms first
-    for (final entry in _dynamicSynonyms.entries) {
-      if (lower.contains(entry.key.toLowerCase())) {
-        return _dynamicSynonyms[entry.key]!;
-      }
-    }
+    // 1. Try exact match using Trie
+    final exactMatch = _translationTrie.findExact(lower);
+    if (exactMatch != null) return exactMatch;
 
-    // Check extended dictionary (exact match)
-    if (_extendedDict.containsKey(lower)) return _extendedDict[lower]!;
-
-    // Check static Hindi dictionary
-    if (hindiProductDictionary.containsKey(lower)) {
-      return hindiProductDictionary[lower]!;
-    }
-
-    // Partial match across all dictionaries
-    for (final dict in [_extendedDict, hindiProductDictionary]) {
-      for (final entry in dict.entries) {
-        if (lower.contains(entry.key.toLowerCase())) {
-          return entry.value;
-        }
-      }
-    }
+    // 2. Try longest substring matching in Trie
+    final substringMatch = _translationTrie.findTranslation(lower);
+    if (substringMatch != null) return substringMatch;
 
     // Return cleaned original if no translation found
     return _titleCase(text);
@@ -292,9 +279,33 @@ class HinglishVoiceSearchParser {
 
   // ─────────────── DYNAMIC SYNONYMS (FIRESTORE) ───────────────
 
+  void _buildTrie() {
+    _translationTrie.clear();
+
+    // 1. Insert static Hindi dictionary first (lowest priority)
+    for (final entry in hindiProductDictionary.entries) {
+      _translationTrie.insert(entry.key, entry.value);
+    }
+
+    // 2. Insert extended dictionary (medium priority)
+    for (final entry in _extendedDict.entries) {
+      _translationTrie.insert(entry.key, entry.value);
+    }
+
+    // 3. Insert dynamic synonyms (highest priority)
+    for (final entry in _dynamicSynonyms.entries) {
+      _translationTrie.insert(entry.key, entry.value);
+    }
+
+    _trieBuilt = true;
+  }
+
   Future<void> _ensureSynonymsLoaded() async {
     if (_synonymCacheExpiry != null &&
-        DateTime.now().isBefore(_synonymCacheExpiry!)) return;
+        DateTime.now().isBefore(_synonymCacheExpiry!) &&
+        _trieBuilt) {
+      return;
+    }
 
     try {
       final snap = await _firestore
@@ -305,9 +316,13 @@ class HinglishVoiceSearchParser {
         _dynamicSynonyms = Map<String, String>.from(snap.data()?['synonyms'] ?? {});
         debugPrint('[HinglishParser] Loaded ${_dynamicSynonyms.length} dynamic synonyms.');
       }
+      _buildTrie();
       _synonymCacheExpiry = DateTime.now().add(_cacheTTL);
     } catch (e) {
       debugPrint('[HinglishParser] Synonym load failed: $e');
+      if (!_trieBuilt) {
+        _buildTrie();
+      }
       _synonymCacheExpiry = DateTime.now().add(const Duration(minutes: 5)); // short retry
     }
   }
@@ -318,6 +333,7 @@ class HinglishVoiceSearchParser {
       'synonyms': {hindiWord: englishProduct},
     }, SetOptions(merge: true));
     _dynamicSynonyms[hindiWord] = englishProduct;
+    _translationTrie.insert(hindiWord, englishProduct);
   }
 
   // ─────────────── UTIL ───────────────
@@ -370,4 +386,69 @@ class _ExtractionResult {
   final String unit;
   final String cleanedText;
   const _ExtractionResult({required this.quantity, required this.unit, required this.cleanedText});
+}
+
+class TranslationTrieNode {
+  final Map<String, TranslationTrieNode> children = {};
+  String? translation;
+}
+
+class TranslationTrie {
+  final TranslationTrieNode root = TranslationTrieNode();
+
+  void insert(String key, String translation) {
+    final cleanKey = key.toLowerCase().trim();
+    if (cleanKey.isEmpty) return;
+    TranslationTrieNode current = root;
+    for (int i = 0; i < cleanKey.length; i++) {
+      final char = cleanKey[i];
+      current = current.children.putIfAbsent(char, () => TranslationTrieNode());
+    }
+    current.translation = translation;
+  }
+
+  void clear() {
+    root.children.clear();
+    root.translation = null;
+  }
+
+  String? findExact(String query) {
+    final cleanQuery = query.toLowerCase().trim();
+    if (cleanQuery.isEmpty) return null;
+    TranslationTrieNode current = root;
+    for (int i = 0; i < cleanQuery.length; i++) {
+      final char = cleanQuery[i];
+      final next = current.children[char];
+      if (next == null) return null;
+      current = next;
+    }
+    return current.translation;
+  }
+
+  String? findTranslation(String query) {
+    final cleanQuery = query.toLowerCase().trim();
+    if (cleanQuery.isEmpty) return null;
+
+    String? longestMatchTranslation;
+    int longestMatchLength = 0;
+
+    for (int start = 0; start < cleanQuery.length; start++) {
+      TranslationTrieNode current = root;
+      int matchLen = 0;
+      for (int i = start; i < cleanQuery.length; i++) {
+        final char = cleanQuery[i];
+        final nextNode = current.children[char];
+        if (nextNode == null) break;
+        current = nextNode;
+        matchLen = i - start + 1;
+        if (current.translation != null) {
+          if (matchLen > longestMatchLength) {
+            longestMatchLength = matchLen;
+            longestMatchTranslation = current.translation;
+          }
+        }
+      }
+    }
+    return longestMatchTranslation;
+  }
 }

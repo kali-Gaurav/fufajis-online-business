@@ -1,28 +1,17 @@
 {
-  "firestore": {
-    "rules": "firestore.rules"
-  },
-  "functions": [
-    {
-      "source": "functions",
-      "codebase": "default",
-      "ignore": [
-        "node_modules",
-        ".git",
-        "firebase-debug.log",
-        "firestore-debug.log"
-      ]
-    }
-  ],
-  "storage": {
-    "rules": "storage.rules"
-  },
+  "firestore": { "rules": "firestore.rules", "indexes": "firestore.indexes.json" },
+  "functions": [{
+    "source": "functions",
+    "codebase": "default",
+    "runtime": "nodejs20",
+    "ignore": ["node_modules", ".git", "firebase-debug.log"]
+  }],
+  "storage": { "rules": "storage.rules" },
   "hosting": {
     "public": "public",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ]
-  }
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [{"source": "**", "destination": "/index.html"}],
+    "headers": [{"source": "**/*.@(jpg|jpeg|gif|png|svg|webp)", "headers": [{"key": "Cache-Control", "value": "max-age=604800"}]}]
+  },
+  "remoteconfig": { "template": "remoteconfig.template.json" }
 }

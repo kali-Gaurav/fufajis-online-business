@@ -7,8 +7,6 @@ import 'package:fufajis_online/screens/customer/orders_screen.dart';
 import 'package:fufajis_online/providers/order_provider.dart';
 import 'package:fufajis_online/models/order_model.dart';
 import 'package:fufajis_online/models/user_model.dart';
-import 'package:fufajis_online/models/delivery_type.dart';
-import 'package:fufajis_online/models/payment_method.dart';
 
 class MockOrderProvider extends Mock implements OrderProvider {}
 

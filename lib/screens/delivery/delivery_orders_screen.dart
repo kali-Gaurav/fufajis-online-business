@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,6 +8,7 @@ import '../../models/order_model.dart';
 import '../../models/payment_method.dart';
 import '../../services/order_service.dart';
 import '../../services/offline_sync_service.dart';
+import '../employee/delivery_pod_scanner_screen.dart';
 
 class DeliveryOrdersScreen extends StatefulWidget {
   const DeliveryOrdersScreen({super.key});
@@ -51,14 +51,14 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
       final hasPermission = await Geolocator.checkPermission();
       if (hasPermission == LocationPermission.whileInUse || hasPermission == LocationPermission.always) {
         final position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
+          locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
         );
         await _orderService.updateOrderLiveLocation(orderId, position.latitude, position.longitude);
         debugPrint("Live location pinged for order $orderId: ${position.latitude}, ${position.longitude}");
       } else {
         // Fallback to incremental mock coordinates to simulate motion beautifully!
-        final double baseLat = 26.9124;
-        final double baseLng = 75.7873;
+        const double baseLat = 26.9124;
+        const double baseLng = 75.7873;
         final double offset = (tick * 0.0001); // incremental movement!
         await _orderService.updateOrderLiveLocation(orderId, baseLat + offset, baseLng + offset);
         debugPrint("Mock live location pinged for order $orderId: ${baseLat + offset}, ${baseLng + offset}");
@@ -98,10 +98,10 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                   color: AppTheme.secondary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Row(
+                child: const Row(
                   children: [
-                    const Icon(Icons.two_wheeler, size: 18, color: AppTheme.secondary),
-                    const SizedBox(width: 4),
+                    Icon(Icons.two_wheeler, size: 18, color: AppTheme.secondary),
+                    SizedBox(width: 4),
                     Text(
                       'Online',
                       style: TextStyle(
@@ -330,8 +330,8 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                     color: AppTheme.info.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Row(
-                    children: const [
+                  child: const Row(
+                    children: [
                       Icon(Icons.directions_bike, size: 12, color: AppTheme.info),
                       SizedBox(width: 4),
                       Text(
@@ -367,9 +367,9 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
               ),
               const Spacer(),
               if (order.status == OrderStatus.outForDelivery)
-                Text(
+                const Text(
                   'OTP: ****',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                     color: AppTheme.primary,
@@ -438,10 +438,31 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                       ),
                     ),
                     const SizedBox(width: 4),
+                    // Primary: scan to confirm delivery (GPS + photo proof)
+                    ElevatedButton.icon(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => DeliveryPodScannerScreen(
+                            parcelId: order.id,
+                          ),
+                          fullscreenDialog: true,
+                        ),
+                      ),
+                      icon: const Icon(Icons.qr_code_scanner, size: 14),
+                      label: const Text('Scan Deliver', style: TextStyle(fontSize: 11)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF2E7D32),
+                        foregroundColor: AppTheme.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    // Fallback: OTP-based confirmation
                     ElevatedButton.icon(
                       onPressed: () => _showOtpVerificationDialog(context, order),
                       icon: const Icon(Icons.check, size: 14),
-                      label: const Text('Verify OTP', style: TextStyle(fontSize: 11)),
+                      label: const Text('OTP', style: TextStyle(fontSize: 11)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.success,
                         foregroundColor: AppTheme.white,

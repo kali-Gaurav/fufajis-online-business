@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../utils/app_theme.dart';
 import '../../providers/auth_provider.dart';
@@ -6,7 +6,6 @@ import '../../providers/location_provider.dart';
 import '../../models/user_model.dart';
 import 'map_picker_screen.dart';
 
-import 'dart:io';
 import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -430,16 +429,22 @@ class _AddressScreenState extends State<AddressScreen> {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       try {
         await authProvider.deleteAddress(addressId);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Address deleted!')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Address deleted!')),
+          );
+        }
         await _loadAddresses();
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e')),
+          );
+        }
       } finally {
-        setState(() => _isLoading = false);
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
       }
     }
   }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fufajis_online/providers/notification_provider.dart';
 import 'package:fufajis_online/models/offline_notification_queue_model.dart';
-import 'package:fufajis_online/services/offline_notification_queue_service.dart';
 
 void main() {
   group('Phase 8: Notifications and Messaging', () {
@@ -93,7 +92,7 @@ void main() {
       });
 
       test('Should parse notification type from string', () {
-        final typeStr = 'orderUpdate';
+        const typeStr = 'orderUpdate';
         final parsed = NotificationModel.parseNotificationType(typeStr);
         expect(parsed, NotificationType.orderUpdate);
       });

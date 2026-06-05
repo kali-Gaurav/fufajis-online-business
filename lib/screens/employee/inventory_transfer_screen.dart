@@ -24,7 +24,7 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
   String? _selectedDestinationBranchName;
   final _notesController = TextEditingController();
   bool _isLoading = false;
-  List<InventoryTransfer> _transfers = [];
+  final List<InventoryTransfer> _transfers = [];
 
   List<ShopBranchModel> _branches = [];
 
@@ -56,7 +56,7 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
     setState(() => _isLoading = true);
     try {
       final productProvider = context.read<ProductProvider>();
-      final product = await productProvider.getProductByBarcode(barcode);
+      final product = productProvider.getProductByBarcode(barcode);
       setState(() {
         _scannedBarcode = barcode;
         _product = product;
@@ -146,23 +146,23 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Inventory Transfer'),
+        title: const Text('Inventory Transfer'),
         actions: [
           IconButton(
-            icon: Icon(Icons.qr_code_scanner),
+            icon: const Icon(Icons.qr_code_scanner),
             onPressed: () => _showScannerDialog(),
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Scan Section
             Card(
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -170,18 +170,18 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
                       'Scan Product to Transfer',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     if (_scannedBarcode != null)
                       Container(
-                        padding: EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: Colors.purple.shade50,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.swap_horiz, color: Colors.purple),
-                            SizedBox(width: 8),
+                            const Icon(Icons.swap_horiz, color: Colors.purple),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,7 +189,7 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
                                   Text(
                                     'Barcode: $_scannedBarcode',
                                     style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                        const TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                   if (_product != null) Text(_product!.name),
                                 ],
@@ -201,8 +201,8 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
                     else
                       ElevatedButton.icon(
                         onPressed: () => _showScannerDialog(),
-                        icon: Icon(Icons.qr_code_scanner),
-                        label: Text('Scan Product'),
+                        icon: const Icon(Icons.qr_code_scanner),
+                        label: const Text('Scan Product'),
                       ),
                   ],
                 ),
@@ -211,10 +211,10 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
 
             // Transfer Form
             if (_product != null) ...[
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Card(
                 child: Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -222,19 +222,19 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
                         'Transfer Details',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       _buildDetailRow('Product', _product!.name),
                       _buildDetailRow(
                           'Current Stock', _product!.stockQuantity.toString()),
-                      SizedBox(height: 12),
-                      Text(
+                      const SizedBox(height: 12),
+                      const Text(
                         'Destination Branch',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
                         initialValue: _selectedDestinationBranchId,
-                        hint: Text('Select branch'),
+                        hint: const Text('Select branch'),
                         items: _branches
                             .where((b) =>
                                 b.id !=
@@ -253,30 +253,30 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
                             _selectedDestinationBranchName = branch.branchName;
                           });
                         },
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                         ),
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       TextField(
                         controller: _quantityController,
                         keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Quantity to Transfer',
                           prefixIcon: Icon(Icons.numbers),
                           border: OutlineInputBorder(),
                         ),
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       TextField(
                         controller: _notesController,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Notes (optional)',
                           border: OutlineInputBorder(),
                         ),
                         maxLines: 2,
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
@@ -284,11 +284,11 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.purple,
                             foregroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(vertical: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
                           child: _isLoading
-                              ? CircularProgressIndicator(color: Colors.white)
-                              : Text('Request Transfer'),
+                              ? const CircularProgressIndicator(color: Colors.white)
+                              : const Text('Request Transfer'),
                         ),
                       ),
                     ],
@@ -299,17 +299,17 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
 
             // Recent Transfers
             if (_transfers.isNotEmpty) ...[
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               Text(
                 'Recent Transfers',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               ..._transfers.map((transfer) => Card(
                     child: ListTile(
                       leading: CircleAvatar(
-                        child: Icon(Icons.swap_horiz, color: Colors.white),
                         backgroundColor: _getStatusColor(transfer.status.name),
+                        child: const Icon(Icons.swap_horiz, color: Colors.white),
                       ),
                       title: Text(transfer.productName),
                       subtitle: Text(
@@ -319,7 +319,7 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
                         children: [
                           Text(
                             'x${transfer.quantity}',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           Text(
                             transfer.status.name.toUpperCase(),
@@ -341,12 +341,12 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
 
   Widget _buildDetailRow(String label, String value) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(color: Colors.grey)),
-          Text(value, style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(label, style: const TextStyle(color: Colors.grey)),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -372,10 +372,10 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Enter Barcode'),
+        title: const Text('Enter Barcode'),
         content: TextField(
           autofocus: true,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             labelText: 'Barcode',
             border: OutlineInputBorder(),
           ),
@@ -392,7 +392,7 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
+            child: const Text('Cancel'),
           ),
         ],
       ),

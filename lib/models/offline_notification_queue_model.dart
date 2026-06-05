@@ -33,7 +33,9 @@ class OfflineNotificationQueueModel {
       body: map['body'] ?? '',
       type: map['type'] ?? '',
       createdAt: (map['createdAt'] as Timestamp).toDate(),
-      deliveredAt: map['deliveredAt'] != null ? (map['deliveredAt'] as Timestamp).toDate() : null,
+      deliveredAt: map['deliveredAt'] != null
+          ? (map['deliveredAt'] as Timestamp).toDate()
+          : null,
       data: map['data'],
       deepLink: map['deepLink'],
       isDelivered: map['isDelivered'] ?? false,
@@ -48,7 +50,9 @@ class OfflineNotificationQueueModel {
       'body': body,
       'type': type,
       'createdAt': Timestamp.fromDate(createdAt),
-      'deliveredAt': deliveredAt != null ? Timestamp.fromDate(deliveredAt!) : null,
+      'deliveredAt': deliveredAt != null
+          ? Timestamp.fromDate(deliveredAt!)
+          : null,
       'data': data,
       'deepLink': deepLink,
       'isDelivered': isDelivered,

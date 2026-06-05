@@ -94,9 +94,9 @@ class _RiderChatScreenState extends State<RiderChatScreen> {
               child: const Icon(Icons.support_agent, color: AppTheme.primary),
             ),
             const SizedBox(width: 12),
-            Column(
+            const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
                   'Fufaji Rider Support',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -129,20 +129,20 @@ class _RiderChatScreenState extends State<RiderChatScreen> {
                 }
 
                 if (messages.isEmpty) {
-                  return Center(
+                  return const Center(
                     child: Padding(
-                      padding: const EdgeInsets.all(32.0),
+                      padding: EdgeInsets.all(32.0),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.chat_bubble_outline, size: 64, color: AppTheme.grey300),
-                          const SizedBox(height: 16),
-                          const Text(
+                          SizedBox(height: 16),
+                          Text(
                             'Support Channel Active',
                             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey700),
                           ),
-                          const SizedBox(height: 8),
-                          const Text(
+                          SizedBox(height: 8),
+                          Text(
                             'Need help with directions, payments, or orders? Send a message below and the shop owner will assist you.',
                             textAlign: TextAlign.center,
                             style: TextStyle(fontSize: 14, color: AppTheme.grey500),
@@ -241,7 +241,7 @@ class _RiderChatScreenState extends State<RiderChatScreen> {
                   padding: const EdgeInsets.only(right: 8.0),
                   child: ActionChip(
                     backgroundColor: AppTheme.white,
-                    side: BorderSide(color: AppTheme.grey300),
+                    side: const BorderSide(color: AppTheme.grey300),
                     label: Text(
                       text,
                       style: const TextStyle(fontSize: 12, color: AppTheme.grey700),
@@ -256,7 +256,7 @@ class _RiderChatScreenState extends State<RiderChatScreen> {
           // Input Message Box
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppTheme.white,
               border: Border(top: BorderSide(color: AppTheme.grey200)),
             ),
@@ -270,7 +270,7 @@ class _RiderChatScreenState extends State<RiderChatScreen> {
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide(color: AppTheme.grey300),
+                        borderSide: const BorderSide(color: AppTheme.grey300),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),

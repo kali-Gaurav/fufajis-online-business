@@ -241,11 +241,11 @@ class _DeliveryTypeSelectorState extends State<DeliveryTypeSelector> {
             color: AppTheme.success.withValues(alpha: 0.3),
           ),
         ),
-        child: Row(
+        child: const Row(
           children: [
-            const Icon(Icons.check_circle, color: AppTheme.success, size: 20),
-            const SizedBox(width: 8),
-            const Expanded(
+            Icon(Icons.check_circle, color: AppTheme.success, size: 20),
+            SizedBox(width: 8),
+            Expanded(
               child: Text(
                 'You\'ve unlocked FREE Standard Delivery!',
                 style: TextStyle(

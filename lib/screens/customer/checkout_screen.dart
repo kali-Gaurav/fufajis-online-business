@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -22,6 +23,11 @@ import '../../providers/location_provider.dart';
 import '../../services/delivery_charge_calculator.dart';
 import '../../providers/shop_config_provider.dart';
 import '../../services/shop_config_service.dart';
+import '../../services/razorpay_service.dart';
+import 'checkout_auth_sheet.dart';
+import 'payment_verification_dialog.dart';
+
+import '../../services/billing_service.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -41,7 +47,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   // Step 2: Payment method
   PaymentMethod _selectedPaymentMethod = PaymentMethod.cod;
-  
+
   String? _voiceLandmarkPath;
 
   DateTime? _scheduledDeliveryDate;
@@ -62,12 +68,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   List<String> _getAvailableTimeSlots() {
-    return [
-      '9 AM - 12 PM',
-      '12 PM - 3 PM',
-      '3 PM - 6 PM',
-      '6 PM - 9 PM',
-    ];
+    return ['9 AM - 12 PM', '12 PM - 3 PM', '3 PM - 6 PM', '6 PM - 9 PM'];
   }
 
   WeatherAlert? _weatherAlert;
@@ -184,10 +185,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
                 Text(
                   alert.warningMessage,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 11,
-                  ),
+                  style: const TextStyle(color: Colors.white70, fontSize: 11),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -242,11 +240,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           },
           onContinue: () {
             if (_selectedAddress != null) {
-              final locationProvider = Provider.of<LocationProvider>(context, listen: false);
-              if (!locationProvider.isAddressWithinDeliveryRadius(_selectedAddress!)) {
+              final locationProvider = Provider.of<LocationProvider>(
+                context,
+                listen: false,
+              );
+              if (!locationProvider.isAddressWithinDeliveryRadius(
+                _selectedAddress!,
+              )) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(locationProvider.deliveryZoneMessageFor(_selectedAddress!)),
+                    content: Text(
+                      locationProvider.deliveryZoneMessageFor(
+                        _selectedAddress!,
+                      ),
+                    ),
                     backgroundColor: AppTheme.error,
                   ),
                 );
@@ -328,16 +335,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: dates.map((date) {
-              final isSelected = _scheduledDeliveryDate != null &&
+              final isSelected =
+                  _scheduledDeliveryDate != null &&
                   _scheduledDeliveryDate!.year == date.year &&
                   _scheduledDeliveryDate!.month == date.month &&
                   _scheduledDeliveryDate!.day == date.day;
-              
+
               final label = date.day == _getToday().day
                   ? 'Today'
                   : date.day == _getToday().add(const Duration(days: 1)).day
-                      ? 'Tomorrow'
-                      : '${date.day} ${_getMonthName(date.month)}';
+                  ? 'Tomorrow'
+                  : '${date.day} ${_getMonthName(date.month)}';
 
               return Expanded(
                 child: GestureDetector(
@@ -350,7 +358,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     margin: const EdgeInsets.symmetric(horizontal: 4),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     decoration: BoxDecoration(
-                      color: isSelected ? AppTheme.primary.withValues(alpha: 0.08) : AppTheme.grey100,
+                      color: isSelected
+                          ? AppTheme.primary.withValues(alpha: 0.08)
+                          : AppTheme.grey100,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: isSelected ? AppTheme.primary : AppTheme.grey300,
@@ -409,7 +419,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   String _getMonthName(int month) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return months[month - 1];
   }
 
@@ -483,7 +506,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               SizedBox(width: 8),
               Text(
                 'Fufaji\'s Smart Grocery Assistant',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.teal),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.teal,
+                ),
               ),
             ],
           ),
@@ -499,13 +526,36 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Future<void> _placeOrder() async {
     if (_isPlacingOrder) return;
+    
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    if (!authProvider.isLoggedIn) {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (context) => CheckoutAuthSheet(
+          onSuccess: () {
+            // After auth success, wait a frame and retry placing order
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _placeOrder();
+            });
+          },
+        ),
+      );
+      return;
+    }
+
     setState(() => _isPlacingOrder = true);
 
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
     final walletProvider = Provider.of<WalletProvider>(context, listen: false);
-    final paymentProvider = Provider.of<PaymentProvider>(context, listen: false);
+    final paymentProvider = Provider.of<PaymentProvider>(
+      context,
+      listen: false,
+    );
     final user = authProvider.currentUser;
 
     if (_selectedAddress == null) {
@@ -519,10 +569,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       _stableOrderId ??= 'ord_${userId}_$timestamp';
       _stableOrderNumber ??= 'ORD$timestamp';
 
-      final locationProvider = Provider.of<LocationProvider>(context, listen: false);
-      final configProvider = Provider.of<ShopConfigProvider>(context, listen: false);
+      final locationProvider = Provider.of<LocationProvider>(
+        context,
+        listen: false,
+      );
+      final configProvider = Provider.of<ShopConfigProvider>(
+        context,
+        listen: false,
+      );
 
-      final distanceKm = locationProvider.distanceFromShopInMeters(
+      final distanceKm =
+          locationProvider.distanceFromShopInMeters(
             latitude: _selectedAddress!.latitude,
             longitude: _selectedAddress!.longitude,
           ) /
@@ -535,17 +592,27 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         branches,
       );
 
-      final deliveryFee = DeliveryChargeCalculator.calculateDeliveryCharge(
-        _selectedDeliveryType,
-        cartProvider.subtotal,
-        distanceKm: distanceKm,
+      final billing = BillingService.calculateBill(
+        items: cartProvider.cartItems.map((item) => OrderItem(
+          id: item.id,
+          productId: item.productId,
+          productName: item.productName,
+          productImage: item.productImage,
+          unit: item.unit,
+          quantity: item.quantity,
+          price: item.price,
+          originalPrice: item.originalPrice,
+          discountPercentage: item.discountPercentage,
+          totalPrice: item.totalPrice,
+          shopId: item.shopId,
+          shopName: item.shopName,
+        )).toList(),
+        deliveryType: _selectedDeliveryType,
         config: configProvider.shopConfig,
         branch: nearestBranch,
+        distanceKm: distanceKm,
+        couponDiscount: cartProvider.discount,
       );
-
-      final tax = cartProvider.subtotal * 0.05;
-      final walletUsed = cartProvider.walletAmountUsed;
-      final total = (cartProvider.subtotal - cartProvider.discount + deliveryFee + cartProvider.tipAmount + tax - walletUsed).clamp(0.0, double.infinity);
 
       final order = OrderModel(
         id: _stableOrderId!,
@@ -553,68 +620,117 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         customerId: userId,
         customerName: user?.name ?? 'Customer',
         customerPhone: user?.phoneNumber ?? '',
-        items: cartProvider.cartItems
-            .map((item) => OrderItem(
-                  id: item.id,
-                  productId: item.productId,
-                  productName: item.productName,
-                  productImage: item.productImage,
-                  unit: item.unit,
-                  quantity: item.quantity,
-                  price: item.price,
-                  originalPrice: item.originalPrice,
-                  discountPercentage: item.discountPercentage,
-                  totalPrice: item.totalPrice,
-                  shopId: item.shopId,
-                  shopName: item.shopName,
-                ))
-            .toList(),
-        subtotal: cartProvider.subtotal,
-        deliveryCharge: deliveryFee,
-        tax: tax,
-        walletAmountUsed: walletUsed,
-        totalAmount: total,
+        items: billing.items,
+        subtotal: billing.subtotal,
+        deliveryCharge: billing.deliveryCharge,
+        tax: billing.tax,
+        walletAmountUsed: cartProvider.walletAmountUsed,
+        totalAmount: billing.grandTotal,
         paymentMethod: _selectedPaymentMethod,
+        selectedPaymentMethod: _selectedPaymentMethod,
         deliveryType: _selectedDeliveryType,
         deliveryAddress: _selectedAddress!,
         voiceLandmarkUrl: _voiceLandmarkPath,
-        scheduledDeliveryDate: _selectedDeliveryType == DeliveryType.scheduled ? _scheduledDeliveryDate : null,
-        timeSlot: _selectedDeliveryType == DeliveryType.scheduled ? _selectedTimeSlot : null,
+        scheduledDeliveryDate: _selectedDeliveryType == DeliveryType.scheduled
+            ? _scheduledDeliveryDate
+            : null,
+        timeSlot: _selectedDeliveryType == DeliveryType.scheduled
+            ? _selectedTimeSlot
+            : null,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
 
       if (_selectedPaymentMethod == PaymentMethod.cod) {
-        await orderProvider.createOrder(order);
-        await walletProvider.addCashback(user?.id ?? 'user_001', order.totalAmount, order.id);
+        // Generate a 4-digit delivery verification OTP
+        final otp = (1000 + Random().nextInt(9000)).toString();
+        final codOrder = order.copyWith(otp: otp, paymentStatus: 'pending');
+        await orderProvider.createOrder(codOrder);
+        await walletProvider.addCashback(
+          user?.id ?? 'user_001',
+          codOrder.totalAmount,
+          codOrder.id,
+        );
         cartProvider.clearCart();
         if (mounted) {
-          context.go('/customer/order-confirmation?orderId=${order.id}&orderNumber=${order.orderNumber}');
+          context.go(
+            '/customer/order-confirmation?orderId=${codOrder.id}&orderNumber=${codOrder.orderNumber}',
+          );
         }
       } else if (_selectedPaymentMethod == PaymentMethod.credit) {
-        final success = await paymentProvider.processCreditPayment(order.totalAmount, user!, authProvider);
+        final success = await paymentProvider.processCreditPayment(
+          order.totalAmount,
+          user!,
+          authProvider,
+        );
         if (success) {
           await orderProvider.createOrder(order);
           cartProvider.clearCart();
           if (mounted) {
-            context.go('/customer/order-confirmation?orderId=${order.id}&orderNumber=${order.orderNumber}');
+            context.go(
+              '/customer/order-confirmation?orderId=${order.id}&orderNumber=${order.orderNumber}',
+            );
           }
         } else {
           if (mounted) {
             setState(() => _isPlacingOrder = false);
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(paymentProvider.errorMessage ?? 'Credit check failed')));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  paymentProvider.errorMessage ?? 'Credit check failed',
+                ),
+              ),
+            );
           }
         }
       } else if (_selectedPaymentMethod == PaymentMethod.razorpay) {
-        paymentProvider.onPaymentSuccess = (response) async {
-          final paidOrder = order.copyWith(paymentId: response.paymentId, status: OrderStatus.confirmed);
-          await orderProvider.createOrder(paidOrder);
-          cartProvider.clearCart();
-          if (mounted) {
-            context.go('/customer/order-confirmation?orderId=${paidOrder.id}&orderNumber=${paidOrder.orderNumber}');
-          }
-        };
-        paymentProvider.startRazorpayPayment(amount: order.totalAmount, orderId: order.id, user: user!);
+        // 1. Create the pending order locally first
+        final pendingOrder = order.copyWith(status: OrderStatus.pending, paymentStatus: 'pending');
+        await orderProvider.createOrder(pendingOrder);
+
+        // 2. Launch Razorpay flow
+        final rzpService = RazorpayService();
+        rzpService.initialize(
+          onSuccess: (response) async {
+            rzpService.dispose();
+            if (mounted) {
+              setState(() => _isPlacingOrder = false);
+              // 3. Show dialog to poll for webhook verification
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => PaymentVerificationDialog(
+                  orderId: pendingOrder.id,
+                  orderNumber: pendingOrder.orderNumber,
+                ),
+              );
+            }
+          },
+          onFailure: (response) async {
+            rzpService.dispose();
+            if (mounted) {
+              setState(() => _isPlacingOrder = false);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(response.userFriendlyMessage),
+                  backgroundColor: AppTheme.error,
+                ),
+              );
+            }
+          },
+          onExternalWallet: (response) {
+            // External wallet selected – create pending order and confirm later
+          },
+        );
+        rzpService.createOrder(
+          amount: order.totalAmount,
+          orderId: pendingOrder.id,
+          customerPhone: user?.phoneNumber ?? '',
+          customerName: user?.name ?? 'Customer',
+          customerEmail: user?.email ?? 'customer@fufajionline.com',
+        );
+        // Return here; callbacks above will handle navigation
+        return;
       } else if (_selectedPaymentMethod == PaymentMethod.upi) {
         final upiUri = UpiPaymentService.generateUpiUri(
           orderId: order.orderNumber,
@@ -627,39 +743,63 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           await orderProvider.createOrder(pendingOrder);
           cartProvider.clearCart();
           if (mounted) {
-            context.go('/customer/order-confirmation?orderId=${pendingOrder.id}&orderNumber=${pendingOrder.orderNumber}');
+            context.go(
+              '/customer/order-confirmation?orderId=${pendingOrder.id}&orderNumber=${pendingOrder.orderNumber}',
+            );
           }
         } else {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not launch UPI app. Please try another method.')));
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Could not launch UPI app. Please try another method.',
+                ),
+              ),
+            );
           }
         }
       } else if (_selectedPaymentMethod == PaymentMethod.wallet) {
         if (walletProvider.walletBalance < order.totalAmount) {
           setState(() => _isPlacingOrder = false);
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Insufficient wallet balance')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Insufficient wallet balance')),
+          );
           return;
         }
-        final success = await walletProvider.payWithWallet(userId: user!.id, orderAmount: order.totalAmount, orderId: order.id);
+        final success = await walletProvider.payWithWallet(
+          userId: user!.id,
+          orderAmount: order.totalAmount,
+          orderId: order.id,
+        );
         if (success) {
           final paidOrder = order.copyWith(status: OrderStatus.confirmed);
           await orderProvider.createOrder(paidOrder);
-          await walletProvider.addCashback(user.id, order.totalAmount, order.id);
+          await walletProvider.addCashback(
+            user.id,
+            order.totalAmount,
+            order.id,
+          );
           cartProvider.clearCart();
           if (mounted) {
-            context.go('/customer/order-confirmation?orderId=${paidOrder.id}&orderNumber=${paidOrder.orderNumber}');
+            context.go(
+              '/customer/order-confirmation?orderId=${paidOrder.id}&orderNumber=${paidOrder.orderNumber}',
+            );
           }
         } else {
           if (mounted) {
             setState(() => _isPlacingOrder = false);
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to process wallet payment')));
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Failed to process wallet payment')),
+            );
           }
         }
       }
     } catch (e) {
       if (mounted) {
         setState(() => _isPlacingOrder = false);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Checkout error: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Checkout error: $e')));
       }
     }
   }

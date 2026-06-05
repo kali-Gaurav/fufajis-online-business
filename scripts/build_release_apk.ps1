@@ -1,41 +1,20 @@
-param(
-  [Parameter(Mandatory = $true)]
-  [string]$RazorpayKeyId,
+# Fufaji's Online — Release APK Build Script (Windows PowerShell)
+# Run from project root: .\scripts\build_release_apk.ps1
 
-  [Parameter(Mandatory = $true)]
-  [double]$ShopLatitude,
+Write-Host "== Fufaji's Online - Release Build ==" -ForegroundColor Cyan
 
-  [Parameter(Mandatory = $true)]
-  [double]$ShopLongitude,
-
-  [double]$DeliveryRadiusKm = 8,
-
-  [string]$ApkDownloadUrl = "",
-
-  [string]$SupportWhatsappNumber = ""
-)
-
-$ErrorActionPreference = "Stop"
-
-if (-not (Test-Path "android/app/google-services.json")) {
-  throw "Missing android/app/google-services.json. Download it from Firebase Console before building."
-}
-
-if (-not (Test-Path "android/key.properties")) {
-  Write-Warning "android/key.properties is missing. This build will use debug signing fallback until a production keystore is configured."
-}
-
+# Step 1: Clean previous builds
+Write-Host "Cleaning..." -ForegroundColor Yellow
 flutter clean
+
+# Step 2: Get packages
+Write-Host "Getting packages..." -ForegroundColor Yellow
 flutter pub get
-flutter build apk --release `
-  --no-tree-shake-icons `
-  --dart-define=RAZORPAY_KEY_ID=$RazorpayKeyId `
-  --dart-define=SHOP_LATITUDE=$ShopLatitude `
-  --dart-define=SHOP_LONGITUDE=$ShopLongitude `
-  --dart-define=DELIVERY_RADIUS_KM=$DeliveryRadiusKm `
-  --dart-define=APK_DOWNLOAD_URL=$ApkDownloadUrl `
-  --dart-define=SUPPORT_WHATSAPP_NUMBER=$SupportWhatsappNumber
+
+# Step 3: Build release APK
+Write-Host "Building release APK..." -ForegroundColor Yellow
+flutter build apk --release --no-tree-shake-icons
 
 Write-Host ""
-Write-Host "Release APK created at:"
-Write-Host "build/app/outputs/flutter-apk/app-release.apk"
+Write-Host "BUILD COMPLETE!" -ForegroundColor Green
+Write-Host "APK location: build\app\outputs\flutter-apk\app-release.apk" -ForegroundColor Green

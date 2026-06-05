@@ -24,12 +24,14 @@ class ProductBatch {
       batchId: map['batchId'] ?? '',
       productId: map['productId'] ?? '',
       quantity: map['quantity'] ?? 0,
-      expiryDate: map['expiryDate'] is Timestamp 
-          ? (map['expiryDate'] as Timestamp).toDate() 
-          : DateTime.tryParse(map['expiryDate']?.toString() ?? '') ?? DateTime.now(),
-      receivedDate: map['receivedDate'] is Timestamp 
-          ? (map['receivedDate'] as Timestamp).toDate() 
-          : DateTime.tryParse(map['receivedDate']?.toString() ?? '') ?? DateTime.now(),
+      expiryDate: map['expiryDate'] is Timestamp
+          ? (map['expiryDate'] as Timestamp).toDate()
+          : DateTime.tryParse(map['expiryDate']?.toString() ?? '') ??
+                DateTime.now(),
+      receivedDate: map['receivedDate'] is Timestamp
+          ? (map['receivedDate'] as Timestamp).toDate()
+          : DateTime.tryParse(map['receivedDate']?.toString() ?? '') ??
+                DateTime.now(),
       costPrice: (map['costPrice'] ?? 0.0).toDouble(),
       branchId: map['branchId'] ?? '',
     );

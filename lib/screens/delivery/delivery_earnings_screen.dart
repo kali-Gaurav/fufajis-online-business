@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../utils/app_theme.dart';
@@ -8,7 +8,6 @@ import '../../services/fleet_service.dart';
 import '../../models/order_model.dart';
 import '../../models/payment_method.dart';
 import '../../models/cod_settlement_model.dart';
-import 'package:uuid/uuid.dart';
 
 class DeliveryEarningsScreen extends StatefulWidget {
   const DeliveryEarningsScreen({super.key});
@@ -596,7 +595,7 @@ class _DeliveryEarningsScreenState extends State<DeliveryEarningsScreen> {
                   ],
                 ),
               );
-            }).toList(),
+            }),
         ],
       ),
     );
@@ -884,7 +883,7 @@ class _DeliveryEarningsScreenState extends State<DeliveryEarningsScreen> {
                               children: [
                                 const Text(
                                   'Cash Submission Request',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.bold,
                                     color: AppTheme.grey800,

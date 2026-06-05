@@ -177,7 +177,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(title, style: TextStyle(color: AppTheme.grey500, fontSize: 14)),
+              Text(title, style: const TextStyle(color: AppTheme.grey500, fontSize: 14)),
               Icon(icon, color: color, size: 20),
             ],
           ),

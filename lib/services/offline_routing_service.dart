@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/order_model.dart';
@@ -34,8 +33,7 @@ class OfflineRoutingService {
   }
 
   /// Solves the Traveling Salesperson Problem (TSP) using a greedy nearest-neighbor heuristic.
-  /// Starts at [startLat], [startLon] and returns a sorted copy of the orders list.
-  List<OrderModel> optimizeRoute(
+  List<OrderModel> optimizeRouteGreedy(
     List<OrderModel> orders,
     double startLat,
     double startLon,
@@ -78,6 +76,128 @@ class OfflineRoutingService {
     }
 
     return optimizedRoute;
+  }
+
+  /// Solves the Traveling Salesperson Problem (TSP) exactly using the dynamic programming
+  /// Held-Karp algorithm (O(2^N * N^2)). Suitable for N <= 15.
+  List<OrderModel> _optimizeRouteHeldKarp(
+    List<OrderModel> orders,
+    double startLat,
+    double startLon,
+  ) {
+    final int n = orders.length;
+    final int numNodes = n + 1; // depot is index 0, orders are 1..n
+
+    // 1. Build distance matrix
+    final List<List<double>> dist = List.generate(numNodes, (_) => List.filled(numNodes, 0.0));
+    
+    // Distance to depot
+    for (int i = 0; i < n; i++) {
+      final double d = calculateHaversineDistance(
+        startLat,
+        startLon,
+        orders[i].deliveryAddress.latitude,
+        orders[i].deliveryAddress.longitude,
+      );
+      dist[0][i + 1] = d;
+      dist[i + 1][0] = d;
+    }
+
+    // Distance between orders
+    for (int i = 0; i < n; i++) {
+      for (int j = i + 1; j < n; j++) {
+        final double d = calculateHaversineDistance(
+          orders[i].deliveryAddress.latitude,
+          orders[i].deliveryAddress.longitude,
+          orders[j].deliveryAddress.latitude,
+          orders[j].deliveryAddress.longitude,
+        );
+        dist[i + 1][j + 1] = d;
+        dist[j + 1][i + 1] = d;
+      }
+    }
+
+    // 2. DP Table
+    // dp[mask][i] where mask represents subset of orders and i is ending node index
+    final int numStates = 1 << n;
+    final List<List<double>> dp = List.generate(numStates, (_) => List.filled(n, double.infinity));
+    final List<List<int>> parent = List.generate(numStates, (_) => List.filled(n, -1));
+
+    // Base cases: mask with single bit set
+    for (int i = 0; i < n; i++) {
+      dp[1 << i][i] = dist[0][i + 1];
+    }
+
+    // DP transitions
+    for (int mask = 1; mask < numStates; mask++) {
+      for (int i = 0; i < n; i++) {
+        if ((mask & (1 << i)) == 0) continue;
+
+        final double currentDist = dp[mask][i];
+        if (currentDist == double.infinity) continue;
+
+        for (int j = 0; j < n; j++) {
+          if ((mask & (1 << j)) != 0) continue;
+
+          final int nextMask = mask | (1 << j);
+          final double newDist = currentDist + dist[i + 1][j + 1];
+          if (newDist < dp[nextMask][j]) {
+            dp[nextMask][j] = newDist;
+            parent[nextMask][j] = i;
+          }
+        }
+      }
+    }
+
+    // 3. Find ending node of optimal path
+    final int fullMask = numStates - 1;
+    double minTotalDist = double.infinity;
+    int lastOrderIndex = -1;
+
+    for (int i = 0; i < n; i++) {
+      if (dp[fullMask][i] < minTotalDist) {
+        minTotalDist = dp[fullMask][i];
+        lastOrderIndex = i;
+      }
+    }
+
+    if (lastOrderIndex == -1) {
+      return optimizeRouteGreedy(orders, startLat, startLon);
+    }
+
+    // 4. Reconstruct path
+    final List<int> orderPath = [];
+    int currentMask = fullMask;
+    int currentOrder = lastOrderIndex;
+
+    while (currentOrder != -1) {
+      orderPath.add(currentOrder);
+      final int prevOrder = parent[currentMask][currentOrder];
+      currentMask = currentMask ^ (1 << currentOrder);
+      currentOrder = prevOrder;
+    }
+
+    final List<OrderModel> optimizedRoute = [];
+    for (final idx in orderPath.reversed) {
+      optimizedRoute.add(orders[idx]);
+    }
+
+    return optimizedRoute;
+  }
+
+  /// Solves the Traveling Salesperson Problem (TSP) using Held-Karp exact DP
+  /// for small sets (N <= 15) and a greedy heuristic for larger sets.
+  List<OrderModel> optimizeRoute(
+    List<OrderModel> orders,
+    double startLat,
+    double startLon,
+  ) {
+    if (orders.isEmpty) return [];
+    if (orders.length <= 15) {
+      return _optimizeRouteHeldKarp(orders, startLat, startLon);
+    } else {
+      return optimizeRouteGreedy(orders, startLat, startLon);
+    }
   }
 
   /// Caches the optimized route order IDs to local SharedPreferences.

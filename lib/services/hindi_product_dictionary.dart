@@ -70,7 +70,7 @@ String translateHindiProduct(String text) {
   if (hindiProductDictionary.containsKey(clean)) {
     return hindiProductDictionary[clean]!;
   }
-  
+
   // Try partial fuzzy keyword matches
   for (var key in hindiProductDictionary.keys) {
     if (clean.contains(key)) {
@@ -82,7 +82,7 @@ String translateHindiProduct(String text) {
 
 ParsedVoiceOrder parseVoiceInput(String text) {
   final clean = text.toLowerCase().trim();
-  
+
   double quantity = 1.0;
   String unit = 'packet';
   String productKeyword = text;
@@ -117,7 +117,13 @@ ParsedVoiceOrder parseVoiceInput(String text) {
 
   // Clean trailing spaces and helper speech words
   productKeyword = productKeyword
-      .replaceAll(RegExp(r'(?:chahiye|do|add\s*karo|de\s*do|le\s*lo|kilo|gram|gm|kg|lekar)', caseSensitive: false), '')
+      .replaceAll(
+        RegExp(
+          r'(?:chahiye|do|add\s*karo|de\s*do|le\s*lo|kilo|gram|gm|kg|lekar)',
+          caseSensitive: false,
+        ),
+        '',
+      )
       .trim();
 
   // Translate product name using helper
@@ -129,4 +135,3 @@ ParsedVoiceOrder parseVoiceInput(String text) {
     productKeyword: productKeyword,
   );
 }
-

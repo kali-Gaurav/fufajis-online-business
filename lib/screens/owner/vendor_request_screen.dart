@@ -34,7 +34,13 @@ class _VendorRequestScreenState extends State<VendorRequestScreen> {
             TextButton.icon(
               onPressed: _sendOrderRequest,
               icon: const Icon(Icons.send, color: AppTheme.primary),
-              label: const Text('Send', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primary)),
+              label: const Text(
+                'Send',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.primary,
+                ),
+              ),
             ),
         ],
       ),
@@ -48,7 +54,10 @@ class _VendorRequestScreenState extends State<VendorRequestScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Items in Order', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Items in Order',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
                 ElevatedButton.icon(
                   onPressed: () => _showAddItemDialog(products),
                   icon: const Icon(Icons.add),
@@ -74,11 +83,15 @@ class _VendorRequestScreenState extends State<VendorRequestScreen> {
                   return Card(
                     margin: const EdgeInsets.only(bottom: 8),
                     child: ListTile(
-                      title: Text(item.productName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      title: Text(
+                        item.productName,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       subtitle: Text('Qty: ${item.quantity} ${item.unit}'),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete, color: AppTheme.error),
-                        onPressed: () => setState(() => _orderItems.removeAt(index)),
+                        onPressed: () =>
+                            setState(() => _orderItems.removeAt(index)),
                       ),
                     ),
                   );
@@ -94,7 +107,10 @@ class _VendorRequestScreenState extends State<VendorRequestScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Vendor Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Text(
+          'Vendor Details',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 12),
         TextField(
           controller: _vendorNameController,
@@ -132,10 +148,14 @@ class _VendorRequestScreenState extends State<VendorRequestScreen> {
               DropdownButtonFormField<ProductModel>(
                 hint: const Text('Select Product'),
                 isExpanded: true,
-                items: products.map((p) => DropdownMenuItem(
-                  value: p,
-                  child: Text(p.name, overflow: TextOverflow.ellipsis),
-                )).toList(),
+                items: products
+                    .map(
+                      (p) => DropdownMenuItem(
+                        value: p,
+                        child: Text(p.name, overflow: TextOverflow.ellipsis),
+                      ),
+                    )
+                    .toList(),
                 onChanged: (val) => setDialogState(() => selectedProduct = val),
               ),
               const SizedBox(height: 16),
@@ -147,18 +167,25 @@ class _VendorRequestScreenState extends State<VendorRequestScreen> {
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
             ElevatedButton(
               onPressed: () {
                 if (selectedProduct != null && qtyController.text.isNotEmpty) {
                   setState(() {
-                    _orderItems.add(PurchaseOrderItem(
-                      productId: selectedProduct!.id,
-                      productName: selectedProduct!.name,
-                      quantity: int.parse(qtyController.text),
-                      unit: selectedProduct!.unit,
-                      estimatedCost: selectedProduct!.price * int.parse(qtyController.text),
-                    ));
+                    _orderItems.add(
+                      PurchaseOrderItem(
+                        productId: selectedProduct!.id,
+                        productName: selectedProduct!.name,
+                        quantity: int.parse(qtyController.text),
+                        unit: selectedProduct!.unit,
+                        estimatedCost:
+                            selectedProduct!.price *
+                            int.parse(qtyController.text),
+                      ),
+                    );
                   });
                   Navigator.pop(context);
                 }
@@ -172,43 +199,63 @@ class _VendorRequestScreenState extends State<VendorRequestScreen> {
   }
 
   Future<void> _sendOrderRequest() async {
-    if (_vendorNameController.text.isEmpty || _vendorPhoneController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter vendor details')));
+    if (_vendorNameController.text.isEmpty ||
+        _vendorPhoneController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter vendor details')),
+      );
       return;
     }
 
     // Create message string
-    String message = "Hello ${_vendorNameController.text}, this is an order from Fufaji Online:\n\n";
+    String message =
+        "Hello ${_vendorNameController.text}, this is an order from Fufaji Online:\n\n";
     for (var item in _orderItems) {
       message += "• ${item.productName}: ${item.quantity} ${item.unit}\n";
     }
     message += "\nPlease let us know when you can deliver.";
 
-    final phone = _vendorPhoneController.text.replaceAll('+', '').replaceAll(' ', '');
-    final url = Uri.parse('https://wa.me/91$phone?text=${Uri.encodeComponent(message)}');
+    final phone = _vendorPhoneController.text
+        .replaceAll('+', '')
+        .replaceAll(' ', '');
+    final url = Uri.parse(
+      'https://wa.me/91$phone?text=${Uri.encodeComponent(message)}',
+    );
 
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
-      
+
       // Also log to Firestore
       final order = PurchaseOrder(
         id: 'po_${DateTime.now().millisecondsSinceEpoch}',
         shopId: 'fufaji_central',
         distributorName: _vendorNameController.text,
         items: _orderItems,
-        totalAmount: _orderItems.fold(0, (sum, item) => sum + item.estimatedCost),
+        totalAmount: _orderItems.fold(
+          0,
+          (sum, item) => sum + item.estimatedCost,
+        ),
         createdAt: DateTime.now(),
         status: 'sent',
       );
 
-      await OrderService().updateOrder(order.id, order.toMap()); // Using existing updateOrder but for PO collection in future
-      
+      await OrderService().updateOrder(
+        order.id,
+        order.toMap(),
+      ); // Using existing updateOrder but for PO collection in future
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Order request sent and logged.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Order request sent and logged.')),
+        );
         Navigator.pop(context);
       }
     } else {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not launch WhatsApp')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not launch WhatsApp')),
+        );
+      }
     }
   }
 }

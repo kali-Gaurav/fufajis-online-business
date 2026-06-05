@@ -155,8 +155,8 @@ class LoyaltyMembershipService {
       
       // Generate time slots (10 AM to 9 PM, 2-hour windows)
       final slots = <Map<String, dynamic>>[];
-      final startHour = 10;
-      final endHour = 21;
+      const startHour = 10;
+      const endHour = 21;
 
       for (var hour = startHour; hour < endHour; hour += 2) {
         final slotId = 'slot_${hour}_${hour + 2}';

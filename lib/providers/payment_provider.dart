@@ -7,7 +7,7 @@ class PaymentProvider with ChangeNotifier {
   late Razorpay _razorpay;
   bool _isProcessing = false;
   String? _errorMessage;
-  
+
   // Callback functions
   Function(PaymentSuccessResponse)? onPaymentSuccess;
   Function(PaymentFailureResponse)? onPaymentError;
@@ -50,8 +50,8 @@ class PaymentProvider with ChangeNotifier {
         'email': user.email ?? 'customer@fufaji.com',
       },
       'external': {
-        'wallets': ['paytm']
-      }
+        'wallets': ['paytm'],
+      },
     };
 
     try {
@@ -83,18 +83,20 @@ class PaymentProvider with ChangeNotifier {
   }
 
   // Handle Khata/Credit Logic
-  Future<bool> processCreditPayment(double amount, UserModel user, AuthProvider auth) async {
+  Future<bool> processCreditPayment(
+    double amount,
+    UserModel user,
+    AuthProvider auth,
+  ) async {
     if (user.creditBalance + amount > user.creditLimit) {
-      _errorMessage = "Credit limit exceeded. Current: ₹${user.creditBalance.round()} / Limit: ₹${user.creditLimit.round()}";
+      _errorMessage =
+          "Credit limit exceeded. Current: ₹${user.creditBalance.round()} / Limit: ₹${user.creditLimit.round()}";
       notifyListeners();
       return false;
     }
 
     try {
-      // In a real app, this would be a Firestore update via AuthProvider
-      await auth.updateProfile(
-        // we'd need a specific updateCreditBalance method in AuthProvider
-      );
+      await auth.updateCreditBalance(amount);
       return true;
     } catch (e) {
       _errorMessage = "Khata update failed: $e";

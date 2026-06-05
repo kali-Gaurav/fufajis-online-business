@@ -144,7 +144,7 @@ class _CustomerShellState extends State<CustomerShell> {
                       ),
                       child: Text(
                         '${cartProvider.totalItems}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
@@ -169,7 +169,7 @@ class _CustomerShellState extends State<CustomerShell> {
                       ),
                       child: Text(
                         '${cartProvider.totalItems}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,

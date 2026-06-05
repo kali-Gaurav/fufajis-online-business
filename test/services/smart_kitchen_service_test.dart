@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fufajis_online/services/smart_kitchen_service.dart';
 
 void main() {
   group('SmartKitchenService Logic Tests', () {

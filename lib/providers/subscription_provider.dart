@@ -17,8 +17,9 @@ class SubscriptionProvider with ChangeNotifier {
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      final List<String> rawList = prefs.getStringList('customer_subscriptions_$userId') ?? [];
-      
+      final List<String> rawList =
+          prefs.getStringList('customer_subscriptions_$userId') ?? [];
+
       _subscriptions = rawList
           .map((item) => SubscriptionModel.fromMap(json.decode(item)))
           .toList();
@@ -79,7 +80,10 @@ class SubscriptionProvider with ChangeNotifier {
   }
 
   /// Pauses or cancels an active subscription
-  Future<void> updateSubscriptionStatus(String subscriptionId, SubscriptionStatus status) async {
+  Future<void> updateSubscriptionStatus(
+    String subscriptionId,
+    SubscriptionStatus status,
+  ) async {
     final index = _subscriptions.indexWhere((sub) => sub.id == subscriptionId);
     if (index >= 0) {
       final updated = _subscriptions[index].copyWith(status: status);
@@ -91,7 +95,10 @@ class SubscriptionProvider with ChangeNotifier {
         final List<String> rawList = _subscriptions
             .map((item) => json.encode(item.toMap()))
             .toList();
-        await prefs.setStringList('customer_subscriptions_${updated.customerId}', rawList);
+        await prefs.setStringList(
+          'customer_subscriptions_${updated.customerId}',
+          rawList,
+        );
       } catch (e) {
         debugPrint('Error updating subscription status: $e');
       }
@@ -127,9 +134,11 @@ class SubscriptionProvider with ChangeNotifier {
   List<SubscriptionModel> getDeliveriesForDate(DateTime date) {
     return _subscriptions.where((sub) {
       if (!sub.isActive) return false;
-      
+
       // Vacation check
-      if (sub.pauseUntil != null && date.isBefore(sub.pauseUntil!)) return false;
+      if (sub.pauseUntil != null && date.isBefore(sub.pauseUntil!)) {
+        return false;
+      }
 
       // Frequency check
       switch (sub.frequency) {
@@ -140,8 +149,12 @@ class SubscriptionProvider with ChangeNotifier {
         case SubscriptionFrequency.alternateDays:
           return date.difference(sub.startDate).inDays % 2 == 0;
         case SubscriptionFrequency.custom:
-          return sub.deliveryDates.any((d) => 
-            d.year == date.year && d.month == date.month && d.day == date.day);
+          return sub.deliveryDates.any(
+            (d) =>
+                d.year == date.year &&
+                d.month == date.month &&
+                d.day == date.day,
+          );
       }
     }).toList();
   }

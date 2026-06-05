@@ -26,6 +26,13 @@ class UserModel {
   final double creditLimit; // Max credit allowed to customer
   final double codLimit;
   final bool isBlocked;
+  final String? pinHash; // Hashed security PIN for owners
+  final bool biometricEnabled;
+  final List<DeviceFingerprint> approvedDevices;
+  final bool guestMigrated;
+  final bool profileCompleted;
+  final String? lastPhoneNumber;
+  final List<String> linkedProviders;
   final DateTime createdAt;
   final DateTime lastLogin;
 
@@ -52,6 +59,13 @@ class UserModel {
     this.creditLimit = 5000.0,
     this.codLimit = 2000.0,
     this.isBlocked = false,
+    this.pinHash,
+    this.biometricEnabled = false,
+    this.approvedDevices = const [],
+    this.guestMigrated = false,
+    this.profileCompleted = false,
+    this.lastPhoneNumber,
+    this.linkedProviders = const ['phone'],
     required this.createdAt,
     required this.lastLogin,
   });
@@ -67,11 +81,14 @@ class UserModel {
         (e) => e.toString() == map['role'],
         orElse: () => UserRole.customer,
       ),
-      roles: (map['roles'] as List<dynamic>?)
-              ?.map((r) => UserRole.values.firstWhere(
-                    (e) => e.toString() == r,
-                    orElse: () => UserRole.customer,
-                  ))
+      roles:
+          (map['roles'] as List<dynamic>?)
+              ?.map(
+                (r) => UserRole.values.firstWhere(
+                  (e) => e.toString() == r,
+                  orElse: () => UserRole.customer,
+                ),
+              )
               .toList() ??
           [UserRole.customer],
       membershipTier: MembershipTier.values.firstWhere(
@@ -92,6 +109,16 @@ class UserModel {
       creditLimit: (map['creditLimit'] ?? 5000.0).toDouble(),
       codLimit: (map['codLimit'] ?? 2000.0).toDouble(),
       isBlocked: map['isBlocked'] ?? false,
+      pinHash: map['pinHash'],
+      biometricEnabled: map['biometricEnabled'] ?? false,
+      approvedDevices: (map['approvedDevices'] as List<dynamic>?)
+              ?.map((d) => DeviceFingerprint.fromMap(d))
+              .toList() ??
+          [],
+      guestMigrated: map['guestMigrated'] ?? false,
+      profileCompleted: map['profileCompleted'] ?? false,
+      lastPhoneNumber: map['lastPhoneNumber'],
+      linkedProviders: List<String>.from(map['linkedProviders'] ?? ['phone']),
       createdAt: map['createdAt']?.toDate() ?? DateTime.now(),
       lastLogin: map['lastLogin']?.toDate() ?? DateTime.now(),
     );
@@ -121,6 +148,13 @@ class UserModel {
       'creditLimit': creditLimit,
       'codLimit': codLimit,
       'isBlocked': isBlocked,
+      'pinHash': pinHash,
+      'biometricEnabled': biometricEnabled,
+      'approvedDevices': approvedDevices.map((d) => d.toMap()).toList(),
+      'guestMigrated': guestMigrated,
+      'profileCompleted': profileCompleted,
+      'lastPhoneNumber': lastPhoneNumber,
+      'linkedProviders': linkedProviders,
       'createdAt': createdAt,
       'lastLogin': lastLogin,
     };
@@ -149,6 +183,14 @@ class UserModel {
     double? creditLimit,
     double? codLimit,
     bool? isBlocked,
+    // ── Security fields (were silently dropped before — now fixed) ──
+    String? pinHash,
+    bool? biometricEnabled,
+    List<DeviceFingerprint>? approvedDevices,
+    bool? guestMigrated,
+    bool? profileCompleted,
+    String? lastPhoneNumber,
+    List<String>? linkedProviders,
     DateTime? createdAt,
     DateTime? lastLogin,
   }) {
@@ -175,9 +217,48 @@ class UserModel {
       creditLimit: creditLimit ?? this.creditLimit,
       codLimit: codLimit ?? this.codLimit,
       isBlocked: isBlocked ?? this.isBlocked,
+      pinHash: pinHash ?? this.pinHash,
+      biometricEnabled: biometricEnabled ?? this.biometricEnabled,
+      approvedDevices: approvedDevices ?? this.approvedDevices,
+      guestMigrated: guestMigrated ?? this.guestMigrated,
+      profileCompleted: profileCompleted ?? this.profileCompleted,
+      lastPhoneNumber: lastPhoneNumber ?? this.lastPhoneNumber,
+      linkedProviders: linkedProviders ?? this.linkedProviders,
       createdAt: createdAt ?? this.createdAt,
       lastLogin: lastLogin ?? this.lastLogin,
     );
+  }
+}
+
+class DeviceFingerprint {
+  final String deviceId;
+  final String deviceName;
+  final bool approved;
+  final DateTime registeredAt;
+
+  DeviceFingerprint({
+    required this.deviceId,
+    required this.deviceName,
+    this.approved = false,
+    required this.registeredAt,
+  });
+
+  factory DeviceFingerprint.fromMap(Map<String, dynamic> map) {
+    return DeviceFingerprint(
+      deviceId: map['deviceId'] ?? '',
+      deviceName: map['deviceName'] ?? 'Unknown Device',
+      approved: map['approved'] ?? false,
+      registeredAt: (map['registeredAt'] as Timestamp).toDate(),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'deviceId': deviceId,
+      'deviceName': deviceName,
+      'approved': approved,
+      'registeredAt': Timestamp.fromDate(registeredAt),
+    };
   }
 }
 
@@ -261,8 +342,7 @@ class Address {
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
       isDefault: isDefault ?? this.isDefault,
-      deliveryInstructions:
-          deliveryInstructions ?? this.deliveryInstructions,
+      deliveryInstructions: deliveryInstructions ?? this.deliveryInstructions,
     );
   }
 }

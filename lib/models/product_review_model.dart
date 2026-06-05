@@ -18,8 +18,6 @@ class ProductReviewModel {
   final int helpfulCount; // Number of users who found this helpful
   final List<String> flagReasons;
 
-
-
   ProductReviewModel({
     required this.id,
     required this.productId,

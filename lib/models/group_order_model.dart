@@ -4,7 +4,7 @@ class GroupOrderModel {
   final String id;
   final String shopId;
   final String district; // Hyperlocal grouping
-  final String village;  // Hyperlocal grouping
+  final String village; // Hyperlocal grouping
   final List<String> memberIds;
   final Map<String, double> memberContributions;
   final double totalAmount;
@@ -56,7 +56,9 @@ class GroupOrderModel {
       district: map['district'] ?? '',
       village: map['village'] ?? '',
       memberIds: List<String>.from(map['memberIds'] ?? []),
-      memberContributions: Map<String, double>.from(map['memberContributions'] ?? {}),
+      memberContributions: Map<String, double>.from(
+        map['memberContributions'] ?? {},
+      ),
       totalAmount: (map['totalAmount'] ?? 0.0).toDouble(),
       goalAmount: (map['goalAmount'] ?? 0.0).toDouble(),
       discountPercentage: (map['discountPercentage'] ?? 20.0).toDouble(),

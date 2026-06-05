@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:flutter/services.dart';
 import '../../utils/app_theme.dart';
@@ -10,7 +10,8 @@ class BarcodeScannerScreen extends StatefulWidget {
   State<BarcodeScannerScreen> createState() => _BarcodeScannerScreenState();
 }
 
-class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> with SingleTickerProviderStateMixin {
+class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
+    with SingleTickerProviderStateMixin {
   final MobileScannerController _controller = MobileScannerController();
   late AnimationController _animationController;
   bool _isScanning = true;
@@ -83,7 +84,10 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> with Single
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: AppTheme.grey600)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: AppTheme.grey600),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -116,10 +120,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> with Single
       body: Stack(
         children: [
           // Mobile Scanner
-          MobileScanner(
-            controller: _controller,
-            onDetect: _onDetect,
-          ),
+          MobileScanner(controller: _controller, onDetect: _onDetect),
 
           // Translucent black overlay with transparent cut-out in center
           ColorFiltered(
@@ -129,9 +130,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> with Single
             ),
             child: Stack(
               children: [
-                Container(
-                  color: Colors.transparent,
-                ),
+                Container(color: Colors.transparent),
                 Center(
                   child: Container(
                     width: scanAreaSize,
@@ -179,7 +178,8 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> with Single
                   AnimatedBuilder(
                     animation: _animationController,
                     builder: (context, child) {
-                      final laserOffset = _animationController.value * (scanAreaSize - 4);
+                      final laserOffset =
+                          _animationController.value * (scanAreaSize - 4);
                       return Positioned(
                         top: laserOffset,
                         left: 10,
@@ -214,13 +214,20 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> with Single
           // Top Header (AppBar style)
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: Colors.white,
+                      size: 28,
+                    ),
                   ),
                   const Text(
                     'Scan Product Barcode',
@@ -233,10 +240,10 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> with Single
                   Row(
                     children: [
                       // Torch Toggle Button
-                      ValueListenableBuilder<TorchState>(
-                        valueListenable: _controller.torchState,
+                      ValueListenableBuilder<MobileScannerState>(
+                        valueListenable: _controller,
                         builder: (context, state, child) {
-                          final isTorchOn = state == TorchState.on;
+                          final isTorchOn = state.torchState == TorchState.on;
                           return IconButton(
                             icon: Icon(
                               isTorchOn ? Icons.flash_on : Icons.flash_off,
@@ -249,7 +256,11 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> with Single
                       ),
                       // Camera Switch Button
                       IconButton(
-                        icon: const Icon(Icons.cameraswitch, color: Colors.white, size: 26),
+                        icon: const Icon(
+                          Icons.cameraswitch,
+                          color: Colors.white,
+                          size: 26,
+                        ),
                         onPressed: () => _controller.switchCamera(),
                       ),
                     ],
@@ -267,7 +278,10 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> with Single
             child: Column(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(20),
@@ -281,7 +295,10 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> with Single
                 const SizedBox(height: 20),
                 ElevatedButton.icon(
                   onPressed: _showManualEntryDialog,
-                  icon: const Icon(Icons.keyboard_outlined, color: Colors.white),
+                  icon: const Icon(
+                    Icons.keyboard_outlined,
+                    color: Colors.white,
+                  ),
                   label: const Text(
                     'Enter Barcode Manually',
                     style: TextStyle(fontWeight: FontWeight.bold),
@@ -289,7 +306,10 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> with Single
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primary,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 28,
+                      vertical: 14,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
@@ -348,4 +368,3 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> with Single
     );
   }
 }
-

@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'dart:math';
-import 'package:crypto/crypto.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
@@ -12,23 +10,23 @@ import 'package:fufajis_online/models/payment_result.dart';
 import 'package:fufajis_online/models/user_model.dart';
 
 /// Payment verification service for server-side verification
-/// 
+///
 /// This service handles:
 /// - Payment signature verification
 /// - Payment status verification with Razorpay API
 /// - Order creation after successful verification
-/// 
+///
 /// Note: In production, signature verification should be done on the server
 /// This client-side implementation is for development and testing purposes
 class PaymentVerificationService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
+
   // In production, this should be stored securely on the backend
   // Never expose the secret key in client-side code
   static const String _razorpaySecretKey = 'RAZORPAY_SECRET_KEY_PLACEHOLDER';
 
   /// Verify payment signature
-  /// 
+  ///
   /// Calls secure Firebase Cloud Functions server-side verification
   /// to prevent tampering with payment responses
   Future<bool> verifySignature({
@@ -38,8 +36,10 @@ class PaymentVerificationService {
   }) async {
     try {
       final FirebaseFunctions functions = FirebaseFunctions.instance;
-      final HttpsCallable callable = functions.httpsCallable('verifyRazorpayPayment');
-      
+      final HttpsCallable callable = functions.httpsCallable(
+        'verifyRazorpayPayment',
+      );
+
       final HttpsCallableResult result = await callable.call({
         'paymentId': paymentId,
         'orderId': orderId,
@@ -47,20 +47,26 @@ class PaymentVerificationService {
       });
 
       if (result.data != null && result.data['success'] == true) {
-        debugPrint('PaymentVerificationService: Secure signature verification succeeded');
+        debugPrint(
+          'PaymentVerificationService: Secure signature verification succeeded',
+        );
         return true;
       }
 
-      debugPrint('PaymentVerificationService: Secure signature verification failed: ${result.data}');
+      debugPrint(
+        'PaymentVerificationService: Secure signature verification failed: ${result.data}',
+      );
       return false;
     } catch (e) {
-      debugPrint('PaymentVerificationService: Signature verification error - $e');
+      debugPrint(
+        'PaymentVerificationService: Signature verification error - $e',
+      );
       return false;
     }
   }
 
   /// Verify payment status
-  /// 
+  ///
   /// In this production system, we read the real transaction status
   /// which gets verified securely by the shop owner's ledger confirmation.
   Future<PaymentVerificationResult> verifyPaymentStatus({
@@ -105,7 +111,7 @@ class PaymentVerificationService {
   }
 
   /// Create order in Firestore after successful payment verification
-  /// 
+  ///
   /// This method is called after payment success to create the order
   /// Only creates order if payment is verified
   Future<OrderModel?> createOrderAfterPayment({
@@ -123,7 +129,9 @@ class PaymentVerificationService {
     try {
       // Verify payment first
       if (!paymentResult.isSuccess) {
-        debugPrint('PaymentVerificationService: Cannot create order - payment not successful');
+        debugPrint(
+          'PaymentVerificationService: Cannot create order - payment not successful',
+        );
         return null;
       }
 
@@ -161,28 +169,34 @@ class PaymentVerificationService {
 
       // Create order model
       final order = OrderModel(
-        id: paymentResult.orderId ?? 'order_${DateTime.now().millisecondsSinceEpoch}',
+        id:
+            paymentResult.orderId ??
+            'order_${DateTime.now().millisecondsSinceEpoch}',
         orderNumber: orderNumber,
         customerId: customerId,
         customerName: customerName,
         customerPhone: customerPhone,
-        items: cartItems.map((CartItem item) => OrderItem(
-          id: item.id,
-          productId: item.productId,
-          productName: item.productName,
-          productImage: item.productImage,
-          unit: item.unit,
-          quantity: item.quantity,
-          price: item.price,
-          originalPrice: item.originalPrice,
-          discountPercentage: item.discountPercentage,
-          totalPrice: item.totalPrice,
-          shopId: item.shopId,
-          shopName: item.shopName,
-          selectedVariant: item.selectedVariant,
-          selectedSize: item.selectedSize,
-          selectedColor: item.selectedColor,
-        )).toList(),
+        items: cartItems
+            .map(
+              (CartItem item) => OrderItem(
+                id: item.id,
+                productId: item.productId,
+                productName: item.productName,
+                productImage: item.productImage,
+                unit: item.unit,
+                quantity: item.quantity,
+                price: item.price,
+                originalPrice: item.originalPrice,
+                discountPercentage: item.discountPercentage,
+                totalPrice: item.totalPrice,
+                shopId: item.shopId,
+                shopName: item.shopName,
+                selectedVariant: item.selectedVariant,
+                selectedSize: item.selectedSize,
+                selectedColor: item.selectedColor,
+              ),
+            )
+            .toList(),
         subtotal: subtotal,
         deliveryCharge: 0, // Will be calculated separately
         discount: 0,
@@ -217,29 +231,14 @@ class PaymentVerificationService {
         'createdAt': DateTime.now().toIso8601String(),
       });
 
-      debugPrint('PaymentVerificationService: Order created successfully - $orderNumber');
+      debugPrint(
+        'PaymentVerificationService: Order created successfully - $orderNumber',
+      );
       return order;
     } catch (e) {
       debugPrint('PaymentVerificationService: Order creation error - $e');
       return null;
     }
-  }
-
-  /// Generate HMAC-SHA256 signature for payment verification
-  String _generateSignature({
-    required String orderId,
-    required String paymentId,
-  }) {
-    // In production, this is done server-side with the secret key
-    // This is a placeholder for development
-    final data = '$orderId|$paymentId';
-    final key = utf8.encode(_razorpaySecretKey);
-    final bytes = utf8.encode(data);
-    
-    final hmac = Hmac(sha256, key);
-    final digest = hmac.convert(bytes);
-    
-    return digest.toString();
   }
 
   /// Generate a unique order number
@@ -271,7 +270,9 @@ class PaymentVerificationService {
         );
       }).toList();
     } catch (e) {
-      debugPrint('PaymentVerificationService: Error fetching payment history - $e');
+      debugPrint(
+        'PaymentVerificationService: Error fetching payment history - $e',
+      );
       return [];
     }
   }
@@ -306,7 +307,9 @@ class PaymentVerificationService {
     required double amount,
   }) async {
     try {
-      debugPrint('[PaymentReconciliation] Webhook received for payment: $razorpayPaymentId');
+      debugPrint(
+        '[PaymentReconciliation] Webhook received for payment: $razorpayPaymentId',
+      );
 
       // 1. Check if this payment was already reconciled (idempotency guard)
       final existingPayment = await _firestore
@@ -314,8 +317,11 @@ class PaymentVerificationService {
           .doc(razorpayPaymentId)
           .get();
 
-      if (existingPayment.exists && existingPayment.data()?['verified'] == true) {
-        debugPrint('[PaymentReconciliation] Payment $razorpayPaymentId already reconciled. Skipping.');
+      if (existingPayment.exists &&
+          existingPayment.data()?['verified'] == true) {
+        debugPrint(
+          '[PaymentReconciliation] Payment $razorpayPaymentId already reconciled. Skipping.',
+        );
         return true;
       }
 
@@ -326,23 +332,15 @@ class PaymentVerificationService {
           .limit(1)
           .get();
 
-      // Also try matching by order ID field
-      QuerySnapshot<Map<String, dynamic>>? orderByIdQuery;
-      if (orderQuery.docs.isEmpty) {
-        orderByIdQuery = await _firestore
-            .collection('orders')
-            .doc(razorpayOrderId)
-            .collection('payments')
-            .limit(1)
-            .get();
-      }
-
       String? firestoreOrderId;
       if (orderQuery.docs.isNotEmpty) {
         firestoreOrderId = orderQuery.docs.first.id;
       } else if (razorpayOrderId.isNotEmpty) {
         // Check if the razorpayOrderId is the Firestore document ID
-        final directDoc = await _firestore.collection('orders').doc(razorpayOrderId).get();
+        final directDoc = await _firestore
+            .collection('orders')
+            .doc(razorpayOrderId)
+            .get();
         if (directDoc.exists) {
           firestoreOrderId = razorpayOrderId;
         }
@@ -364,10 +362,14 @@ class PaymentVerificationService {
 
       // 4. Update order status if found and still pending
       if (firestoreOrderId != null) {
-        final orderDoc = await _firestore.collection('orders').doc(firestoreOrderId).get();
+        final orderDoc = await _firestore
+            .collection('orders')
+            .doc(firestoreOrderId)
+            .get();
         if (orderDoc.exists) {
           final currentStatus = orderDoc.data()?['status']?.toString() ?? '';
-          final paymentStatus = orderDoc.data()?['paymentStatus']?.toString() ?? '';
+          final paymentStatus =
+              orderDoc.data()?['paymentStatus']?.toString() ?? '';
 
           // Only reconcile if order is still in a pre-payment state
           if (paymentStatus != 'paid' ||
@@ -381,7 +383,9 @@ class PaymentVerificationService {
               'reconciliationSource': 'razorpay_webhook',
               'reconciledAt': FieldValue.serverTimestamp(),
             });
-            debugPrint('[PaymentReconciliation] Order $firestoreOrderId reconciled to CONFIRMED.');
+            debugPrint(
+              '[PaymentReconciliation] Order $firestoreOrderId reconciled to CONFIRMED.',
+            );
           }
         }
       }
@@ -397,7 +401,9 @@ class PaymentVerificationService {
 
       return true;
     } catch (e) {
-      debugPrint('[PaymentReconciliation] Error reconciling webhook payment: $e');
+      debugPrint(
+        '[PaymentReconciliation] Error reconciling webhook payment: $e',
+      );
 
       // Log the failure for manual review
       try {
@@ -434,7 +440,10 @@ class PaymentVerificationService {
         if (paymentId == null || paymentId.isEmpty) continue;
 
         // Check if payment was actually captured in our payments collection
-        final paymentDoc = await _firestore.collection('payments').doc(paymentId).get();
+        final paymentDoc = await _firestore
+            .collection('payments')
+            .doc(paymentId)
+            .get();
         if (paymentDoc.exists && paymentDoc.data()?['status'] == 'captured') {
           await _firestore.collection('orders').doc(doc.id).update({
             'paymentStatus': 'paid',
@@ -448,7 +457,9 @@ class PaymentVerificationService {
         }
       }
 
-      debugPrint('[PaymentReconciliation] Orphan scan complete. Reconciled: $reconciled');
+      debugPrint(
+        '[PaymentReconciliation] Orphan scan complete. Reconciled: $reconciled',
+      );
       return reconciled;
     } catch (e) {
       debugPrint('[PaymentReconciliation] Orphan scan error: $e');
@@ -456,8 +467,6 @@ class PaymentVerificationService {
     }
   }
 }
-
-
 
 /// Result of payment verification
 class PaymentVerificationResult {

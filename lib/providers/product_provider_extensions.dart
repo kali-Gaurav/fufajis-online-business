@@ -1,6 +1,7 @@
 /// ProductProvider Extensions for Phase 11-14 Features
 /// This file contains extension methods for WhatsApp Sync, Inventory Alerts, 
 /// Expiry Tracking, and Dynamic Pricing integration
+library;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/product_model.dart';

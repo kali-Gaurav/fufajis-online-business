@@ -529,7 +529,7 @@ class _CartScreenState extends State<CartScreen> {
               hintText: 'Add notes (e.g. "Green bananas only")',
               isDense: true,
               contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: AppTheme.grey200)),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppTheme.grey200)),
               prefixIcon: const Icon(Icons.edit_note, size: 16),
             ),
           ),
@@ -600,19 +600,19 @@ class _CartScreenState extends State<CartScreen> {
                 )
               : GestureDetector(
                   onTap: () => setState(() => _showCouponField = true),
-                  child: Row(
+                  child: const Row(
                     children: [
-                      const Icon(Icons.discount_outlined,
+                      Icon(Icons.discount_outlined,
                           color: AppTheme.primary),
-                      const SizedBox(width: 8),
-                      const Text(
+                      SizedBox(width: 8),
+                      Text(
                         'Apply Coupon',
                         style: TextStyle(
                             color: AppTheme.primary,
                             fontWeight: FontWeight.w500),
                       ),
-                      const Spacer(),
-                      const Icon(Icons.arrow_forward_ios,
+                      Spacer(),
+                      Icon(Icons.arrow_forward_ios,
                           size: 16, color: AppTheme.grey400),
                     ],
                   ),
@@ -750,11 +750,11 @@ class _CartScreenState extends State<CartScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       color: Colors.amber.shade100,
-      child: Row(
+      child: const Row(
         children: [
-          const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20),
-          const SizedBox(width: 12),
-          const Expanded(
+          Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 20),
+          SizedBox(width: 12),
+          Expanded(
             child: Text(
               'Your cart has items from multiple shops. This may result in separate delivery charges.',
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.brown),

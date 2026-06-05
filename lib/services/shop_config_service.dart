@@ -21,9 +21,21 @@ class ShopConfigService {
   // Seeding default configuration
   ShopConfigModel _getDefaultConfig() {
     final Map<String, OperatingHours> hours = {};
-    final days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    final days = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
     for (var day in days) {
-      hours[day] = OperatingHours(isOpen: true, openTime: '09:00', closeTime: '21:00');
+      hours[day] = OperatingHours(
+        isOpen: true,
+        openTime: '09:00',
+        closeTime: '21:00',
+      );
     }
 
     final zones = [
@@ -107,7 +119,7 @@ class ShopConfigService {
   Future<void> updateShopConfig(ShopConfigModel config) async {
     try {
       final batch = _db.batch();
-      
+
       // Update shop config doc
       final configRef = _db.collection('settings').doc('shop_config');
       batch.set(configRef, config.toMap());
@@ -129,7 +141,9 @@ class ShopConfigService {
 
   // Stream of Shop Config updates
   Stream<ShopConfigModel> getShopConfigStream() {
-    return _db.collection('settings').doc('shop_config').snapshots().map((snapshot) {
+    return _db.collection('settings').doc('shop_config').snapshots().map((
+      snapshot,
+    ) {
       if (snapshot.exists && snapshot.data() != null) {
         final config = ShopConfigModel.fromMap(snapshot.data()!);
         _cachedConfig = config;
@@ -145,41 +159,66 @@ class ShopConfigService {
   double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
     const p = 0.017453292519943295; // Math.PI / 180
     const c = cos;
-    final a = 0.5 - c((lat2 - lat1) * p)/2 + 
-          c(lat1 * p) * c(lat2 * p) * 
-          (1 - c((lon2 - lon1) * p))/2;
+    final a =
+        0.5 -
+        c((lat2 - lat1) * p) / 2 +
+        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
     return 12742 * asin(sqrt(a)); // 2 * R; R = 6371 km
   }
 
   // Check if an address coordinates is within the delivery zone of shop/branch
-  bool isWithinDeliveryArea(double lat, double lng, ShopConfigModel config, List<ShopBranchModel> branches) {
+  bool isWithinDeliveryArea(
+    double lat,
+    double lng,
+    ShopConfigModel config,
+    List<ShopBranchModel> branches,
+  ) {
     // If multi-branch is active and we have branches, check if it fits in any branch
     if (branches.isNotEmpty) {
       for (var branch in branches) {
         if (!branch.isActive) continue;
-        final dist = calculateDistance(branch.latitude, branch.longitude, lat, lng);
+        final dist = calculateDistance(
+          branch.latitude,
+          branch.longitude,
+          lat,
+          lng,
+        );
         if (dist <= branch.deliveryRadiusKm) {
           return true;
         }
       }
       return false;
     }
-    
+
     // Otherwise, check main shop
-    final distance = calculateDistance(config.shopLatitude, config.shopLongitude, lat, lng);
+    final distance = calculateDistance(
+      config.shopLatitude,
+      config.shopLongitude,
+      lat,
+      lng,
+    );
     return distance <= config.maxDeliveryRadiusKm;
   }
 
   // Find nearest branch for delivery
-  ShopBranchModel? getNearestBranch(double lat, double lng, List<ShopBranchModel> branches) {
+  ShopBranchModel? getNearestBranch(
+    double lat,
+    double lng,
+    List<ShopBranchModel> branches,
+  ) {
     if (branches.isEmpty) return null;
-    
+
     ShopBranchModel? nearest;
     double minDistance = double.infinity;
 
     for (var branch in branches) {
       if (!branch.isActive) continue;
-      final dist = calculateDistance(branch.latitude, branch.longitude, lat, lng);
+      final dist = calculateDistance(
+        branch.latitude,
+        branch.longitude,
+        lat,
+        lng,
+      );
       if (dist <= branch.deliveryRadiusKm && dist < minDistance) {
         minDistance = dist;
         nearest = branch;
@@ -203,31 +242,43 @@ class ShopConfigService {
 
     for (var zone in activeZones) {
       if (distanceKm >= zone.fromRadiusKm && distanceKm <= zone.toRadiusKm) {
-        final freeThreshold = config.isEmergencyMode ? zone.minOrderForFree * 1.5 : zone.minOrderForFree;
+        final freeThreshold = config.isEmergencyMode
+            ? zone.minOrderForFree * 1.5
+            : zone.minOrderForFree;
         if (orderAmount >= freeThreshold) {
           return 0.0;
         }
-        final charge = config.isEmergencyMode ? zone.deliveryCharge * 2.0 : zone.deliveryCharge;
+        final charge = config.isEmergencyMode
+            ? zone.deliveryCharge * 2.0
+            : zone.deliveryCharge;
         return charge;
       }
     }
 
     // Fallback if no matching zone found but it was somehow inside radius
-    final fallbackFreeThreshold = config.isEmergencyMode 
-        ? config.minOrderForFreeDelivery * 1.5 
+    final fallbackFreeThreshold = config.isEmergencyMode
+        ? config.minOrderForFreeDelivery * 1.5
         : config.minOrderForFreeDelivery;
     if (orderAmount >= fallbackFreeThreshold) {
       return 0.0;
     }
-    final fallbackCharge = config.isEmergencyMode ? config.flatDeliveryFee * 2.0 : config.flatDeliveryFee;
+    final fallbackCharge = config.isEmergencyMode
+        ? config.flatDeliveryFee * 2.0
+        : config.flatDeliveryFee;
     return fallbackCharge;
   }
 
   // --- Branch Management ---
   Future<List<ShopBranchModel>> getBranches() async {
     try {
-      final snapshot = await _db.collection('settings').doc('shop_config').collection('branches').get();
-      final branchesList = snapshot.docs.map((doc) => ShopBranchModel.fromMap(doc.data())).toList();
+      final snapshot = await _db
+          .collection('settings')
+          .doc('shop_config')
+          .collection('branches')
+          .get();
+      final branchesList = snapshot.docs
+          .map((doc) => ShopBranchModel.fromMap(doc.data()))
+          .toList();
       _cachedBranches = branchesList;
       return branchesList;
     } catch (e) {
@@ -237,11 +288,18 @@ class ShopConfigService {
   }
 
   Stream<List<ShopBranchModel>> getBranchesStream() {
-    return _db.collection('settings').doc('shop_config').collection('branches').snapshots().map((snapshot) {
-      final branchesList = snapshot.docs.map((doc) => ShopBranchModel.fromMap(doc.data())).toList();
-      _cachedBranches = branchesList;
-      return branchesList;
-    });
+    return _db
+        .collection('settings')
+        .doc('shop_config')
+        .collection('branches')
+        .snapshots()
+        .map((snapshot) {
+          final branchesList = snapshot.docs
+              .map((doc) => ShopBranchModel.fromMap(doc.data()))
+              .toList();
+          _cachedBranches = branchesList;
+          return branchesList;
+        });
   }
 
   Future<void> addBranch(ShopBranchModel branch) async {

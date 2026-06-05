@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/order_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../models/order_model.dart';
 import '../../utils/app_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -10,14 +11,12 @@ import '../../services/invoice_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../../services/weight_verification_service.dart';
+import 'track_order_screen.dart';
 
 class OrderDetailScreen extends StatefulWidget {
   final String orderId;
 
-  const OrderDetailScreen({
-    super.key,
-    required this.orderId,
-  });
+  const OrderDetailScreen({super.key, required this.orderId});
 
   @override
   State<OrderDetailScreen> createState() => _OrderDetailScreenState();
@@ -41,11 +40,16 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     Map<String, dynamic>? rawData;
     List<WeightProofRecord> proofs = [];
     try {
-      final doc = await FirebaseFirestore.instance.collection('orders').doc(widget.orderId).get();
+      final doc = await FirebaseFirestore.instance
+          .collection('orders')
+          .doc(widget.orderId)
+          .get();
       if (doc.exists) {
         rawData = doc.data();
       }
-      proofs = await WeightVerificationService().getOrderWeightProofs(widget.orderId);
+      proofs = await WeightVerificationService().getOrderWeightProofs(
+        widget.orderId,
+      );
     } catch (e) {
       debugPrint('Error loading extra order data: $e');
     }
@@ -107,6 +111,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   Widget _buildStatusHeader() {
+    final canPayOnline = _order!.paymentStatus != 'paid' && 
+                         _order!.status != OrderStatus.cancelled &&
+                         _order!.status != OrderStatus.delivered;
+    final canTrack = _order!.status == OrderStatus.outForDelivery;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -133,9 +142,72 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             _formatDateTime(_order!.createdAt),
             style: const TextStyle(color: AppTheme.grey600, fontSize: 13),
           ),
+          if (canTrack) ...[
+            const SizedBox(height: 16),
+            SizedBox(
+              width: 200,
+              child: ElevatedButton.icon(
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => TrackOrderScreen(orderId: _order!.id)),
+                ),
+                icon: const Icon(Icons.location_on, size: 18),
+                label: const Text('Track Order'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.success,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                ),
+              ),
+            ),
+          ],
+          if (canPayOnline) ...[
+            const SizedBox(height: 16),
+            SizedBox(
+              width: 200,
+              child: ElevatedButton.icon(
+                onPressed: _handleOnlinePayment,
+                icon: const Icon(Icons.payment, size: 18),
+                label: const Text('Pay Online Now'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'Switch from COD to Online Payment',
+              style: TextStyle(fontSize: 10, color: AppTheme.grey500),
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  void _handleOnlinePayment() async {
+    final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    
+    await orderProvider.convertToOnlinePayment(
+      order: _order!,
+      email: authProvider.currentUser?.email ?? 'customer@fufaji.online',
+      onPaymentStarted: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Opening secure payment gateway...')),
+        );
+      },
+      onPaymentError: (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error), backgroundColor: AppTheme.error),
+        );
+      },
+    );
+    
+    // Refresh order state
+    _loadOrder();
   }
 
   Widget _buildItemsList() {
@@ -151,35 +223,59 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         children: [
           const Text('Items', style: TextStyle(fontWeight: FontWeight.bold)),
           const Divider(),
-          ..._order!.items.map((item) => ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: CachedNetworkImage(
-                imageUrl: item.productImage,
-                width: 50,
-                height: 50,
-                fit: BoxFit.cover,
-                errorWidget: (context, url, error) => const Icon(Icons.image),
+          ..._order!.items.map(
+            (item) => ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: CachedNetworkImage(
+                  imageUrl: item.productImage,
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                  errorWidget: (context, url, error) => const Icon(Icons.image),
+                ),
+              ),
+              title: Text(item.productName),
+              subtitle: Text('${item.quantity} x ₹${item.price.round()}'),
+              trailing: Text(
+                '₹${item.totalPrice.round()}',
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
-            title: Text(item.productName),
-            subtitle: Text('${item.quantity} x ₹${item.price.round()}'),
-            trailing: Text('₹${item.totalPrice.round()}', style: const TextStyle(fontWeight: FontWeight.bold)),
-          )),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildPriceRow(String label, double amount, {bool isBold = false, Color color = AppTheme.grey900}) {
+  Widget _buildPriceRow(
+    String label,
+    double amount, {
+    bool isBold = false,
+    Color color = AppTheme.grey900,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(fontSize: 13, fontWeight: isBold ? FontWeight.bold : FontWeight.w500, color: AppTheme.grey700)),
-          Text('₹${amount.toStringAsFixed(0)}', style: TextStyle(fontSize: 13, fontWeight: isBold ? FontWeight.bold : FontWeight.w500, color: color)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
+              color: AppTheme.grey700,
+            ),
+          ),
+          Text(
+            '₹${amount.toStringAsFixed(0)}',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
+              color: color,
+            ),
+          ),
         ],
       ),
     );
@@ -189,13 +285,22 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Column(
         children: [
           _buildPriceRow('Subtotal', _order!.subtotal),
-          if (_order!.deliveryCharge > 0) _buildPriceRow('Delivery Fee', _order!.deliveryCharge),
+          if (_order!.deliveryCharge > 0)
+            _buildPriceRow('Delivery Fee', _order!.deliveryCharge),
           const Divider(),
-          _buildPriceRow('Total', _order!.totalAmount, isBold: true, color: AppTheme.primary),
+          _buildPriceRow(
+            'Total',
+            _order!.totalAmount,
+            isBold: true,
+            color: AppTheme.primary,
+          ),
         ],
       ),
     );
@@ -206,14 +311,25 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Row(
         children: [
           const Icon(Icons.store, color: AppTheme.primary),
           const SizedBox(width: 12),
-          Expanded(child: Text(_order!.shopName ?? 'Shop', style: const TextStyle(fontWeight: FontWeight.bold))),
+          Expanded(
+            child: Text(
+              _order!.shopName ?? 'Shop',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
           if (_order!.shopPhone != null)
-            IconButton(icon: const Icon(Icons.phone, color: AppTheme.primary), onPressed: () => launchUrl(Uri.parse('tel:${_order!.shopPhone}'))),
+            IconButton(
+              icon: const Icon(Icons.phone, color: AppTheme.primary),
+              onPressed: () => launchUrl(Uri.parse('tel:${_order!.shopPhone}')),
+            ),
         ],
       ),
     );
@@ -223,13 +339,22 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Delivery Address', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text(
+            'Delivery Address',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
-          Text(_order!.deliveryAddress.fullAddress, style: const TextStyle(color: AppTheme.grey700)),
+          Text(
+            _order!.deliveryAddress.fullAddress,
+            style: const TextStyle(color: AppTheme.grey700),
+          ),
         ],
       ),
     );
@@ -245,7 +370,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _showCancelDialog,
-                style: ElevatedButton.styleFrom(backgroundColor: AppTheme.error, foregroundColor: Colors.white),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.error,
+                  foregroundColor: Colors.white,
+                ),
                 child: const Text('Cancel Order'),
               ),
             ),
@@ -256,7 +384,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _showReturnDialog,
-                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.warning, foregroundColor: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.warning,
+                    foregroundColor: Colors.white,
+                  ),
                   child: const Text('Return Order'),
                 ),
               ),
@@ -265,7 +396,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
-              onPressed: () => context.push('/customer/support-chat/${_order!.id}'),
+              onPressed: () =>
+                  context.push('/customer/support-chat/${_order!.id}'),
               child: const Text('Contact Support'),
             ),
           ),
@@ -281,7 +413,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         title: const Text('Cancel Order'),
         content: const Text('Are you sure you want to cancel this order?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('No')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('No'),
+          ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
@@ -302,10 +437,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         title: const Text('Return Order'),
         content: TextField(
           controller: reasonController,
-          decoration: const InputDecoration(hintText: 'Enter reason for return'),
+          decoration: const InputDecoration(
+            hintText: 'Enter reason for return',
+          ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
@@ -320,9 +460,14 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
   Future<void> _cancelOrder() async {
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
-    final success = await orderProvider.cancelOrder(_order!.id, 'Cancelled by user');
+    final success = await orderProvider.cancelOrder(
+      _order!.id,
+      'Cancelled by user',
+    );
     if (mounted && success) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Order Cancelled')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Order Cancelled')));
       _loadOrder();
     }
   }
@@ -336,12 +481,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       itemIds: _order!.items.map((i) => i.id).toList(),
     );
     if (mounted && success) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Return Requested')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Return Requested')));
       _loadOrder();
     }
   }
 
-  String _formatDateTime(DateTime dt) => '${dt.day}/${dt.month}/${dt.year} ${dt.hour}:${dt.minute.toString().padLeft(2, '0')}';
+  String _formatDateTime(DateTime dt) =>
+      '${dt.day}/${dt.month}/${dt.year} ${dt.hour}:${dt.minute.toString().padLeft(2, '0')}';
 
   Widget _buildPackingAndWeightProofSection() {
     if (_rawOrderData == null) return const SizedBox.shrink();
@@ -362,7 +510,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             color: Colors.black.withAlpha(8),
             blurRadius: 10,
             offset: const Offset(0, 4),
-          )
+          ),
         ],
       ),
       child: Column(
@@ -370,7 +518,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         children: [
           const Row(
             children: [
-              Icon(Icons.verified_user_outlined, color: AppTheme.primary, size: 20),
+              Icon(
+                Icons.verified_user_outlined,
+                color: AppTheme.primary,
+                size: 20,
+              ),
               SizedBox(width: 8),
               Text(
                 'Trust & Quality Proofs',
@@ -391,9 +543,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           ],
 
           // 2. Weight Verification Proof (Real Weight Guarantee)
-          if (hasWeightProof) ...[
-            _buildWeightProofCard(),
-          ],
+          if (hasWeightProof) ...[_buildWeightProofCard()],
         ],
       ),
     );
@@ -417,7 +567,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             const CircleAvatar(
               radius: 14,
               backgroundColor: Color(0xFFE8F5E9),
-              child: Icon(Icons.inventory_2, size: 14, color: Color(0xFF2E7D32)),
+              child: Icon(
+                Icons.inventory_2,
+                size: 14,
+                color: Color(0xFF2E7D32),
+              ),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -435,7 +589,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   if (timeStr.isNotEmpty)
                     Text(
                       'Time: $timeStr',
-                      style: const TextStyle(color: AppTheme.grey50, fontSize: 11),
+                      style: const TextStyle(
+                        color: AppTheme.grey50,
+                        fontSize: 11,
+                      ),
                     ),
                 ],
               ),
@@ -459,13 +616,18 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     placeholder: (_, __) => Container(
                       height: 140,
                       color: AppTheme.grey50,
-                      child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                      child: const Center(
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
                     ),
                     errorWidget: (_, __, ___) => const SizedBox.shrink(),
                   ),
                   Container(
                     margin: const EdgeInsets.all(8),
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.black.withAlpha(150),
                       borderRadius: BorderRadius.circular(12),
@@ -477,7 +639,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                         SizedBox(width: 4),
                         Text(
                           'View Photo Proof',
-                          style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
@@ -521,7 +687,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           itemBuilder: (context, index) {
             final proof = _weightProofs[index];
             final diff = proof.packedWeightKg - proof.orderedWeightKg;
-            
+
             Color outcomeColor;
             String statusText;
             IconData statusIcon;
@@ -539,7 +705,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 break;
               case WeightOutcome.underPacked:
                 outcomeColor = const Color(0xFFE65100);
-                statusText = 'Underweight (₹${proof.refundAmountIfAny.round()} refunded)';
+                statusText =
+                    'Underweight (₹${proof.refundAmountIfAny.round()} refunded)';
                 statusIcon = Icons.monetization_on_outlined;
                 break;
             }
@@ -560,12 +727,19 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                       children: [
                         Text(
                           proof.productName,
-                          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12, color: AppTheme.grey900),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 12,
+                            color: AppTheme.grey900,
+                          ),
                         ),
                         const SizedBox(height: 3),
                         Text(
                           'Ordered: ${proof.orderedWeightKg.toStringAsFixed(2)} kg  •  Packed: ${proof.packedWeightKg.toStringAsFixed(2)} kg',
-                          style: const TextStyle(color: AppTheme.grey600, fontSize: 11),
+                          style: const TextStyle(
+                            color: AppTheme.grey600,
+                            fontSize: 11,
+                          ),
                         ),
                       ],
                     ),
@@ -589,10 +763,14 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                           ),
                         ],
                       ),
-                      if (proof.photoUrl != null && proof.photoUrl!.isNotEmpty) ...[
+                      if (proof.photoUrl != null &&
+                          proof.photoUrl!.isNotEmpty) ...[
                         const SizedBox(height: 4),
                         GestureDetector(
-                          onTap: () => _viewFullPhoto(proof.photoUrl!, 'Weight Proof: ${proof.productName}'),
+                          onTap: () => _viewFullPhoto(
+                            proof.photoUrl!,
+                            'Weight Proof: ${proof.productName}',
+                          ),
                           child: const Text(
                             'View Photo 📸',
                             style: TextStyle(
@@ -625,7 +803,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             AppBar(
-              title: Text(title, style: const TextStyle(color: Colors.white, fontSize: 15)),
+              title: Text(
+                title,
+                style: const TextStyle(color: Colors.white, fontSize: 15),
+              ),
               backgroundColor: Colors.black87,
               foregroundColor: Colors.white,
               elevation: 0,
@@ -646,7 +827,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   placeholder: (_, __) => Container(
                     height: 300,
                     color: Colors.black26,
-                    child: const Center(child: CircularProgressIndicator(color: Colors.white)),
+                    child: const Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    ),
                   ),
                 ),
               ),

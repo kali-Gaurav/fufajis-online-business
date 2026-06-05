@@ -154,16 +154,31 @@ void main() {
         expect(calculator.getTierDisplayName(MembershipTier.bronze), 'Bronze');
         expect(calculator.getTierDisplayName(MembershipTier.silver), 'Silver');
         expect(calculator.getTierDisplayName(MembershipTier.gold), 'Gold');
-        expect(calculator.getTierDisplayName(MembershipTier.platinum), 'Platinum');
+        expect(
+          calculator.getTierDisplayName(MembershipTier.platinum),
+          'Platinum',
+        );
       });
     });
 
     group('Tier thresholds', () {
       test('should have correct tier thresholds', () {
-        expect(MembershipTierCalculator.tierThresholds[MembershipTier.bronze], 0.0);
-        expect(MembershipTierCalculator.tierThresholds[MembershipTier.silver], 1000.0);
-        expect(MembershipTierCalculator.tierThresholds[MembershipTier.gold], 5000.0);
-        expect(MembershipTierCalculator.tierThresholds[MembershipTier.platinum], 20000.0);
+        expect(
+          MembershipTierCalculator.tierThresholds[MembershipTier.bronze],
+          0.0,
+        );
+        expect(
+          MembershipTierCalculator.tierThresholds[MembershipTier.silver],
+          1000.0,
+        );
+        expect(
+          MembershipTierCalculator.tierThresholds[MembershipTier.gold],
+          5000.0,
+        );
+        expect(
+          MembershipTierCalculator.tierThresholds[MembershipTier.platinum],
+          20000.0,
+        );
       });
     });
   });

@@ -11,7 +11,8 @@ class CountdownTimer extends StatefulWidget {
   State<CountdownTimer> createState() => _CountdownTimerState();
 }
 
-class _CountdownTimerState extends State<CountdownTimer> with SingleTickerProviderStateMixin {
+class _CountdownTimerState extends State<CountdownTimer>
+    with SingleTickerProviderStateMixin {
   late Timer _timer;
   late Duration _duration;
   late AnimationController _pulseController;
@@ -51,7 +52,7 @@ class _CountdownTimerState extends State<CountdownTimer> with SingleTickerProvid
   @override
   Widget build(BuildContext context) {
     if (_duration.isNegative) return const Text('Ended');
-    
+
     final hours = _duration.inHours.toString().padLeft(2, '0');
     final minutes = (_duration.inMinutes % 60).toString().padLeft(2, '0');
     final seconds = (_duration.inSeconds % 60).toString().padLeft(2, '0');

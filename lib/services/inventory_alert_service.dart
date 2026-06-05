@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../models/product_model.dart';
 import 'notification_service.dart';
 import 'analytics_service.dart';
@@ -9,7 +8,7 @@ import 'analytics_service.dart';
 /// Inventory Alert Service for Smart Low-Stock Predictions
 /// Uses moving average forecasting to predict stockouts and send notifications
 class InventoryAlertService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  FirebaseFirestore get _firestore => FirebaseFirestore.instance;
   final NotificationService _notificationService = NotificationService();
   final AnalyticsService _analyticsService = AnalyticsService();
 
