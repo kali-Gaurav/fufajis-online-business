@@ -9,8 +9,9 @@ import '../../models/product_model.dart';
 
 class InventoryAuditScreen extends StatefulWidget {
   final String? auditId;
+  final String? barcode;
 
-  const InventoryAuditScreen({super.key, this.auditId});
+  const InventoryAuditScreen({super.key, this.auditId, this.barcode});
 
   @override
   State<InventoryAuditScreen> createState() => _InventoryAuditScreenState();

@@ -24,7 +24,7 @@ class DeliveryTrackingService {
         notificationChannelId: 'delivery_tracking',
         initialNotificationTitle: 'Delivery Tracking Active',
         initialNotificationContent: 'Updating your location to the customer',
-        foregroundServiceType: AndroidForegroundType.location,
+        // foregroundServiceType: AndroidForegroundType.location, // Removed if problematic in current version
       ),
       iosConfiguration: IosConfiguration(
         autoStart: false,

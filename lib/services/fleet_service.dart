@@ -340,9 +340,13 @@ class FleetService {
         .doc('otp')
         .get();
     
-    final correctOtp = secureOtpDoc.exists 
-        ? secureOtpDoc.data()?['otp'] 
-        : (await _db.collection('orders').doc(orderId).get()).data()?['otp'];
+    Object? correctOtp;
+    if (secureOtpDoc.exists) {
+      correctOtp = secureOtpDoc.data()?['otp'];
+    } else {
+      final orderDoc = await _db.collection('orders').doc(orderId).get();
+      correctOtp = orderDoc.data()?['otp'];
+    }
 
     if (correctOtp != null && correctOtp.toString() != otp) {
       throw Exception('Invalid OTP. Please check with the customer.');

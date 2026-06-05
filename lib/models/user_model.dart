@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 enum UserRole { customer, shopOwner, deliveryAgent, admin, employee }
 
 enum MembershipTier { bronze, silver, gold, platinum }

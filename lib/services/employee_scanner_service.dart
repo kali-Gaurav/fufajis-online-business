@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import '../models/scanner_models.dart';
 import '../models/product_batch_model.dart';
 import 'offline_sync_service.dart';
+import 'whatsapp_notification_service.dart';
 import '../services/notification_service.dart';
 
 /// Service for employee operations - inventory receiving, packing, delivery, etc.

@@ -73,7 +73,7 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
     const ReviewsModerationScreen(),
     const VendorRequestScreen(),
     const BahiKhataScreen(),
-    DeviceManagementScreen(ownerEmail: FirebaseAuth.instance.currentUser?.email ?? ''),
+    const DeviceManagementScreen(),
     const ScanActivityScreen(),
     const ReleaseManagementScreen(),
     const ShopSettingsScreen(),

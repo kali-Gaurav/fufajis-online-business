@@ -16,6 +16,7 @@ import '../../models/product_model.dart';
 import '../../services/printer_service.dart';
 import '../../widgets/employee/printer_select_dialog.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'dispatch_scanner_screen.dart';
 import 'unified_scanner_hub.dart';
 import '../../services/scanner_service.dart';
 import '../../services/smart_scan_service.dart';
@@ -1606,48 +1607,6 @@ class _OrderQrScanPageState extends State<_OrderQrScanPage> {
         ],
       ),
     );
-  }
-}
-
-
-          children: [
-            TextField(
-              controller: controller,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              autofocus: true,
-              decoration: InputDecoration(
-                labelText: 'Weight (${item.unit})',
-                suffixText: item.unit,
-                border: const OutlineInputBorder(),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final weight = double.tryParse(controller.text);
-              if (weight != null && weight > 0) {
-                setState(() => _packedWeights[productId] = weight);
-                Navigator.pop(ctx);
-                _checkAllWeightsVerified();
-              }
-            },
-            child: const Text('Confirm Weight'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _checkAllWeightsVerified() {
-    final allWeighed = _weightVerificationItems.every(
-        (item) => _packedWeights.containsKey(item.productId));
-    setState(() => _allWeightsVerified = allWeighed);
   }
 }
 

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PurchaseOrderItem {
   final String productId;
+  final String? barcode;
   final String productName;
   final int quantity;
   final String unit;
@@ -9,6 +10,7 @@ class PurchaseOrderItem {
 
   PurchaseOrderItem({
     required this.productId,
+    this.barcode,
     required this.productName,
     required this.quantity,
     required this.unit,
@@ -18,6 +20,7 @@ class PurchaseOrderItem {
   factory PurchaseOrderItem.fromMap(Map<String, dynamic> map) {
     return PurchaseOrderItem(
       productId: map['productId'] ?? '',
+      barcode: map['barcode'],
       productName: map['productName'] ?? '',
       quantity: map['quantity'] ?? 0,
       unit: map['unit'] ?? '',
@@ -27,6 +30,7 @@ class PurchaseOrderItem {
 
   Map<String, dynamic> toMap() => {
     'productId': productId,
+    'barcode': barcode,
     'productName': productName,
     'quantity': quantity,
     'unit': unit,

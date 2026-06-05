@@ -179,6 +179,7 @@ class StatusHistoryEntry {
 class OrderItem {
   final String id;
   final String productId;
+  final String? barcode;
   final String productName;
   final String productImage;
   final String unit;
@@ -203,6 +204,7 @@ class OrderItem {
   OrderItem({
     required this.id,
     required this.productId,
+    this.barcode,
     required this.productName,
     required this.productImage,
     required this.unit,
@@ -229,6 +231,7 @@ class OrderItem {
     return OrderItem(
       id: map['id'] ?? '',
       productId: map['productId'] ?? '',
+      barcode: map['barcode'],
       productName: map['productName'] ?? '',
       productImage: map['productImage'] ?? '',
       unit: map['unit'] ?? 'piece',
@@ -261,6 +264,7 @@ class OrderItem {
     return {
       'id': id,
       'productId': productId,
+      'barcode': barcode,
       'productName': productName,
       'productImage': productImage,
       'unit': unit,
@@ -289,6 +293,7 @@ class OrderItem {
   OrderItem copyWith({
     String? id,
     String? productId,
+    String? barcode,
     String? productName,
     String? productImage,
     String? unit,
@@ -313,6 +318,7 @@ class OrderItem {
     return OrderItem(
       id: id ?? this.id,
       productId: productId ?? this.productId,
+      barcode: barcode ?? this.barcode,
       productName: productName ?? this.productName,
       productImage: productImage ?? this.productImage,
       unit: unit ?? this.unit,

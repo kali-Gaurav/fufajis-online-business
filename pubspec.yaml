@@ -69,7 +69,7 @@ dependencies:
   hive_flutter: ^1.1.0
   sqflite: ^2.4.3
   path: ^1.9.1
-  url_launcher: ^6.4.1
+  url_launcher: ^6.3.2
   share_plus: ^13.1.0
   path_provider: ^2.1.5
   image: ^4.3.0
@@ -105,11 +105,11 @@ dependencies:
   # Error Reporting & OTA
   sentry_flutter: ^9.21.0
   shorebird_code_push: ^2.0.0
-  google_sign_in: ^7.2.0
+  google_sign_in: ^6.2.1
   qr_flutter: ^4.1.0
 
   # Authentication & Security
-  local_auth: ^3.0.1
+  local_auth: ^2.1.6
   device_info_plus: ^13.1.0
   flutter_secure_storage: ^10.3.1
 

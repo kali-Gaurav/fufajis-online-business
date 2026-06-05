@@ -570,7 +570,12 @@ class OrderProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> createReturnRequest({required String orderId, required List<String> itemIds, required String reason}) async {
+  Future<bool> createReturnRequest({
+    required String orderId,
+    required List<String> itemIds,
+    required String reason,
+    List<String>? proofImages,
+  }) async {
     try {
       final order = await getOrderById(orderId);
       if (order == null) return false;
@@ -580,6 +585,7 @@ class OrderProvider with ChangeNotifier {
         'customerId': order.customerId,
         'itemIds': itemIds,
         'reason': reason,
+        'proofImages': proofImages ?? [],
         'status': 'pending',
         'createdAt': FieldValue.serverTimestamp(),
       };
@@ -621,6 +627,60 @@ class OrderProvider with ChangeNotifier {
       await _orderService.createOrder(o);
       await OfflineManager().removeQueuedOrder(o.id);
     }
+    notifyListeners();
+  }
+
+  Future<void> loadOrders(String userId) async {
+    await fetchOrders(customerId: userId);
+  }
+
+  void listenToOrders(String userId) {
+    _cancelSubscriptions();
+    final sub = FirebaseFirestore.instance
+        .collection('orders')
+        .where('customerId', isEqualTo: userId)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .listen((snapshot) {
+      _orders = snapshot.docs.map((d) => OrderModel.fromMap(d.data())).toList();
+      notifyListeners();
+    });
+    _subscriptions.add(sub);
+  }
+
+  void listenToAllOrders() {
+    _cancelSubscriptions();
+    final sub = FirebaseFirestore.instance
+        .collection('orders')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .listen((snapshot) {
+      _orders = snapshot.docs.map((d) => OrderModel.fromMap(d.data())).toList();
+      notifyListeners();
+    });
+    _subscriptions.add(sub);
+  }
+
+  void _cancelSubscriptions() {
+    for (var sub in _subscriptions) {
+      sub.cancel();
+    }
+    _subscriptions.clear();
+  }
+
+  Future<OrderModel?> getOrderByParcelId(String parcelId) async {
+    final snap = await FirebaseFirestore.instance
+        .collection('orders')
+        .where('parcelId', isEqualTo: parcelId)
+        .limit(1)
+        .get();
+    if (snap.docs.isEmpty) return null;
+    return OrderModel.fromMap(snap.docs.first.data());
+  }
+
+  Future<void> addToWallet(double amount) async {
+    _walletBalance += amount;
+    // In a real app, update this in Firestore
     notifyListeners();
   }
 }

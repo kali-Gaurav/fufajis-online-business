@@ -107,7 +107,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
       branchId: auth.currentBranch?.id ?? '',
       employeeId: auth.currentUser?.uid ?? '',
       employeeName: auth.currentUser?.name ?? 'Employee',
-      employeeRole: auth.currentUser?.role ?? 'employee',
+      employeeRole: auth.currentUser?.role.name ?? 'employee',
       action: _activeMode != null
           ? _scanner.parseScanAction(raw)
           : ScanAction.productScan(raw),
@@ -343,7 +343,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
-    final role = auth.currentUser?.role ?? 'employee';
+    final role = auth.currentUser?.role.name ?? 'employee';
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -758,7 +758,7 @@ class _ProductResultSheet extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        product!.nameHi ?? '',
+                        product!.name ?? '',
                         style: const TextStyle(color: Colors.grey, fontSize: 13),
                       ),
                     ],

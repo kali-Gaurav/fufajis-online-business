@@ -608,7 +608,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           shopName: item.shopName,
         )).toList(),
         deliveryType: _selectedDeliveryType,
-        config: configProvider.shopConfig,
+        config: configProvider.shopConfig!,
         branch: nearestBranch,
         distanceKm: distanceKm,
         couponDiscount: cartProvider.discount,

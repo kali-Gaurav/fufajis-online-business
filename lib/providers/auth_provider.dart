@@ -326,7 +326,10 @@ class AuthProvider with ChangeNotifier {
       if (!canCheck) return false;
       return await _localAuth.authenticate(
         localizedReason: 'Authenticate to access Owner Dashboard',
-        options: const AuthenticationOptions(stickyAuth: true, biometricOnly: true),
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: true,
+        ),
       );
     } catch (e) {
       return false;

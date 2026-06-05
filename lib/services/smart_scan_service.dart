@@ -89,7 +89,14 @@ class SmartScanService {
           final po = PurchaseOrder.fromMap(doc.data()..['id'] = doc.id);
           for (final item in po.items) {
             if (item.barcode == barcode || item.productId == product.id) {
-              openPoLine = item;
+              openPoLine = PurchaseOrderLine(
+                poId: po.id,
+                productId: item.productId,
+                productName: item.productName,
+                quantity: item.quantity,
+                unit: item.unit,
+                supplier: po.distributorName,
+              );
               break;
             }
           }
@@ -130,7 +137,7 @@ class SmartScanService {
               barcode.isNotEmpty &&
               itemBarcode.toLowerCase() == barcode.toLowerCase()) {
         matchedProductId = item.productId;
-        matchedProductName = item.name;
+        matchedProductName = item.productName;
         alreadyDone = alreadyVerified.contains(item.productId);
         break;
       }
@@ -317,6 +324,24 @@ class ProductScanResult {
     required this.dbStock,
     required this.openPoLine,
     required this.suggestedQuantity,
+  });
+}
+
+class PurchaseOrderLine {
+  final String poId;
+  final String productId;
+  final String? productName;
+  final int quantity;
+  final String? unit;
+  final String? supplier;
+
+  PurchaseOrderLine({
+    required this.poId,
+    required this.productId,
+    this.productName,
+    required this.quantity,
+    this.unit,
+    this.supplier,
   });
 }
 
