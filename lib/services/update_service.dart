@@ -3,10 +3,11 @@ import 'package:url_launcher/url_launcher.dart';
 import 'remote_config_service.dart';
 import 'github_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:in_app_update/in_app_update.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/release_note_model.dart';
+
+import 'shorebird_service.dart';
 
 class UpdateService {
   static final UpdateService _instance = UpdateService._internal();
@@ -15,59 +16,39 @@ class UpdateService {
 
   final RemoteConfigService _remoteConfig = RemoteConfigService();
   final GitHubService _githubService = GitHubService();
+  final ShorebirdService _shorebirdService = ShorebirdService();
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   /// Returns true if the app can proceed to navigation, false if blocked by update/maintenance.
   Future<bool> handleVersionCheck(BuildContext context) async {
-    // 1. Refresh config
+    // Layer 1: Refresh Remote Config
     await _remoteConfig.fetchAndActivate();
 
-    // 2. Check for Maintenance Mode
+    // Layer 2: Check for Maintenance Mode (Instant Kill Switch)
     if (_remoteConfig.isMaintenanceMode) {
       if (context.mounted) _showMaintenanceDialog(context);
       return false;
     }
 
-    // 3. Check for Force Update (Mandatory)
+    // Layer 3: Shorebird OTA Patch Check (Dart Logic Fixes)
+    // Run in background, doesn't block this flow, but triggers download for next restart.
+    unawaited(_shorebirdService.checkForUpdates());
+
+    // Layer 4: Check for Force Update (Native Release required)
     final bool forceUpdate = await _remoteConfig.isForceUpdateRequired();
     if (forceUpdate) {
-      if (kReleaseMode) {
-        // Try native In-App Update first in release mode
-        try {
-          AppUpdateInfo updateInfo = await InAppUpdate.checkForUpdate();
-          if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
-            await InAppUpdate.performImmediateUpdate();
-            return false;
-          }
-        } catch (e) {
-          debugPrint('In-App Update failed: $e');
-        }
-      }
-      
       if (context.mounted) _showUpdateDialog(context, isForceUpdate: true);
       return false;
     }
 
-    // 4. Check for Optional Update (Soft) via Remote Config
+    // Layer 5: Check for Optional Update (Soft) via Remote Config
     final bool softUpdate = await _remoteConfig.isOptionalUpdateAvailable();
     if (softUpdate) {
-      if (kReleaseMode) {
-        try {
-          AppUpdateInfo updateInfo = await InAppUpdate.checkForUpdate();
-          if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
-            await InAppUpdate.startFlexibleUpdate();
-            await InAppUpdate.completeFlexibleUpdate();
-          }
-        } catch (e) {
-          debugPrint('Flexible In-App Update failed: $e');
-        }
-      }
-      
       if (context.mounted) _showUpdateDialog(context, isForceUpdate: false);
       return true;
     }
 
-    // 5. Check if we should show "What's New" for a recent update
+    // Layer 6: What's New for recent updates
     _checkAndShowWhatIsNew(context);
 
     return true;
@@ -258,13 +239,12 @@ class UpdateService {
   }
 
   Future<void> _launchUpdateUrl() async {
-    // 1. Try Remote Config URL first (e.g. your own website)
-    String urlStr = _remoteConfig.forceUpdateUrl;
+    // 1. Use latest_apk_url from Remote Config if available
+    String urlStr = _remoteConfig.latestApkUrl;
 
-    // 2. Fallback to Play Store if URL is default or empty
-    if (urlStr.contains('fufaji-online.com/download') || urlStr.isEmpty) {
-      const String packageName = 'com.fufajis.online';
-      urlStr = 'https://play.google.com/store/apps/details?id=$packageName';
+    // 2. Fallback to forceUpdateUrl
+    if (urlStr.isEmpty) {
+      urlStr = _remoteConfig.forceUpdateUrl;
     }
 
     final url = Uri.parse(urlStr);

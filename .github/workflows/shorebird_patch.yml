@@ -1,0 +1,46 @@
+name: Shorebird OTA Patch
+
+on:
+  push:
+    branches:
+      - patch
+  workflow_dispatch:
+
+jobs:
+  patch:
+    name: Build & Release Shorebird Patch
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.32.0'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Setup Shorebird
+        uses: shorebirdtech/setup-shorebird@v1
+
+      - name: Shorebird Patch Android
+        env:
+          SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
+        run: |
+          shorebird patch android --force \
+            --dart-define=RAZORPAY_KEY_ID=${{ secrets.RAZORPAY_KEY_ID }} \
+            --dart-define=SHOP_LATITUDE=${{ secrets.SHOP_LATITUDE }} \
+            --dart-define=SHOP_LONGITUDE=${{ secrets.SHOP_LONGITUDE }} \
+            --dart-define=DELIVERY_RADIUS_KM=8 \
+            --dart-define=SENTRY_DSN=${{ secrets.SENTRY_DSN }}

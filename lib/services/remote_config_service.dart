@@ -25,6 +25,8 @@ class RemoteConfigService {
   static const String keyAnnouncementMsg = 'announcement_message';
   static const String keyAnnouncementLink = 'announcement_link';
   static const String keyShowAnnouncement = 'show_announcement';
+  static const String keyLatestApkUrl = 'latest_apk_url';
+  static const String keyLatestBuildNumber = 'latest_build_number';
 
   Future<void> init() async {
     try {
@@ -42,6 +44,8 @@ class RemoteConfigService {
       await _remoteConfig.setDefaults({
         keyMinAppVersion: '1.0.0',
         keyLatestAppVersion: '1.0.0',
+        keyLatestBuildNumber: 0,
+        keyLatestApkUrl: '',
         keyForceUpdateUrl:
             'https://play.google.com/store/apps/details?id=com.fufajis.online',
         keyMaintenanceMode: false,
@@ -89,6 +93,8 @@ class RemoteConfigService {
   String get announcementMsg => _remoteConfig.getString(keyAnnouncementMsg);
   String get announcementLink => _remoteConfig.getString(keyAnnouncementLink);
   bool get showAnnouncement => _remoteConfig.getBool(keyShowAnnouncement);
+  String get latestApkUrl => _remoteConfig.getString(keyLatestApkUrl);
+  int get latestBuildNumber => _remoteConfig.getInt(keyLatestBuildNumber);
 
   /// Checks if a mandatory update is required.
   Future<bool> isForceUpdateRequired() async {
