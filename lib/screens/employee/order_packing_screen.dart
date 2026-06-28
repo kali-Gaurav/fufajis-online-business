@@ -13,15 +13,20 @@ import '../../providers/order_provider.dart';
 import '../../models/order_model.dart';
 import '../../models/product_batch_model.dart';
 import '../../models/product_model.dart';
+import '../../utils/app_theme.dart';
 import '../../services/printer_service.dart';
 import '../../widgets/employee/printer_select_dialog.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'dispatch_scanner_screen.dart';
-import 'unified_scanner_hub.dart';
-import '../../services/scanner_service.dart';
 import '../../services/smart_scan_service.dart';
 import '../../widgets/scan_qr_widget.dart';
+import '../../services/presence_service.dart';
+import '../../constants/order_status.dart';
+import '../../services/realtime_database_service.dart';
+import '../../services/api_client.dart';
 
+import '../../widgets/common/fj_button.dart';
+import '../../widgets/common/fj_card.dart';
 
 class OrderPackingScreen extends StatefulWidget {
   final String? orderId;
@@ -36,6 +41,8 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
   OrderModel? _currentOrder;
   final List<String> _verifiedItems = [];
   bool _isLoading = false;
+  bool _photoUploading = false;
+  bool _allWeightsVerified = false;
   String? _parcelId;
   Map<String, ProductBatch?> _suggestedBatches = {};
   Map<String, Map<String, dynamic>> _productLocations = {};
@@ -51,7 +58,6 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
 
   // --- Packing Photo Proof (Feature 4) ---
   XFile? _packingPhoto;
-  bool _photoUploading = false;
 
   // --- Weight Verification (Feature 3) ---
   final WeightVerificationService _weightService = WeightVerificationService();
@@ -62,7 +68,6 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
       .where((item) => _weightService.requiresWeightVerification(
           _getProductCategory(item.productId)))
       .toList();
-  bool _allWeightsVerified = false;
 
   @override
   void initState() {
@@ -312,7 +317,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.orange,
+        backgroundColor: AppTheme.warning,
         action: SnackBarAction(
           label: actionLabel,
           textColor: Colors.white,
@@ -338,13 +343,13 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
     );
   }
 
   void _showSuccess(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.green),
+      SnackBar(content: Text(message), backgroundColor: AppTheme.success),
     );
   }
 
@@ -369,7 +374,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text('⚠ "$name" already scanned'),
-              backgroundColor: Colors.orange,
+              backgroundColor: AppTheme.warning,
               duration: const Duration(seconds: 2),
             ));
           }
@@ -394,7 +399,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text(
                     '✓ $name packed  •  $remaining item${remaining == 1 ? '' : 's'} left'),
-                backgroundColor: Colors.green,
+                backgroundColor: AppTheme.success,
                 duration: const Duration(seconds: 1),
               ));
             }
@@ -430,7 +435,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
             const EdgeInsets.fromLTRB(20, 16, 20, 0),
         title: const Row(
           children: [
-            Icon(Icons.check_circle, color: Colors.green, size: 26),
+            Icon(Icons.check_circle, color: AppTheme.success, size: 26),
             SizedBox(width: 8),
             Expanded(
               child: Text('Packed! Show to Dispatch',
@@ -495,7 +500,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Row(
           children: [
-            Icon(Icons.check_circle, color: Colors.green, size: 28),
+            Icon(Icons.check_circle, color: AppTheme.success, size: 28),
             SizedBox(width: 10),
             Text('All Items Packed!'),
           ],
@@ -513,7 +518,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
             icon: const Icon(Icons.local_shipping_outlined),
             label: const Text('Mark Packed & Seal'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
+              backgroundColor: AppTheme.success,
               foregroundColor: Colors.white,
             ),
             onPressed: () {
@@ -532,7 +537,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
       builder: (ctx) => AlertDialog(
         title: Row(
           children: [
-            const Icon(Icons.warning, color: Colors.red),
+            const Icon(Icons.warning, color: AppTheme.error),
             const SizedBox(width: 8),
             Text(title),
           ],
@@ -576,17 +581,28 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
     });
 
     final authProvider = context.read<AuthProvider>();
+    final employeeName = authProvider.currentUser?.name ?? 'Employee';
     final service = EmployeeScannerService(
       shopId: authProvider.currentShop?.id ?? '',
       branchId: authProvider.currentBranch?.id ?? '',
       employeeId: authProvider.currentUser?.uid ?? '',
-      employeeName: authProvider.currentUser?.name ?? 'Employee',
+      employeeName: employeeName,
     );
 
     await service.verifyPackingItem(
       orderId: _currentOrder!.id,
       productId: productId,
       quantity: 1,
+    );
+
+    // Update Realtime Database for Customer View
+    final itemName = _sortedItems.firstWhere((i) => i.productId == productId).productName;
+    RealtimeDatabaseService.instance.updatePackingProgress(
+      orderId: _currentOrder!.id,
+      employeeName: employeeName,
+      itemsPacked: _verifiedItems.length,
+      totalItems: _currentOrder!.items.length,
+      lastItemName: itemName,
     );
 
     // If this is a weight-verified item, prompt weight entry
@@ -625,6 +641,16 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
       // Upload packing photo and get proof URL
       final photoUrl = await _savePackingPhotoProof(authProvider);
 
+      // Automated Backend Checkout (Deducts stock + Updates Ledger + Sets Status)
+      final checkoutRes = await ApiClient.instance.post('/operations/checkout-order', {
+        'orderId': _currentOrder!.id,
+        'photoUrl': photoUrl,
+      });
+
+      if (checkoutRes.data['success'] != true) {
+        throw Exception(checkoutRes.data['error'] ?? 'Checkout failed');
+      }
+
       // Save weight verifications for each applicable item
       for (final item in _weightVerificationItems) {
         final packedWeight = _packedWeights[item.productId];
@@ -649,8 +675,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
       );
 
       final completedOrderId = _currentOrder!.id;
-      final completedOrderNumber =
-          _currentOrder!.orderNumber ?? completedOrderId;
+      final completedOrderNumber = _currentOrder!.orderNumber;
 
       setState(() {
         _currentOrder = null;
@@ -675,7 +700,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Order Packing'),
+        title: const Text('Order Packing', style: TextStyle(fontWeight: FontWeight.w700)),
         leading: _currentOrder != null
             ? IconButton(
                 icon: const Icon(Icons.arrow_back),
@@ -702,7 +727,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : _currentOrder == null
               ? _buildNoOrderView()
               : _buildOrderView(),
@@ -728,9 +753,9 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
           Container(
             color: Colors.white,
             child: const TabBar(
-              labelColor: Colors.orange,
+              labelColor: AppTheme.warning,
               unselectedLabelColor: Colors.grey,
-              indicatorColor: Colors.orange,
+              indicatorColor: AppTheme.warning,
               tabs: [
                 Tab(icon: Icon(Icons.new_releases), text: 'Confirmed'),
                 Tab(icon: Icon(Icons.inventory_2), text: 'Processing'),
@@ -743,7 +768,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
               stream: service.getPendingOrders(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
                 }
                 if (snapshot.hasError) {
                   return Center(child: Text('Error loading tasks: ${snapshot.error}'));
@@ -802,10 +827,27 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
         final order = orders[index];
         final isRejected = order.packingStatus == 'rejected';
 
-        return Card(
+        return FjCard(
           margin: const EdgeInsets.only(bottom: 12),
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          onTap: isReview
+              ? null
+              : () async {
+                  final authProvider = context.read<AuthProvider>();
+                  final employeeId = authProvider.currentUser?.uid ?? '';
+                  final employeeName = authProvider.currentUser?.name ?? 'Employee';
+                  
+                  // 1. Attempt to Acquire Lock
+                  final lockAcquired = await PresenceService().startTaskLock(order.id, employeeId, employeeName);
+                  
+                  if (!lockAcquired) {
+                    if (mounted) {
+                      _showError('This order is currently being packed by someone else.');
+                    }
+                    return;
+                  }
+                  
+                  _loadOrder(order.id);
+                },
           child: ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             title: Row(
@@ -819,13 +861,13 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: Colors.red.shade50,
+                      color: AppTheme.error.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: Colors.red.shade200),
+                      border: Border.all(color: AppTheme.error),
                     ),
                     child: const Text(
                       'Rejected',
-                      style: TextStyle(color: Colors.red, fontSize: 10, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: AppTheme.error, fontSize: 10, fontWeight: FontWeight.bold),
                     ),
                   ),
               ],
@@ -841,55 +883,20 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.red.shade50,
+                      color: AppTheme.error.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       'Reason: ${order.packingRejectionReason}',
-                      style: TextStyle(color: Colors.red.shade900, fontSize: 11, fontStyle: FontStyle.italic),
+                      style: const TextStyle(color: AppTheme.error, fontSize: 11, fontStyle: FontStyle.italic),
                     ),
                   ),
                 ],
               ],
             ),
             trailing: isReview
-                ? const Icon(Icons.hourglass_empty, color: Colors.amber)
+                ? const Icon(Icons.hourglass_empty, color: AppTheme.warning)
                 : const Icon(Icons.arrow_forward_ios, size: 16),
-            onTap: isReview
-                ? null
-                : () async {
-                    setState(() {
-                      _currentOrder = order;
-                      _verifiedItems.clear();
-                      _packedWeights.clear();
-                      _packingPhoto = null;
-                      _parcelId = order.parcelId;
-
-                      for (var item in order.items) {
-                        if (item.isPacked) {
-                          _verifiedItems.add(item.productId);
-                        }
-                      }
-                    });
-
-                    try {
-                      final authProvider = context.read<AuthProvider>();
-                      final shopId = authProvider.currentShop?.id ?? '';
-                      final branchId = authProvider.currentBranch?.id ?? '';
-                      final employeeId = authProvider.currentUser?.uid ?? '';
-                      final employeeName = authProvider.currentUser?.name ?? 'Employee';
-                      
-                      final service = EmployeeScannerService(
-                        shopId: shopId,
-                        branchId: branchId,
-                        employeeId: employeeId,
-                        employeeName: employeeName,
-                      );
-                      await service.startPacking(order.id);
-                    } catch (e) {
-                      debugPrint('Error starting packing: $e');
-                    }
-                  },
           ),
         );
       },
@@ -910,13 +917,13 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
               margin: const EdgeInsets.only(bottom: 16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.red.shade50,
+                color: AppTheme.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.red.shade300, width: 1.5),
+                border: Border.all(color: AppTheme.error, width: 1.5),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.warning, color: Colors.red, size: 28),
+                  const Icon(Icons.warning, color: AppTheme.error, size: 28),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -924,12 +931,12 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                       children: [
                         const Text(
                           'PACKING REJECTED BY OWNER',
-                          style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+                          style: TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold, fontSize: 12),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           order.packingRejectionReason!,
-                          style: TextStyle(color: Colors.red.shade900, fontSize: 13),
+                          style: const TextStyle(color: AppTheme.error, fontSize: 13),
                         ),
                       ],
                     ),
@@ -938,96 +945,86 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
               ),
             ),
           // Order Info Card
-          Card(
-            color: allVerified ? Colors.green.shade50 : Colors.orange.shade50,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Order #${order.orderNumber}',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      Chip(
-                        label: Text(order.status.displayName),
-                        color: WidgetStateProperty.all(
-                          allVerified ? Colors.green : Colors.orange,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text('Customer: ${order.customerName}'),
-                  Text('Phone: ${order.customerPhone}'),
-                  Text('Address: ${order.deliveryAddress}'),
-                  if (_parcelId != null)
-                    Container(
-                      margin: const EdgeInsets.only(top: 12),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.qr_code, color: Colors.blue),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'Parcel QR Code',
-                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                    ),
-                                    Text(
-                                      _parcelId!,
-                                      style: const TextStyle(fontFamily: 'monospace'),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: ElevatedButton.icon(
-                                  onPressed: _printOrderReceipt,
-                                  icon: const Icon(Icons.receipt),
-                                  label: const Text('Print Receipt'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.orange,
-                                    foregroundColor: Colors.white,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: ElevatedButton.icon(
-                                  onPressed: _printParcelLabel,
-                                  icon: const Icon(Icons.qr_code),
-                                  label: const Text('Print Tag'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blue,
-                                    foregroundColor: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+          FjCard(
+            color: allVerified ? AppTheme.success.withValues(alpha: 0.1) : AppTheme.primaryLight,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Order #${order.orderNumber}',
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
-                ],
-              ),
+                    Chip(
+                      label: Text(order.status.displayName),
+                      backgroundColor: allVerified ? AppTheme.success : AppTheme.warning,
+                      labelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text('Customer: ${order.customerName}'),
+                Text('Phone: ${order.customerPhone}'),
+                Text('Address: ${order.deliveryAddress.fullAddress}'),
+                if (_parcelId != null)
+                  Container(
+                    margin: const EdgeInsets.only(top: 12),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.qr_code, color: AppTheme.info),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Parcel QR Code',
+                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    _parcelId!,
+                                    style: const TextStyle(fontFamily: 'monospace'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: FjButton(
+                                onPressed: _printOrderReceipt,
+                                icon: Icons.receipt,
+                                label: 'Print Receipt',
+                                type: FjButtonType.secondary,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: FjButton(
+                                onPressed: _printParcelLabel,
+                                icon: Icons.qr_code,
+                                label: 'Print Tag',
+                                type: FjButtonType.info,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
             ),
           ),
 
@@ -1050,83 +1047,71 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
               Switch(
                 value: _autoPrintOnComplete,
                 onChanged: _toggleAutoPrintSetting,
-                activeThumbColor: Colors.green,
+                activeThumbColor: AppTheme.success,
               ),
             ],
           ),
           const SizedBox(height: 8),
 
           // Smart Barcode Scanning Section
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Row(
-                    children: [
-                      Icon(Icons.qr_code_scanner, color: Colors.orange),
-                      SizedBox(width: 8),
-                      Text(
-                        'Smart Barcode Packing',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _barcodeInputController,
-                          focusNode: _barcodeFocusNode,
-                          decoration: InputDecoration(
-                            hintText: 'Scan item barcode / enter code...',
-                            hintStyle: const TextStyle(fontSize: 13, color: Colors.grey),
-                            prefixIcon: const Icon(Icons.keyboard, size: 20),
-                            suffixIcon: _barcodeInputController.text.isNotEmpty
-                                ? IconButton(
-                                    icon: const Icon(Icons.clear, size: 18),
-                                    onPressed: () => _barcodeInputController.clear(),
-                                  )
-                                : null,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Colors.orange, width: 2),
-                            ),
-                          ),
-                          onSubmitted: _processBarcodeScan,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton.icon(
-                        onPressed: _openCameraScanner,
-                        icon: const Icon(Icons.camera_alt, size: 18),
-                        label: const Text('Scan'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          shape: RoundedRectangleBorder(
+          FjCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.qr_code_scanner, color: AppTheme.warning),
+                    SizedBox(width: 8),
+                    Text(
+                      'Smart Barcode Packing',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _barcodeInputController,
+                        focusNode: _barcodeFocusNode,
+                        decoration: InputDecoration(
+                          hintText: 'Scan item barcode...',
+                          hintStyle: const TextStyle(fontSize: 13, color: Colors.grey),
+                          prefixIcon: const Icon(Icons.keyboard, size: 20),
+                          suffixIcon: _barcodeInputController.text.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear, size: 18),
+                                  onPressed: () => _barcodeInputController.clear(),
+                                )
+                              : null,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(color: AppTheme.warning, width: 2),
+                          ),
                         ),
+                        onSubmitted: _processBarcodeScan,
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Tip: Hardware scanners work automatically when cursor is focused in input box.',
-                    style: TextStyle(fontSize: 10, color: Colors.grey.shade600, fontStyle: FontStyle.italic),
-                  ),
-                ],
-              ),
+                    ),
+                    const SizedBox(width: 8),
+                    FjButton(
+                      onPressed: _openCameraScanner,
+                      icon: Icons.camera_alt,
+                      label: 'Scan',
+                      type: FjButtonType.secondary,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Tip: Hardware scanners work automatically when cursor is focused in input box.',
+                  style: TextStyle(fontSize: 10, color: Colors.grey.shade600, fontStyle: FontStyle.italic),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 16),
@@ -1140,38 +1125,40 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
 
           ..._sortedItems.map((item) {
             final isVerified = _verifiedItems.contains(item.productId);
-            return Card(
+            return FjCard(
+              margin: const EdgeInsets.only(bottom: 8),
               child: ListTile(
+                contentPadding: EdgeInsets.zero,
                 leading: CircleAvatar(
-                  backgroundColor: isVerified ? Colors.green : Colors.grey,
+                  backgroundColor: isVerified ? AppTheme.success : Colors.grey.shade100,
                   child: isVerified
                       ? const Icon(Icons.check, color: Colors.white)
-                      : Text('${item.quantity}'),
+                      : Text('${item.quantity}', style: const TextStyle(color: AppTheme.grey700)),
                 ),
-                title: Text(item.productName),
+                title: Text(item.productName, style: const TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Text('${item.quantity} x ₹${item.price}'),
+                        Text('${item.quantity} x ₹${item.price.round()}'),
                         const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: Colors.orange.shade50,
+                            color: AppTheme.primaryLight,
                             borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: Colors.orange.shade200, width: 0.5),
+                            border: Border.all(color: AppTheme.warning, width: 0.5),
                           ),
-                          child: Row(
+                          child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.lock_outline, size: 10, color: Colors.orange),
-                              const SizedBox(width: 2),
+                              Icon(Icons.lock_outline, size: 10, color: AppTheme.warning),
+                              SizedBox(width: 2),
                               Text(
-                                'Fixed Price (Owner Managed)',
+                                'Fixed Price',
                                 style: TextStyle(
-                                  color: Colors.orange.shade800,
+                                  color: AppTheme.warning,
                                   fontSize: 9,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -1198,13 +1185,13 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Icons.location_on, size: 14, color: Colors.orange),
+                          const Icon(Icons.location_on, size: 14, color: AppTheme.warning),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               'Loc: ${_formatLocation(_productLocations[item.productId])}',
                               style: const TextStyle(
-                                color: Colors.orange,
+                                color: AppTheme.warning,
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -1217,13 +1204,13 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Icons.info_outline, size: 14, color: Colors.blue),
+                          const Icon(Icons.info_outline, size: 14, color: AppTheme.info),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               'Suggest Pick: Batch ${_suggestedBatches[item.productId]!.batchId} (Exp: ${DateFormat('yyyy-MM-dd').format(_suggestedBatches[item.productId]!.expiryDate)})',
                               style: const TextStyle(
-                                color: Colors.blue,
+                                color: AppTheme.info,
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -1235,10 +1222,12 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                   ],
                 ),
                 trailing: isVerified
-                    ? const Icon(Icons.check_circle, color: Colors.green)
-                    : ElevatedButton(
+                    ? const Icon(Icons.check_circle, color: AppTheme.success)
+                    : FjButton(
+                        label: 'Verify',
                         onPressed: () => _verifyItem(item.productId),
-                        child: const Text('Verify'),
+                        height: 32,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
                       ),
               ),
             );
@@ -1253,19 +1242,12 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
 
           // Complete Button
           if (_currentOrder?.packingStatus != 'approved' && _currentOrder?.status != OrderStatus.packed)
-            SizedBox(
+            FjButton(
+              label: allVerified ? 'Mark Packed & Seal' : 'Verify All Items First',
+              onPressed: allVerified && !_isLoading ? _completePacking : null,
+              isLoading: _isLoading,
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: allVerified && !_isLoading ? _completePacking : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: Text(
-                  allVerified ? 'Mark Packed & Seal' : 'Verify All Items First',
-                ),
-              ),
+              icon: Icons.local_shipping_outlined,
             ),
         ],
       ),
@@ -1287,13 +1269,6 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
     _loadOrder(orderId);
   }
 
-  void _showOrderList() {
-    // Show list of pending orders
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Order list feature coming soon')),
-    );
-  }
-
   // ─────────────── PACKING PHOTO PROOF (Feature 4) ───────────────
 
   Widget _buildPackingPhotoSection() {
@@ -1302,12 +1277,12 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
       children: [
         Row(
           children: [
-            const Icon(Icons.camera_alt, size: 18, color: Colors.blueGrey),
+            const Icon(Icons.camera_alt, size: 18, color: AppTheme.infoGrey),
             const SizedBox(width: 8),
             const Text('Packing Photo Proof', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             const Spacer(),
             if (_packingPhoto != null)
-              const Icon(Icons.check_circle, color: Colors.green, size: 18),
+              const Icon(Icons.check_circle, color: AppTheme.success, size: 18),
           ],
         ),
         const SizedBox(height: 8),
@@ -1317,17 +1292,17 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
             child: Container(
               height: 80,
               decoration: BoxDecoration(
-                color: Colors.blueGrey.shade50,
+                color: AppTheme.infoGrey.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.blueGrey.shade200, style: BorderStyle.solid),
+                border: Border.all(color: AppTheme.infoGrey.withValues(alpha: 0.1), style: BorderStyle.solid),
               ),
               child: const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.add_a_photo, color: Colors.blueGrey, size: 28),
+                    Icon(Icons.add_a_photo, color: AppTheme.infoGrey, size: 28),
                     SizedBox(height: 4),
-                    Text('Take Packing Photo', style: TextStyle(color: Colors.blueGrey, fontSize: 12)),
+                    Text('Take Packing Photo', style: TextStyle(color: AppTheme.infoGrey, fontSize: 12)),
                     Text('Required before completing', style: TextStyle(color: Colors.grey, fontSize: 10)),
                   ],
                 ),
@@ -1346,8 +1321,8 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => Container(
                     height: 120,
-                    color: Colors.green.shade50,
-                    child: const Center(child: Icon(Icons.check_circle, color: Colors.green, size: 40)),
+                    color: AppTheme.success.withValues(alpha: 0.1),
+                    child: const Center(child: Icon(Icons.check_circle, color: AppTheme.success, size: 40)),
                   ),
                 ),
               ),
@@ -1370,9 +1345,9 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
           ),
         if (_packingPhoto != null) ...[
           const SizedBox(height: 6),
-          Text(
+          const Text(
             '📸 Photo taken — customer will see this with their order',
-            style: TextStyle(color: Colors.green.shade700, fontSize: 11),
+            style: TextStyle(color: AppTheme.success, fontSize: 11),
           ),
         ],
       ],
@@ -1570,7 +1545,7 @@ class _OrderQrScanPageState extends State<_OrderQrScanPage> {
                   IconButton(
                     icon: Icon(
                       _flashOn ? Icons.flash_on : Icons.flash_off,
-                      color: _flashOn ? Colors.amber : Colors.white,
+                      color: _flashOn ? AppTheme.warning : Colors.white,
                     ),
                     onPressed: () async {
                       await _ctrl.toggleTorch();
@@ -1689,7 +1664,7 @@ class _PackingItemScanPageState extends State<_PackingItemScanPage> {
                   IconButton(
                     icon: Icon(
                       _flashOn ? Icons.flash_on : Icons.flash_off,
-                      color: _flashOn ? Colors.amber : Colors.white,
+                      color: _flashOn ? AppTheme.warning : Colors.white,
                     ),
                     onPressed: () async {
                       await _ctrl.toggleTorch();
@@ -1710,7 +1685,7 @@ class _PackingItemScanPageState extends State<_PackingItemScanPage> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 20, vertical: 8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF6A1B9A).withValues(alpha: 0.8),
+                    color: const Color(0xCC6A1B9A),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Text(

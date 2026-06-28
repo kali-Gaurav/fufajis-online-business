@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Brand Colors
-  static const Color primary = Color(0xFFFF5722);
-  static const Color primaryDark = Color(0xFFE64A19);
-  static const Color primaryLight = Color(0xFFFF8A65);
-  static const Color secondary = Color(0xFF4CAF50);
-  static const Color secondaryDark = Color(0xFF388E3C);
-  static const Color secondaryLight = Color(0xFF81C784);
+  // Brand Colors (Warm Sunset Orange & Cream White)
+  static const Color primary = Color(0xFFFF8C42);        // Brand Orange
+  static const Color primaryDark = Color(0xFFE56F1F);    // Darker Orange
+  static const Color primaryLight = Color(0xFFFFE5D0);   // Light Orange
+  static const Color cream = Color(0xFFFFF8F2);          // Cream Background
+  static const Color sand = Color(0xFFFAECE3);           // Sand Surface
+  static const Color secondary = Color(0xFFFFF5F0);      // Legacy/Off-white
+  static const Color secondaryDark = Color(0xFFF5F0E8);  // Legacy/Slightly darker off-white
+  static const Color secondaryLight = Color(0xFFFFFFFF); // Legacy/Pure white
 
   // Neutral Colors
   static const Color white = Color(0xFFFFFFFF);
@@ -23,185 +25,344 @@ class AppTheme {
   static const Color grey600 = Color(0xFF757575);
   static const Color grey700 = Color(0xFF616161);
   static const Color grey800 = Color(0xFF424242);
-  static const Color grey900 = Color(0xFF212121);
+  static const Color grey900 = Color(0xFF1F2937);       // Text Dark
 
   // Status Colors
-  static const Color success = Color(0xFF4CAF50);
-  static const Color warning = Color(0xFFFFC107);
-  static const Color error = Color(0xFFF44336);
-  static const Color info = Color(0xFF2196F3);
+  static const Color success = Color(0xFF22C55E);        // Green
+  static const Color warning = Color(0xFFF59E0B);        // Amber
+  static const Color error = Color(0xFFEF4444);          // Red
+  static const Color info = Color(0xFF3B82F6);           // Blue
   static const Color primaryColor = primary;
   static const Color errorColor = error;
   static const Color ownerColor = info;
-  static const Color deliveryColor = secondary;
+  static const Color deliveryColor = success;
+
+  static const Color infoGrey = grey500;
+  static const Color ownerAccentGrey = grey600;
+
+  // Animation Constants & Curves
+  static const Duration durationFast = Duration(milliseconds: 200);
+  static const Duration durationMedium = Duration(milliseconds: 350);
+  static const Duration durationSlow = Duration(milliseconds: 500);
+
+  static const Curve curveDefault = Curves.easeInOut;
+  static const Curve curveEntrance = Curves.easeOutCubic;
+  static const Curve curveBounce = Curves.elasticOut;
+
+  static FestiveSeason activeFestiveSeason = FestiveSeason.none;
+
+  static const Map<FestiveSeason, FestiveThemeConfig> festiveConfigs = {
+    FestiveSeason.diwali: FestiveThemeConfig(
+      primary: Color(0xFFFF9900), // Marigold Golden Yellow
+      primaryDark: Color(0xFFE65100), // Deep Clay Diya Orange
+      primaryLight: Color(0xFFFFF3E0),
+      cream: Color(0xFFFFFDF9),
+      sand: Color(0xFFFFF3E0),
+      tagline: 'Happy Diwali! • शुभ दीपावली! 🪔',
+    ),
+    FestiveSeason.eid: FestiveThemeConfig(
+      primary: Color(0xFF0F766E), // Emerald Green
+      primaryDark: Color(0xFF115E59), // Deep Teal
+      primaryLight: Color(0xFFCCFBF1),
+      cream: Color(0xFFF0FDF4),
+      sand: Color(0xFFDCFCE7),
+      tagline: 'Eid Mubarak! • ईद मुबारक! 🌙',
+    ),
+    FestiveSeason.independence: FestiveThemeConfig(
+      primary: Color(0xFFFF9933), // Saffron
+      primaryDark: Color(0xFF138808), // Green
+      primaryLight: Color(0xFFE8F5E9),
+      cream: Color(0xFFF5F5F5), // White
+      sand: Color(0xFFE3F2FD), // Navy blue hint
+      tagline: 'Happy Independence Day! 🇮🇳',
+    ),
+  };
+
+  static FestiveThemeConfig get currentConfig {
+    return festiveConfigs[activeFestiveSeason] ?? const FestiveThemeConfig(
+      primary: primary,
+      primaryDark: primaryDark,
+      primaryLight: primaryLight,
+      cream: cream,
+      sand: sand,
+    );
+  }
+
+  // ─── Deep-orange accent palette ──────────────────────────────────────────────
+  static const Color deepOrange = Color(0xFFFF6B00);
+  static const Color vibrantOrange = Color(0xFFFF8C42);
+  static const Color softOrange = Color(0xFFFFAB72);
+  static const Color warmOrange = Color(0xFFFFD4A8);
+
+  // Gradients
+  static LinearGradient get primaryGradient => LinearGradient(
+    colors: [currentConfig.primary, currentConfig.primaryDark],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient successGradient = LinearGradient(
+    colors: [Color(0xFF22C55E), Color(0xFF16A34A)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient darkGradient = LinearGradient(
+    colors: [Color(0xFF1A110B), Color(0xFF2D1F14)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static LinearGradient get heroGradient => LinearGradient(
+    colors: [
+      currentConfig.primary, 
+      Color.lerp(currentConfig.primary, currentConfig.primaryLight, 0.3) ?? currentConfig.primary,
+      currentConfig.primaryDark
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    stops: const [0.0, 0.6, 1.0],
+  );
+
+  // Premium splash gradient — deep-to-vibrant orange diagonal
+  static const LinearGradient splashGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFFF6B00), Color(0xFFFF8C42), Color(0xFFE55B00)],
+    stops: [0.0, 0.55, 1.0],
+  );
+
+  // Auth/login hero gradient
+  static const LinearGradient heroGradientFixed = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFFF6B00), Color(0xFFFF9140), Color(0xFFE55B00)],
+    stops: [0.0, 0.60, 1.0],
+  );
+
+  static LinearGradient get authGradient => LinearGradient(
+    colors: [currentConfig.cream, currentConfig.primaryLight],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  static LinearGradient get cardGlowGradient => LinearGradient(
+    colors: [currentConfig.primary, currentConfig.primaryLight],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // Subtle warm card gradient for premium tiles
+  static const LinearGradient warmCardGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFFFF8F2), Color(0xFFFFF0E0)],
+  );
+
+  // Rich elevated button gradient
+  static const LinearGradient buttonGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFFF6B00), Color(0xFFFF8C42)],
+  );
 
   // Light Theme
-  static final ThemeData lightTheme = ThemeData(
-    useMaterial3: true,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: primary,
-      primary: primary,
-      secondary: secondary,
-      surface: white,
-      error: error,
-    ),
-    fontFamily: 'Poppins',
-    textTheme: GoogleFonts.poppinsTextTheme(),
-    scaffoldBackgroundColor: grey50,
-    appBarTheme: const AppBarTheme(
-      backgroundColor: white,
-      foregroundColor: grey900,
-      elevation: 0,
-      centerTitle: true,
-    ),
-    cardTheme: const CardThemeData(color: white, elevation: 2),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: primary,
-        foregroundColor: white,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+  static ThemeData get lightTheme {
+    final config = currentConfig;
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: config.primary,
+        primary: config.primary,
+        secondary: secondary,
+        surface: config.cream, // Cream Background
+        error: error,
       ),
-    ),
-    outlinedButtonTheme: OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        foregroundColor: primary,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        side: const BorderSide(color: primary),
+      fontFamily: 'Poppins',
+      textTheme: GoogleFonts.poppinsTextTheme(),
+      scaffoldBackgroundColor: config.cream, // Warm background
+      appBarTheme: AppBarTheme(
+        backgroundColor: config.cream,
+        foregroundColor: grey900,
+        elevation: 0,
+        centerTitle: true,
       ),
-    ),
-    inputDecorationTheme: InputDecorationTheme(
-      filled: true,
-      fillColor: white,
-      isDense: true,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: grey300),
+      cardTheme: CardThemeData(
+        color: config.sand, // Sand Surface for cards
+        elevation: 1,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(16)), // 16dp rounded corners
+        ),
       ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: grey300),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: config.primary,
+          foregroundColor: white,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          minimumSize: const Size(48, 48),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
       ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: primary, width: 2),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: config.primary,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          minimumSize: const Size(48, 48),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          side: BorderSide(color: config.primary, width: 2),
+        ),
       ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: error),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: white,
+        isDense: true,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: grey300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: grey300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: config.primary, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: error),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        labelStyle: const TextStyle(color: grey600),
+        hintStyle: const TextStyle(color: grey400),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      labelStyle: const TextStyle(color: grey600),
-      hintStyle: const TextStyle(color: grey400),
-    ),
-    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      backgroundColor: white,
-      selectedItemColor: primary,
-      unselectedItemColor: grey500,
-      type: BottomNavigationBarType.fixed,
-    ),
-    chipTheme: ChipThemeData(
-      backgroundColor: grey100,
-      selectedColor: primary,
-      labelStyle: const TextStyle(color: grey700),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-    ),
-  );
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: white,
+        selectedItemColor: config.primary,
+        unselectedItemColor: grey400,
+        type: BottomNavigationBarType.fixed,
+        elevation: 12,
+        selectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w700,
+          fontSize: 11,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 11,
+        ),
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: grey100,
+        selectedColor: config.primaryLight,
+        labelStyle: const TextStyle(color: grey700),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        side: BorderSide.none,
+      ),
+    );
+  }
 
   // Dark Theme
   static final ThemeData darkTheme = ThemeData(
     useMaterial3: true,
+    brightness: Brightness.dark,
     colorScheme: ColorScheme.fromSeed(
       seedColor: primary,
+      brightness: Brightness.dark,
       primary: primary,
       secondary: secondary,
-      surface: grey900,
+      surface: const Color(0xFF1E1E1E),
       error: error,
-      surfaceContainerHighest: grey800,
+      onSurface: white,
     ),
     fontFamily: 'Poppins',
     textTheme: GoogleFonts.poppinsTextTheme().apply(
       bodyColor: white,
       displayColor: white,
+      decorationColor: white,
     ),
-    scaffoldBackgroundColor: grey800,
+    scaffoldBackgroundColor: const Color(0xFF121212),
     appBarTheme: const AppBarTheme(
-      backgroundColor: grey900,
+      backgroundColor: Color(0xFF1E1E1E),
       foregroundColor: white,
       elevation: 0,
       centerTitle: true,
     ),
-    cardTheme: const CardThemeData(color: grey800, elevation: 2),
+    cardTheme: const CardThemeData(
+      color: Color(0xFF1E1E1E),
+      elevation: 4,
+      margin: EdgeInsets.all(8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(16)),
+      ),
+    ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: primary,
         foregroundColor: white,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 2,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: primary,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        side: const BorderSide(color: primary),
+        foregroundColor: white,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        side: const BorderSide(color: Color(0xFF404040), width: 1.5),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: grey800,
+      fillColor: const Color(0xFF1E1E1E),
       isDense: true,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: grey600),
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: Color(0xFF333333)),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: grey600),
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: Color(0xFF333333)),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         borderSide: const BorderSide(color: primary, width: 2),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         borderSide: const BorderSide(color: error),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       labelStyle: const TextStyle(color: grey400),
-      hintStyle: const TextStyle(color: grey500),
+      hintStyle: const TextStyle(color: grey600),
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      backgroundColor: grey900,
+      backgroundColor: Color(0xFF121212),
       selectedItemColor: primary,
-      unselectedItemColor: grey500,
+      unselectedItemColor: grey600,
       type: BottomNavigationBarType.fixed,
     ),
   );
 
   // Custom Colors for Categories
   static const Map<String, Color> categoryColors = {
-    'groceries': Color(0xFF4CAF50),
-    'vegetables': Color(0xFF8BC34A),
-    'fruits': Color(0xFFFF9800),
-    'dairy': Color(0xFFFFEB3B),
-    'bakery': Color(0xFF795548),
-    'snacks': Color(0xFFFF5722),
-    'beverages': Color(0xFF03A9F4),
-    'household': Color(0xFF607D8B),
-    'personalCare': Color(0xFFE91E63),
-    'electronics': Color(0xFF2196F3),
-    'clothing': Color(0xFF9C27B0),
-    'footwear': Color(0xFF673AB7),
-    'homeDecor': Color(0xFF009688),
-    'kitchenware': Color(0xFFFF5722),
-    'stationery': Color(0xFF607D8B),
-    'toys': Color(0xFFFFEB3B),
-    'medicines': Color(0xFFF44336),
-    'agricultural': Color(0xFF8BC34A),
-    'other': Color(0xFF9E9E9E),
+    'groceries': Color(0xFF22C55E),
+    'vegetables': Color(0xFF84CC16),
+    'fruits': Color(0xFFF97316),
+    'dairy': Color(0xFFEAB308),
+    'bakery': Color(0xFF854D0E),
+    'snacks': Color(0xFFFF8C42),
+    'beverages': Color(0xFF06B6D4),
+    'household': Color(0xFF64748B),
+    'personalCare': Color(0xFFEC4899),
+    'electronics': Color(0xFF3B82F6),
+    'clothing': Color(0xFFA855F7),
+    'footwear': Color(0xFF6366F1),
+    'homeDecor': Color(0xFF14B8A6),
+    'kitchenware': Color(0xFFFF8C42),
+    'stationery': Color(0xFF64748B),
+    'agricultural': Color(0xFF84CC16),
+    'other': Color(0xFF64748B),
   };
 
   // Spacing
@@ -211,6 +372,19 @@ class AppTheme {
   static const double spacingLg = 24.0;
   static const double spacingXl = 32.0;
   static const double spacingXxl = 48.0;
+
+  static const EdgeInsets paddingXs = EdgeInsets.all(spacingXs);
+  static const EdgeInsets paddingSm = EdgeInsets.all(spacingSm);
+  static const EdgeInsets paddingMd = EdgeInsets.all(spacingMd);
+  static const EdgeInsets paddingLg = EdgeInsets.all(spacingLg);
+  static const EdgeInsets paddingXl = EdgeInsets.all(spacingXl);
+
+  static const SizedBox gap4 = SizedBox(height: spacingXs, width: spacingXs);
+  static const SizedBox gap8 = SizedBox(height: spacingSm, width: spacingSm);
+  static const SizedBox gap12 = SizedBox(height: 12, width: 12);
+  static const SizedBox gap16 = SizedBox(height: spacingMd, width: spacingMd);
+  static const SizedBox gap24 = SizedBox(height: spacingLg, width: spacingLg);
+  static const SizedBox gap32 = SizedBox(height: spacingXl, width: spacingXl);
 
   // Border Radius
   static const double radiusSm = 8.0;
@@ -224,6 +398,45 @@ class AppTheme {
     BoxShadow(color: Color(0x0A000000), blurRadius: 8, offset: Offset(0, 2)),
     BoxShadow(color: Color(0x05000000), blurRadius: 16, offset: Offset(0, 4)),
   ];
+
+  static const List<BoxShadow> elevatedCardShadows = [
+    BoxShadow(color: Color(0x14000000), blurRadius: 20, offset: Offset(0, 6)),
+    BoxShadow(color: Color(0x08000000), blurRadius: 40, offset: Offset(0, 12)),
+  ];
+
+  static List<BoxShadow> primaryGlowShadows({double intensity = 1.0}) => [
+    BoxShadow(
+      color: primary.withValues(alpha: 0.35 * intensity),
+      blurRadius: 20,
+      offset: const Offset(0, 8),
+    ),
+    BoxShadow(
+      color: primary.withValues(alpha: 0.15 * intensity),
+      blurRadius: 40,
+      offset: const Offset(0, 16),
+    ),
+  ];
+
+  // ─── Card decorations ─────────────────────────────────────────────────────
+  static BoxDecoration get premiumCardDecoration => const BoxDecoration(
+    color: white,
+    borderRadius: BorderRadius.all(Radius.circular(radiusLg)),
+    boxShadow: elevatedCardShadows,
+  );
+
+  static BoxDecoration get orangeCardDecoration => BoxDecoration(
+    gradient: buttonGradient,
+    borderRadius: const BorderRadius.all(Radius.circular(radiusLg)),
+    boxShadow: primaryGlowShadows(),
+  );
+
+  static BoxDecoration get softOrangeCardDecoration => BoxDecoration(
+    color: primaryLight.withValues(alpha: 0.35),
+    borderRadius: const BorderRadius.all(Radius.circular(radiusLg)),
+    border: Border.all(
+      color: primary.withValues(alpha: 0.18),
+    ),
+  );
 
   // Text Styles
   static TextStyle displayLarge(BuildContext context) => GoogleFonts.poppins(
@@ -317,8 +530,6 @@ class AppTheme {
   );
 
   // ─── Glassmorphism helpers ────────────────────────────────────────────────────
-
-  /// Standard frosted-glass card decoration (use with BackdropFilter)
   static BoxDecoration glassDecoration({
     Color tint = const Color(0x18FFFFFF),
     double borderRadius = 20,
@@ -338,7 +549,6 @@ class AppTheme {
     );
   }
 
-  /// Wraps child in a frosted-glass effect
   static Widget glassMorphic({
     required Widget child,
     double borderRadius = 20,
@@ -357,51 +567,29 @@ class AppTheme {
     );
   }
 
-  // ─── Brand gradients ──────────────────────────────────────────────────────────
-  static const LinearGradient primaryGradient = LinearGradient(
-    colors: [Color(0xFFFF6F00), Color(0xFFFF5722)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  static const LinearGradient successGradient = LinearGradient(
-    colors: [Color(0xFF43A047), Color(0xFF2E7D32)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  static const LinearGradient darkGradient = LinearGradient(
-    colors: [Color(0xFF1A110B), Color(0xFF2D1F14)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  static const LinearGradient heroGradient = LinearGradient(
-    colors: [Color(0xFFFF8F00), Color(0xFFFF5722), Color(0xFFE64A19)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    stops: [0.0, 0.6, 1.0],
-  );
-
   // ─── Role-specific brand colors ───────────────────────────────────────────────
   static const Color customerAccent = primary;
-  static const Color ownerAccent = Color(0xFF1565C0);   // Deep blue
-  static const Color deliveryAccent = Color(0xFF2E7D32); // Deep green
-  static const Color employeeAccent = Color(0xFF6A1B9A); // Deep purple
-  static const Color adminAccent = Color(0xFFB71C1C);    // Deep red
+  static const Color ownerAccent = Color(0xFF1E3A8A);   // Warm/Dark Indigo/Blue
+  static const Color deliveryAccent = Color(0xFF15803D); // Warm Forest Green
+  static const Color employeeAccent = Color(0xFF701A75); // Warm Plum Purple
+  static const Color adminAccent = Color(0xFFB91C1C);    // Warm Crimson Red
+
+  // ─── Additional UI Properties ─────────────────────────────────────────────────
+  static const Color textPrimary = grey900;
+  static const Color background = cream;
+  static const Color warningColor = warning;
 
   // ─── Shimmer colors ───────────────────────────────────────────────────────────
-  static const Color shimmerBase = Color(0xFFEEEEEE);
-  static const Color shimmerHighlight = Color(0xFFF5F5F5);
+  static const Color shimmerBase = sand;
+  static const Color shimmerHighlight = cream;
 
-  // ─── Status badge helpers ─────────────────────────────────────────────────────
   static Color statusColor(String status) {
     final s = status.toLowerCase();
     if (s.contains('delivered') || s.contains('completed')) return success;
     if (s.contains('cancel')) return error;
     if (s.contains('pending') || s.contains('placed')) return warning;
     if (s.contains('confirmed') || s.contains('preparing')) return info;
-    if (s.contains('out') || s.contains('transit')) return secondary;
+    if (s.contains('out') || s.contains('transit')) return primaryLight;
     return grey500;
   }
 
@@ -415,4 +603,24 @@ class AppTheme {
     if (s.contains('out') || s.contains('transit')) return '🚚';
     return '🔄';
   }
+}
+
+enum FestiveSeason { none, diwali, eid, independence }
+
+class FestiveThemeConfig {
+  final Color primary;
+  final Color primaryDark;
+  final Color primaryLight;
+  final Color cream;
+  final Color sand;
+  final String? tagline;
+
+  const FestiveThemeConfig({
+    required this.primary,
+    required this.primaryDark,
+    required this.primaryLight,
+    required this.cream,
+    required this.sand,
+    this.tagline,
+  });
 }

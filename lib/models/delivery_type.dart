@@ -179,16 +179,16 @@ class DeliveryTypeOption {
   factory DeliveryTypeOption.fromMap(Map<String, dynamic> map) {
     return DeliveryTypeOption(
       type: DeliveryType.values.firstWhere(
-        (e) => e.toString() == map['type'],
+        (e) => e.toString() == map['type'] as String?,
         orElse: () => DeliveryType.standard,
       ),
-      name: map['name'] ?? '',
-      description: map['description'] ?? '',
-      price: (map['price'] ?? 0).toDouble(),
-      estimatedDays: map['estimatedDays'] ?? 2,
-      estimatedTime: map['estimatedTime'],
-      isAvailable: map['isAvailable'] ?? true,
-      isEcoFriendly: map['isEcoFriendly'] ?? false,
+      name: map['name'] as String? ?? '',
+      description: map['description'] as String? ?? '',
+      price: (map['price'] as num? ?? 0).toDouble(),
+      estimatedDays: map['estimatedDays'] as int? ?? 2,
+      estimatedTime: map['estimatedTime'] as String?,
+      isAvailable: map['isAvailable'] as bool? ?? true,
+      isEcoFriendly: map['isEcoFriendly'] as bool? ?? false,
     );
   }
 

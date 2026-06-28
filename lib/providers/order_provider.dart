@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+import '../constants/order_status.dart';
 import '../models/order_model.dart';
 import '../models/business_transaction.dart';
 import '../models/payment_method.dart';
@@ -11,7 +12,7 @@ import '../services/notification_service.dart';
 import '../utils/order_number_generator.dart';
 import '../services/razorpay_service.dart';
 import '../services/offline_manager.dart';
-import '../services/wallet_service.dart';
+import '../services/offline_order_queue_service.dart';
 
 /// Return request model for handling customer returns
 class ReturnRequest {
@@ -79,6 +80,7 @@ class OrderProvider with ChangeNotifier {
   final NotificationService _notificationService = NotificationService();
   final RazorpayService _razorpayService = RazorpayService();
   final Connectivity _connectivity = Connectivity();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   OrderProvider() {
     _initConnectivity();
@@ -105,10 +107,12 @@ class OrderProvider with ChangeNotifier {
   String? _errorMessage;
   int _ordersPage = 1;
   bool _hasMoreOrders = true;
-  List<ReturnRequest> _returnRequests = [];
+  final List<ReturnRequest> _returnRequests = [];
   final Map<String, bool> _processingOrders = {};
   DocumentSnapshot? _lastOrderDoc;
   final List<StreamSubscription> _subscriptions = [];
+  bool _isRazorpayActive = false;
+
   double _walletBalance = 500.0;
 
   List<OrderModel> get orders => _orders;
@@ -119,6 +123,7 @@ class OrderProvider with ChangeNotifier {
   bool get hasMoreOrders => _hasMoreOrders;
   List<ReturnRequest> get returnRequests => _returnRequests;
   double get walletBalance => _walletBalance;
+  int get queuedOrderCount => OfflineOrderQueueService().queuedCount.value;
 
   Future<void> _recordTransaction({
     required String orderId,
@@ -192,7 +197,7 @@ class OrderProvider with ChangeNotifier {
           orderId: newOrder.id,
           orderNumber: newOrder.orderNumber,
           customerId: newOrder.customerId,
-          amount: newOrder.totalAmount,
+          amount: newOrder.totalAmount.toDouble(),
           type: TransactionType.payment,
           method: newOrder.paymentMethod.toString().split('.').last,
           gatewayId: newOrder.paymentId,
@@ -231,6 +236,12 @@ class OrderProvider with ChangeNotifier {
     required VoidCallback onPaymentStarted,
     required Function(String) onPaymentError,
   }) async {
+    if (_isRazorpayActive) {
+      _errorMessage = "Another payment is already in progress.";
+      notifyListeners();
+      return null;
+    }
+    _isRazorpayActive = true;
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -257,16 +268,29 @@ class OrderProvider with ChangeNotifier {
       },
     );
 
-    onPaymentStarted();
-    await _razorpayService.createOrder(
-      amount: order.totalAmount,
-      orderId: order.id,
-      customerName: order.customerName,
-      customerEmail: email,
-      customerPhone: order.customerPhone,
-    );
+    try {
+      onPaymentStarted();
+      await _razorpayService.createOrder(
+        amount: order.totalAmount.toDouble(),
+        orderId: order.id,
+        customerId: order.customerId,
+        customerName: order.customerName,
+        customerEmail: email,
+        customerPhone: order.customerPhone,
+      );
 
-    return completer.future;
+      final result = await completer.future;
+      _isLoading = false;
+      notifyListeners();
+      return result;
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = e.toString();
+      notifyListeners();
+      return null;
+    } finally {
+      _isRazorpayActive = false;
+    }
   }
 
   Future<bool> convertToOnlinePayment({
@@ -275,6 +299,12 @@ class OrderProvider with ChangeNotifier {
     required VoidCallback onPaymentStarted,
     required Function(String) onPaymentError,
   }) async {
+    if (_isRazorpayActive) {
+      _errorMessage = "Another payment is already in progress.";
+      notifyListeners();
+      return false;
+    }
+    _isRazorpayActive = true;
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -309,7 +339,7 @@ class OrderProvider with ChangeNotifier {
             orderId: order.id,
             orderNumber: order.orderNumber,
             customerId: order.customerId,
-            amount: order.totalAmount,
+            amount: order.totalAmount.toDouble(),
             type: TransactionType.payment,
             method: 'razorpay',
             gatewayId: response.paymentId,
@@ -333,16 +363,29 @@ class OrderProvider with ChangeNotifier {
       },
     );
 
-    onPaymentStarted();
-    await _razorpayService.createOrder(
-      amount: order.totalAmount,
-      orderId: order.id,
-      customerName: order.customerName,
-      customerEmail: email,
-      customerPhone: order.customerPhone,
-    );
+    try {
+      onPaymentStarted();
+      await _razorpayService.createOrder(
+        amount: order.totalAmount.toDouble(),
+        orderId: order.id,
+        customerId: order.customerId,
+        customerName: order.customerName,
+        customerEmail: email,
+        customerPhone: order.customerPhone,
+      );
 
-    return completer.future;
+      final result = await completer.future;
+      _isLoading = false;
+      notifyListeners();
+      return result;
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = e.toString();
+      notifyListeners();
+      return false;
+    } finally {
+      _isRazorpayActive = false;
+    }
   }
 
   Future<bool> verifyAndDeliverOrder({
@@ -373,6 +416,26 @@ class OrderProvider with ChangeNotifier {
             deliveredAt: DateTime.now(),
           );
           if (_currentOrder?.id == orderId) _currentOrder = _orders[index];
+          await _syncOrderToRDS(_orders[index]);
+
+          // Award cashback on delivery (not placement) — anti-abuse
+          final deliveredOrder = _orders[index];
+          try {
+            await _firestore
+                .collection('cashback_triggers')
+                .doc(orderId)
+                .set({
+              'orderId': orderId,
+              'customerId': deliveredOrder.customerId,
+              'orderTotal': deliveredOrder.totalAmount,
+              'paymentMethod': deliveredOrder.paymentMethod.toString(),
+              'deliveredAt': FieldValue.serverTimestamp(),
+              'cashbackStatus': 'pending',
+              'createdAt': FieldValue.serverTimestamp(),
+            }, SetOptions(merge: true));
+          } catch (e) {
+            debugPrint('[OrderProvider] cashback_trigger write failed: \$e');
+          }
         }
       }
 
@@ -418,7 +481,7 @@ class OrderProvider with ChangeNotifier {
         orderId: orderId,
         orderNumber: order.orderNumber,
         customerId: order.customerId,
-        amount: order.totalAmount,
+        amount: order.totalAmount.toDouble(),
         type: TransactionType.payment,
         method: actualMethod,
       );
@@ -599,7 +662,7 @@ class OrderProvider with ChangeNotifier {
   Map<String, dynamic> getShopStats() {
     return {
       'todayOrderCount': _orders.length,
-      'todayRevenue': _orders.fold(0.0, (sum, o) => sum + o.totalAmount),
+      'todayRevenue': _orders.fold(0.0, (acc, o) => acc + o.totalAmount.toDouble()),
       'pendingOrderCount': _orders.where((o) => o.status == OrderStatus.pending).length,
     };
   }
@@ -682,5 +745,9 @@ class OrderProvider with ChangeNotifier {
     _walletBalance += amount;
     // In a real app, update this in Firestore
     notifyListeners();
+  }
+
+  Future<void> _syncOrderToRDS(OrderModel order) async {
+    debugPrint('[OrderProvider] Stub: RDS sync for order ${order.id} is deprecated.');
   }
 }

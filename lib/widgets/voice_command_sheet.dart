@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../services/speech_to_text_service.dart';
+import '../services/voice_command_executor.dart';
 import '../services/voice_command_service.dart';
 import '../utils/app_theme.dart';
 
@@ -39,11 +39,11 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet>
   String _resultText = '';
 
   // Pulse animation for mic
-  late AnimationController _pulseCtrl;
-  late Animation<double> _pulseAnim;
+  late final AnimationController _pulseCtrl;
+  late final Animation<double> _pulseAnim;
 
   // Wave animation bars
-  late AnimationController _waveCtrl;
+  late final AnimationController _waveCtrl;
 
   @override
   void initState() {
@@ -110,7 +110,8 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet>
     if (cmd.type == VoiceCommandType.unknown) {
       setState(() {
         _state = _SheetState.error;
-        _resultText = 'Samajh nahi aaya: "$text"\nExample: "Aloo ka stock 50 kilo kar"';
+        _resultText =
+            'Samajh nahi aaya: "$text"\nExample: "Aloo ka stock 50 kilo kar"';
       });
     } else {
       setState(() {
@@ -189,7 +190,7 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet>
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: AppTheme.primary.withOpacity(0.1),
+            color: AppTheme.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(Icons.mic, color: AppTheme.primary),
@@ -255,7 +256,7 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet>
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primary.withOpacity(0.4),
+                    color: AppTheme.primary.withValues(alpha: 0.4),
                     blurRadius: 24,
                     spreadRadius: 4,
                   ),
@@ -298,7 +299,7 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet>
                   width: 8,
                   height: barH,
                   decoration: BoxDecoration(
-                    color: AppTheme.primary.withOpacity(0.4 + val * 0.6),
+                    color: AppTheme.primary.withValues(alpha: 0.4 + val * 0.6),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 );
@@ -319,7 +320,7 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet>
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.error.withOpacity(0.4),
+                  color: AppTheme.error.withValues(alpha: 0.4),
                   blurRadius: 20,
                   spreadRadius: 4,
                 ),
@@ -399,13 +400,14 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet>
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppTheme.primary.withOpacity(0.05),
+            color: AppTheme.primary.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppTheme.primary.withOpacity(0.2)),
+            border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
           ),
           child: Column(
             children: [
-              const Icon(Icons.record_voice_over, color: AppTheme.primary, size: 32),
+              const Icon(Icons.record_voice_over,
+                  color: AppTheme.primary, size: 32),
               const SizedBox(height: 12),
               Text(
                 cmd.confirmationText,
@@ -467,11 +469,11 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet>
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: (isSuccess ? AppTheme.success : AppTheme.error)
-                .withOpacity(0.08),
+                .withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: (isSuccess ? AppTheme.success : AppTheme.error)
-                  .withOpacity(0.25),
+                  .withValues(alpha: 0.25),
             ),
           ),
           child: Column(

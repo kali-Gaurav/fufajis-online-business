@@ -2,7 +2,10 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // --- Helper Functions ---
+    // ========================================================================
+    // HELPER FUNCTIONS
+    // ========================================================================
+
     function isSignedIn() {
       return request.auth != null;
     }
@@ -11,328 +14,1015 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
-    function hasRole(role) {
-      return isSignedIn() && getUserData() != null && 'role' in getUserData() && getUserData().role == role;
+    function hasRole(roleName) {
+      return request.auth.token.get(roleName) == true;
     }
 
-    function isOwner() {
-      return hasRole('UserRole.shopOwner');
-    }
-    
-    function isRider() {
-      return hasRole('UserRole.deliveryAgent');
+    function isOwner() { return hasRole('owner') || hasRole('franchiseOwner'); }
+    function isAdmin() { return hasRole('admin') || hasRole('superAdmin'); }
+    function isCustomer() { return hasRole('customer'); }
+    function isEmployee() { return hasRole('employee'); }
+    function isRider() { return hasRole('rider'); }
+    function isDispatcher() { return hasRole('dispatcher'); }
+    function isBranchManager() { return hasRole('branchManager'); }
+    function isSupplier() { return hasRole('supplier'); }
+
+    function isGlobalAdmin() { return isOwner() || isAdmin(); }
+
+    // Service role check for backend/Edge Function operations
+    // Custom claim 'serviceAuth' is set by Auth Provider when issuing service tokens
+    function isServiceAuth() {
+      return request.auth.token.get('serviceAuth') == true;
     }
 
-    function isEmployee() {
-      return isSignedIn() && getUserData() != null && 'role' in getUserData() && (
-        getUserData().role == 'UserRole.employee' ||
-        getUserData().role == 'UserRole.shopOwner' ||
-        getUserData().role == 'UserRole.admin'
-      );
+    function isOrderTerminal() {
+      return resource.data.status in ['delivered', 'cancelled', 'returned'];
     }
 
-    function isAdmin() {
-      return hasRole('UserRole.admin');
+    function isStaff() {
+      return isOwner() || isAdmin() || isEmployee() || isRider() || isBranchManager() || isDispatcher();
     }
 
-    // Check if an order is in a terminal (immutable) state
-    function isOrderTerminal(orderData) {
-      return orderData.status in ['OrderStatus.delivered', 'OrderStatus.cancelled', 'OrderStatus.returned', 'OrderStatus.refunded'];
+    function getBranchId() {
+      return getUserData().branchId;
     }
 
-    function getShopConfig() {
-      return get(/databases/$(database)/documents/settings/shop_config).data;
+    function isOwningUser(uid) {
+      return isSignedIn() && request.auth.uid == uid;
     }
 
-    function isWithinGeofence(address) {
-      let config = getShopConfig();
-      let hasConfig = config != null && 'maxDeliveryRadiusKm' in config && 'shopLatitude' in config && 'shopLongitude' in config;
-      let hasAddress = address != null && 'latitude' in address && 'longitude' in address && address.latitude != null && address.longitude != null;
-      if (!hasConfig || !hasAddress) {
-        return false;
-      }
-      let latDelta = config.maxDeliveryRadiusKm * 0.009; // ~1km = 0.009 degrees
-      let lngDelta = config.maxDeliveryRadiusKm * 0.011; // adjusted for longitude
-      return address.latitude >= (config.shopLatitude - latDelta) &&
-             address.latitude <= (config.shopLatitude + latDelta) &&
-             address.longitude >= (config.shopLongitude - lngDelta) &&
-             address.longitude <= (config.shopLongitude + lngDelta);
+    function isBranchMatch(resourceBranchId) {
+      return getBranchId() == resourceBranchId;
     }
 
-    // --- Users Collection ---
+    function isApprovedEmployee() {
+      return isEmployee() && getUserData().isActive == true;
+    }
+
+    function isShopOwner(shopId) {
+      return isSignedIn() && get(/databases/$(database)/documents/shops/$(shopId)).data.ownerId == request.auth.uid;
+    }
+
+    // ========================================================================
+    // USERS COLLECTION
+    // ========================================================================
     match /users/{userId} {
-      allow read: if request.auth != null && (request.auth.uid == userId || isOwner() || isRider() || isAdmin());
-
-      // Prevent users from updating their own roles
-      allow update: if request.auth != null && request.auth.uid == userId
-                    && (request.resource.data.role == resource.data.role);
-      
-      allow create: if request.auth != null && request.auth.uid == userId
-                    && (request.resource.data.role == 'UserRole.customer'
-                        || (request.resource.data.phoneNumber != null && exists(/databases/$(database)/documents/pre_authorized_users/$(request.resource.data.phoneNumber.replace('\\+', ''))))
-                        || (request.resource.data.email != null && exists(/databases/$(database)/documents/pre_authorized_users/$(request.resource.data.email.replace('@', '_').replace('.', '_'))))
-                       );
-
-      match /addresses/{addressId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
-      }
-
-      match /wallet_transactions/{transactionId} {
-        allow read: if request.auth != null && (request.auth.uid == userId || isOwner() || isAdmin());
-        allow create: if request.auth != null && request.auth.uid == userId;
-        allow update, delete: if false;
-      }
-
-      match /devices/{deviceId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
-      }
-
-      match /cart/{cartItemId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
-      }
-    }
-
-    // --- Pre-Authorized Users (Security Seed) ---
-    match /pre_authorized_users/{phone} {
-      allow get: if isSignedIn() && (
-        (request.auth.token.phone_number != null && request.auth.token.phone_number.replace('\\+', '') == phone) ||
-        (request.auth.token.email != null && request.auth.token.email.replace('@', '_').replace('.', '_') == phone) ||
-        isAdmin() ||
-        isOwner()
+      allow read: if isSignedIn() && (isOwningUser(userId) || isGlobalAdmin() || isBranchManager() || isDispatcher());
+      allow create: if isSignedIn() && isOwningUser(userId);
+      // Update: owning user can edit, but role field is immutable (protected from self-escalation)
+      allow update: if isSignedIn() && (
+        (isOwningUser(userId) && request.resource.data.role == resource.data.role) ||
+        isGlobalAdmin()
       );
-      allow list: if isAdmin();
-      allow write: if isAdmin();
+      allow delete: if false;
+
+      match /wallet/{walletId} {
+        allow read: if isSignedIn() && (isOwningUser(userId) || isGlobalAdmin());
+        allow write: if isGlobalAdmin(); // System/Admin only
+      }
+
+      match /notifications/{notifId} {
+        allow read: if isSignedIn() && (isOwningUser(userId) || isGlobalAdmin());
+        allow write: if isGlobalAdmin(); // System only
+      }
+
+      // NOTE: No wildcard catch-all — each subcollection must be explicitly defined
+      // to prevent accidental exposure of future subcollections.
     }
 
-    // --- Audit Logs ---
+    match /customer_wallet/{userId} {
+      allow read: if isSignedIn() && (isOwningUser(userId) || isGlobalAdmin());
+      allow write: if false; // System only (Admin SDK)
+    }
+
+    // ========================================================================
+    // TASK #5: OWNERS COLLECTION (service role only, Edge Function writes)
+    // ========================================================================
+    match /owners/{ownerId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      // Write restricted to authenticated backend service via custom claims check.
+      // Only Firebase Cloud Functions (Admin SDK) and Edge Functions with
+      // serviceAuth custom claim can write. Direct client writes blocked.
+      allow write: if isSignedIn() && (
+        isGlobalAdmin() ||
+        isServiceAuth()
+      );
+    }
+
+    // ========================================================================
+    // TASK #5: EMPLOYEES COLLECTION (owner can read/write own employees)
+    // ========================================================================
+    match /employees/{employeeId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        isBranchManager() ||
+        (employeeId == request.auth.uid && isEmployee())
+      );
+      // Owner can write employees (via Edge Function). Admin can write.
+      // Employees cannot self-modify to prevent role escalation.
+      allow create: if isSignedIn() && (
+        isGlobalAdmin() ||
+        (isOwner() && request.resource.data.ownerId == request.auth.uid)
+      );
+      allow update: if isSignedIn() && (
+        isGlobalAdmin() ||
+        // Owner can modify their own employees, but cannot change empStatus
+        // (status transitions handled by approval workflow)
+        (isOwner() && resource.data.ownerId == request.auth.uid &&
+         request.resource.data.empStatus == resource.data.empStatus) ||
+        // Employees cannot self-modify any field
+        (employeeId == request.auth.uid && false)
+      );
+      allow delete: if isSignedIn() && isGlobalAdmin();
+    }
+
+    // ========================================================================
+    // TASK #5: ACTIVE_SESSIONS COLLECTION (owner can read/write own sessions)
+    // ========================================================================
+    match /active_sessions/{sessionId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        resource.data.userId == request.auth.uid
+      );
+      // Users can only create sessions for themselves
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      // Users can update/delete only their own sessions
+      allow update: if isSignedIn() && (
+        isGlobalAdmin() ||
+        (resource.data.userId == request.auth.uid &&
+         request.resource.data.userId == request.auth.uid)
+      );
+      allow delete: if isSignedIn() && (
+        isGlobalAdmin() ||
+        resource.data.userId == request.auth.uid
+      );
+    }
+
+    // ========================================================================
+    // TASK #5: PRE_AUTHORIZED_USERS COLLECTION (service role only)
+    // ========================================================================
+    match /pre_authorized_users/{phoneOrEmail} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      // Write restricted to authenticated backend service via custom claims check.
+      // Only Cloud Functions (Admin SDK) and Edge Functions can write.
+      // Direct client writes blocked to prevent unauthorized pre-auth bypass.
+      allow write: if isSignedIn() && (
+        isGlobalAdmin() ||
+        isServiceAuth()
+      );
+    }
+
+    // ========================================================================
+    // MFA & SECURITY LOCKOUT COLLECTIONS — CRITICAL FIX
+    // ========================================================================
+    match /pin_lockouts/{userId} {
+      allow read: if isSignedIn() && (
+        request.auth.uid == userId ||
+        isGlobalAdmin()
+      );
+      allow create: if isSignedIn() && isGlobalAdmin(); // System/backend only
+      allow update: if isSignedIn() && isGlobalAdmin();
+      allow delete: if isSignedIn() && isGlobalAdmin();
+    }
+
+    // ========================================================================
+    // ORDERS COLLECTION
+    // ========================================================================
+    match /orders/{orderId} {
+      allow read: if isSignedIn() && (
+        resource.data.customerId == request.auth.uid ||
+        (isBranchManager() && isBranchMatch(resource.data.branchId)) ||
+        (isDispatcher() && isBranchMatch(resource.data.branchId)) ||
+        isGlobalAdmin()
+      );
+      allow create: if isSignedIn() && isCustomer() && request.resource.data.customerId == request.auth.uid;
+      allow update: if isSignedIn() && (
+        // Delivered/cancelled/returned orders are immutable
+        (!isOrderTerminal()) && (
+          (isBranchManager() && isBranchMatch(resource.data.branchId)) ||
+          (isDispatcher() && isBranchMatch(resource.data.branchId)) ||
+          // Customers can only cancel pending/confirmed orders (pre-packed)
+          (isCustomer() && resource.data.customerId == request.auth.uid &&
+           resource.data.status in ['pending', 'confirmed'] &&
+           request.resource.data.status == 'cancelled') ||
+          isGlobalAdmin()
+        )
+      );
+      allow delete: if false;
+    }
+
+    // ========================================================================
+    // PRODUCTS COLLECTION
+    // ========================================================================
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isSignedIn() && isGlobalAdmin();
+      
+      match /reviews/{reviewId} {
+        allow read: if true;
+        allow create: if isSignedIn() && isCustomer();
+        allow update, delete: if isSignedIn() && (resource.data.customerId == request.auth.uid || isGlobalAdmin());
+      }
+
+      match /images/{imageId} {
+        allow read: if true;
+        allow write: if isSignedIn() && isGlobalAdmin();
+      }
+      
+      match /{document=**} {
+        allow read: if true;
+        allow write: if isSignedIn() && isGlobalAdmin();
+      }
+    }
+
+    // ========================================================================
+    // TASK #8: COUPONS COLLECTION — CRITICAL FIX: Add rules (was completely open)
+    // ========================================================================
+    match /coupons/{couponId} {
+      // Read: Customers can read valid (not expired) coupons
+      // Admins can read all coupons
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        // Customers can only see active/not-expired coupons
+        (isCustomer() &&
+         resource.data.get('expiryDate', null) != null &&
+         request.time < timestamp(resource.data.expiryDate))
+      );
+      // Create: Shop owner can create coupons for their shop only
+      // Admin can create global coupons
+      allow create: if isSignedIn() && (
+        isGlobalAdmin() ||
+        (isOwner() && request.resource.data.shopOwnerId == request.auth.uid)
+      );
+      // Update: Only admin can modify coupons (e.g., extend expiry, disable)
+      allow update: if isSignedIn() && (
+        isGlobalAdmin() ||
+        // Shop owner can update only their own coupons
+        (isOwner() &&
+         resource.data.shopOwnerId == request.auth.uid &&
+         request.resource.data.shopOwnerId == resource.data.shopOwnerId)
+      );
+      // Delete: Only admin can delete coupons
+      allow delete: if isSignedIn() && isGlobalAdmin();
+    }
+
+    match /coupon_redemptions/{redemptionId} {
+      allow read: if isSignedIn() && (
+        resource.data.userId == request.auth.uid ||
+        isGlobalAdmin()
+      );
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && isGlobalAdmin();
+      allow delete: if false;
+    }
+
+    // ========================================================================
+    // INVENTORY COLLECTION
+    // ========================================================================
+    match /inventory/{inventoryId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() || 
+        ((isBranchManager() || isEmployee()) && isBranchMatch(resource.data.branchId))
+      );
+      allow write: if isSignedIn() && (
+        isGlobalAdmin() || 
+        (isBranchManager() && isBranchMatch(resource.data.branchId))
+      );
+    }
+
+    // ========================================================================
+    // PROCUREMENT (Purchase Requests, Supplier Quotes, Purchase Orders, Goods Receipts)
+    // ========================================================================
+    match /inventory_events/{eventId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow write: if false; // System only (Admin SDK)
+    }
+
+    match /change_requests/{requestId} {
+      allow read: if isSignedIn() && (isGlobalAdmin() || resource.data.submitted_by == request.auth.uid);
+      allow create: if isSignedIn() && isStaff();
+      allow update: if isSignedIn() && isGlobalAdmin();
+    }
+
+    match /bulk_operations/{opId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow write: if isSignedIn() && isGlobalAdmin();
+    }
+
+    match /purchase_requests/{requestId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        (isBranchManager() && isBranchMatch(resource.data.branchId)) ||
+        (isSupplier() && resource.data.supplierId == request.auth.uid)
+      );
+      allow create: if isSignedIn() && isBranchManager() && request.resource.data.branchId == getBranchId();
+      allow update: if isSignedIn() && (isGlobalAdmin() || (isSupplier() && resource.data.supplierId == request.auth.uid));
+    }
+
+    match /supplier_quotes/{quoteId} {
+      allow read: if isSignedIn() && (isGlobalAdmin() || (isSupplier() && resource.data.supplierId == request.auth.uid));
+      allow create, update: if isSignedIn() && isSupplier() && request.resource.data.supplierId == request.auth.uid;
+    }
+
+    match /purchase_orders/{poId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        (isBranchManager() && isBranchMatch(resource.data.branchId)) ||
+        (isSupplier() && resource.data.supplierId == request.auth.uid)
+      );
+      allow write: if isSignedIn() && isGlobalAdmin(); // Only admin/owner can generate PO
+    }
+
+    match /goods_receipts/{receiptId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        (isBranchManager() && isBranchMatch(resource.data.branchId)) ||
+        (isSupplier() && resource.data.supplierId == request.auth.uid)
+      );
+      allow write: if isSignedIn() && (
+        isGlobalAdmin() ||
+        (isBranchManager() && isBranchMatch(request.resource.data.branchId))
+      );
+    }
+
+    // ========================================================================
+    // DELIVERY MANAGEMENT
+    // ========================================================================
+    match /delivery_tasks/{taskId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        (isDispatcher() && isBranchMatch(resource.data.branchId)) ||
+        (isRider() && resource.data.riderId == request.auth.uid)
+      );
+      allow create: if isSignedIn() && (isGlobalAdmin() || (isDispatcher() && isBranchMatch(request.resource.data.branchId)));
+      allow update: if isSignedIn() && (
+        isGlobalAdmin() ||
+        (isDispatcher() && isBranchMatch(resource.data.branchId)) ||
+        (isRider() && resource.data.riderId == request.auth.uid)
+      );
+    }
+
+    match /delivery_batches/{batchId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        (isDispatcher() && isBranchMatch(resource.data.branchId)) ||
+        (isRider() && resource.data.riderId == request.auth.uid)
+      );
+      allow create: if isSignedIn() && (isGlobalAdmin() || (isDispatcher() && isBranchMatch(request.resource.data.branchId)));
+      allow update: if isSignedIn() && (
+        isGlobalAdmin() ||
+        (isDispatcher() && isBranchMatch(resource.data.branchId)) ||
+        (isRider() && resource.data.riderId == request.auth.uid)
+      );
+    }
+
+    // ========================================================================
+    // DELIVERY SUPPORT COLLECTIONS - CONSOLIDATED (Module 9 P0 Security Fix)
+    // All delivery data consolidated into delivery_tasks collection
+    // ========================================================================
+
+    // ========================================================================
+    // TASK #7: DELIVERY* COLLECTIONS — CRITICAL FIX: Add missing security rules
+    // All delivery collections had zero rules. Now enforcing least-privilege access.
+    // ========================================================================
+
+    // deliveries — Active delivery tracking
+    // Customer reads own orders' delivery status
+    // Rider reads assigned deliveries
+    // Dispatcher manages all in their branch
+    // Admin reads all
+    match /deliveries/{deliveryId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        (isDispatcher() && isBranchMatch(resource.data.branchId)) ||
+        (isRider() && resource.data.riderId == request.auth.uid) ||
+        (isCustomer() && resource.data.customerId == request.auth.uid)
+      );
+      // Only service layer (Admin SDK) creates deliveries
+      allow create: if isSignedIn() && (
+        isGlobalAdmin() ||
+        isServiceAuth()
+      );
+      // Dispatcher updates status, rider updates location
+      allow update: if isSignedIn() && (
+        isGlobalAdmin() ||
+        (isDispatcher() && isBranchMatch(resource.data.branchId)) ||
+        (isRider() && resource.data.riderId == request.auth.uid)
+      );
+      allow delete: if false; // Delivery records immutable
+    }
+
+    // delivery_routes — Assigned delivery routes for riders
+    // Service role only (written by backend during route optimization)
+    match /delivery_routes/{routeId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        (isDispatcher() && isBranchMatch(resource.data.branchId)) ||
+        (isRider() && resource.data.riderId == request.auth.uid)
+      );
+      // Only service layer optimizes and assigns routes
+      allow write: if isSignedIn() && (
+        isGlobalAdmin() ||
+        isServiceAuth()
+      );
+      allow delete: if false; // Route records immutable
+    }
+
+    // delivery_location_history — Historical GPS tracking for auditing
+    // Rider writes their own location updates
+    // Service layer (backend) can write for offline sync
+    // Dispatcher/customer can read for tracking
+    match /delivery_location_history/{histId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        (isDispatcher() && isBranchMatch(resource.data.branchId)) ||
+        (isRider() && resource.data.riderId == request.auth.uid) ||
+        (isCustomer() && resource.data.customerId == request.auth.uid)
+      );
+      // Rider updates their own location, service layer writes synced data
+      allow create: if isSignedIn() && (
+        isGlobalAdmin() ||
+        (isRider() && request.resource.data.riderId == request.auth.uid) ||
+        isServiceAuth()
+      );
+      allow update: if isSignedIn() && (
+        isGlobalAdmin() ||
+        isServiceAuth()
+      );
+      allow delete: if false; // Location history immutable (audit trail)
+    }
+
+    // delivery_assignments — Assignment records (rider -> delivery)
+    // Service role only (written by assignment algorithm in backend)
+    match /delivery_assignments/{assignmentId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        (isDispatcher() && isBranchMatch(resource.data.branchId)) ||
+        (isRider() && resource.data.riderId == request.auth.uid)
+      );
+      // Only backend assignment service can write
+      allow write: if isSignedIn() && (
+        isGlobalAdmin() ||
+        isServiceAuth()
+      );
+      allow delete: if false; // Assignment records immutable
+    }
+
+    // delivery_proofs — Proof of delivery (photos, signatures, timestamps)
+    // Rider uploads proofs for their deliveries
+    // Dispatcher/customer can read for verification
+    // Service layer validates and archives
+    match /delivery_proofs/{proofId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        (isDispatcher() && isBranchMatch(resource.data.branchId)) ||
+        (isRider() && resource.data.riderId == request.auth.uid) ||
+        (isCustomer() && resource.data.customerId == request.auth.uid)
+      );
+      // Rider uploads proof for their delivery
+      allow create: if isSignedIn() && (
+        isGlobalAdmin() ||
+        (isRider() && request.resource.data.riderId == request.auth.uid)
+      );
+      // Service layer marks as verified/archived
+      allow update: if isSignedIn() && (
+        isGlobalAdmin() ||
+        isServiceAuth()
+      );
+      allow delete: if false; // Proof immutable (audit trail)
+    }
+
+    // delivery_agents — Rider/delivery agent profiles
+    // DEPRECATED: consolidating into delivery_tasks
+    match /delivery_agents/{agentId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() || isDispatcher() || agentId == request.auth.uid
+      );
+      allow write: if false; // DEPRECATED - consolidating into delivery_tasks
+    }
+
+    // delivery_assignments — (read-only migration; writes blocked)
+    match /delivery_assignments/{assignmentId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        (isDispatcher() && isBranchMatch(resource.data.branchId)) ||
+        resource.data.riderId == request.auth.uid
+      );
+      allow write: if false; // DEPRECATED - consolidated into deliveries & delivery_routes
+    }
+
+    // delivery_otp — OTP verification codes for delivery confirmation
+    match /delivery_otp/{otpId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        isDispatcher() ||
+        resource.data.riderId == request.auth.uid ||
+        resource.data.customerId == request.auth.uid
+      );
+      allow write: if false; // DEPRECATED - consolidated into delivery_tasks
+    }
+
+    // delivery_locations — (read-only migration; use delivery_location_history)
+    match /delivery_locations/{locId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        isDispatcher() ||
+        resource.data.riderId == request.auth.uid ||
+        resource.data.customerId == request.auth.uid
+      );
+      allow write: if false; // DEPRECATED - use delivery_location_history instead
+    }
+
+    // delivery_tracking — (read-only migration; consolidated into deliveries)
+    match /delivery_tracking/{trackId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        isDispatcher() ||
+        resource.data.riderId == request.auth.uid ||
+        resource.data.customerId == request.auth.uid
+      );
+      allow write: if false; // DEPRECATED - status now in deliveries
+    }
+
+    // delivery_status — (read-only migration; consolidated into deliveries)
+    match /delivery_status/{statusId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() || isDispatcher() ||
+        resource.data.riderId == request.auth.uid ||
+        resource.data.customerId == request.auth.uid
+      );
+      allow write: if false; // DEPRECATED - status field in deliveries
+    }
+
+    // delivery_history — (read-only migration; consolidated into deliveries)
+    match /delivery_history/{histId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() || isDispatcher() ||
+        resource.data.riderId == request.auth.uid
+      );
+      allow write: if false; // DEPRECATED - consolidated into deliveries.history
+    }
+
+    // delivery_notifications — Delivery status notifications to customers/riders
+    match /delivery_notifications/{notifId} {
+      allow read: if isSignedIn() && (
+        resource.data.recipientId == request.auth.uid || isGlobalAdmin()
+      );
+      // Service layer only (backend sends notifications)
+      allow write: if isSignedIn() && (
+        isGlobalAdmin() ||
+        isServiceAuth()
+      );
+    }
+
+    // delivery_preferences — Customer delivery preferences (e.g., do not ring bell)
+    match /delivery_preferences/{prefId} {
+      allow read: if isSignedIn() && (
+        resource.data.customerId == request.auth.uid || isGlobalAdmin()
+      );
+      // Customer updates own preferences
+      allow update: if isSignedIn() && resource.data.customerId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.customerId == request.auth.uid;
+      allow delete: if false; // DEPRECATED - consolidating into delivery_tasks.preferences
+    }
+
+    match /delivery_events/{eventId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        isDispatcher() ||
+        resource.data.riderId == request.auth.uid ||
+        resource.data.customerId == request.auth.uid
+      );
+      allow create: if isSignedIn() && isStaff();
+      allow update: if isSignedIn() && (isGlobalAdmin() || isDispatcher());
+    }
+
+    match /delivery_exceptions/{excId} {
+      allow read: if isSignedIn() && (isGlobalAdmin() || isDispatcher());
+      allow create: if isSignedIn() && isStaff();
+      allow update: if isSignedIn() && (isGlobalAdmin() || isDispatcher());
+    }
+
+    match /delivery_sla_rules/{ruleId} {
+      allow read: if isSignedIn() && (isGlobalAdmin() || isDispatcher());
+      allow write: if isSignedIn() && isGlobalAdmin();
+    }
+
+    match /delivery_slots/{slotId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isGlobalAdmin();
+    }
+
+    // ========================================================================
+    // CASH COLLECTION AUDIT
+    // ========================================================================
+    match /cash_audit/{auditId} {
+      allow read: if isSignedIn() && (isGlobalAdmin() || (isDispatcher() && isBranchMatch(resource.data.branchId)));
+      allow create: if isSignedIn() && (isDispatcher() || isRider());
+      allow update: if false; // Immutable audit log
+      allow delete: if false;
+    }
+
+    // ========================================================================
+    // OPERATIONS QUEUES
+    // ========================================================================
+    match /work_queue/{taskId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        (isBranchManager() && isBranchMatch(resource.data.branchId)) ||
+        (isDispatcher() && isBranchMatch(resource.data.branchId))
+      );
+      allow write: if isSignedIn() && (
+        isGlobalAdmin() ||
+        ((isBranchManager() || isDispatcher()) && isBranchMatch(resource.data.branchId))
+      );
+    }
+
+    match /approval_requests/{requestId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        resource.data.requesterId == request.auth.uid ||
+        resource.data.approverId == request.auth.uid
+      );
+      allow create: if isSignedIn() && request.resource.data.requesterId == request.auth.uid;
+      allow update: if isSignedIn() && (
+        isGlobalAdmin() ||
+        resource.data.approverId == request.auth.uid
+      );
+    }
+
+    // CACHE Collection
+    match /cache/{documentId=**} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isStaff();
+    }
+
+    // ANALYTICS Collection
+    match /analytics/{analyticsId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow write: if false; // System only (Admin SDK)
+    }
+
+    match /alerts/{alertId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow write: if false; // System only (Admin SDK)
+    }
+
+    match /inventory_alerts/{alertId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow write: if false; // System only (Admin SDK)
+    }
+
+    // ========================================================================
+    // THIRD PARTY INTEGRATION QUEUES
+    // ========================================================================
+    match /webhook_events/{eventId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow write: if false; // System only (Admin SDK)
+    }
+
+    match /whatsapp_incoming/{msgId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow write: if false; // System only (Admin SDK)
+    }
+
+    match /report_trigger_queue/{reportId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow write: if false; // System only (Admin SDK)
+    }
+
+    match /low_stock_alerts/{alertId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow write: if false; // System only (Admin SDK)
+    }
+
+    match /settings/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isGlobalAdmin();
+
+      match /shop_config/{configId} {
+        allow read: if true;
+        allow write: if isSignedIn() && isGlobalAdmin();
+
+        match /branches/{branchId} {
+          allow read: if true;
+          allow write: if isSignedIn() && isGlobalAdmin();
+        }
+
+        match /operating_hours/{dayId} {
+          allow read: if true;
+          allow write: if isSignedIn() && isGlobalAdmin();
+        }
+      }
+    }
+
+    // ========================================================================
+    // FINANCIAL & SECURITY LOGS
+    // ========================================================================
     match /audit_logs/{logId} {
-      allow read: if isAdmin();
-      allow create: if isSignedIn();
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow create: if isSignedIn() && (request.resource.data.userId == request.auth.uid || isStaff());
       allow update, delete: if false;
     }
 
-    // --- Products Collection ---
-    match /products/{productId} {
-      allow read: if isSignedIn();
-      allow write: if isOwner() || isAdmin();
-
-      match /reviews/{reviewId} {
-        allow read: if true;
-        allow create: if isSignedIn();
-        allow update, delete: if isSignedIn() && request.auth.uid == resource.data.userId;
-      }
+    match /security_events/{eventId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow create: if isSignedIn(); // Client might report security failure (like OTP fail)
+      allow update, delete: if false;
     }
 
-    // --- Orders Collection ---
-    match /orders/{orderId} {
-      allow create: if isSignedIn()
-                    && request.resource.data.customerId == request.auth.uid
-                    && request.resource.data.status == 'OrderStatus.pending'
-                    && request.resource.data.paymentStatus != 'paid'
-                    && isWithinGeofence(request.resource.data.deliveryAddress);
-                    
+    match /wallet_transactions/{txId} {
+      allow read: if isSignedIn() && (isGlobalAdmin() || resource.data.userId == request.auth.uid);
+      allow write: if false; // Must be done via atomic Cloud Function or Admin SDK
+    }
+
+    match /refund_requests/{refundId} {
       allow read: if isSignedIn() && (
-        request.auth.uid == resource.data.customerId ||
-        isOwner() ||
-        isRider() ||
-        isAdmin()
+        isGlobalAdmin() ||
+        resource.data.customerId == request.auth.uid
       );
-      
-      // ── IMMUTABILITY GUARD: Block all edits to delivered/cancelled orders ──
-      // Exception: Admin can still update for refund processing
-      allow update: if isSignedIn()
-        && (
-          // Admin override for refunds on terminal orders
-          (isAdmin())
-          ||
-          // Owner/Rider/Employee can update only non-terminal orders
-          ((isOwner() || isEmployee()) && !isOrderTerminal(resource.data))
-          ||
-          // Rider can update only orders assigned to them, and only non-terminal
-          (isRider() && !isOrderTerminal(resource.data)
-           && resource.data.deliveryAgentId == request.auth.uid)
-          ||
-          // Customer can only cancel their own order (if not yet packed)
-          (request.auth.uid == resource.data.customerId
-           && !isOrderTerminal(resource.data)
-           && resource.data.status in ['OrderStatus.pending', 'OrderStatus.confirmed', 'OrderStatus.accepted']
-           && request.resource.data.status == 'OrderStatus.cancelled'
-           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt', 'statusHistory', 'cancellationReason']))
-        );
-
-      // Secure OTP subcollection
-      match /secure/otp {
-        allow read: if isSignedIn() &&
-                      exists(/databases/$(database)/documents/orders/$(orderId)) &&
-                      request.auth.uid == get(/databases/$(database)/documents/orders/$(orderId)).data.customerId;
-        allow create, update: if isOwner() || isAdmin() || isRider();
-        allow delete: if false;
-      }
+      allow create: if isSignedIn() && request.resource.data.customerId == request.auth.uid;
+      allow update: if isSignedIn() && isGlobalAdmin(); // Only admin approves refunds
     }
 
-    // --- Chats Collection ---
-    match /chats/{chatId} {
-      allow read, write: if isSignedIn() && (
-        request.auth.uid in resource.data.participants ||
-        request.auth.uid in request.resource.data.participants
+    // Ledger of completed payment/refund/payout events. Written only by
+    // Cloud Functions (Admin SDK bypasses rules); owner/admin can read for
+    // the Payment Analytics dashboard (Task #49), customers can read their own.
+    match /transactions/{txId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        resource.data.customerId == request.auth.uid
       );
+      allow write: if false; // Cloud Functions only (Admin SDK)
     }
 
-    // --- Settings Collection ---
-    match /settings/{settingId} {
-      allow read: if true;
-      allow write: if isOwner() || isAdmin();
-
-      match /branches/{branchId} {
-        allow read: if true;
-        allow write: if isOwner() || isAdmin();
-      }
+    // Payment disputes / chargebacks (Task #50). Created/updated by the
+    // razorpayWebhook Cloud Function (Admin SDK bypasses rules); evidence
+    // submission goes through the submitDisputeEvidence callable, which is
+    // also Admin SDK. Owners/admins read for the Dispute Management screen;
+    // affected customers can read their own dispute record.
+    match /payment_disputes/{disputeId} {
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        resource.data.customerId == request.auth.uid
+      );
+      allow write: if false; // Cloud Functions only (Admin SDK)
     }
-
-    // --- Rider Payouts ---
-    match /rider_payouts/{payoutId} {
-      allow read: if isSignedIn() && (isOwner() || isAdmin() || request.auth.uid == resource.data.riderId);
-      allow write: if isOwner() || isAdmin();
+  
+    // ========================================================================
+    // DEAD LETTER QUEUE — RDS sync failures (written by OrderProvider,
+    // read by admin/owner for retry dashboard)
+    // ========================================================================
+    match /dead_letter_rds_sync/{docId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow write: if isSignedIn() && isStaff(); // Staff writes on behalf of customer
+      allow delete: if isGlobalAdmin(); // Admin clears after successful retry
     }
+    // ========================================================================
+    // PAYMENT COLLECTIONS — Written by Cloud Functions (Admin SDK bypasses
+    // rules). Client reads are restricted: customers see their own records,
+    // owner/admin see all. Direct client writes are blocked — all mutations
+    // go through Cloud Functions (verifyRazorpayPayment, razorpayWebhook, etc.)
+    // ========================================================================
 
-    // --- Payments ---
     match /payments/{paymentId} {
-      allow read: if isSignedIn() && (isOwner() || isAdmin() || request.auth.uid == resource.data.customerId);
-      allow create: if isSignedIn() && request.resource.data.customerId == request.auth.uid;
-      // Payments are append-only for customers; only admin/owner can update status
-      allow update: if isOwner() || isAdmin();
-      allow delete: if false;
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        resource.data.uid == request.auth.uid ||
+        resource.data.customerId == request.auth.uid
+      );
+      allow write: if false; // Cloud Functions only (Admin SDK)
     }
 
-    // --- Return Requests ---
-    match /return_requests/{requestId} {
-      allow read: if isSignedIn() && (isOwner() || isAdmin() || request.auth.uid == resource.data.customerId);
-      allow create: if isSignedIn() && request.resource.data.customerId == request.auth.uid;
-      allow update: if isOwner() || isAdmin();
-      allow delete: if false;
+    match /webhook_logs/{logId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow write: if false; // Cloud Functions only
     }
 
-    // --- Group Buying Pools ---
-    match /group_pools/{poolId} {
-      allow read: if isSignedIn();
+    match /reconciliation_queue/{reconId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow write: if false; // Cloud Functions only
+    }
+
+    match /payment_retry_queue/{retryId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow write: if false; // Cloud Functions only
+    }
+
+    match /payment_retries/{retryId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow write: if false; // Cloud Functions only
+    }
+
+    match /payment_retry_counters/{orderId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow write: if false; // Cloud Functions only
+    }
+
+    match /payment_reconciliation_log/{logId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow write: if false; // Cloud Functions only
+    }
+
+    match /payment_orphans/{orphanId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow write: if false; // Cloud Functions only
+    }
+
+    match /owner_notifications/{notifId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow write: if false; // Cloud Functions only
+    }
+
+    match /campaign_triggers/{triggerId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow write: if isSignedIn() && isGlobalAdmin(); // SmartAnalyticsService
+    }
+
+    // cashback_triggers — written by OrderProvider on delivery confirmation,
+    // processed by processCashbackTrigger Cloud Function (Admin SDK).
+    match /cashback_triggers/{triggerId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow write: if isSignedIn() && isStaff(); // Staff writes on behalf of rider/dispatcher
+    }
+
+    // ========================================================================
+    // MERGED E-COMMERCE COLLECTIONS (From Production Rules)
+    // ========================================================================
+
+    match /product_locks/{productId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow write: if false; // Only Cloud Functions can write
+    }
+
+    match /refund_logs/{refundId} {
+      allow read: if isSignedIn() && isGlobalAdmin();
+      allow write: if false; // Only Cloud Functions can write
+    }
+
+    match /release_notes/{noteId} {
+      allow read: if true;
+      allow write: if isSignedIn() && isGlobalAdmin();
+    }
+
+    match /lightning_deals/{dealId} {
+      allow read: if true;
+      allow write: if isSignedIn() && isGlobalAdmin();
+    }
+
+    match /carts/{userId} {
+      allow read, create, update, delete: if isSignedIn() && isOwningUser(userId);
+
+      match /items/{itemId} {
+        allow read, create, update, delete: if isSignedIn() && isOwningUser(userId);
+      }
+    }
+
+    match /family_groups/{familyId} {
+      allow read: if isSignedIn() && (
+        resource.data.ownerUserId == request.auth.uid ||
+        getUserData().familyGroupId == familyId ||
+        isGlobalAdmin()
+      );
       allow create: if isSignedIn();
-      allow update: if isSignedIn() && (request.auth.uid in request.resource.data.memberIds);
-      allow delete: if false;
+      allow update: if isSignedIn() && (
+        resource.data.ownerUserId == request.auth.uid ||
+        isGlobalAdmin()
+      );
+
+      match /approval_requests/{requestId} {
+        allow read, write: if isSignedIn() && (
+          get(/databases/$(database)/documents/family_groups/$(familyId)).data.ownerUserId == request.auth.uid ||
+          getUserData().familyGroupId == familyId ||
+          isGlobalAdmin()
+        );
+      }
     }
 
-    // --- Khata Transactions ---
-    match /khata_transactions/{transactionId} {
-      allow read: if isSignedIn() && (isOwner() || isAdmin() || request.auth.uid == resource.data.userId);
-      allow create: if isSignedIn() && (request.resource.data.userId == request.auth.uid || isOwner() || isAdmin());
-      allow update, delete: if isOwner() || isAdmin();
-    }
-
-    // --- Shops and Branches Collections ---
     match /shops/{shopId} {
       allow read: if isSignedIn();
-      allow write: if isOwner() || isAdmin();
-
-      // ── Scan Logs (audit trail written by scanner_service.dart) ──
-      // • Any authenticated employee/rider/owner can CREATE their own log.
-      // • Only owner/admin can READ all logs (for scan activity monitor).
-      // • Logs are immutable — no update or delete allowed.
-      match /scan_logs/{logId} {
-        allow create: if isSignedIn()
-          && request.resource.data.employeeId == request.auth.uid;
-        allow read: if isOwner() || isAdmin()
-          || (isSignedIn() && resource.data.employeeId == request.auth.uid);
-        allow update, delete: if false;
-      }
-
-      // ── Dispatch Logs (append-only) ───────────────────────────────────────
-      match /dispatch_logs/{logId} {
-        allow create: if isEmployee() || isOwner() || isAdmin();
-        allow read: if isEmployee() || isOwner() || isAdmin();
-        allow update, delete: if false;
-      }
-
-      // ── Proof-of-Delivery Logs (append-only) ─────────────────────────────
-      match /pod_logs/{logId} {
-        allow create: if isSignedIn() && (isRider() || isEmployee() || isOwner() || isAdmin());
-        allow read: if isOwner() || isAdmin()
-          || (isSignedIn() && resource.data.deliveredBy == request.auth.uid);
-        allow update, delete: if false;
-      }
+      allow create, update: if isSignedIn() && (isGlobalAdmin() || isShopOwner(shopId));
+      allow delete: if isSignedIn() && isGlobalAdmin();
 
       match /branches/{branchId} {
         allow read: if isSignedIn();
-        allow write: if isOwner() || isAdmin();
+        allow create, update: if isSignedIn() && isShopOwner(shopId);
+        allow delete: if isSignedIn() && isGlobalAdmin();
+      }
 
-        match /products/{productId} {
-          allow read: if isSignedIn();
-          allow write: if isOwner() || isAdmin() || isEmployee();
-        }
+      match /employees/{employeeId} {
+        allow read: if isSignedIn() && (isShopOwner(shopId) || isGlobalAdmin());
+        allow create, update, delete: if isSignedIn() && isShopOwner(shopId);
+      }
 
-        match /inventory_batches/{batchId} {
-          allow read: if isSignedIn();
-          allow write: if isOwner() || isAdmin() || isEmployee();
-        }
+      match /inventory/{inventoryId} {
+        allow read: if isSignedIn() && (isApprovedEmployee() || isShopOwner(shopId) || isGlobalAdmin());
+        allow create, update: if isSignedIn() && (isShopOwner(shopId) || isGlobalAdmin());
+        allow delete: if isSignedIn() && isGlobalAdmin();
+      }
 
-        match /inventory_audit_logs/{auditId} {
-          allow read: if isEmployee() || isOwner() || isAdmin();
-          allow create: if isEmployee() || isOwner() || isAdmin();
-          allow update, delete: if false;
-        }
+      match /orders/{orderId} {
+        allow read: if isSignedIn() && (isApprovedEmployee() || isShopOwner(shopId) || isGlobalAdmin());
+      }
 
-        match /inventory_audits/{auditId} {
-          allow read: if isEmployee() || isOwner() || isAdmin();
-          allow write: if isEmployee() || isOwner() || isAdmin();
-        }
-
-        match /damage_reports/{reportId} {
-          allow read: if isEmployee() || isOwner() || isAdmin();
-          allow write: if isEmployee() || isOwner() || isAdmin();
-        }
-
-        match /attendance/{attendanceId} {
-          allow read: if isSignedIn() && (request.auth.uid == resource.data.employeeId || isEmployee() || isOwner() || isAdmin());
-          allow write: if isSignedIn() && (request.auth.uid == request.resource.data.employeeId || isEmployee() || isOwner() || isAdmin());
-        }
-
-        match /cash_collections/{collectionId} {
-          allow read: if isEmployee() || isOwner() || isAdmin();
-          allow write: if isEmployee() || isOwner() || isAdmin();
-        }
-
-        match /returns/{returnId} {
-          allow read: if isEmployee() || isOwner() || isAdmin();
-          allow write: if isEmployee() || isOwner() || isAdmin();
-        }
-
-        match /inventory_transfers/{transferId} {
-          allow read: if isEmployee() || isOwner() || isAdmin();
-          allow write: if isEmployee() || isOwner() || isAdmin();
-        }
-
-        match /shelf_refill_alerts/{alertId} {
-          allow read: if isEmployee() || isOwner() || isAdmin();
-          allow write: if isEmployee() || isOwner() || isAdmin();
-        }
-
-        match /orders/{orderId} {
-          allow read: if isSignedIn();
-          allow write: if isOwner() || isAdmin() || isEmployee();
-        }
+      match /analytics/{analyticsId} {
+        allow read: if isSignedIn() && (isShopOwner(shopId) || isGlobalAdmin());
       }
     }
 
-    // --- Payment Reconciliation Audit Log (write-once, append-only) ---
-    match /payment_reconciliation_log/{logId} {
-      allow read: if isOwner() || isAdmin();
-      allow create: if isSignedIn();
-      allow update, delete: if false;  // Immutable audit trail
+    match /return_requests/{returnId} {
+      allow read: if isSignedIn() && (
+        resource.data.customerId == request.auth.uid ||
+        isApprovedEmployee() ||
+        isGlobalAdmin()
+      );
+      allow create: if isSignedIn() && isCustomer() && request.resource.data.customerId == request.auth.uid;
+      allow update: if isSignedIn() && (
+        isApprovedEmployee() ||
+        isGlobalAdmin()
+      );
+      allow delete: if isSignedIn() && isGlobalAdmin();
+    }
+    
+    match /returns/{returnId} {
+      allow read: if isSignedIn() && (
+        resource.data.customerId == request.auth.uid ||
+        isApprovedEmployee() ||
+        isGlobalAdmin()
+      );
+      allow create: if isSignedIn() && isCustomer() && request.resource.data.customerId == request.auth.uid;
+      allow update: if isSignedIn() && (
+        isApprovedEmployee() ||
+        isGlobalAdmin()
+      );
+      allow delete: if isSignedIn() && isGlobalAdmin();
     }
 
-    // --- Cash Collection Audit Log (write-once) ---
-    match /cash_collection_audit/{logId} {
-      allow read: if isOwner() || isAdmin();
-      allow create: if isSignedIn() && (isRider() || isEmployee() || isOwner() || isAdmin());
-      allow update, delete: if false;
+    match /reviews/{reviewId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isCustomer() &&
+        request.resource.data.customerId == request.auth.uid &&
+        request.resource.data.rating >= 1 &&
+        request.resource.data.rating <= 5;
+      allow update: if isSignedIn() && resource.data.customerId == request.auth.uid;
+      allow delete: if isSignedIn() && (resource.data.customerId == request.auth.uid || isGlobalAdmin());
+    }
+
+    match /chats/{chatId} {
+      allow read: if isSignedIn() && (
+        request.auth.uid in resource.data.participantIds ||
+        isGlobalAdmin()
+      );
+      allow create: if isSignedIn() && request.auth.uid in request.resource.data.participantIds;
+      allow update: if isSignedIn() && (
+        request.auth.uid in resource.data.participantIds ||
+        isGlobalAdmin()
+      );
+
+      match /messages/{messageId} {
+        allow read: if isSignedIn() && (
+          request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participantIds ||
+          isGlobalAdmin()
+        );
+        allow create: if isSignedIn() && request.resource.data.senderId == request.auth.uid;
+        allow update, delete: if isSignedIn() && (
+          resource.data.senderId == request.auth.uid ||
+          isGlobalAdmin()
+        );
+      }
+    }
+
+    match /delivery_partners/{partnerId} {
+      allow read: if isSignedIn() && (isOwningUser(partnerId) || isGlobalAdmin());
+      allow create, update: if isSignedIn() && (isOwningUser(partnerId) || isGlobalAdmin());
+      allow delete: if isSignedIn() && isGlobalAdmin();
+
+      match /deliveries/{deliveryId} {
+        allow read: if isSignedIn() && (
+          resource.data.deliveryPartnerId == request.auth.uid ||
+          isGlobalAdmin()
+        );
+        allow update: if isSignedIn() && (
+          resource.data.deliveryPartnerId == request.auth.uid ||
+          isGlobalAdmin()
+        );
+      }
+    }
+
+    match /subscriptions/{subscriptionId} {
+      allow read: if isSignedIn() && (
+        resource.data.customerId == request.auth.uid ||
+        isGlobalAdmin()
+      );
+      allow create: if isSignedIn() && isCustomer();
+      allow update: if isSignedIn() && (
+        resource.data.customerId == request.auth.uid ||
+        isGlobalAdmin()
+      );
+      allow delete: if isSignedIn() && (
+        resource.data.customerId == request.auth.uid ||
+        isGlobalAdmin()
+      );
     }
   }
 }

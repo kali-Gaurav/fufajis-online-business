@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../models/product_model.dart';
+import '../utils/monetary_value.dart';
 
 class FirestoreSeeder {
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -65,10 +66,11 @@ class FirestoreSeeder {
           name: 'Fresh Organic Tomatoes (Desi)',
           description:
               'Directly sourced juicy, farm-fresh desi organic tomatoes. Perfect for curries, salads, and chutneys.',
-          price: 40.0,
-          originalPrice: 40.0,
+          price: MonetaryValue(40.0),
+          originalPrice: MonetaryValue(40.0),
           unit: 'kg',
-          category: 'vegetables',
+          categoryId: 'vegetables',
+          category: 'Vegetables',
           subCategory: 'fresh-veggies',
           shopId: shopId,
           shopName: shopName,
@@ -98,10 +100,11 @@ class FirestoreSeeder {
           name: 'Organic Bananas (Robusta)',
           description:
               'Naturally ripened chemical-free bananas packed with energy and potassium.',
-          price: 50.0,
-          originalPrice: 60.0,
+          price: MonetaryValue(50.0),
+          originalPrice: MonetaryValue(60.0),
           unit: 'dozen',
-          category: 'fruits',
+          categoryId: 'fruits',
+          category: 'Fruits',
           subCategory: 'fresh-fruits',
           shopId: shopId,
           shopName: shopName,
@@ -131,10 +134,11 @@ class FirestoreSeeder {
           name: 'Sujata Chakki Fresh Atta',
           description:
               '100% whole wheat chakki fresh atta with natural dietary fibers.',
-          price: 420.0,
-          originalPrice: 420.0,
+          price: MonetaryValue(420.0),
+          originalPrice: MonetaryValue(420.0),
           unit: '10kg bag',
-          category: 'groceries',
+          categoryId: 'groceries',
+          category: 'Groceries',
           subCategory: 'flours',
           shopId: shopId,
           shopName: shopName,
@@ -163,10 +167,11 @@ class FirestoreSeeder {
           name: 'Premium Basmati Rice (Rozana)',
           description:
               'Long grain, aromatic Rozana Basmati Rice perfect for daily use.',
-          price: 95.0,
-          originalPrice: 110.0,
+          price: MonetaryValue(95.0),
+          originalPrice: MonetaryValue(110.0),
           unit: 'kg',
-          category: 'groceries',
+          categoryId: 'groceries',
+          category: 'Groceries',
           subCategory: 'rice-grains',
           shopId: shopId,
           shopName: shopName,
@@ -195,10 +200,11 @@ class FirestoreSeeder {
           name: 'Fufaji Fresh Farm Milk (A2)',
           description:
               'Pure, organic, unpasteurized A2 cow milk delivered directly from local dairy farms.',
-          price: 64.0,
-          originalPrice: 64.0,
+          price: MonetaryValue(64.0),
+          originalPrice: MonetaryValue(64.0),
           unit: 'litre',
-          category: 'dairy',
+          categoryId: 'dairy',
+          category: 'Dairy',
           subCategory: 'milk',
           shopId: shopId,
           shopName: shopName,

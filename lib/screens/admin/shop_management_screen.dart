@@ -130,7 +130,7 @@ class _ShopManagementScreenState extends State<ShopManagementScreen> {
             const SizedBox(height: 24),
             Expanded(
               child: adminProvider.isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(child: CircularProgressIndicator(color: AppTheme.adminAccent))
                   : filteredShops.isEmpty
                   ? const Center(child: Text('No shops found.'))
                   : Card(
@@ -161,15 +161,15 @@ class _ShopManagementScreenState extends State<ShopManagementScreen> {
     AdminProvider provider,
   ) {
     final status = (shop['status'] ?? 'pending').toString().toUpperCase();
-    final name = shop['name'] ?? 'No Name';
-    final ownerName = shop['ownerName'] ?? 'Unknown Owner';
-    final district = shop['district'] ?? 'N/A';
-    final phone = shop['phone'] ?? 'N/A';
-    final shopId = shop['id'] ?? '';
+    final name = shop['name'] as String? ?? 'No Name';
+    final ownerName = shop['ownerName'] as String? ?? 'Unknown Owner';
+    final district = shop['district'] as String? ?? 'N/A';
+    final phone = shop['phone'] as String? ?? 'N/A';
+    final shopId = shop['id'] as String? ?? '';
 
-    Color statusColor = Colors.orange;
-    if (status == 'APPROVED') statusColor = Colors.green;
-    if (status == 'SUSPENDED') statusColor = Colors.red;
+    Color statusColor = AppTheme.warning;
+    if (status == 'APPROVED') statusColor = AppTheme.success;
+    if (status == 'SUSPENDED') statusColor = AppTheme.error;
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),

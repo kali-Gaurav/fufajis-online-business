@@ -19,10 +19,17 @@ class _BahiKhataScreenState extends State<BahiKhataScreen> {
   String _searchQuery = '';
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Digital Bahi-Khata'),
+        title: const Text('Digital Bahi-Khata', style: TextStyle(fontWeight: FontWeight.w700)),
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),
@@ -73,7 +80,7 @@ class _BahiKhataScreenState extends State<BahiKhataScreen> {
                   .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
                 }
 
                 final users = snapshot.data!.docs
@@ -173,11 +180,11 @@ class _BahiKhataScreenState extends State<BahiKhataScreen> {
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: CircleAvatar(
-          backgroundColor: AppTheme.secondary.withValues(alpha: 0.1),
+          backgroundColor: AppTheme.info.withValues(alpha: 0.1),
           child: Text(
             user.name?[0].toUpperCase() ?? '?',
             style: const TextStyle(
-              color: AppTheme.secondary,
+              color: AppTheme.info,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -286,7 +293,7 @@ class _BahiKhataScreenState extends State<BahiKhataScreen> {
                 stream: _khataService.getCustomerKhataStream(user.id),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
                   }
                   final txs = snapshot.data!;
                   if (txs.isEmpty) {
@@ -335,7 +342,7 @@ class _BahiKhataScreenState extends State<BahiKhataScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Record Payment'),
+        title: const Text('Record Payment', style: TextStyle(fontWeight: FontWeight.w700)),
         content: TextField(
           controller: amountController,
           keyboardType: TextInputType.number,
@@ -389,7 +396,7 @@ class _BahiKhataScreenState extends State<BahiKhataScreen> {
           builder: (context, setDialogState) {
             return AlertDialog(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              title: const Text('Add Manual Transaction'),
+              title: const Text('Add Manual Transaction', style: TextStyle(fontWeight: FontWeight.w700)),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -461,7 +468,7 @@ class _BahiKhataScreenState extends State<BahiKhataScreen> {
                             labelText: 'Select Customer',
                             border: OutlineInputBorder(),
                           ),
-                          value: selectedUser,
+                          initialValue: selectedUser,
                           items: users.map((u) {
                             return DropdownMenuItem(
                               value: u,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/trusted_device_service.dart';
@@ -41,8 +42,8 @@ class _MyDevicesScreenState extends State<MyDevicesScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Devices'),
-        backgroundColor: Colors.white,
+        title: const Text('My Devices', style: TextStyle(fontWeight: FontWeight.w700)),
+        backgroundColor: AppTheme.cream,
         foregroundColor: AppTheme.grey900,
         elevation: 0,
       ),
@@ -50,7 +51,7 @@ class _MyDevicesScreenState extends State<MyDevicesScreen> {
         stream: _trustedDeviceService.getMyDevices(uid),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
           }
 
           final devices = snapshot.data ?? [];
@@ -68,8 +69,8 @@ class _MyDevicesScreenState extends State<MyDevicesScreen> {
               final isTrusted = device['trusted'] == true;
               
               DateTime? lastLogin;
-              if (device['lastLogin'] != null) {
-                lastLogin = device['lastLogin'].toDate();
+              if (device['lastLogin'] != null && device['lastLogin'] is Timestamp) {
+                lastLogin = (device['lastLogin'] as Timestamp).toDate();
               }
 
               return Card(
@@ -86,7 +87,7 @@ class _MyDevicesScreenState extends State<MyDevicesScreen> {
                   title: Row(
                     children: [
                       Text(
-                        device['deviceName'] ?? 'Unknown Device',
+                        (device['deviceName'] as String?) ?? 'Unknown Device',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       if (isCurrent) ...[
@@ -94,7 +95,7 @@ class _MyDevicesScreenState extends State<MyDevicesScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: AppTheme.primary.withOpacity(0.1),
+                            color: AppTheme.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Text('This Device', style: TextStyle(fontSize: 10, color: AppTheme.primary)),
@@ -123,7 +124,7 @@ class _MyDevicesScreenState extends State<MyDevicesScreen> {
                   ),
                   trailing: IconButton(
                     icon: const Icon(Icons.logout, color: AppTheme.error),
-                    onPressed: () => _revokeAccess(context, uid, device['deviceId']),
+                    onPressed: () => _revokeAccess(context, uid, device['deviceId'] as String),
                   ),
                 ),
               );
@@ -138,7 +139,7 @@ class _MyDevicesScreenState extends State<MyDevicesScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Revoke Access?'),
+        title: const Text('Revoke Access?', style: TextStyle(fontWeight: FontWeight.w700)),
         content: const Text('This device will be logged out and will need OTP to login again.'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),

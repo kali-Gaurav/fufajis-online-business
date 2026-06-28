@@ -7,6 +7,7 @@ import '../../providers/shop_config_provider.dart';
 import '../../models/product_model.dart';
 import '../../models/scanner_models.dart';
 import '../../models/shop_branch_model.dart';
+import '../../utils/app_theme.dart';
 
 class InventoryTransferScreen extends StatefulWidget {
   const InventoryTransferScreen({super.key});
@@ -42,13 +43,13 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
     );
   }
 
   void _showSuccess(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.green),
+      SnackBar(content: Text(message), backgroundColor: AppTheme.success),
     );
   }
 
@@ -143,10 +144,18 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
   }
 
   @override
+  void dispose() {
+    _quantityController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Inventory Transfer'),
+        title: const Text('Inventory Transfer', style: TextStyle(fontWeight: FontWeight.w700)),
         actions: [
           IconButton(
             icon: const Icon(Icons.qr_code_scanner),
@@ -355,14 +364,14 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'pending':
-        return Colors.orange;
+        return AppTheme.warning;
       case 'shipped':
       case 'inTransit':
-        return Colors.blue;
+        return AppTheme.info;
       case 'received':
-        return Colors.green;
+        return AppTheme.success;
       case 'cancelled':
-        return Colors.red;
+        return AppTheme.error;
       default:
         return Colors.grey;
     }
@@ -372,7 +381,7 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Enter Barcode'),
+        title: const Text('Enter Barcode', style: TextStyle(fontWeight: FontWeight.w700)),
         content: TextField(
           autofocus: true,
           decoration: const InputDecoration(

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart';
 import 'logging_service.dart';
 

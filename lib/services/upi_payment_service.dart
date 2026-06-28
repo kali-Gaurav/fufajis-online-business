@@ -9,7 +9,6 @@ class UpiPaymentService {
 
   static String _upiId = defaultUpiId;
   static String _merchantName = defaultMerchantName;
-  static bool _isLoaded = false;
 
   /// Loads dynamic UPI merchant configurations from Firestore
   static Future<void> init() async {
@@ -21,9 +20,8 @@ class UpiPaymentService {
       if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
         if (data['isActive'] == true) {
-          _upiId = data['upiId'] ?? defaultUpiId;
-          _merchantName = data['merchantName'] ?? defaultMerchantName;
-          _isLoaded = true;
+          _upiId = data['upiId'] as String? ?? defaultUpiId;
+          _merchantName = data['merchantName'] as String? ?? defaultMerchantName;
           debugPrint(
             '[UpiPaymentService] Loaded dynamic UPI Config: $_upiId ($_merchantName)',
           );

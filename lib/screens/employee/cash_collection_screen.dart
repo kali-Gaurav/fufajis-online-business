@@ -5,6 +5,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/order_provider.dart';
 import '../../models/order_model.dart';
 import '../../models/scanner_models.dart';
+import '../../utils/app_theme.dart';
 
 class CashCollectionScreen extends StatefulWidget {
   const CashCollectionScreen({super.key});
@@ -23,13 +24,13 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
     );
   }
 
   void _showSuccess(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.green),
+      SnackBar(content: Text(message), backgroundColor: AppTheme.success),
     );
   }
 
@@ -109,10 +110,18 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
   }
 
   @override
+  void dispose() {
+    _amountController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cash Collection'),
+        title: const Text('Cash Collection', style: TextStyle(fontWeight: FontWeight.w700)),
         actions: [
           IconButton(
             icon: const Icon(Icons.qr_code_scanner),
@@ -141,12 +150,12 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.green.shade50,
+                          color: AppTheme.success.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.check_circle, color: Colors.green),
+                            const Icon(Icons.check_circle, color: AppTheme.success),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Column(
@@ -239,7 +248,7 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : _recordCollection,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.indigo,
+                            backgroundColor: AppTheme.ownerAccent,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
@@ -263,7 +272,7 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
               ),
               const SizedBox(height: 8),
               Card(
-                color: Colors.green.shade50,
+                color: AppTheme.success.withValues(alpha: 0.1),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(
@@ -278,7 +287,7 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
-                          color: Colors.green,
+                          color: AppTheme.success,
                         ),
                       ),
                     ],
@@ -289,7 +298,7 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
               ..._collections.map((collection) => Card(
                     child: ListTile(
                       leading: const CircleAvatar(
-                        backgroundColor: Colors.indigo,
+                        backgroundColor: AppTheme.ownerAccent,
                         child: Icon(Icons.payments, color: Colors.white),
                       ),
                       title: Text('Order #${collection.orderId}'),
@@ -298,7 +307,7 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
                         '₹${collection.amount.toStringAsFixed(2)}',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Colors.green,
+                          color: AppTheme.success,
                         ),
                       ),
                     ),
@@ -327,7 +336,7 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Enter Order ID'),
+        title: const Text('Enter Order ID', style: TextStyle(fontWeight: FontWeight.w700)),
         content: TextField(
           autofocus: true,
           decoration: const InputDecoration(

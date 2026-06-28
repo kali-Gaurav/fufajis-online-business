@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/order_model.dart';
 import '../../utils/app_theme.dart';
+import '../../constants/order_status.dart';
 
 // ---------------------------------------------------------------------------
 // Data models local to this screen
@@ -20,15 +21,14 @@ class _DeliveryTrip {
   _DeliveryTrip({
     required this.tripNumber,
     required this.orders,
-    this.isCompleted = false,
-  });
+  }) : isCompleted = false;
 
   double get estimatedEarnings => orders.length * 30.0; // ₹30 per delivery
   String get label => 'Trip $tripNumber';
   String get areaLabel {
     if (orders.isEmpty) return 'Unknown Area';
     final addr = orders.first.deliveryAddress;
-    final city = addr.village.isNotEmpty ? addr.village : 'Area ${tripNumber}';
+    final city = addr.village.isNotEmpty ? addr.village : 'Area $tripNumber';
     return '${orders.length} orders · $city';
   }
 }
@@ -256,7 +256,7 @@ class _SmartRouteScreenState extends State<SmartRouteScreen> {
     return Scaffold(
       backgroundColor: AppTheme.grey100,
       appBar: AppBar(
-        title: const Text('Smart Delivery Route'),
+        title: const Text('Smart Delivery Route', style: TextStyle(fontWeight: FontWeight.w700)),
         backgroundColor: AppTheme.white,
         actions: [
           IconButton(
@@ -271,7 +271,7 @@ class _SmartRouteScreenState extends State<SmartRouteScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const CircularProgressIndicator(),
+                  const CircularProgressIndicator(color: AppTheme.deliveryAccent),
                   const SizedBox(height: 12),
                   Text(
                     _isClustering
@@ -295,7 +295,7 @@ class _SmartRouteScreenState extends State<SmartRouteScreen> {
 
   Widget _buildTripList() {
     final totalEarnings =
-        _trips.fold(0.0, (sum, t) => sum + t.estimatedEarnings);
+        _trips.fold(0.0, (acc, t) => acc + t.estimatedEarnings);
     final completedTrips = _trips.where((t) => t.isCompleted).length;
 
     return Column(
@@ -373,7 +373,7 @@ class _TripCardState extends State<_TripCard> {
   Widget build(BuildContext context) {
     final trip = widget.trip;
     final Color cardColor =
-        trip.isCompleted ? AppTheme.success.withOpacity(0.08) : AppTheme.white;
+        trip.isCompleted ? AppTheme.success.withValues(alpha: 0.08) : AppTheme.white;
 
     return Card(
       color: cardColor,
@@ -411,13 +411,13 @@ class _TripCardState extends State<_TripCard> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: AppTheme.secondary.withOpacity(0.1),
+                    color: AppTheme.info.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     '₹${trip.estimatedEarnings.round()}',
                     style: const TextStyle(
-                        color: AppTheme.secondary,
+                        color: AppTheme.info,
                         fontWeight: FontWeight.bold,
                         fontSize: 13),
                   ),
@@ -471,10 +471,10 @@ class _TripCardState extends State<_TripCard> {
               ),
             )
           else
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(12, 0, 12, 12),
               child: Row(
-                children: const [
+                children: [
                   Icon(Icons.check_circle, color: AppTheme.success, size: 18),
                   SizedBox(width: 6),
                   Text('Trip Completed',

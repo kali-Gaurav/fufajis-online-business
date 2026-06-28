@@ -1,6 +1,4 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
-import '../utils/app_theme.dart';
 
 /// Gamified Loyalty Points Card
 ///
@@ -309,7 +307,7 @@ class _LoyaltyPointsCardState extends State<LoyaltyPointsCard>
                     const SizedBox(height: 16),
 
                     // Earn guide chips
-                    Wrap(
+                    const Wrap(
                       spacing: 6,
                       runSpacing: 4,
                       children: [

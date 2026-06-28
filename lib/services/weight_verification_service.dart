@@ -243,21 +243,21 @@ class WeightProofRecord {
 
   factory WeightProofRecord.fromMap(Map<String, dynamic> map) =>
       WeightProofRecord(
-        id: map['id'] ?? '',
-        orderId: map['orderId'] ?? '',
-        orderItemId: map['orderItemId'] ?? '',
-        productId: map['productId'] ?? '',
-        productName: map['productName'] ?? '',
-        orderedWeightKg: (map['orderedWeightKg'] ?? 0).toDouble(),
-        packedWeightKg: (map['packedWeightKg'] ?? 0).toDouble(),
+        id: map['id'] as String? ?? '',
+        orderId: map['orderId'] as String? ?? '',
+        orderItemId: map['orderItemId'] as String? ?? '',
+        productId: map['productId'] as String? ?? '',
+        productName: map['productName'] as String? ?? '',
+        orderedWeightKg: ((map['orderedWeightKg'] as num?) ?? 0).toDouble(),
+        packedWeightKg: ((map['packedWeightKg'] as num?) ?? 0).toDouble(),
         outcome: WeightOutcome.values.firstWhere(
           (e) => e.name == map['outcome'],
           orElse: () => WeightOutcome.exact,
         ),
-        refundAmountIfAny: (map['refundAmountIfAny'] ?? 0).toDouble(),
+        refundAmountIfAny: ((map['refundAmountIfAny'] as num?) ?? 0).toDouble(),
         photoUrl: map['photoUrl'] as String?,
-        employeeId: map['employeeId'] ?? '',
-        employeeName: map['employeeName'] ?? '',
+        employeeId: map['employeeId'] as String? ?? '',
+        employeeName: map['employeeName'] as String? ?? '',
         recordedAt: map['recordedAt'] is Timestamp
             ? (map['recordedAt'] as Timestamp).toDate()
             : DateTime.now(),

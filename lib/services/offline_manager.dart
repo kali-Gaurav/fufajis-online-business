@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import '../models/product_model.dart';
 import '../models/order_model.dart';
 import 'sqlite_service.dart';
+import 'offline_order_queue_service.dart';
 
 /// Offline Manager — Fufaji Relational Offline Storage (SQLite)
 /// Replaces all Hive key-value operations with structured SQLite queries.
@@ -46,26 +47,23 @@ class OfflineManager {
 
   /// Queue an order for sync when network becomes available
   Future<void> queueOrder(OrderModel order) async {
-    await _sqlite.saveOrder(order.toMap());
-    debugPrint('[OfflineManager] Queued order: ${order.id}');
+    await OfflineOrderQueueService().addOrderToQueue(order);
+    debugPrint('[OfflineManager] Queued order: ${order.id} via OfflineOrderQueueService');
   }
 
   /// Retrieve all orders that have not yet been synced
   Future<List<OrderModel>> getQueuedOrders() async {
-    final maps = await _sqlite.getUnsyncedOrders();
-    return maps.map((m) => OrderModel.fromMap(m)).toList();
+    return await OfflineOrderQueueService().getQueuedOrders();
   }
 
-  /// Mark a specific order as synced (does not delete — keeps for audit trail)
+  /// Mark a specific order as synced
   Future<void> removeQueuedOrder(String orderId) async {
-    await _sqlite.markOrderSynced(orderId);
+    await OfflineOrderQueueService().removeFromQueue(orderId);
   }
 
   /// Remove all unsynced orders from the queue
   Future<void> clearQueuedOrders() async {
-    final db = await _sqlite.database;
-    await db.delete('orders', where: 'is_synced = ?', whereArgs: [0]);
-    debugPrint('[OfflineManager] Cleared all unsynced orders.');
+    await OfflineOrderQueueService().clearQueue();
   }
 
   // ─────────────── CART ───────────────

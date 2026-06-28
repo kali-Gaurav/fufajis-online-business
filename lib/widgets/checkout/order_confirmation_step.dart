@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/order_model.dart';
+import '../../constants/order_status.dart';
 import '../../utils/app_theme.dart';
 
 /// Step 4: Order Confirmation Widget
@@ -179,22 +180,22 @@ class _OrderConfirmationStepState extends State<OrderConfirmationStep> {
             ),
           ],
           const Divider(height: 24),
-          _buildOrderSummaryRow('Items Total', order.subtotal),
+          _buildOrderSummaryRow('Items Total', order.subtotal.toDouble()),
           const SizedBox(height: 8),
           _buildOrderSummaryRow(
             'Delivery',
-            order.deliveryCharge,
-            isFree: order.deliveryCharge == 0,
+            order.deliveryCharge.toDouble(),
+            isFree: order.deliveryCharge.toDouble() == 0,
           ),
-          if (order.discount > 0) ...[
+          if (order.discount.toDouble() > 0) ...[
             const SizedBox(height: 8),
-            _buildOrderSummaryRow('Discount', -order.discount, isDiscount: true),
+            _buildOrderSummaryRow('Discount', -order.discount.toDouble(), isDiscount: true),
           ],
-          if (order.walletAmountUsed > 0) ...[
+          if ((order.walletAmountUsed?.toDouble() ?? 0.0) > 0) ...[
             const SizedBox(height: 8),
             _buildOrderSummaryRow(
               'Wallet Used',
-              -order.walletAmountUsed,
+              -(order.walletAmountUsed?.toDouble() ?? 0.0),
               isDiscount: true,
             ),
           ],

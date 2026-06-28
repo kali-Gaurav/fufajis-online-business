@@ -2,23 +2,18 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
 import '../../services/scanner_service.dart';
 import '../../providers/auth_provider.dart';
+import '../../utils/app_theme.dart';
 import 'unified_scanner_hub.dart';
-import 'inventory_receiving_screen.dart';
 import 'order_packing_screen.dart';
 import 'delivery_screen.dart';
-import 'inventory_audit_screen.dart';
 import 'damage_reporting_screen.dart';
-import 'attendance_screen.dart';
 import 'cash_collection_screen.dart';
 import 'returns_screen.dart';
 import 'shelf_refill_screen.dart';
 import 'expiry_management_screen.dart';
 import 'inventory_transfer_screen.dart';
-import 'dispatch_scanner_screen.dart';
-import 'customer_membership_scanner_screen.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // EmployeeHomeScreen — task-focused shift dashboard
@@ -167,8 +162,8 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        title: const Text('Fufaji — Employee'),
-        backgroundColor: Colors.white,
+        title: const Text('Fufaji — Employee', style: TextStyle(fontWeight: FontWeight.w700)),
+        backgroundColor: AppTheme.cream,
         foregroundColor: const Color(0xFF212121),
         elevation: 0,
         actions: [
@@ -180,7 +175,7 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                 width: 10,
                 height: 10,
                 decoration: BoxDecoration(
-                  color: _isCheckedIn ? Colors.green : Colors.orange,
+                  color: _isCheckedIn ? AppTheme.success : AppTheme.warning,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -259,8 +254,8 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                                     horizontal: 7, vertical: 2),
                                 decoration: BoxDecoration(
                                   color: _isCheckedIn
-                                      ? Colors.green.shade50
-                                      : Colors.orange.shade50,
+                                      ? AppTheme.success.withValues(alpha: 0.1)
+                                      : AppTheme.primaryLight,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
@@ -269,8 +264,8 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
                                     color: _isCheckedIn
-                                        ? Colors.green
-                                        : Colors.orange,
+                                        ? AppTheme.success
+                                        : AppTheme.warning,
                                   ),
                                 ),
                               ),
@@ -344,7 +339,7 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
               const SizedBox(height: 20),
 
               // ── Scanner modes ─────────────────────────────────────────────────
-              _SectionHeader(title: 'Scanner Modes'),
+              const _SectionHeader(title: 'Scanner Modes'),
               GridView.count(
                 crossAxisCount: 3,
                 shrinkWrap: true,
@@ -358,7 +353,7 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                     label: 'Product',
                     labelHi: 'उत्पाद खोज',
                     icon: Icons.inventory_2_outlined,
-                    color: const Color(0xFF1565C0),
+                    color: AppTheme.info,
                     onTap: () =>
                         _openScanner(mode: ScanMode.productSearch),
                   ),
@@ -434,7 +429,7 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
               const SizedBox(height: 20),
 
               // ── Other tasks ──────────────────────────────────────────────────
-              _SectionHeader(title: 'All Tasks'),
+              const _SectionHeader(title: 'All Tasks'),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
@@ -444,7 +439,7 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                       label: 'Process Returns',
                       labelHi: 'रिटर्न',
                       badge: _pendingReturns,
-                      color: Colors.red,
+                      color: AppTheme.error,
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -455,7 +450,7 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                       icon: Icons.dangerous_outlined,
                       label: 'Report Damage',
                       labelHi: 'नुकसान रिपोर्ट',
-                      color: Colors.deepOrange,
+                      color: AppTheme.primary,
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -466,7 +461,7 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                       icon: Icons.event_repeat,
                       label: 'Expiry Management',
                       labelHi: 'एक्सपायरी',
-                      color: Colors.orange,
+                      color: AppTheme.warning,
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -488,7 +483,7 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                       icon: Icons.payments_outlined,
                       label: 'Cash Collection',
                       labelHi: 'कैश',
-                      color: Colors.green,
+                      color: AppTheme.success,
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(

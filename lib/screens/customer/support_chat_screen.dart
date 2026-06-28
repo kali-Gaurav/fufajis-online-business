@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import '../../models/chat_message_model.dart';
+import '../../models/chat_conversation_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/chat_provider.dart';
 import '../../utils/app_theme.dart';
-import '../../services/chat_service.dart';
 
 class SupportChatScreen extends StatefulWidget {
   final String? orderId;
@@ -22,14 +21,13 @@ class SupportChatScreen extends StatefulWidget {
 class _SupportChatScreenState extends State<SupportChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final ChatService _chatService = ChatService();
 
   @override
   void initState() {
     super.initState();
     final user = Provider.of<AuthProvider>(context, listen: false).currentUser;
     if (user != null) {
-      Provider.of<ChatProvider>(context, listen: false).listenToChat(user.id);
+      Provider.of<ChatProvider>(context, listen: false).listenToMessages(user.id, customerView: true);
     }
   }
 
@@ -44,14 +42,22 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     final chatProvider = Provider.of<ChatProvider>(context);
     final user = Provider.of<AuthProvider>(context).currentUser;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chat with Fufaji'),
-        backgroundColor: Colors.white,
+        title: const Text('Chat with Fufaji', style: TextStyle(fontWeight: FontWeight.w700)),
+        backgroundColor: AppTheme.cream,
         foregroundColor: AppTheme.grey900,
         elevation: 1,
       ),
@@ -76,7 +82,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
     );
   }
 
-  Widget _buildMessageBubble(ChatMessageModel msg, bool isMe) {
+  Widget _buildMessageBubble(ChatMessage msg, bool isMe) {
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -95,7 +101,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
           crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             Text(
-              msg.message,
+              msg.text,
               style: TextStyle(color: isMe ? Colors.white : AppTheme.grey900, fontSize: 14),
             ),
             const SizedBox(height: 4),
@@ -119,7 +125,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
             onPressed: () {
               // TODO: Implement Voice Note shortcut
             },
-            icon: const Icon(Icons.mic, color: AppTheme.secondary),
+            icon: const Icon(Icons.mic, color: AppTheme.primary),
           ),
           Expanded(
             child: TextField(
@@ -140,11 +146,11 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
               onPressed: () {
                 if (_controller.text.isNotEmpty && user != null) {
                   Provider.of<ChatProvider>(context, listen: false).sendMessage(
+                    chatId: user.id,
                     senderId: user.id,
                     senderName: user.name ?? 'Customer',
-                    receiverId: 'shop_owner',
-                    message: _controller.text,
-                    channelId: user.id,
+                    senderRole: SenderRole.customer,
+                    text: _controller.text,
                   );
                   _controller.clear();
                   _scrollToBottom();
@@ -154,8 +160,8 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
             ),
           ),
         ],
+ 
       ),
     );
   }
 }
-

@@ -183,7 +183,7 @@ class ReorderService {
         }
 
         // Track price changes
-        if ((product.price - item.price).abs() > 0.5) {
+        if ((product.price.toDouble() - item.price.toDouble()).abs() > 0.5) {
           priceChangedItems.add(
             '${item.productName}: ₹${item.price.round()} → ₹${product.price.round()}',
           );
@@ -259,7 +259,7 @@ class ReorderService {
           continue;
         }
 
-        if ((product.price - item.lastPrice).abs() > 0.5) {
+        if ((product.price.toDouble() - item.lastPrice.toDouble()).abs() > 0.5) {
           priceChangedItems.add(
             '${item.productName}: ₹${item.lastPrice.round()} → ₹${product.price.round()}',
           );

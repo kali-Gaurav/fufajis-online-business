@@ -218,6 +218,70 @@ class WalletProvider with ChangeNotifier {
     }
   }
 
+  /// Atomically deducts wallet balance AND creates the order in one Firestore
+  /// transaction, preventing money loss if order creation fails after debit.
+  Future<bool> payWithWalletAndCreateOrder({
+    required String userId,
+    required double orderAmount,
+    required String orderId,
+    required Map<String, dynamic> orderData,
+  }) async {
+    try {
+      final userRef = _firestore.collection('users').doc(userId);
+      final orderRef = _firestore.collection('orders').doc(orderId);
+
+      await _firestore.runTransaction((transaction) async {
+        final userSnap = await transaction.get(userRef);
+        if (!userSnap.exists) throw Exception('User not found');
+
+        final currentBalance =
+            (userSnap.data()?['walletBalance'] as num?)?.toDouble() ?? 0.0;
+        if (currentBalance < orderAmount) {
+          throw Exception('Insufficient wallet balance');
+        }
+
+        final newBalance = currentBalance - orderAmount;
+
+        // 1. Deduct wallet
+        transaction.update(userRef, {
+          'walletBalance': newBalance,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+
+        // 2. Create order
+        transaction.set(orderRef, {
+          ...orderData,
+          'paymentStatus': 'wallet_paid',
+          'createdAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+
+        // 3. Wallet transaction record
+        final txnRef = userRef.collection('wallet_transactions').doc(
+          'txn_wallet_debit_$orderId',
+        );
+        transaction.set(txnRef, {
+          'id': 'txn_wallet_debit_$orderId',
+          'userId': userId,
+          'type': WalletTransactionType.walletPayment.toString(),
+          'amount': -orderAmount,
+          'orderReference': orderId,
+          'balanceAfter': newBalance,
+          'timestamp': FieldValue.serverTimestamp(),
+          'description': 'Wallet payment for order',
+        });
+      });
+
+      // Refresh local state
+      _walletBalance = await _walletService.getWalletBalance(userId);
+      notifyListeners();
+      return true;
+    } catch (e) {
+      debugPrint('WalletProvider: payWithWalletAndCreateOrder error – \$e');
+      return false;
+    }
+  }
+
   /// Awards reward points for order completion
   ///
   /// [Requirements 11.2]: Awards 1 point per ₹10 spent
@@ -368,13 +432,23 @@ class WalletProvider with ChangeNotifier {
       final snapshot = await _firestore
           .collection('orders')
           .where('customerId', isEqualTo: userId)
-          .where('status', isNotEqualTo: 'OrderStatus.cancelled')
           .get();
 
       double totalSpending = 0.0;
+      final allowedStatuses = [
+        'OrderStatus.confirmed',
+        'OrderStatus.processing',
+        'OrderStatus.packed',
+        'OrderStatus.outForDelivery',
+        'OrderStatus.delivered',
+      ];
+
       for (final doc in snapshot.docs) {
         final data = doc.data();
-        totalSpending += (data['totalAmount'] ?? 0.0).toDouble();
+        final statusStr = data['status']?.toString() ?? '';
+        if (allowedStatuses.contains(statusStr)) {
+          totalSpending += ((data['totalAmount'] as num?) ?? 0.0).toDouble();
+        }
       }
 
       return totalSpending;
@@ -409,5 +483,40 @@ class WalletProvider with ChangeNotifier {
       notifyListeners();
       return tier;
     });
+  }
+
+  /// Adds money to the wallet via WalletService
+  Future<bool> addMoney(String userId, double amount) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final success = await _walletService.addToWallet(
+        userId: userId,
+        amount: amount,
+        transactionType: WalletTransactionType.refund, // Used for manual top-ups / refunds
+        orderReference: 'topup_${DateTime.now().millisecondsSinceEpoch}',
+        description: 'Wallet Top-up',
+        transactionId: 'txn_topup_${DateTime.now().millisecondsSinceEpoch}',
+      );
+
+      if (success) {
+        _walletBalance = await _walletService.getWalletBalance(userId);
+        _transactions = await _walletService.getTransactionHistory(
+          userId: userId,
+        );
+      }
+
+      _isLoading = false;
+      notifyListeners();
+      return success;
+    } catch (e) {
+      debugPrint('Error adding money to wallet: $e');
+      _errorMessage = 'Add money failed: ${e.toString()}';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
   }
 }

@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/order_model.dart';
+import 'offline_routing_service.dart';
+import '../constants/order_status.dart';
 
 /// A logical grouping of nearby delivery orders
 class DeliveryCluster {
@@ -36,7 +38,7 @@ class DeliveryCluster {
   }
 
   double get codTotal =>
-      orders.fold(0.0, (sum, o) => sum + o.totalAmount);
+      orders.fold(0.0, (sum, o) => sum + o.totalAmount.toDouble());
 
   /// Earnings estimate for delivery agent (₹15 per order)
   double get agentEarnings => orders.length * 15.0;
@@ -52,9 +54,10 @@ class DeliveryClusteringService {
 
   // ── Public API ────────────────────────────────────────────────────────────
 
-  /// Groups a flat list of orders into geographic clusters.
-  /// Orders without lat/lng are put in a single "unlocated" cluster.
-  List<DeliveryCluster> clusterOrders(List<OrderModel> orders) {
+  /// Groups a flat list of orders into geographic and weight-aware clusters.
+  /// 
+  /// Uses Greedy Clustering + Weight Constraint (from FastAPI backend logic)
+  List<DeliveryCluster> clusterOrders(List<OrderModel> orders, {double maxWeightKg = 25.0}) {
     if (orders.isEmpty) return [];
 
     // Separate located and unlocated orders
@@ -64,7 +67,7 @@ class DeliveryClusteringService {
     final clusters = <DeliveryCluster>[];
 
     // Simple greedy clustering: pick an unclustered order, sweep all others
-    // within clusterRadiusKm from its centre.
+    // within clusterRadiusKm from its centre, respecting maxWeightKg.
     final assigned = <String>{};
     int clusterIndex = 0;
 
@@ -74,82 +77,78 @@ class DeliveryClusteringService {
       final seedLat = _lat(seed);
       final seedLng = _lng(seed);
 
-      final group = located.where((o) {
-        if (assigned.contains(o.id)) return false;
-        final d = _distanceBetween(seedLat, seedLng, _lat(o), _lng(o));
-        return d <= clusterRadiusKm;
-      }).toList();
+      final List<OrderModel> group = [];
+      double currentWeight = 0.0;
 
-      for (final o in group) {
-        assigned.add(o.id);
+      for (final o in located) {
+        if (assigned.contains(o.id)) continue;
+        
+        final d = _distanceBetween(seedLat, seedLng, _lat(o), _lng(o));
+        final orderWeight = _estimateOrderWeight(o);
+
+        if (d <= clusterRadiusKm && (currentWeight + orderWeight) <= maxWeightKg) {
+          group.add(o);
+          assigned.add(o.id);
+          currentWeight += orderWeight;
+        }
       }
 
-      final optimised = optimizeRoute(group);
-      final centre = _computeCentre(group);
-      final totalDist = _routeDistance(optimised);
+      if (group.isNotEmpty) {
+        final optimised = optimizeRoute(group);
+        final centre = _computeCentre(group);
+        final totalDist = _routeDistance(optimised);
 
-      clusters.add(DeliveryCluster(
-        id: 'cluster_${++clusterIndex}',
-        orders: optimised,
-        centerLat: centre.$1,
-        centerLng: centre.$2,
-        totalDistanceKm: totalDist,
-        estimatedTime: estimateClusterTime(DeliveryCluster(
-          id: '',
+        clusters.add(DeliveryCluster(
+          id: 'cluster_${++clusterIndex}',
           orders: optimised,
           centerLat: centre.$1,
           centerLng: centre.$2,
           totalDistanceKm: totalDist,
-          estimatedTime: Duration.zero,
-        )),
-      ));
+          estimatedTime: estimateClusterTime(DeliveryCluster(
+            id: '',
+            orders: optimised,
+            centerLat: centre.$1,
+            centerLng: centre.$2,
+            totalDistanceKm: totalDist,
+            estimatedTime: Duration.zero,
+          )),
+        ));
+      }
     }
 
-    // Unlocated orders form their own cluster (no route optimisation)
-    if (unlocated.isNotEmpty) {
+    // Unlocated orders form their own clusters (respecting weight)
+    for (final o in unlocated) {
+      if (assigned.contains(o.id)) continue;
+      
       clusters.add(DeliveryCluster(
         id: 'cluster_${++clusterIndex}_unloc',
-        orders: unlocated,
+        orders: [o],
         centerLat: shopLat,
         centerLng: shopLng,
         totalDistanceKm: 0,
-        estimatedTime: Duration(minutes: unlocated.length * 10),
+        estimatedTime: const Duration(minutes: 15),
       ));
     }
 
     return clusters;
   }
 
+  double _estimateOrderWeight(OrderModel o) {
+    // Basic heuristic: count items * 0.5kg if weight not explicitly set
+    // Or use the weight fields if available in OrderModel/OrderItem
+    double weight = 0.0;
+    for (var item in o.items) {
+      // In a real system, we'd pull from product metadata. 
+      // For now, heuristic fallback.
+      weight += (item.quantity * 0.5); 
+    }
+    return weight;
+  }
+
   /// Returns orders sorted by nearest-neighbour heuristic starting from shop.
   List<OrderModel> optimizeRoute(List<OrderModel> orders) {
-    if (orders.length <= 1) return List.of(orders);
-
-    final unvisited = List<OrderModel>.from(orders);
-    final route = <OrderModel>[];
-    double currentLat = shopLat;
-    double currentLng = shopLng;
-
-    while (unvisited.isNotEmpty) {
-      OrderModel? nearest;
-      double minDist = double.infinity;
-
-      for (final o in unvisited) {
-        final d = _distanceBetween(currentLat, currentLng, _lat(o), _lng(o));
-        if (d < minDist) {
-          minDist = d;
-          nearest = o;
-        }
-      }
-
-      if (nearest != null) {
-        route.add(nearest);
-        currentLat = _lat(nearest);
-        currentLng = _lng(nearest);
-        unvisited.remove(nearest);
-      }
-    }
-
-    return route;
+    if (orders.isEmpty) return [];
+    return OfflineRoutingService().optimizeRoute(orders, shopLat, shopLng);
   }
 
   /// Estimates total time for a cluster:

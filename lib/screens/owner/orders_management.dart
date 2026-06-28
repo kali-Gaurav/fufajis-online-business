@@ -7,7 +7,9 @@ import 'package:provider/provider.dart';
 import '../../utils/app_theme.dart';
 import '../../models/order_model.dart';
 import '../../models/payment_method.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/order_provider.dart';
+import '../../constants/order_status.dart';
 import '../../services/order_service.dart';
 
 class OrdersManagementScreen extends StatefulWidget {
@@ -53,13 +55,15 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                     icon: const Icon(Icons.inventory),
                     label: const Text('Packing Terminal'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.indigo,
+                      backgroundColor: AppTheme.ownerAccent,
                       foregroundColor: Colors.white,
                     ),
                   ),
                   const SizedBox(width: 12),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('View Order Details tapped')));
+                    },
                     icon: const Icon(Icons.filter_list),
                   ),
                 ],
@@ -111,7 +115,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
             stream: _orderService.getAllOrdersStream(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
               }
               if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
@@ -287,15 +291,15 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.amber.shade50,
+                color: AppTheme.warning.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.amber.shade300),
+                border: Border.all(color: AppTheme.warning),
               ),
               child: Row(
                 children: [
                   const Icon(
                     Icons.warning_amber_rounded,
-                    color: Colors.amber,
+                    color: AppTheme.warning,
                     size: 24,
                   ),
                   const SizedBox(width: 12),
@@ -308,7 +312,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
-                            color: Colors.amber,
+                            color: AppTheme.warning,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -380,6 +384,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                     const SizedBox(width: 8),
                     ElevatedButton(
                       onPressed: () async {
+                        final auth = Provider.of<AuthProvider>(context, listen: false);
                         if (order.paymentMethod != PaymentMethod.cod &&
                             order.paymentStatus != 'paid') {
                           await Provider.of<OrderProvider>(
@@ -390,6 +395,8 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                           await _orderService.updateOrderStatus(
                             order.id,
                             'confirmed',
+                            employeeId: auth.currentUser?.id,
+                            employeeName: auth.currentUser?.name,
                           );
                         }
                       },
@@ -453,7 +460,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                 ElevatedButton(
                   onPressed: () => context.push('/owner/packing/${order.id}'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: AppTheme.info,
                     foregroundColor: AppTheme.white,
                   ),
                   child: const Text('Start Packing'),
@@ -570,7 +577,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
       case OrderStatus.packed:
         return AppTheme.info;
       case OrderStatus.outForDelivery:
-        return AppTheme.secondary;
+        return AppTheme.info;
       case OrderStatus.delivered:
         return AppTheme.success;
       default:

@@ -3,22 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Service for AI-powered image processing including background removal
 /// Integrates with various background removal APIs
 class ImageProcessingService {
   FirebaseStorage get _storage => FirebaseStorage.instance;
   final ImagePicker _picker = ImagePicker();
-  final Uuid _uuid = const Uuid();
 
   // API endpoints for background removal (configurable)
   static const String _removeBgApiUrl = 'https://api.remove.bg/v1.0/removebg';
-  static const String _photoroomApiUrl = 'https://api.photoroom.com/v1/segment';
-  static const String _clipdropApiUrl = 'https://clipdrop-api.co/remove-background/v1';     
+
 
   /// Pick an image from gallery or camera and process it
   Future<File?> pickAndProcessImage(BuildContext context, {
@@ -90,11 +86,6 @@ class ImageProcessingService {
   /// Note: This requires an API key from remove.bg or similar service
   Future<File> removeBackgroundAI(File imageFile) async {
     String apiKey = const String.fromEnvironment('REMOVE_BG_API_KEY', defaultValue: '');
-    if (apiKey.isEmpty) {
-      try {
-        apiKey = dotenv.env['REMOVE_BG_API_KEY'] ?? '';
-      } catch (_) {}
-    }
     
     if (apiKey.isEmpty) {
       debugPrint('No Background Removal API Key found. Returning original image.');

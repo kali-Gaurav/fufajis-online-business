@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/foundation.dart';
 import '../models/scanner_models.dart';
 import '../models/product_batch_model.dart';
 import 'offline_sync_service.dart';
 import 'whatsapp_notification_service.dart';
 import '../services/notification_service.dart';
+import 'api_client.dart';
 
 /// Service for employee operations - inventory receiving, packing, delivery, etc.
 class EmployeeScannerService {
@@ -149,8 +149,6 @@ class EmployeeScannerService {
     final orderRef = _firestore.collection('orders').doc(orderId);
 
     bool shouldNotify = false;
-    String customerPhone = '';
-    String customerName = '';
     String customerId = '';
     String orderNumber = '';
 
@@ -175,8 +173,6 @@ class EmployeeScannerService {
           });
 
         shouldNotify = true;
-        customerPhone = orderData['customerPhone']?.toString() ?? '';
-        customerName = orderData['customerName']?.toString() ?? '';
         customerId = orderData['customerId']?.toString() ?? '';
         orderNumber = orderData['orderNumber']?.toString() ?? '';
       }
@@ -268,80 +264,21 @@ class EmployeeScannerService {
     });
   }
 
-  /// Complete order packing (Auto-advances main status to Packed)
+  /// Complete order packing (Now using Automated Backend Workflow)
   Future<void> completePacking({
     required String orderId,
     required List<String> verifiedItems,
     String? photoUrl,
   }) async {
-    final orderRef = _firestore.collection('orders').doc(orderId);
-    
-    bool shouldNotify = false;
-    String customerPhone = '';
-    String customerName = '';
-    String customerId = '';
-    String orderNumber = '';
-
-    await _firestore.runTransaction((transaction) async {
-      final snapshot = await transaction.get(orderRef);
-      if (!snapshot.exists) throw Exception('Order not found');
-
-      final orderData = snapshot.data()!;
-      final List<dynamic> historyList = orderData['packingHistory'] as List<dynamic>? ?? [];
-
-      final updatedHistory = List<dynamic>.from(historyList)
-        ..add({
-          'timestamp': Timestamp.now(),
-          'status': 'approved', // Skip pending_approval
-          'actorId': _employeeId,
-          'actorName': _employeeName,
-          'note': 'Packing completed and verified by employee.',
-        });
-
-      final updates = <String, dynamic>{
-        'packingStatus': 'approved',
-        'packingCompletedAt': FieldValue.serverTimestamp(),
-        'packingHistory': updatedHistory,
-        'updatedAt': FieldValue.serverTimestamp(),
-      };
-
-      String currentStatus = orderData['status']?.toString() ?? 'OrderStatus.pending';
-      if (currentStatus == 'OrderStatus.processing') {
-        updates['status'] = 'OrderStatus.packed';
-        final List<dynamic> statusHistory = orderData['statusHistory'] as List<dynamic>? ?? [];
-        updates['statusHistory'] = List<dynamic>.from(statusHistory)
-          ..add({
-            'status': 'OrderStatus.packed',
-            'timestamp': Timestamp.now(),
-            'note': 'Order successfully packed and sealed.',
-          });
-          
-        shouldNotify = true;
-        customerPhone = orderData['customerPhone']?.toString() ?? '';
-        customerName = orderData['customerName']?.toString() ?? '';
-        customerId = orderData['customerId']?.toString() ?? '';
-        orderNumber = orderData['orderNumber']?.toString() ?? '';
-      }
-
-      if (photoUrl != null && photoUrl.isNotEmpty) {
-        updates['packingProof'] = {
-          'photoUrl': photoUrl,
-          'packedBy': _employeeName,
-          'employeeId': _employeeId,
-          'packedAt': Timestamp.now(),
-        };
-      }
-
-      transaction.update(orderRef, updates);
+    // Ported to automated backend operation
+    final response = await ApiClient.instance.post('/operations/checkout-order', {
+      'orderId': orderId,
+      'photoUrl': photoUrl,
+      'verifiedItems': verifiedItems,
     });
 
-    if (shouldNotify && customerId.isNotEmpty) {
-      NotificationService().sendNotificationToUser(
-        userId: customerId,
-        title: 'Order Packed',
-        body: 'Your order #$orderNumber is packed and ready for delivery!',
-        data: {'type': 'orderUpdate', 'orderId': orderId},
-      );
+    if (response.data['success'] != true) {
+      throw Exception(response.data['error'] ?? 'Backend checkout failed');
     }
   }
 
@@ -666,8 +603,8 @@ class EmployeeScannerService {
           .doc(_branchId)
           .get();
       if (branchDoc.exists && location != null) {
-        final branchLat = (branchDoc.data()?['latitude'] ?? 0.0).toDouble();
-        final branchLng = (branchDoc.data()?['longitude'] ?? 0.0).toDouble();
+        final branchLat = ((branchDoc.data()?['latitude'] as num?) ?? 0.0).toDouble();
+        final branchLng = ((branchDoc.data()?['longitude'] as num?) ?? 0.0).toDouble();
         if (branchLat != 0.0 && branchLng != 0.0) {
           distance = Geolocator.distanceBetween(
             location.latitude,
@@ -774,8 +711,8 @@ class EmployeeScannerService {
                 .doc(managerId)
                 .get();
             if (managerDoc.exists) {
-              targetPhone = managerDoc.data()?['phoneNumber'] ?? '';
-              targetName = managerDoc.data()?['name'] ?? 'Manager';
+              targetPhone = managerDoc.data()?['phoneNumber'] as String? ?? '';
+              targetName = managerDoc.data()?['name'] as String? ?? 'Manager';
             }
           }
 
@@ -788,8 +725,8 @@ class EmployeeScannerService {
                 .doc(assistantManagerId)
                 .get();
             if (assistantDoc.exists) {
-              targetPhone = assistantDoc.data()?['phoneNumber'] ?? '';
-              targetName = assistantDoc.data()?['name'] ?? 'Assistant Manager';
+              targetPhone = assistantDoc.data()?['phoneNumber'] as String? ?? '';
+              targetName = assistantDoc.data()?['name'] as String? ?? 'Assistant Manager';
             }
           }
 
@@ -798,7 +735,7 @@ class EmployeeScannerService {
               contactPhone != null &&
               contactPhone.isNotEmpty) {
             targetPhone = contactPhone;
-            targetName = branchData['branchName'] ?? 'Branch Manager';
+            targetName = branchData['branchName'] as String? ?? 'Branch Manager';
           }
 
           // 4. Fallback to Escalation Phone
@@ -811,11 +748,10 @@ class EmployeeScannerService {
         }
       }
 
-      // 5. Fallback to global operations phone
       if (targetPhone.isEmpty) {
-        targetPhone = dotenv.get(
+        targetPhone = const String.fromEnvironment(
           'WHATSAPP_OPERATIONS_PHONE',
-          fallback: '919876543210',
+          defaultValue: '919876543210',
         );
         targetName = 'Global Operations Support';
       }
@@ -864,7 +800,6 @@ class EmployeeScannerService {
   /// Get today's attendance
   Future<DocumentSnapshot?> getTodayAttendance() async {
     final today = DateTime.now();
-    final dateStr = '${today.year}-${today.month}-${today.day}';
 
     final snapshot = await _firestore
         .collection('shops')
@@ -888,8 +823,7 @@ class EmployeeScannerService {
   /// Record cash collection
   Future<void> recordCashCollection({
     required String orderId,
-    required double amount,
-    String? notes,
+    required double amount, String? notes,
   }) async {
     final collectionId = const Uuid().v4();
 
@@ -926,7 +860,7 @@ class EmployeeScannerService {
 
   // ==================== RETURNS ====================
 
-  /// Process return
+  /// Process return (Now using Automated Backend Workflow)
   Future<void> processReturn({
     required String orderId,
     required String productId,
@@ -936,77 +870,19 @@ class EmployeeScannerService {
     required ReturnCondition condition,
     String? reason,
   }) async {
-    final returnId = const Uuid().v4();
-    final bool isOffline = !OfflineSyncService().isOnline.value;
-    if (isOffline) {
-      await OfflineSyncService().enqueueEmployeeAction(
-        actionType: 'return',
-        shopId: _shopId,
-        branchId: _branchId,
-        documentId: returnId,
-        data: {
-          'id': returnId,
-          'shopId': _shopId,
-          'branchId': _branchId,
-          'orderId': orderId,
-          'productId': productId,
-          'productName': productName,
-          'barcode': barcode,
-          'quantity': quantity,
-          'condition': condition.name,
-          'reason': reason,
-          'employeeId': _employeeId,
-          'employeeName': _employeeName,
-          'returnDate': DateTime.now(),
-          'status': 'processed',
-        },
-      );
-      return;
-    }
-
-    final batch = _firestore.batch();
-
-    // Create return record
-    final returnRef = _firestore
-        .collection('shops')
-        .doc(_shopId)
-        .collection('branches')
-        .doc(_branchId)
-        .collection('returns')
-        .doc(returnId);
-
-    batch.set(returnRef, {
-      'id': returnId,
-      'shopId': _shopId,
-      'branchId': _branchId,
+    // Ported to automated backend operation
+    final response = await ApiClient.instance.post('/operations/checkin-order', {
       'orderId': orderId,
       'productId': productId,
-      'productName': productName,
-      'barcode': barcode,
       'quantity': quantity,
+      'reason': reason ?? 'Item returned: ${condition.name}',
       'condition': condition.name,
-      'reason': reason,
-      'employeeId': _employeeId,
-      'employeeName': _employeeName,
-      'returnDate': DateTime.now(),
-      'status': 'processed',
+      'barcode': barcode,
     });
 
-    // Update product stock
-    final productRef = _firestore
-        .collection('shops')
-        .doc(_shopId)
-        .collection('branches')
-        .doc(_branchId)
-        .collection('products')
-        .doc(productId);
-
-    batch.update(productRef, {
-      'stockQuantity': FieldValue.increment(quantity),
-      'updatedAt': DateTime.now(),
-    });
-
-    await batch.commit();
+    if (response.data['success'] != true) {
+      throw Exception(response.data['error'] ?? 'Backend check-in failed');
+    }
   }
 
   // ==================== INVENTORY TRANSFER ====================
@@ -1095,8 +971,8 @@ class EmployeeScannerService {
     bool isAuthorized = false;
     if (userDoc.exists) {
       final userRoleStr = userDoc.data()?['role'] ?? '';
-      if (userRoleStr == 'UserRole.shopOwner' ||
-          userRoleStr == 'UserRole.admin') {
+      if (userRoleStr == 'UserRole.owner' ||
+          userRoleStr == 'UserRole.superAdmin') {
         isAuthorized = true;
       }
     }
@@ -1143,10 +1019,10 @@ class EmployeeScannerService {
         .collection('branches')
         .doc(_branchId)
         .collection('products')
-        .doc(data['productId']);
+        .doc(data['productId'] as String);
 
     batch.update(productRef, {
-      'stockQuantity': FieldValue.increment(data['quantity']),
+      'stockQuantity': FieldValue.increment(data['quantity'] as num),
       'updatedAt': DateTime.now(),
     });
 
@@ -1190,6 +1066,59 @@ class EmployeeScannerService {
           'status': 'pending',
           'notes': notes,
         });
+  }
+
+  /// Refill shelf from godown stock
+  Future<void> refillShelf({
+    required String productId,
+    required String barcode,
+    required int quantity,
+    String? notes,
+  }) async {
+    final refillId = const Uuid().v4();
+    final bool isOffline = !OfflineSyncService().isOnline.value;
+
+    if (isOffline) {
+      await OfflineSyncService().enqueueEmployeeAction(
+        actionType: 'shelf_refill',
+        shopId: _shopId,
+        branchId: _branchId,
+        documentId: refillId,
+        data: {
+          'id': refillId,
+          'shopId': _shopId,
+          'branchId': _branchId,
+          'productId': productId,
+          'barcode': barcode,
+          'quantity': quantity,
+          'employeeId': _employeeId,
+          'employeeName': _employeeName,
+          'timestamp': DateTime.now(),
+          'notes': notes,
+        },
+      );
+      return;
+    }
+
+    await _firestore
+        .collection('shops')
+        .doc(_shopId)
+        .collection('branches')
+        .doc(_branchId)
+        .collection('shelf_refills')
+        .doc(refillId)
+        .set({
+      'id': refillId,
+      'shopId': _shopId,
+      'branchId': _branchId,
+      'productId': productId,
+      'barcode': barcode,
+      'quantity': quantity,
+      'employeeId': _employeeId,
+      'employeeName': _employeeName,
+      'timestamp': FieldValue.serverTimestamp(),
+      'notes': notes,
+    });
   }
 
   /// Get shelf refill alerts

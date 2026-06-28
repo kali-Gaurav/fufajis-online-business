@@ -4,6 +4,7 @@ import '../../models/user_model.dart';
 import '../../services/loyalty_membership_service.dart';
 import '../../services/membership_tier_calculator.dart';
 import '../../services/reward_system.dart';
+import '../../utils/app_theme.dart';
 
 /// Premium membership dashboard showing tier progress, streak tracking,
 /// priority slot booking, benefits overview, and rewards balance.
@@ -51,11 +52,17 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
         backgroundColor: const Color(0xFF0F0F1A),
-        appBar: AppBar(title: const Text('My Membership'), backgroundColor: const Color(0xFF1A1A2E)),
+        appBar: AppBar(title: const Text('My Membership', style: TextStyle(fontWeight: FontWeight.w700)), backgroundColor: AppTheme.cream, foregroundColor: AppTheme.grey900, elevation: 0, centerTitle: true),
         body: const Center(child: CircularProgressIndicator(color: Color(0xFF6C63FF))),
       );
     }
@@ -160,7 +167,7 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
                             borderRadius: BorderRadius.circular(6),
                             child: LinearProgressIndicator(
                               value: progress / 100,
-                              backgroundColor: Colors.white.withValues(alpha: 0.2),
+                              backgroundColor: AppTheme.cream.withValues(alpha: 0.2),
                               valueColor: const AlwaysStoppedAnimation(Colors.white),
                               minHeight: 8,
                             ),

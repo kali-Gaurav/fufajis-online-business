@@ -128,9 +128,18 @@ class OfflineNotificationQueueService {
       for (var key in _queueBox.keys) {
         final data = _queueBox.get(key);
         if (data != null && (data['isDelivered'] ?? false)) {
-          final deliveredAt = data['deliveredAt'] as Timestamp?;
-          if (deliveredAt != null) {
-            final deliveredDate = deliveredAt.toDate();
+          final rawDeliveredAt = data['deliveredAt'];
+          DateTime? deliveredDate;
+          if (rawDeliveredAt is int) {
+            deliveredDate = DateTime.fromMillisecondsSinceEpoch(rawDeliveredAt);
+          } else if (rawDeliveredAt is Timestamp) {
+            deliveredDate = rawDeliveredAt.toDate();
+          } else if (rawDeliveredAt is String) {
+            deliveredDate = DateTime.parse(rawDeliveredAt);
+          } else if (rawDeliveredAt is DateTime) {
+            deliveredDate = rawDeliveredAt;
+          }
+          if (deliveredDate != null) {
             if (now.difference(deliveredDate).inHours > 24) {
               keysToDelete.add(key);
             }

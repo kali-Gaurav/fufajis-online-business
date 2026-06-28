@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../services/employee_scanner_service.dart';
 import '../../services/smart_scan_service.dart';
@@ -7,6 +6,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/product_provider.dart';
 import '../../models/product_model.dart';
 import '../../models/scanner_models.dart';
+import '../../utils/app_theme.dart';
 
 class DamageReportingScreen extends StatefulWidget {
   final String? barcode;
@@ -96,13 +96,13 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
     );
   }
 
   void _showSuccess(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.green),
+      SnackBar(content: Text(message), backgroundColor: AppTheme.success),
     );
   }
 
@@ -177,10 +177,18 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
   }
 
   @override
+  void dispose() {
+    _reasonController.dispose();
+    _quantityController.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Damage Report'),
+        title: const Text('Damage Report', style: TextStyle(fontWeight: FontWeight.w700)),
         actions: [
           IconButton(
             icon: const Icon(Icons.qr_code_scanner),
@@ -209,12 +217,12 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.red.shade50,
+                          color: AppTheme.error.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.warning, color: Colors.red),
+                            const Icon(Icons.warning, color: AppTheme.error),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Column(
@@ -289,7 +297,7 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
                             label: Text(
                                 type.name.replaceAll('_', ' ').toUpperCase()),
                             selected: isSelected,
-                            selectedColor: Colors.red.shade200,
+                            selectedColor: AppTheme.error,
                             onSelected: (selected) {
                               if (selected) {
                                 setState(() => _selectedDamageType = type);
@@ -328,15 +336,15 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
                           prefixIcon: const Icon(Icons.numbers),
                           border: const OutlineInputBorder(),
                           enabledBorder: _autoFilled
-                              ? OutlineInputBorder(
+                              ? const OutlineInputBorder(
                                   borderSide: BorderSide(
-                                      color: Colors.red.shade400, width: 2))
+                                      color: AppTheme.error, width: 2))
                               : null,
                           helperText: _autoFilled
                               ? 'Auto-focused — enter damaged count, then press Enter'
                               : null,
                           helperStyle:
-                              const TextStyle(color: Colors.orange),
+                              const TextStyle(color: AppTheme.warning),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -354,7 +362,7 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : _submitReport,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
+                            backgroundColor: AppTheme.error,
                             foregroundColor: Colors.white,
                           ),
                           child: _isLoading
@@ -379,13 +387,13 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
               ..._reports.take(5).map((report) => Card(
                     child: ListTile(
                       leading: const CircleAvatar(
-                        backgroundColor: Colors.red,
+                        backgroundColor: AppTheme.error,
                         child: Icon(Icons.report_problem, color: Colors.white),
                       ),
                       title: Text(report.productName),
                       subtitle: Text(
                           '${report.damageType.name}: ${report.quantity} units'),
-                      trailing: const Icon(Icons.check_circle, color: Colors.green),
+                      trailing: const Icon(Icons.check_circle, color: AppTheme.success),
                     ),
                   )),
             ],
@@ -412,7 +420,7 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Enter Barcode'),
+        title: const Text('Enter Barcode', style: TextStyle(fontWeight: FontWeight.w700)),
         content: TextField(
           autofocus: true,
           decoration: const InputDecoration(

@@ -204,13 +204,13 @@ class _OwnerReviewResponseDialogState extends State<OwnerReviewResponseDialog> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.red[50],
-                    border: Border.all(color: Colors.red[300]!),
+                    color: AppTheme.error,
+                    border: Border.all(color: AppTheme.error),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     _error!,
-                    style: TextStyle(color: Colors.red[700], fontSize: 12),
+                    style: const TextStyle(color: AppTheme.error, fontSize: 12),
                   ),
                 ),
                 const SizedBox(height: 16),

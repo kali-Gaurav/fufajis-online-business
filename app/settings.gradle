@@ -1,0 +1,3 @@
+rootProject.name = "Fufaji Store Native"
+include ':app'
+project(':app').projectDir = file('fufaji-app')

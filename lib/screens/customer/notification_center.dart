@@ -35,8 +35,8 @@ class _NotificationCenterState extends State<NotificationCenter> {
     return Scaffold(
       backgroundColor: AppTheme.grey50,
       appBar: AppBar(
-        title: const Text('Notifications'),
-        backgroundColor: Colors.white,
+        title: const Text('Notifications', style: TextStyle(fontWeight: FontWeight.w700)),
+        backgroundColor: AppTheme.cream,
         foregroundColor: AppTheme.grey900,
         elevation: 0,
         actions: [
@@ -74,7 +74,7 @@ class _NotificationCenterState extends State<NotificationCenter> {
     BuildContext context,
   ) {
     if (provider.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
     }
 
     if (provider.notifications.isEmpty) {
@@ -108,7 +108,7 @@ class _NotificationCenterState extends State<NotificationCenter> {
           key: Key(notification.id),
           direction: DismissDirection.endToStart,
           background: Container(
-            color: Colors.red,
+            color: AppTheme.error,
             alignment: Alignment.centerRight,
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: const Icon(Icons.delete, color: Colors.white),
@@ -243,11 +243,11 @@ class _NotificationTile extends StatelessWidget {
       case NotificationType.orderUpdate:
         return AppTheme.primary;
       case NotificationType.promotion:
-        return AppTheme.secondary;
+        return AppTheme.info;
       case NotificationType.priceDrop:
-        return Colors.orange;
+        return AppTheme.warning;
       case NotificationType.shopUpdate:
-        return Colors.blue;
+        return AppTheme.info;
       case NotificationType.systemMessage:
         return Colors.purple;
       default:
@@ -255,4 +255,3 @@ class _NotificationTile extends StatelessWidget {
     }
   }
 }
-

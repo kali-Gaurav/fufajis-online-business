@@ -11,44 +11,55 @@ class CategoryChip extends StatelessWidget {
   const CategoryChip({
     super.key,
     required this.category,
-    required this.isSelected,
+    this.isSelected = false,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
+    final color = Color(
+      int.parse(category.color.replaceFirst('#', '0xFF')),
+    );
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 6),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        width: 80,
+        margin: const EdgeInsets.only(right: 12),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryColor : Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          color: isSelected ? color : Colors.white,
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? AppTheme.primaryColor : Colors.grey[200]!,
+            color: isSelected ? color : Colors.grey.withValues(alpha: 0.2),
+            width: 1,
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : [],
+          boxShadow: [
+            if (isSelected)
+              BoxShadow(
+                color: color.withValues(alpha: 0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+          ],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(category.icon, style: const TextStyle(fontSize: 24)),
             const SizedBox(height: 4),
-            Text(
-              category.name,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-                color: isSelected ? Colors.white : Colors.grey[700],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                category.localizedName(locale),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected ? Colors.white : Colors.black87,
+                ),
               ),
             ),
           ],

@@ -54,4 +54,17 @@ class EmployeeAuthService {
       return null;
     });
   }
+
+  /// Returns a stream of all active employees for selection in dashboards
+  static Stream<List<Employee>> streamActiveEmployees() {
+    return _firestore
+        .collection('employees')
+        .where('isActive', isEqualTo: true)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((doc) => Employee.fromJson(Map<String, dynamic>.from(doc.data())))
+          .toList();
+    });
+  }
 }

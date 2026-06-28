@@ -1,31 +1,61 @@
+import '../services/logging_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../utils/monetary_value.dart';
 
+/// Product category enum with localized metadata
 enum ProductCategory {
-  groceries,
-  vegetables,
-  fruits,
-  dairy,
-  bakery,
-  snacks,
-  beverages,
-  household,
-  personalCare,
-  electronics,
-  clothing,
-  footwear,
-  homeDecor,
-  kitchenware,
-  stationery,
-  toys,
-  medicines,
-  agricultural,
-  other,
+  groceries(nameEn: 'Groceries', nameHi: 'किराना', icon: '🛒', color: '#FF9800'),
+  vegetables(nameEn: 'Vegetables', nameHi: 'सब्जियां', icon: '🥦', color: '#4CAF50'),
+  fruits(nameEn: 'Fruits', nameHi: 'फल', icon: '🍎', color: '#F44336'),
+  dairy(nameEn: 'Dairy', nameHi: 'डेयरी', icon: '🥛', color: '#2196F3'),
+  bakery(nameEn: 'Bakery', nameHi: 'बेकरी', icon: '🍞', color: '#795548'),
+  snacks(nameEn: 'Snacks', nameHi: 'नमकीन', icon: '🥨', color: '#FF5722'),
+  beverages(nameEn: 'Beverages', nameHi: 'पेय पदार्थ', icon: '🥤', color: '#00BCD4'),
+  household(nameEn: 'Household', nameHi: 'घर का सामान', icon: '🧹', color: '#607D8B'),
+  personalCare(nameEn: 'Personal Care', nameHi: 'पर्सनल केयर', icon: '🧴', color: '#E91E63'),
+  electronics(nameEn: 'Electronics', nameHi: 'इलेक्ट्रॉनिक्स', icon: '🔌', color: '#3F51B5'),
+  clothing(nameEn: 'Clothing', nameHi: 'कपड़े', icon: '👕', color: '#9C27B0'),
+  footwear(nameEn: 'Footwear', nameHi: 'जूते', icon: '👟', color: '#795548'),
+  homeDecor(nameEn: 'Home Decor', nameHi: 'सजावट', icon: '🖼️', color: '#FFC107'),
+  kitchenware(nameEn: 'Kitchenware', nameHi: 'रसोई का सामान', icon: '🍳', color: '#F44336'),
+  stationery(nameEn: 'Stationery', nameHi: 'स्टेशनरी', icon: '✏️', color: '#03A9F4'),
+  toys(nameEn: 'Toys', nameHi: 'खिलौने', icon: '🧸', color: '#FF4081'),
+  medicines(nameEn: 'Medicines', nameHi: 'दवाइयां', icon: '💊', color: '#F44336'),
+  agricultural(nameEn: 'Agricultural', nameHi: 'कृषि उत्पाद', icon: '🚜', color: '#4CAF50'),
+  other(nameEn: 'Other', nameHi: 'अन्य', icon: '📦', color: '#9E9E9E');
+
+  final String nameEn;
+  final String nameHi;
+  final String icon;
+  final String color;
+
+  const ProductCategory({
+    required this.nameEn,
+    required this.nameHi,
+    required this.icon,
+    required this.color,
+  });
+
+  /// Get localized name based on locale string
+  String localizedName(String localeCode) {
+    return localeCode.startsWith('hi') ? nameHi : nameEn;
+  }
+
+  /// Get enum from ID string safely
+  static ProductCategory fromId(String? id) {
+    if (id == null) return ProductCategory.other;
+    final cleanId = id.toLowerCase().trim();
+    return ProductCategory.values.firstWhere(
+      (e) => e.name.toLowerCase() == cleanId,
+      orElse: () => ProductCategory.other,
+    );
+  }
 }
 
 class ProductUnitOption {
   final String id;
   final String name;
-  final double price;
+  final MonetaryValue price;
   final double? originalPrice;
   final int stockQuantity;
 
@@ -39,11 +69,11 @@ class ProductUnitOption {
 
   factory ProductUnitOption.fromMap(Map<String, dynamic> map) {
     return ProductUnitOption(
-      id: map['id'] ?? '',
-      name: map['name'] ?? '',
-      price: (map['price'] ?? 0.0).toDouble(),
+      id: map['id'] as String? ?? '',
+      name: map['name'] as String? ?? '',
+      price: MonetaryValue(map['price'] ?? 0.0),
       originalPrice: (map['originalPrice'] as num?)?.toDouble(),
-      stockQuantity: map['stockQuantity'] ?? 0,
+      stockQuantity: map['stockQuantity'] as int? ?? 0,
     );
   }
 
@@ -60,7 +90,7 @@ class ProductUnitOption {
 
 class CompetitorPrice {
   final String competitorName;
-  final double price;
+  final MonetaryValue price;
   final DateTime updatedAt;
 
   CompetitorPrice({
@@ -71,8 +101,8 @@ class CompetitorPrice {
 
   factory CompetitorPrice.fromMap(Map<String, dynamic> map) {
     return CompetitorPrice(
-      competitorName: map['competitorName'] ?? '',
-      price: (map['price'] ?? 0.0).toDouble(),
+      competitorName: map['competitorName'] as String? ?? '',
+      price: MonetaryValue(map['price'] ?? 0.0),
       updatedAt: ProductModel._parseDate(map['updatedAt']) ?? DateTime.now(),
     );
   }
@@ -90,11 +120,12 @@ class ProductModel {
   final String id;
   final String name;
   final String description;
-  final double price;
-  final double? originalPrice;
-  final double? discountPercentage;
+  final MonetaryValue price;
+  final MonetaryValue? originalPrice;
+  final MonetaryValue? discountPercentage;
   final String unit;
-  final String category;
+  final String categoryId; // Immutable category Id (e.g. 'vegetables')
+  final String category; // Legacy/Display name (backward compatibility)
   final String subCategory;
   final String shopId;
   final String shopName;
@@ -152,7 +183,8 @@ class ProductModel {
     this.originalPrice,
     this.discountPercentage,
     required this.unit,
-    required this.category,
+    required this.categoryId,
+    this.category = '',
     this.subCategory = '',
     required this.shopId,
     required this.shopName,
@@ -209,82 +241,83 @@ class ProductModel {
     if (val is Timestamp) return val.toDate();
     try {
       return DateTime.tryParse(val.toString());
-    } catch (_) {}
+    } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
     return null;
   }
 
   factory ProductModel.fromMap(Map<String, dynamic> map) {
     return ProductModel(
-      id: map['id'] ?? '',
-      name: map['name'] ?? '',
-      description: map['description'] ?? '',
-      price: (map['price'] ?? 0.0).toDouble(),
-      originalPrice: (map['originalPrice'] as num?)?.toDouble(),
-      discountPercentage: (map['discountPercentage'] as num?)?.toDouble(),
-      unit: map['unit'] ?? 'piece',
-      category: map['category'] ?? 'other',
-      subCategory: map['subCategory'] ?? '',
-      shopId: map['shopId'] ?? '',
-      shopName: map['shopName'] ?? '',
-      imageUrl: map['imageUrl'] ?? '',
-      images: List<String>.from(map['images'] ?? []),
-      rating: (map['rating'] ?? 0.0).toDouble(),
-      reviewCount: map['reviewCount'] ?? 0,
-      stockQuantity: map['stockQuantity'] ?? 0,
-      minimumStock: map['minimumStock'] ?? 10,
-      isAvailable: map['isAvailable'] ?? true,
-      isFeatured: map['isFeatured'] ?? false,
-      isOnSale: map['isOnSale'] ?? false,
-      isNewArrival: map['isNewArrival'] ?? false,
-      isTrending: map['isTrending'] ?? false,
-      specifications: Map<String, dynamic>.from(map['specifications'] ?? {}),
-      tags: List<String>.from(map['tags'] ?? []),
-      barcode: map['barcode'] ?? '',
-      brand: map['brand'],
-      origin: map['origin'],
+      id: map['id'] as String? ?? '',
+      name: map['name'] as String? ?? '',
+      description: map['description'] as String? ?? '',
+      price: MonetaryValue(map['price'] ?? 0.0),
+      originalPrice: map['originalPrice'] != null ? MonetaryValue(map['originalPrice']) : null,
+      discountPercentage: map['discountPercentage'] != null ? MonetaryValue(map['discountPercentage']) : null,
+      unit: map['unit'] as String? ?? 'piece',
+      categoryId: (map['categoryId'] as String?) ?? (map['category'] as String?) ?? 'other',
+      category: map['category'] as String? ?? 'other',
+      subCategory: map['subCategory'] as String? ?? '',
+      shopId: map['shopId'] as String? ?? '',
+      shopName: map['shopName'] as String? ?? '',
+      imageUrl: map['imageUrl'] as String? ?? '',
+      images: List<String>.from(map['images'] as Iterable? ?? []),
+      rating: (map['rating'] as num? ?? 0.0).toDouble(),
+      reviewCount: map['reviewCount'] as int? ?? 0,
+      stockQuantity: map['stockQuantity'] as int? ?? 0,
+      minimumStock: map['minimumStock'] as int? ?? 10,
+      isAvailable: map['isAvailable'] as bool? ?? true,
+      isFeatured: map['isFeatured'] as bool? ?? false,
+      isOnSale: map['isOnSale'] as bool? ?? false,
+      isNewArrival: map['isNewArrival'] as bool? ?? false,
+      isTrending: map['isTrending'] as bool? ?? false,
+      specifications: Map<String, dynamic>.from(map['specifications'] as Map? ?? {}),
+      tags: List<String>.from(map['tags'] as Iterable? ?? []),
+      barcode: map['barcode'] as String? ?? '',
+      brand: map['brand'] as String?,
+      origin: map['origin'] as String?,
       expiryDate: _parseDate(map['expiryDate']),
-      isExpired: map['isExpired'] ?? false,
+      isExpired: map['isExpired'] as bool? ?? false,
       competitorPrices:
           (map['competitorPrices'] as List?)
               ?.map(
-                (x) => CompetitorPrice.fromMap(Map<String, dynamic>.from(x)),
+                (x) => CompetitorPrice.fromMap(Map<String, dynamic>.from(x as Map)),
               )
               .toList() ??
           const [],
       costPrice: (map['costPrice'] as num?)?.toDouble(),
-      pricingStrategy: map['pricingStrategy'],
+      pricingStrategy: map['pricingStrategy'] as String?,
       lastPriceUpdate: _parseDate(map['lastPriceUpdate']),
       weight: (map['weight'] as num?)?.toDouble(),
-      weightUnit: map['weightUnit'] ?? 'kg',
-      minOrderQuantity: map['minOrderQuantity'] ?? 1,
-      maxOrderQuantity: map['maxOrderQuantity'] ?? 100,
-      district: map['district'] ?? '',
-      village: map['village'] ?? '',
+      weightUnit: map['weightUnit'] as String? ?? 'kg',
+      minOrderQuantity: map['minOrderQuantity'] as int? ?? 1,
+      maxOrderQuantity: map['maxOrderQuantity'] as int? ?? 100,
+      district: map['district'] as String? ?? '',
+      village: map['village'] as String? ?? '',
       sourceLocation: map['sourceLocation'] as GeoPoint?,
-      sourceName: map['sourceName'],
+      sourceName: map['sourceName'] as String?,
       createdAt: _parseDate(map['createdAt']) ?? DateTime.now(),
       updatedAt: _parseDate(map['updatedAt']) ?? DateTime.now(),
       unitOptions:
           (map['unitOptions'] as List?)
               ?.map(
-                (x) => ProductUnitOption.fromMap(Map<String, dynamic>.from(x)),
+                (x) => ProductUnitOption.fromMap(Map<String, dynamic>.from(x as Map)),
               )
               .toList() ??
           const [],
       lightningDealPrice: (map['lightningDealPrice'] as num?)?.toDouble(),
       lightningDealEndTime: _parseDate(map['lightningDealEndTime']),
-      farmStory: map['farmStory'],
-      farmerName: map['farmerName'],
-      farmerImageUrl: map['farmerImageUrl'],
+      farmStory: map['farmStory'] as String?,
+      farmerName: map['farmerName'] as String?,
+      farmerImageUrl: map['farmerImageUrl'] as String?,
       harvestDate: _parseDate(map['harvestDate']),
-      isOrganicCertified: map['isOrganicCertified'] ?? false,
+      isOrganicCertified: map['isOrganicCertified'] as bool? ?? false,
       branchStock:
-          (map['branchStock'] as Map<dynamic, dynamic>?)?.map(
+          (map['branchStock'] as Map?)?.map(
             (k, v) => MapEntry(k.toString(), v as int),
           ) ??
           const {},
       branchLocations:
-          (map['branchLocations'] as Map<dynamic, dynamic>?)?.map((k, v) {
+          (map['branchLocations'] as Map?)?.map((k, v) {
             if (v is Map) {
               return MapEntry(k.toString(), Map<String, dynamic>.from(v));
             } else if (v is String) {
@@ -308,7 +341,7 @@ class ProductModel {
             }
           }) ??
           const {},
-      shelfPhotoUrl: map['shelfPhotoUrl'],
+      shelfPhotoUrl: map['shelfPhotoUrl'] as String?,
       shelfPhotoUpdatedAt: _parseDate(map['shelfPhotoUpdatedAt']),
     );
   }
@@ -322,6 +355,7 @@ class ProductModel {
       'originalPrice': originalPrice,
       'discountPercentage': discountPercentage,
       'unit': unit,
+      'categoryId': categoryId,
       'category': category,
       'subCategory': subCategory,
       'shopId': shopId,
@@ -377,10 +411,11 @@ class ProductModel {
     String? id,
     String? name,
     String? description,
-    double? price,
-    double? originalPrice,
-    double? discountPercentage,
+    MonetaryValue? price,
+    MonetaryValue? originalPrice,
+    MonetaryValue? discountPercentage,
     String? unit,
+    String? categoryId,
     String? category,
     String? subCategory,
     String? shopId,
@@ -433,6 +468,7 @@ class ProductModel {
       originalPrice: originalPrice ?? this.originalPrice,
       discountPercentage: discountPercentage ?? this.discountPercentage,
       unit: unit ?? this.unit,
+      categoryId: categoryId ?? this.categoryId,
       category: category ?? this.category,
       subCategory: subCategory ?? this.subCategory,
       shopId: shopId ?? this.shopId,
@@ -486,15 +522,15 @@ class ProductModel {
     return DateTime.now().isBefore(lightningDealEndTime!);
   }
 
-  double get currentPrice {
+  MonetaryValue get currentPrice {
     if (isLightningDealActive) {
-      return lightningDealPrice!;
+      return MonetaryValue(lightningDealPrice!);
     }
     return price;
   }
 
-  double get discountedPrice {
-    if (isLightningDealActive) return lightningDealPrice!;
+  MonetaryValue get discountedPrice {
+    if (isLightningDealActive) return MonetaryValue(lightningDealPrice!);
     if (originalPrice != null && originalPrice! > price) {
       return price;
     }
@@ -502,17 +538,17 @@ class ProductModel {
   }
 
   double? get mrp =>
-      isLightningDealActive ? (originalPrice ?? price) : originalPrice;
+      isLightningDealActive ? (originalPrice?.toDouble() ?? price.toDouble()) : originalPrice?.toDouble();
 
   double get effectiveDiscount {
     if (isLightningDealActive) {
-      final basePrice = originalPrice ?? price;
+      final basePrice = originalPrice?.toDouble() ?? price.toDouble();
       if (basePrice <= lightningDealPrice!) return 0;
       return ((basePrice - lightningDealPrice!) / basePrice) * 100;
     }
-    if (discountPercentage != null) return discountPercentage!;
+    if (discountPercentage != null) return discountPercentage!.toDouble();
     if (originalPrice == null || originalPrice! <= price) return 0;
-    return ((originalPrice! - price) / originalPrice!) * 100;
+    return ((originalPrice!.toDouble() - price.toDouble()) / originalPrice!.toDouble()) * 100;
   }
 
   bool get isLocal => village.isNotEmpty || origin?.toLowerCase() == 'local';
@@ -521,7 +557,7 @@ class ProductModel {
 
   /// Normalizes price to 1kg/1L for value comparison (Step 13.3)
   double? get normalizedPricePerKg {
-    final currentP = currentPrice;
+    final double currentP = currentPrice.toDouble();
     final String u = unit.toLowerCase();
 
     if (u.contains('kg')) {
@@ -572,18 +608,18 @@ class ProductReview {
 
   factory ProductReview.fromMap(Map<String, dynamic> map) {
     return ProductReview(
-      id: map['id'] ?? '',
-      productId: map['productId'] ?? '',
-      userId: map['userId'] ?? '',
-      userName: map['userName'] ?? '',
-      userImage: map['userImage'],
-      rating: (map['rating'] ?? 0.0).toDouble(),
-      review: map['review'] ?? '',
-      images: List<String>.from(map['images'] ?? []),
+      id: map['id'] as String? ?? '',
+      productId: map['productId'] as String? ?? '',
+      userId: map['userId'] as String? ?? '',
+      userName: map['userName'] as String? ?? '',
+      userImage: map['userImage'] as String?,
+      rating: (map['rating'] as num? ?? 0.0).toDouble(),
+      review: map['review'] as String? ?? '',
+      images: List<String>.from(map['images'] as Iterable? ?? []),
       createdAt: ProductModel._parseDate(map['createdAt']) ?? DateTime.now(),
-      ownerReply: map['ownerReply'],
-      isFlagged: map['isFlagged'] ?? false,
-      isFeatured: map['isFeatured'] ?? false,
+      ownerReply: map['ownerReply'] as String?,
+      isFlagged: map['isFlagged'] as bool? ?? false,
+      isFeatured: map['isFeatured'] as bool? ?? false,
     );
   }
 
@@ -608,9 +644,9 @@ class ProductReview {
 }
 
 class CategoryModel {
-  final String id;
-  final String name;
-  final String nameHindi;
+  final String id; // Logic ID
+  final String name; // English Name
+  final String nameHindi; // Hindi Name
   final String icon;
   final String color;
   final int productCount;
@@ -628,16 +664,28 @@ class CategoryModel {
     this.sortOrder = 0,
   });
 
+  /// Factory from enum for type safety
+  factory CategoryModel.fromEnum(ProductCategory cat, {int count = 0}) {
+    return CategoryModel(
+      id: cat.name,
+      name: cat.nameEn,
+      nameHindi: cat.nameHi,
+      icon: cat.icon,
+      color: cat.color,
+      productCount: count,
+    );
+  }
+
   factory CategoryModel.fromMap(Map<String, dynamic> map) {
     return CategoryModel(
-      id: map['id'] ?? '',
-      name: map['name'] ?? '',
-      nameHindi: map['nameHindi'] ?? '',
-      icon: map['icon'] ?? '',
-      color: map['color'] ?? '#FF5722',
-      productCount: map['productCount'] ?? 0,
-      isActive: map['isActive'] ?? true,
-      sortOrder: map['sortOrder'] ?? 0,
+      id: map['id'] as String? ?? '',
+      name: map['name'] as String? ?? '',
+      nameHindi: map['nameHindi'] as String? ?? '',
+      icon: map['icon'] as String? ?? '',
+      color: map['color'] as String? ?? '#FF5722',
+      productCount: map['productCount'] as int? ?? 0,
+      isActive: map['isActive'] as bool? ?? true,
+      sortOrder: map['sortOrder'] as int? ?? 0,
     );
   }
 
@@ -652,5 +700,10 @@ class CategoryModel {
       'isActive': isActive,
       'sortOrder': sortOrder,
     };
+  }
+
+  /// Get localized label
+  String localizedName(String localeCode) {
+    return localeCode.startsWith('hi') ? nameHindi : name;
   }
 }

@@ -298,7 +298,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
         );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: Colors.amber[800],
+            backgroundColor: AppTheme.warning,
             content: Text(
               _reviews[index].isFeatured
                   ? 'Review highlighted as featured feedback!'
@@ -332,7 +332,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
         );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: Colors.green[700],
+            backgroundColor: AppTheme.success,
             content: Text(
               'Reply submitted successfully to ${current.userName}.',
             ),
@@ -341,6 +341,12 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
       }
     });
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -498,14 +504,14 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.indigo[900]!, Colors.indigo[700]!],
+          colors: [AppTheme.ownerAccent, AppTheme.ownerAccent.withValues(alpha: 0.8)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.indigo.withValues(alpha: 0.3),
+            color: AppTheme.ownerAccent.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -516,7 +522,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.auto_awesome, color: Colors.amber, size: 24),
+              const Icon(Icons.auto_awesome, color: AppTheme.warning, size: 24),
               const SizedBox(width: 12),
               const Text(
                 'AI Smart Insights for Fufaji',
@@ -534,7 +540,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.redAccent,
+                    color: AppTheme.error,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -573,7 +579,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
             children: [
               const Icon(
                 Icons.lightbulb_outline,
-                color: Colors.amber,
+                color: AppTheme.warning,
                 size: 20,
               ),
               const SizedBox(width: 12),
@@ -590,9 +596,9 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
               ElevatedButton(
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      backgroundColor: Colors.indigo[900],
-                      content: const Text(
+                    const SnackBar(
+                      backgroundColor: AppTheme.ownerAccent,
+                      content: Text(
                         'AI Optimization Applied: Rerouting Bassi deliveries and updated packaging requirements for Atta.',
                       ),
                     ),
@@ -687,7 +693,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
       ),
       child: Row(
         children: [
-          Icon(Icons.star_rounded, color: Colors.amber[700], size: 24),
+          const Icon(Icons.star_rounded, color: AppTheme.warning, size: 24),
           const SizedBox(width: 8),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -762,7 +768,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
                 color: isSelected ? Colors.white : Colors.grey[700],
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
-              backgroundColor: Colors.white,
+              backgroundColor: AppTheme.cream,
               side: BorderSide(
                 color: isSelected ? Colors.transparent : Colors.grey[300]!,
               ),
@@ -884,9 +890,9 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
             color: isSelected
                 ? AppTheme.primaryColor
                 : review.isFeatured
-                ? Colors.amber.withValues(alpha: 0.5)
+                ? AppTheme.warning.withValues(alpha: 0.5)
                 : review.isFlagged
-                ? Colors.red.withValues(alpha: 0.3)
+                ? AppTheme.error.withValues(alpha: 0.3)
                 : Colors.grey[200]!,
             width: isSelected || review.isFeatured || review.isFlagged
                 ? 1.5
@@ -912,7 +918,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: review.isFeatured ? Colors.amber[50] : Colors.red[50],
+                  color: review.isFeatured ? AppTheme.warning : AppTheme.error.withValues(alpha: 0.1),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(14),
                     topRight: Radius.circular(14),
@@ -926,8 +932,8 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
                           : Icons.warning_amber_rounded,
                       size: 16,
                       color: review.isFeatured
-                          ? Colors.amber[800]
-                          : Colors.red[700],
+                          ? AppTheme.warning
+                          : AppTheme.error,
                     ),
                     const SizedBox(width: 6),
                     Text(
@@ -938,8 +944,8 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                         color: review.isFeatured
-                            ? Colors.amber[900]
-                            : Colors.red[850],
+                            ? AppTheme.warning
+                            : AppTheme.error,
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -1096,20 +1102,20 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: Colors.blue[50],
+        color: AppTheme.info.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: Colors.blue[100]!),
+        border: Border.all(color: AppTheme.ownerAccent.withValues(alpha: 0.2)),
       ),
-      child: Row(
+      child: const Row(
         children: [
-          Icon(Icons.verified, size: 10, color: Colors.blue[700]),
-          const SizedBox(width: 3),
+          Icon(Icons.verified, size: 10, color: AppTheme.info),
+          SizedBox(width: 3),
           Text(
             'VERIFIED',
             style: TextStyle(
               fontSize: 8,
               fontWeight: FontWeight.bold,
-              color: Colors.blue[800],
+              color: AppTheme.ownerAccent,
             ),
           ),
         ],
@@ -1132,7 +1138,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
         final starValue = index + 1;
         return Icon(
           starValue <= rating ? Icons.star_rounded : Icons.star_border_rounded,
-          color: starValue <= rating ? Colors.amber[700] : Colors.grey[300],
+          color: starValue <= rating ? AppTheme.warning : Colors.grey[300],
           size: 18,
         );
       }),
@@ -1147,7 +1153,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
           onPressed: () => _toggleFeature(review.id),
           icon: Icon(
             review.isFeatured ? Icons.star_rounded : Icons.star_border_rounded,
-            color: review.isFeatured ? Colors.amber[700] : Colors.grey[400],
+            color: review.isFeatured ? AppTheme.warning : Colors.grey[400],
             size: 22,
           ),
         ),
@@ -1156,7 +1162,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
           onPressed: () => _toggleFlag(review.id),
           icon: Icon(
             review.isFlagged ? Icons.flag_rounded : Icons.flag_outlined,
-            color: review.isFlagged ? Colors.red[700] : Colors.grey[400],
+            color: review.isFlagged ? AppTheme.error : Colors.grey[400],
             size: 22,
           ),
         ),
@@ -1169,23 +1175,23 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.green[50],
+        color: AppTheme.success.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.green[100]!),
+        border: Border.all(color: AppTheme.success),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              Icon(Icons.storefront, size: 14, color: Colors.green[800]),
-              const SizedBox(width: 6),
+              Icon(Icons.storefront, size: 14, color: AppTheme.success),
+              SizedBox(width: 6),
               Text(
                 'Owner Response',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 11,
-                  color: Colors.green[900],
+                  color: AppTheme.success,
                 ),
               ),
             ],
@@ -1193,7 +1199,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
           const SizedBox(height: 6),
           Text(
             replyText,
-            style: TextStyle(fontSize: 12.5, color: Colors.green[950]),
+            style: const TextStyle(fontSize: 12.5, color: AppTheme.success),
           ),
         ],
       ),
@@ -1225,7 +1231,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
                     child: ActionChip(
                       label: Text(s, style: const TextStyle(fontSize: 10)),
                       onPressed: () => _submitReply(reviewId, s),
-                      backgroundColor: Colors.white,
+                      backgroundColor: AppTheme.cream,
                       side: BorderSide(color: Colors.grey[300]!),
                     ),
                   ),
@@ -1317,10 +1323,10 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
                       ),
                     ),
                     const SizedBox(width: 4),
-                    Icon(
+                    const Icon(
                       Icons.star_rounded,
                       size: 14,
-                      color: Colors.amber[700],
+                      color: AppTheme.warning,
                     ),
                   ],
                 ),
@@ -1335,10 +1341,10 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
                     backgroundColor: Colors.grey[150],
                     valueColor: AlwaysStoppedAnimation<Color>(
                       star >= 4.0
-                          ? Colors.green[600]!
+                          ? AppTheme.success
                           : star == 3.0
-                          ? Colors.amber[600]!
-                          : Colors.red[500]!,
+                          ? AppTheme.warning
+                          : AppTheme.error,
                     ),
                   ),
                 ),
@@ -1366,26 +1372,26 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
   Widget _buildModerationGuidelinesCard() {
     return Card(
       elevation: 0,
-      color: Colors.blue[50]?.withValues(alpha: 0.6),
+      color: AppTheme.info.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.blue[100]!),
+        side: BorderSide(color: AppTheme.ownerAccent.withValues(alpha: 0.2)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            const Row(
               children: [
-                Icon(Icons.gavel, color: Colors.blue[800], size: 18),
-                const SizedBox(width: 8),
+                Icon(Icons.gavel, color: AppTheme.ownerAccent, size: 18),
+                SizedBox(width: 8),
                 Text(
                   'Moderation Policy',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
-                    color: Colors.blue[900],
+                    color: AppTheme.ownerAccent,
                   ),
                 ),
               ],
@@ -1412,13 +1418,13 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('• ', style: TextStyle(color: Colors.blue[800], fontSize: 14)),
+          const Text('• ', style: TextStyle(color: AppTheme.ownerAccent, fontSize: 14)),
           Expanded(
             child: Text(
               text,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 11.5,
-                color: Colors.blue[950],
+                color: AppTheme.ownerAccent,
                 height: 1.4,
               ),
             ),

@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../models/order_model.dart';
-import '../models/user_model.dart';
+import '../constants/order_status.dart';
 
 /// Smart Analytics Service
 ///
@@ -25,12 +25,12 @@ class SmartAnalyticsService {
   double calculateCustomerLTV(List<OrderModel> orders) {
     return orders
         .where((o) => o.status == OrderStatus.delivered)
-        .fold(0.0, (sum, o) => sum + o.totalAmount);
+        .fold(0.0, (sum, o) => sum + o.totalAmount.toDouble());
   }
 
   // ─── Churn risk score (0.0 = no risk, 1.0 = churned) ─────────────────────────
   /// Uses exponential decay with half-life of 21 days, modulated by order frequency
-  double predictChurnRisk(List<OrderModel> orders) {
+  double calculateChurnRiskScore(List<OrderModel> orders) {
     if (orders.isEmpty) return 1.0;
     final sorted = [...orders]
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
@@ -71,7 +71,7 @@ class SmartAnalyticsService {
 
   // ─── Customer segment label ───────────────────────────────────────────────────
   String getSegmentLabel(List<OrderModel> orders) {
-    final churn = predictChurnRisk(orders);
+    final churn = calculateChurnRiskScore(orders);
     if (orders.isEmpty) return 'New';
     if (isVIPCustomer(orders)) return 'VIP';
     if (churn > 0.75) return 'At Risk';
@@ -80,7 +80,7 @@ class SmartAnalyticsService {
   }
 
   // ─── Win-back eligible customers from Firestore ───────────────────────────────
-  Future<List<CustomerSegment>> getWinBackSegment({
+  Future<List<CustomerSegment>> getWinBackCustomersTyped({
     String shopId = 'shop_001',
   }) async {
     try {
@@ -100,16 +100,17 @@ class SmartAnalyticsService {
           .get();
 
       return snap.docs.map((d) {
-        final ltv = (d['totalSpent'] ?? 0.0).toDouble();
-        final orders = (d['totalOrders'] ?? 0) as int;
-        final lastOrderTs = d['lastOrderAt'] as Timestamp?;
+        final data = d.data();
+        final ltv = (data['totalSpent'] ?? 0.0).toDouble();
+        final orders = (data['totalOrders'] ?? 0) as int;
+        final lastOrderTs = data['lastOrderAt'] as Timestamp?;
         final days = lastOrderTs != null
             ? DateTime.now().difference(lastOrderTs.toDate()).inDays
             : 45;
         return CustomerSegment(
           userId: d.id,
-          name: d['name'] ?? 'Customer',
-          phone: d['phoneNumber'] ?? '',
+          name: data['name'] ?? 'Customer',
+          phone: data['phoneNumber'] ?? '',
           ltv: ltv,
           totalOrders: orders,
           daysSinceLast: days,
@@ -140,9 +141,10 @@ class SmartAnalyticsService {
       // Group: productId → dayIndex → qty
       final Map<String, Map<int, double>> matrix = {};
       for (final doc in snap.docs) {
-        final pid = doc['productId'] as String? ?? '';
-        final qty = (doc['quantity'] as num? ?? 1).toDouble();
-        final dt = (doc['createdAt'] as Timestamp).toDate();
+        final data = doc.data();
+        final pid = data['productId'] as String? ?? '';
+        final qty = (data['quantity'] as num? ?? 1).toDouble();
+        final dt = (data['createdAt'] as Timestamp).toDate();
         final dayIdx = DateTime.now().difference(dt).inDays;
         matrix.putIfAbsent(pid, () => {});
         matrix[pid]![dayIdx] = (matrix[pid]![dayIdx] ?? 0) + qty;
@@ -180,7 +182,7 @@ class SmartAnalyticsService {
           .get();
 
       final orderIds = orderIdsSnap.docs
-          .map((d) => d['orderId'] as String? ?? '')
+          .map((d) => d.data()['orderId'] as String? ?? '')
           .where((id) => id.isNotEmpty)
           .toSet()
           .take(10)
@@ -195,7 +197,7 @@ class SmartAnalyticsService {
 
       final Map<String, int> freq = {};
       for (final doc in coSnap.docs) {
-        final pid = doc['productId'] as String? ?? '';
+        final pid = doc.data()['productId'] as String? ?? '';
         if (pid.isNotEmpty && pid != productId) {
           freq[pid] = (freq[pid] ?? 0) + 1;
         }
@@ -273,12 +275,131 @@ class SmartAnalyticsService {
     if (orders.isEmpty) return;
     await _db.collection('customer_metrics').doc(customerId).set({
       'ltv': calculateCustomerLTV(orders),
-      'churnRisk': predictChurnRisk(orders),
+      'churnRisk': calculateChurnRiskScore(orders),
       'orderFrequency': calculateOrderFrequency(orders),
       'isVip': isVIPCustomer(orders),
       'segment': getSegmentLabel(orders).toLowerCase().replaceAll(' ', '_'),
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
+  }
+
+
+  // ─── Adapter methods for CustomerSegmentationScreen ─────────────────────
+  /// Returns customers with churn risk above [thresholdScore].
+  Future<List<Map<String, dynamic>>> predictChurnRiskList({
+    double thresholdScore = 0.6,
+    String shopId = 'shop_001',
+  }) async {
+    try {
+      final cutoff = Timestamp.fromDate(
+          DateTime.now().subtract(const Duration(days: 14)));
+      final snap = await _db
+          .collection('users')
+          .where('role', isEqualTo: 'UserRole.customer')
+          .where('lastOrderAt', isLessThan: cutoff)
+          .limit(80)
+          .get();
+
+      return snap.docs.map((d) {
+        final data = d.data();
+        final ltv = (data['totalSpent'] ?? 0.0).toDouble();
+        final orders = (data['totalOrders'] ?? 0) as int;
+        return <String, dynamic>{
+          'id': d.id,
+          'userId': d.id,
+          'name': data['name'] ?? 'Customer',
+          'email': data['email'] ?? '',
+          'lifetimeValue': ltv,
+          'totalOrders': orders,
+        };
+      }).toList();
+    } catch (e) {
+      debugPrint('[SmartAnalytics] predictChurnRisk list error: $e');
+      return [];
+    }
+  }
+
+  /// Returns top customers by lifetime value above [minLifetimeValue].
+  Future<List<Map<String, dynamic>>> getVipCustomersList({
+    double minLifetimeValue = 5000,
+    String shopId = 'shop_001',
+  }) async {
+    try {
+      final snap = await _db
+          .collection('users')
+          .where('role', isEqualTo: 'UserRole.customer')
+          .where('totalSpent', isGreaterThanOrEqualTo: minLifetimeValue)
+          .orderBy('totalSpent', descending: true)
+          .limit(50)
+          .get();
+
+      return snap.docs.map((d) {
+        final data = d.data();
+        return <String, dynamic>{
+          'id': d.id,
+          'userId': d.id,
+          'name': data['name'] ?? 'Customer',
+          'email': data['email'] ?? '',
+          'lifetimeValue': (data['totalSpent'] ?? 0.0).toDouble(),
+          'totalOrders': (data['totalOrders'] ?? 0) as int,
+        };
+      }).toList();
+    } catch (e) {
+      debugPrint('[SmartAnalytics] getVipCustomers error: $e');
+      return [];
+    }
+  }
+
+  /// Overload of getWinBackSegment returning raw maps for UI consumption.
+  Future<List<Map<String, dynamic>>> getWinBackSegmentList({
+    int daysSinceLastOrder = 30,
+    String shopId = 'shop_001',
+  }) async {
+    try {
+      final cutoff = Timestamp.fromDate(
+          DateTime.now().subtract(Duration(days: daysSinceLastOrder)));
+      final cutoffOld = Timestamp.fromDate(
+          DateTime.now().subtract(Duration(days: daysSinceLastOrder * 2)));
+      final snap = await _db
+          .collection('users')
+          .where('role', isEqualTo: 'UserRole.customer')
+          .where('lastOrderAt', isLessThan: cutoff)
+          .where('lastOrderAt', isGreaterThan: cutoffOld)
+          .limit(80)
+          .get();
+
+      return snap.docs.map((d) {
+        final data = d.data();
+        return <String, dynamic>{
+          'id': d.id,
+          'userId': d.id,
+          'name': data['name'] ?? 'Customer',
+          'email': data['email'] ?? '',
+          'lifetimeValue': (data['totalSpent'] ?? 0.0).toDouble(),
+          'totalOrders': (data['totalOrders'] ?? 0) as int,
+        };
+      }).toList();
+    } catch (e) {
+      debugPrint('[SmartAnalytics] getWinBackSegment map error: $e');
+      return [];
+    }
+  }
+
+  /// Triggers a campaign notification for a single customer.
+  Future<void> triggerCampaignForCustomer({
+    required String customerId,
+    required String campaignType,
+  }) async {
+    try {
+      await _db.collection('campaign_triggers').add({
+        'customerId': customerId,
+        'campaignType': campaignType,
+        'triggeredAt': FieldValue.serverTimestamp(),
+        'status': 'queued',
+      });
+    } catch (e) {
+      debugPrint('[SmartAnalytics] triggerCampaign error: $e');
+    }
   }
 }
 

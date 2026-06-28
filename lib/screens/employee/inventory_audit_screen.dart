@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../services/employee_scanner_service.dart';
 import '../../services/smart_scan_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/product_provider.dart';
 import '../../models/product_model.dart';
+import '../../utils/app_theme.dart';
 
 class InventoryAuditScreen extends StatefulWidget {
   final String? auditId;
@@ -36,8 +36,8 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.auditId != null) {
-      // Load existing audit
+    if (widget.barcode != null) {
+      _lookupProduct(widget.barcode!);
     }
   }
 
@@ -95,13 +95,13 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
     );
   }
 
   void _showSuccess(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.green),
+      SnackBar(content: Text(message), backgroundColor: AppTheme.success),
     );
   }
 
@@ -179,10 +179,18 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
   }
 
   @override
+  void dispose() {
+    _notesController.dispose();
+    _actualCountController.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Stock Audit'),
+        title: const Text('Stock Audit', style: TextStyle(fontWeight: FontWeight.w700)),
         actions: [
           IconButton(
             icon: const Icon(Icons.qr_code_scanner),
@@ -211,12 +219,12 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
+                          color: AppTheme.info.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.qr_code, color: Colors.blue),
+                            const Icon(Icons.qr_code, color: AppTheme.info),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Column(
@@ -291,8 +299,8 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                                   horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
                                 color: _discrepancyTotal == 0
-                                    ? Colors.green.shade50
-                                    : Colors.orange.shade50,
+                                    ? AppTheme.success.withValues(alpha: 0.1)
+                                    : AppTheme.primaryLight,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
@@ -300,8 +308,8 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: _discrepancyTotal == 0
-                                      ? Colors.green.shade700
-                                      : Colors.orange.shade700,
+                                      ? AppTheme.success
+                                      : AppTheme.warning,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -316,22 +324,35 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
+                            color: AppTheme.info.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                                color: Colors.blue.shade200),
+                                color: AppTheme.info.withValues(alpha: 0.2)),
                           ),
                           child: Row(
                             children: [
-                              Icon(Icons.inventory_2_outlined,
+                              const Icon(Icons.inventory_2_outlined,
                                   size: 14,
-                                  color: Colors.blue.shade700),
+                                  color: AppTheme.info),
                               const SizedBox(width: 6),
-                              Text(
-                                'DB expects: $_expectedStock  —  enter what you physically counted',
+                              const Text(
+                                'DB expects: ',
                                 style: TextStyle(
                                     fontSize: 12,
-                                    color: Colors.blue.shade700),
+                                    color: AppTheme.info),
+                              ),
+                              Text(
+                                '$_expectedStock',
+                                style: const TextStyle(
+                                    fontSize: 12,
+                                    color: AppTheme.info,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              const Text(
+                                '  —  enter what you physically counted',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: AppTheme.info),
                               ),
                             ],
                           ),
@@ -349,16 +370,16 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                           prefixIcon: const Icon(Icons.numbers),
                           border: const OutlineInputBorder(),
                           enabledBorder: _autoFilled
-                              ? OutlineInputBorder(
+                              ? const OutlineInputBorder(
                                   borderSide: BorderSide(
-                                      color: Colors.orange.shade400,
+                                      color: AppTheme.warning,
                                       width: 2))
                               : null,
                           helperText: _autoFilled
                               ? 'Pre-filled from DB — change if different'
                               : null,
                           helperStyle: const TextStyle(
-                              color: Colors.orange),
+                              color: AppTheme.warning),
                           // Live discrepancy hint
                           suffixText: _autoFilled && _expectedStock > 0
                               ? (_actualStock - _expectedStock) == 0
@@ -367,8 +388,8 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                               : null,
                           suffixStyle: TextStyle(
                             color: (_actualStock - _expectedStock) == 0
-                                ? Colors.green
-                                : Colors.red,
+                                ? AppTheme.success
+                                : AppTheme.error,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -388,7 +409,7 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : _submitAudit,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange,
+                            backgroundColor: AppTheme.warning,
                             foregroundColor: Colors.white,
                           ),
                           child: _isLoading
@@ -455,13 +476,13 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                 return Card(
                   color: hasDiscrepancy
                       ? (result.difference > 0
-                          ? Colors.green.shade50
-                          : Colors.red.shade50)
+                          ? AppTheme.success.withValues(alpha: 0.1)
+                          : AppTheme.error.withValues(alpha: 0.1))
                       : Colors.white,
                   child: ListTile(
                     leading: CircleAvatar(
                       backgroundColor: hasDiscrepancy
-                          ? (result.difference > 0 ? Colors.green : Colors.red)
+                          ? (result.difference > 0 ? AppTheme.success : AppTheme.error)
                           : Colors.grey,
                       child: Icon(
                         hasDiscrepancy ? Icons.warning : Icons.check_circle,
@@ -484,8 +505,8 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                             fontWeight: FontWeight.bold,
                             color: hasDiscrepancy
                                 ? (result.difference > 0
-                                    ? Colors.green
-                                    : Colors.red)
+                                    ? AppTheme.success
+                                    : AppTheme.error)
                                 : Colors.grey,
                           ),
                         ),
@@ -566,7 +587,7 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Enter Barcode'),
+        title: const Text('Enter Barcode', style: TextStyle(fontWeight: FontWeight.w700)),
         content: TextField(
           autofocus: true,
           decoration: const InputDecoration(

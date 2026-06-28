@@ -82,7 +82,7 @@ class InventoryAutomationService {
       final reorderPoint = _computeReorderPoint(velocity);
       final eoqQty = _economicOrderQuantity(
         velocity: velocity,
-        costPrice: product.costPrice ?? product.price * 0.6,
+        costPrice: product.costPrice ?? (product.price.toDouble() * 0.6),
       );
 
       String? alertLevel;
@@ -118,7 +118,7 @@ class InventoryAutomationService {
           'productName': product.name,
           'currentStock': stock,
           'suggestedQty': eoqQty,
-          'estimatedCost': eoqQty * (product.costPrice ?? product.price * 0.6),
+          'estimatedCost': eoqQty * (product.costPrice ?? (product.price.toDouble() * 0.6)),
         });
       } else {
         // Clear old alert if stock is healthy
@@ -137,7 +137,6 @@ class InventoryAutomationService {
   }) async {
     final now = DateTime.now();
     final warningDate14 = now.add(const Duration(days: 14));
-    final criticalDate3 = now.add(const Duration(days: 3));
 
     final snapshot = await _db
         .collection('product_batches')
@@ -197,7 +196,7 @@ class InventoryAutomationService {
     // Get owner FCM tokens
     final ownerQuery = await _db
         .collection('users')
-        .where('role', isEqualTo: 'UserRole.shopOwner')
+        .where('role', isEqualTo: 'UserRole.owner')
         .where('shopId', isEqualTo: shopId)
         .get();
 

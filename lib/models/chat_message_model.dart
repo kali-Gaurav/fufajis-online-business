@@ -36,16 +36,16 @@ class ChatMessageModel {
 
   factory ChatMessageModel.fromMap(Map<String, dynamic> map) {
     return ChatMessageModel(
-      id: map['id'] ?? '',
-      senderId: map['senderId'] ?? '',
-      senderName: map['senderName'] ?? '',
-      receiverId: map['receiverId'] ?? '',
-      message: map['message'] ?? '',
+      id: map['id'] as String? ?? '',
+      senderId: map['senderId'] as String? ?? '',
+      senderName: map['senderName'] as String? ?? '',
+      receiverId: map['receiverId'] as String? ?? '',
+      message: map['message'] as String? ?? '',
       timestamp: map['timestamp'] != null
           ? (map['timestamp'] as Timestamp).toDate()
           : DateTime.now(),
-      isRead: map['isRead'] ?? false,
-      chatChannelId: map['chatChannelId'] ?? '',
+      isRead: map['isRead'] as bool? ?? false,
+      chatChannelId: map['chatChannelId'] as String? ?? '',
     );
   }
 }

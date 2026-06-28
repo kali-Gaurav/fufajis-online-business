@@ -73,7 +73,7 @@ class AdminProvider with ChangeNotifier {
       double revenue = 0.0;
       for (var doc in completedOrdersSnapshot.docs) {
         final data = doc.data();
-        revenue += (data['totalAmount'] ?? 0.0).toDouble();
+        revenue += ((data['totalAmount'] as num?) ?? 0.0).toDouble();
       }
       _totalRevenue = revenue;
     } catch (e) {
@@ -160,9 +160,9 @@ class AdminProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      // Fetch products marked as pending approval
+      // Fetch products marked as pending approval from root collection
       final snapshot = await _firestore
-          .collectionGroup('products')
+          .collection('products')
           .where('isApproved', isEqualTo: false)
           .get();
 
@@ -181,8 +181,6 @@ class AdminProvider with ChangeNotifier {
   Future<void> approveProduct(String shopId, String productId) async {
     try {
       await _firestore
-          .collection('shops')
-          .doc(shopId)
           .collection('products')
           .doc(productId)
           .update({
@@ -206,8 +204,6 @@ class AdminProvider with ChangeNotifier {
   ) async {
     try {
       await _firestore
-          .collection('shops')
-          .doc(shopId)
           .collection('products')
           .doc(productId)
           .update({

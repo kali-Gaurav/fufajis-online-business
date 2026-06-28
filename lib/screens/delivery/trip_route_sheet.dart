@@ -7,6 +7,7 @@ import '../../services/offline_routing_service.dart';
 import '../../services/offline_sync_service.dart';
 import '../../utils/app_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../constants/order_status.dart';
 
 class TripRouteSheet extends StatefulWidget {
   const TripRouteSheet({super.key});
@@ -133,7 +134,7 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
       builder: (context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text('Verify Delivery OTP'),
+          title: const Text('Verify Delivery OTP', style: TextStyle(fontWeight: FontWeight.w700)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -221,11 +222,14 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
     );
   }
 
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Trip Route Worksheet'),
+        title: const Text('Trip Route Worksheet', style: TextStyle(fontWeight: FontWeight.w700)),
         actions: [
           // Connection state monitor
           ValueListenableBuilder<bool>(
@@ -239,8 +243,8 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: online
-                          ? (pendingCount > 0 ? Colors.amber.withValues(alpha: 0.15) : AppTheme.success.withValues(alpha: 0.1))
-                          : Colors.orange.withValues(alpha: 0.15),
+                          ? (pendingCount > 0 ? AppTheme.warning.withValues(alpha: 0.15) : AppTheme.success.withValues(alpha: 0.1))
+                          : AppTheme.warning.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -248,7 +252,7 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
                         Icon(
                           online ? Icons.cloud_done : Icons.cloud_off,
                           size: 16,
-                          color: online ? (pendingCount > 0 ? Colors.amber : AppTheme.success) : Colors.orange,
+                          color: online ? (pendingCount > 0 ? AppTheme.warning : AppTheme.success) : AppTheme.warning,
                         ),
                         const SizedBox(width: 4),
                         Text(
@@ -258,7 +262,7 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: online ? (pendingCount > 0 ? Colors.amber : AppTheme.success) : Colors.orange,
+                            color: online ? (pendingCount > 0 ? AppTheme.warning : AppTheme.success) : AppTheme.warning,
                           ),
                         ),
                       ],
@@ -274,7 +278,7 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
         stream: _orderService.getAllOrdersStream(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator(color: AppTheme.deliveryAccent));
           }
 
           final allOrders = snapshot.data ?? [];
@@ -367,11 +371,7 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppTheme.primary, AppTheme.primaryDark],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        gradient: AppTheme.primaryGradient,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -404,7 +404,7 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
                   icon: const Icon(Icons.map, size: 14),
                   label: const Text('Open in Maps', style: TextStyle(fontSize: 12)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.secondary,
+                    backgroundColor: AppTheme.info,
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -564,11 +564,11 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  const Icon(Icons.payments_outlined, size: 18, color: Colors.green),
+                  const Icon(Icons.payments_outlined, size: 18, color: AppTheme.success),
                   const SizedBox(width: 6),
                   Text(
                     'Collect Cash on Delivery: ₹${order.totalAmount.toStringAsFixed(1)}',
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.green),
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppTheme.success),
                   ),
                 ],
               ),
@@ -624,10 +624,10 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
 
     switch (status) {
       case OrderStatus.confirmed:
-        chipColor = Colors.blue;
+        chipColor = AppTheme.deliveryAccent;
         break;
       case OrderStatus.outForDelivery:
-        chipColor = Colors.orange;
+        chipColor = AppTheme.warning;
         break;
       case OrderStatus.delivered:
         chipColor = AppTheme.success;

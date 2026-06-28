@@ -9,6 +9,7 @@ import '../../models/product_model.dart';
 import '../../services/gemini_service.dart';
 import '../../utils/app_theme.dart';
 import '../../widgets/bill_item_row.dart';
+import '../../utils/monetary_value.dart';
 
 class SupplierBillScannerScreen extends StatefulWidget {
   const SupplierBillScannerScreen({super.key});
@@ -35,9 +36,10 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
   final TextEditingController _billDateCtrl = TextEditingController();
   List<BillItem> _items = [];
 
-  // Animation for loading spinner
+  // Animation for loading spinner & laser scan line
   late final AnimationController _spinCtrl;
-  late final Animation<double> _spinAnim;
+  late final AnimationController _scanLineCtrl;
+  late final Animation<double> _scanLineAnim;
 
   @override
   void initState() {
@@ -45,12 +47,19 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
     _spinCtrl = AnimationController(
         vsync: this, duration: const Duration(seconds: 1))
       ..repeat();
-    _spinAnim = Tween<double>(begin: 0, end: 1).animate(_spinCtrl);
+
+    _scanLineCtrl = AnimationController(
+        vsync: this, duration: const Duration(seconds: 2))
+      ..repeat(reverse: true);
+    _scanLineAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _scanLineCtrl, curve: Curves.easeInOut),
+    );
   }
 
   @override
   void dispose() {
     _spinCtrl.dispose();
+    _scanLineCtrl.dispose();
     _supplierCtrl.dispose();
     _billNumberCtrl.dispose();
     _billDateCtrl.dispose();
@@ -88,6 +97,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
       _items = rawItems
           .map((e) => BillItem.fromMap(e as Map<String, dynamic>))
           .toList();
+
       if (_items.isEmpty) _items.add(BillItem());
 
       setState(() {
@@ -125,7 +135,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
 
     int updatedCount = 0;
     int createdCount = 0;
-    double totalValue = 0;
+    double totalBillValue = 0;
 
     final authProvider =
         Provider.of<app_auth.AuthProvider>(context, listen: false);
@@ -135,7 +145,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
     try {
       for (final item in _items) {
         if (item.name.isEmpty || item.quantity <= 0) continue;
-        totalValue += item.total;
+        totalBillValue += item.total;
 
         // Fuzzy match: search Firestore by name (case-insensitive contains)
         final nameLower = item.name.toLowerCase().trim();
@@ -146,7 +156,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
 
         DocumentSnapshot? match;
         for (final doc in snapshot.docs) {
-          final data = doc.data() as Map<String, dynamic>;
+          final data = doc.data();
           final prodName = (data['name'] ?? '').toString().toLowerCase();
           if (prodName.contains(nameLower) || nameLower.contains(prodName)) {
             match = doc;
@@ -155,7 +165,8 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
         }
 
         if (match != null) {
-          final currentQty = (match.data() as Map<String, dynamic>)['stockQuantity'] ?? 0;
+          final currentQty =
+              (match.data() as Map<String, dynamic>)['stockQuantity'] ?? 0;
           await match.reference.update({
             'stockQuantity': currentQty + item.quantity.toInt(),
             'costPrice': item.pricePerUnit,
@@ -164,13 +175,15 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
           updatedCount++;
         } else {
           // Create new product
-          final newId = 'p_${DateTime.now().millisecondsSinceEpoch}_${item.name.replaceAll(' ', '_')}';
+          final newId =
+              'p_${DateTime.now().millisecondsSinceEpoch}_${item.name.replaceAll(' ', '_')}';
           final newProduct = ProductModel(
             id: newId,
             name: item.name,
             description: 'Added via supplier bill',
-            price: item.pricePerUnit,
+            price: MonetaryValue(item.pricePerUnit),
             unit: item.unit,
+            categoryId: 'groceries',
             category: 'groceries',
             shopId: shopId,
             shopName: shopName,
@@ -193,14 +206,14 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
         'billNumber': _billNumberCtrl.text,
         'billDate': _billDateCtrl.text,
         'items': _items.map((e) => e.toMap()).toList(),
-        'totalValue': totalValue,
+        'totalValue': totalBillValue,
         'shopId': shopId,
         'createdAt': FieldValue.serverTimestamp(),
       });
 
       if (mounted) Navigator.of(context).pop(); // close dialog
       _showSnack(
-          'Stock updated: $updatedCount updated, $createdCount created. Total: ₹${totalValue.toStringAsFixed(0)}');
+          'Stock updated: $updatedCount updated, $createdCount created. Total: ₹${totalBillValue.toStringAsFixed(0)}');
       setState(() => _hasResult = false);
     } catch (e) {
       if (mounted) Navigator.of(context).pop();
@@ -212,7 +225,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(msg),
-      backgroundColor: isError ? AppTheme.error : AppTheme.secondary,
+      backgroundColor: isError ? AppTheme.error : AppTheme.info,
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     ));
@@ -262,7 +275,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                color: AppTheme.primary.withOpacity(0.1),
+                color: AppTheme.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.document_scanner_outlined,
@@ -275,7 +288,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
                     fontWeight: FontWeight.bold,
                     color: AppTheme.grey900)),
             const SizedBox(height: 8),
-            Text(
+            const Text(
               'AI will extract all product details\nfrom your supplier bill or challan',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14, color: AppTheme.grey600),
@@ -294,7 +307,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
               label: 'Upload Photo',
               subtitle: 'Choose from gallery',
               onTap: _uploadFromGallery,
-              color: AppTheme.secondary,
+              color: AppTheme.info,
             ),
           ],
         ),
@@ -323,7 +336,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: Colors.white, size: 28),
@@ -339,7 +352,8 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
                           fontWeight: FontWeight.bold)),
                   Text(subtitle,
                       style: TextStyle(
-                          color: Colors.white.withOpacity(0.8), fontSize: 13)),
+                          color: Colors.white.withValues(alpha: 0.8),
+                          fontSize: 13)),
                 ],
               ),
               const Spacer(),
@@ -356,34 +370,112 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
 
   Widget _buildLoading() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          RotationTransition(
-            turns: _spinAnim,
-            child: Container(
-              width: 72,
-              height: 72,
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Scanner view frame mockup
+            Container(
+              width: 240,
+              height: 300,
               decoration: BoxDecoration(
-                gradient: const SweepGradient(colors: [
-                  AppTheme.primary,
-                  AppTheme.primaryLight,
-                  AppTheme.white,
-                ]),
-                borderRadius: BorderRadius.circular(36),
+                border: Border.all(color: AppTheme.primary, width: 2),
+                borderRadius: BorderRadius.circular(16),
+                color: Colors.black.withValues(alpha: 0.02),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // Dotted guidelines
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Opacity(
+                        opacity: 0.3,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: List.generate(
+                            10,
+                            (_) => Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: List.generate(
+                                6,
+                                (_) => Container(
+                                  width: 4,
+                                  height: 4,
+                                  decoration: const BoxDecoration(
+                                    color: AppTheme.grey500,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Invoice Mock icon background
+                    Icon(
+                      Icons.receipt_long,
+                      size: 100,
+                      color: AppTheme.primary.withValues(alpha: 0.15),
+                    ),
+                    // Animated Laser Scan Line
+                    AnimatedBuilder(
+                      animation: _scanLineAnim,
+                      builder: (context, child) {
+                        return Positioned(
+                          top: _scanLineAnim.value *
+                              280, // sweeps within 300px height
+                          left: 10,
+                          right: 10,
+                          child: Container(
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: AppTheme.success,
+                              borderRadius: BorderRadius.circular(2),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.success.withValues(alpha: 0.8),
+                                  blurRadius: 10,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 24),
-          const Text('Reading bill with AI...',
-              style: TextStyle(
+            const SizedBox(height: 32),
+            // Pulse Text
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.6, end: 1.0),
+              duration: const Duration(seconds: 1),
+              curve: Curves.easeInOut,
+              builder: (context, val, child) =>
+                  Opacity(opacity: val, child: child),
+              child: const Text(
+                'Reading bill with AI...',
+                style: TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.grey800)),
-          const SizedBox(height: 8),
-          Text('This may take a few seconds',
-              style: TextStyle(fontSize: 13, color: AppTheme.grey500)),
-        ],
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.primary,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Analyzing margins & cost variations...',
+              style: TextStyle(fontSize: 13, color: AppTheme.grey500),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -392,7 +484,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
 
   Widget _buildResultView() {
     final totalValue =
-        _items.fold<double>(0, (sum, item) => sum + item.total);
+        _items.fold<double>(0, (s, item) => s + item.total);
 
     return Column(
       children: [
@@ -405,7 +497,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
+                  color: Colors.black.withValues(alpha: 0.06),
                   blurRadius: 8,
                   offset: const Offset(0, 2)),
             ],
@@ -428,13 +520,13 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppTheme.secondary.withOpacity(0.1),
+                      color: AppTheme.info.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       '₹${totalValue.toStringAsFixed(0)}',
                       style: const TextStyle(
-                          color: AppTheme.secondary,
+                          color: AppTheme.info,
                           fontWeight: FontWeight.bold,
                           fontSize: 14),
                     ),
@@ -460,46 +552,46 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
         ),
 
         // Column headers
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12),
           child: Row(
             children: [
-              const Expanded(
+              Expanded(
                   flex: 4,
                   child: Text('Product',
                       style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: AppTheme.grey600))),
-              const Expanded(
+              Expanded(
                   flex: 2,
                   child: Text('Qty',
                       style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: AppTheme.grey600))),
-              const Expanded(
+              Expanded(
                   flex: 2,
                   child: Text('Unit',
                       style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: AppTheme.grey600))),
-              const Expanded(
+              Expanded(
                   flex: 2,
                   child: Text('Price',
                       style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: AppTheme.grey600))),
-              const Expanded(
+              Expanded(
                   flex: 2,
                   child: Text('Total',
                       style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: AppTheme.grey600))),
-              const SizedBox(width: 32),
+              SizedBox(width: 32),
             ],
           ),
         ),
@@ -514,8 +606,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: OutlinedButton.icon(
-                    onPressed: () =>
-                        setState(() => _items.add(BillItem())),
+                    onPressed: () => setState(() => _items.add(BillItem())),
                     icon: const Icon(Icons.add, color: AppTheme.primary),
                     label: const Text('Add Row',
                         style: TextStyle(color: AppTheme.primary)),
@@ -539,13 +630,12 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
 
         // Bottom action
         Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
             color: AppTheme.white,
             boxShadow: [
               BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withValues(alpha: 0.08),
                   blurRadius: 8,
                   offset: const Offset(0, -2)),
             ],
@@ -588,19 +678,18 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
         const SizedBox(height: 4),
         TextFormField(
           controller: ctrl,
-          style:
-              const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
           decoration: InputDecoration(
             prefixIcon: Icon(icon, size: 16, color: AppTheme.primary),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(color: AppTheme.grey200),
+              borderSide: const BorderSide(color: AppTheme.grey200),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(color: AppTheme.grey200),
+              borderSide: const BorderSide(color: AppTheme.grey200),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),

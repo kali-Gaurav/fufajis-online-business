@@ -2,12 +2,21 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'app_theme.dart';
+import 'monetary_value.dart';
 
 /// Formats a double amount as Indian Rupees.
 /// e.g. 1234.5 → '₹1,235'  or  49.9 → '₹50'
-String formatCurrency(double amount) {
+String formatCurrency(dynamic amount) {
+  double value;
+  if (amount is MonetaryValue) {
+    value = amount.toDouble();
+  } else if (amount is num) {
+    value = amount.toDouble();
+  } else {
+    value = 0.0;
+  }
   final formatter = NumberFormat('#,##,##0', 'en_IN');
-  return '₹${formatter.format(amount.roundToDouble())}';
+  return '₹${formatter.format(value.roundToDouble())}';
 }
 
 /// Formats a DateTime as a human-readable date string.
@@ -65,7 +74,7 @@ Color getOrderStatusColor(String status) {
     case 'OrderStatus.packed':
       return const Color(0xFF00BCD4); // cyan
     case 'OrderStatus.outForDelivery':
-      return AppTheme.secondary;
+      return AppTheme.info;
     case 'OrderStatus.delivered':
       return AppTheme.success;
     case 'OrderStatus.cancelled':

@@ -79,14 +79,24 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
   }
 
   @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _districtController.dispose();
+    _villageController.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.cream,
       appBar: AppBar(
-        title: const Text("Complete Your Profile"),
+        title: const Text("Complete Your Profile", style: TextStyle(fontWeight: FontWeight.w700)),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.cream,
         foregroundColor: AppTheme.grey900,
       ),
       body: SafeArea(
@@ -210,7 +220,11 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Text(
         title,
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.grey700),
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: Colors.grey,
+        ),
       ),
     );
   }

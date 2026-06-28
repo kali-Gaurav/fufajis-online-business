@@ -22,7 +22,7 @@ class _RiderManagementScreenState extends State<RiderManagementScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Authorize New Rider'),
+        title: const Text('Authorize New Rider', style: TextStyle(fontWeight: FontWeight.w700)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -89,10 +89,18 @@ class _RiderManagementScreenState extends State<RiderManagementScreen> {
   }
 
   @override
+  void dispose() {
+    _phoneController.dispose();
+    _nameController.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Delivery Fleet'),
+        title: const Text('Delivery Fleet', style: TextStyle(fontWeight: FontWeight.w700)),
         actions: [
           TextButton.icon(
             onPressed: () => Navigator.push(
@@ -109,7 +117,7 @@ class _RiderManagementScreenState extends State<RiderManagementScreen> {
         stream: _userService.getAuthorizedRidersStream(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
           }
 
           final riders = snapshot.data ?? [];
@@ -145,7 +153,7 @@ class _RiderManagementScreenState extends State<RiderManagementScreen> {
                 margin: const EdgeInsets.only(bottom: 12),
                 child: ListTile(
                   leading: const CircleAvatar(
-                    backgroundColor: AppTheme.secondary,
+                    backgroundColor: AppTheme.info,
                     child: Icon(Icons.person, color: Colors.white),
                   ),
                   title: Text(rider['name'] ?? 'Unknown'),
@@ -159,7 +167,7 @@ class _RiderManagementScreenState extends State<RiderManagementScreen> {
                       final confirm = await showDialog<bool>(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: const Text('Deauthorize Rider?'),
+                          title: const Text('Deauthorize Rider?', style: TextStyle(fontWeight: FontWeight.w700)),
                           content: const Text(
                             'This rider will lose access to the Delivery Dashboard immediately.',
                           ),
@@ -189,7 +197,7 @@ class _RiderManagementScreenState extends State<RiderManagementScreen> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showAddRiderDialog,
+        onPressed: () => _showAddRiderDialog(),
         child: const Icon(Icons.add),
       ),
     );

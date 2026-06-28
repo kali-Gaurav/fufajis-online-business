@@ -92,13 +92,13 @@ class _SmartKitchenScreenState extends State<SmartKitchenScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Smart Kitchen'),
+        title: const Text('My Smart Kitchen', style: TextStyle(fontWeight: FontWeight.w700)),
         actions: [
           IconButton(onPressed: _loadData, icon: const Icon(Icons.refresh)),
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : _staples.isEmpty
               ? _buildEmptyState()
               : Column(
@@ -150,11 +150,11 @@ class _SmartKitchenScreenState extends State<SmartKitchenScreen> {
 
     return Container(
       width: double.infinity,
-      color: Colors.amber.shade50,
+      color: AppTheme.warning.withValues(alpha: 0.1),
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          const Icon(Icons.warning_amber_rounded, color: Colors.amber),
+          const Icon(Icons.warning_amber_rounded, color: AppTheme.warning),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -165,7 +165,7 @@ class _SmartKitchenScreenState extends State<SmartKitchenScreen> {
           ElevatedButton(
             onPressed: _addAllLowToCart,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.amber,
+              backgroundColor: AppTheme.warning,
               foregroundColor: Colors.black,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
@@ -215,7 +215,7 @@ class _SmartKitchenScreenState extends State<SmartKitchenScreen> {
                       Icon(
                         staple.isRunningLow ? Icons.timer : Icons.calendar_today,
                         size: 14,
-                        color: staple.isRunningLow ? Colors.red : Colors.grey,
+                        color: staple.isRunningLow ? AppTheme.error : Colors.grey,
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -223,7 +223,7 @@ class _SmartKitchenScreenState extends State<SmartKitchenScreen> {
                             ? 'Running low! (${staple.daysRemaining} days left)'
                             : 'Next refill around ${DateFormat('dd MMM').format(staple.nextPredictedDate)}',
                         style: TextStyle(
-                          color: staple.isRunningLow ? Colors.red : Colors.grey[600],
+                          color: staple.isRunningLow ? AppTheme.error : Colors.grey[600],
                           fontSize: 12,
                           fontWeight: staple.isRunningLow ? FontWeight.bold : FontWeight.normal,
                         ),

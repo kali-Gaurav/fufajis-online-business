@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/product_provider.dart';
 import '../../models/product_model.dart';
+import '../../utils/app_theme.dart';
 
 class ExpiryManagementScreen extends StatefulWidget {
   const ExpiryManagementScreen({super.key});
@@ -38,7 +39,7 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
     );
   }
 
@@ -69,7 +70,7 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Expiry Management'),
+        title: const Text('Expiry Management', style: TextStyle(fontWeight: FontWeight.w700)),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -86,11 +87,11 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
               children: [
                 _buildFilterChip('All', 'all'),
                 const SizedBox(width: 8),
-                _buildFilterChip('Critical', 'critical', color: Colors.red),
+                _buildFilterChip('Critical', 'critical', color: AppTheme.error),
                 const SizedBox(width: 8),
-                _buildFilterChip('Warning', 'warning', color: Colors.orange),
+                _buildFilterChip('Warning', 'warning', color: AppTheme.warning),
                 const SizedBox(width: 8),
-                _buildFilterChip('OK', 'ok', color: Colors.green),
+                _buildFilterChip('OK', 'ok', color: AppTheme.success),
               ],
             ),
           ),
@@ -101,14 +102,14 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
           // Product List
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
                 : filteredProducts.isEmpty
                     ? const Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.check_circle,
-                                size: 64, color: Colors.green),
+                                size: 64, color: AppTheme.success),
                             SizedBox(height: 16),
                             Text(
                               'No products match filter',
@@ -167,10 +168,10 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildSummaryItem('Expired', expired, Colors.red),
-            _buildSummaryItem('Critical', critical, Colors.orange),
-            _buildSummaryItem('Warning', warning, Colors.amber),
-            _buildSummaryItem('Total', _expiringProducts.length, Colors.blue),
+            _buildSummaryItem('Expired', expired, AppTheme.error),
+            _buildSummaryItem('Critical', critical, AppTheme.warning),
+            _buildSummaryItem('Warning', warning, AppTheme.warning),
+            _buildSummaryItem('Total', _expiringProducts.length, AppTheme.info),
           ],
         ),
       ),
@@ -266,18 +267,18 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.green.shade50,
+                      color: AppTheme.success.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.discount, color: Colors.green),
+                        const Icon(Icons.discount, color: AppTheme.success),
                         const SizedBox(width: 8),
                         Text(
                           'Suggested Markdown: $markdownPercent%',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: Colors.green,
+                            color: AppTheme.success,
                           ),
                         ),
                       ],
@@ -301,7 +302,7 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
                           icon: const Icon(Icons.delete),
                           label: const Text('Dispose'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
+                            backgroundColor: AppTheme.error,
                             foregroundColor: Colors.white,
                           ),
                         ),
@@ -332,13 +333,13 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
   Color _getStatusColor(ExpiryStatus status) {
     switch (status) {
       case ExpiryStatus.expired:
-        return Colors.red;
+        return AppTheme.error;
       case ExpiryStatus.critical:
-        return Colors.orange;
+        return AppTheme.warning;
       case ExpiryStatus.warning:
-        return Colors.amber;
+        return AppTheme.warning;
       default:
-        return Colors.green;
+        return AppTheme.success;
     }
   }
 

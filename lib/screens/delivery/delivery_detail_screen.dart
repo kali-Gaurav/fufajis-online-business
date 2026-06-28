@@ -5,10 +5,10 @@ import 'package:geolocator/geolocator.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../providers/order_provider.dart';
 import '../../models/order_model.dart';
-import '../../models/payment_method.dart';
 import '../../services/upi_payment_service.dart';
 import '../../utils/app_theme.dart';
 import '../employee/delivery_pod_scanner_screen.dart';
+import '../../utils/monetary_value.dart';
 
 class DeliveryDetailScreen extends StatefulWidget {
   final String orderId;
@@ -43,14 +43,14 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
   void _showUPIQRCode(OrderModel order) {
     final upiUri = UpiPaymentService.generateUpiUri(
       orderId: order.orderNumber,
-      amount: order.totalAmount,
+      amount: order.totalAmount.toDouble(),
       note: 'Fufaji Store #${order.orderNumber}',
     );
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Scan to Pay'),
+        title: const Text('Scan to Pay', style: TextStyle(fontWeight: FontWeight.w700)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -97,11 +97,18 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
   }
 
   @override
+  void dispose() {
+    _otpController.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     final orderProvider = Provider.of<OrderProvider>(context);
 
     if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppTheme.deliveryAccent)));
     }
     if (_order == null) {
       return const Scaffold(body: Center(child: Text('Order not found')));
@@ -111,7 +118,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
     final isUnpaid = order.paymentStatus != 'paid';
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Verify Delivery'), backgroundColor: Colors.white, foregroundColor: AppTheme.grey900),
+      appBar: AppBar(title: const Text('Verify Delivery', style: TextStyle(fontWeight: FontWeight.w700)), backgroundColor: AppTheme.cream, foregroundColor: AppTheme.grey900, elevation: 0, centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -145,7 +152,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                       onPressed: () => _markAsPaid(order.id, 'cash'),
                       icon: const Icon(Icons.money),
                       label: const Text('Cash Received'),
-                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), side: const BorderSide(color: Colors.green)),
+                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), side: const BorderSide(color: AppTheme.success)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -154,7 +161,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                       onPressed: () => _showUPIQRCode(order),
                       icon: const Icon(Icons.qr_code),
                       label: const Text('Show QR'),
-                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), side: const BorderSide(color: Colors.indigo)),
+                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), side: const BorderSide(color: AppTheme.ownerAccent)),
                     ),
                   ),
                 ],

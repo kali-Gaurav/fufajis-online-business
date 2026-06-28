@@ -25,6 +25,7 @@ enum AuditAction {
   priceUpdate,
   stockAdjustment,
   inventoryUpdate,
+  inventoryRestock,
   // Security
   deviceApproved,
   deviceRevoked,
@@ -38,6 +39,30 @@ enum AuditAction {
   roleChange,
   adminAction,
   securityAlert,
+  // ---- Added for enterprise architecture upgrade ----
+  // Catalog
+  productCreated,
+  productUpdated,
+  productDeleted,
+  // Orders / payments
+  orderCreated,
+  orderStatusChanged,
+  paymentReceived,
+  paymentRefunded,
+  // KYC
+  kycSubmitted,
+  kycVerified,
+  kycRejected,
+  // Wallet / coupons
+  couponUsed,
+  walletTopup,
+  walletDebit,
+  // System
+  settingsChanged,
+  branchCreated,
+  // AI support
+  aiSupportReply,
+  aiSupportEscalated,
 }
 
 class AuditService {
@@ -49,6 +74,15 @@ class AuditService {
 
   /// Write a single audit record. Fire-and-forget; errors never block
   /// the business action that triggered the log.
+  ///
+  /// Writes to Firestore (`audit_logs` collection, source of truth
+  /// for realtime UI streams via [getLogsStream]).
+  ///
+  /// [oldValue]/[newValue] capture before/after snapshots for change
+  /// tracking (e.g. price updates, status changes). [targetType]
+  /// identifies the kind of entity [targetId] refers to (e.g.
+  /// 'order', 'product', 'user'). [ipAddress]/[deviceInfo] are best
+  /// effort and may be omitted when unavailable.
   Future<void> logAction({
     required String userId,
     required String userName,
@@ -56,7 +90,12 @@ class AuditService {
     required String description,
     Map<String, dynamic>? metadata,
     String? targetId,     // orderId, employeeId, productId, etc.
+    String? targetType,   // 'order' | 'product' | 'user' | 'coupon' | etc.
     String? branchId,
+    Map<String, dynamic>? oldValue,
+    Map<String, dynamic>? newValue,
+    String? ipAddress,
+    Map<String, dynamic>? deviceInfo,
   }) async {
     try {
       await _db.collection('audit_logs').add({
@@ -65,13 +104,34 @@ class AuditService {
         'action':      action.name,
         'description': description,
         'targetId':    targetId,
+        'targetType':  targetType,
         'branchId':    branchId,
+        'oldValue':    oldValue,
+        'newValue':    newValue,
+        'ipAddress':   ipAddress,
+        'deviceInfo':  deviceInfo,
         'metadata':    metadata,
         'timestamp':   FieldValue.serverTimestamp(),
       });
       debugPrint('[Audit] ${action.name} by $userName');
     } catch (e) {
-      debugPrint('[Audit] ERROR: $e');
+      debugPrint('[Audit] Firestore ERROR: $e');
+    }
+  }
+
+  Future<void> log(String actionName, Map<String, dynamic> metadata) async {
+    try {
+      await _db.collection('audit_logs').add({
+        'userId': metadata['userId'] ?? 'system',
+        'userName': metadata['userName'] ?? 'System',
+        'action': actionName,
+        'description': metadata['description'] ?? '$actionName triggered',
+        'metadata': metadata,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+      debugPrint('[Audit] $actionName');
+    } catch (e) {
+      debugPrint('[Audit] Firestore ERROR: $e');
     }
   }
 
@@ -156,6 +216,20 @@ class AuditService {
         metadata: {'deviceId': deviceId, 'deviceName': deviceName},
       );
 
+  Future<void> logAdminAction(
+    String description, {
+    required String targetUserId,
+    Map<String, dynamic>? metadata,
+  }) =>
+      logAction(
+        userId: targetUserId,
+        userName: 'System/Admin',
+        action: AuditAction.adminAction,
+        description: description,
+        targetId: targetUserId,
+        metadata: metadata,
+      );
+
   Future<void> logOrderCancelled({
     required String byUserId,
     required String byUserName,
@@ -170,19 +244,50 @@ class AuditService {
         metadata: {'reason': reason},
       );
 
-  Future<void> logPriceChange({
+  Future<void> logInventoryRestock({
     required String byUserId,
     required String byUserName,
     required String productId,
-    required double oldPrice,
-    required double newPrice,
+    required String productName,
+    required int quantityAdded,
+    required String reason,
+    required int newStock,
   }) =>
       logAction(
-        userId: byUserId, userName: byUserName,
-        action: AuditAction.priceUpdate,
-        description: 'Price changed for product $productId: ₹$oldPrice → ₹$newPrice',
+        userId: byUserId,
+        userName: byUserName,
+        action: AuditAction.inventoryRestock,
+        description: 'Restocked $quantityAdded units of $productName. Reason: $reason',
         targetId: productId,
-        metadata: {'oldPrice': oldPrice, 'newPrice': newPrice},
+        metadata: {
+          'productName': productName,
+          'quantityAdded': quantityAdded,
+          'newStock': newStock,
+          'reason': reason,
+        },
+      );
+
+  Future<void> logStockAdjustment({
+    required String byUserId,
+    required String byUserName,
+    required String productId,
+    required String productName,
+    required int oldStock,
+    required int newStock,
+    required String reason,
+  }) =>
+      logAction(
+        userId: byUserId,
+        userName: byUserName,
+        action: AuditAction.stockAdjustment,
+        description: 'Adjusted stock for $productName: $oldStock → $newStock. Reason: $reason',
+        targetId: productId,
+        metadata: {
+          'productName': productName,
+          'oldStock': oldStock,
+          'newStock': newStock,
+          'reason': reason,
+        },
       );
 
   // ── Firestore read stream ──────────────────────────────────

@@ -107,7 +107,7 @@ class OwnerAuthService {
     if (snapshot.docs.isNotEmpty) {
       var doc = snapshot.docs.first;
       var data = doc.data();
-      var approvedDevices = List<Map<String, dynamic>>.from(data['approvedDevices'] ?? []);
+      var approvedDevices = List<Map<String, dynamic>>.from(data['approvedDevices'] as Iterable? ?? []);
       
       for (var dev in approvedDevices) {
         if (dev['deviceId'] == deviceId) {
@@ -134,7 +134,7 @@ class OwnerAuthService {
     if (snapshot.docs.isNotEmpty) {
       var doc = snapshot.docs.first;
       var devices = List<Map<String, dynamic>>.from(
-          doc.data()['approvedDevices'] ?? []);
+          (doc.data()['approvedDevices'] as Iterable?) ?? []);
 
       for (var dev in devices) {
         if (dev['deviceId'] == deviceId) {
@@ -158,7 +158,7 @@ class OwnerAuthService {
     if (snapshot.docs.isNotEmpty) {
       var doc = snapshot.docs.first;
       var data = doc.data();
-      var approvedDevices = List<Map<String, dynamic>>.from(data['approvedDevices'] ?? []);
+      var approvedDevices = List<Map<String, dynamic>>.from(data['approvedDevices'] as Iterable? ?? []);
       
       approvedDevices.removeWhere((dev) => dev['deviceId'] == deviceId);
       

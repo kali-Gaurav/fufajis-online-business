@@ -18,8 +18,8 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Inventory Audit Logs'),
-        backgroundColor: Colors.white,
+        title: const Text('Inventory Audit Logs', style: TextStyle(fontWeight: FontWeight.w700)),
+        backgroundColor: AppTheme.cream,
         foregroundColor: AppTheme.grey900,
         elevation: 0,
       ),
@@ -31,7 +31,7 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
               stream: _auditService.getLogsStream(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
                 }
                 if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
@@ -81,7 +81,7 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
           hintText: 'Search by product name...',
           prefixIcon: const Icon(Icons.search),
           filled: true,
-          fillColor: AppTheme.grey100,
+          fillColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.grey800 : AppTheme.grey100,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
@@ -92,12 +92,12 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
   }
 
   Widget _buildAuditLogTile(Map<String, dynamic> log) {
-    final timestamp = (log['timestamp'] as dynamic)?.toDate() ?? DateTime.now();
+    final timestamp = (log['timestamp'] as dynamic)?.toDate() as DateTime? ?? DateTime.now();
     final metadata = log['metadata'] as Map<String, dynamic>? ?? {};
-    final oldStock = metadata['oldStock'] ?? 0;
-    final newStock = metadata['newStock'] ?? 0;
+    final oldStock = (metadata['oldStock'] as num? ?? 0).toInt();
+    final newStock = (metadata['newStock'] as num? ?? 0).toInt();
     final diff = newStock - oldStock;
-    final color = diff >= 0 ? Colors.green : Colors.red;
+    final color = diff >= 0 ? AppTheme.success : AppTheme.error;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -124,7 +124,7 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  log['description'] ?? 'Stock Adjustment',
+                  log['description'] as String? ?? 'Stock Adjustment',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
@@ -132,7 +132,7 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'By ${log['userName']} • ${DateFormat('dd MMM, hh:mm a').format(timestamp)}',
+                  'By ${log['userName'] as String? ?? 'System'} • ${DateFormat('dd MMM, hh:mm a').format(timestamp)}',
                   style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
                 ),
                 if (metadata.isNotEmpty) ...[

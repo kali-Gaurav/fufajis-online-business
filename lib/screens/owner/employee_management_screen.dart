@@ -106,14 +106,14 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
 
   void _deleteEmployee(DocumentSnapshot doc) async {
     final data = doc.data() as Map<String, dynamic>;
-    final String name = data['name'] ?? 'Unknown';
-    final String email = data['email'] ?? '';
+    final String name = data['name'] as String? ?? 'Unknown';
+    final String email = data['email'] as String? ?? '';
     final currentUser = FirebaseAuth.instance.currentUser;
 
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Revoke Employee Authorization'),
+        title: const Text('Revoke Employee Authorization', style: TextStyle(fontWeight: FontWeight.w700)),
         content: Text('Are you sure you want to revoke access for "$name"? They will be signed out immediately.'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
@@ -157,8 +157,8 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Employees'),
-        backgroundColor: Colors.white,
+        title: const Text('Manage Employees', style: TextStyle(fontWeight: FontWeight.w700)),
+        backgroundColor: AppTheme.cream,
         foregroundColor: AppTheme.grey800,
         elevation: 0,
         bottom: PreferredSize(
@@ -171,17 +171,17 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
         stream: FirebaseFirestore.instance.collection('employees').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
           }
           
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(
+            return const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.badge_outlined, size: 64, color: AppTheme.grey400),
-                  const SizedBox(height: 16),
-                  const Text(
+                  SizedBox(height: 16),
+                  Text(
                     'No employees authorized yet.',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.grey600),
                   ),
@@ -198,10 +198,10 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
             itemBuilder: (context, index) {
               final doc = employees[index];
               final data = doc.data() as Map<String, dynamic>;
-              final String name = data['name'] ?? 'Unknown';
-              final String email = data['email'] ?? '';
-              final String role = data['role'] ?? '';
-              final String branchId = data['branchId'] ?? '';
+              final String name = data['name'] as String? ?? 'Unknown';
+              final String email = data['email'] as String? ?? '';
+              final String role = data['role'] as String? ?? '';
+              final String branchId = data['branchId'] as String? ?? '';
               final bool isBound = (data['uid'] as String? ?? '').isNotEmpty;
 
               return Card(
@@ -217,7 +217,7 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: AppTheme.primary.withOpacity(0.1),
+                          color: AppTheme.primary.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.person, color: AppTheme.primary),
@@ -236,12 +236,12 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                   decoration: BoxDecoration(
-                                    color: Colors.blue.shade50,
+                                    color: AppTheme.info.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Text(
                                     role.toUpperCase(),
-                                    style: TextStyle(fontSize: 10, color: Colors.blue.shade700, fontWeight: FontWeight.bold),
+                                    style: const TextStyle(fontSize: 10, color: AppTheme.ownerAccent, fontWeight: FontWeight.bold),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
@@ -261,12 +261,12 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                     decoration: BoxDecoration(
-                                      color: Colors.green.shade50,
+                                      color: AppTheme.success.withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
-                                    child: Text(
+                                    child: const Text(
                                       'BOUND',
-                                      style: TextStyle(fontSize: 10, color: Colors.green.shade700, fontWeight: FontWeight.bold),
+                                      style: TextStyle(fontSize: 10, color: AppTheme.success, fontWeight: FontWeight.bold),
                                     ),
                                   ),
                                 ]
@@ -338,7 +338,7 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
                 const Text('Assign Role:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.grey700)),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
-                  value: _selectedRole,
+                  initialValue: _selectedRole,
                   decoration: const InputDecoration(
                     contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),

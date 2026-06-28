@@ -18,7 +18,7 @@ class RecommendationService {
 
     final Map<String, int> categoryScores = {};
     for (var p in cartProducts) {
-      categoryScores[p.category] = (categoryScores[p.category] ?? 0) + 1;
+      categoryScores[p.categoryId] = (categoryScores[p.categoryId] ?? 0) + 1;
     }
 
     final sortedCategories = categoryScores.entries.toList()
@@ -29,7 +29,7 @@ class RecommendationService {
 
     for (var catEntry in sortedCategories) {
       final catProducts = allProducts
-          .where((p) => p.category == catEntry.key && !cartIds.contains(p.id))
+          .where((p) => p.categoryId == catEntry.key && !cartIds.contains(p.id))
           .toList();
       recommendations.addAll(catProducts);
       if (recommendations.length >= limit) break;
@@ -52,7 +52,7 @@ class RecommendationService {
     for (var order in orders) {
       for (var item in order.items) {
         final p = allProducts.firstWhere((element) => element.id == item.productId, orElse: () => allProducts.first);
-        scores[p.category.toLowerCase()] = (scores[p.category.toLowerCase()] ?? 0) + 1;
+        scores[p.categoryId] = (scores[p.categoryId] ?? 0) + 1;
       }
     }
     
@@ -64,7 +64,7 @@ class RecommendationService {
   List<ProductModel> getComplementaryProducts(ProductModel product, List<ProductModel> allProducts) {
     // Basic logic: same category + popular
     return allProducts
-        .where((p) => p.category == product.category && p.id != product.id && p.isTrending)
+        .where((p) => p.categoryId == product.categoryId && p.id != product.id && p.isTrending)
         .take(4)
         .toList();
   }

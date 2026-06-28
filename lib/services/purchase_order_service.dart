@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/product_model.dart';
 import '../models/purchase_order.dart';
+import '../utils/monetary_value.dart';
 
 class PurchaseOrderService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -26,7 +27,7 @@ class PurchaseOrderService {
                 p.stockQuantity, // Heuristic: fill to 2x min
             unit: p.unit,
             estimatedCost:
-                (p.costPrice ?? (p.price * 0.8)) *
+                MonetaryValue(p.costPrice ?? (p.price * 0.8)).toDouble() *
                 ((p.minimumStock * 2) - p.stockQuantity),
           ),
         )

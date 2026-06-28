@@ -14,8 +14,8 @@ class AccountPickerScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Choose Account'),
-        backgroundColor: Colors.white,
+        title: const Text('Choose Account', style: TextStyle(fontWeight: FontWeight.w700)),
+        backgroundColor: AppTheme.cream,
         foregroundColor: AppTheme.grey900,
         elevation: 0,
       ),
@@ -45,10 +45,10 @@ class AccountPickerScreen extends StatelessWidget {
                         child: Icon(Icons.person, color: Colors.white),
                       ),
                       title: Text(
-                        account['name'] ?? 'Guest',
+                        account['name'] as String? ?? 'Guest',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      subtitle: Text(account['phoneNumber'] ?? ''),
+                      subtitle: Text(account['phoneNumber'] as String? ?? ''),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                       onTap: () {
                         // Normally this would trigger OTP login or auto-login if token is valid.

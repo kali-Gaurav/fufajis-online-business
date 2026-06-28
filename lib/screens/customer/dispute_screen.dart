@@ -84,8 +84,15 @@ class _DisputeScreenState extends State<DisputeScreen> {
   }
 
   @override
+  void dispose() {
+    _reasonController.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
-    if (_order == null) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (_order == null) return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppTheme.primary)));
 
     return Scaffold(
       appBar: AppBar(title: const Text('Report an Issue')),

@@ -1,12 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:go_router/go_router.dart';
-import '../providers/auth_provider.dart';
-import '../models/user_model.dart';
-import '../providers/product_provider.dart';
-import '../providers/cart_provider.dart';
-import '../models/product_model.dart';
 import 'hinglish_voice_search_parser.dart';
 import 'hindi_product_dictionary.dart';
 
@@ -24,6 +15,7 @@ enum VoiceCommandType {
   getExpiringItems,
   setPrice,
   addProduct,
+  getHelp,
   unknown,
 }
 
@@ -85,6 +77,8 @@ class VoiceCommand {
         final price = parameters['price'] ?? '';
         final qty = parameters['quantity'] ?? '';
         return 'Naya product: $product (₹$price, Qty: $qty) add karunga. Confirm?';
+      case VoiceCommandType.getHelp:
+        return 'Fufaji Voice Assistant help guide dikha raha hoon...';
       case VoiceCommandType.unknown:
         return 'Samajh nahi aaya: "$originalText"';
     }
@@ -208,6 +202,10 @@ class VoiceCommandService {
     RegExp(r'(?:naya|new)\s+(?:product|item)\s+(?:add\s+kar|daal|bana)\s+(.+?)\s+(\d+)\s*(?:rupaye|rs|rupya)\s+(\d+)\s*(?:packet|kilo|kg|piece)', caseSensitive: false),
   ];
 
+  static final _helpPatterns = [
+    RegExp(r'(?:help|help\s+karo|madad|kaise\s+use|how\s+to|sikhao|guide)', caseSensitive: false),
+  ];
+
   static const Map<String, double> _wordNumbers = {
     'ek': 1.0, 'do': 2.0, 'teen': 3.0, 'char': 4.0, 'paanch': 5.0,
     'chhe': 6.0, 'sat': 7.0, 'aath': 8.0, 'nau': 9.0, 'das': 10.0,
@@ -302,6 +300,15 @@ class VoiceCommandService {
           confidence: 0.95,
         );
       }
+    }
+
+    if (_matchesAny(text, _helpPatterns)) {
+      return VoiceCommand(
+        type: VoiceCommandType.getHelp,
+        parameters: const {},
+        originalText: rawText,
+        confidence: 0.99,
+      );
     }
 
     final updateCmd = _tryParseUpdateStock(text, rawText);
@@ -464,343 +471,5 @@ class VoiceCommandService {
   String _translateProduct(String raw) {
     if (raw.isEmpty) return raw;
     return translateHindiProduct(raw);
-  }
-}
-
-// ─────────────── VOICE COMMAND EXECUTOR ───────────────
-
-class VoiceCommandExecutor {
-  static Future<String> execute(
-    VoiceCommand command,
-    BuildContext context,
-  ) async {
-    switch (command.type) {
-      case VoiceCommandType.updateStock:
-        return _executeUpdateStock(command, context);
-      case VoiceCommandType.checkStock:
-        return _executeCheckStock(command, context);
-      case VoiceCommandType.markOrderDelivered:
-        return _executeMarkOrderDelivered(command, context);
-      case VoiceCommandType.getTodayOrders:
-        return _executeGetTodayOrders(command, context);
-      case VoiceCommandType.getRevenue:
-        return _executeGetRevenue(command, context);
-      case VoiceCommandType.addToCart:
-        return _executeAddToCart(command, context);
-      case VoiceCommandType.searchProduct:
-        return _executeSearchProduct(command, context);
-      case VoiceCommandType.getLowStock:
-        return _executeGetLowStock(command, context);
-      case VoiceCommandType.getExpiringItems:
-        return _executeGetExpiringItems(command, context);
-      case VoiceCommandType.setPrice:
-        return _executeSetPrice(command, context);
-      case VoiceCommandType.addProduct:
-        return _executeAddProduct(command, context);
-      case VoiceCommandType.unknown:
-        return 'Samajh nahi aaya. Phir se boliye.';
-    }
-  }
-
-  static Future<String> _executeUpdateStock(
-    VoiceCommand cmd,
-    BuildContext context,
-  ) async {
-    try {
-      final productProvider =
-          Provider.of<ProductProvider>(context, listen: false);
-      final productName = (cmd.parameters['product'] as String? ?? '').toLowerCase();
-      final qty = (cmd.parameters['quantity'] as num?)?.toInt() ?? 0;
-
-      final product = productProvider.products.firstWhere(
-        (p) => p.name.toLowerCase().contains(productName),
-        orElse: () => throw Exception('Product not found: $productName'),
-      );
-
-      final updated = product.copyWith(
-        stockQuantity: product.stockQuantity + qty,
-        updatedAt: DateTime.now(),
-      );
-      await productProvider.updateProduct(updated);
-
-      return '${product.name} ka stock ${updated.stockQuantity} ho gaya!';
-    } catch (e) {
-      return 'Stock update nahi hua: $e';
-    }
-  }
-
-  static Future<String> _executeCheckStock(
-    VoiceCommand cmd,
-    BuildContext context,
-  ) async {
-    final productProvider =
-        Provider.of<ProductProvider>(context, listen: false);
-    final productName =
-        (cmd.parameters['product'] as String? ?? '').toLowerCase();
-
-    final product = productProvider.products.firstWhere(
-      (p) => p.name.toLowerCase().contains(productName),
-      orElse: () => throw Exception('Product not found'),
-    );
-
-    return '${product.name} ka stock: ${product.stockQuantity} ${product.unit}';
-  }
-
-  static Future<String> _executeMarkOrderDelivered(
-    VoiceCommand cmd,
-    BuildContext context,
-  ) async {
-    try {
-      final orderNumber = cmd.parameters['orderNumber'] as String? ?? '';
-      final db = FirebaseFirestore.instance;
-
-      final snap = await db
-          .collection('orders')
-          .where('orderNumber', isEqualTo: orderNumber)
-          .limit(1)
-          .get();
-
-      if (snap.docs.isEmpty) {
-        return 'Order #$orderNumber nahi mila.';
-      }
-
-      await snap.docs.first.reference.update({
-        'status': 'OrderStatus.delivered',
-        'deliveredAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-
-      return 'Order #$orderNumber deliver mark ho gaya!';
-    } catch (e) {
-      return 'Order update nahi hua: $e';
-    }
-  }
-
-  static Future<String> _executeGetTodayOrders(
-    VoiceCommand cmd,
-    BuildContext context,
-  ) async {
-    try {
-      final auth = Provider.of<AuthProvider>(context, listen: false);
-      final role = auth.currentUser?.role;
-
-      final db = FirebaseFirestore.instance;
-      final today = DateTime.now();
-      final startOfDay = DateTime(today.year, today.month, today.day);
-
-      final query = db.collection('orders').where(
-        'createdAt',
-        isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay),
-      );
-
-      // If customer, only show their orders
-      final snap = role == UserRole.customer
-          ? await query.where('customerId', isEqualTo: auth.currentUser?.id).get()
-          : await query.get();
-
-      final count = snap.docs.length;
-
-      if (role == UserRole.shopOwner) {
-        context.push('/owner/orders');
-      } else if (role == UserRole.customer) {
-        context.push('/customer/orders');
-      }
-
-      return 'Aaj $count order aaye hain.';
-    } catch (e) {
-      return 'Orders fetch nahi hue: $e';
-    }
-  }
-
-  static Future<String> _executeGetRevenue(
-    VoiceCommand cmd,
-    BuildContext context,
-  ) async {
-    try {
-      final auth = Provider.of<AuthProvider>(context, listen: false);
-      if (auth.currentUser?.role == UserRole.shopOwner) {
-        context.push('/owner/analytics');
-      }
-
-      final db = FirebaseFirestore.instance;
-      final today = DateTime.now();
-      final startOfDay = DateTime(today.year, today.month, today.day);
-
-      final snap = await db
-          .collection('orders')
-          .where(
-            'createdAt',
-            isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay),
-          )
-          .where('status', whereIn: [
-            'OrderStatus.delivered',
-            'OrderStatus.confirmed',
-            'OrderStatus.processing',
-            'OrderStatus.packed',
-            'OrderStatus.outForDelivery',
-          ])
-          .get();
-
-      double total = 0;
-      for (final doc in snap.docs) {
-        final data = doc.data();
-        total += (data['totalAmount'] as num? ?? 0).toDouble();
-      }
-
-      return 'Aaj ki kamai: Rs. ${total.toStringAsFixed(0)}';
-    } catch (e) {
-      return 'Revenue fetch nahi hua: $e';
-    }
-  }
-
-  static Future<String> _executeAddToCart(
-    VoiceCommand cmd,
-    BuildContext context,
-  ) async {
-    try {
-      final productProvider =
-          Provider.of<ProductProvider>(context, listen: false);
-      final cartProvider = Provider.of<CartProvider>(context, listen: false);
-      final productName =
-          (cmd.parameters['product'] as String? ?? '').toLowerCase();
-      final qty = (cmd.parameters['quantity'] as num?)?.toInt() ?? 1;
-
-      final product = productProvider.products.firstWhere(
-        (p) => p.name.toLowerCase().contains(productName),
-        orElse: () => throw Exception('Product not found: $productName'),
-      );
-
-      for (int i = 0; i < qty; i++) {
-        cartProvider.addItem(product);
-      }
-      return '${product.name} x$qty cart mein daal diya!';
-    } catch (e) {
-      return 'Cart mein add nahi hua: $e';
-    }
-  }
-
-  static Future<String> _executeSearchProduct(
-    VoiceCommand cmd,
-    BuildContext context,
-  ) async {
-    final query = cmd.parameters['query'] as String? ?? '';
-    if (query.isNotEmpty) {
-      context.push('/customer/search?q=${Uri.encodeComponent(query)}');
-      return 'Main "$query" search kar raha hoon.';
-    }
-    return 'Search query nahi mili.';
-  }
-
-  static Future<String> _executeGetLowStock(
-    VoiceCommand cmd,
-    BuildContext context,
-  ) async {
-    final auth = Provider.of<AuthProvider>(context, listen: false);
-    if (auth.currentUser?.role == UserRole.shopOwner) {
-      context.push('/owner/inventory-alerts');
-    }
-
-    final productProvider =
-        Provider.of<ProductProvider>(context, listen: false);
-    final lowStock = productProvider.products
-        .where((p) => p.stockQuantity < p.minimumStock)
-        .toList();
-
-    if (lowStock.isEmpty) {
-      return 'Saara maal stock mein hai!';
-    }
-
-    final items =
-        lowStock.map((p) => '${p.name} (${p.stockQuantity})').join(', ');
-    return 'Ye items kam hain: $items';
-  }
-
-  static Future<String> _executeGetExpiringItems(
-    VoiceCommand cmd,
-    BuildContext context,
-  ) async {
-    final auth = Provider.of<AuthProvider>(context, listen: false);
-    if (auth.currentUser?.role == UserRole.shopOwner) {
-      context.push('/owner/expiry-tracking');
-    }
-
-    final productProvider =
-        Provider.of<ProductProvider>(context, listen: false);
-    final now = DateTime.now();
-    final soon = now.add(const Duration(days: 7));
-
-    final expiring = productProvider.products.where((p) {
-      if (p.expiryDate == null) return false;
-      return p.expiryDate!.isAfter(now) && p.expiryDate!.isBefore(soon);
-    }).toList();
-
-    if (expiring.isEmpty) {
-      return 'Agli ek hafte mein koi item expire nahi ho raha.';
-    }
-
-    final items = expiring.map((p) => p.name).join(', ');
-    return 'Ye items jaldi expire hone wale hain: $items';
-  }
-
-  static Future<String> _executeSetPrice(
-    VoiceCommand cmd,
-    BuildContext context,
-  ) async {
-    try {
-      final productProvider =
-          Provider.of<ProductProvider>(context, listen: false);
-      final productName =
-          (cmd.parameters['product'] as String? ?? '').toLowerCase();
-      final price = (cmd.parameters['price'] as num?)?.toDouble() ?? 0.0;
-
-      final product = productProvider.products.firstWhere(
-        (p) => p.name.toLowerCase().contains(productName),
-        orElse: () => throw Exception('Product not found: $productName'),
-      );
-
-      final updated = product.copyWith(
-        price: price,
-        updatedAt: DateTime.now(),
-      );
-      await productProvider.updateProduct(updated);
-
-      return '${product.name} ka naya price Rs. $price ho gaya!';
-    } catch (e) {
-      return 'Price update nahi hua: $e';
-    }
-  }
-
-  static Future<String> _executeAddProduct(
-    VoiceCommand cmd,
-    BuildContext context,
-  ) async {
-    try {
-      final productProvider =
-          Provider.of<ProductProvider>(context, listen: false);
-      final name = cmd.parameters['name'] as String? ?? 'Naya Product';
-      final price = (cmd.parameters['price'] as num?)?.toDouble() ?? 0.0;
-      final qty = (cmd.parameters['quantity'] as num?)?.toInt() ?? 0;
-
-      final newProduct = ProductModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        name: name,
-        description: 'Voice added product',
-        price: price,
-        stockQuantity: qty,
-        unit: 'piece',
-        category: 'other',
-        shopId: productProvider.currentShopId ?? 'shop_001',
-        shopName: 'Fufaji Online',
-        imageUrl: '',
-        district: 'Jaipur',
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
-
-      await productProvider.addProduct(newProduct);
-      return '$name add ho gaya!';
-    } catch (e) {
-      return 'Product add nahi hua: $e';
-    }
   }
 }

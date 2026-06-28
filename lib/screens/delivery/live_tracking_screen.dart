@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:provider/provider.dart';
 import 'dart:async';
 import '../../models/delivery_model.dart';
 import '../../services/fleet_service.dart';
@@ -67,12 +66,19 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
   }
 
   @override
+  void dispose() {
+    _otpController.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return StreamBuilder<DeliveryModel?>(
       stream: _fleetService.getDeliveryStream(widget.deliveryId),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppTheme.deliveryAccent)));
         }
         
         final delivery = snapshot.data!;
@@ -151,7 +157,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(delivery.customerName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                    Text(delivery.customerName ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                     Text(delivery.deliveryAddress, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppTheme.grey600)),
                   ],
                 ),
@@ -160,7 +166,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   const Text('ETA', style: TextStyle(fontSize: 12, color: AppTheme.grey600)),
-                  Text(delivery.estimatedArrival.isNotEmpty ? delivery.estimatedArrival : '15 mins', 
+                  Text(delivery.estimatedArrival != null ? '${delivery.estimatedArrival!.hour}:${delivery.estimatedArrival!.minute.toString().padLeft(2, '0')}' : '15 mins', 
                     style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primary)),
                 ],
               ),
@@ -168,19 +174,19 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
           ),
           const Divider(height: 32),
           
-          if (delivery.status == DeliveryStatus.accepted)
+          if (delivery.status == DeliveryStatus.assigned)
             ElevatedButton(
               onPressed: () => _fleetService.pickupOrder(widget.deliveryId),
               style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, foregroundColor: Colors.white),
               child: const Text('Pickup Order from Shop'),
             )
-          else if (delivery.status == DeliveryStatus.picked_up)
+          else if (delivery.status == DeliveryStatus.pickedUp)
             ElevatedButton(
               onPressed: () => _fleetService.startDelivery(widget.deliveryId),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white),
+              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.info, foregroundColor: Colors.white),
               child: const Text('Start Navigation'),
             )
-          else if (delivery.status == DeliveryStatus.on_the_way)
+          else if (delivery.status == DeliveryStatus.outForDelivery)
             Column(
               children: [
                 TextField(

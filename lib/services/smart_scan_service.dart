@@ -1,3 +1,4 @@
+import 'logging_service.dart';
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/services.dart';
@@ -103,7 +104,7 @@ class SmartScanService {
           if (openPoLine != null) break;
         }
       }
-    } catch (_) {}
+    } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
 
     return ProductScanResult(
       barcode: barcode,
@@ -184,7 +185,7 @@ class SmartScanService {
     double thresholdMeters = 150.0,
   }) {
     if (riderPosition == null) {
-      return PodAutoConfirmResult(
+      return const PodAutoConfirmResult(
         canAutoConfirm: false,
         distanceMeters: null,
         reason: 'GPS not available',
@@ -195,8 +196,8 @@ class SmartScanService {
     final lat = addr.latitude;
     final lng = addr.longitude;
 
-    if (lat == null || lng == null || lat == 0 || lng == 0) {
-      return PodAutoConfirmResult(
+    if (lat == 0 || lng == 0) {
+      return const PodAutoConfirmResult(
         canAutoConfirm: false,
         distanceMeters: null,
         reason: 'Delivery address has no GPS coordinates',

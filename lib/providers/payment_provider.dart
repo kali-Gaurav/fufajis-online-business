@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../models/user_model.dart';
+import '../config/app_config.dart';
+import '../services/payment_verification_service.dart';
 import 'auth_provider.dart';
 
 class PaymentProvider with ChangeNotifier {
@@ -40,8 +42,8 @@ class PaymentProvider with ChangeNotifier {
     notifyListeners();
 
     var options = {
-      'key': 'rzp_live_Sr7JfZt4NbXzMw', // Use live key from .env
-      'amount': (amount * 100).toInt(), // Amount in paise
+      'key': AppConfig.razorpayKeyId,
+      'amount': (amount * 100).round(), // Amount in paise (rounded to avoid floating-point issues)
       'name': "Fufaji's Online",
       'description': description,
       'order_id': orderId,
@@ -63,10 +65,42 @@ class PaymentProvider with ChangeNotifier {
     }
   }
 
-  void _handlePaymentSuccess(PaymentSuccessResponse response) {
-    _isProcessing = false;
+  void _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    _isProcessing = true;
+    _errorMessage = null;
     notifyListeners();
-    if (onPaymentSuccess != null) onPaymentSuccess!(response);
+
+    final verified = await _verifyPaymentServerSide(response);
+    _isProcessing = false;
+
+    if (verified) {
+      notifyListeners();
+      if (onPaymentSuccess != null) onPaymentSuccess!(response);
+    } else {
+      _errorMessage = "Payment signature verification failed. Possible tampering detected.";
+      notifyListeners();
+      if (onPaymentError != null) {
+        onPaymentError!(PaymentFailureResponse(
+          Razorpay.PAYMENT_CANCELLED,
+          _errorMessage,
+          {},
+        ));
+      }
+    }
+  }
+
+  Future<bool> _verifyPaymentServerSide(PaymentSuccessResponse response) async {
+    try {
+      final verificationService = PaymentVerificationService();
+      return await verificationService.verifySignature(
+        paymentId: response.paymentId ?? '',
+        orderId: response.orderId ?? '',
+        signature: response.signature ?? '',
+      );
+    } catch (e) {
+      debugPrint('PaymentProvider: Error verifying signature: $e');
+      return false;
+    }
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {

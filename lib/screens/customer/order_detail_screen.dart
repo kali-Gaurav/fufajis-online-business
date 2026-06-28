@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../services/cancellation_fee_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -8,9 +9,11 @@ import '../../models/order_model.dart';
 import '../../utils/app_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../services/invoice_service.dart';
+import '../../constants/order_status.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../../services/weight_verification_service.dart';
+import '../../widgets/customer/live_packing_tracker.dart';
 import 'track_order_screen.dart';
 
 class OrderDetailScreen extends StatefulWidget {
@@ -26,87 +29,119 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   OrderModel? _order;
   Map<String, dynamic>? _rawOrderData;
   List<WeightProofRecord> _weightProofs = [];
-  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadOrder();
+    _loadWeightProofs();
   }
 
-  Future<void> _loadOrder() async {
-    final orderProvider = Provider.of<OrderProvider>(context, listen: false);
-    final order = await orderProvider.getOrderById(widget.orderId);
-    Map<String, dynamic>? rawData;
-    List<WeightProofRecord> proofs = [];
+  /// Load weight proofs once (one-time fetch)
+  Future<void> _loadWeightProofs() async {
     try {
-      final doc = await FirebaseFirestore.instance
-          .collection('orders')
-          .doc(widget.orderId)
-          .get();
-      if (doc.exists) {
-        rawData = doc.data();
-      }
-      proofs = await WeightVerificationService().getOrderWeightProofs(
+      final proofs = await WeightVerificationService().getOrderWeightProofs(
         widget.orderId,
       );
+      if (mounted) {
+        setState(() {
+          _weightProofs = proofs;
+        });
+      }
     } catch (e) {
-      debugPrint('Error loading extra order data: $e');
-    }
-
-    if (mounted) {
-      setState(() {
-        _order = order;
-        _rawOrderData = rawData;
-        _weightProofs = proofs;
-        _isLoading = false;
-      });
+      debugPrint('[OrderDetail] Error loading weight proofs: $e');
     }
   }
+
+
+
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
+    // StreamBuilder for real-time order updates from Firestore
+    return StreamBuilder<DocumentSnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('orders')
+          .doc(widget.orderId)
+          .snapshots(),
+      builder: (context, orderSnapshot) {
+        if (orderSnapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(color: AppTheme.primary),
+            ),
+          );
+        }
 
-    if (_order == null) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Order Details')),
-        body: const Center(child: Text('Order not found')),
-      );
-    }
+        if (orderSnapshot.hasError) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Order Details')),
+            body: Center(
+              child: Text('Error: ${orderSnapshot.error}'),
+            ),
+          );
+        }
 
-    return Scaffold(
-      backgroundColor: AppTheme.grey50,
-      appBar: AppBar(
-        title: Text('Order #${_order!.orderNumber}'),
-        backgroundColor: Colors.white,
-        foregroundColor: AppTheme.grey900,
-        elevation: 0,
-        actions: [
-          IconButton(
-            onPressed: () => InvoiceService.generateAndPrintInvoice(_order!),
-            icon: const Icon(Icons.download),
-            tooltip: 'Download Invoice',
+        if (!orderSnapshot.hasData || !orderSnapshot.data!.exists) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Order Details')),
+            body: const Center(child: Text('Order not found')),
+          );
+        }
+
+        _rawOrderData = orderSnapshot.data!.data() as Map<String, dynamic>?;
+
+        // Parse order from Firestore document
+        // This converts the raw Firestore data to OrderModel for display
+        final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+        _order = OrderModel.fromMap(_rawOrderData ?? {});
+
+        // Show loading if order parsing failed
+        if (_order == null) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Order Details')),
+            body: const Center(child: Text('Unable to load order')),
+          );
+        }
+
+        return Scaffold(
+          backgroundColor: AppTheme.grey50,
+          appBar: AppBar(
+            title: Text('Order #${_order!.orderNumber}'),
+            backgroundColor: AppTheme.cream,
+            foregroundColor: AppTheme.grey900,
+            elevation: 0,
+            actions: [
+              IconButton(
+                onPressed: () => InvoiceService.generateAndPrintInvoice(_order!),
+                icon: const Icon(Icons.download),
+                tooltip: 'Download Invoice',
+              ),
+            ],
           ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildStatusHeader(),
-            _buildItemsList(),
-            _buildPackingAndWeightProofSection(),
-            _buildShopSection(),
-            _buildDeliverySection(),
-            _buildPriceDetails(),
-            const SizedBox(height: 24),
-            _buildActionButtons(),
-            const SizedBox(height: 40),
-          ],
-        ),
-      ),
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                _buildStatusHeader(),
+                if (_order!.status == OrderStatus.pending ||
+                    _order!.status == OrderStatus.confirmed ||
+                    _order!.status == OrderStatus.processing)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: LivePackingTracker(orderId: _order!.id),
+                  ),
+                _buildItemsList(),
+                _buildPackingAndWeightProofSection(),
+                _buildShopSection(),
+                _buildDeliverySection(),
+                _buildPriceDetails(),
+                const SizedBox(height: 24),
+                _buildActionButtons(),
+                const SizedBox(height: 40),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -144,42 +179,38 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           ),
           if (canTrack) ...[
             const SizedBox(height: 16),
-            SizedBox(
-              width: 200,
-              child: ElevatedButton.icon(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => TrackOrderScreen(orderId: _order!.id)),
-                ),
-                icon: const Icon(Icons.location_on, size: 18),
-                label: const Text('Track Order'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.success,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                ),
+            ElevatedButton.icon(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => TrackOrderScreen(orderId: _order!.id)),
+              ),
+              icon: const Icon(Icons.location_on, size: 20),
+              label: const Text('Track Order', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.success,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(double.infinity, 52),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ],
           if (canPayOnline) ...[
             const SizedBox(height: 16),
-            SizedBox(
-              width: 200,
-              child: ElevatedButton.icon(
-                onPressed: _handleOnlinePayment,
-                icon: const Icon(Icons.payment, size: 18),
-                label: const Text('Pay Online Now'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                ),
+            ElevatedButton.icon(
+              onPressed: _handleOnlinePayment,
+              icon: const Icon(Icons.payment, size: 20),
+              label: const Text('Pay Online Now', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primary,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(double.infinity, 52),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             const Text(
               'Switch from COD to Online Payment',
-              style: TextStyle(fontSize: 10, color: AppTheme.grey500),
+              style: TextStyle(fontSize: 12, color: AppTheme.grey600, fontWeight: FontWeight.w500),
             ),
           ],
         ],
@@ -207,7 +238,6 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     );
     
     // Refresh order state
-    _loadOrder();
   }
 
   Widget _buildItemsList() {
@@ -291,13 +321,13 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       ),
       child: Column(
         children: [
-          _buildPriceRow('Subtotal', _order!.subtotal),
-          if (_order!.deliveryCharge > 0)
-            _buildPriceRow('Delivery Fee', _order!.deliveryCharge),
+          _buildPriceRow('Subtotal', _order!.subtotal.toDouble()),
+          if (_order!.deliveryCharge.toDouble() > 0)
+            _buildPriceRow('Delivery Fee', _order!.deliveryCharge.toDouble()),
           const Divider(),
           _buildPriceRow(
             'Total',
-            _order!.totalAmount,
+            _order!.totalAmount.toDouble(),
             isBold: true,
             color: AppTheme.primary,
           ),
@@ -410,7 +440,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Cancel Order'),
+        title: const Text('Cancel Order', style: TextStyle(fontWeight: FontWeight.w700)),
         content: const Text('Are you sure you want to cancel this order?'),
         actions: [
           TextButton(
@@ -434,7 +464,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Return Order'),
+        title: const Text('Return Order', style: TextStyle(fontWeight: FontWeight.w700)),
         content: TextField(
           controller: reasonController,
           decoration: const InputDecoration(
@@ -459,7 +489,53 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   Future<void> _cancelOrder() async {
+    if (_order == null) return;
+    final feeService = CancellationFeeService();
+    final feeResult = feeService.calculateFee(_order!);
+
+    // Show fee warning if applicable
+    if (feeResult.fee > 0 && mounted) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Cancellation Fee', style: TextStyle(fontWeight: FontWeight.w700)),
+          content: Text(
+            'A cancellation fee of ₹${feeResult.fee.toStringAsFixed(0)} '
+            '(${(feeResult.feeRate * 100).toStringAsFixed(0)}%) applies at this stage.\n\n'
+            'Refund: ₹${feeResult.netRefund.toStringAsFixed(0)} will be credited to your wallet.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Go Back'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              style: TextButton.styleFrom(foregroundColor: AppTheme.error),
+              child: const Text('Confirm Cancel'),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true || !mounted) return;
+    }
+
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+    // FIX (Module 10): applyAndRefund must run for every cancellation, not just
+    // fee>0 ones. It already handles the fee==0 case correctly (refunds the
+    // full amount, skips the fee ledger entry) and is idempotent via a
+    // deterministic ledger doc ID — the previous `if (feeResult.fee > 0)` gate
+    // meant early-stage (0% fee) cancellations never got refunded at all.
+    try {
+      await feeService.applyAndRefund(
+        order: _order!,
+        cancelledBy: 'customer',
+        reason: 'Cancelled by customer',
+      );
+    } catch (e) {
+      debugPrint('[OrderDetail] Fee apply error: $e');
+    }
+
     final success = await orderProvider.cancelOrder(
       _order!.id,
       'Cancelled by user',
@@ -468,7 +544,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Order Cancelled')));
-      _loadOrder();
+      // StreamBuilder will automatically refresh when Firestore data changes
     }
   }
 
@@ -484,7 +560,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Return Requested')));
-      _loadOrder();
+      // StreamBuilder will automatically refresh when Firestore data changes
     }
   }
 
@@ -840,3 +916,4 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     );
   }
 }
+

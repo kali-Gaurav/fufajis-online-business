@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class ProductReviewModel {
   final String id;
   final String productId;
@@ -15,6 +17,7 @@ class ProductReviewModel {
   final DateTime? ownerReplyDate;
   final bool isFlagged; // For moderation
   final bool isApproved; // Admin approval status
+  final bool isFeatured; // Highlighted review
   final int helpfulCount; // Number of users who found this helpful
   final List<String> flagReasons;
 
@@ -34,6 +37,7 @@ class ProductReviewModel {
     this.ownerReplyDate,
     this.isFlagged = false,
     this.isApproved = true,
+    this.isFeatured = false,
     this.helpfulCount = 0,
     this.flagReasons = const [],
     this.videoUrl,
@@ -41,24 +45,25 @@ class ProductReviewModel {
 
   factory ProductReviewModel.fromMap(Map<String, dynamic> map) {
     return ProductReviewModel(
-      id: map['id'] ?? '',
-      productId: map['productId'] ?? '',
-      userId: map['userId'] ?? '',
-      userName: map['userName'] ?? 'Customer',
-      userImage: map['userImage'],
-      rating: (map['rating'] ?? 0.0).toDouble(),
-      comment: map['comment'] ?? '',
-      mediaUrls: List<String>.from(map['mediaUrls'] ?? []),
-      videoUrl: map['videoUrl'],
-      createdAt: map['createdAt']?.toDate() ?? DateTime.now(),
-      orderId: map['orderId'],
-      isVerifiedPurchase: map['isVerifiedPurchase'] ?? false,
-      ownerReply: map['ownerReply'],
-      ownerReplyDate: map['ownerReplyDate']?.toDate(),
-      isFlagged: map['isFlagged'] ?? false,
-      isApproved: map['isApproved'] ?? true,
-      helpfulCount: map['helpfulCount'] ?? 0,
-      flagReasons: List<String>.from(map['flagReasons'] ?? []),
+      id: map['id'] as String? ?? '',
+      productId: map['productId'] as String? ?? '',
+      userId: map['userId'] as String? ?? '',
+      userName: map['userName'] as String? ?? 'Customer',
+      userImage: map['userImage'] as String?,
+      rating: (map['rating'] as num? ?? 0.0).toDouble(),
+      comment: map['comment'] as String? ?? '',
+      mediaUrls: List<String>.from(map['mediaUrls'] as Iterable? ?? []),
+      videoUrl: map['videoUrl'] as String?,
+      createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      orderId: map['orderId'] as String?,
+      isVerifiedPurchase: map['isVerifiedPurchase'] as bool? ?? false,
+      ownerReply: map['ownerReply'] as String?,
+      ownerReplyDate: (map['ownerReplyDate'] as Timestamp?)?.toDate(),
+      isFlagged: map['isFlagged'] as bool? ?? false,
+      isApproved: map['isApproved'] as bool? ?? true,
+      isFeatured: map['isFeatured'] as bool? ?? false,
+      helpfulCount: map['helpfulCount'] as int? ?? 0,
+      flagReasons: List<String>.from(map['flagReasons'] as Iterable? ?? []),
     );
   }
 
@@ -80,6 +85,7 @@ class ProductReviewModel {
       'ownerReplyDate': ownerReplyDate,
       'isFlagged': isFlagged,
       'isApproved': isApproved,
+      'isFeatured': isFeatured,
       'helpfulCount': helpfulCount,
       'flagReasons': flagReasons,
     };
@@ -102,6 +108,7 @@ class ProductReviewModel {
     DateTime? ownerReplyDate,
     bool? isFlagged,
     bool? isApproved,
+    bool? isFeatured,
     int? helpfulCount,
     List<String>? flagReasons,
   }) {
@@ -122,6 +129,7 @@ class ProductReviewModel {
       ownerReplyDate: ownerReplyDate ?? this.ownerReplyDate,
       isFlagged: isFlagged ?? this.isFlagged,
       isApproved: isApproved ?? this.isApproved,
+      isFeatured: isFeatured ?? this.isFeatured,
       helpfulCount: helpfulCount ?? this.helpfulCount,
       flagReasons: flagReasons ?? this.flagReasons,
     );

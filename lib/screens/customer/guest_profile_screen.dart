@@ -13,12 +13,8 @@ class GuestProfileScreen extends StatelessWidget {
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(24),
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFFFF5722), Color(0xFFE64A19)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+          decoration: BoxDecoration(
+            gradient: AppTheme.primaryGradient,
           ),
           child: Column(
             children: [
@@ -64,7 +60,7 @@ class GuestProfileScreen extends StatelessWidget {
                   context.push('/login');
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
+                  backgroundColor: AppTheme.cream,
                   foregroundColor: const Color(0xFFFF5722),
                   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                   shape: RoundedRectangleBorder(
@@ -117,7 +113,9 @@ class GuestProfileScreen extends StatelessWidget {
                 context,
                 icon: Icons.info_outline,
                 title: 'About App',
-                onTap: () {},
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Viewing Policy...')));
+                },
               ),
             ],
           ),
@@ -131,7 +129,7 @@ class GuestProfileScreen extends StatelessWidget {
       onTap: onTap,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: AppTheme.grey200.withOpacity(0.5)),
+        side: BorderSide(color: AppTheme.grey200.withValues(alpha: 0.5)),
       ),
       leading: Container(
         padding: const EdgeInsets.all(8),

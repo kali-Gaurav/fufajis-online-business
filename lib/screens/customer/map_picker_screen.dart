@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:geocoding/geocoding.dart';
 import '../../utils/app_theme.dart';
 
@@ -21,6 +22,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
   late LatLng _selectedLocation;
   String _address = "Loading address...";
   bool _isReverseGeocoding = false;
+  final MapController _mapController = MapController();
 
   @override
   void initState() {
@@ -60,29 +62,37 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pin Your Location'),
-        backgroundColor: Colors.white,
+        title: const Text('Pin Your Location', style: TextStyle(fontWeight: FontWeight.w700)),
+        backgroundColor: AppTheme.cream,
         foregroundColor: AppTheme.grey900,
         elevation: 0,
       ),
       body: Stack(
         children: [
-          GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: _selectedLocation,
-              zoom: 16,
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: _selectedLocation,
+              initialZoom: 16.0,
+              onPositionChanged: (position, hasGesture) {
+                if (hasGesture) {
+                  setState(() {
+                    _selectedLocation = position.center;
+                  });
+                }
+              },
+              onMapEvent: (event) {
+                if (event is MapEventMoveEnd) {
+                  _reverseGeocode(_selectedLocation);
+                }
+              },
             ),
-            onMapCreated: (controller) {},
-            onCameraMove: (position) {
-              setState(() {
-                _selectedLocation = position.target;
-              });
-            },
-            onCameraIdle: () {
-              _reverseGeocode(_selectedLocation);
-            },
-            myLocationEnabled: true,
-            myLocationButtonEnabled: true,
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.fufaji.app',
+              ),
+            ],
           ),
           const Center(
             child: Padding(

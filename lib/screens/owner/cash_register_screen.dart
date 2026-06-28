@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import '../../providers/product_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/invoice_service.dart';
 import '../../services/storage_service.dart';
@@ -12,6 +11,8 @@ import '../../models/order_model.dart';
 import '../../models/user_model.dart';
 import '../../models/payment_method.dart';
 import '../../utils/app_theme.dart';
+import '../../constants/order_status.dart';
+import '../../utils/monetary_value.dart';
 
 // ---------------------------------------------------------------------------
 // Bill item — wraps a ProductModel with a quantity for the current bill
@@ -20,9 +21,9 @@ class _BillItem {
   final ProductModel product;
   int quantity;
 
-  _BillItem({required this.product, this.quantity = 1});
+  _BillItem({required this.product}) : quantity = 1;
 
-  double get lineTotal => product.price * quantity;
+  double get lineTotal => (product.price * quantity).toDouble();
 }
 
 // ---------------------------------------------------------------------------
@@ -157,7 +158,7 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
           ? _allProducts
           : _allProducts.where((p) {
               return p.name.toLowerCase().contains(q) ||
-                  (p.barcode?.contains(q) ?? false) ||
+                  p.barcode.contains(q) ||
                   p.category.toString().toLowerCase().contains(q);
             }).toList();
     });
@@ -202,7 +203,7 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
 
   // ── Totals ────────────────────────────────────────────────────────────
   double get _totalAmount =>
-      _billItems.fold(0.0, (sum, item) => sum + item.lineTotal);
+      _billItems.fold(0.0, (total, item) => total + item.lineTotal);
 
   // ── Save order to Firestore (or queue if offline) ────────────────────
   Future<OrderModel?> _buildOrder(String paymentMethod) async {
@@ -217,11 +218,11 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
         id: bi.product.id,
         productId: bi.product.id,
         productName: bi.product.name,
-        productImage: bi.product.imageUrl ?? '',
-        unit: bi.product.unit ?? 'piece',
+        productImage: bi.product.imageUrl,
+        unit: bi.product.unit,
         quantity: bi.quantity,
         price: bi.product.price,
-        totalPrice: bi.lineTotal,
+        totalPrice: MonetaryValue(bi.lineTotal),
       );
     }).toList();
 
@@ -232,11 +233,11 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
       customerName: 'Walk-in Customer',
       customerPhone: '',
       items: items,
-      subtotal: _totalAmount,
-      deliveryCharge: 0,
-      discount: 0,
-      tax: 0,
-      totalAmount: _totalAmount,
+      subtotal: MonetaryValue(_totalAmount),
+      deliveryCharge: MonetaryValue(0),
+      discount: MonetaryValue(0),
+      tax: MonetaryValue(0),
+      totalAmount: MonetaryValue(_totalAmount),
       paymentMethod: paymentMethod == 'UPI'
           ? PaymentMethod.upi
           : PaymentMethod.cod,
@@ -282,7 +283,7 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
             .set(order.toMap());
       } else {
         // Offline: cache locally in Hive until connectivity returns
-        final pendingKey = 'pending_pos_orders';
+        const pendingKey = 'pending_pos_orders';
         final existing =
             (_storage.get(pendingKey) as List?) ?? [];
         existing.add(order.toMap());
@@ -322,7 +323,7 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx2, setS) => AlertDialog(
-          title: const Text('Cash Payment'),
+          title: const Text('Cash Payment', style: TextStyle(fontWeight: FontWeight.w700)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -399,7 +400,7 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('UPI Payment'),
+        title: const Text('UPI Payment', style: TextStyle(fontWeight: FontWeight.w700)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -470,7 +471,7 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
     return Scaffold(
       backgroundColor: AppTheme.grey100,
       appBar: AppBar(
-        title: const Text('Cash Register'),
+        title: const Text('Cash Register', style: TextStyle(fontWeight: FontWeight.w700)),
         backgroundColor: AppTheme.white,
         actions: [
           if (!_isOnline)
@@ -549,7 +550,7 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
                 Expanded(
                   flex: 6,
                   child: _isLoading
-                      ? const Center(child: CircularProgressIndicator())
+                      ? const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent))
                       : _filteredProducts.isEmpty
                           ? const Center(
                               child: Text('No products found.',
@@ -655,7 +656,7 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
                                     icon: const Icon(Icons.money, size: 18),
                                     label: const Text('Cash'),
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppTheme.secondary,
+                                      backgroundColor: AppTheme.info,
                                       foregroundColor: AppTheme.white,
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 10),
@@ -802,10 +803,9 @@ class _ProductCard extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius:
                       BorderRadius.circular(AppTheme.radiusSm),
-                  child: product.imageUrl != null &&
-                          product.imageUrl!.isNotEmpty
+                  child: product.imageUrl.isNotEmpty
                       ? Image.network(
-                          product.imageUrl!,
+                          product.imageUrl,
                           width: double.infinity,
                           fit: BoxFit.cover,
                           errorBuilder: (_, __, ___) =>
@@ -830,16 +830,15 @@ class _ProductCard extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                '₹${product.price.round()}',
+                '₹${product.price.toDouble().round()}',
                 style: const TextStyle(
                     color: AppTheme.primary,
                     fontWeight: FontWeight.bold,
                     fontSize: 13),
               ),
-              if (product.unit != null)
-                Text(product.unit!,
-                    style: const TextStyle(
-                        fontSize: 10, color: AppTheme.grey500)),
+              Text(product.unit,
+                  style: const TextStyle(
+                      fontSize: 10, color: AppTheme.grey500)),
             ],
           ),
         ),
@@ -882,7 +881,7 @@ class _BillItemRow extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  '₹${item.product.price.round()} × ${item.quantity} = ₹${item.lineTotal.round()}',
+                  '₹${item.product.price.toDouble().round()} × ${item.quantity} = ₹${item.lineTotal.round()}',
                   style: const TextStyle(
                       fontSize: 11, color: AppTheme.grey600),
                 ),
@@ -905,7 +904,7 @@ class _BillItemRow extends StatelessWidget {
               _QtyBtn(
                 icon: Icons.add,
                 onTap: onIncrement,
-                color: AppTheme.secondary,
+                color: AppTheme.info,
               ),
               const SizedBox(width: 4),
               GestureDetector(
@@ -937,7 +936,7 @@ class _QtyBtn extends StatelessWidget {
         width: 22,
         height: 22,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(4),
           border: Border.all(color: color, width: 1),
         ),

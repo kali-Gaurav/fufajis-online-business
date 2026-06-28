@@ -22,7 +22,7 @@ class _AttendanceManagementScreenState extends State<AttendanceManagementScreen>
         stream: _fleetService.getAllAttendanceStream(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
           }
 
           if (snapshot.hasError) {

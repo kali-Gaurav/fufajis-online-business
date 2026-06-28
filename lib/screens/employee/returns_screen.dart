@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/employee_scanner_service.dart';
@@ -8,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/product_provider.dart';
 import '../../models/product_model.dart';
 import '../../models/scanner_models.dart';
+import '../../utils/app_theme.dart';
 
 class ReturnsScreen extends StatefulWidget {
   const ReturnsScreen({super.key});
@@ -34,13 +34,13 @@ class _ReturnsScreenState extends State<ReturnsScreen> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
     );
   }
 
   void _showSuccess(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.green),
+      SnackBar(content: Text(message), backgroundColor: AppTheme.success),
     );
   }
 
@@ -194,10 +194,17 @@ class _ReturnsScreenState extends State<ReturnsScreen> {
   }
 
   @override
+  void dispose() {
+    _reasonController.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Returns Processing'),
+        title: const Text('Returns Processing', style: TextStyle(fontWeight: FontWeight.w700)),
         actions: [
           IconButton(
             icon: const Icon(Icons.qr_code_scanner),
@@ -283,9 +290,9 @@ class _ReturnsScreenState extends State<ReturnsScreen> {
                           border: const OutlineInputBorder(),
                           enabledBorder: _autoFilled &&
                                   _orderIdController.text.isNotEmpty
-                              ? OutlineInputBorder(
+                              ? const OutlineInputBorder(
                                   borderSide: BorderSide(
-                                      color: Colors.green.shade400,
+                                      color: AppTheme.success,
                                       width: 2))
                               : null,
                           helperText: _autoFilled &&
@@ -293,7 +300,7 @@ class _ReturnsScreenState extends State<ReturnsScreen> {
                               ? '✓ Auto-matched from last delivery'
                               : null,
                           helperStyle:
-                              const TextStyle(color: Colors.green),
+                              const TextStyle(color: AppTheme.success),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -395,7 +402,7 @@ class _ReturnsScreenState extends State<ReturnsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Enter Barcode'),
+        title: const Text('Enter Barcode', style: TextStyle(fontWeight: FontWeight.w700)),
         content: TextField(
           autofocus: true,
           decoration: const InputDecoration(

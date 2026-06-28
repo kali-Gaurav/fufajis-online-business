@@ -15,9 +15,7 @@ class ExpiryCheckerService {
 
   // Configuration
   static const int _defaultExpiryWarningDays = 3; // Warn before this many days
-  static const int _defaultExpiryCriticalDays = 1; // Critical discount before this
   static const double _maxDiscountRate = 0.5; // Maximum 50% discount
-  static const int _discountIntervalHours = 6; // Discount increase interval
 
   // Collection references
   CollectionReference _productsCollection(String shopId) =>
@@ -48,7 +46,7 @@ class ExpiryCheckerService {
 
         // Skip if already discounted to max
         if (product.discountPercentage != null && 
-            product.discountPercentage! >= _maxDiscountRate * 100) {
+            product.discountPercentage!.toDouble() >= _maxDiscountRate * 100) {
           continue;
         }
 
@@ -63,26 +61,26 @@ class ExpiryCheckerService {
         final discountPercentage = _calculateDynamicDiscount(
           daysUntilExpiry,
           hoursUntilExpiry,
-          product.discountPercentage ?? 0,
+          product.discountPercentage?.toDouble() ?? 0.0,
         );
 
-        if (discountPercentage > (product.discountPercentage ?? 0)) {
+        if (discountPercentage > (product.discountPercentage?.toDouble() ?? 0.0)) {
           // Apply new discount
           await _applyDiscount(doc.id, product, discountPercentage, now);
 
           appliedDiscounts.add({
             'productId': product.id,
             'productName': product.name,
-            'previousDiscount': product.discountPercentage ?? 0,
+            'previousDiscount': product.discountPercentage?.toDouble() ?? 0.0,
             'newDiscount': discountPercentage,
-            'newPrice': _calculateDiscountedPrice(product.price, discountPercentage),
+            'newPrice': _calculateDiscountedPrice(product.price.toDouble(), discountPercentage),
             'expiryDate': expiryDate,
             'hoursUntilExpiry': hoursUntilExpiry,
           });
 
           // Log the discount change
           await _logDiscountChange(product.id, {
-            'previousDiscount': product.discountPercentage ?? 0,
+            'previousDiscount': product.discountPercentage?.toDouble() ?? 0.0,
             'newDiscount': discountPercentage,
             'reason': 'expiry_dynamic',
             'hoursUntilExpiry': hoursUntilExpiry,
@@ -146,7 +144,7 @@ class ExpiryCheckerService {
     double discountPercentage,
     DateTime now,
   ) async {
-    double newPrice = _calculateDiscountedPrice(product.price, discountPercentage);
+    double newPrice = _calculateDiscountedPrice(product.price.toDouble(), discountPercentage);
     double finalDiscount = discountPercentage;
 
     final cost = product.costPrice ?? 0.0;
@@ -159,14 +157,14 @@ class ExpiryCheckerService {
                              category == 'prepared_food';
       if (!allowBelowCost) {
         newPrice = cost;
-        finalDiscount = ((product.price - cost) / product.price * 100);
+        finalDiscount = ((product.price.toDouble() - cost) / product.price.toDouble() * 100);
         if (finalDiscount < 0) finalDiscount = 0;
       }
     }
 
     await _firestore.collection('products').doc(productId).update({
       'discountPercentage': finalDiscount,
-      'originalPrice': product.price,
+      'originalPrice': product.price.toDouble(),
       'price': newPrice,
       'isOnSale': finalDiscount > 0,
       'updatedAt': Timestamp.fromDate(now),
@@ -292,7 +290,7 @@ class ExpiryCheckerService {
       double potentialWasteValue = 0;
       for (final doc in expiredSnapshot.docs) {
         final product = ProductModel.fromMap(doc.data() as Map<String, dynamic>);
-        potentialWasteValue += product.price * product.stockQuantity;
+        potentialWasteValue += product.price.toDouble() * product.stockQuantity;
       }
 
       // Calculate saved value from dynamic discounts
@@ -305,7 +303,7 @@ class ExpiryCheckerService {
       double savedFromDiscounts = 0;
       for (final doc in discountSnapshot.docs) {
         final data = doc.data();
-        savedFromDiscounts += (data['newDiscount'] - data['previousDiscount']);
+        savedFromDiscounts += ((data['newDiscount'] as num) - (data['previousDiscount'] as num));
       }
 
       return {
@@ -336,7 +334,7 @@ class ExpiryCheckerService {
 
       // Get shop owner
       final shopDoc = await _firestore.collection('shops').doc(shopId).get();
-      final ownerId = shopDoc.data()?['ownerId'];
+      final ownerId = shopDoc.data()?['ownerId'] as String?;
 
       if (ownerId == null) return;
 
@@ -408,8 +406,8 @@ class ExpiryCheckerService {
     final productDoc = await _firestore.collection('products').doc(productId).get();
     final product = ProductModel.fromMap(productDoc.data() as Map<String, dynamic>);
 
-    final previousDiscount = product.discountPercentage ?? 0;
-    final newPrice = _calculateDiscountedPrice(product.price, discountPercentage);
+    final previousDiscount = product.discountPercentage?.toDouble() ?? 0.0;
+    final newPrice = _calculateDiscountedPrice(product.price.toDouble(), discountPercentage);
 
     await _firestore.collection('products').doc(productId).update({
       'discountPercentage': discountPercentage,

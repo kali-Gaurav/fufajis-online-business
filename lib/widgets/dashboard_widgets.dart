@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/product_provider.dart';
+import '../providers/product_provider_extensions.dart';
 import '../utils/app_theme.dart';
 
 class InventoryHealthScoreWidget extends StatefulWidget {
@@ -12,8 +13,6 @@ class InventoryHealthScoreWidget extends StatefulWidget {
 }
 
 class _InventoryHealthScoreWidgetState extends State<InventoryHealthScoreWidget> {
-  final bool _isLoading = false;
-
   @override
   Widget build(BuildContext context) {
     final productProvider = context.watch<ProductProvider>();
@@ -168,7 +167,7 @@ class LowStockAlertWidget extends StatelessWidget {
                 leading: CircleAvatar(backgroundColor: AppTheme.error.withValues(alpha: 0.1), child: const Icon(Icons.warning, color: AppTheme.error, size: 16)),
                 title: Text(p.name, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
                 subtitle: Text('Only ${p.stockQuantity} ${p.unit} left', style: const TextStyle(fontSize: 11)),
-                trailing: TextButton(onPressed: () {}, child: const Text('Restock', style: TextStyle(fontSize: 11))),
+                trailing: TextButton(onPressed: () => context.push('/owner/inventory-alerts'), child: const Text('Restock', style: TextStyle(fontSize: 11))),
               );
             },
           ),
@@ -222,7 +221,7 @@ class ExpiringSoonWidget extends StatelessWidget {
               subtitle: Text('Expires in $days days', style: TextStyle(fontSize: 11, color: days < 3 ? AppTheme.error : AppTheme.warning)),
               trailing: p.isOnSale 
                 ? Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: AppTheme.success.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)), child: const Text('ON SALE', style: TextStyle(fontSize: 9, color: AppTheme.success, fontWeight: FontWeight.bold)))
-                : TextButton(onPressed: () {}, child: const Text('Apply Discount', style: TextStyle(fontSize: 11))),
+                : TextButton(onPressed: () => context.push('/owner/pending-price-changes'), child: const Text('Apply Discount', style: TextStyle(fontSize: 11))),
             );
           }),
         ],
@@ -265,7 +264,7 @@ class PendingPriceChangesWidget extends StatelessWidget {
                 final diff = c['changePercentage'] as int;
                 return ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(c['productName'], style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                  title: Text(c['productName'] as String, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
                   subtitle: Text('₹${c['currentPrice']} → ₹${c['newPrice']}', style: const TextStyle(fontSize: 11)),
                   trailing: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

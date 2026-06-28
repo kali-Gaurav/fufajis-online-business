@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../config/app_config.dart';
 
 /// Delivery Agent Route Optimization Service
 ///
@@ -25,11 +25,7 @@ class RouteOptimizationService {
   final Dio _dio = Dio();
 
   static String get _apiKey {
-    try {
-      return dotenv.env['GOOGLE_MAPS_KEY'] ?? '';
-    } catch (_) {
-      return '';
-    }
+    return AppConfig.googleMapsKey;
   }
 
   /// Returns optimized ordered list of waypoints.
@@ -39,7 +35,7 @@ class RouteOptimizationService {
     required List<DeliveryWaypoint> destinations,
   }) async {
     if (destinations.isEmpty) {
-      return RouteResult(orderedWaypoints: [], estimatedMinutes: 0, totalDistanceKm: 0);
+      return const RouteResult(orderedWaypoints: [], estimatedMinutes: 0, totalDistanceKm: 0);
     }
     if (destinations.length == 1) {
       return RouteResult(
@@ -77,7 +73,7 @@ class RouteOptimizationService {
         .map((d) => '${d.location.latitude},${d.location.longitude}')
         .join('|');
 
-    final url = 'https://maps.googleapis.com/maps/api/directions/json';
+    const url = 'https://maps.googleapis.com/maps/api/directions/json';
     final resp = await _dio.get(url, queryParameters: {
       'origin': originStr,
       'destination': destStr,

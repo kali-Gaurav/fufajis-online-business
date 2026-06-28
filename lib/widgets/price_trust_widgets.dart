@@ -155,9 +155,9 @@ class _PriceChangeRow extends StatelessWidget {
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               color: isIncrease
-                  ? Colors.red.shade50
+                  ? AppTheme.error
                   : isDecrease
-                      ? Colors.green.shade50
+                      ? AppTheme.success
                       : AppTheme.grey100,
               shape: BoxShape.circle,
             ),
@@ -169,9 +169,9 @@ class _PriceChangeRow extends StatelessWidget {
                       : Icons.remove,
               size: 11,
               color: isIncrease
-                  ? Colors.red.shade600
+                  ? AppTheme.error
                   : isDecrease
-                      ? Colors.green.shade700
+                      ? AppTheme.success
                       : AppTheme.grey500,
             ),
           ),
@@ -186,7 +186,7 @@ class _PriceChangeRow extends StatelessWidget {
             '($changePercent%)',
             style: TextStyle(
               fontSize: 11,
-              color: isIncrease ? Colors.red.shade600 : Colors.green.shade700,
+              color: isIncrease ? AppTheme.error : AppTheme.success,
               fontWeight: FontWeight.w500,
             ),
           ),

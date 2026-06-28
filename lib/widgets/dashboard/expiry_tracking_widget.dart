@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../providers/product_provider.dart';
+import '../../utils/app_theme.dart';
 
 /// Expiry Tracking Widget
 /// Displays expiry tracking metrics on the owner dashboard
@@ -12,7 +11,6 @@ class ExpiryTrackingWidget extends StatefulWidget {
 }
 
 class _ExpiryTrackingWidgetState extends State<ExpiryTrackingWidget> {
-  bool _isLoading = false;
   Map<String, dynamic> _expiryData = {};
 
   @override
@@ -22,15 +20,14 @@ class _ExpiryTrackingWidgetState extends State<ExpiryTrackingWidget> {
   }
 
   Future<void> _loadExpiryData() async {
-    setState(() => _isLoading = true);
     try {
-      final provider = context.read<ProductProvider>();
       // Load expiry data from provider
       const expiringToday = 0;
       const expiringThisWeek = 0;
       const expired = 0;
       const totalLoss = 0.0;
 
+      if (!mounted) return;
       setState(() {
         _expiryData = {
           'expiringToday': expiringToday,
@@ -40,18 +37,16 @@ class _ExpiryTrackingWidgetState extends State<ExpiryTrackingWidget> {
         };
       });
     } catch (e) {
-      print('Error loading expiry data: $e');
-    } finally {
-      setState(() => _isLoading = false);
+      debugPrint('Error loading expiry data: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final expiringToday = _expiryData['expiringToday'] ?? 0;
-    final expiringThisWeek = _expiryData['expiringThisWeek'] ?? 0;
-    final expired = _expiryData['expired'] ?? 0;
-    final totalLoss = _expiryData['totalLoss'] ?? 0.0;
+    final int expiringToday = (_expiryData['expiringToday'] as num? ?? 0).toInt();
+    final int expiringThisWeek = (_expiryData['expiringThisWeek'] as num? ?? 0).toInt();
+    final int expired = (_expiryData['expired'] as num? ?? 0).toInt();
+    final double totalLoss = (_expiryData['totalLoss'] as num? ?? 0.0).toDouble();
 
     final hasAlerts = expiringToday > 0 || expiringThisWeek > 0 || expired > 0;
 
@@ -71,12 +66,12 @@ class _ExpiryTrackingWidgetState extends State<ExpiryTrackingWidget> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: hasAlerts ? Colors.red[100] : Colors.green[100],
+                        color: (hasAlerts ? AppTheme.error : AppTheme.success).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
                         Icons.calendar_today,
-                        color: hasAlerts ? Colors.red[700] : Colors.green[700],
+                        color: hasAlerts ? AppTheme.error : AppTheme.success,
                         size: 24,
                       ),
                     ),
@@ -106,19 +101,19 @@ class _ExpiryTrackingWidgetState extends State<ExpiryTrackingWidget> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.red[50],
+                  color: AppTheme.error.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.red[200]!),
+                  border: Border.all(color: AppTheme.error.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.warning, color: Colors.red[700], size: 20),
+                    const Icon(Icons.warning, color: AppTheme.error, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Potential loss: ₹${totalLoss.toStringAsFixed(2)}',
-                        style: TextStyle(
-                          color: Colors.red[700],
+                        style: const TextStyle(
+                          color: AppTheme.error,
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
                         ),
@@ -131,17 +126,17 @@ class _ExpiryTrackingWidgetState extends State<ExpiryTrackingWidget> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.green[50],
+                  color: AppTheme.success.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Row(
+                child: const Row(
                   children: [
-                    Icon(Icons.check_circle, color: Colors.green[700], size: 20),
+                    Icon(Icons.check_circle, color: AppTheme.success, size: 20),
                     const SizedBox(width: 8),
-                    const Text(
+                    Text(
                       'All products are fresh',
                       style: TextStyle(
-                        color: Colors.green,
+                        color: AppTheme.success,
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
                       ),
@@ -162,12 +157,12 @@ class _ExpiryTrackingWidgetState extends State<ExpiryTrackingWidget> {
                 _buildStatTile(
                   'Today',
                   expiringToday.toString(),
-                  Colors.red,
+                  AppTheme.error,
                 ),
                 _buildStatTile(
                   'This Week',
                   expiringThisWeek.toString(),
-                  Colors.orange,
+                  AppTheme.warning,
                 ),
                 _buildStatTile(
                   'Expired',
@@ -225,4 +220,3 @@ class _ExpiryTrackingWidgetState extends State<ExpiryTrackingWidget> {
     );
   }
 }
-

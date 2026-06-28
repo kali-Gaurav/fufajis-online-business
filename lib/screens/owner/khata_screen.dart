@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../services/user_service.dart';
 import '../../utils/app_theme.dart';
 
 class KhataScreen extends StatefulWidget {
@@ -10,7 +9,6 @@ class KhataScreen extends StatefulWidget {
 }
 
 class _KhataScreenState extends State<KhataScreen> {
-  final UserService _userService = UserService();
   String _searchQuery = '';
 
   @override
@@ -18,8 +16,8 @@ class _KhataScreenState extends State<KhataScreen> {
     return Scaffold(
       backgroundColor: AppTheme.grey50,
       appBar: AppBar(
-        title: const Text('Digital Khata Ledger'),
-        backgroundColor: Colors.white,
+        title: const Text('Digital Khata Ledger', style: TextStyle(fontWeight: FontWeight.w700)),
+        backgroundColor: AppTheme.cream,
         foregroundColor: AppTheme.grey900,
         elevation: 0,
       ),
@@ -45,7 +43,7 @@ class _KhataScreenState extends State<KhataScreen> {
           prefixIcon: const Icon(Icons.search),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           filled: true,
-          fillColor: AppTheme.grey50,
+          fillColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.grey800 : AppTheme.grey50,
         ),
       ),
     );
@@ -58,15 +56,15 @@ class _KhataScreenState extends State<KhataScreen> {
       itemCount: 3, // Demo items
       itemBuilder: (context, index) {
         final List<Map<String, dynamic>> demoCustomers = [
-          {'name': 'Rajesh Kumar', 'phone': '9876543210', 'balance': 1250.0, 'limit': 5000.0},
+          {'name': 'Rajesh Kumar', 'phone': '8529841981', 'balance': 1250.0, 'limit': 5000.0},
           {'name': 'Suresh Singh', 'phone': '9988776655', 'balance': 450.0, 'limit': 2000.0},
           {'name': 'Amit Sharma', 'phone': '9122334455', 'balance': 0.0, 'limit': 5000.0},
         ];
         
         final customer = demoCustomers[index];
         if (_searchQuery.isNotEmpty && 
-            !customer['name'].toLowerCase().contains(_searchQuery.toLowerCase()) &&
-            !customer['phone'].contains(_searchQuery)) {
+            !(customer['name'] as String).toLowerCase().contains(_searchQuery.toLowerCase()) &&
+            !(customer['phone'] as String).contains(_searchQuery)) {
           return const SizedBox.shrink();
         }
 
@@ -76,8 +74,8 @@ class _KhataScreenState extends State<KhataScreen> {
   }
 
   Widget _buildCustomerCard(Map<String, dynamic> customer) {
-    final double balance = customer['balance'];
-    final double limit = customer['limit'];
+    final double balance = (customer['balance'] as num).toDouble();
+    final double limit = (customer['limit'] as num).toDouble();
     final double usagePercent = balance / limit;
 
     return Container(
@@ -100,15 +98,15 @@ class _KhataScreenState extends State<KhataScreen> {
             children: [
               CircleAvatar(
                 backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
-                child: Text(customer['name'][0], style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold)),
+                child: Text((customer['name'] as String)[0], style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold)),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(customer['name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    Text(customer['phone'], style: const TextStyle(color: AppTheme.grey500, fontSize: 12)),
+                    Text(customer['name'] as String, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text(customer['phone'] as String, style: const TextStyle(color: AppTheme.grey500, fontSize: 12)),
                   ],
                 ),
               ),
@@ -153,7 +151,7 @@ class _KhataScreenState extends State<KhataScreen> {
                   },
                   icon: const Icon(Icons.message, size: 16),
                   label: const Text('Reminder'),
-                  style: OutlinedButton.styleFrom(foregroundColor: Colors.green),
+                  style: OutlinedButton.styleFrom(foregroundColor: AppTheme.success),
                 ),
               ),
               const SizedBox(width: 12),

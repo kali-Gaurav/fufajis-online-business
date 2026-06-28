@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
-import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:provider/provider.dart';
+import '../services/voice_assistant_service.dart';
 import '../utils/app_theme.dart';
 
 class VoiceSearchDialog extends StatefulWidget {
@@ -10,120 +10,166 @@ class VoiceSearchDialog extends StatefulWidget {
   State<VoiceSearchDialog> createState() => _VoiceSearchDialogState();
 }
 
-class _VoiceSearchDialogState extends State<VoiceSearchDialog> {
-  late stt.SpeechToText _speech;
-  bool _isListening = false;
-  String _text = 'Listening...';
-  String _lastWords = '';
+class _VoiceSearchDialogState extends State<VoiceSearchDialog> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late VoiceAssistantService _voiceService;
 
   @override
   void initState() {
     super.initState();
-    _speech = stt.SpeechToText();
-    _startListening();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat();
+
+    // Start listening automatically
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _voiceService = VoiceAssistantService();
+      _voiceService.startListening(context: context);
+    });
   }
 
-  void _startListening() async {
-    bool available = await _speech.initialize(
-      onStatus: (status) {
-        debugPrint('STT Status: $status');
-        if (status == 'done' || status == 'notListening') {
-          setState(() => _isListening = false);
-          if (_lastWords.isNotEmpty) {
-            Future.delayed(const Duration(milliseconds: 500), () {
-              if (mounted) Navigator.pop(context, _lastWords);
-            });
-          }
-        }
-      },
-      onError: (error) => debugPrint('STT Error: $error'),
-    );
-
-    if (available) {
-      setState(() => _isListening = true);
-      _speech.listen(
-        onResult: (SpeechRecognitionResult result) {
-          setState(() {
-            _lastWords = result.recognizedWords;
-            _text = _lastWords;
-          });
-        },
-        localeId: 'hi_IN', // Set to Hindi for Fufaji's audience
-      );
-    } else {
-      setState(() {
-        _isListening = false;
-        _text = "Voice search unavailable";
-      });
-    }
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'बोलिए...',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.primary,
-              ),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'Speak now to search products',
-              style: TextStyle(fontSize: 14, color: AppTheme.grey600),
-            ),
-            const SizedBox(height: 40),
-            Material(
-              elevation: _isListening ? 12.0 : 4.0,
-              shape: const CircleBorder(),
-              child: CircleAvatar(
-                backgroundColor: _isListening
-                    ? AppTheme.primary
-                    : AppTheme.grey300,
-                radius: _isListening ? 45 : 40,
-                child: Icon(
-                  _isListening ? Icons.mic : Icons.mic_none,
-                  size: 40,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            const SizedBox(height: 40),
-            Container(
-              padding: const EdgeInsets.all(16),
+    return ChangeNotifierProvider.value(
+      value: VoiceAssistantService(),
+      child: Consumer<VoiceAssistantService>(
+        builder: (context, voiceService, child) {
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            child: Container(
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppTheme.grey100,
-                borderRadius: BorderRadius.circular(12),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(32),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 20,
+                    spreadRadius: 5,
+                  )
+                ],
               ),
-              child: Text(
-                _text,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontStyle: FontStyle.italic,
-                  color: AppTheme.grey800,
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Fufaji Voice',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.primary,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: AppTheme.grey400),
+                        onPressed: () {
+                          voiceService.stopListening();
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  _buildAnimatedMic(voiceService.isListening),
+                  const SizedBox(height: 30),
+                  Text(
+                    voiceService.statusMessage,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: voiceService.isListening ? AppTheme.primary : AppTheme.grey800,
+                    ),
+                  ),
+                  if (voiceService.lastWords.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: AppTheme.grey100,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        '"${voiceService.lastWords}"',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontStyle: FontStyle.italic,
+                          color: AppTheme.grey600,
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 30),
+                  const Text(
+                    'Try: "Aloo add karo" or "Revenue batao"',
+                    style: TextStyle(fontSize: 12, color: AppTheme.grey400),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 24),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: AppTheme.error),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildAnimatedMic(bool isListening) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            if (isListening)
+              ...List.generate(3, (index) {
+                final double progress = (_controller.value + index / 3) % 1.0;
+                return Container(
+                  width: 80 + (progress * 80),
+                  height: 80 + (progress * 80),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: AppTheme.primary.withValues(alpha: 1.0 - progress),
+                      width: 2,
+                    ),
+                  ),
+                );
+              }),
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: isListening ? AppTheme.primary : AppTheme.grey300,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  if (isListening)
+                    BoxShadow(
+                      color: AppTheme.primary.withValues(alpha: 0.4),
+                      blurRadius: 20,
+                      spreadRadius: 2,
+                    )
+                ],
+              ),
+              child: Icon(
+                isListening ? Icons.mic : Icons.mic_none,
+                size: 40,
+                color: Colors.white,
               ),
             ),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 }

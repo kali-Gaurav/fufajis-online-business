@@ -53,7 +53,7 @@ class WeatherService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return _parseWeather(data);
+        return _parseWeather(data as Map<String, dynamic>);
       }
     } catch (e) {
       debugPrint('WeatherService error: $e');

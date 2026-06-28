@@ -1,324 +1,389 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import '../providers/product_provider.dart';
-import '../providers/order_provider.dart';
-import '../models/product_model.dart';
-import '../models/order_model.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+import '../providers/auth_provider.dart';
+import '../providers/product_provider.dart';
+import '../providers/cart_provider.dart';
+import '../models/product_model.dart';
+import '../models/user_model.dart';
+import 'voice_command_service.dart';
+import 'api_client.dart';
+import '../utils/monetary_value.dart';
 
-/// Executes parsed voice commands (from GeminiService) against Firestore.
+/// Centralized Voice Command Executor for Fufaji Online.
+/// Handles execution of all parsed voice intents.
 class VoiceCommandExecutor {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
-
-  /// Main entry point. Takes the parsed command map and executes the intent.
-  /// Returns a human-readable confirmation message.
-  Future<String> execute(
-    Map<String, dynamic> command,
+  static Future<String> execute(
+    VoiceCommand command,
     BuildContext context,
   ) async {
-    try {
-      final action = (command['action'] as String? ?? '').toUpperCase();
-      final name = command['name'] as String? ?? '';
-      final quantity = (command['quantity'] ?? 0).toDouble();
-      final unit = command['unit'] as String? ?? 'kg';
-      final price = (command['price'] ?? 0.0).toDouble();
-      final orderId = command['orderId'] as String?;
-      final status = command['status'] as String?;
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final user = auth.currentUser;
 
-      switch (action) {
-        case 'ADD':
-          return await _handleAdd(context, name, quantity, unit, price);
-
-        case 'UPDATE':
-          return await _handleUpdate(context, name, quantity, unit, price);
-
-        case 'DELETE':
-          return await _handleDelete(context, name);
-
-        case 'ORDER_STATUS':
-          return await _handleOrderStatus(context, orderId, name, status);
-
-        case 'REPORT':
-          return await _handleReport(context);
-
-        default:
-          return 'Samajh nahi aaya. Dobara boliye.';
-      }
-    } catch (e) {
-      debugPrint('[VoiceCommandExecutor] execute error: $e');
-      return 'Error: ${e.toString().substring(0, 50)}';
+    switch (command.type) {
+      case VoiceCommandType.updateStock:
+        return _executeUpdateStock(command, context, user);
+      case VoiceCommandType.checkStock:
+        return _executeCheckStock(command, context);
+      case VoiceCommandType.markOrderDelivered:
+        return _executeMarkOrderDelivered(command, context, user);
+      case VoiceCommandType.getTodayOrders:
+        return _executeGetTodayOrders(command, context, user);
+      case VoiceCommandType.getRevenue:
+        return _executeGetRevenue(command, context, user);
+      case VoiceCommandType.addToCart:
+        return _executeAddToCart(command, context);
+      case VoiceCommandType.searchProduct:
+        return _executeSearchProduct(command, context);
+      case VoiceCommandType.getLowStock:
+        return _executeGetLowStock(command, context, user);
+      case VoiceCommandType.getExpiringItems:
+        return _executeGetExpiringItems(command, context, user);
+      case VoiceCommandType.setPrice:
+        return _executeSetPrice(command, context, user);
+      case VoiceCommandType.addProduct:
+        return _executeAddProduct(command, context, user);
+      case VoiceCommandType.getHelp:
+        return _executeGetHelp(command, context, user);
+      case VoiceCommandType.unknown:
+        return 'Maaf kijiye, mujhe samajh nahi aaya.';
     }
   }
 
-  // ─── ADD / UPDATE STOCK ────────────────────────────────────────────────────
+  // ─── CUSTOMER ACTIONS ──────────────────────────────────────────────────────
 
-  Future<String> _handleAdd(
+  static Future<String> _executeSearchProduct(
+    VoiceCommand cmd,
     BuildContext context,
-    String name,
-    double quantity,
-    String unit,
-    double price,
   ) async {
-    final existing = await findProductByName(name);
+    final query = cmd.parameters['query'] as String? ?? '';
+    if (query.isNotEmpty) {
+      context.push('/customer/search?q=${Uri.encodeComponent(query)}');
+      return 'Main "$query" dhundh raha hoon.';
+    }
+    return 'Dhundhne ke liye kuch boliye.';
+  }
 
-    if (existing != null) {
-      // Product already exists — increment stock
-      final currentQty = ((existing.data() as Map<String, dynamic>?)?['stockQuantity'] ?? 0).toDouble();
-      final newQty = currentQty + quantity;
-      await existing.reference.update({
-        'stockQuantity': newQty,
-        'updatedAt': FieldValue.serverTimestamp(),
+  static Future<String> _executeAddToCart(
+    VoiceCommand cmd,
+    BuildContext context,
+  ) async {
+    try {
+      final cartProvider = Provider.of<CartProvider>(context, listen: false);
+      final productProvider = Provider.of<ProductProvider>(context, listen: false);
+      
+      // Use Backend Gemini for smarter parsing and searching
+      final response = await ApiClient.instance.post('/ai/voice-to-cart', {
+        'transcript': cmd.parameters['raw_text'] ?? cmd.parameters['product'] ?? '',
       });
-      // Refresh provider
-      if (context.mounted) {
-        Provider.of<ProductProvider>(context, listen: false)
-            .updateShopId(Provider.of<ProductProvider>(context, listen: false).currentShopId);
+
+      if (response.data['success'] == true) {
+        final List items = response.data['cartItems'];
+        int addedCount = 0;
+        String names = '';
+
+        for (var item in items) {
+          if (item['matchFound'] == true) {
+            // Find in local cache to get full model
+            final localProduct = productProvider.products.firstWhere(
+              (p) => p.id == item['productId'],
+              orElse: () => ProductModel.fromMap({...item, 'id': item['productId'], 'name': item['originalName']}),
+            );
+
+            final qty = (item['quantity'] as num?)?.toInt() ?? 1;
+            for (int i = 0; i < qty; i++) {
+              cartProvider.addItem(localProduct);
+            }
+            addedCount++;
+            names += '${item['originalName']}, ';
+          }
+        }
+
+        if (addedCount > 0) {
+          return 'Theek hai, maine ${names.substring(0, names.length - 2)} cart mein daal diya hai.';
+        }
       }
-      return 'Stock updated: ${name.capitalize()} — ${newQty.toStringAsFixed(0)} $unit total';
-    } else {
-      // New product
-      final shopId = context.mounted
-          ? Provider.of<ProductProvider>(context, listen: false).currentShopId ?? 'default'
-          : 'default';
-      final newProduct = ProductModel(
-        id: 'p_${DateTime.now().millisecondsSinceEpoch}',
-        name: name.capitalize(),
-        price: price > 0 ? price : 0.0,
-        stockQuantity: quantity.toInt(),
-        unit: unit,
-        category: 'vegetables',
-        description: 'Voice added product',
-        district: 'Jaipur',
-        createdAt: DateTime.now(),
+
+      // Fallback to local logic if AI fails or no matches
+      final productName = (cmd.parameters['product'] as String? ?? '').toLowerCase();
+      final qty = (cmd.parameters['quantity'] as num?)?.toInt() ?? 1;
+
+      final product = productProvider.products.firstWhere(
+        (p) => p.name.toLowerCase().contains(productName),
+        orElse: () => throw Exception('Product "$productName" nahi mila.'),
+      );
+
+      for (int i = 0; i < qty; i++) {
+        cartProvider.addItem(product);
+      }
+      return '${product.name} ki $qty unit cart mein daal di hai.';
+    } catch (e) {
+      return 'Maaf kijiye, main ye add nahi kar paya. Dobara koshish karein.';
+    }
+  }
+
+  // ─── OWNER / EMPLOYEE ACTIONS ──────────────────────────────────────────────
+
+  static Future<String> _executeUpdateStock(
+    VoiceCommand cmd,
+    BuildContext context,
+    UserModel? user,
+  ) async {
+    if (user?.role != UserRole.owner && user?.role != UserRole.superAdmin && user?.role != UserRole.employee) {
+      return 'Ye command sirf owner ya employee use kar sakte hain.';
+    }
+
+    try {
+      final productProvider = Provider.of<ProductProvider>(context, listen: false);
+      final productName = (cmd.parameters['product'] as String? ?? '').toLowerCase();
+      final qty = (cmd.parameters['quantity'] as num?)?.toInt() ?? 0;
+
+      final product = productProvider.products.firstWhere(
+        (p) => p.name.toLowerCase().contains(productName),
+        orElse: () => throw Exception('Product nahi mila.'),
+      );
+
+      final updated = product.copyWith(
+        stockQuantity: product.stockQuantity + qty,
         updatedAt: DateTime.now(),
-        shopId: shopId,
+      );
+      await productProvider.updateProduct(updated);
+
+      return '${product.name} ka stock ab ${updated.stockQuantity} ho gaya hai.';
+    } catch (e) {
+      return 'Stock update fail ho gaya.';
+    }
+  }
+
+  static Future<String> _executeCheckStock(
+    VoiceCommand cmd,
+    BuildContext context,
+  ) async {
+    try {
+      final productProvider = Provider.of<ProductProvider>(context, listen: false);
+      final productName = (cmd.parameters['product'] as String? ?? '').toLowerCase();
+
+      final product = productProvider.products.firstWhere(
+        (p) => p.name.toLowerCase().contains(productName),
+        orElse: () => throw Exception('Product nahi mila.'),
+      );
+
+      return '${product.name} ka stock abhi ${product.stockQuantity} ${product.unit} hai.';
+    } catch (e) {
+      return 'Maal check nahi ho paya.';
+    }
+  }
+
+  static Future<String> _executeMarkOrderDelivered(
+    VoiceCommand cmd,
+    BuildContext context,
+    UserModel? user,
+  ) async {
+    if (user?.role != UserRole.owner && user?.role != UserRole.rider) {
+      return 'Sirf delivery agent ya owner ye kar sakte hain.';
+    }
+
+    try {
+      final orderNumber = cmd.parameters['orderNumber'] as String? ?? '';
+      final db = FirebaseFirestore.instance;
+
+      final snap = await db
+          .collection('orders')
+          .where('orderNumber', isEqualTo: orderNumber)
+          .limit(1)
+          .get();
+
+      if (snap.docs.isEmpty) return 'Order #$orderNumber nahi mila.';
+
+      await snap.docs.first.reference.update({
+        'status': 'OrderStatus.delivered',
+        'deliveredAt': FieldValue.serverTimestamp(),
+      });
+
+      return 'Order #$orderNumber delivered mark kar diya hai.';
+    } catch (e) {
+      return 'Order update fail ho gaya.';
+    }
+  }
+
+  static Future<String> _executeGetRevenue(
+    VoiceCommand cmd,
+    BuildContext context,
+    UserModel? user,
+  ) async {
+    if (user?.role != UserRole.owner && user?.role != UserRole.superAdmin) {
+      return 'Sirf owner hi kamai dekh sakte hain.';
+    }
+
+    try {
+      final db = FirebaseFirestore.instance;
+      final today = DateTime.now();
+      final startOfDay = DateTime(today.year, today.month, today.day);
+
+      final snap = await db
+          .collection('orders')
+          .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
+          .get();
+
+      double total = 0;
+      for (final doc in snap.docs) {
+        total += (doc.data()['totalAmount'] as num? ?? 0).toDouble();
+      }
+
+      if (context.mounted) {
+        context.push('/owner/analytics');
+      }
+      return 'Aaj ki total kamai ₹${total.toStringAsFixed(0)} hai.';
+    } catch (e) {
+      return 'Data nahi mil raha.';
+    }
+  }
+
+  static Future<String> _executeGetTodayOrders(
+    VoiceCommand cmd,
+    BuildContext context,
+    UserModel? user,
+  ) async {
+    try {
+      final db = FirebaseFirestore.instance;
+      final today = DateTime.now();
+      final startOfDay = DateTime(today.year, today.month, today.day);
+
+      final query = db.collection('orders').where(
+        'createdAt',
+        isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay),
+      );
+
+      final snap = user?.role == UserRole.customer
+          ? await query.where('customerId', isEqualTo: user?.id).get()
+          : await query.get();
+
+      final count = snap.docs.length;
+      
+      if (user?.role == UserRole.owner) {
+        context.push('/owner/orders');
+      } else {
+        context.push('/customer/orders');
+      }
+
+      return 'Aaj $count orders aaye hain.';
+    } catch (e) {
+      return 'Orders check nahi ho paye.';
+    }
+  }
+
+  static Future<String> _executeGetLowStock(
+    VoiceCommand cmd,
+    BuildContext context,
+    UserModel? user,
+  ) async {
+    if (user?.role != UserRole.owner && user?.role != UserRole.superAdmin) {
+      return 'Ye command aapke liye nahi hai.';
+    }
+
+    final productProvider = Provider.of<ProductProvider>(context, listen: false);
+    final lowStock = productProvider.products
+        .where((p) => p.stockQuantity < p.minimumStock)
+        .toList();
+
+    if (lowStock.isEmpty) return 'Saara maal stock mein hai!';
+
+    context.push('/owner/inventory-alerts');
+    return '${lowStock.length} items kam hain. List screen par dikha raha hoon.';
+  }
+
+  static Future<String> _executeGetExpiringItems(
+    VoiceCommand cmd,
+    BuildContext context,
+    UserModel? user,
+  ) async {
+    if (user?.role != UserRole.owner && user?.role != UserRole.superAdmin) {
+      return 'Ye command aapke liye nahi hai.';
+    }
+
+    context.push('/owner/expiry-tracking');
+    return 'Expiry hone wale items ki list dikha raha hoon.';
+  }
+
+  static Future<String> _executeSetPrice(
+    VoiceCommand cmd,
+    BuildContext context,
+    UserModel? user,
+  ) async {
+    if (user?.role != UserRole.owner && user?.role != UserRole.superAdmin) {
+      return 'Sirf owner price change kar sakte hain.';
+    }
+
+    try {
+      final productProvider = Provider.of<ProductProvider>(context, listen: false);
+      final productName = (cmd.parameters['product'] as String? ?? '').toLowerCase();
+      final price = (cmd.parameters['price'] as num?)?.toDouble() ?? 0.0;
+
+      final product = productProvider.products.firstWhere(
+        (p) => p.name.toLowerCase().contains(productName),
+        orElse: () => throw Exception('Product nahi mila.'),
+      );
+
+      await productProvider.updateProduct(product.copyWith(price: MonetaryValue(price)));
+      return '${product.name} ka price ₹$price set kar diya hai.';
+    } catch (e) {
+      return 'Price update fail ho gaya.';
+    }
+  }
+
+  static Future<String> _executeAddProduct(
+    VoiceCommand cmd,
+    BuildContext context,
+    UserModel? user,
+  ) async {
+    if (user?.role != UserRole.owner && user?.role != UserRole.superAdmin) {
+      return 'Sirf owner product add kar sakte hain.';
+    }
+
+    try {
+      final productProvider = Provider.of<ProductProvider>(context, listen: false);
+      final name = cmd.parameters['name'] as String? ?? 'Naya Item';
+      final price = (cmd.parameters['price'] as num?)?.toDouble() ?? 0.0;
+      final qty = (cmd.parameters['quantity'] as num?)?.toInt() ?? 0;
+
+      final newProduct = ProductModel(
+        id: 'v_${DateTime.now().millisecondsSinceEpoch}',
+        name: name,
+        description: 'Added via voice command',
+        price: MonetaryValue(price),
+        stockQuantity: qty,
+        unit: 'piece',
+        categoryId: 'other',
+        category: 'other',
+        shopId: productProvider.currentShopId ?? 'shop_001',
         shopName: 'Fufaji Online',
         imageUrl: '',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        district: user?.district ?? 'Jaipur',
       );
-      if (context.mounted) {
-        await Provider.of<ProductProvider>(context, listen: false).addProduct(newProduct);
-      }
-      return 'New product added: ${name.capitalize()} — ${quantity.toStringAsFixed(0)} $unit';
+
+      await productProvider.addProduct(newProduct);
+      return '$name product add ho gaya hai.';
+    } catch (e) {
+      return 'Product add nahi hua.';
     }
   }
 
-  Future<String> _handleUpdate(
+  static Future<String> _executeGetHelp(
+    VoiceCommand cmd,
     BuildContext context,
-    String name,
-    double quantity,
-    String unit,
-    double price,
+    UserModel? user,
   ) async {
-    final existing = await findProductByName(name);
-    if (existing == null) {
-      return 'Product not found: $name. "Add" se try karein.';
+    if (user?.role == UserRole.owner || user?.role == UserRole.superAdmin) {
+      return 'Aap stock update kar sakte hain, jaise "Aloo ka stock 10 kilo kar do". '
+          'Ya aaj ki kamai puch sakte hain: "Aaj kitna revenue hua?". '
+          'Saare orders dekhne ke liye boliye: "Aaj ke orders dikhao".';
+    } else {
+      return 'Aap koi bhi saman dhundh sakte hain, jaise "Taaza tamatar dikhao". '
+          'Saman cart mein daalne ke liye boliye: "Do kilo chawal add karo". '
+          'Apne orders dekhne ke liye boliye: "Mere orders dikhao".';
     }
-    final updateData = <String, dynamic>{
-      'stockQuantity': quantity.toInt(),
-      'updatedAt': FieldValue.serverTimestamp(),
-    };
-    if (price > 0) updateData['price'] = price;
-    await existing.reference.update(updateData);
-    if (context.mounted) {
-      Provider.of<ProductProvider>(context, listen: false)
-          .updateShopId(Provider.of<ProductProvider>(context, listen: false).currentShopId);
-    }
-    return 'Stock set: ${name.capitalize()} — ${quantity.toStringAsFixed(0)} $unit';
-  }
-
-  Future<String> _handleDelete(BuildContext context, String name) async {
-    final existing = await findProductByName(name);
-    if (existing == null) {
-      return 'Product not found: $name';
-    }
-    await existing.reference.update({
-      'isAvailable': false,
-      'stockQuantity': 0,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-    if (context.mounted) {
-      Provider.of<ProductProvider>(context, listen: false)
-          .updateShopId(Provider.of<ProductProvider>(context, listen: false).currentShopId);
-    }
-    return 'Product unavailable: ${name.capitalize()} — stock 0 kar diya';
-  }
-
-  // ─── ORDER STATUS ──────────────────────────────────────────────────────────
-
-  Future<String> _handleOrderStatus(
-    BuildContext context,
-    String? orderId,
-    String name,
-    String? status,
-  ) async {
-    try {
-      // If orderId is a number string, try to find by orderNumber field
-      DocumentSnapshot? orderDoc;
-
-      if (orderId != null && orderId.isNotEmpty) {
-        // Try direct doc ID first
-        final directDoc = await _db.collection('orders').doc(orderId).get();
-        if (directDoc.exists) {
-          orderDoc = directDoc;
-        } else {
-          // Try orderNumber field
-          final query = await _db
-              .collection('orders')
-              .where('orderNumber', isEqualTo: orderId)
-              .limit(1)
-              .get();
-          if (query.docs.isNotEmpty) orderDoc = query.docs.first;
-        }
-      }
-
-      if (orderDoc == null) {
-        return 'Order #$orderId nahi mila.';
-      }
-
-      final newStatus = _normalizeOrderStatus(status ?? 'delivered');
-      await orderDoc.reference.update({
-        'status': newStatus,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-
-      if (context.mounted) {
-        await Provider.of<OrderProvider>(context, listen: false)
-            .updateOrderStatus(orderDoc.id, _parseOrderStatus(newStatus));
-      }
-
-      return 'Order #$orderId — status: ${newStatus.split('.').last}';
-    } catch (e) {
-      debugPrint('[VoiceCommandExecutor] order status error: $e');
-      return 'Order update mein error aaya: ${e.toString().substring(0, 40)}';
-    }
-  }
-
-  String _normalizeOrderStatus(String raw) {
-    final lower = raw.toLowerCase();
-    if (lower.contains('deliver')) return 'OrderStatus.delivered';
-    if (lower.contains('cancel')) return 'OrderStatus.cancelled';
-    if (lower.contains('confirm')) return 'OrderStatus.confirmed';
-    if (lower.contains('process')) return 'OrderStatus.processing';
-    if (lower.contains('pack')) return 'OrderStatus.packed';
-    if (lower.contains('outfor') || lower.contains('out for')) return 'OrderStatus.outForDelivery';
-    return 'OrderStatus.delivered';
-  }
-
-  OrderStatus _parseOrderStatus(String status) {
-    if (status.contains('delivered')) return OrderStatus.delivered;
-    if (status.contains('cancelled')) return OrderStatus.cancelled;
-    if (status.contains('confirmed')) return OrderStatus.confirmed;
-    if (status.contains('processing')) return OrderStatus.processing;
-    if (status.contains('packed')) return OrderStatus.packed;
-    if (status.contains('outForDelivery')) return OrderStatus.outForDelivery;
-    return OrderStatus.delivered;
-  }
-
-  // ─── REPORT ───────────────────────────────────────────────────────────────
-
-  Future<String> _handleReport(BuildContext context) async {
-    try {
-      final now = DateTime.now();
-      final todayStart = DateTime(now.year, now.month, now.day);
-      final snap = await _db
-          .collection('orders')
-          .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(todayStart))
-          .get();
-      final count = snap.docs.length;
-      final revenue = snap.docs.fold<double>(
-        0.0,
-        (sum, d) => sum + ((d.data()['totalAmount'] ?? 0.0) as num).toDouble(),
-      );
-      return 'Aaj ke orders: $count, Revenue: ₹${revenue.toStringAsFixed(0)}';
-    } catch (e) {
-      return 'Report fetch mein error: $e';
-    }
-  }
-
-  // ─── FUZZY PRODUCT SEARCH ─────────────────────────────────────────────────
-
-  /// Tries exact match first, then partial name match (case insensitive).
-  Future<DocumentSnapshot?> findProductByName(String name) async {
-    if (name.isEmpty) return null;
-
-    final nameLower = name.toLowerCase().trim();
-
-    // 1. Try exact match on 'name' field (case insensitive via tags or lowercase fields)
-    try {
-      // Search in products collection group
-      final exactQuery = await _db
-          .collectionGroup('products')
-          .where('nameLower', isEqualTo: nameLower)
-          .limit(1)
-          .get();
-      if (exactQuery.docs.isNotEmpty) return exactQuery.docs.first;
-    } catch (_) {}
-
-    // 2. Search in root products collection
-    try {
-      final rootQuery = await _db
-          .collection('products')
-          .where('nameLower', isEqualTo: nameLower)
-          .limit(1)
-          .get();
-      if (rootQuery.docs.isNotEmpty) return rootQuery.docs.first;
-    } catch (_) {}
-
-    // 3. Fallback: get all products and do a client-side fuzzy match
-    try {
-      final allSnap = await _db.collection('products').limit(200).get();
-      for (final doc in allSnap.docs) {
-        final docName = (doc.data()['name'] as String? ?? '').toLowerCase();
-        if (docName.contains(nameLower) || nameLower.contains(docName)) {
-          return doc;
-        }
-        // Also check tags
-        final tags = List<String>.from(doc.data()['tags'] ?? []);
-        if (tags.any((t) => t.toLowerCase().contains(nameLower))) {
-          return doc;
-        }
-      }
-    } catch (e) {
-      debugPrint('[VoiceCommandExecutor] fuzzy search error: $e');
-    }
-
-    return null;
-  }
-
-  /// Build a confirmation message from the command map and success flag.
-  String buildConfirmationMessage(
-    Map<String, dynamic> command,
-    bool success,
-  ) {
-    if (!success) return 'Command fail ho gaya. Dobara try karein.';
-
-    final action = (command['action'] as String? ?? '').toUpperCase();
-    final name = command['name'] as String? ?? '';
-    final quantity = command['quantity'] ?? '';
-    final unit = command['unit'] as String? ?? '';
-
-    switch (action) {
-      case 'ADD':
-        return 'Stock added: $quantity$unit ${name.capitalize()}';
-      case 'UPDATE':
-        return 'Stock updated: ${name.capitalize()} — $quantity$unit';
-      case 'DELETE':
-        return 'Product removed: ${name.capitalize()}';
-      case 'ORDER_STATUS':
-        return 'Order ${command['orderId'] ?? ''} updated!';
-      case 'REPORT':
-        return 'Report ready!';
-      default:
-        return 'Done!';
-    }
-  }
-}
-
-// ─── EXTENSIONS ───────────────────────────────────────────────────────────────
-
-extension _StringCap on String {
-  String capitalize() {
-    if (isEmpty) return this;
-    return '${this[0].toUpperCase()}${substring(1)}';
   }
 }

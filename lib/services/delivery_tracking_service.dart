@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter_background_service/flutter_background_service.dart';
-import 'package:flutter_background_service_android/flutter_background_service_android.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -58,7 +57,7 @@ class DeliveryTrackingService {
     });
 
     service.on('startTracking').listen((event) {
-      final String? deliveryId = event?['deliveryId'];
+      final String? deliveryId = event?['deliveryId'] as String?;
       if (deliveryId != null) {
         _startTrackingLocation(service, deliveryId);
       }

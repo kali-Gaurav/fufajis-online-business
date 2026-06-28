@@ -1,21 +1,12 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'remote_config_service.dart';
+import 'api_client.dart';
 
 /// Enterprise WhatsApp Service using Meta Business API
-///
-/// Requirements:
-/// 1. Meta App ID
-/// 2. Permanent Access Token
-/// 3. Verified Phone Number ID
+/// Routed securely through Cloud Functions.
 class MetaWhatsAppService {
   static final MetaWhatsAppService _instance = MetaWhatsAppService._internal();
   factory MetaWhatsAppService() => _instance;
   MetaWhatsAppService._internal();
-
-  final _remoteConfig = RemoteConfigService();
 
   // Template Names (Must be approved in Meta Business Suite)
   static const String templateOrderConfirmed = 'order_confirmed_v2';
@@ -29,53 +20,28 @@ class MetaWhatsAppService {
     required String templateName,
     required List<String> parameters,
   }) async {
-    final String accessToken = dotenv.get('WHATSAPP_TOKEN', fallback: '');
-    final String phoneId = dotenv.get('WHATSAPP_PHONE_ID', fallback: '');
-
-    if (accessToken.isEmpty || phoneId.isEmpty) {
-      debugPrint(
-        'WhatsApp Error: Live API Credentials not found in environment.',
-      );
-      return false;
-    }
-
-    final url = Uri.parse('https://graph.facebook.com/v18.0/$phoneId/messages');
-
     try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Authorization': 'Bearer $accessToken',
-          'Content-Type': 'application/json',
+      final result = await ApiClient().post('/whatsapp/send', <String, dynamic>{
+        'to': recipientPhone.replaceAll('+', '').replaceAll(RegExp(r'[^\d]'), ''),
+        'type': 'template',
+        'template': {
+          "name": templateName,
+          "language": {"code": "en_US"},
+          "components": [
+            {
+              "type": "body",
+              "parameters": parameters
+                  .map((p) => {"type": "text", "text": p})
+                  .toList(),
+            },
+          ],
         },
-        body: jsonEncode({
-          "messaging_product": "whatsapp",
-          "to": recipientPhone.replaceAll('+', ''),
-          "type": "template",
-          "template": {
-            "name": templateName,
-            "language": {"code": "en_US"},
-            "components": [
-              {
-                "type": "body",
-                "parameters": parameters
-                    .map((p) => {"type": "text", "text": p})
-                    .toList(),
-              },
-            ],
-          },
-        }),
-      );
+      });
 
-      if (response.statusCode == 200) {
-        debugPrint('WhatsApp Sent: $templateName to $recipientPhone');
-        return true;
-      } else {
-        debugPrint('WhatsApp Meta API Error: ${response.body}');
-        return false;
-      }
+      final resData = Map<String, dynamic>.from(result.data as Map);
+      return resData['success'] == true;
     } catch (e) {
-      debugPrint('WhatsApp Exception: $e');
+      debugPrint('WhatsApp Meta API Error via ApiClient: $e');
       return false;
     }
   }

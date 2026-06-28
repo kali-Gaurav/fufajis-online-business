@@ -1,10 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import '../models/order_model.dart';
+import '../models/invoice_model.dart';
 import '../config/app_config.dart';
 import 'package:intl/intl.dart';
+import 'gst_service.dart';
+import '../utils/pdf_theme.dart';
 
 class InvoiceService {
   /// Generates a professional Invoice ID and updates Firestore
@@ -59,7 +63,7 @@ class InvoiceService {
                         style: pw.TextStyle(
                           font: boldFont,
                           fontSize: isThermal ? 14 : 22,
-                          color: PdfColors.blue900,
+                          color: PdfAppTheme.info900,
                         ),
                       ),
                       pw.SizedBox(height: 2),
@@ -234,12 +238,12 @@ class InvoiceService {
                     crossAxisAlignment: pw.CrossAxisAlignment.end,
                     children: [
                       _summaryRow('Subtotal',
-                          order.subtotal, font, isThermal),
+                          order.subtotal.toDouble(), font, isThermal),
                       _summaryRow('Delivery',
-                          order.deliveryCharge, font, isThermal),
-                      if (order.discount > 0)
+                          order.deliveryCharge.toDouble(), font, isThermal),
+                      if (order.discount.toDouble() > 0)
                         _summaryRow(
-                            'Discount', -order.discount, font, isThermal),
+                            'Discount', -order.discount.toDouble(), font, isThermal),
                       // GST – configurable; currently 0% as per shop setup
                       _summaryRow(
                           'GST (0%)', 0.0, font, isThermal,
@@ -256,7 +260,7 @@ class InvoiceService {
                             style: pw.TextStyle(
                               font: boldFont,
                               fontSize: isThermal ? 10 : 14,
-                              color: PdfColors.blue900,
+                              color: PdfAppTheme.info900,
                             ),
                           ),
                         ],
@@ -294,6 +298,161 @@ class InvoiceService {
 
     await Printing.layoutPdf(
         onLayout: (PdfPageFormat format) async => pdf.save());
+  }
+
+  static Future<List<InvoiceModel>> getCustomerInvoices(String customerId) async {
+    final snap = await FirebaseFirestore.instance
+        .collection('invoices')
+        .where('customerId', isEqualTo: customerId)
+        .orderBy('issueDate', descending: true)
+        .get();
+    return snap.docs.map((doc) => InvoiceModel.fromDocSnapshot(doc)).toList();
+  }
+
+  static Future<List<InvoiceModel>> getShopInvoices(
+    String shopId, {
+    DateTime? startDate,
+    DateTime? endDate,
+    PaymentStatus? paymentStatus,
+  }) async {
+    Query query = FirebaseFirestore.instance
+        .collection('invoices')
+        .where('shopId', isEqualTo: shopId);
+
+    if (startDate != null) {
+      query = query.where('issueDate', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate));
+    }
+    if (endDate != null) {
+      query = query.where('issueDate', isLessThanOrEqualTo: Timestamp.fromDate(endDate));
+    }
+    if (paymentStatus != null) {
+      query = query.where('paymentStatus', isEqualTo: paymentStatus.json);
+    }
+
+    final snap = await query.get();
+    return snap.docs.map((doc) => InvoiceModel.fromDocSnapshot(doc)).toList();
+  }
+
+  static Future<InvoiceModel?> getInvoice(String invoiceId) async {
+    final doc = await FirebaseFirestore.instance
+        .collection('invoices')
+        .doc(invoiceId)
+        .get();
+    if (!doc.exists) return null;
+    return InvoiceModel.fromDocSnapshot(doc);
+  }
+
+  static Future<Uint8List> generateInvoicePDF(InvoiceModel invoice) async {
+    final pdf = pw.Document();
+    final font = await PdfGoogleFonts.notoSansRegular();
+    final boldFont = await PdfGoogleFonts.notoSansBold();
+
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(24),
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text('TAX INVOICE', style: pw.TextStyle(font: boldFont, fontSize: 22)),
+              pw.SizedBox(height: 10),
+              pw.Text('Invoice #: ${invoice.invoiceNumber}', style: pw.TextStyle(font: font, fontSize: 12)),
+              pw.Text('Date: ${DateFormat('dd MMM yyyy').format(invoice.issueDate)}', style: pw.TextStyle(font: font, fontSize: 12)),
+              pw.SizedBox(height: 20),
+              pw.Text('BILL TO:', style: pw.TextStyle(font: boldFont, fontSize: 10)),
+              pw.Text(invoice.customerName, style: pw.TextStyle(font: boldFont, fontSize: 12)),
+              if (invoice.billingAddress != null) pw.Text(invoice.billingAddress!, style: pw.TextStyle(font: font, fontSize: 10)),
+              pw.SizedBox(height: 20),
+              pw.Table(
+                border: pw.TableBorder.all(color: PdfColors.grey300),
+                children: [
+                  pw.TableRow(
+                    decoration: const pw.BoxDecoration(color: PdfColors.grey200),
+                    children: [
+                      _cell('Item', boldFont, 9),
+                      _cell('Qty', boldFont, 9),
+                      _cell('Rate', boldFont, 9),
+                      _cell('Amt', boldFont, 9),
+                    ],
+                  ),
+                  ...invoice.items.map((item) => pw.TableRow(
+                        children: [
+                          _cell(item.productName, font, 8),
+                          _cell('${item.quantity}', font, 8),
+                          _cell('Rs ${item.unitPrice.toStringAsFixed(2)}', font, 8),
+                          _cell('Rs ${item.amount.toStringAsFixed(2)}', boldFont, 8),
+                        ],
+                      )),
+                ],
+              ),
+              pw.SizedBox(height: 20),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.end,
+                children: [
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.end,
+                    children: [
+                      pw.Text('Subtotal: Rs ${invoice.subtotal.toStringAsFixed(2)}', style: pw.TextStyle(font: font, fontSize: 10)),
+                      pw.Text('Tax: Rs ${invoice.totalTax.toStringAsFixed(2)}', style: pw.TextStyle(font: font, fontSize: 10)),
+                      if (invoice.discount.toDouble() > 0) pw.Text('Discount: -Rs ${invoice.discount.toStringAsFixed(2)}', style: pw.TextStyle(font: font, fontSize: 10)),
+                      pw.Divider(),
+                      pw.Text('GRAND TOTAL: Rs ${invoice.grandTotal.toStringAsFixed(2)}', style: pw.TextStyle(font: boldFont, fontSize: 14)),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+    );
+    return pdf.save();
+  }
+
+  static Future<void> sendInvoiceEmail(String invoiceId, String email, Uint8List pdfBytes) async {
+    debugPrint('[InvoiceService] Sending invoice $invoiceId to $email');
+  }
+
+  static Future<void> updatePaymentStatus(String invoiceId, PaymentStatus status) async {
+    await FirebaseFirestore.instance.collection('invoices').doc(invoiceId).update({
+      'paymentStatus': status.json,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  static Future<GSTReport> generateGSTReport(
+    String shopId, {
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    final invoices = await getShopInvoices(shopId, startDate: startDate, endDate: endDate);
+    
+    double totalSales = 0;
+    Map<double, double> taxByRate = {};
+
+    for (var inv in invoices) {
+      totalSales += inv.subtotal.toDouble();
+      final breakdown = inv.getTaxBreakdown();
+      for (var entry in breakdown.entries) {
+        taxByRate[entry.key] = (taxByRate[entry.key] ?? 0) + entry.value;
+      }
+    }
+
+    return GSTReport(
+      period: "${DateFormat('MMM yyyy').format(startDate)} - ${DateFormat('MMM yyyy').format(endDate)}",
+      generatedAt: DateTime.now(),
+      totalSales: totalSales,
+      taxByRate: taxByRate,
+    );
+  }
+
+  static Future<void> saveGSTReport(String shopId, GSTReport report) async {
+    await FirebaseFirestore.instance
+        .collection('shops')
+        .doc(shopId)
+        .collection('gst_reports')
+        .add(report.toMap());
   }
 
   static pw.Widget _cell(String text, pw.Font font, double size) {

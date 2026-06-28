@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/scanner_service.dart';
+import '../../utils/app_theme.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ScanActivityScreen — Owner's real-time scan audit monitor
@@ -25,7 +26,7 @@ class ScanActivityScreen extends StatefulWidget {
 class _ScanActivityScreenState extends State<ScanActivityScreen> {
   String _filterMode = 'all';
   String _filterRole = 'all';
-  int _limitCount = 50;
+  final int _limitCount = 50;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +36,7 @@ class _ScanActivityScreenState extends State<ScanActivityScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scan Activity'),
+        title: const Text('Scan Activity', style: TextStyle(fontWeight: FontWeight.w700)),
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list),
@@ -86,14 +87,14 @@ class _ScanActivityScreenState extends State<ScanActivityScreen> {
                 if (snapshot.connectionState ==
                     ConnectionState.waiting) {
                   return const Center(
-                      child: CircularProgressIndicator());
+                      child: CircularProgressIndicator(color: AppTheme.ownerAccent));
                 }
 
                 if (snapshot.hasError) {
                   return Center(
                     child: Text(
                         'Error: ${snapshot.error}',
-                        style: const TextStyle(color: Colors.red)),
+                        style: const TextStyle(color: AppTheme.error)),
                   );
                 }
 
@@ -105,9 +106,13 @@ class _ScanActivityScreenState extends State<ScanActivityScreen> {
                 final filtered = docs.where((d) {
                   final data = d.data() as Map<String, dynamic>;
                   if (_filterMode != 'all' &&
-                      data['actionType'] != _filterMode) return false;
+                      data['actionType'] != _filterMode) {
+                    return false;
+                  }
                   if (_filterRole != 'all' &&
-                      data['employeeRole'] != _filterRole) return false;
+                      data['employeeRole'] != _filterRole) {
+                    return false;
+                  }
                   return true;
                 }).toList();
 
@@ -363,11 +368,11 @@ class _ScanLogTile extends StatelessWidget {
   Color _roleColor(String role) {
     switch (role) {
       case 'owner':
-        return Colors.blue;
+        return AppTheme.ownerAccent;
       case 'delivery':
-        return Colors.green;
+        return AppTheme.success;
       default:
-        return Colors.orange;
+        return AppTheme.warning;
     }
   }
 

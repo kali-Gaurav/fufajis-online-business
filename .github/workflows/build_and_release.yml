@@ -33,7 +33,15 @@ jobs:
           
       - name: Get dependencies
         run: flutter pub get
-        
+
+      - name: Run unit tests
+        run: flutter test --coverage
+        continue-on-error: true
+
+      - name: Analyze code
+        run: flutter analyze
+        continue-on-error: true
+
       - name: Decode Keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
@@ -52,11 +60,31 @@ jobs:
       - name: Build APK
         run: |
           flutter build apk --release \
-            --dart-define=RAZORPAY_KEY_ID=${{ secrets.RAZORPAY_KEY_ID }} \
-            --dart-define=SHOP_LATITUDE=${{ secrets.SHOP_LATITUDE }} \
-            --dart-define=SHOP_LONGITUDE=${{ secrets.SHOP_LONGITUDE }} \
-            --dart-define=DELIVERY_RADIUS_KM=8 \
-            --dart-define=SENTRY_DSN=${{ secrets.SENTRY_DSN }}
+            --dart-define=API_BASE_URL=${{ secrets.API_BASE_URL }} \
+            --dart-define=GOOGLE_MAPS_KEY=${{ secrets.GOOGLE_MAPS_KEY }} \
+            --dart-define=STRIPE_PUBLISHABLE_KEY=${{ secrets.STRIPE_PUBLISHABLE_KEY }}
+        env:
+          # ========================================================================
+          # CRITICAL SECURITY FIX: Secrets NOT Embedded in APK
+          # ========================================================================
+          # The following are NOW LOADED AT RUNTIME from backend /config/app-config:
+          #
+          # REMOVED (Server-side only, NEVER in app):
+          #   - RAZORPAY_KEY_SECRET (payment secret)
+          #   - RAZORPAY_WEBHOOK_SECRET (webhook verification)
+          #
+          # REMOVED (Load from /config/app-config endpoint):
+          #   - RAZORPAY_KEY_ID (public, but centralized for easier updates)
+          #   - SENTRY_DSN (error tracking DSN)
+          #   - SHOP_LATITUDE / SHOP_LONGITUDE (store location)
+          #   - SUPABASE_URL / SUPABASE_ANON_KEY (if needed)
+          #
+          # Implementation: See lib/services/runtime_config_service.dart
+          #
+          # Benefit: If a secret is compromised, just update AWS SSM parameter
+          # on backend. No need to rebuild/redeploy APK. Immediate fix.
+          # ========================================================================
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
         
       - name: Upload APK to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1

@@ -5,6 +5,7 @@ import '../../providers/product_provider.dart';
 import '../../models/product_model.dart';
 import '../../services/product_service.dart';
 import '../../services/pricing_service.dart';
+import '../../utils/monetary_value.dart';
 
 class DynamicPricingConsole extends StatefulWidget {
   const DynamicPricingConsole({super.key});
@@ -233,8 +234,8 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
             min: 0.0,
             max: 20.0,
             divisions: 10,
-            activeColor: AppTheme.secondary,
-            thumbColor: AppTheme.secondary,
+            activeColor: AppTheme.info,
+            thumbColor: AppTheme.info,
             inactiveColor: AppTheme.grey200,
             onChanged: (val) {
               setState(() {
@@ -433,9 +434,9 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
         itemBuilder: (context, index) {
           final product = products[index];
           final feed = _pricingService.matchProductToFeed(product);
-          final mandiPrice = feed?.currentMandiPrice ?? (product.price * 0.75);
+          final double mandiPrice = feed?.currentMandiPrice ?? (product.price.toDouble() * 0.75);
           final suggestedPrice = _pricingService.calculateSuggestedRetailPrice(mandiPrice);
-          final priceDiff = (product.price - suggestedPrice).abs();
+          final priceDiff = (product.price.toDouble() - suggestedPrice).abs();
 
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
@@ -480,7 +481,7 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
                     children: [
                       const Text('Current Retail', style: TextStyle(fontSize: 11, color: AppTheme.grey500)),
                       Text(
-                        '₹${product.price.toStringAsFixed(0)}',
+                        '₹${product.price.toDouble().toStringAsFixed(0)}',
                         style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.grey800),
                       ),
                     ],
@@ -505,48 +506,16 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
                   onPressed: priceDiff < 0.5
                       ? null
                       : () async {
-                          final updatedProduct = ProductModel(
-                            id: product.id,
-                            name: product.name,
-                            description: product.description,
-                            price: suggestedPrice,
-                            originalPrice: (suggestedPrice * 1.15).roundToDouble(),
-                            discountPercentage: 15.0,
-                            unit: product.unit,
-                            category: product.category,
-                            subCategory: product.subCategory,
-                            shopId: product.shopId,
-                            shopName: product.shopName,
-                            imageUrl: product.imageUrl,
-                            images: product.images,
-                            rating: product.rating,
-                            reviewCount: product.reviewCount,
-                            stockQuantity: product.stockQuantity,
-                            isAvailable: product.isAvailable,
-                            isFeatured: product.isFeatured,
-                            isOnSale: product.isOnSale,
-                            isNewArrival: product.isNewArrival,
-                            isTrending: product.isTrending,
-                            specifications: product.specifications,
-                            tags: product.tags,
-                            barcode: product.barcode,
-                            brand: product.brand,
-                            origin: product.origin,
-                            expiryDate: product.expiryDate,
-                            weight: product.weight,
-                            weightUnit: product.weightUnit,
-                            minOrderQuantity: product.minOrderQuantity,
-                            maxOrderQuantity: product.maxOrderQuantity,
-                            district: product.district,
-                            village: product.village,
-                            createdAt: product.createdAt,
+                          final updatedProduct = product.copyWith(
+                            price: MonetaryValue(suggestedPrice),
+                            originalPrice: MonetaryValue((suggestedPrice * 1.15).roundToDouble()),
+                            discountPercentage: MonetaryValue(15.0),
                             updatedAt: DateTime.now(),
-                            unitOptions: product.unitOptions,
                           );
 
                           try {
                             final productService = ProductService();
-                            await productService.addProduct(updatedProduct);
+                            await productService.updateProduct(updatedProduct.id, updatedProduct.toMap());
                             await provider.refreshProducts(); // Refresh list
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -565,7 +534,7 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
                           }
                         },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.secondary,
+                    backgroundColor: AppTheme.info,
                     foregroundColor: AppTheme.white,
                     disabledBackgroundColor: AppTheme.grey100,
                     disabledForegroundColor: AppTheme.grey400,

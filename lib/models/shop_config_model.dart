@@ -104,50 +104,50 @@ class ShopConfigModel {
 
   factory ShopConfigModel.fromMap(Map<String, dynamic> map) {
     return ShopConfigModel(
-      shopName: map['shopName'] ?? 'Fufaji Online Store',
-      shopAddress: map['shopAddress'] ?? '',
-      shopPhone: map['shopPhone'] ?? '',
-      shopEmail: map['shopEmail'] ?? '',
-      shopLogoUrl: map['shopLogoUrl'],
-      isOpen: map['isOpen'] ?? true,
-      shopLatitude: (map['shopLatitude'] ?? 26.9124).toDouble(),
-      shopLongitude: (map['shopLongitude'] ?? 75.7873).toDouble(),
-      maxDeliveryRadiusKm: (map['maxDeliveryRadiusKm'] ?? 8.0).toDouble(),
+      shopName: map['shopName'] as String? ?? 'Fufaji Online Store',
+      shopAddress: map['shopAddress'] as String? ?? '',
+      shopPhone: map['shopPhone'] as String? ?? '',
+      shopEmail: map['shopEmail'] as String? ?? '',
+      shopLogoUrl: map['shopLogoUrl'] as String?,
+      isOpen: map['isOpen'] as bool? ?? true,
+      shopLatitude: (map['shopLatitude'] as num? ?? 26.9124).toDouble(),
+      shopLongitude: (map['shopLongitude'] as num? ?? 75.7873).toDouble(),
+      maxDeliveryRadiusKm: (map['maxDeliveryRadiusKm'] as num? ?? 8.0).toDouble(),
       deliveryZones:
-          (map['deliveryZones'] as List<dynamic>?)
+          (map['deliveryZones'] as List?)
               ?.map(
                 (z) =>
                     DeliveryZone.fromMap(Map<String, dynamic>.from(z as Map)),
               )
               .toList() ??
           [],
-      minOrderAmount: (map['minOrderAmount'] ?? 0.0).toDouble(),
-      minOrderForFreeDelivery: (map['minOrderForFreeDelivery'] ?? 500.0)
+      minOrderAmount: (map['minOrderAmount'] as num? ?? 0.0).toDouble(),
+      minOrderForFreeDelivery: (map['minOrderForFreeDelivery'] as num? ?? 500.0)
           .toDouble(),
-      flatDeliveryFee: (map['flatDeliveryFee'] ?? 40.0).toDouble(),
+      flatDeliveryFee: (map['flatDeliveryFee'] as num? ?? 40.0).toDouble(),
       operatingHours:
-          (map['operatingHours'] as Map<dynamic, dynamic>?)?.map(
+          (map['operatingHours'] as Map?)?.map(
             (k, v) => MapEntry(
               k.toString(),
               OperatingHours.fromMap(Map<String, dynamic>.from(v as Map)),
             ),
           ) ??
           {},
-      autoCloseOutsideHours: map['autoCloseOutsideHours'] ?? false,
-      maxCodLimit: (map['maxCodLimit'] ?? 5000.0).toDouble(),
-      maxCreditLimit: (map['maxCreditLimit'] ?? 2000.0).toDouble(),
-      maxOrdersPerSlot: map['maxOrdersPerSlot'] ?? 10,
-      sameDayCutoffHour: map['sameDayCutoffHour'] ?? 18,
-      enableCashback: map['enableCashback'] ?? false,
-      cashbackPercentage: (map['cashbackPercentage'] ?? 5.0).toDouble(),
-      enableLoyaltyPoints: map['enableLoyaltyPoints'] ?? false,
-      isAutoPilotEnabled: map['isAutoPilotEnabled'] ?? false,
-      isEmergencyMode: map['isEmergencyMode'] ?? false,
-      expressDeliveryFee: (map['expressDeliveryFee'] ?? 50.0).toDouble(),
-      baseDeliveryRadiusKm: (map['baseDeliveryRadiusKm'] ?? 5.0).toDouble(),
-      deliveryFeePerKm: (map['deliveryFeePerKm'] ?? 5.0).toDouble(),
-      freeDeliveryThreshold: (map['freeDeliveryThreshold'] ?? 500.0).toDouble(),
-      standardDeliveryFee: (map['standardDeliveryFee'] ?? 30.0).toDouble(),
+      autoCloseOutsideHours: map['autoCloseOutsideHours'] as bool? ?? false,
+      maxCodLimit: (map['maxCodLimit'] as num? ?? 5000.0).toDouble(),
+      maxCreditLimit: (map['maxCreditLimit'] as num? ?? 2000.0).toDouble(),
+      maxOrdersPerSlot: map['maxOrdersPerSlot'] as int? ?? 10,
+      sameDayCutoffHour: map['sameDayCutoffHour'] as int? ?? 18,
+      enableCashback: map['enableCashback'] as bool? ?? false,
+      cashbackPercentage: (map['cashbackPercentage'] as num? ?? 5.0).toDouble(),
+      enableLoyaltyPoints: map['enableLoyaltyPoints'] as bool? ?? false,
+      isAutoPilotEnabled: map['isAutoPilotEnabled'] as bool? ?? false,
+      isEmergencyMode: map['isEmergencyMode'] as bool? ?? false,
+      expressDeliveryFee: (map['expressDeliveryFee'] as num? ?? 50.0).toDouble(),
+      baseDeliveryRadiusKm: (map['baseDeliveryRadiusKm'] as num? ?? 5.0).toDouble(),
+      deliveryFeePerKm: (map['deliveryFeePerKm'] as num? ?? 5.0).toDouble(),
+      freeDeliveryThreshold: (map['freeDeliveryThreshold'] as num? ?? 500.0).toDouble(),
+      standardDeliveryFee: (map['standardDeliveryFee'] as num? ?? 30.0).toDouble(),
     );
   }
 
@@ -241,13 +241,13 @@ class DeliveryZone {
 
   factory DeliveryZone.fromMap(Map<String, dynamic> map) {
     return DeliveryZone(
-      id: map['id'] ?? '',
-      label: map['label'] ?? '',
-      fromRadiusKm: (map['fromRadiusKm'] ?? 0.0).toDouble(),
-      toRadiusKm: (map['toRadiusKm'] ?? 0.0).toDouble(),
-      deliveryCharge: (map['deliveryCharge'] ?? 0.0).toDouble(),
-      minOrderForFree: (map['minOrderForFree'] ?? 0.0).toDouble(),
-      isActive: map['isActive'] ?? true,
+      id: map['id'] as String? ?? '',
+      label: map['label'] as String? ?? '',
+      fromRadiusKm: (map['fromRadiusKm'] as num? ?? 0.0).toDouble(),
+      toRadiusKm: (map['toRadiusKm'] as num? ?? 0.0).toDouble(),
+      deliveryCharge: (map['deliveryCharge'] as num? ?? 0.0).toDouble(),
+      minOrderForFree: (map['minOrderForFree'] as num? ?? 0.0).toDouble(),
+      isActive: map['isActive'] as bool? ?? true,
     );
   }
 
@@ -289,9 +289,9 @@ class OperatingHours {
 
   factory OperatingHours.fromMap(Map<String, dynamic> map) {
     return OperatingHours(
-      isOpen: map['isOpen'] ?? false,
-      openTime: map['openTime'] ?? '09:00',
-      closeTime: map['closeTime'] ?? '21:00',
+      isOpen: map['isOpen'] as bool? ?? false,
+      openTime: map['openTime'] as String? ?? '09:00',
+      closeTime: map['closeTime'] as String? ?? '21:00',
     );
   }
 }

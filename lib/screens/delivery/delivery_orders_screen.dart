@@ -6,9 +6,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../utils/app_theme.dart';
 import '../../models/order_model.dart';
 import '../../models/payment_method.dart';
+import '../../constants/order_status.dart';
 import '../../services/order_service.dart';
 import '../../services/offline_sync_service.dart';
 import '../employee/delivery_pod_scanner_screen.dart';
+import '../../widgets/common/empty_state.dart';
+import '../../widgets/common/error_state.dart';
+import '../../widgets/animated_widgets.dart';
 
 class DeliveryOrdersScreen extends StatefulWidget {
   const DeliveryOrdersScreen({super.key});
@@ -75,126 +79,145 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Delivery Orders',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.grey900,
+    return Scaffold(
+      backgroundColor: AppTheme.cream,
+      body: StreamBuilder<List<OrderModel>>(
+        stream: _orderService.getAllOrdersStream(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator(color: AppTheme.deliveryAccent));
+          }
+          if (snapshot.hasError) {
+            return FjErrorState(
+              error: snapshot.error.toString(),
+              onRetry: () => setState(() {}),
+            );
+          }
+          final allOrders = snapshot.data ?? [];
+          
+          // Filter orders based on Tab
+          final filteredOrders = allOrders.where((order) {
+            switch (_selectedTab) {
+              case 0:
+                return order.status == OrderStatus.confirmed || order.status == OrderStatus.packed;
+              case 1:
+                return order.status == OrderStatus.outForDelivery;
+              case 2:
+                return order.status == OrderStatus.delivered;
+              default:
+                return false;
+            }
+          }).toList();
+
+          return CustomScrollView(
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+                sliver: SliverToBoxAdapter(
+                  child: _buildHeader(),
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppTheme.secondary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                sliver: SliverToBoxAdapter(
+                  child: _buildTabs(),
                 ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.two_wheeler, size: 18, color: AppTheme.secondary),
-                    SizedBox(width: 4),
-                    Text(
-                      'Online',
-                      style: TextStyle(
-                        color: AppTheme.secondary,
-                        fontWeight: FontWeight.bold,
+              ),
+              if (filteredOrders.isEmpty)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: FjEmptyState(
+                    icon: _selectedTab == 0 ? Icons.inventory_2_outlined : (_selectedTab == 1 ? Icons.two_wheeler : Icons.task_alt),
+                    title: 'No ${_tabs[_selectedTab]} orders',
+                    subtitle: 'Check other tabs or wait for new assignments.',
+                  ),
+                )
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) => FadeSlideIn(
+                        delay: Duration(milliseconds: index * 50),
+                        child: _buildOrderCard(filteredOrders[index]),
                       ),
+                      childCount: filteredOrders.length,
                     ),
-                  ],
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text(
+          'Delivery Orders',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.grey900,
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: AppTheme.success.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: const Row(
+            children: [
+              Icon(Icons.two_wheeler, size: 18, color: AppTheme.success),
+              SizedBox(width: 4),
+              Text(
+                'Online',
+                style: TextStyle(
+                  color: AppTheme.success,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          // Tabs
-          Container(
-            decoration: BoxDecoration(
-              color: AppTheme.grey100,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: List.generate(_tabs.length, (index) {
-                return Expanded(
-                  child: GestureDetector(
-                    onTap: () => setState(() => _selectedTab = index),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: _selectedTab == index ? AppTheme.secondary : Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        _tabs[index],
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: _selectedTab == index ? FontWeight.bold : FontWeight.normal,
-                          color: _selectedTab == index ? AppTheme.white : AppTheme.grey700,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }),
-            ),
-          ),
-          const SizedBox(height: 24),
-          // Stream of Orders
-          StreamBuilder<List<OrderModel>>(
-            stream: _orderService.getAllOrdersStream(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              }
-              final allOrders = snapshot.data ?? [];
-              
-              // Filter orders based on Tab
-              final filteredOrders = allOrders.where((order) {
-                switch (_selectedTab) {
-                  case 0:
-                    return order.status == OrderStatus.confirmed || order.status == OrderStatus.packed;
-                  case 1:
-                    return order.status == OrderStatus.outForDelivery;
-                  case 2:
-                    return order.status == OrderStatus.delivered;
-                  default:
-                    return false;
-                }
-              }).toList();
+        ),
+      ],
+    );
+  }
 
-              if (filteredOrders.isEmpty) {
-                return const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(40.0),
-                    child: Text('No orders found in this category.'),
+  Widget _buildTabs() {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.sand,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: List.generate(_tabs.length, (index) {
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => setState(() => _selectedTab = index),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: _selectedTab == index ? AppTheme.primary : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  _tabs[index],
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: _selectedTab == index ? FontWeight.bold : FontWeight.normal,
+                    color: _selectedTab == index ? AppTheme.white : AppTheme.grey700,
                   ),
-                );
-              }
-
-              return ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: filteredOrders.length,
-                itemBuilder: (context, index) {
-                  final order = filteredOrders[index];
-                  return _buildOrderCard(order);
-                },
-              );
-            },
-          ),
-        ],
+                ),
+              ),
+            ),
+          );
+        }),
       ),
     );
   }
@@ -223,14 +246,14 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.receipt_long, color: AppTheme.secondary),
+                  const Icon(Icons.receipt_long, color: AppTheme.primary),
                   const SizedBox(width: 8),
                   Text(
                     '#${order.orderNumber}',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.secondary,
+                      color: AppTheme.primary,
                     ),
                   ),
                 ],
@@ -260,10 +283,10 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: AppTheme.secondary.withValues(alpha: 0.1),
+                  color: AppTheme.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.person, color: AppTheme.secondary),
+                child: const Icon(Icons.person, color: AppTheme.primary),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -395,7 +418,7 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.secondary,
+                      color: AppTheme.primary,
                     ),
                   ),
                 ],
@@ -403,24 +426,47 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
               Row(
                 children: [
                   if (order.status == OrderStatus.confirmed || order.status == OrderStatus.packed)
-                    ElevatedButton.icon(
-                      onPressed: () async {
+                    ScaleBounce(
+                      onTap: () async {
                         await _syncService.enqueueStatusUpdate(order.id, 'outForDelivery');
                         _startLiveCoordinateTracking(order.id);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Delivery started! OTP sent to customer.')),
                         );
                       },
-                      icon: const Icon(Icons.play_arrow),
-                      label: const Text('Start Delivery'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.secondary,
-                        foregroundColor: AppTheme.white,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primary,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.primary.withValues(alpha: 0.2),
+                              blurRadius: 6,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.play_arrow, color: Colors.white, size: 18),
+                            SizedBox(width: 6),
+                            Text(
+                              'Start Delivery',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   if (order.status == OrderStatus.outForDelivery) ...[
-                    OutlinedButton.icon(
-                      onPressed: () async {
+                    ScaleBounce(
+                      onTap: () async {
                         final lat = order.deliveryAddress.latitude;
                         final lng = order.deliveryAddress.longitude;
                         final url = 'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
@@ -429,18 +475,34 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                           await launchUrl(uri);
                         }
                       },
-                      icon: const Icon(Icons.navigation, size: 14),
-                      label: const Text('Navigate', style: TextStyle(fontSize: 11)),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppTheme.info),
-                        foregroundColor: AppTheme.info,
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppTheme.info, width: 1.5),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.navigation, color: AppTheme.info, size: 14),
+                            SizedBox(width: 4),
+                            Text(
+                              'Navigate',
+                              style: TextStyle(
+                                color: AppTheme.info,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(width: 4),
                     // Primary: scan to confirm delivery (GPS + photo proof)
-                    ElevatedButton.icon(
-                      onPressed: () => Navigator.push(
+                    ScaleBounce(
+                      onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => DeliveryPodScannerScreen(
@@ -449,35 +511,101 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                           fullscreenDialog: true,
                         ),
                       ),
-                      icon: const Icon(Icons.qr_code_scanner, size: 14),
-                      label: const Text('Scan Deliver', style: TextStyle(fontSize: 11)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2E7D32),
-                        foregroundColor: AppTheme.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2E7D32),
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF2E7D32).withValues(alpha: 0.2),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.qr_code_scanner, color: Colors.white, size: 14),
+                            SizedBox(width: 4),
+                            Text(
+                              'Scan Deliver',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(width: 4),
                     // Fallback: OTP-based confirmation
-                    ElevatedButton.icon(
-                      onPressed: () => _showOtpVerificationDialog(context, order),
-                      icon: const Icon(Icons.check, size: 14),
-                      label: const Text('OTP', style: TextStyle(fontSize: 11)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.success,
-                        foregroundColor: AppTheme.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    ScaleBounce(
+                      onTap: () => _showOtpVerificationDialog(context, order),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppTheme.success,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.success.withValues(alpha: 0.2),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.check, color: Colors.white, size: 14),
+                            SizedBox(width: 4),
+                            Text(
+                              'OTP',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(width: 4),
-                    ElevatedButton.icon(
-                      onPressed: () => _showDeliveryFailedDialog(context, order),
-                      icon: const Icon(Icons.cancel, size: 14),
-                      label: const Text('Failed', style: TextStyle(fontSize: 11)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.error,
-                        foregroundColor: AppTheme.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    ScaleBounce(
+                      onTap: () => _showDeliveryFailedDialog(context, order),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppTheme.error,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.error.withValues(alpha: 0.2),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.cancel, color: Colors.white, size: 14),
+                            SizedBox(width: 4),
+                            Text(
+                              'Failed',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -497,7 +625,7 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
       builder: (context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text('Verify Delivery OTP'),
+          title: const Text('Verify Delivery OTP', style: TextStyle(fontWeight: FontWeight.w700)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -541,16 +669,24 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
 
                   await Future.delayed(const Duration(seconds: 1)); // Simulate upload
                   
-                  await _syncService.enqueueStatusUpdate(
-                    order.id,
-                    'delivered',
+                  // 2. Perform verification (Now using secure Cloud Function via OrderService)
+                  final success = await _orderService.verifyAndDeliverOrder(
+                    orderId: order.id,
                     otp: input,
-                    otpVerified: true,
+                    riderLatitude: 0.0, // Should get real coords
+                    riderLongitude: 0.0,
                   );
-                  _stopLiveCoordinateTracking(order.id);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Order delivered successfully with Photo Proof! ✅')),
-                  );
+                  
+                  if (success) {
+                    _stopLiveCoordinateTracking(order.id);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Order delivered successfully! ✅')),
+                    );
+                  } else {
+                     ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Verification failed.')),
+                    );
+                  }
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Invalid OTP code. Please try again.')),
@@ -574,7 +710,7 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
       case OrderStatus.packed:
         return AppTheme.info;
       case OrderStatus.outForDelivery:
-        return AppTheme.secondary;
+        return AppTheme.info;
       case OrderStatus.delivered:
         return AppTheme.success;
       default:
@@ -599,7 +735,7 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
           builder: (context, setStateDialog) {
             return AlertDialog(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: const Text('Mark Delivery Failed'),
+              title: const Text('Mark Delivery Failed', style: TextStyle(fontWeight: FontWeight.w700)),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -657,7 +793,7 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('Order #${order.orderNumber} marked failed: $selectedReason'),
-                          backgroundColor: Colors.orange,
+                          backgroundColor: AppTheme.warning,
                         ),
                       );
                     }

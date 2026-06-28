@@ -32,6 +32,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
   bool _isAutoReordering = false;
   int _globalThreshold = 10;
 
+
+
+
   @override
   Widget build(BuildContext context) {
     final productProvider = Provider.of<ProductProvider>(context);
@@ -95,8 +98,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 'Inventory',
@@ -106,51 +109,69 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   color: AppTheme.grey900,
                 ),
               ),
+              const SizedBox(height: 12),
+              // Primary Actions Row (Scan Bill + Quick Add Stock)
               Row(
                 children: [
-                  // ── NEW: Scan Bill shortcut ──
-                  ElevatedButton.icon(
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const BillScannerScreen(),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const BillScannerScreen(),
+                        ),
+                      ),
+                      icon: const Icon(Icons.document_scanner_outlined),
+                      label: const Text('Scan Bill'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF00897B),
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(0, 48),
                       ),
                     ),
-                    icon: const Icon(Icons.document_scanner_outlined),
-                    label: const Text('Scan Bill'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00897B),
-                      foregroundColor: Colors.white,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () =>
+                          _showAddStockDialog(context, productProvider.products),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Quick Add'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primary,
+                        foregroundColor: AppTheme.white,
+                        minimumSize: const Size(0, 48),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              // Secondary Actions Row (Audit Logs + Threshold Settings)
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => context.push('/owner/inventory-audit'),
+                      icon: const Icon(Icons.history),
+                      label: const Text('Audit Logs'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTheme.ownerAccent,
+                        side: const BorderSide(color: AppTheme.ownerAccent),
+                        minimumSize: const Size(0, 48),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
-                  OutlinedButton.icon(
-                    onPressed: () => context.push('/owner/inventory-audit'),
-                    icon: const Icon(Icons.history),
-                    label: const Text('Audit Logs'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.indigo,
-                      side: const BorderSide(color: Colors.indigo),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  OutlinedButton.icon(
-                    onPressed: () => _showSettingsDialog(context),
-                    icon: const Icon(Icons.settings),
-                    label: const Text('Threshold Settings'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppTheme.grey800,
-                      side: const BorderSide(color: AppTheme.grey300),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  ElevatedButton.icon(
-                    onPressed: () =>
-                        _showAddStockDialog(context, productProvider.products),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Quick Add Stock'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primary,
-                      foregroundColor: AppTheme.white,
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _showSettingsDialog(context),
+                      icon: const Icon(Icons.settings),
+                      label: const Text('Settings'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTheme.grey800,
+                        side: const BorderSide(color: AppTheme.grey300),
+                        minimumSize: const Size(0, 48),
+                      ),
                     ),
                   ),
                 ],
@@ -183,24 +204,33 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   ),
                 ),
               ),
               const SizedBox(width: 12),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 decoration: BoxDecoration(
                   color: AppTheme.white,
                   borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.black.withValues(alpha: 0.03),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
                 ),
                 child: DropdownButton<String>(
                   value: _filters[_selectedFilter],
                   underline: const SizedBox(),
+                  isDense: true,
                   items: _filters
                       .map(
                         (filter) => DropdownMenuItem(
                           value: filter,
-                          child: Text(filter),
+                          child: Text(filter, style: const TextStyle(fontSize: 14)),
                         ),
                       )
                       .toList(),
@@ -260,12 +290,12 @@ class _InventoryScreenState extends State<InventoryScreen> {
       {
         'label': 'Expiring Soon',
         'value': expiringSoonCount.toString(),
-        'color': Colors.orange,
+        'color': AppTheme.warning,
       },
       {
         'label': 'Expired',
         'value': expiredCount.toString(),
-        'color': Colors.red,
+        'color': AppTheme.error,
       },
     ];
 
@@ -349,7 +379,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
         expiryColor = AppTheme.error;
       } else if (daysToExpiry <= 7) {
         expiryText = 'Expiring in $daysToExpiry days';
-        expiryColor = Colors.orange;
+        expiryColor = AppTheme.warning;
       } else {
         expiryText =
             'Expires: ${intl.DateFormat('dd/MM').format(product.expiryDate!)}';
@@ -487,23 +517,38 @@ class _InventoryScreenState extends State<InventoryScreen> {
               ),
             ],
           ),
-          const SizedBox(width: 16),
-          // Actions
-          Row(
+          const SizedBox(width: 12),
+          // Actions - 48dp touch targets for accessibility
+          Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              IconButton(
-                onPressed: () => showDialog(
+              GestureDetector(
+                onTap: () => showDialog(
                   context: context,
                   builder: (context) => EditProductDialog(product: product),
                 ),
-                icon: const Icon(Icons.edit, color: AppTheme.primary),
-                tooltip: 'Edit Details',
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.edit, color: AppTheme.primary, size: 20),
+                ),
               ),
-              IconButton(
-                onPressed: () => _quickIncrementStock(product, 10),
-                icon: const Icon(Icons.add_circle, color: AppTheme.success),
-                tooltip: 'Add 10',
+              const SizedBox(height: 8),
+              GestureDetector(
+                onTap: () => _quickIncrementStock(product, 10),
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: AppTheme.success.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.add_circle, color: AppTheme.success, size: 20),
+                ),
               ),
             ],
           ),
@@ -546,7 +591,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Quick Inventory Addition'),
+          title: const Text('Quick Inventory Addition', style: TextStyle(fontWeight: FontWeight.w700)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

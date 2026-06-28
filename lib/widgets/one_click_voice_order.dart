@@ -18,23 +18,19 @@ class _OneClickVoiceOrderState extends State<OneClickVoiceOrder> {
   final stt.SpeechToText _speech = stt.SpeechToText();
   bool _isListening = false;
   String _text = 'Tap or Hold to Speak your order...';
-  double _confidence = 1.0;
   bool _isProcessing = false;
   
   void _listen() async {
     if (!_isListening) {
       bool available = await _speech.initialize(
-        onStatus: (val) => print('onStatus: $val'),
-        onError: (val) => print('onError: $val'),
+        onStatus: (val) => debugPrint('onStatus: $val'),
+        onError: (val) => debugPrint('onError: $val'),
       );
       if (available) {
         setState(() => _isListening = true);
         _speech.listen(
           onResult: (val) => setState(() {
             _text = val.recognizedWords;
-            if (val.hasConfidenceRating && val.confidence > 0) {
-              _confidence = val.confidence;
-            }
           }),
         );
       }
@@ -174,7 +170,7 @@ class _OneClickVoiceOrderState extends State<OneClickVoiceOrder> {
           if (_isProcessing)
             const Column(
               children: [
-                CircularProgressIndicator(),
+                CircularProgressIndicator(color: AppTheme.primary),
                 SizedBox(height: 16),
                 Text("AI is adding items to your cart...", style: TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.w500)),
               ],
@@ -188,17 +184,17 @@ class _OneClickVoiceOrderState extends State<OneClickVoiceOrder> {
                 duration: const Duration(milliseconds: 300),
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: _isListening ? Colors.red.withValues(alpha: 0.1) : AppTheme.primaryColor.withValues(alpha: 0.1),
+                  color: _isListening ? AppTheme.error.withValues(alpha: 0.1) : AppTheme.primaryColor.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: _isListening ? Colors.red : AppTheme.primaryColor,
+                    color: _isListening ? AppTheme.error : AppTheme.primaryColor,
                     width: 2,
                   ),
                 ),
                 child: Icon(
                   _isListening ? Icons.stop : Icons.mic,
                   size: 64,
-                  color: _isListening ? Colors.red : AppTheme.primaryColor,
+                  color: _isListening ? AppTheme.error : AppTheme.primaryColor,
                 ),
               ),
             ),

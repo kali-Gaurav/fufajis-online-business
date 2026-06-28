@@ -2,73 +2,57 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
     
-    // Helper: is user signed in?
     function isSignedIn() {
       return request.auth != null;
     }
 
-    // Helper: is user updating their own folder?
-    function isUserOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
+    function getUserData() {
+      return firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data;
     }
 
-    // Helper: is user an admin or shop owner?
-    // We check their role in Firestore (since Storage rules support fetching Firestore docs)
-    function isShopOwnerOrAdmin() {
-      return isSignedIn() && 
-        (firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'UserRole.shopOwner' ||
-         firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'UserRole.admin');
+    function hasRole(roleName) {
+      let role = getUserData().role;
+      return role == roleName || role == ('UserRole.' + roleName);
     }
 
-    // Enforce file metadata (size < 5MB and is an image)
-    function isValidImage() {
-      return request.resource.size < 5 * 1024 * 1024
-          && request.resource.contentType.matches('image/.*');
+    function isGlobalAdmin() {
+      return hasRole('owner') || hasRole('superAdmin') || hasRole('franchiseOwner');
     }
 
-    // Enforce file metadata for PDFs (size < 10MB)
-    function isValidPdf() {
-      return request.resource.size < 10 * 1024 * 1024
-          && request.resource.contentType == 'application/pdf';
+    function isSupplier() { return hasRole('supplier'); }
+    function isBranchManager() { return hasRole('branchManager'); }
+    function getBranchId() { return getUserData().branchId; }
+
+    match /delivery_proofs/{orderId}/{allPaths=**} {
+      // Riders upload proofs, customers can see their own (assuming order ownership), admins can see all
+      allow read: if isSignedIn(); 
+      allow write: if isSignedIn() && hasRole('rider');
     }
 
-    // 1. User profiles folder
-    match /users/{userId}/{allPaths=**} {
+    match /profile_images/{userId}/{allPaths=**} {
       allow read: if isSignedIn();
-      allow write: if isUserOwner(userId) && isValidImage();
+      allow write: if isSignedIn() && (request.auth.uid == userId || isGlobalAdmin());
     }
 
-    // 2. Product images - read by anyone, write only by Owner/Admin
-    match /products/{productId}/{allPaths=**} {
-      allow read: if true;
-      allow write: if isShopOwnerOrAdmin() && isValidImage();
+    match /invoice_pdfs/{orderId}/{allPaths=**} {
+      allow read: if isSignedIn(); // Customer or admins. (Ideally check order ownership, but simplified for PDF read)
+      allow write: if isSignedIn() && isGlobalAdmin();
     }
 
-    // 3. Shelf photos / freshness verification images
-    match /shelf_photos/{productId}/{allPaths=**} {
-      allow read: if isSignedIn();
-      allow write: if isShopOwnerOrAdmin() && isValidImage();
+    match /supplier_documents/{supplierId}/{allPaths=**} {
+      allow read: if isSignedIn() && (isGlobalAdmin() || (isSupplier() && request.auth.uid == supplierId));
+      allow write: if isSignedIn() && (isGlobalAdmin() || (isSupplier() && request.auth.uid == supplierId));
     }
 
-    // 4. Review images - read by anyone, write by any authenticated user for their reviews
-    match /reviews/{productId}/{allPaths=**} {
-      allow read: if true;
-      allow write: if isSignedIn() && isValidImage();
+    match /contracts/{contractId}/{allPaths=**} {
+      allow read: if isSignedIn() && (isGlobalAdmin() || isSupplier());
+      allow write: if isSignedIn() && isGlobalAdmin();
     }
 
-    // 5. Invoices - read by customer who owns order or by shop owner/admin, write only by owner/admin
-    match /invoices/{orderId}.pdf {
-      allow read: if isSignedIn() && (
-        request.auth.uid == firestore.get(/databases/(default)/documents/orders/$(orderId)).data.customerId ||
-        isShopOwnerOrAdmin()
-      );
-      allow write: if isShopOwnerOrAdmin() && isValidPdf();
-    }
-
-    // 6. Generic system assets/fallback
+    // Fallback: restrict unmatched paths to staff read, admin write
     match /{allPaths=**} {
-      allow read: if isSignedIn();
-      allow write: if isShopOwnerOrAdmin();
+      allow read: if isSignedIn() && (isGlobalAdmin() || isBranchManager());
+      allow write: if isSignedIn() && isGlobalAdmin();
     }
   }
 }

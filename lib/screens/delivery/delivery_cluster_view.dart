@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -6,6 +5,7 @@ import '../../models/order_model.dart';
 import '../../models/payment_method.dart';
 import '../../services/delivery_clustering_service.dart';
 import '../../utils/app_theme.dart';
+import '../../constants/order_status.dart';
 
 class DeliveryClusterView extends StatefulWidget {
   final String clusterId;
@@ -183,11 +183,11 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('All Deliveries Done!'),
+        title: const Text('All Deliveries Done!', style: TextStyle(fontWeight: FontWeight.w700)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.celebration, size: 64, color: AppTheme.secondary),
+            const Icon(Icons.celebration, size: 64, color: AppTheme.primary),
             const SizedBox(height: 12),
             Text(
               'You delivered ${_orders.length} orders.',
@@ -199,7 +199,7 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppTheme.secondary,
+                color: AppTheme.primary,
               ),
             ),
           ],
@@ -260,7 +260,7 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppTheme.deliveryAccent))
           : _error != null
               ? _buildError()
               : _orders.isEmpty
@@ -323,7 +323,7 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
               Text(
                 '${(progress * 100).round()}%',
                 style: const TextStyle(
-                  color: AppTheme.secondary,
+                  color: AppTheme.primary,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -337,7 +337,7 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
               minHeight: 8,
               backgroundColor: AppTheme.grey200,
               valueColor:
-                  const AlwaysStoppedAnimation<Color>(AppTheme.secondary),
+                  const AlwaysStoppedAnimation<Color>(AppTheme.primary),
             ),
           ),
         ],
@@ -488,15 +488,15 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
                       icon: const Icon(Icons.check_circle_outline, size: 16),
                       label: const Text('Mark Delivered'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.secondary,
+                        backgroundColor: AppTheme.primary,
                       ),
                     ),
                   ),
                 ],
               )
             else
-              Row(
-                children: const [
+              const Row(
+                children: [
                   Icon(Icons.check_circle,
                       color: AppTheme.success, size: 18),
                   SizedBox(width: 6),
@@ -541,7 +541,7 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.secondary,
+                      color: AppTheme.primary,
                     ),
                   ),
                 ],
@@ -552,7 +552,7 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
                   icon: const Icon(Icons.done_all),
                   label: const Text('All Done'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.secondary,
+                    backgroundColor: AppTheme.primary,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 24, vertical: 14),
                   ),

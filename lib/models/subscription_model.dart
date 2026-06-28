@@ -67,36 +67,36 @@ class SubscriptionModel {
 
   factory SubscriptionModel.fromMap(Map<String, dynamic> map) {
     return SubscriptionModel(
-      id: map['id'] ?? '',
-      customerId: map['customerId'] ?? '',
-      productId: map['productId'] ?? '',
-      productName: map['productName'] ?? '',
-      productImage: map['productImage'] ?? '',
-      unit: map['unit'] ?? '',
-      price: (map['price'] ?? 0.0).toDouble(),
+      id: map['id'] as String? ?? '',
+      customerId: map['customerId'] as String? ?? '',
+      productId: map['productId'] as String? ?? '',
+      productName: map['productName'] as String? ?? '',
+      productImage: map['productImage'] as String? ?? '',
+      unit: map['unit'] as String? ?? '',
+      price: (map['price'] as num? ?? 0.0).toDouble(),
       frequency: SubscriptionFrequency.values.firstWhere(
-        (e) => e.toString() == map['frequency'],
+        (e) => e.toString() == map['frequency'] as String?,
         orElse: () => SubscriptionFrequency.daily,
       ),
-      quantity: map['quantity'] ?? 1,
+      quantity: map['quantity'] as int? ?? 1,
       status: SubscriptionStatus.values.firstWhere(
-        (e) => e.toString() == map['status'],
+        (e) => e.toString() == map['status'] as String?,
         orElse: () => SubscriptionStatus.active,
       ),
       startDate: map['startDate'] != null
-          ? DateTime.parse(map['startDate'])
+          ? DateTime.parse(map['startDate'] as String)
           : DateTime.now(),
       pauseUntil: map['pauseUntil'] != null
-          ? DateTime.parse(map['pauseUntil'])
+          ? DateTime.parse(map['pauseUntil'] as String)
           : null,
       deliveryDates:
           (map['deliveryDates'] as List?)
               ?.map((d) => DateTime.parse(d as String))
               .toList() ??
           [],
-      timeSlot: map['timeSlot'] ?? '',
+      timeSlot: map['timeSlot'] as String? ?? '',
       createdAt: map['createdAt'] != null
-          ? DateTime.parse(map['createdAt'])
+          ? DateTime.parse(map['createdAt'] as String)
           : DateTime.now(),
     );
   }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/app_theme.dart';
+
 class WeatherStockAssistant extends StatelessWidget {
   const WeatherStockAssistant({super.key});
 
@@ -8,11 +10,11 @@ class WeatherStockAssistant extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.blue[900],
+        color: AppTheme.info,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.blue.withValues(alpha: 0.3),
+            color: AppTheme.info.withValues(alpha: 0.3),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -42,7 +44,7 @@ class WeatherStockAssistant extends StatelessWidget {
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(color: Colors.amber, borderRadius: BorderRadius.circular(8)),
+                decoration: BoxDecoration(color: AppTheme.warning, borderRadius: BorderRadius.circular(8)),
                 child: const Text('ACTION NEEDED', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold)),
               ),
             ],
@@ -72,13 +74,13 @@ class WeatherStockAssistant extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('ðŸ“¦ Monsoon-special stock (Tea, Besan, Biscuits) added to procurement list.'),
-                      backgroundColor: Colors.blue,
+                      backgroundColor: AppTheme.info,
                     ),
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.blue[900],
+                  backgroundColor: AppTheme.cream,
+                  foregroundColor: AppTheme.info,
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
@@ -102,7 +104,7 @@ class WeatherStockAssistant extends StatelessWidget {
         child: Column(
           children: [
             Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
-            Text(qty, style: const TextStyle(color: Colors.amber, fontSize: 10, fontWeight: FontWeight.bold)),
+            Text(qty, style: const TextStyle(color: AppTheme.warning, fontSize: 10, fontWeight: FontWeight.bold)),
           ],
         ),
       ),

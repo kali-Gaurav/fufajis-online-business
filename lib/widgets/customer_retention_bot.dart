@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/app_theme.dart';
+
 class CustomerRetentionBot extends StatelessWidget {
   const CustomerRetentionBot({super.key});
 
@@ -46,7 +48,7 @@ class CustomerRetentionBot extends StatelessWidget {
           const Divider(color: Colors.white24, height: 24),
           Row(
             children: [
-              const Icon(Icons.auto_fix_high, color: Colors.amber, size: 16),
+              const Icon(Icons.auto_fix_high, color: AppTheme.warning, size: 16),
               const SizedBox(width: 8),
               const Expanded(
                 child: Text(
@@ -66,7 +68,7 @@ class CustomerRetentionBot extends StatelessWidget {
                 icon: const Icon(Icons.send, size: 14),
                 label: const Text('Send All', style: TextStyle(fontSize: 11)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
+                  backgroundColor: AppTheme.cream,
                   foregroundColor: Colors.teal[700],
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -82,7 +84,7 @@ class CustomerRetentionBot extends StatelessWidget {
   Widget _buildCustomerItem(String name, String detail) {
     return Row(
       children: [
-        const Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 14),
+        const Icon(Icons.warning_amber_rounded, color: AppTheme.warning, size: 14),
         const SizedBox(width: 8),
         Expanded(
           child: Column(
@@ -94,7 +96,9 @@ class CustomerRetentionBot extends StatelessWidget {
           ),
         ),
         TextButton(
-          onPressed: () {},
+          onPressed: () {
+            // Future: Integrate with phone dialer
+          },
           child: const Text('Call Now', style: TextStyle(color: Colors.white, fontSize: 11, decoration: TextDecoration.underline)),
         ),
       ],

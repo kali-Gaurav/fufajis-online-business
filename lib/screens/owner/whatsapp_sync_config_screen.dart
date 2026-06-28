@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/product_provider_extensions.dart';
 import '../../models/product_model.dart';
+import '../../utils/app_theme.dart';
 
 /// WhatsApp Sync Configuration Screen
 /// Allows shop owners to configure and monitor WhatsApp inventory sync
@@ -44,10 +45,10 @@ class _WhatsAppSyncConfigScreenState extends State<WhatsAppSyncConfigScreen> {
       final status = await provider.getWhatsAppSyncStatus();
 
       setState(() {
-        _isSyncEnabled = status['enabled'] ?? false;
-        _lastSyncTime = status['lastSyncTime'];
-        _syncedItemsCount = status['itemsCount'] ?? 0;
-        _recentSyncedItems = status['recentItems'] ?? [];
+        _isSyncEnabled = status['enabled'] as bool? ?? false;
+        _lastSyncTime = status['lastSyncTime'] as DateTime?;
+        _syncedItemsCount = status['itemsCount'] as int? ?? 0;
+        _recentSyncedItems = (status['recentItems'] as List? ?? []).cast<ProductModel>();
       });
     } catch (e) {
       ScaffoldMessenger.of(
@@ -112,11 +113,11 @@ class _WhatsAppSyncConfigScreenState extends State<WhatsAppSyncConfigScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('WhatsApp Sync Configuration'),
+        title: const Text('WhatsApp Sync Configuration', style: TextStyle(fontWeight: FontWeight.w700)),
         elevation: 0,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent))
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -147,7 +148,7 @@ class _WhatsAppSyncConfigScreenState extends State<WhatsAppSyncConfigScreen> {
                                 ),
                                 decoration: BoxDecoration(
                                   color: _isSyncEnabled
-                                      ? Colors.green
+                                      ? AppTheme.success
                                       : Colors.grey,
                                   borderRadius: BorderRadius.circular(20),
                                 ),
@@ -318,7 +319,7 @@ class _WhatsAppSyncConfigScreenState extends State<WhatsAppSyncConfigScreen> {
                             ),
                             trailing: const Icon(
                               Icons.check_circle,
-                              color: Colors.green,
+                              color: AppTheme.success,
                             ),
                           ),
                         );
@@ -328,7 +329,7 @@ class _WhatsAppSyncConfigScreenState extends State<WhatsAppSyncConfigScreen> {
 
                   // Instructions
                   Card(
-                    color: Colors.blue[50],
+                    color: AppTheme.info.withValues(alpha: 0.08),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -378,7 +379,7 @@ class _WhatsAppSyncConfigScreenState extends State<WhatsAppSyncConfigScreen> {
             width: 24,
             height: 24,
             decoration: BoxDecoration(
-              color: Colors.blue,
+              color: AppTheme.info,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(

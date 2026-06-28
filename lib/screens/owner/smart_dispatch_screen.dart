@@ -1,9 +1,9 @@
+import '../../services/logging_service.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:provider/provider.dart';
 import '../../models/order_model.dart';
 import '../../models/user_model.dart';
-import '../../providers/order_provider.dart';
+import '../../constants/order_status.dart';
 import '../../services/delivery_clustering_service.dart';
 import '../../utils/app_theme.dart';
 
@@ -82,7 +82,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
     try {
       final snap = await _firestore
           .collection('users')
-          .where('role', isEqualTo: UserRole.deliveryAgent.toString())
+          .where('role', isEqualTo: UserRole.rider.toString())
           .where('isActive', isEqualTo: true)
           .get();
 
@@ -229,7 +229,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
     return Scaffold(
       backgroundColor: AppTheme.grey50,
       appBar: AppBar(
-        title: const Text('Smart Dispatch'),
+        title: const Text('Smart Dispatch', style: TextStyle(fontWeight: FontWeight.w700)),
         actions: [
           IconButton(
             onPressed: _loadData,
@@ -239,7 +239,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent))
           : _error != null
               ? _buildError()
               : Column(
@@ -428,7 +428,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
                 _stat(
                     Icons.shopping_bag_outlined,
                     '${cluster.orderCount} orders',
-                    AppTheme.secondary),
+                    AppTheme.info),
                 const SizedBox(width: 16),
                 _stat(
                     Icons.route,
@@ -461,7 +461,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
-                    color: AppTheme.secondary,
+                    color: AppTheme.info,
                   ),
                 ),
               ],
@@ -481,7 +481,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
                       ? null
                       : () => _dispatchCluster(cluster),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.secondary,
+                    backgroundColor: AppTheme.info,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 14),
                   ),
@@ -536,7 +536,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
               for (final c in _clusters) {
                 try {
                   return c.orders.firstWhere((o) => o.id == draggedOrderId);
-                } catch (_) {}
+                } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
               }
               return order;
             },
@@ -632,7 +632,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
                   ),
                 ),
                 Text(
-                  '₹${order.totalAmount.toStringAsFixed(0)}',
+                  '₹${order.totalAmount.toDouble().toStringAsFixed(0)}',
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
@@ -651,7 +651,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
 
   Widget _buildAgentDropdown(DeliveryCluster cluster) {
     return DropdownButtonFormField<String>(
-      value: _selectedAgent[cluster.id],
+      initialValue: _selectedAgent[cluster.id],
       decoration: InputDecoration(
         labelText: 'Assign Agent',
         isDense: true,

@@ -38,16 +38,16 @@ class KhataTransaction {
 
   factory KhataTransaction.fromMap(Map<String, dynamic> map) {
     return KhataTransaction(
-      id: map['id'] ?? '',
-      userId: map['userId'] ?? '',
-      shopId: map['shopId'] ?? '',
-      amount: (map['amount'] ?? 0.0).toDouble(),
+      id: map['id'] as String? ?? '',
+      userId: map['userId'] as String? ?? '',
+      shopId: map['shopId'] as String? ?? '',
+      amount: (map['amount'] as num? ?? 0.0).toDouble(),
       type: KhataTransactionType.values.firstWhere(
-        (e) => e.toString() == map['type'],
+        (e) => e.toString() == map['type'] as String?,
         orElse: () => KhataTransactionType.credit,
       ),
-      note: map['note'],
-      orderId: map['orderId'],
+      note: map['note'] as String?,
+      orderId: map['orderId'] as String?,
       timestamp: (map['timestamp'] as Timestamp).toDate(),
     );
   }

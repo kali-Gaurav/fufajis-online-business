@@ -15,7 +15,6 @@ import 'whatsapp_notification_service.dart';
 /// - WhatsApp notifications for approvals
 class FamilyAccountService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final WhatsAppNotificationService _whatsappService = WhatsAppNotificationService();
 
   static final FamilyAccountService _instance = FamilyAccountService._internal();
   factory FamilyAccountService() => _instance;
@@ -83,9 +82,9 @@ class FamilyAccountService {
   Future<FamilyGroup?> getFamilyGroupForUser(String userId) async {
     try {
       final userDoc = await _firestore.collection('users').doc(userId).get();
-      final familyId = userDoc.data()?['familyGroupId'];
+      final familyId = userDoc.data()?['familyGroupId'] as String?;
       if (familyId == null) return null;
-      return getFamilyGroup(familyId);
+      return await getFamilyGroup(familyId);
     } catch (e) {
       debugPrint('Error getting family group for user: $e');
       return null;

@@ -172,7 +172,7 @@ extension ProductProviderPhase11To14 on ProductProvider {
       int healthyCount = 0;
       for (final doc in snapshot.docs) {
         final data = doc.data();
-        final daysUntilStockout = data['daysUntilStockout'] ?? 0;
+        final daysUntilStockout = (data['daysUntilStockout'] as num?) ?? 0;
         if (daysUntilStockout > 7) {
           healthyCount++;
         }

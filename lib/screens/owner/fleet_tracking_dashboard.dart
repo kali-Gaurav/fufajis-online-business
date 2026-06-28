@@ -12,7 +12,6 @@ class FleetTrackingDashboard extends StatefulWidget {
 }
 
 class _FleetTrackingDashboardState extends State<FleetTrackingDashboard> {
-  GoogleMapController? _mapController;
   final Map<String, Marker> _markers = {};
 
   @override
@@ -25,7 +24,7 @@ class _FleetTrackingDashboardState extends State<FleetTrackingDashboard> {
             .where('status', whereIn: ['accepted', 'picked_up', 'on_the_way'])
             .snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
 
           final deliveries = snapshot.data!.docs
               .map((doc) => DeliveryModel.fromMap(doc.data() as Map<String, dynamic>))
@@ -40,7 +39,6 @@ class _FleetTrackingDashboardState extends State<FleetTrackingDashboard> {
                   target: LatLng(26.9124, 75.7873), // Jaipur Store
                   zoom: 12,
                 ),
-                onMapCreated: (controller) => _mapController = controller,
                 markers: _markers.values.toSet(),
               ),
               Positioned(
@@ -51,7 +49,7 @@ class _FleetTrackingDashboardState extends State<FleetTrackingDashboard> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
-                    boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
+                    boxShadow: [const BoxShadow(color: Colors.black26, blurRadius: 4)],
                   ),
                   child: Text(
                     '${deliveries.length} Active Riders',
@@ -81,4 +79,8 @@ class _FleetTrackingDashboardState extends State<FleetTrackingDashboard> {
       _markers[delivery.deliveryId] = marker;
     }
   }
+}
+
+extension on DeliveryModel {
+  String get deliveryId => id;
 }

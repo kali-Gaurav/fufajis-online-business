@@ -1,6 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-enum UserRole { customer, shopOwner, deliveryAgent, admin, employee }
+enum UserRole {
+  customer,
+  shopOwner,
+  deliveryAgent,
+  admin,
+  employee,
+  owner,
+  superAdmin,
+  rider,
+  dispatcher,
+  branchManager,
+  supplier,
+  franchiseOwner
+}
 
 enum MembershipTier { bronze, silver, gold, platinum }
 
@@ -11,8 +24,8 @@ class UserModel {
   final String? email;
   final String? name;
   final String? profileImage;
-  final UserRole role; // Active role for current session
-  final List<UserRole> roles; // All authorized roles for this account
+  final UserRole role;
+  final List<UserRole> roles;
   final MembershipTier membershipTier;
   final double walletBalance;
   final int rewardPoints;
@@ -24,11 +37,11 @@ class UserModel {
   final List<String> savedAddresses;
   final List<String> familyMemberIds;
   final List<String> savedPaymentMethods;
-  final double creditBalance; // Total amount owed by customer (Khata)
-  final double creditLimit; // Max credit allowed to customer
+  final double creditBalance;
+  final double creditLimit;
   final double codLimit;
   final bool isBlocked;
-  final String? pinHash; // Hashed security PIN for owners
+  final String? pinHash;
   final bool biometricEnabled;
   final List<DeviceFingerprint> approvedDevices;
   final bool guestMigrated;
@@ -37,6 +50,12 @@ class UserModel {
   final List<String> linkedProviders;
   final DateTime createdAt;
   final DateTime lastLogin;
+  final bool mfaEnabled;
+  final String? referralCode;
+  final int referralCount;
+  final double referralEarnings;
+  final double maxCashInHand;
+  final String? branchId;
 
   UserModel({
     required this.id,
@@ -70,6 +89,12 @@ class UserModel {
     this.linkedProviders = const ['phone'],
     required this.createdAt,
     required this.lastLogin,
+    this.mfaEnabled = false,
+    this.referralCode,
+    this.referralCount = 0,
+    this.referralEarnings = 0.0,
+    this.maxCashInHand = 10000.0,
+    this.branchId,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
@@ -83,8 +108,7 @@ class UserModel {
         (e) => e.toString() == map['role'],
         orElse: () => UserRole.customer,
       ),
-      roles:
-          (map['roles'] as List<dynamic>?)
+      roles: (map['roles'] as List<dynamic>?)
               ?.map(
                 (r) => UserRole.values.firstWhere(
                   (e) => e.toString() == r,
@@ -121,8 +145,18 @@ class UserModel {
       profileCompleted: map['profileCompleted'] ?? false,
       lastPhoneNumber: map['lastPhoneNumber'],
       linkedProviders: List<String>.from(map['linkedProviders'] ?? ['phone']),
-      createdAt: map['createdAt']?.toDate() ?? DateTime.now(),
-      lastLogin: map['lastLogin']?.toDate() ?? DateTime.now(),
+      createdAt: map['createdAt'] is Timestamp
+          ? (map['createdAt'] as Timestamp).toDate()
+          : DateTime.now(),
+      lastLogin: map['lastLogin'] is Timestamp
+          ? (map['lastLogin'] as Timestamp).toDate()
+          : DateTime.now(),
+      mfaEnabled: map['mfaEnabled'] ?? false,
+      referralCode: map['referralCode'],
+      referralCount: map['referralCount'] ?? 0,
+      referralEarnings: (map['referralEarnings'] ?? 0.0).toDouble(),
+      maxCashInHand: (map['maxCashInHand'] ?? 10000.0).toDouble(),
+      branchId: map['branchId'],
     );
   }
 
@@ -159,6 +193,12 @@ class UserModel {
       'linkedProviders': linkedProviders,
       'createdAt': createdAt,
       'lastLogin': lastLogin,
+      'mfaEnabled': mfaEnabled,
+      'referralCode': referralCode,
+      'referralCount': referralCount,
+      'referralEarnings': referralEarnings,
+      'maxCashInHand': maxCashInHand,
+      'branchId': branchId,
     };
   }
 
@@ -185,7 +225,6 @@ class UserModel {
     double? creditLimit,
     double? codLimit,
     bool? isBlocked,
-    // ── Security fields (were silently dropped before — now fixed) ──
     String? pinHash,
     bool? biometricEnabled,
     List<DeviceFingerprint>? approvedDevices,
@@ -195,6 +234,12 @@ class UserModel {
     List<String>? linkedProviders,
     DateTime? createdAt,
     DateTime? lastLogin,
+    bool? mfaEnabled,
+    String? referralCode,
+    int? referralCount,
+    double? referralEarnings,
+    double? maxCashInHand,
+    String? branchId,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -228,6 +273,12 @@ class UserModel {
       linkedProviders: linkedProviders ?? this.linkedProviders,
       createdAt: createdAt ?? this.createdAt,
       lastLogin: lastLogin ?? this.lastLogin,
+      mfaEnabled: mfaEnabled ?? this.mfaEnabled,
+      referralCode: referralCode ?? this.referralCode,
+      referralCount: referralCount ?? this.referralCount,
+      referralEarnings: referralEarnings ?? this.referralEarnings,
+      maxCashInHand: maxCashInHand ?? this.maxCashInHand,
+      branchId: branchId ?? this.branchId,
     );
   }
 }
@@ -276,20 +327,29 @@ class Address {
   final bool isDefault;
   final String? deliveryInstructions;
 
-  String get street => fullAddress;
-  String get district => pincode;
+  // New fields for broader compatibility
+  final String street;
+  final String city;
+  final String state;
+  final String zipCode;
+  final String district;
 
   Address({
     required this.id,
     required this.label,
-    required this.fullAddress,
-    required this.village,
-    required this.landmark,
-    required this.pincode,
+    this.fullAddress = '',
+    this.village = '',
+    this.landmark = '',
+    this.pincode = '',
     required this.latitude,
     required this.longitude,
     this.isDefault = false,
     this.deliveryInstructions,
+    this.street = '',
+    this.city = '',
+    this.state = '',
+    this.zipCode = '',
+    this.district = '',
   });
 
   factory Address.fromMap(Map<String, dynamic> map) {
@@ -304,6 +364,11 @@ class Address {
       longitude: (map['longitude'] ?? 0.0).toDouble(),
       isDefault: map['isDefault'] ?? false,
       deliveryInstructions: map['deliveryInstructions'],
+      street: map['street'] ?? '',
+      city: map['city'] ?? '',
+      state: map['state'] ?? '',
+      zipCode: map['zipCode'] ?? map['pincode'] ?? '',
+      district: map['district'] ?? '',
     );
   }
 
@@ -319,6 +384,11 @@ class Address {
       'longitude': longitude,
       'isDefault': isDefault,
       'deliveryInstructions': deliveryInstructions,
+      'street': street,
+      'city': city,
+      'state': state,
+      'zipCode': zipCode,
+      'district': district,
     };
   }
 
@@ -333,6 +403,11 @@ class Address {
     double? longitude,
     bool? isDefault,
     String? deliveryInstructions,
+    String? street,
+    String? city,
+    String? state,
+    String? zipCode,
+    String? district,
   }) {
     return Address(
       id: id ?? this.id,
@@ -345,6 +420,11 @@ class Address {
       longitude: longitude ?? this.longitude,
       isDefault: isDefault ?? this.isDefault,
       deliveryInstructions: deliveryInstructions ?? this.deliveryInstructions,
+      street: street ?? this.street,
+      city: city ?? this.city,
+      state: state ?? this.state,
+      zipCode: zipCode ?? this.zipCode,
+      district: district ?? this.district,
     );
   }
 }

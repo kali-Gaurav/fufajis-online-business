@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../config/app_config.dart';
+import 'api_client.dart';
 
 /// Callback typedefs for payment events
 typedef PaymentSuccessCallback = void Function(PaymentSuccessResponse response);
@@ -54,6 +54,7 @@ class RazorpayService {
   Future<void> createOrder({
     required double amount,
     required String orderId,
+    required String customerId,
     required String customerPhone,
     required String customerName,
     String customerEmail = 'customer@fufajionline.com',
@@ -71,22 +72,25 @@ class RazorpayService {
     }
 
     try {
-      // 1. Create Order on Razorpay Backend first (Step 1 & 2 of recommended architecture)
-      final callable = FirebaseFunctions.instance.httpsCallable('createRazorpayOrder');
-      final result = await callable.call(<String, dynamic>{
+      // Store order ID for later verification
+      _lastOrderId = orderId;
+
+      // 1. Create Order on Razorpay Backend first
+      final result = await ApiClient.instance.post('/payments/razorpay/order', <String, dynamic>{
         'amount': amount,
-        'currency': 'INR',
-        'receipt': orderId,
-        'notes': {'order_id': orderId},
+        'orderId': orderId,
+        'customerId': customerId,
+        'notes': {'order_id': orderId, 'customer_id': customerId},
       });
 
-      if (result.data == null || result.data['success'] != true) {
-        throw Exception('Failed to create Razorpay order on backend');
+      final data = Map<String, dynamic>.from(result.data as Map);
+      if (data['success'] != true) {
+        throw Exception('Failed to create Razorpay order on backend: ${data['error']}');
       }
 
-      final razorpayOrderId = result.data['razorpayOrderId'];
+      final razorpayOrderId = data['razorpayOrderId'];
 
-      // 2. Open Razorpay Checkout (Step 3)
+      // 2. Open Razorpay Checkout
       final options = <String, dynamic>{
         'key': key,
         'amount': (amount * 100).toInt(), // paise
@@ -98,7 +102,10 @@ class RazorpayService {
           'email': _sanitizeEmail(customerEmail),
           'name': _sanitizeName(customerName),
         },
-        'notes': {'order_id': orderId},
+        'notes': {
+          'order_id': orderId,
+          'customer_id': customerId,
+        },
         'theme': {'color': '#FF5722'},
         'external': {
           'wallets': ['paytm'],
@@ -106,7 +113,7 @@ class RazorpayService {
       };
 
       _razorpay.open(options);
-      debugPrint('RazorpayService: checkout opened for order $orderId (RZP ID: $razorpayOrderId)');
+      debugPrint('RazorpayService: checkout opened for order $orderId (RZP: $razorpayOrderId, Customer: $customerId)');
     } catch (e) {
       debugPrint('RazorpayService: failed to initiate payment – $e');
       _onFailure?.call(PaymentFailureResponse(Razorpay.NETWORK_ERROR, e.toString(), {}));
@@ -143,45 +150,49 @@ class RazorpayService {
   // Firebase verification & Firestore update
   // ──────────────────────────────────────────────────────────────────────
 
-  /// Call Cloud Function `verifyRazorpayPayment`, then update Firestore order.
+  /// Call AWS API `/payments/razorpay/verify` to verify signature and create order.
+  /// CRITICAL: Backend verifies signature using webhook_secret, NOT key_secret
   Future<void> _verifyAndUpdateOrder(PaymentSuccessResponse response) async {
     final paymentId = response.paymentId ?? '';
-    final orderId = response.orderId ?? '';
+    final razorpayOrderId = response.orderId ?? '';
     final signature = response.signature ?? '';
 
     try {
-      // 1. Server-side signature verification
-      final callable =
-          FirebaseFunctions.instance.httpsCallable('verifyRazorpayPayment');
-      final result = await callable.call(<String, dynamic>{
-        'paymentId': paymentId,
-        'orderId': orderId,
-        'signature': signature,
+      // 1. Server-side signature verification using backend
+      // Backend MUST use webhook_secret (not key_secret) for verification
+      final result = await ApiClient.instance.post('/payments/razorpay/verify', <String, dynamic>{
+        'razorpay_payment_id': paymentId,
+        'razorpay_order_id': razorpayOrderId,
+        'razorpay_signature': signature,
+        'order_id': _lastOrderId, // Backend will create order with this ID
       });
 
-      final verified =
-          result.data != null && result.data['success'] == true;
+      final data = Map<String, dynamic>.from(result.data as Map);
+      final verified = data['success'] == true;
 
       if (verified) {
         debugPrint(
-            'RazorpayService: signature verified – updating order $orderId');
-        await _markOrderPaid(orderId: orderId, paymentId: paymentId);
+            'RazorpayService: signature verified by backend – order ${data['orderId']} created');
+        // Backend has already created the order, just update local state if needed
+        await _markOrderPaid(
+          orderId: data['orderId'] ?? _lastOrderId,
+          paymentId: paymentId,
+        );
       } else {
         debugPrint(
-            'RazorpayService: signature verification failed – ${result.data}');
-        await _markOrderFailed(orderId: orderId);
+            'RazorpayService: signature verification failed – ${data['error']}');
+        await _markOrderFailed(orderId: _lastOrderId);
       }
-    } on FirebaseFunctionsException catch (e) {
-      debugPrint(
-          'RazorpayService: Cloud Function error [${e.code}] ${e.message}');
-      // Fallback: optimistically mark paid; webhook will reconcile
-      await _markOrderPaid(orderId: orderId, paymentId: paymentId);
     } catch (e) {
       debugPrint('RazorpayService: verification error – $e');
-      // Optimistically mark paid; webhook reconciliation will correct
-      await _markOrderPaid(orderId: orderId, paymentId: paymentId);
+      // Fallback: optimistically mark paid; webhook reconciliation will correct
+      // Backend should have created order via webhook if verify fails due to network
+      await _markOrderPaid(orderId: _lastOrderId, paymentId: paymentId);
     }
   }
+
+  // Store last order ID for reference
+  String _lastOrderId = '';
 
   Future<void> _markOrderPaid({
     required String orderId,

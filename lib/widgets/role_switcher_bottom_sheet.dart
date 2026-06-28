@@ -92,14 +92,27 @@ class RoleSwitcherBottomSheet extends StatelessWidget {
     switch (role) {
       case UserRole.customer:
         return Icons.shopping_bag_outlined;
-      case UserRole.shopOwner:
+      case UserRole.owner:
         return Icons.storefront;
-      case UserRole.deliveryAgent:
+      case UserRole.rider:
         return Icons.delivery_dining;
-      case UserRole.admin:
+      case UserRole.superAdmin:
         return Icons.admin_panel_settings;
       case UserRole.employee:
         return Icons.badge_outlined;
+      case UserRole.dispatcher:
+      case UserRole.shopOwner:
+        return Icons.hub_outlined;
+      case UserRole.branchManager:
+        return Icons.business_center_outlined;
+      case UserRole.supplier:
+        return Icons.local_shipping_outlined;
+      case UserRole.franchiseOwner:
+        return Icons.store_outlined;
+      case UserRole.deliveryAgent:
+        return Icons.directions_bike_outlined;
+      case UserRole.admin:
+        return Icons.shield_outlined;
     }
   }
 
@@ -107,14 +120,27 @@ class RoleSwitcherBottomSheet extends StatelessWidget {
     switch (role) {
       case UserRole.customer:
         return 'Customer';
-      case UserRole.shopOwner:
+      case UserRole.owner:
         return 'Shop Owner';
-      case UserRole.deliveryAgent:
+      case UserRole.rider:
         return 'Delivery Partner';
-      case UserRole.admin:
+      case UserRole.superAdmin:
         return 'Administrator';
       case UserRole.employee:
         return 'Employee';
+      case UserRole.dispatcher:
+      case UserRole.shopOwner:
+        return 'Dispatcher';
+      case UserRole.branchManager:
+        return 'Branch Manager';
+      case UserRole.supplier:
+        return 'Supplier';
+      case UserRole.franchiseOwner:
+        return 'Franchise Owner';
+      case UserRole.deliveryAgent:
+        return 'Delivery Agent';
+      case UserRole.admin:
+        return 'Admin';
     }
   }
 
@@ -122,14 +148,27 @@ class RoleSwitcherBottomSheet extends StatelessWidget {
     switch (role) {
       case UserRole.customer:
         return 'Shop from local stores';
-      case UserRole.shopOwner:
+      case UserRole.owner:
         return 'Manage your business';
-      case UserRole.deliveryAgent:
+      case UserRole.rider:
         return 'Earn by delivering orders';
-      case UserRole.admin:
+      case UserRole.superAdmin:
         return 'System oversight';
       case UserRole.employee:
         return 'Store operations';
+      case UserRole.dispatcher:
+      case UserRole.shopOwner:
+        return 'Dispatch operations';
+      case UserRole.branchManager:
+        return 'Branch oversight';
+      case UserRole.supplier:
+        return 'Supply chain management';
+      case UserRole.franchiseOwner:
+        return 'Manage franchise business';
+      case UserRole.deliveryAgent:
+        return 'Deliver orders on the road';
+      case UserRole.admin:
+        return 'System administration';
     }
   }
 }

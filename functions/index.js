@@ -5,37 +5,21 @@ const twilio = require('twilio');
 
 admin.initializeApp();
 
-// Initialize Twilio client
-const twilioClient = twilio(
-    functions.config().twilio?.account_sid,
-    functions.config().twilio?.auth_token
-);
-const twilioPhoneNumber = functions.config().twilio?.phone_number;
-
-/**
- * ═══════════════════════════════════════════════════════════════════════
- * RAZORPAY WEBHOOK HANDLER (PRODUCTION HARDENED)
- * ═══════════════════════════════════════════════════════════════════════
- * Receives events from Razorpay (payment.captured, payment.failed,
- * payment.refunded, order.paid) and reconciles order status in Firestore.
- *
- * Security: HMAC-SHA256 signature verification
- * Idempotency: Deduplication via webhook_events collection
- * Audit: Full reconciliation log in payment_reconciliation_log
- */
-exports.razorpayWebhook = functions.https.onRequest(async (req, res) => {
+exports.razorpayWebhook = functions.runWith({
+    secrets: ['RAZORPAY_WEBHOOK_SECRET']
+}).https.onRequest(async (req, res) => {
     // Only accept POST requests
     if (req.method !== 'POST') {
         return res.status(405).send('Method Not Allowed');
     }
 
-    const RAZORPAY_WEBHOOK_SECRET = functions.config().razorpay.webhook_secret;
+    const RAZORPAY_WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET;
     const signature = req.headers['x-razorpay-signature'];
 
     // 1. Verify HMAC-SHA256 signature
-    const body = JSON.stringify(req.body);
+    const body = req.rawBody || JSON.stringify(req.body);
     const expectedSignature = crypto
-        .createHmac('sha256', RAZORPAY_WEBHOOK_SECRET)
+        .createHmac('sha256', RAZORPAY_WEBHOOK_SECRET || '')
         .update(body)
         .digest('hex');
 
@@ -236,7 +220,9 @@ exports.razorpayWebhook = functions.https.onRequest(async (req, res) => {
  * Verify Razorpay Payment Signature
  * Securely verifies payment signature server-side using HMAC-SHA256
  */
-exports.verifyRazorpayPayment = functions.https.onCall(async (data, context) => {
+exports.verifyRazorpayPayment = functions.runWith({
+    secrets: ['RAZORPAY_KEY_SECRET']
+}).https.onCall(async (data, context) => {
     try {
         const { paymentId, orderId, signature } = data;
 
@@ -247,7 +233,7 @@ exports.verifyRazorpayPayment = functions.https.onCall(async (data, context) => 
             );
         }
 
-        const RAZORPAY_KEY_SECRET = functions.config().razorpay?.key_secret || 'RAZORPAY_SECRET_KEY_PLACEHOLDER';
+        const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || 'RAZORPAY_SECRET_KEY_PLACEHOLDER';
 
         // Cryptographically verify signature
         const expectedSignature = crypto
@@ -286,7 +272,11 @@ exports.verifyRazorpayPayment = functions.https.onCall(async (data, context) => 
  * 
  * [Requirements 4.9]: Send confirmation SMS/notification
  */
-exports.sendOrderConfirmationSMS = functions.https.onCall(async (data, context) => {
+exports.sendOrderConfirmationSMS = functions.runWith({
+    secrets: ['TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_PHONE_NUMBER']
+}).https.onCall(async (data, context) => {
+    const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+    const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER || '+15017122661';
     try {
         const { phoneNumber, orderNumber, estimatedDeliveryDate, totalAmount } = data;
 
@@ -332,7 +322,11 @@ exports.sendOrderConfirmationSMS = functions.https.onCall(async (data, context) 
  * 
  * [Requirements 5.3]: Send status update notifications
  */
-exports.sendOrderStatusUpdateSMS = functions.https.onCall(async (data, context) => {
+exports.sendOrderStatusUpdateSMS = functions.runWith({
+    secrets: ['TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_PHONE_NUMBER']
+}).https.onCall(async (data, context) => {
+    const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+    const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER || '+15017122661';
     try {
         const { phoneNumber, orderNumber, status, additionalInfo } = data;
 
@@ -398,7 +392,11 @@ exports.sendOrderStatusUpdateSMS = functions.https.onCall(async (data, context) 
  * 
  * [Requirements 5.5]: Send OTP for delivery verification
  */
-exports.sendDeliveryOTPSMS = functions.https.onCall(async (data, context) => {
+exports.sendDeliveryOTPSMS = functions.runWith({
+    secrets: ['TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_PHONE_NUMBER']
+}).https.onCall(async (data, context) => {
+    const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+    const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER || '+15017122661';
     try {
         const { phoneNumber, orderNumber, otp } = data;
 
@@ -441,7 +439,11 @@ exports.sendDeliveryOTPSMS = functions.https.onCall(async (data, context) => {
  * 
  * [Requirements 5.7]: Send cancellation notification
  */
-exports.sendOrderCancellationSMS = functions.https.onCall(async (data, context) => {
+exports.sendOrderCancellationSMS = functions.runWith({
+    secrets: ['TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_PHONE_NUMBER']
+}).https.onCall(async (data, context) => {
+    const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+    const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER || '+15017122661';
     try {
         const { phoneNumber, orderNumber, refundAmount } = data;
 
@@ -484,7 +486,11 @@ exports.sendOrderCancellationSMS = functions.https.onCall(async (data, context) 
  * 
  * [Requirements 5.4]: Send delivery agent assignment notification
  */
-exports.sendDeliveryAgentAssignmentSMS = functions.https.onCall(async (data, context) => {
+exports.sendDeliveryAgentAssignmentSMS = functions.runWith({
+    secrets: ['TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_PHONE_NUMBER']
+}).https.onCall(async (data, context) => {
+    const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+    const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER || '+15017122661';
     try {
         const { phoneNumber, orderNumber, agentName, agentPhone, estimatedArrivalTime } = data;
 
@@ -525,7 +531,11 @@ exports.sendDeliveryAgentAssignmentSMS = functions.https.onCall(async (data, con
  * Send Promotional SMS
  * Sends promotional messages to customers
  */
-exports.sendPromotionalSMS = functions.https.onCall(async (data, context) => {
+exports.sendPromotionalSMS = functions.runWith({
+    secrets: ['TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_PHONE_NUMBER']
+}).https.onCall(async (data, context) => {
+    const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+    const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER || '+15017122661';
     try {
         const { phoneNumber, message } = data;
 
@@ -620,7 +630,9 @@ exports.whatsappWebhook = functions.https.onRequest(async (req, res) => {
 /**
  * Trigger push notifications when order status changes
  */
-exports.onOrderUpdate = functions.firestore
+exports.onOrderUpdate = functions.runWith({
+    secrets: ['WHATSAPP_TOKEN', 'WHATSAPP_PHONE_ID']
+}).firestore
     .document('orders/{orderId}')
     .onUpdate(async (change, context) => {
         const newValue = change.after.data();
@@ -705,8 +717,8 @@ exports.onOrderUpdate = functions.firestore
                 const userDoc = await admin.firestore().collection('users').doc(customerId).get();
                 const phone = userDoc.data()?.phoneNumber;
                 if (phone) {
-                    const WHATSAPP_TOKEN = functions.config().whatsapp?.token;
-                    const WHATSAPP_PHONE_ID = functions.config().whatsapp?.phone_id;
+                    const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
+                    const WHATSAPP_PHONE_ID = process.env.WHATSAPP_PHONE_ID;
                     if (WHATSAPP_TOKEN && WHATSAPP_PHONE_ID) {
                         const cleanPhone = phone.replace(/\D/g, '');
                         const waPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
@@ -737,7 +749,9 @@ exports.onOrderUpdate = functions.firestore
 /**
  * Trigger push notifications when a new order is created
  */
-exports.onOrderCreate = functions.firestore
+exports.onOrderCreate = functions.runWith({
+    secrets: ['WHATSAPP_TOKEN', 'WHATSAPP_PHONE_ID']
+}).firestore
     .document('orders/{orderId}')
     .onCreate(async (snap, context) => {
         const newValue = snap.data();
@@ -789,8 +803,8 @@ exports.onOrderCreate = functions.firestore
             // TRIGGER WHATSAPP
             const phone = userDoc.data()?.phoneNumber;
             if (phone) {
-                const WHATSAPP_TOKEN = functions.config().whatsapp?.token;
-                const WHATSAPP_PHONE_ID = functions.config().whatsapp?.phone_id;
+                const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
+                const WHATSAPP_PHONE_ID = process.env.WHATSAPP_PHONE_ID;
                 if (WHATSAPP_TOKEN && WHATSAPP_PHONE_ID) {
                     const cleanPhone = phone.replace(/\D/g, '');
                     const waPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
@@ -934,7 +948,9 @@ function formatPhoneNumber(phoneNumber) {
 /**
  * Initiate Rider Payout via Razorpay route/transfers
  */
-exports.initiateRiderPayout = functions.https.onCall(async (data, context) => {
+exports.initiateRiderPayout = functions.runWith({
+    secrets: ['RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET']
+}).https.onCall(async (data, context) => {
     try {
         const { riderAccountId, amount, currency } = data;
 
@@ -947,9 +963,8 @@ exports.initiateRiderPayout = functions.https.onCall(async (data, context) => {
 
         console.log(`Initiating secure transfer of ₹${amount} to Razorpay account: ${riderAccountId}`);
 
-        const razorpayConfig = functions.config().razorpay || {};
-        const keyId = razorpayConfig.key_id;
-        const keySecret = razorpayConfig.key_secret;
+        const keyId = process.env.RAZORPAY_KEY_ID;
+        const keySecret = process.env.RAZORPAY_KEY_SECRET;
         
         if (!keyId || !keySecret) {
             throw new functions.https.HttpsError(
@@ -1552,15 +1567,17 @@ exports.dailyFirestoreBackup = functions.pubsub
  * Calculates: order count, revenue, pending vs delivered, top 3 products.
  * Owner phone is read from Firestore settings/shop_config → ownerPhone.
  */
-exports.sendDailyOwnerReport = functions.pubsub
+exports.sendDailyOwnerReport = functions.runWith({
+    secrets: ['WHATSAPP_TOKEN', 'WHATSAPP_PHONE_ID']
+}).pubsub
     .schedule('0 22 * * *')
     .timeZone('Asia/Kolkata')
     .onRun(async (context) => {
         console.log('[DailyReport] Starting daily owner report...');
 
         try {
-            const WHATSAPP_TOKEN = functions.config().whatsapp?.token || '';
-            const WHATSAPP_PHONE_ID = functions.config().whatsapp?.phone_id || '';
+            const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN || '';
+            const WHATSAPP_PHONE_ID = process.env.WHATSAPP_PHONE_ID || '';
 
             if (!WHATSAPP_TOKEN || !WHATSAPP_PHONE_ID) {
                 console.error('[DailyReport] Missing WHATSAPP_TOKEN or WHATSAPP_PHONE_ID config.');
@@ -1872,7 +1889,9 @@ exports.cleanupNotificationQueue = functions.pubsub
  * this function runs the same report as sendDailyOwnerReport immediately.
  * This powers the "Send Test Report Now" button in Shop Settings.
  */
-exports.onReportTriggerRequest = functions.firestore
+exports.onReportTriggerRequest = functions.runWith({
+    secrets: ['WHATSAPP_TOKEN', 'WHATSAPP_PHONE_ID']
+}).firestore
     .document('report_trigger_queue/{docId}')
     .onCreate(async (snap, context) => {
         const data = snap.data();
@@ -1886,8 +1905,8 @@ exports.onReportTriggerRequest = functions.firestore
         await snap.ref.update({ status: 'processing', startedAt: admin.firestore.FieldValue.serverTimestamp() });
 
         try {
-            const WHATSAPP_TOKEN = functions.config().whatsapp?.token || '';
-            const WHATSAPP_PHONE_ID = functions.config().whatsapp?.phone_id || '';
+            const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN || '';
+            const WHATSAPP_PHONE_ID = process.env.WHATSAPP_PHONE_ID || '';
 
             if (!WHATSAPP_TOKEN || !WHATSAPP_PHONE_ID) {
                 console.error('[OnDemandReport] Missing WhatsApp config.');
@@ -2014,7 +2033,9 @@ Yeh test report tha. Real report 10 PM pe aayega! 🙏
  *   1. Owner (from settings/shop_config.ownerPhone)
  *   2. Supplier (from product.supplierPhone, if set)
  */
-exports.sendLowStockWhatsAppAlert = functions.firestore
+exports.sendLowStockWhatsAppAlert = functions.runWith({
+    secrets: ['WHATSAPP_TOKEN', 'WHATSAPP_PHONE_ID']
+}).firestore
     .document('products/{productId}')
     .onUpdate(async (change, context) => {
         const before = change.before.data();
@@ -2028,8 +2049,8 @@ exports.sendLowStockWhatsAppAlert = functions.firestore
         const justWentLow = stockAfter < minimumStock && stockBefore >= minimumStock;
         if (!justWentLow) return null;
 
-        const WHATSAPP_TOKEN = functions.config().whatsapp?.token || '';
-        const PHONE_ID = functions.config().whatsapp?.phone_id || '';
+        const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN || '';
+        const PHONE_ID = process.env.WHATSAPP_PHONE_ID || '';
 
         if (!WHATSAPP_TOKEN || !PHONE_ID) {
             console.warn('[LowStockAlert] Missing WhatsApp config. Skipping.');
@@ -2132,7 +2153,9 @@ Kripya jald se jald supply bhejein.
  * Builds an invoice from the order in Firestore and sends it
  * via WhatsApp to the customer's phone number.
  */
-exports.generateAndSendInvoice = functions.https.onCall(async (data, context) => {
+exports.generateAndSendInvoice = functions.runWith({
+    secrets: ['WHATSAPP_TOKEN', 'WHATSAPP_PHONE_ID']
+}).https.onCall(async (data, context) => {
     const { orderId } = data;
 
     if (!orderId) {
@@ -2142,8 +2165,8 @@ exports.generateAndSendInvoice = functions.https.onCall(async (data, context) =>
         );
     }
 
-    const WHATSAPP_TOKEN = functions.config().whatsapp?.token || '';
-    const PHONE_ID = functions.config().whatsapp?.phone_id || '';
+    const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN || '';
+    const PHONE_ID = process.env.WHATSAPP_PHONE_ID || '';
 
     if (!WHATSAPP_TOKEN || !PHONE_ID) {
         throw new functions.https.HttpsError(
@@ -2281,7 +2304,9 @@ Fufaji's Online — Baran, Rajasthan
  * Create Razorpay Order
  * Initiates an order on Razorpay and returns the order ID to the client
  */
-exports.createRazorpayOrder = functions.https.onCall(async (data, context) => {
+exports.createRazorpayOrder = functions.runWith({
+    secrets: ['RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET']
+}).https.onCall(async (data, context) => {
     try {
         const { amount, currency, receipt, notes } = data;
 
@@ -2292,9 +2317,8 @@ exports.createRazorpayOrder = functions.https.onCall(async (data, context) => {
             );
         }
 
-        const razorpayConfig = functions.config().razorpay || {};
-        const keyId = razorpayConfig.key_id;
-        const keySecret = razorpayConfig.key_secret;
+        const keyId = process.env.RAZORPAY_KEY_ID;
+        const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
         if (!keyId || !keySecret) {
             throw new functions.https.HttpsError(
@@ -2361,7 +2385,9 @@ exports.createRazorpayOrder = functions.https.onCall(async (data, context) => {
  * Razorpay Refund Handler
  * Initiates a refund for a payment
  */
-exports.initiateRazorpayRefund = functions.https.onCall(async (data, context) => {
+exports.initiateRazorpayRefund = functions.runWith({
+    secrets: ['RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET']
+}).https.onCall(async (data, context) => {
     try {
         // 1. Authorization check
         if (!context.auth) {
@@ -2380,9 +2406,8 @@ exports.initiateRazorpayRefund = functions.https.onCall(async (data, context) =>
             throw new functions.https.HttpsError('invalid-argument', 'Missing paymentId');
         }
 
-        const razorpayConfig = functions.config().razorpay || {};
-        const keyId = razorpayConfig.key_id;
-        const keySecret = razorpayConfig.key_secret;
+        const keyId = process.env.RAZORPAY_KEY_ID;
+        const keySecret = process.env.RAZORPAY_KEY_SECRET;
         const auth = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
 
         const postData = JSON.stringify({
@@ -2485,15 +2510,17 @@ exports.notifyNewDevice = functions.https.onCall(async (data, context) => {
     }
 });
 
-exports._placeholder_end = functions.pubsub
+exports._placeholder_end = functions.runWith({
+    secrets: ['WHATSAPP_TOKEN', 'WHATSAPP_PHONE_ID']
+}).pubsub
     .schedule('30 16 * * *') // 16:30 UTC = 22:00 IST
     .timeZone('UTC') // Using UTC to explicitly map 16:30
     .onRun(async (context) => {
         console.log('[DailyReport] Generating 10 PM owner report...');
 
         try {
-            const WHATSAPP_TOKEN = functions.config().whatsapp?.token || '';
-            const WHATSAPP_PHONE_ID = functions.config().whatsapp?.phone_id || '';
+            const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN || '';
+            const WHATSAPP_PHONE_ID = process.env.WHATSAPP_PHONE_ID || '';
 
             if (!WHATSAPP_TOKEN || !WHATSAPP_PHONE_ID) {
                 console.error('[DailyReport] Missing WhatsApp config. Skipping.');
@@ -2762,4 +2789,115 @@ exports.onEmployeeWrite = functions.firestore
         }
         return null;
     });
+
+// ═══════════════════════════════════════════════════════════════════════
+// NEW CALLABLE PROXIES FOR HARDENED CLIENT SECURITY
+// ═══════════════════════════════════════════════════════════════════════
+
+/**
+ * Callable function to query Gemini model securely from the client side without exposing keys.
+ */
+exports.geminiCall = functions.runWith({
+    secrets: ['GEMINI_API_KEY']
+}).https.onCall(async (data, context) => {
+    const { prompt, image, mimeType } = data;
+
+    if (!prompt) {
+        throw new functions.https.HttpsError('invalid-argument', 'Missing prompt parameter.');
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+        throw new functions.https.HttpsError('failed-precondition', 'Gemini API key is not configured.');
+    }
+
+    try {
+        const { GoogleGenerativeAI } = require('@google/generative-ai');
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+        const parts = [];
+        if (image && mimeType) {
+            parts.push({
+                inlineData: {
+                    data: image,
+                    mimeType: mimeType
+                }
+            });
+        }
+        parts.push(prompt);
+
+        const result = await model.generateContent(parts);
+        const response = await result.response;
+        const text = response.text();
+
+        return { success: true, text: text };
+    } catch (error) {
+        console.error('[geminiCall] Exception:', error);
+        throw new functions.https.HttpsError('internal', error.message);
+    }
+});
+
+/**
+ * Callable function to send WhatsApp notifications securely from the client side without exposing tokens.
+ */
+exports.sendWhatsAppNotification = functions.runWith({
+    secrets: ['WHATSAPP_TOKEN', 'WHATSAPP_PHONE_ID']
+}).https.onCall(async (data, context) => {
+    const { to, type, text, template, interactive } = data;
+
+    if (!to || !type) {
+        throw new functions.https.HttpsError('invalid-argument', 'Missing to or type parameter.');
+    }
+
+    const token = process.env.WHATSAPP_TOKEN;
+    const phoneId = process.env.WHATSAPP_PHONE_ID;
+
+    if (!token || !phoneId) {
+        throw new functions.https.HttpsError('failed-precondition', 'WhatsApp service is not configured on server.');
+    }
+
+    const payload = {
+        messaging_product: 'whatsapp',
+        to: to,
+        type: type,
+    };
+    if (text) payload.text = text;
+    if (template) payload.template = template;
+    if (interactive) payload.interactive = interactive;
+
+    try {
+        const response = await fetch(
+            `https://graph.facebook.com/v25.0/${phoneId}/messages`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify(payload),
+            }
+        );
+
+        const result = await response.json();
+        if (response.ok) {
+            return { success: true, data: result };
+        } else {
+            console.error('[sendWhatsAppNotification] Meta API error:', result);
+            return { success: false, error: result };
+        }
+    } catch (error) {
+        console.error('[sendWhatsAppNotification] Exception:', error);
+        throw new functions.https.HttpsError('internal', error.message);
+    }
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// EXPORTS FROM OTHER MODULES
+// ═══════════════════════════════════════════════════════════════════════
+
+Object.assign(exports, require('./aws_services'));
+Object.assign(exports, require('./firestore_sync'));
+Object.assign(exports, require('./pg_backup'));
+Object.assign(exports, require('./automation_rules_engine'));
 

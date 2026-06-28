@@ -9,6 +9,9 @@ import '../../models/order_model.dart';
 import '../../widgets/scratch_card_widget.dart';
 import '../../services/reorder_service.dart';
 import '../../utils/app_theme.dart';
+import '../../constants/order_status.dart';
+import '../../widgets/fj_empty_state.dart';
+import '../../widgets/shimmer_loading.dart';
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
@@ -106,9 +109,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Orders'),
+        title: const Text('My Orders', style: TextStyle(fontWeight: FontWeight.w700)),
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.cream,
         foregroundColor: AppTheme.grey900,
       ),
       body: Column(
@@ -120,32 +123,34 @@ class _OrdersScreenState extends State<OrdersScreen> {
               color: AppTheme.grey100,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
+            child: Row(
                 children: List.generate(_tabs.length, (index) {
                   return Expanded(
                     child: GestureDetector(
                       onTap: () => setState(() => _selectedTab = index),
-                      child: Container(
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
                         padding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 8,
+                          vertical: 10,
+                          horizontal: 4,
                         ),
                         decoration: BoxDecoration(
                           color: _selectedTab == index
                               ? AppTheme.primary
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(12),
+                          boxShadow: _selectedTab == index
+                              ? [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.25), blurRadius: 8, offset: const Offset(0, 3))]
+                              : null,
                         ),
                         child: Text(
                           _tabs[index],
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 14,
                             fontWeight: _selectedTab == index
                                 ? FontWeight.bold
-                                : FontWeight.w500,
+                                : FontWeight.w600,
                             color: _selectedTab == index
                                 ? Colors.white
                                 : AppTheme.grey700,
@@ -156,12 +161,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   );
                 }),
               ),
-            ),
           ),
           // Orders List with Pagination
           Expanded(
             child: orderProvider.isLoading && filteredOrders.isEmpty
-                ? const Center(child: CircularProgressIndicator())
+                ? const OrderListSkeleton(count: 4)
                 : filteredOrders.isEmpty
                     ? _buildEmptyOrders()
                     : ListView.builder(
@@ -200,50 +204,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 
   Widget _buildEmptyOrders() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              color: AppTheme.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: const Icon(
-              Icons.shopping_bag_outlined,
-              size: 50,
-              color: AppTheme.primary,
-            ),
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'No orders yet',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.grey900,
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Start shopping to see your orders here',
-            style: TextStyle(fontSize: 14, color: AppTheme.grey500),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () => context.go('/customer/home'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primary,
-              foregroundColor: Colors.white,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-            ),
-            child: const Text('Start Shopping'),
-          ),
-        ],
-      ),
+    return FjEmptyState(
+      icon: Icons.shopping_bag_outlined,
+      title: 'No orders yet',
+      subtitle: 'Start shopping to see your orders here',
+      buttonLabel: 'Start Shopping',
+      onButtonTap: () => context.go('/customer/home'),
     );
   }
 
@@ -446,7 +412,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                             style: TextStyle(fontSize: 11),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.deepOrange,
+                            backgroundColor: AppTheme.primary,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(
                               horizontal: 12,
@@ -552,7 +518,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
+      builder: (_) => const Center(child: CircularProgressIndicator(color: AppTheme.primary)),
     );
 
     final result = await ReorderService().populateCartFromOrder(
@@ -577,7 +543,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
-          backgroundColor: result.hasUnavailableItems ? Colors.orange : AppTheme.success,
+          backgroundColor: result.hasUnavailableItems ? AppTheme.warning : AppTheme.success,
           duration: const Duration(seconds: 3),
           action: SnackBarAction(
             label: 'VIEW CART',
@@ -610,7 +576,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
       barrierDismissible: true,
       builder: (context) {
         return Dialog(
-          backgroundColor: Colors.white,
+          backgroundColor: AppTheme.cream,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
@@ -677,4 +643,3 @@ class _OrdersScreenState extends State<OrdersScreen> {
     );
   }
 }
-

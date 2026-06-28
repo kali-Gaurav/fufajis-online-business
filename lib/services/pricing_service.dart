@@ -1,5 +1,6 @@
 import 'dart:math';
 import '../models/product_model.dart';
+import '../utils/monetary_value.dart';
 import 'product_service.dart';
 import 'shop_config_service.dart';
 
@@ -150,50 +151,18 @@ class PricingService {
         if (feed != null) {
           final srp = calculateSuggestedRetailPrice(feed.currentMandiPrice);
           // If price differs, perform update
-          if ((product.price - srp).abs() > 0.1) {
-            final updatedProd = ProductModel(
-              id: product.id,
-              name: product.name,
-              description: product.description,
-              price: srp,
-              originalPrice:
-                  srp, // Dynamic original price equal to sale price (no forced 15% markup)
-              discountPercentage: 0.0,
-              unit: product.unit,
-              category: product.category,
-              subCategory: product.subCategory,
-              shopId: product.shopId,
-              shopName: product.shopName,
-              imageUrl: product.imageUrl,
-              images: product.images,
-              rating: product.rating,
-              reviewCount: product.reviewCount,
-              stockQuantity: product.stockQuantity,
-              isAvailable: product.isAvailable,
-              isFeatured: product.isFeatured,
-              isOnSale: product.isOnSale,
-              isNewArrival: product.isNewArrival,
-              isTrending: product.isTrending,
-              specifications: product.specifications,
-              tags: product.tags,
-              barcode: product.barcode,
-              brand: product.brand,
-              origin: product.origin,
-              expiryDate: product.expiryDate,
-              weight: product.weight,
-              weightUnit: product.weightUnit,
-              minOrderQuantity: product.minOrderQuantity,
-              maxOrderQuantity: product.maxOrderQuantity,
-              district: product.district,
-              village: product.village,
-              createdAt: product.createdAt,
+          if ((product.price.toDouble() - srp).abs() > 0.1) {
+            final updatedProd = product.copyWith(
+              price: MonetaryValue(srp),
+              originalPrice: MonetaryValue(srp),
+              discountPercentage: MonetaryValue(0.0),
               updatedAt: DateTime.now(),
-              unitOptions: product.unitOptions,
             );
 
-            await productService.addProduct(
-              updatedProd,
-            ); // Overwrite / edit product
+            await productService.updateProduct(
+              updatedProd.id,
+              updatedProd.toMap(),
+            );
             updatedCount++;
           }
         }

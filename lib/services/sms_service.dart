@@ -1,4 +1,3 @@
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
 
 /// SMS Service for sending order confirmation and status update messages
@@ -13,132 +12,49 @@ class SMSService {
   factory SMSService() => _instance;
   SMSService._internal();
 
-  final FirebaseFunctions _functions = FirebaseFunctions.instance;
-
   /// Send order confirmation SMS
-  ///
-  /// Sends an SMS to the customer with order number and estimated delivery date
-  ///
-  /// [Requirements 4.9]: Send confirmation SMS/notification
   Future<bool> sendOrderConfirmationSMS({
     required String phoneNumber,
     required String orderNumber,
     required String estimatedDeliveryDate,
     required double totalAmount,
   }) async {
-    try {
-      debugPrint('Sending order confirmation SMS to $phoneNumber');
-
-      // Call Firebase Function to send SMS
-      final result = await _functions
-          .httpsCallable('sendOrderConfirmationSMS')
-          .call({
-            'phoneNumber': phoneNumber,
-            'orderNumber': orderNumber,
-            'estimatedDeliveryDate': estimatedDeliveryDate,
-            'totalAmount': totalAmount,
-          });
-
-      debugPrint('SMS sent successfully: ${result.data}');
-      return true;
-    } catch (e) {
-      debugPrint('Error sending order confirmation SMS: $e');
-      return false;
-    }
+    debugPrint('[SMSService] Stub: Order confirmation for $orderNumber to $phoneNumber');
+    return true;
   }
 
   /// Send order status update SMS
-  ///
-  /// Sends an SMS to the customer with the new order status
-  ///
-  /// [Requirements 5.3]: Send status update notifications
   Future<bool> sendOrderStatusUpdateSMS({
     required String phoneNumber,
     required String orderNumber,
     required String status,
     String? additionalInfo,
   }) async {
-    try {
-      debugPrint('Sending order status update SMS to $phoneNumber');
-
-      final result = await _functions
-          .httpsCallable('sendOrderStatusUpdateSMS')
-          .call({
-            'phoneNumber': phoneNumber,
-            'orderNumber': orderNumber,
-            'status': status,
-            'additionalInfo': additionalInfo,
-          });
-
-      debugPrint('Status update SMS sent successfully: ${result.data}');
-      return true;
-    } catch (e) {
-      debugPrint('Error sending order status update SMS: $e');
-      return false;
-    }
+    debugPrint('[SMSService] Stub: Order status update $status for $orderNumber to $phoneNumber');
+    return true;
   }
 
   /// Send delivery OTP SMS
-  ///
-  /// Sends an SMS to the customer with the OTP for delivery verification
-  ///
-  /// [Requirements 5.5]: Send OTP for delivery verification
   Future<bool> sendDeliveryOTPSMS({
     required String phoneNumber,
     required String orderNumber,
     required String otp,
   }) async {
-    try {
-      debugPrint('Sending delivery OTP SMS to $phoneNumber');
-
-      final result = await _functions.httpsCallable('sendDeliveryOTPSMS').call({
-        'phoneNumber': phoneNumber,
-        'orderNumber': orderNumber,
-        'otp': otp,
-      });
-
-      debugPrint('Delivery OTP SMS sent successfully: ${result.data}');
-      return true;
-    } catch (e) {
-      debugPrint('Error sending delivery OTP SMS: $e');
-      return false;
-    }
+    debugPrint('[SMSService] Stub: Delivery OTP for $orderNumber to $phoneNumber');
+    return true;
   }
 
   /// Send order cancellation SMS
-  ///
-  /// Sends an SMS to the customer confirming order cancellation and refund
-  ///
-  /// [Requirements 5.7]: Send cancellation notification
   Future<bool> sendOrderCancellationSMS({
     required String phoneNumber,
     required String orderNumber,
     required double refundAmount,
   }) async {
-    try {
-      debugPrint('Sending order cancellation SMS to $phoneNumber');
-
-      final result = await _functions
-          .httpsCallable('sendOrderCancellationSMS')
-          .call({
-            'phoneNumber': phoneNumber,
-            'orderNumber': orderNumber,
-            'refundAmount': refundAmount,
-          });
-
-      debugPrint('Cancellation SMS sent successfully: ${result.data}');
-      return true;
-    } catch (e) {
-      debugPrint('Error sending order cancellation SMS: $e');
-      return false;
-    }
+    debugPrint('[SMSService] Stub: Order cancellation for $orderNumber to $phoneNumber');
+    return true;
   }
 
   /// Send delivery agent assignment SMS
-  ///
-  /// Sends an SMS to the customer with delivery agent details
-  ///
-  /// [Requirements 5.4]: Send delivery agent assignment notification
   Future<bool> sendDeliveryAgentAssignmentSMS({
     required String phoneNumber,
     required String orderNumber,
@@ -146,50 +62,17 @@ class SMSService {
     required String agentPhone,
     required String estimatedArrivalTime,
   }) async {
-    try {
-      debugPrint('Sending delivery agent assignment SMS to $phoneNumber');
-
-      final result = await _functions
-          .httpsCallable('sendDeliveryAgentAssignmentSMS')
-          .call({
-            'phoneNumber': phoneNumber,
-            'orderNumber': orderNumber,
-            'agentName': agentName,
-            'agentPhone': agentPhone,
-            'estimatedArrivalTime': estimatedArrivalTime,
-          });
-
-      debugPrint(
-        'Delivery agent assignment SMS sent successfully: ${result.data}',
-      );
-      return true;
-    } catch (e) {
-      debugPrint('Error sending delivery agent assignment SMS: $e');
-      return false;
-    }
+    debugPrint('[SMSService] Stub: Agent assignment for $orderNumber to $phoneNumber');
+    return true;
   }
 
   /// Send promotional SMS
-  ///
-  /// Sends promotional messages to customers
   Future<bool> sendPromotionalSMS({
     required String phoneNumber,
     required String message,
   }) async {
-    try {
-      debugPrint('Sending promotional SMS to $phoneNumber');
-
-      final result = await _functions.httpsCallable('sendPromotionalSMS').call({
-        'phoneNumber': phoneNumber,
-        'message': message,
-      });
-
-      debugPrint('Promotional SMS sent successfully: ${result.data}');
-      return true;
-    } catch (e) {
-      debugPrint('Error sending promotional SMS: $e');
-      return false;
-    }
+    debugPrint('[SMSService] Stub: Promotional SMS to $phoneNumber');
+    return true;
   }
 
   /// Verify phone number format

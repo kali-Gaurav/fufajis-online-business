@@ -49,7 +49,7 @@ class GuestProvider extends ChangeNotifier {
       _guestCart.fold(0, (sum, item) => sum + item.quantity);
 
   double get guestCartTotal =>
-      _guestCart.fold(0.0, (sum, item) => sum + item.totalPrice);
+      _guestCart.fold(0.0, (sum, item) => sum + item.totalPrice.toDouble());
 
   // ── Initialise (call once at app start) ────────────────────
   Future<void> init() async {

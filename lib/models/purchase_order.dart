@@ -19,12 +19,12 @@ class PurchaseOrderItem {
 
   factory PurchaseOrderItem.fromMap(Map<String, dynamic> map) {
     return PurchaseOrderItem(
-      productId: map['productId'] ?? '',
-      barcode: map['barcode'],
-      productName: map['productName'] ?? '',
-      quantity: map['quantity'] ?? 0,
-      unit: map['unit'] ?? '',
-      estimatedCost: (map['estimatedCost'] ?? 0.0).toDouble(),
+      productId: map['productId'] as String? ?? '',
+      barcode: map['barcode'] as String?,
+      productName: map['productName'] as String? ?? '',
+      quantity: map['quantity'] as int? ?? 0,
+      unit: map['unit'] as String? ?? '',
+      estimatedCost: (map['estimatedCost'] as num? ?? 0.0).toDouble(),
     );
   }
 
@@ -59,22 +59,22 @@ class PurchaseOrder {
 
   factory PurchaseOrder.fromMap(Map<String, dynamic> map) {
     return PurchaseOrder(
-      id: map['id'] ?? '',
-      shopId: map['shopId'] ?? '',
-      distributorName: map['distributorName'] ?? '',
+      id: map['id'] as String? ?? '',
+      shopId: map['shopId'] as String? ?? '',
+      distributorName: map['distributorName'] as String? ?? '',
       items:
           (map['items'] as List?)
               ?.map(
-                (i) => PurchaseOrderItem.fromMap(Map<String, dynamic>.from(i)),
+                (i) => PurchaseOrderItem.fromMap(Map<String, dynamic>.from(i as Map)),
               )
               .toList() ??
           [],
-      totalAmount: (map['totalAmount'] ?? 0.0).toDouble(),
+      totalAmount: (map['totalAmount'] as num? ?? 0.0).toDouble(),
       createdAt: map['createdAt'] is Timestamp
           ? (map['createdAt'] as Timestamp).toDate()
           : DateTime.tryParse(map['createdAt']?.toString() ?? '') ??
                 DateTime.now(),
-      status: map['status'] ?? 'draft',
+      status: map['status'] as String? ?? 'draft',
     );
   }
 

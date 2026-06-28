@@ -20,13 +20,21 @@ class _VendorRequestScreenState extends State<VendorRequestScreen> {
   final TextEditingController _vendorPhoneController = TextEditingController();
 
   @override
+  void dispose() {
+    _vendorNameController.dispose();
+    _vendorPhoneController.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     final products = Provider.of<ProductProvider>(context).products;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('New Vendor Order'),
-        backgroundColor: Colors.white,
+        title: const Text('New Vendor Order', style: TextStyle(fontWeight: FontWeight.w700)),
+        backgroundColor: AppTheme.cream,
         foregroundColor: AppTheme.grey900,
         elevation: 0,
         actions: [
@@ -141,7 +149,7 @@ class _VendorRequestScreenState extends State<VendorRequestScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Add Item to Order'),
+          title: const Text('Add Item to Order', style: TextStyle(fontWeight: FontWeight.w700)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -182,8 +190,8 @@ class _VendorRequestScreenState extends State<VendorRequestScreen> {
                         quantity: int.parse(qtyController.text),
                         unit: selectedProduct!.unit,
                         estimatedCost:
-                            selectedProduct!.price *
-                            int.parse(qtyController.text),
+                            (selectedProduct!.price *
+                            int.parse(qtyController.text)).toDouble(),
                       ),
                     );
                   });
@@ -249,12 +257,6 @@ class _VendorRequestScreenState extends State<VendorRequestScreen> {
           const SnackBar(content: Text('Order request sent and logged.')),
         );
         Navigator.pop(context);
-      }
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not launch WhatsApp')),
-        );
       }
     }
   }

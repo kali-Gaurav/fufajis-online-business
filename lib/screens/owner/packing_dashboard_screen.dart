@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../models/order_model.dart';
 import '../../models/delivery_type.dart';
 import '../../utils/app_theme.dart';
 import '../../services/order_service.dart';
+import '../../providers/auth_provider.dart';
+import '../../constants/order_status.dart';
 
 /// Real-time Kanban Packing Dashboard for owners and packers.
 ///
@@ -21,7 +24,7 @@ class PackingDashboardScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.grey100,
       appBar: AppBar(
-        title: const Text('Fulfillment Dashboard (Kanban)'),
+        title: const Text('Fulfillment Dashboard (Kanban)', style: TextStyle(fontWeight: FontWeight.w700)),
         backgroundColor: AppTheme.grey900,
         foregroundColor: Colors.white,
         elevation: 2,
@@ -43,21 +46,21 @@ class PackingDashboardScreen extends StatelessWidget {
                 context,
                 title: 'New Orders',
                 status: OrderStatus.pending,
-                color: Colors.orange,
+                color: AppTheme.warning,
                 icon: Icons.pending_actions,
               ),
               _buildKanbanColumn(
                 context,
                 title: 'Confirmed',
                 status: OrderStatus.confirmed,
-                color: Colors.blue,
+                color: AppTheme.info,
                 icon: Icons.check_circle_outline,
               ),
               _buildKanbanColumn(
                 context,
                 title: 'Preparing',
                 status: OrderStatus.processing,
-                color: Colors.indigo,
+                color: AppTheme.ownerAccent,
                 icon: Icons.sync,
               ),
               _buildKanbanColumn(
@@ -78,7 +81,7 @@ class PackingDashboardScreen extends StatelessWidget {
                 context,
                 title: 'Delivered',
                 status: OrderStatus.delivered,
-                color: Colors.green,
+                color: AppTheme.success,
                 icon: Icons.task_alt,
               ),
             ],
@@ -144,7 +147,7 @@ class PackingDashboardScreen extends StatelessWidget {
                   return Center(child: Text('Error: ${snapshot.error}', style: const TextStyle(fontSize: 12)));
                 }
                 if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
                 }
 
                 final docs = snapshot.data!.docs;
@@ -240,14 +243,14 @@ class PackingDashboardScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
                     color: order.deliveryType == DeliveryType.sameDay 
-                        ? Colors.red.withValues(alpha: 0.08) 
-                        : Colors.amber.withValues(alpha: 0.08),
+                        ? AppTheme.error.withValues(alpha: 0.08) 
+                        : AppTheme.warning.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     order.deliveryType == DeliveryType.sameDay ? 'Same Day' : 'Scheduled',
                     style: TextStyle(
-                      color: order.deliveryType == DeliveryType.sameDay ? Colors.red : Colors.amber.shade800,
+                      color: order.deliveryType == DeliveryType.sameDay ? AppTheme.error : AppTheme.warning,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                     ),
@@ -271,17 +274,17 @@ class PackingDashboardScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withValues(alpha: 0.1),
+                  color: AppTheme.warning.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.swap_horiz, color: Colors.amber, size: 14),
+                    Icon(Icons.swap_horiz, color: AppTheme.warning, size: 14),
                     SizedBox(width: 6),
                     Expanded(
                       child: Text(
                         'Substitutions / OOS Pending Action',
-                        style: TextStyle(color: Colors.amber, fontSize: 10, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: AppTheme.warning, fontSize: 10, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -295,7 +298,7 @@ class PackingDashboardScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${order.items.length} items • ₹${order.totalAmount.round()}',
+                  '${order.items.length} items • ₹${order.totalAmount.toDouble().round()}',
                   style: const TextStyle(color: AppTheme.grey500, fontSize: 12),
                 ),
                 Text(
@@ -362,7 +365,13 @@ class PackingDashboardScreen extends StatelessWidget {
     if (nextStatus == null) return;
 
     try {
-      await OrderService().updateOrderStatus(order.id, nextStatus.toString().split('.').last);
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      await OrderService().updateOrderStatus(
+        order.id, 
+        nextStatus.toString().split('.').last,
+        employeeId: auth.currentUser?.id,
+        employeeName: auth.currentUser?.name,
+      );
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

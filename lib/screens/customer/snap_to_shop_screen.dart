@@ -126,7 +126,7 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
-        title: const Text('Snap to Shop'),
+        title: const Text('Snap to Shop', style: TextStyle(fontWeight: FontWeight.w700)),
         centerTitle: true,
         actions: [
           if (_selectedImage != null)
@@ -259,7 +259,7 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
                           });
                         },
                         selectedColor: AppTheme.primary,
-                        backgroundColor: Colors.white.withValues(alpha: 0.1),
+                        backgroundColor: AppTheme.cream.withValues(alpha: 0.1),
                         labelStyle: TextStyle(
                           color: isSelected ? Colors.white : AppTheme.grey300,
                           fontSize: 12,
@@ -378,7 +378,7 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
                   child: Text(
                     log,
                     style: const TextStyle(
-                      color: Colors.greenAccent,
+                      color: AppTheme.success,
                       fontFamily: 'monospace',
                       fontSize: 11,
                     ),

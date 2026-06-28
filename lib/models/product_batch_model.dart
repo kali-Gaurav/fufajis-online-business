@@ -21,9 +21,9 @@ class ProductBatch {
 
   factory ProductBatch.fromMap(Map<String, dynamic> map) {
     return ProductBatch(
-      batchId: map['batchId'] ?? '',
-      productId: map['productId'] ?? '',
-      quantity: map['quantity'] ?? 0,
+      batchId: map['batchId'] as String? ?? '',
+      productId: map['productId'] as String? ?? '',
+      quantity: map['quantity'] as int? ?? 0,
       expiryDate: map['expiryDate'] is Timestamp
           ? (map['expiryDate'] as Timestamp).toDate()
           : DateTime.tryParse(map['expiryDate']?.toString() ?? '') ??
@@ -32,8 +32,8 @@ class ProductBatch {
           ? (map['receivedDate'] as Timestamp).toDate()
           : DateTime.tryParse(map['receivedDate']?.toString() ?? '') ??
                 DateTime.now(),
-      costPrice: (map['costPrice'] ?? 0.0).toDouble(),
-      branchId: map['branchId'] ?? '',
+      costPrice: (map['costPrice'] as num? ?? 0.0).toDouble(),
+      branchId: map['branchId'] as String? ?? '',
     );
   }
 

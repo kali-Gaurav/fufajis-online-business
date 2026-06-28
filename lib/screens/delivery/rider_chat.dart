@@ -115,10 +115,10 @@ class _RiderChatScreenState extends State<RiderChatScreen> {
           // Real-time Chat Messages Stream
           Expanded(
             child: StreamBuilder<List<ChatMessageModel>>(
-              stream: _chatService.getRiderChatStream(riderId),
+              stream: _chatService.getCustomerChatStream(riderId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator(color: AppTheme.deliveryAccent));
                 }
 
                 final messages = snapshot.data ?? [];
@@ -212,7 +212,7 @@ class _RiderChatScreenState extends State<RiderChatScreen> {
                                   Icon(
                                     Icons.done_all,
                                     size: 12,
-                                    color: message.isRead ? Colors.blue : AppTheme.white.withValues(alpha: 0.7),
+                                    color: message.isRead ? AppTheme.deliveryAccent : AppTheme.white.withValues(alpha: 0.7),
                                   ),
                                 ],
                               ],
@@ -277,7 +277,7 @@ class _RiderChatScreenState extends State<RiderChatScreen> {
                         borderSide: const BorderSide(color: AppTheme.primary),
                       ),
                       filled: true,
-                      fillColor: AppTheme.grey50,
+                      fillColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.grey800 : AppTheme.grey50,
                     ),
                     onSubmitted: (text) => _sendMessage(text, riderId, riderName),
                   ),

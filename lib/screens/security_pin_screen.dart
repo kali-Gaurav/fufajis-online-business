@@ -1,17 +1,12 @@
 // ============================================================
 //  SecurityPinScreen — Production-grade PIN + Biometric entry
-//
-//  SECURITY FEATURES:
-//  • Validates PIN via PBKDF2 (DeviceSecurityService.validatePinLocally)
-//  • Auto-upgrades legacy SHA-256 hashes to PBKDF2 on success
-//  • 5 failed attempts → 30-minute device lockout (stored securely)
-//  • Real-time lockout countdown displayed to user
-//  • Biometric attempted FIRST on every open (fingerprint/face)
-//  • Logs FAILED_PIN and PIN_LOCKOUT to security_events
-//  • New device: shows pending-approval screen instead of PIN
+//  Redesigned with Warm Sunset Orange & Cream White theme,
+//  staggered layout entrance, pulsing biometric button,
+//  custom Pin theme, and ticking clock lockout screen.
 // ============================================================
 
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +16,7 @@ import '../utils/app_theme.dart';
 import '../models/user_model.dart';
 import '../services/device_security_service.dart';
 import '../services/security_event_service.dart';
+import '../widgets/animated_widgets.dart';
 
 class SecurityPinScreen extends StatefulWidget {
   const SecurityPinScreen({super.key});
@@ -29,25 +25,40 @@ class SecurityPinScreen extends StatefulWidget {
   State<SecurityPinScreen> createState() => _SecurityPinScreenState();
 }
 
-class _SecurityPinScreenState extends State<SecurityPinScreen> {
+class _SecurityPinScreenState extends State<SecurityPinScreen> with SingleTickerProviderStateMixin {
   final _pinController = TextEditingController();
 
   bool _isFirstSetup = false;
-  bool _isConfirming = false;       // second entry for new PIN confirmation
-  String? _firstPin;                // holds first entry during setup
+  bool _isConfirming = false;
+  String? _firstPin;
   bool _isDevicePending = false;
   bool _isLoading = false;
   bool _isLocked = false;
-  int _lockoutRemaining = 0;        // seconds remaining in lockout
+  int _lockoutRemaining = 0;
   Timer? _countdownTimer;
   String? _errorText;
+
+  late AnimationController _shakeController;
+  late Animation<double> _shakeAnim;
 
   @override
   void initState() {
     super.initState();
     final auth = Provider.of<AuthProvider>(context, listen: false);
-    _isFirstSetup  = auth.currentUser?.pinHash == null;
+    _isFirstSetup = auth.currentUser?.pinHash == null;
     _isDevicePending = auth.isDeviceVerificationRequired;
+
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _shakeAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _shakeController,
+        curve: _ShakeCurve(),
+      ),
+    );
+
     _checkLockout();
   }
 
@@ -55,10 +66,10 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> {
   void dispose() {
     _countdownTimer?.cancel();
     _pinController.dispose();
+    _shakeController.dispose();
     super.dispose();
   }
 
-  // ── Lockout check ──────────────────────────────────────────
   Future<void> _checkLockout() async {
     final status = await DeviceSecurityService.getLockoutStatus();
     if (!mounted) return;
@@ -70,7 +81,6 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> {
       });
       _startCountdown();
     } else if (!_isFirstSetup && !_isDevicePending) {
-      // Try biometric immediately on screen open
       _tryBiometric();
     }
   }
@@ -86,7 +96,6 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> {
 
       if (_lockoutRemaining <= 0) {
         t.cancel();
-        // Re-check: lockout may have cleared
         final status = await DeviceSecurityService.getLockoutStatus();
         if (mounted) {
           setState(() => _isLocked = status.isLocked);
@@ -96,7 +105,6 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> {
     });
   }
 
-  // ── Biometric ──────────────────────────────────────────────
   Future<void> _tryBiometric() async {
     final auth = Provider.of<AuthProvider>(context, listen: false);
     if (auth.currentUser?.biometricEnabled != true) return;
@@ -112,7 +120,6 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> {
     if (success) {
       _navigateHome(auth.currentUser?.role);
     } else {
-      // Log biometric failure
       await SecurityEventService().logEvent(
         event: SecurityEventType.biometricFailure,
         userId: auth.currentUser?.id,
@@ -120,14 +127,12 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> {
     }
   }
 
-  // ── PIN handling ───────────────────────────────────────────
   Future<void> _handlePinComplete(String pin) async {
     if (_isLocked) return;
 
     // ── FIRST-TIME SETUP ──
     if (_isFirstSetup) {
       if (!_isConfirming) {
-        // Store first entry, ask to confirm
         setState(() {
           _firstPin = pin;
           _isConfirming = true;
@@ -137,8 +142,8 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> {
         return;
       }
 
-      // Confirmation step
       if (pin != _firstPin) {
+        _shakeController.forward(from: 0.0);
         setState(() {
           _isConfirming = false;
           _firstPin = null;
@@ -148,7 +153,6 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> {
         return;
       }
 
-      // PINs match — store PBKDF2 hash
       setState(() => _isLoading = true);
       final pinHash = DeviceSecurityService.hashPin(pin);
       await DeviceSecurityService.storePinHashLocally(pinHash);
@@ -165,7 +169,10 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> {
     }
 
     // ── DAILY LOGIN VERIFICATION ──
-    setState(() { _isLoading = true; _errorText = null; });
+    setState(() {
+      _isLoading = true;
+      _errorText = null;
+    });
 
     final auth = Provider.of<AuthProvider>(context, listen: false);
     final email = auth.currentUser?.email;
@@ -184,8 +191,8 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> {
       _navigateHome(auth.currentUser?.role);
     } else {
       _pinController.clear();
+      _shakeController.forward(from: 0.0);
 
-      // Check if now locked after this failure
       final status = await DeviceSecurityService.getLockoutStatus();
       if (!mounted) return;
 
@@ -216,7 +223,6 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> {
           userId: auth.currentUser?.id,
         );
 
-        // Read current attempt count for feedback
         final attStr = await _readFailedAttempts();
         final remaining = 5 - attStr;
         setState(() {
@@ -227,50 +233,56 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> {
   }
 
   Future<int> _readFailedAttempts() async {
-    // DeviceSecurityService already incremented; read back for display
     const storage = FlutterSecureStorageStub();
     return storage.readAttempts();
   }
 
   void _navigateHome(UserRole? role) {
+    // If the user has email-based 2FA enabled, route through the
+    // verification challenge before landing on their home screen.
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    if (auth.isMfaStepRequired) {
+      context.go('/mfa-verify');
+      return;
+    }
     switch (role) {
-      case UserRole.shopOwner:
+      case UserRole.owner:
         context.go('/owner');
-      case UserRole.admin:
+      case UserRole.superAdmin:
         context.go('/admin');
       default:
         context.go('/customer/home');
     }
   }
 
-  // ── Build ──────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
 
-    // ── New device pending approval ─────────────────────────
     if (auth.isDeviceVerificationRequired) {
       return _DevicePendingView(auth: auth);
     }
 
-    // ── Lockout screen ──────────────────────────────────────
     if (_isLocked) {
       return _LockoutView(remainingSeconds: _lockoutRemaining);
     }
 
-    // ── PIN entry / setup ───────────────────────────────────
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : AppTheme.grey900;
+    final subTextColor = isDark ? Colors.white70 : AppTheme.grey600;
+
     final defaultTheme = PinTheme(
-      width: 56,
+      width: 50,
       height: 56,
-      textStyle: const TextStyle(
+      textStyle: TextStyle(
         fontSize: 22,
         fontWeight: FontWeight.bold,
-        color: AppTheme.grey900,
+        color: textColor,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.grey100,
+        color: isDark ? AppTheme.grey800 : AppTheme.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.grey300),
+        border: Border.all(color: isDark ? AppTheme.grey700 : AppTheme.grey300),
       ),
     );
 
@@ -287,7 +299,7 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? const Color(0xFF121212) : AppTheme.cream,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(28),
@@ -295,36 +307,94 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Icon(Icons.lock_person_outlined,
-                  size: 72, color: AppTheme.primary),
+              // Animated icon container
+              Center(
+                child: FadeSlideIn(
+                  duration: AppTheme.durationMedium,
+                  child: Container(
+                    width: 90,
+                    height: 90,
+                    decoration: BoxDecoration(
+                      color: AppTheme.primary.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                    child: const Icon(
+                      Icons.lock_person_outlined,
+                      size: 48,
+                      color: AppTheme.primary,
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(height: 24),
-              Text(title,
+              
+              FadeSlideIn(
+                duration: AppTheme.durationMedium,
+                delay: const Duration(milliseconds: 100),
+                child: Text(
+                  title,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      fontSize: 24, fontWeight: FontWeight.bold)),
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
+                ),
+              ),
               const SizedBox(height: 8),
-              Text(subtitle,
+              
+              FadeSlideIn(
+                duration: AppTheme.durationMedium,
+                delay: const Duration(milliseconds: 150),
+                child: Text(
+                  subtitle,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppTheme.grey600, height: 1.4)),
+                  style: TextStyle(color: subTextColor, height: 1.4),
+                ),
+              ),
               const SizedBox(height: 48),
 
               // PIN input
               if (_isLoading)
-                const Center(child: CircularProgressIndicator())
+                const Center(child: CircularProgressIndicator(color: AppTheme.primary))
               else
-                Pinput(
-                  length: 6,
-                  controller: _pinController,
-                  obscureText: true,
-                  defaultPinTheme: defaultTheme,
-                  focusedPinTheme: defaultTheme.copyDecorationWith(
-                    border: Border.all(color: AppTheme.primary, width: 2),
+                Center(
+                  child: FadeSlideIn(
+                    duration: AppTheme.durationMedium,
+                    delay: const Duration(milliseconds: 200),
+                    child: AnimatedBuilder(
+                      animation: _shakeAnim,
+                      builder: (context, child) {
+                        final dx = _shakeAnim.value * 24.0;
+                        return Transform.translate(
+                          offset: Offset(dx, 0),
+                          child: child,
+                        );
+                      },
+                      child: Pinput(
+                        length: 6,
+                        controller: _pinController,
+                        obscureText: true,
+                        obscuringWidget: Container(
+                          width: 14,
+                          height: 14,
+                          decoration: const BoxDecoration(
+                            color: AppTheme.primary,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        defaultPinTheme: defaultTheme,
+                        focusedPinTheme: defaultTheme.copyDecorationWith(
+                          border: Border.all(color: AppTheme.primary, width: 2),
+                        ),
+                        errorPinTheme: defaultTheme.copyDecorationWith(
+                          border: Border.all(color: AppTheme.error, width: 2),
+                        ),
+                        onCompleted: _handlePinComplete,
+                        autofocus: true,
+                      ),
+                    ),
                   ),
-                  errorPinTheme: defaultTheme.copyDecorationWith(
-                    border: Border.all(color: AppTheme.error, width: 2),
-                  ),
-                  onCompleted: _handlePinComplete,
-                  autofocus: true,
                 ),
 
               // Error text
@@ -337,18 +407,47 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> {
                 ),
               ],
 
-              const SizedBox(height: 28),
+              const SizedBox(height: 36),
 
-              // Biometric button (daily login only)
+              // Biometric pulse glow button
               if (!_isFirstSetup)
-                TextButton.icon(
-                  onPressed: _tryBiometric,
-                  icon: const Icon(Icons.fingerprint, size: 26),
-                  label: const Text('Use Biometrics Instead'),
-                  style: TextButton.styleFrom(foregroundColor: AppTheme.primary),
+                Center(
+                  child: FadeSlideIn(
+                    duration: AppTheme.durationMedium,
+                    delay: const Duration(milliseconds: 250),
+                    child: Column(
+                      children: [
+                        PulseGlow(
+                          glowColor: AppTheme.primary.withValues(alpha: 0.2),
+                          maxRadius: 10,
+                          child: InkWell(
+                            onTap: _tryBiometric,
+                            borderRadius: BorderRadius.circular(30),
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.fingerprint_rounded,
+                                size: 40,
+                                color: AppTheme.primary,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Tap to use biometrics',
+                          style: TextStyle(fontSize: 12, color: subTextColor),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
 
-              // Back / cancel for confirmation step
+              // Cancel button for setup confirmation
               if (_isFirstSetup && _isConfirming)
                 TextButton(
                   onPressed: () => setState(() {
@@ -357,16 +456,58 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> {
                     _pinController.clear();
                     _errorText = null;
                   }),
-                  child: const Text('← Back',
-                      style: TextStyle(color: AppTheme.grey500)),
+                  child: const Text('← Back', style: TextStyle(color: AppTheme.grey500)),
                 ),
 
-              const SizedBox(height: 20),
+              if (!_isFirstSetup)
+                TextButton(
+                  onPressed: () => context.push('/pin-reset'),
+                  child: const Text(
+                    'Forgot PIN?',
+                    style: TextStyle(color: AppTheme.primary, fontSize: 13, fontWeight: FontWeight.w600),
+                  ),
+                ),
+
+              if (!_isFirstSetup)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Email 2-Step Verification',
+                        style: TextStyle(fontSize: 13, color: subTextColor),
+                      ),
+                      Switch(
+                        value: auth.currentUser?.mfaEnabled ?? false,
+                        activeThumbColor: AppTheme.primary,
+                        onChanged: (value) async {
+                          final ok = await auth.setMfaEnabled(value);
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                ok
+                                    ? (value
+                                        ? 'Two-factor authentication enabled.'
+                                        : 'Two-factor authentication disabled.')
+                                    : (auth.errorMessage ?? 'Failed to update setting.'),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+
+              const Spacer(),
               TextButton(
-                onPressed: () =>
-                    auth.logout().then((_) => context.go('/login')),
-                child: const Text('Log Out',
-                    style: TextStyle(color: AppTheme.grey400, fontSize: 13)),
+                onPressed: () => auth.logout().then((_) => context.go('/login')),
+                child: const Text(
+                  'Log Out',
+                  style: TextStyle(color: AppTheme.grey400, fontSize: 13),
+                ),
               ),
             ],
           ),
@@ -376,21 +517,47 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> {
   }
 }
 
-// ── Lockout sub-widget ─────────────────────────────────────────
-class _LockoutView extends StatelessWidget {
+// Lockout sub-widget with ticking timer
+class _LockoutView extends StatefulWidget {
   final int remainingSeconds;
   const _LockoutView({required this.remainingSeconds});
 
+  @override
+  State<_LockoutView> createState() => _LockoutViewState();
+}
+
+class _LockoutViewState extends State<_LockoutView> with SingleTickerProviderStateMixin {
+  late AnimationController _clockController;
+
+  @override
+  void initState() {
+    super.initState();
+    _clockController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 12),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _clockController.dispose();
+    super.dispose();
+  }
+
   String get _formatted {
-    final m = remainingSeconds ~/ 60;
-    final s = remainingSeconds % 60;
+    final m = widget.remainingSeconds ~/ 60;
+    final s = widget.remainingSeconds % 60;
     return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : AppTheme.grey900;
+    final subTextColor = isDark ? Colors.white70 : AppTheme.grey600;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? const Color(0xFF121212) : AppTheme.cream,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(32),
@@ -398,52 +565,76 @@ class _LockoutView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Icon(Icons.lock_clock_outlined,
-                  size: 80, color: AppTheme.error),
+              // Spinning clock hand animation
+              Center(
+                child: RotationTransition(
+                  turns: _clockController,
+                  child: const Icon(
+                    Icons.lock_clock_outlined,
+                    size: 80,
+                    color: AppTheme.error,
+                  ),
+                ),
+              ),
               const SizedBox(height: 24),
-              const Text('Account Locked',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.error)),
-              const SizedBox(height: 12),
               const Text(
+                'Account Locked',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.error,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
                 'Too many incorrect PIN attempts.\nYour account is temporarily locked for security.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppTheme.grey600, height: 1.5),
+                style: TextStyle(color: subTextColor, height: 1.5),
               ),
               const SizedBox(height: 36),
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 20),
+                padding: const EdgeInsets.symmetric(vertical: 24),
                 decoration: BoxDecoration(
-                  color: AppTheme.grey100,
+                  color: isDark ? AppTheme.grey800 : Colors.white,
                   borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    )
+                  ],
                 ),
-                child: Column(children: [
-                  const Text('Try again in',
-                      style: TextStyle(color: AppTheme.grey500, fontSize: 14)),
-                  const SizedBox(height: 6),
-                  Text(
-                    _formatted,
-                    style: const TextStyle(
-                      fontSize: 42,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.grey900,
-                      fontFeatures: [FontFeature.tabularFigures()],
+                child: Column(
+                  children: [
+                    Text(
+                      'Try again in',
+                      style: TextStyle(
+                        color: isDark ? Colors.white54 : AppTheme.grey500,
+                        fontSize: 14,
+                      ),
                     ),
-                  ),
-                ]),
+                    const SizedBox(height: 8),
+                    Text(
+                      _formatted,
+                      style: TextStyle(
+                        fontSize: 42,
+                        fontWeight: FontWeight.bold,
+                        color: textColor,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 40),
               TextButton(
                 onPressed: () {
-                  final auth =
-                      Provider.of<AuthProvider>(context, listen: false);
+                  final auth = Provider.of<AuthProvider>(context, listen: false);
                   auth.logout().then((_) => context.go('/login'));
                 },
-                child: const Text('Log Out',
-                    style: TextStyle(color: AppTheme.grey500)),
+                child: const Text('Log Out', style: TextStyle(color: AppTheme.grey500)),
               ),
             ],
           ),
@@ -453,14 +644,19 @@ class _LockoutView extends StatelessWidget {
   }
 }
 
-// ── New device pending sub-widget ─────────────────────────────
+// New device pending sub-widget
 class _DevicePendingView extends StatelessWidget {
   final AuthProvider auth;
   const _DevicePendingView({required this.auth});
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : AppTheme.grey900;
+    final subTextColor = isDark ? Colors.white70 : AppTheme.grey600;
+
     return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF121212) : AppTheme.cream,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(32),
@@ -468,20 +664,28 @@ class _DevicePendingView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Icon(Icons.phonelink_lock_outlined,
-                  size: 80, color: AppTheme.warning),
+              const Icon(
+                Icons.phonelink_lock_outlined,
+                size: 80,
+                color: AppTheme.warning,
+              ),
               const SizedBox(height: 24),
-              const Text('New Device Detected',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 24, fontWeight: FontWeight.bold)),
+              Text(
+                'New Device Detected',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: textColor,
+                ),
+              ),
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 'This device has not been approved for Fufaji Business access.\n\n'
                 'An approval request has been sent to the admin. You will receive '
                 'access once it is approved.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppTheme.grey600, height: 1.5),
+                style: TextStyle(color: subTextColor, height: 1.5),
               ),
               const SizedBox(height: 36),
               ElevatedButton.icon(
@@ -492,16 +696,13 @@ class _DevicePendingView extends StatelessWidget {
                   backgroundColor: AppTheme.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
               const SizedBox(height: 16),
               TextButton(
-                onPressed: () =>
-                    auth.logout().then((_) => context.go('/login')),
-                child: const Text('Log Out',
-                    style: TextStyle(color: AppTheme.grey500)),
+                onPressed: () => auth.logout().then((_) => context.go('/login')),
+                child: const Text('Log Out', style: TextStyle(color: AppTheme.grey500)),
               ),
             ],
           ),
@@ -511,9 +712,14 @@ class _DevicePendingView extends StatelessWidget {
   }
 }
 
-// ── Thin stub to read failed attempts for UI display ───────────
-// (actual storage is in DeviceSecurityService via FlutterSecureStorage)
 class FlutterSecureStorageStub {
   const FlutterSecureStorageStub();
-  Future<int> readAttempts() async => 0; // best-effort — just for display
+  Future<int> readAttempts() async => 0;
+}
+
+class _ShakeCurve extends Curve {
+  @override
+  double transform(double t) {
+    return math.sin(t * math.pi * 3 * 2);
+  }
 }

@@ -2,7 +2,13 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven { url 'https://storage.googleapis.com/download.flutter.io' }
     }
+}
+
+rootProject.buildDir = '../build'
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
 
 tasks.register("clean", Delete) {
@@ -10,11 +16,18 @@ tasks.register("clean", Delete) {
 }
 
 subprojects {
+    configurations.all {
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'org.jetbrains.kotlin') {
+                details.useVersion "2.1.10"
+            }
+        }
+    }
     afterEvaluate { project ->
         if (project.hasProperty('android')) {
             project.android {
                 // Keep plugins aligned with the app compile SDK used by CI release builds.
-                compileSdkVersion 36
+                compileSdkVersion libs.versions.compileSdk.get().toInteger()
 
                 // Ensure namespace is set for all plugins to avoid AGP 8+ errors
                 if (namespace == null || namespace == "") {
@@ -22,17 +35,16 @@ subprojects {
                 }
                 
                 compileOptions {
-                    sourceCompatibility JavaVersion.VERSION_21
-                    targetCompatibility JavaVersion.VERSION_21
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
                 }
             }
             
             // Fix for Kotlin version mismatches in plugins
             project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
                 kotlinOptions {
-                    jvmTarget = "21"
-                    languageVersion = "2.0"
-                    apiVersion = "2.0"
+                    jvmTarget = "17"
+                    freeCompilerArgs += ["-Xskip-metadata-version-check"]
                 }
             }
 

@@ -1,3 +1,4 @@
+import 'logging_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
@@ -184,7 +185,7 @@ class DynamicPricingConfigService {
           .collection('settings')
           .doc('pricing_config')
           .set(config.toMap());
-    } catch (_) {}
+    } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
   }
 
   /// Forces a cache refresh on next read.
@@ -239,13 +240,13 @@ class PricingConfig {
   );
 
   factory PricingConfig.fromMap(Map<String, dynamic> map) => PricingConfig(
-    minimumMarginPercent: (map['minimumMarginPercent'] ?? 5.0).toDouble(),
+    minimumMarginPercent: ((map['minimumMarginPercent'] as num?) ?? 5.0).toDouble(),
     defaultCompetitorMatchThreshold:
-        (map['defaultCompetitorMatchThreshold'] ?? 2.0).toDouble(),
-    defaultStrategy: map['defaultStrategy'] ?? 'match',
-    autoApplyPriceChanges: map['autoApplyPriceChanges'] ?? false,
-    priceHistoryRetentionDays: map['priceHistoryRetentionDays'] ?? 90,
-    enableCompetitorTracking: map['enableCompetitorTracking'] ?? true,
+        ((map['defaultCompetitorMatchThreshold'] as num?) ?? 2.0).toDouble(),
+    defaultStrategy: map['defaultStrategy'] as String? ?? 'match',
+    autoApplyPriceChanges: map['autoApplyPriceChanges'] as bool? ?? false,
+    priceHistoryRetentionDays: map['priceHistoryRetentionDays'] as int? ?? 90,
+    enableCompetitorTracking: map['enableCompetitorTracking'] as bool? ?? true,
   );
 
   Map<String, dynamic> toMap() => {
@@ -274,9 +275,9 @@ class CategoryMarginRule {
 
   factory CategoryMarginRule.fromMap(Map<String, dynamic> map) =>
       CategoryMarginRule(
-        category: map['category'] ?? '',
-        marginPercent: (map['marginPercent'] ?? 5.0).toDouble(),
-        strategy: map['strategy'] ?? 'match',
-        isActive: map['isActive'] ?? true,
+        category: map['category'] as String? ?? '',
+        marginPercent: ((map['marginPercent'] as num?) ?? 5.0).toDouble(),
+        strategy: map['strategy'] as String? ?? 'match',
+        isActive: map['isActive'] as bool? ?? true,
       );
 }

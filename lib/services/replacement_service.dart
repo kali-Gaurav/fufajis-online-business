@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/product_model.dart';
 import '../models/order_model.dart';
 import 'whatsapp_notification_service.dart';
+import '../utils/monetary_value.dart';
 
 class ReplacementService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -105,7 +106,7 @@ class ReplacementService {
           orderNumber: orderNumber,
           originalName: item.productName,
           replacementName: replacement.name,
-          replacementPrice: replacement.price,
+          replacementPrice: replacement.price.toDouble(),
         );
       }
     } catch (e) {
@@ -133,7 +134,7 @@ class ReplacementService {
               productId: it.proposedReplacementId,
               productName: it.proposedReplacementName,
               price: it.proposedReplacementPrice,
-              totalPrice: (it.proposedReplacementPrice ?? 0.0) * it.quantity,
+              totalPrice: (it.proposedReplacementPrice ?? MonetaryValue(0.0)) * it.quantity,
               substitutionStatus: 'approved',
               isPacked: true,
             );
@@ -145,9 +146,9 @@ class ReplacementService {
       if (didChange) {
         final newSubtotal = updatedItems.fold(
           0.0,
-          (total, it) => total + it.totalPrice,
+          (total, it) => total + it.totalPrice.toDouble(),
         );
-        final newTotal = newSubtotal + order.deliveryCharge - order.discount;
+        final newTotal = newSubtotal + order.deliveryCharge.toDouble() - order.discount.toDouble();
 
         await docRef.update({
           'items': updatedItems.map((e) => e.toMap()).toList(),
@@ -180,7 +181,7 @@ class ReplacementService {
               productId: it.proposedReplacementId,
               productName: it.proposedReplacementName,
               price: it.proposedReplacementPrice,
-              totalPrice: (it.proposedReplacementPrice ?? 0.0) * it.quantity,
+              totalPrice: (it.proposedReplacementPrice ?? MonetaryValue(0.0)) * it.quantity,
               substitutionStatus: 'approved',
               isPacked: true,
             );
@@ -189,7 +190,7 @@ class ReplacementService {
               substitutionStatus: 'declined',
               isOutOfStock: true,
               isPacked: false,
-              totalPrice: 0.0,
+              totalPrice: MonetaryValue(0.0),
             );
           }
         }
@@ -198,9 +199,9 @@ class ReplacementService {
 
       final newSubtotal = updatedItems.fold(
         0.0,
-        (total, it) => total + it.totalPrice,
+        (total, it) => total + it.totalPrice.toDouble(),
       );
-      final newTotal = newSubtotal + order.deliveryCharge - order.discount;
+      final newTotal = newSubtotal + order.deliveryCharge.toDouble() - order.discount.toDouble();
 
       await docRef.update({
         'items': updatedItems.map((e) => e.toMap()).toList(),
@@ -225,7 +226,7 @@ class ReplacementService {
       orderNumber: "TEMP",
       originalName: original.name,
       replacementName: replacement.name,
-      replacementPrice: replacement.price,
+      replacementPrice: replacement.price.toDouble(),
     );
   }
 

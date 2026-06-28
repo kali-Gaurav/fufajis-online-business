@@ -1,3 +1,4 @@
+import '../services/logging_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -38,20 +39,20 @@ class InventoryAudit {
 
   factory InventoryAudit.fromMap(Map<String, dynamic> map) {
     return InventoryAudit(
-      id: map['id'] ?? '',
-      shopId: map['shopId'] ?? '',
-      branchId: map['branchId'] ?? '',
-      productId: map['productId'] ?? '',
-      productName: map['productName'] ?? '',
-      barcode: map['barcode'] ?? '',
-      expectedStock: map['expectedStock'] ?? 0,
-      actualStock: map['actualStock'] ?? 0,
-      employeeId: map['employeeId'] ?? '',
-      employeeName: map['employeeName'] ?? '',
+      id: map['id'] as String? ?? '',
+      shopId: map['shopId'] as String? ?? '',
+      branchId: map['branchId'] as String? ?? '',
+      productId: map['productId'] as String? ?? '',
+      productName: map['productName'] as String? ?? '',
+      barcode: map['barcode'] as String? ?? '',
+      expectedStock: map['expectedStock'] as int? ?? 0,
+      actualStock: map['actualStock'] as int? ?? 0,
+      employeeId: map['employeeId'] as String? ?? '',
+      employeeName: map['employeeName'] as String? ?? '',
       auditDate: _parseDate(map['auditDate']) ?? DateTime.now(),
-      notes: map['notes'],
-      photos: List<String>.from(map['photos'] ?? []),
-      status: map['status'] ?? 'pending',
+      notes: map['notes'] as String?,
+      photos: List<String>.from(map['photos'] as Iterable? ?? []),
+      status: map['status'] as String? ?? 'pending',
     );
   }
 
@@ -61,7 +62,7 @@ class InventoryAudit {
     if (val is Timestamp) return val.toDate();
     try {
       return DateTime.tryParse(val.toString());
-    } catch (_) {}
+    } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
     return null;
   }
 
@@ -129,22 +130,22 @@ class DamageReport {
 
   factory DamageReport.fromMap(Map<String, dynamic> map) {
     return DamageReport(
-      id: map['id'] ?? '',
-      shopId: map['shopId'] ?? '',
-      branchId: map['branchId'] ?? '',
-      productId: map['productId'] ?? '',
-      productName: map['productName'] ?? '',
-      barcode: map['barcode'] ?? '',
-      quantity: map['quantity'] ?? 1,
+      id: map['id'] as String? ?? '',
+      shopId: map['shopId'] as String? ?? '',
+      branchId: map['branchId'] as String? ?? '',
+      productId: map['productId'] as String? ?? '',
+      productName: map['productName'] as String? ?? '',
+      barcode: map['barcode'] as String? ?? '',
+      quantity: map['quantity'] as int? ?? 1,
       damageType: DamageType.values.firstWhere(
-        (e) => e.name == map['damageType'],
+        (e) => e.name == map['damageType'] as String?,
         orElse: () => DamageType.other,
       ),
-      reason: map['reason'],
-      employeeId: map['employeeId'] ?? '',
-      employeeName: map['employeeName'] ?? '',
+      reason: map['reason'] as String?,
+      employeeId: map['employeeId'] as String? ?? '',
+      employeeName: map['employeeName'] as String? ?? '',
       reportDate: _parseDate(map['reportDate']) ?? DateTime.now(),
-      status: map['status'] ?? 'pending',
+      status: map['status'] as String? ?? 'pending',
       wasteValue: (map['wasteValue'] as num?)?.toDouble(),
     );
   }
@@ -155,7 +156,7 @@ class DamageReport {
     if (val is Timestamp) return val.toDate();
     try {
       return DateTime.tryParse(val.toString());
-    } catch (_) {}
+    } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
     return null;
   }
 
@@ -225,27 +226,27 @@ class InventoryTransfer {
 
   factory InventoryTransfer.fromMap(Map<String, dynamic> map) {
     return InventoryTransfer(
-      id: map['id'] ?? '',
-      shopId: map['shopId'] ?? '',
-      sourceBranchId: map['sourceBranchId'] ?? '',
-      sourceBranchName: map['sourceBranchName'] ?? '',
-      destinationBranchId: map['destinationBranchId'] ?? '',
-      destinationBranchName: map['destinationBranchName'] ?? '',
-      productId: map['productId'] ?? '',
-      productName: map['productName'] ?? '',
-      barcode: map['barcode'] ?? '',
-      quantity: map['quantity'] ?? 0,
+      id: map['id'] as String? ?? '',
+      shopId: map['shopId'] as String? ?? '',
+      sourceBranchId: map['sourceBranchId'] as String? ?? '',
+      sourceBranchName: map['sourceBranchName'] as String? ?? '',
+      destinationBranchId: map['destinationBranchId'] as String? ?? '',
+      destinationBranchName: map['destinationBranchName'] as String? ?? '',
+      productId: map['productId'] as String? ?? '',
+      productName: map['productName'] as String? ?? '',
+      barcode: map['barcode'] as String? ?? '',
+      quantity: map['quantity'] as int? ?? 0,
       status: TransferStatus.values.firstWhere(
-        (e) => e.name == map['status'],
+        (e) => e.name == map['status'] as String?,
         orElse: () => TransferStatus.pending,
       ),
-      requestedBy: map['requestedBy'] ?? '',
-      requestedByName: map['requestedByName'] ?? '',
+      requestedBy: map['requestedBy'] as String? ?? '',
+      requestedByName: map['requestedByName'] as String? ?? '',
       requestedAt: _parseDate(map['requestedAt']) ?? DateTime.now(),
       shippedAt: _parseDate(map['shippedAt']),
       receivedAt: _parseDate(map['receivedAt']),
-      notes: map['notes'],
-      trackingNumber: map['trackingNumber'],
+      notes: map['notes'] as String?,
+      trackingNumber: map['trackingNumber'] as String?,
     );
   }
 
@@ -255,7 +256,7 @@ class InventoryTransfer {
     if (val is Timestamp) return val.toDate();
     try {
       return DateTime.tryParse(val.toString());
-    } catch (_) {}
+    } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
     return null;
   }
 
@@ -319,27 +320,27 @@ class AttendanceRecord {
 
   factory AttendanceRecord.fromMap(Map<String, dynamic> map) {
     return AttendanceRecord(
-      id: map['id'] ?? '',
-      shopId: map['shopId'] ?? '',
-      branchId: map['branchId'] ?? '',
-      employeeId: map['employeeId'] ?? '',
-      employeeName: map['employeeName'] ?? '',
+      id: map['id'] as String? ?? '',
+      shopId: map['shopId'] as String? ?? '',
+      branchId: map['branchId'] as String? ?? '',
+      employeeId: map['employeeId'] as String? ?? '',
+      employeeName: map['employeeName'] as String? ?? '',
       date: _parseDate(map['date']) ?? DateTime.now(),
       checkInTime: _parseDate(map['checkInTime']),
       checkOutTime: _parseDate(map['checkOutTime']),
       checkInLocation: map['checkInLocation'] != null
           ? LocationData.fromMap(
-              Map<String, dynamic>.from(map['checkInLocation']),
+              Map<String, dynamic>.from(map['checkInLocation'] as Map),
             )
           : null,
       checkOutLocation: map['checkOutLocation'] != null
           ? LocationData.fromMap(
-              Map<String, dynamic>.from(map['checkOutLocation']),
+              Map<String, dynamic>.from(map['checkOutLocation'] as Map),
             )
           : null,
-      qrCodeId: map['qrCodeId'],
+      qrCodeId: map['qrCodeId'] as String?,
       status: AttendanceStatus.values.firstWhere(
-        (e) => e.name == map['status'],
+        (e) => e.name == map['status'] as String?,
         orElse: () => AttendanceStatus.present,
       ),
       workingHours: (map['workingHours'] as num?)?.toDouble(),
@@ -352,7 +353,7 @@ class AttendanceRecord {
     if (val is Timestamp) return val.toDate();
     try {
       return DateTime.tryParse(val.toString());
-    } catch (_) {}
+    } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
     return null;
   }
 
@@ -402,10 +403,10 @@ class LocationData {
 
   factory LocationData.fromMap(Map<String, dynamic> map) {
     return LocationData(
-      latitude: (map['latitude'] ?? 0.0).toDouble(),
-      longitude: (map['longitude'] ?? 0.0).toDouble(),
+      latitude: (map['latitude'] as num? ?? 0.0).toDouble(),
+      longitude: (map['longitude'] as num? ?? 0.0).toDouble(),
       accuracy: (map['accuracy'] as num?)?.toDouble(),
-      address: map['address'],
+      address: map['address'] as String?,
     );
   }
 
@@ -458,16 +459,16 @@ class CashCollection {
 
   factory CashCollection.fromMap(Map<String, dynamic> map) {
     return CashCollection(
-      id: map['id'] ?? '',
-      shopId: map['shopId'] ?? '',
-      branchId: map['branchId'] ?? '',
-      orderId: map['orderId'] ?? '',
-      deliveryEmployeeId: map['deliveryEmployeeId'] ?? '',
-      deliveryEmployeeName: map['deliveryEmployeeName'] ?? '',
-      amount: (map['amount'] ?? 0.0).toDouble(),
+      id: map['id'] as String? ?? '',
+      shopId: map['shopId'] as String? ?? '',
+      branchId: map['branchId'] as String? ?? '',
+      orderId: map['orderId'] as String? ?? '',
+      deliveryEmployeeId: map['deliveryEmployeeId'] as String? ?? '',
+      deliveryEmployeeName: map['deliveryEmployeeName'] as String? ?? '',
+      amount: (map['amount'] as num? ?? 0.0).toDouble(),
       collectionTime: _parseDate(map['collectionTime']) ?? DateTime.now(),
-      notes: map['notes'],
-      status: map['status'] ?? 'pending',
+      notes: map['notes'] as String?,
+      status: map['status'] as String? ?? 'pending',
     );
   }
 
@@ -477,7 +478,7 @@ class CashCollection {
     if (val is Timestamp) return val.toDate();
     try {
       return DateTime.tryParse(val.toString());
-    } catch (_) {}
+    } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
     return null;
   }
 
@@ -535,23 +536,23 @@ class ReturnRecord {
 
   factory ReturnRecord.fromMap(Map<String, dynamic> map) {
     return ReturnRecord(
-      id: map['id'] ?? '',
-      shopId: map['shopId'] ?? '',
-      branchId: map['branchId'] ?? '',
-      orderId: map['orderId'] ?? '',
-      productId: map['productId'] ?? '',
-      productName: map['productName'] ?? '',
-      barcode: map['barcode'] ?? '',
-      quantity: map['quantity'] ?? 1,
+      id: map['id'] as String? ?? '',
+      shopId: map['shopId'] as String? ?? '',
+      branchId: map['branchId'] as String? ?? '',
+      orderId: map['orderId'] as String? ?? '',
+      productId: map['productId'] as String? ?? '',
+      productName: map['productName'] as String? ?? '',
+      barcode: map['barcode'] as String? ?? '',
+      quantity: map['quantity'] as int? ?? 1,
       condition: ReturnCondition.values.firstWhere(
-        (e) => e.name == map['condition'],
+        (e) => e.name == map['condition'] as String?,
         orElse: () => ReturnCondition.opened,
       ),
-      reason: map['reason'],
-      employeeId: map['employeeId'] ?? '',
-      employeeName: map['employeeName'] ?? '',
+      reason: map['reason'] as String?,
+      employeeId: map['employeeId'] as String? ?? '',
+      employeeName: map['employeeName'] as String? ?? '',
       returnDate: _parseDate(map['returnDate']) ?? DateTime.now(),
-      status: map['status'] ?? 'pending',
+      status: map['status'] as String? ?? 'pending',
       refundAmount: (map['refundAmount'] as num?)?.toDouble(),
     );
   }
@@ -562,7 +563,7 @@ class ReturnRecord {
     if (val is Timestamp) return val.toDate();
     try {
       return DateTime.tryParse(val.toString());
-    } catch (_) {}
+    } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
     return null;
   }
 
@@ -623,19 +624,19 @@ class ShelfRefillAlert {
 
   factory ShelfRefillAlert.fromMap(Map<String, dynamic> map) {
     return ShelfRefillAlert(
-      id: map['id'] ?? '',
-      shopId: map['shopId'] ?? '',
-      branchId: map['branchId'] ?? '',
-      shelfId: map['shelfId'] ?? '',
-      shelfName: map['shelfName'] ?? '',
-      productId: map['productId'] ?? '',
-      productName: map['productName'] ?? '',
-      barcode: map['barcode'] ?? '',
-      currentShelfQuantity: map['currentShelfQuantity'] ?? 0,
-      minimumQuantity: map['minimumQuantity'] ?? 10,
+      id: map['id'] as String? ?? '',
+      shopId: map['shopId'] as String? ?? '',
+      branchId: map['branchId'] as String? ?? '',
+      shelfId: map['shelfId'] as String? ?? '',
+      shelfName: map['shelfName'] as String? ?? '',
+      productId: map['productId'] as String? ?? '',
+      productName: map['productName'] as String? ?? '',
+      barcode: map['barcode'] as String? ?? '',
+      currentShelfQuantity: map['currentShelfQuantity'] as int? ?? 0,
+      minimumQuantity: map['minimumQuantity'] as int? ?? 10,
       alertDate: _parseDate(map['alertDate']) ?? DateTime.now(),
-      status: map['status'] ?? 'pending',
-      notes: map['notes'],
+      status: map['status'] as String? ?? 'pending',
+      notes: map['notes'] as String?,
     );
   }
 
@@ -645,7 +646,7 @@ class ShelfRefillAlert {
     if (val is Timestamp) return val.toDate();
     try {
       return DateTime.tryParse(val.toString());
-    } catch (_) {}
+    } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
     return null;
   }
 

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../providers/order_provider.dart';
 import '../../models/order_model.dart';
+import '../../utils/app_theme.dart';
+import '../../constants/order_status.dart';
 
 class OrderPackingScreen extends StatefulWidget {
   final String orderId;
@@ -44,7 +45,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
     final orderProvider = Provider.of<OrderProvider>(context);
 
     if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent)));
     }
     if (_order == null) {
       return const Scaffold(body: Center(child: Text('Order not found')));
@@ -73,11 +74,11 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
             child: ElevatedButton(
               onPressed: _packedItems.values.every((v) => v)
                   ? () async {
-                      await orderProvider.updateOrderStatus(
+                      await orderProvider.updateOrderStatusSafe(
                         order.id,
                         OrderStatus.packed,
                       );
-                      if (mounted) context.pop();
+                      if (context.mounted) Navigator.of(context).pop();
                     }
                   : null,
               child: const Text('Mark as Packed'),

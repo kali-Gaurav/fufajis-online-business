@@ -10,6 +10,7 @@ import '../../models/product_model.dart';
 import '../../models/product_review_model.dart';
 import '../../services/product_service.dart';
 import '../../utils/app_theme.dart';
+import '../../widgets/shimmer_loading.dart';
 import '../../widgets/qna_section.dart';
 import '../../widgets/group_buy_widget.dart';
 import '../../widgets/farm_map_widget.dart';
@@ -75,7 +76,34 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (_isLoading) {
+      return const Scaffold(
+        backgroundColor: AppTheme.cream,
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              ShimmerBox(width: double.infinity, height: 320, radius: 0),
+              SizedBox(height: 16),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ShimmerBox(width: 260, height: 22),
+                    SizedBox(height: 10),
+                    ShimmerBox(width: 140, height: 16),
+                    SizedBox(height: 16),
+                    ShimmerBox(width: 100, height: 28),
+                    SizedBox(height: 24),
+                    ShimmerBox(width: double.infinity, height: 100, radius: 12),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     if (_product == null) return _buildNotFound();
 
     final productProvider = Provider.of<ProductProvider>(context);
@@ -98,7 +126,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             icon: const Icon(Icons.share, color: AppTheme.grey900),
             onPressed: () {
               final shareText = 'Check out ${_product!.name} on Fufaji\'s Online!\n'
-                  'Price: ₹${(_product!.isLightningDealActive ? _product!.lightningDealPrice : _product!.price)?.round()}\n'
+                  'Price: ₹${(_product!.isLightningDealActive ? _product!.lightningDealPrice : _product!.price.toDouble())?.round()}\n'
                   'Link: https://fufajis.online/product/${widget.productId}';
               Share.share(shareText);
             },
@@ -106,7 +134,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           IconButton(
             icon: Icon(
               isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: isFavorite ? Colors.red : AppTheme.grey900,
+              color: isFavorite ? AppTheme.error : AppTheme.grey900,
             ),
             onPressed: () => productProvider.toggleWishlist(widget.productId),
           ),
@@ -159,7 +187,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           // Feature 1 — Price History Timeline
           PriceHistoryWidget(
             productId: widget.productId,
-            currentPrice: _product!.price,
+            currentPrice: _product!.price.toDouble(),
           ),
           const SizedBox(height: 16),
           if (_product!.unitOptions.isNotEmpty) ...[
@@ -198,7 +226,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ? CachedNetworkImage(
                   imageUrl: imgUrl,
                   fit: BoxFit.contain,
-                  placeholder: (_, __) => const Center(child: CircularProgressIndicator()),
+                  placeholder: (_, __) => const Center(child: CircularProgressIndicator(color: AppTheme.primary)),
                   errorWidget: (_, __, ___) => const Icon(Icons.image_not_supported, size: 80),
                 )
               : const Icon(Icons.image, size: 80);
@@ -208,8 +236,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Widget _buildProductInfo() {
-    final double displayPrice = _selectedUnitOption != null ? _selectedUnitOption!.price : (_product!.isLightningDealActive ? (_product!.lightningDealPrice ?? 0.0) : _product!.price);
-    final double? originalPrice = _selectedUnitOption != null ? _selectedUnitOption!.originalPrice : _product!.originalPrice;
+    final double displayPrice = _selectedUnitOption != null ? _selectedUnitOption!.price.toDouble() : (_product!.isLightningDealActive ? (_product!.lightningDealPrice ?? 0.0) : _product!.price.toDouble());
+    final double? originalPrice = _selectedUnitOption != null ? _selectedUnitOption!.originalPrice : _product!.originalPrice?.toDouble();
     final String unit = _selectedUnitOption != null ? _selectedUnitOption!.name : _product!.unit;
 
     return Padding(
@@ -283,11 +311,42 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          const Text('Quantity', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text('Quantity', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const Spacer(),
-          IconButton(onPressed: _quantity > 1 ? () => setState(() => _quantity--) : null, icon: const Icon(Icons.remove_circle_outline)),
-          Text('$_quantity', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          IconButton(onPressed: () => setState(() => _quantity++), icon: const Icon(Icons.add_circle_outline)),
+          GestureDetector(
+            onTap: _quantity > 1 ? () => setState(() => _quantity--) : null,
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: _quantity > 1 ? AppTheme.primary.withValues(alpha: 0.1) : AppTheme.grey100,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(Icons.remove, color: _quantity > 1 ? AppTheme.primary : AppTheme.grey400, size: 20),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppTheme.grey100,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text('$_quantity', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          ),
+          const SizedBox(width: 12),
+          GestureDetector(
+            onTap: () => setState(() => _quantity++),
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: AppTheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.add, color: AppTheme.primary, size: 20),
+            ),
+          ),
         ],
       ),
     );
@@ -306,7 +365,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
-  Widget _buildReviewsSection() => ListTile(title: const Text('Customer Reviews'), trailing: Text('${_reviews.length} Reviews'), onTap: () {});
+  Widget _buildReviewsSection() => ListTile(title: const Text('Customer Reviews', style: TextStyle(fontWeight: FontWeight.w700)), trailing: Text('${_reviews.length} Reviews'), onTap: () {});
 
   Widget _buildBottomBar(CartProvider cart, bool isInCart, int qty) {
     return Container(
@@ -320,7 +379,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 cart.addToCart(_product!, quantity: _quantity, selectedUnit: _selectedUnitOption);
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Added to Cart')));
               },
-              child: const Text('ADD TO CART'),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(0, 52),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                side: const BorderSide(color: AppTheme.primary, width: 2),
+              ),
+              child: const Text('ADD TO CART', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
           ),
           const SizedBox(width: 12),
@@ -330,16 +394,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 cart.addToCart(_product!, quantity: _quantity, selectedUnit: _selectedUnitOption);
                 context.push('/customer/checkout');
               },
-              child: const Text('BUY NOW'),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(0, 52),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                backgroundColor: AppTheme.primary,
+              ),
+              child: const Text('BUY NOW', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
             ),
           ),
         ],
       ),
     );
-  }
-
-  void _showReviewComposer() {
-    // Logic for review composer
   }
 }
 
@@ -364,7 +429,7 @@ class _DetailLightningBannerState extends State<DetailLightningBanner> {
   Widget build(BuildContext context) {
     if (!widget.product.isLightningDealActive) return const SizedBox.shrink();
     return Container(
-      color: Colors.red.shade900,
+      color: AppTheme.error,
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: const Row(children: [Icon(Icons.flash_on, color: Colors.yellow), SizedBox(width: 8), Text('LIGHTNING DEAL', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))]),
     );

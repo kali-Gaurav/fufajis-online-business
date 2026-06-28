@@ -229,21 +229,21 @@ class LightningDeal {
   factory LightningDeal.fromMap(Map<String, dynamic> m, String id) {
     return LightningDeal(
       id: id,
-      productId: m['productId'] ?? '',
-      productName: m['productName'] ?? '',
-      imageUrl: m['imageUrl'] ?? '',
-      originalPrice: (m['originalPrice'] ?? 0.0).toDouble(),
-      dealPrice: (m['dealPrice'] ?? 0.0).toDouble(),
-      discountPct: (m['discountPct'] ?? 0) as int,
-      totalQty: (m['totalQty'] ?? 0) as int,
-      qtyRemaining: (m['qtyRemaining'] ?? 0) as int,
+      productId: m['productId'] as String? ?? '',
+      productName: m['productName'] as String? ?? '',
+      imageUrl: m['imageUrl'] as String? ?? '',
+      originalPrice: ((m['originalPrice'] as num?) ?? 0.0).toDouble(),
+      dealPrice: ((m['dealPrice'] as num?) ?? 0.0).toDouble(),
+      discountPct: (m['discountPct'] as num? ?? 0).toInt(),
+      totalQty: (m['totalQty'] as num? ?? 0).toInt(),
+      qtyRemaining: (m['qtyRemaining'] as num? ?? 0).toInt(),
       startTime: m['startTime'] is Timestamp
           ? (m['startTime'] as Timestamp).toDate()
           : DateTime.now(),
       endTime: m['endTime'] is Timestamp
           ? (m['endTime'] as Timestamp).toDate()
           : DateTime.now(),
-      isActive: m['isActive'] ?? false,
+      isActive: m['isActive'] as bool? ?? false,
     );
   }
 }

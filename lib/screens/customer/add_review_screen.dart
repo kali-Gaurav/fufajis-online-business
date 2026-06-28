@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -145,7 +146,7 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Write a Review'),
+        title: const Text('Write a Review', style: TextStyle(fontWeight: FontWeight.w700)),
         backgroundColor: AppTheme.primary,
         foregroundColor: Colors.white,
       ),
@@ -280,7 +281,7 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.file(
-                              _images[index].path as dynamic,
+                              File(_images[index].path),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -291,7 +292,7 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
                               onTap: () => _removeImage(index),
                               child: Container(
                                 decoration: const BoxDecoration(
-                                  color: Colors.red,
+                                  color: AppTheme.error,
                                   shape: BoxShape.circle,
                                 ),
                                 padding: const EdgeInsets.all(4),
@@ -324,13 +325,13 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.red[50],
-                  border: Border.all(color: Colors.red[300]!),
+                  color: AppTheme.error.withValues(alpha: 0.1),
+                  border: Border.all(color: AppTheme.error),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   _error!,
-                  style: TextStyle(color: Colors.red[700], fontSize: 13),
+                  style: const TextStyle(color: AppTheme.error, fontSize: 13),
                 ),
               ),
               const SizedBox(height: 16),

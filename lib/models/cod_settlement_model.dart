@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CodSettlementModel {
   final String id;
+  final String branchId;
+  final String? deliveryTaskId;
   final String riderId;
   final String riderName;
   final String riderPhone;
@@ -18,6 +20,8 @@ class CodSettlementModel {
 
   CodSettlementModel({
     required this.id,
+    required this.branchId,
+    this.deliveryTaskId,
     required this.riderId,
     required this.riderName,
     required this.riderPhone,
@@ -35,30 +39,34 @@ class CodSettlementModel {
 
   factory CodSettlementModel.fromMap(Map<String, dynamic> map) {
     return CodSettlementModel(
-      id: map['id'] ?? '',
-      riderId: map['riderId'] ?? '',
-      riderName: map['riderName'] ?? '',
-      riderPhone: map['riderPhone'] ?? '',
-      amount: (map['amount'] ?? 0.0).toDouble(),
-      expectedAmount: (map['expectedAmount'] ?? 0.0).toDouble(),
-      receivedAmount: (map['receivedAmount'] ?? 0.0).toDouble(),
-      difference: (map['difference'] ?? 0.0).toDouble(),
-      approvedBy: map['approvedBy'],
-      reason: map['reason'],
-      status: map['status'] ?? 'pending',
+      id: map['id'] as String? ?? '',
+      branchId: map['branchId'] as String? ?? '',
+      deliveryTaskId: map['deliveryTaskId'] as String?,
+      riderId: map['riderId'] as String? ?? '',
+      riderName: map['riderName'] as String? ?? '',
+      riderPhone: map['riderPhone'] as String? ?? '',
+      amount: (map['amount'] as num? ?? 0.0).toDouble(),
+      expectedAmount: (map['expectedAmount'] as num? ?? 0.0).toDouble(),
+      receivedAmount: (map['receivedAmount'] as num? ?? 0.0).toDouble(),
+      difference: (map['difference'] as num? ?? 0.0).toDouble(),
+      approvedBy: map['approvedBy'] as String?,
+      reason: map['reason'] as String?,
+      status: map['status'] as String? ?? 'pending',
       submittedAt: map['submittedAt'] != null
           ? (map['submittedAt'] as Timestamp).toDate()
           : DateTime.now(),
       resolvedAt: map['resolvedAt'] != null
           ? (map['resolvedAt'] as Timestamp).toDate()
           : null,
-      notes: map['notes'],
+      notes: map['notes'] as String?,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'branchId': branchId,
+      'deliveryTaskId': deliveryTaskId,
       'riderId': riderId,
       'riderName': riderName,
       'riderPhone': riderPhone,
@@ -77,6 +85,8 @@ class CodSettlementModel {
 
   CodSettlementModel copyWith({
     String? id,
+    String? branchId,
+    String? deliveryTaskId,
     String? riderId,
     String? riderName,
     String? riderPhone,
@@ -93,6 +103,8 @@ class CodSettlementModel {
   }) {
     return CodSettlementModel(
       id: id ?? this.id,
+      branchId: branchId ?? this.branchId,
+      deliveryTaskId: deliveryTaskId ?? this.deliveryTaskId,
       riderId: riderId ?? this.riderId,
       riderName: riderName ?? this.riderName,
       riderPhone: riderPhone ?? this.riderPhone,

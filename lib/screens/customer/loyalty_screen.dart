@@ -22,7 +22,7 @@ class LoyaltyScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Rewards & Loyalty'),
+        title: const Text('Rewards & Loyalty', style: TextStyle(fontWeight: FontWeight.w700)),
         backgroundColor: AppTheme.primary,
         foregroundColor: Colors.white,
       ),
@@ -305,7 +305,7 @@ class LoyaltyScreen extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF1565C0), Color(0xFF1976D2)],
+          colors: [AppTheme.primary, AppTheme.primaryDark],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -335,8 +335,8 @@ class LoyaltyScreen extends StatelessWidget {
             icon: const Icon(Icons.share, size: 16),
             label: const Text('Invite'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: const Color(0xFF1565C0),
+              backgroundColor: AppTheme.cream,
+              foregroundColor: AppTheme.primary,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             ),
           ),
@@ -371,7 +371,7 @@ class LoyaltyScreen extends StatelessWidget {
                 .snapshots(),
             builder: (context, snap) {
               if (snap.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
               }
               if (!snap.hasData || snap.data!.docs.isEmpty) {
                 return const Center(
@@ -453,7 +453,7 @@ class LoyaltyScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Redeem Points'),
+        title: const Text('Redeem Points', style: TextStyle(fontWeight: FontWeight.w700)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

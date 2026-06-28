@@ -1,6 +1,7 @@
+import 'logging_service.dart';
+import 'package:fufajis_online/services/api_client.dart';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fufajis_online/models/cart_item.dart';
 import 'package:fufajis_online/models/delivery_type.dart';
@@ -8,6 +9,8 @@ import 'package:fufajis_online/models/order_model.dart';
 import 'package:fufajis_online/models/payment_method.dart';
 import 'package:fufajis_online/models/payment_result.dart';
 import 'package:fufajis_online/models/user_model.dart';
+import '../constants/order_status.dart';
+import '../utils/monetary_value.dart';
 
 /// Payment verification service for server-side verification
 ///
@@ -21,13 +24,9 @@ import 'package:fufajis_online/models/user_model.dart';
 class PaymentVerificationService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // In production, this should be stored securely on the backend
-  // Never expose the secret key in client-side code
-  static const String _razorpaySecretKey = 'RAZORPAY_SECRET_KEY_PLACEHOLDER';
-
   /// Verify payment signature
   ///
-  /// Calls secure Firebase Cloud Functions server-side verification
+  /// Calls Node.js + Express backend endpoint for secure server-side verification
   /// to prevent tampering with payment responses
   Future<bool> verifySignature({
     required String paymentId,
@@ -35,18 +34,18 @@ class PaymentVerificationService {
     required String signature,
   }) async {
     try {
-      final FirebaseFunctions functions = FirebaseFunctions.instance;
-      final HttpsCallable callable = functions.httpsCallable(
-        'verifyRazorpayPayment',
+      // Call Node.js backend endpoint (replaces Firebase Cloud Functions)
+      final response = await ApiClient.instance.post(
+        '/payments/razorpay/verify',
+        {
+          'razorpay_payment_id': paymentId,
+          'razorpay_order_id': orderId,
+          'razorpay_signature': signature,
+          'order_id': orderId,
+        },
       );
 
-      final HttpsCallableResult result = await callable.call({
-        'paymentId': paymentId,
-        'orderId': orderId,
-        'signature': signature,
-      });
-
-      if (result.data != null && result.data['success'] == true) {
+      if (response.data['success'] == true) {
         debugPrint(
           'PaymentVerificationService: Secure signature verification succeeded',
         );
@@ -54,7 +53,7 @@ class PaymentVerificationService {
       }
 
       debugPrint(
-        'PaymentVerificationService: Secure signature verification failed: ${result.data}',
+        'PaymentVerificationService: Secure signature verification failed: ${response.data}',
       );
       return false;
     } catch (e) {
@@ -83,8 +82,8 @@ class PaymentVerificationService {
       if (paymentDoc.exists) {
         final data = paymentDoc.data()!;
         return PaymentVerificationResult(
-          isVerified: data['verified'] ?? false,
-          status: data['status'] ?? 'unknown',
+          isVerified: data['verified'] as bool? ?? false,
+          status: data['status'] as String? ?? 'unknown',
           paymentId: paymentId,
           orderId: orderId,
         );
@@ -143,8 +142,8 @@ class PaymentVerificationService {
       );
 
       if (!isSignatureValid) {
-        debugPrint('PaymentVerificationService: Signature verification failed');
-        // In production, you might want to flag this for review
+        debugPrint('PaymentVerificationService: Signature verification failed. Aborting order creation.');
+        return null;
       }
 
       // Verify payment status
@@ -161,7 +160,7 @@ class PaymentVerificationService {
       // Calculate totals
       final subtotal = cartItems.fold<double>(
         0,
-        (double sum, CartItem item) => sum + item.totalPrice,
+        (double sum, CartItem item) => sum + item.totalPrice.toDouble(),
       );
 
       // Generate order number
@@ -197,13 +196,13 @@ class PaymentVerificationService {
               ),
             )
             .toList(),
-        subtotal: subtotal,
-        deliveryCharge: 0, // Will be calculated separately
-        discount: 0,
-        tax: 0,
-        totalAmount: subtotal,
-        walletAmountUsed: walletAmountUsed,
-        cashbackEarned: 0,
+        subtotal: MonetaryValue(subtotal),
+        deliveryCharge: MonetaryValue(0.0), // Will be calculated separately
+        discount: MonetaryValue(0.0),
+        tax: MonetaryValue(0.0),
+        totalAmount: MonetaryValue(subtotal),
+        walletAmountUsed: MonetaryValue(walletAmountUsed),
+        cashbackEarned: MonetaryValue(0.0),
         rewardPointsUsed: rewardPointsUsed,
         rewardPointsEarned: (subtotal / 10).floor(), // 1 point per 10 rupees
         paymentMethod: paymentMethod,
@@ -261,11 +260,13 @@ class PaymentVerificationService {
       return snapshot.docs.map((doc) {
         final data = doc.data();
         return PaymentResult(
-          status: _parsePaymentStatus(data['status']),
+          status: _parsePaymentStatus(data['status'] as String?),
           paymentId: doc.id,
-          orderId: data['orderId'],
+          orderId: data['orderId'] as String?,
           timestamp: data['createdAt'] != null
-              ? DateTime.tryParse(data['createdAt'])
+              ? (data['createdAt'] is Timestamp 
+                  ? (data['createdAt'] as Timestamp).toDate() 
+                  : DateTime.tryParse(data['createdAt'].toString()))
               : null,
         );
       }).toList();
@@ -415,7 +416,7 @@ class PaymentVerificationService {
           'error': e.toString(),
           'timestamp': FieldValue.serverTimestamp(),
         });
-      } catch (_) {}
+      } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
 
       return false;
     }

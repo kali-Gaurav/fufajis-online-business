@@ -1,3 +1,5 @@
+import '../utils/monetary_value.dart';
+
 /// CartItem model for the shopping cart.
 /// Note: A more feature-rich CartItem also exists at models/cart_item.dart (CartItem class).
 /// This file provides the CartItemModel alias matching the requested spec field names.
@@ -6,8 +8,8 @@ class CartItemModel {
   final String productId;
   final String productName;
   final String imageUrl;
-  final double price;
-  final double? originalPrice;
+  final MonetaryValue price;
+  final MonetaryValue? originalPrice;
   final int quantity;
   final String selectedUnit;
   final double unitPrice;
@@ -26,7 +28,7 @@ class CartItemModel {
     required this.shopId,
   });
 
-  double get totalPrice => price * quantity;
+  MonetaryValue get totalPrice => price * quantity;
 
   Map<String, dynamic> toMap() {
     return {
@@ -45,16 +47,16 @@ class CartItemModel {
 
   factory CartItemModel.fromMap(Map<String, dynamic> map) {
     return CartItemModel(
-      id: map['id'] ?? '',
-      productId: map['productId'] ?? '',
-      productName: map['productName'] ?? '',
-      imageUrl: map['imageUrl'] ?? map['productImage'] ?? '',
-      price: (map['price'] ?? 0.0).toDouble(),
-      originalPrice: (map['originalPrice'] as num?)?.toDouble(),
-      quantity: map['quantity'] ?? 1,
-      selectedUnit: map['selectedUnit'] ?? map['unit'] ?? 'piece',
-      unitPrice: (map['unitPrice'] ?? map['price'] ?? 0.0).toDouble(),
-      shopId: map['shopId'] ?? '',
+      id: map['id'] as String? ?? '',
+      productId: map['productId'] as String? ?? '',
+      productName: map['productName'] as String? ?? '',
+      imageUrl: (map['imageUrl'] as String?) ?? (map['productImage'] as String?) ?? '',
+      price: MonetaryValue(map['price'] ?? 0.0),
+      originalPrice: map['originalPrice'] != null ? MonetaryValue(map['originalPrice']) : null,
+      quantity: map['quantity'] as int? ?? 1,
+      selectedUnit: (map['selectedUnit'] as String?) ?? (map['unit'] as String?) ?? 'piece',
+      unitPrice: (map['unitPrice'] as num? ?? map['price'] as num? ?? 0.0).toDouble(),
+      shopId: map['shopId'] as String? ?? '',
     );
   }
 
@@ -63,8 +65,8 @@ class CartItemModel {
     String? productId,
     String? productName,
     String? imageUrl,
-    double? price,
-    double? originalPrice,
+    MonetaryValue? price,
+    MonetaryValue? originalPrice,
     int? quantity,
     String? selectedUnit,
     double? unitPrice,

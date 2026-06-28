@@ -14,7 +14,8 @@ import '../models/shop_config_model.dart';
 /// - Zone-specific min order amounts
 /// - Coverage gap analysis for expansion recommendations
 class HyperlocalExpansionService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  FirebaseFirestore? db;
+  FirebaseFirestore get _firestore => db ?? FirebaseFirestore.instance;
 
   static final HyperlocalExpansionService _instance = HyperlocalExpansionService._internal();
   factory HyperlocalExpansionService() => _instance;
@@ -207,12 +208,10 @@ class HyperlocalExpansionService {
       });
 
       // Mark cells as served
-      for (final pincode in recommendation.pincodes) {
-        await _firestore.collection('demand_heatmap').doc(recommendation.gridKey).update({
-          'isExpansionCandidate': false,
-          'assignedZoneId': zoneId,
-        });
-      }
+      await _firestore.collection('demand_heatmap').doc(recommendation.gridKey).update({
+        'isExpansionCandidate': false,
+        'assignedZoneId': zoneId,
+      });
 
       return newZone;
     } catch (e) {
@@ -237,7 +236,7 @@ class HyperlocalExpansionService {
       int currentHourOrders = 0;
 
       if (doc.exists) {
-        currentHourOrders = doc.data()?['orderCount'] ?? 0;
+        currentHourOrders = (doc.data()?['orderCount'] as num? ?? 0).toInt();
       }
 
       // Record this check
@@ -330,7 +329,7 @@ class HyperlocalExpansionService {
         int cancelledCount = 0;
 
         for (final doc in ordersSnapshot.docs) {
-          totalRevenue += (doc.data()['totalAmount'] ?? 0.0).toDouble();
+          totalRevenue += ((doc.data()['totalAmount'] as num?) ?? 0.0).toDouble();
           if (doc.data()['status'] == 'OrderStatus.cancelled') {
             cancelledCount++;
           }
@@ -435,15 +434,15 @@ class DemandHeatmapCell {
 
   factory DemandHeatmapCell.fromMap(Map<String, dynamic> map) {
     return DemandHeatmapCell(
-      gridKey: map['gridKey'] ?? '',
-      centerLat: (map['centerLat'] ?? 0.0).toDouble(),
-      centerLng: (map['centerLng'] ?? 0.0).toDouble(),
-      orderCount: map['orderCount'] ?? 0,
-      totalRevenue: (map['totalRevenue'] ?? 0.0).toDouble(),
-      firstOrderAt: map['firstOrderAt']?.toDate() ?? DateTime.now(),
-      lastOrderAt: map['lastOrderAt']?.toDate() ?? DateTime.now(),
-      pincodes: List<String>.from(map['pincodes'] ?? []),
-      isExpansionCandidate: map['isExpansionCandidate'] ?? false,
+      gridKey: map['gridKey'] as String? ?? '',
+      centerLat: ((map['centerLat'] as num?) ?? 0.0).toDouble(),
+      centerLng: ((map['centerLng'] as num?) ?? 0.0).toDouble(),
+      orderCount: (map['orderCount'] as num? ?? 0).toInt(),
+      totalRevenue: ((map['totalRevenue'] as num?) ?? 0.0).toDouble(),
+      firstOrderAt: (map['firstOrderAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      lastOrderAt: (map['lastOrderAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      pincodes: List<String>.from(map['pincodes'] as Iterable? ?? []),
+      isExpansionCandidate: map['isExpansionCandidate'] as bool? ?? false,
     );
   }
 }

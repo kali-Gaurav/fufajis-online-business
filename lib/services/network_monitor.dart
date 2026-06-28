@@ -4,50 +4,55 @@ import 'package:flutter/foundation.dart';
 
 /// Service to monitor network connectivity
 class NetworkMonitor extends ChangeNotifier {
-  final Connectivity _connectivity = Connectivity();
-  StreamSubscription? _connectivitySubscription;
-  bool _isOffline = false;
-
-  bool get isOffline => _isOffline;
-
-  NetworkMonitor() {
+  static final NetworkMonitor _instance = NetworkMonitor._internal();
+  factory NetworkMonitor() => _instance;
+  static NetworkMonitor get instance => _instance;
+  NetworkMonitor._internal() {
     _initConnectivity();
-    // Use dynamic to handle both ConnectivityResult (older API) and List<ConnectivityResult> (newer API)
-    _connectivitySubscription = _connectivity.onConnectivityChanged.listen((
-      dynamic result,
-    ) {
+    _connectivity.onConnectivityChanged.listen((dynamic result) {
       _updateConnectionStatus(result);
     });
   }
 
+  final Connectivity _connectivity = Connectivity();
+  bool _isOffline = false;
+
+  bool get isOffline => _isOffline;
+  bool get isOnline => !_isOffline;
+
+  Stream<bool> get onConnectivityChanged => _connectivity.onConnectivityChanged.map((result) {
+    return !result.contains(ConnectivityResult.none);
+  });
+
   Future<void> _initConnectivity() async {
     try {
-      final dynamic result = await _connectivity.checkConnectivity();
+      final result = await _connectivity.checkConnectivity();
       _updateConnectionStatus(result);
     } catch (e) {
-      debugPrint('Could not check connectivity status: $e');
+      debugPrint('Couldn\'t check connectivity status: $e');
     }
   }
 
   void _updateConnectionStatus(dynamic result) {
     bool wasOffline = _isOffline;
-
     if (result is List) {
-      // Handle newer List<ConnectivityResult> API
-      _isOffline = result.contains(ConnectivityResult.none);
-    } else if (result is ConnectivityResult) {
-      // Handle older ConnectivityResult API
+      _isOffline = result.isEmpty || result.contains(ConnectivityResult.none);
+    } else {
       _isOffline = result == ConnectivityResult.none;
     }
-
     if (wasOffline != _isOffline) {
       notifyListeners();
     }
   }
 
+  Future<void> checkConnectivity() async {
+    final result = await _connectivity.checkConnectivity();
+    _updateConnectionStatus(result);
+  }
+
   @override
   void dispose() {
-    _connectivitySubscription?.cancel();
+    // Note: Singleton dispose might not be desired, but keeping for compatibility
     super.dispose();
   }
 }

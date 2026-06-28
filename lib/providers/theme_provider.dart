@@ -5,12 +5,14 @@ enum ThemeModeType { system, light, dark }
 
 class ThemeProvider with ChangeNotifier {
   ThemeModeType _themeMode = ThemeModeType.system;
-  ThemeModeType get themeMode => _themeMode;
-
   Locale _locale = const Locale('en');
+  SharedPreferences? _prefs;
+
+  ThemeModeType get themeMode => _themeMode;
   Locale get locale => _locale;
 
   ThemeProvider(SharedPreferences prefs) {
+    _prefs = prefs;
     final savedMode = prefs.getString('themeMode');
     if (savedMode != null) {
       _themeMode = ThemeModeType.values.firstWhere(
@@ -19,21 +21,18 @@ class ThemeProvider with ChangeNotifier {
       );
     }
 
-    final savedLocale = prefs.getString('locale');
+    // Load saved locale
+    final savedLocale = prefs.getString('appLocale');
     if (savedLocale != null) {
-      _locale = Locale(savedLocale);
+      try {
+        final parts = savedLocale.split('_');
+        _locale = parts.length > 1
+            ? Locale(parts[0], parts[1])
+            : Locale(parts[0]);
+      } catch (e) {
+        _locale = const Locale('en');
+      }
     }
-  }
-
-  void setLocale(Locale locale) {
-    _locale = locale;
-    notifyListeners();
-    _saveLocale();
-  }
-
-  Future<void> _saveLocale() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('locale', _locale.languageCode);
   }
 
   void setThemeMode(ThemeModeType mode) {
@@ -61,5 +60,30 @@ class ThemeProvider with ChangeNotifier {
     }
     notifyListeners();
     _saveThemeMode();
+  }
+
+  /// Sets the app locale/language
+  Future<void> setLocale(Locale newLocale) async {
+    _locale = newLocale;
+    notifyListeners();
+
+    // Save to SharedPreferences
+    if (_prefs != null) {
+      final localeString = newLocale.countryCode != null
+          ? '${newLocale.languageCode}_${newLocale.countryCode}'
+          : newLocale.languageCode;
+      await _prefs!.setString('appLocale', localeString);
+    }
+  }
+
+  /// Gets the current language code
+  String get languageCode => _locale.languageCode;
+
+  /// Toggles between supported languages
+  Future<void> toggleLanguage() async {
+    final newLocale = _locale.languageCode == 'en'
+        ? const Locale('hi')  // English to Hindi
+        : const Locale('en'); // Hindi to English
+    await setLocale(newLocale);
   }
 }

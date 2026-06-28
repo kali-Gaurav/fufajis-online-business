@@ -1,16 +1,17 @@
+import '../../services/logging_service.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../utils/app_theme.dart';
 import '../../widgets/voice_command_fab.dart';
 import '../../services/voice_command_executor.dart';
-import '../../services/gemini_service.dart';
+import '../../services/voice_command_service.dart';
 
 /// Owner screen: shows voice command history + quick-tap command shortcuts.
 class VoiceDashboardScreen extends StatefulWidget {
   final String? shopId;
 
-  const VoiceDashboardScreen({Key? key, this.shopId}) : super(key: key);
+  const VoiceDashboardScreen({super.key, this.shopId});
 
   @override
   State<VoiceDashboardScreen> createState() => _VoiceDashboardScreenState();
@@ -53,7 +54,7 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('History Clear Karein?'),
+        title: const Text('History Clear Karein?', style: TextStyle(fontWeight: FontWeight.w700)),
         content: const Text('Saari voice command history delete ho jayegi.'),
         actions: [
           TextButton(
@@ -84,17 +85,9 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
     });
 
     try {
-      final parsed = await GeminiService().parseVoiceInventoryCommand(commandText);
-      if (parsed == null) {
-        setState(() {
-          _isRunningQuick = false;
-          _quickResult = 'Samajh nahi aaya: "$commandText"';
-        });
-        return;
-      }
-
-      final executor = VoiceCommandExecutor();
-      final result = await executor.execute(parsed, context);
+      final command = await VoiceCommandService().parse(commandText);
+      
+      final result = await VoiceCommandExecutor.execute(command, context);
 
       // Reload history after execution
       await _loadHistory();
@@ -108,7 +101,7 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(result),
-            backgroundColor: AppTheme.secondary,
+            backgroundColor: AppTheme.info,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 3),
           ),
@@ -133,7 +126,7 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
           'Voice Commands',
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.cream,
         foregroundColor: AppTheme.grey900,
         elevation: 0,
         actions: [
@@ -170,28 +163,28 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
 
   Widget _buildQuickCommandsSection() {
     final quickCommands = [
-      _QuickCommand(
+      const _QuickCommand(
         label: 'Check Stock',
         subtitle: 'Low stock items dekho',
         icon: Icons.inventory_2_outlined,
         color: AppTheme.info,
         command: 'Low stock items kaun kaun se hain',
       ),
-      _QuickCommand(
+      const _QuickCommand(
         label: "Today's Orders",
         subtitle: 'Aaj ke orders kitne hain',
         icon: Icons.receipt_long_outlined,
-        color: AppTheme.secondary,
+        color: AppTheme.info,
         command: 'Aaj ke orders kitne hain',
       ),
-      _QuickCommand(
+      const _QuickCommand(
         label: 'Low Stock Alert',
         subtitle: 'Stock check karo',
         icon: Icons.warning_amber_outlined,
         color: AppTheme.warning,
         command: 'Stock report do',
       ),
-      _QuickCommand(
+      const _QuickCommand(
         label: 'Revenue Report',
         subtitle: "Aaj ki kamai",
         icon: Icons.attach_money,
@@ -203,11 +196,11 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const Row(
           children: [
-            const Icon(Icons.bolt, color: AppTheme.primary, size: 20),
-            const SizedBox(width: 6),
-            const Text(
+            Icon(Icons.bolt, color: AppTheme.primary, size: 20),
+            SizedBox(width: 6),
+            Text(
               'Quick Commands',
               style: TextStyle(
                 fontSize: 16,
@@ -231,13 +224,13 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppTheme.secondary.withOpacity(0.1),
+              color: AppTheme.info.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.secondary.withOpacity(0.3)),
+              border: Border.all(color: AppTheme.info.withValues(alpha: 0.3)),
             ),
             child: Row(
               children: [
-                const Icon(Icons.check_circle, color: AppTheme.secondary, size: 18),
+                const Icon(Icons.check_circle, color: AppTheme.info, size: 18),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -275,7 +268,7 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: AppTheme.cardShadows,
-          border: Border.all(color: qc.color.withOpacity(0.2)),
+          border: Border.all(color: qc.color.withValues(alpha: 0.2)),
         ),
         padding: const EdgeInsets.all(14),
         child: Column(
@@ -285,7 +278,7 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: qc.color.withOpacity(0.12),
+                color: qc.color.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(qc.icon, color: qc.color, size: 20),
@@ -325,11 +318,11 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
+            const Row(
               children: [
-                const Icon(Icons.history, color: AppTheme.primary, size: 20),
-                const SizedBox(width: 6),
-                const Text(
+                Icon(Icons.history, color: AppTheme.primary, size: 20),
+                SizedBox(width: 6),
+                Text(
                   'Recent Commands',
                   style: TextStyle(
                     fontSize: 16,
@@ -372,19 +365,19 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
   }
 
   Widget _buildEmptyHistory() {
-    return Center(
+    return const Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 40),
+        padding: EdgeInsets.symmetric(vertical: 40),
         child: Column(
           children: [
             Icon(Icons.mic_none, size: 48, color: AppTheme.grey300),
-            const SizedBox(height: 12),
-            const Text(
+            SizedBox(height: 12),
+            Text(
               'Koi voice commands nahi',
               style: TextStyle(color: AppTheme.grey500, fontSize: 14),
             ),
-            const SizedBox(height: 4),
-            const Text(
+            SizedBox(height: 4),
+            Text(
               'Neeche mic button press karein',
               style: TextStyle(color: AppTheme.grey400, fontSize: 12),
             ),
@@ -402,7 +395,7 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
     if (tsRaw != null) {
       try {
         ts = DateTime.parse(tsRaw);
-      } catch (_) {}
+      } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
     }
 
     final isSuccess = !result.toLowerCase().contains('error') &&
@@ -414,7 +407,7 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -428,12 +421,12 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: isSuccess
-                ? AppTheme.secondary.withOpacity(0.12)
-                : AppTheme.error.withOpacity(0.12),
+                ? AppTheme.info.withValues(alpha: 0.12)
+                : AppTheme.error.withValues(alpha: 0.12),
           ),
           child: Icon(
             isSuccess ? Icons.check : Icons.error_outline,
-            color: isSuccess ? AppTheme.secondary : AppTheme.error,
+            color: isSuccess ? AppTheme.info : AppTheme.error,
             size: 20,
           ),
         ),
@@ -455,7 +448,7 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
               result,
               style: TextStyle(
                 fontSize: 12,
-                color: isSuccess ? AppTheme.secondary : AppTheme.error,
+                color: isSuccess ? AppTheme.info : AppTheme.error,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -473,7 +466,7 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
               ),
           ],
         ),
-        trailing: Icon(
+        trailing: const Icon(
           Icons.chevron_right,
           color: AppTheme.grey300,
           size: 18,

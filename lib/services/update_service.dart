@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../utils/app_theme.dart';
 import 'remote_config_service.dart';
 import 'github_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -97,7 +98,7 @@ class UpdateService {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Column(
           children: [
-            const Icon(Icons.celebration, color: Colors.orange, size: 40),
+            const Icon(Icons.celebration, color: AppTheme.warning, size: 40),
             const SizedBox(height: 10),
             Text('What\'s New in v${note.version}'),
           ],
@@ -128,14 +129,6 @@ class UpdateService {
         ],
       ),
     );
-  }
-
-  Future<bool> _isGitHubUpdateAvailable() async {
-    final latestVersion = await _githubService.getLatestReleaseVersion();
-    if (latestVersion == null) return false;
-
-    final packageInfo = await PackageInfo.fromPlatform();
-    return _isVersionLower(packageInfo.version, latestVersion);
   }
 
   bool _isVersionLower(String current, String target) {
@@ -217,7 +210,7 @@ class UpdateService {
           ),
           title: const Row(
             children: [
-              Icon(Icons.construction, color: Colors.orange),
+              Icon(Icons.construction, color: AppTheme.warning),
               SizedBox(width: 12),
               Text('System Upgrade'),
             ],

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/scanner_service.dart';
+import '../../utils/app_theme.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CustomerMembershipScannerScreen
@@ -134,7 +135,7 @@ class _CustomerMembershipScannerScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Member Lookup'),
+        title: const Text('Member Lookup', style: TextStyle(fontWeight: FontWeight.w700)),
         backgroundColor: const Color(0xFFAD1457),
         foregroundColor: Colors.white,
         actions: [
@@ -201,7 +202,7 @@ class _CustomerMembershipScannerScreenState
 
   Widget _buildProfile() {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
     }
 
     if (_errorMsg != null) {
@@ -211,7 +212,7 @@ class _CustomerMembershipScannerScreenState
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.person_off, size: 64, color: Colors.red),
+              const Icon(Icons.person_off, size: 64, color: AppTheme.error),
               const SizedBox(height: 12),
               Text(_errorMsg!,
                   textAlign: TextAlign.center,
@@ -304,7 +305,7 @@ class _CustomerMembershipScannerScreenState
                   label: 'Loyalty Points',
                   value: '$points pts',
                   icon: Icons.stars,
-                  color: Colors.amber,
+                  color: AppTheme.warning,
                 ),
               ),
               const SizedBox(width: 10),
@@ -313,7 +314,7 @@ class _CustomerMembershipScannerScreenState
                   label: 'Total Orders',
                   value: '$totalOrders',
                   icon: Icons.receipt_long,
-                  color: Colors.blue,
+                  color: AppTheme.info,
                 ),
               ),
               const SizedBox(width: 10),
@@ -322,7 +323,7 @@ class _CustomerMembershipScannerScreenState
                   label: 'Total Spent',
                   value: '₹${totalSpent.toStringAsFixed(0)}',
                   icon: Icons.currency_rupee,
-                  color: Colors.green,
+                  color: AppTheme.success,
                 ),
               ),
             ],
@@ -379,8 +380,8 @@ class _TierBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tierConfig = {
-      'gold': (Colors.amber, Icons.emoji_events, 'Gold Member'),
-      'silver': (Colors.blueGrey, Icons.military_tech, 'Silver Member'),
+      'gold': (AppTheme.warning, Icons.emoji_events, 'Gold Member'),
+      'silver': (AppTheme.infoGrey, Icons.military_tech, 'Silver Member'),
       'platinum': (const Color(0xFF7B1FA2), Icons.diamond, 'Platinum'),
       'regular': (Colors.grey, Icons.person, 'Regular'),
     };
@@ -469,11 +470,11 @@ class _OrderRow extends StatelessWidget {
         ts != null ? DateFormat('dd MMM yy').format(ts) : '—';
 
     final statusColor = {
-          'delivered': Colors.green,
-          'dispatched': Colors.blue,
+          'delivered': AppTheme.success,
+          'dispatched': AppTheme.info,
           'packed': Colors.purple,
-          'pending': Colors.orange,
-          'cancelled': Colors.red,
+          'pending': AppTheme.warning,
+          'cancelled': AppTheme.error,
         }[status] ??
         Colors.grey;
 

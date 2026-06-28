@@ -97,7 +97,7 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
       stream: _chatService.getOwnerChatChannelsStream(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
         }
 
         final allMessages = snapshot.data ?? [];
@@ -340,7 +340,7 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
     final riderName = _selectedRiderName ?? 'Rider';
 
     // Mark incoming messages as read
-    _chatService.markMessagesAsRead(channelId, 'owner_admin');
+    _chatService.markMessagesAsRead(channelId, 'owner');
 
     return Column(
       children: [
@@ -398,7 +398,7 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
             stream: _chatService.getRiderChatStream(channelId),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
               }
 
               final messages = snapshot.data ?? [];
@@ -477,7 +477,7 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
                                   Icons.done_all,
                                   size: 12,
                                   color: message.isRead
-                                      ? Colors.blue
+                                      ? AppTheme.ownerAccent
                                       : AppTheme.white.withValues(alpha: 0.7),
                                 ),
                               ],
@@ -546,7 +546,7 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
                       borderSide: const BorderSide(color: AppTheme.primary),
                     ),
                     filled: true,
-                    fillColor: AppTheme.grey50,
+                    fillColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.grey800 : AppTheme.grey50,
                   ),
                   onSubmitted: (text) => _sendReply(text),
                 ),

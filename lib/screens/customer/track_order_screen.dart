@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -56,7 +57,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
       stream: _fleetService.getDeliveryStream(_deliveryId!),
       builder: (context, snapshot) {
         if (!snapshot.hasData || snapshot.data == null) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppTheme.primary)));
         }
 
         final delivery = snapshot.data!;
@@ -69,8 +70,8 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Live Tracking'),
-            backgroundColor: Colors.white,
+            title: const Text('Live Tracking', style: TextStyle(fontWeight: FontWeight.w700)),
+            backgroundColor: AppTheme.cream,
             foregroundColor: AppTheme.grey900,
             elevation: 0,
           ),
@@ -114,41 +115,59 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10)],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
-              const CircleAvatar(
-                radius: 25,
-                backgroundColor: AppTheme.primary,
-                child: Icon(Icons.motorcycle, color: Colors.white),
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: AppTheme.success.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Icon(Icons.two_wheeler, size: 28, color: AppTheme.success),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(delivery.status.displayName, 
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppTheme.primary)),
-                    const Text('Delivery Partner is on the way', style: TextStyle(color: AppTheme.grey600)),
+                    Text(
+                      delivery.status.displayName,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppTheme.grey900),
+                    ),
+                    const SizedBox(height: 2),
+                    const Text('Delivery Partner is on the way', style: TextStyle(color: AppTheme.grey600, fontSize: 13)),
                   ],
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.call, color: AppTheme.success),
-                onPressed: () => launchUrl(Uri.parse('tel:911234567890')), // Should get rider phone
+              GestureDetector(
+                onTap: () => launchUrl(Uri.parse('tel:911234567890')),
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: AppTheme.success.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.phone, color: AppTheme.success, size: 22),
+                ),
               ),
             ],
           ),
-          const Divider(height: 32),
+          const SizedBox(height: 20),
+          const Divider(height: 1),
+          const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStatItem('ETA', delivery.estimatedArrival.isNotEmpty ? delivery.estimatedArrival : '12 mins'),
-              _buildStatItem('Distance', '${delivery.distanceRemaining.toStringAsFixed(1)} km'),
+              _buildStatItem('ETA', delivery.estimatedArrival != null ? DateFormat('hh:mm a').format(delivery.estimatedArrival!) : '12 mins'),
+              Container(width: 1, height: 50, color: AppTheme.grey200),
+              _buildStatItem('Distance', '${delivery.distanceRemaining?.toStringAsFixed(1) ?? '--'} km'),
             ],
           ),
         ],
@@ -157,12 +176,14 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
   }
 
   Widget _buildStatItem(String label, String value) {
-    return Column(
-      children: [
-        Text(label, style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
-        const SizedBox(height: 4),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-      ],
+    return Expanded(
+      child: Column(
+        children: [
+          Text(label, style: const TextStyle(fontSize: 12, color: AppTheme.grey600, fontWeight: FontWeight.w500)),
+          const SizedBox(height: 6),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: AppTheme.grey900)),
+        ],
+      ),
     );
   }
 }

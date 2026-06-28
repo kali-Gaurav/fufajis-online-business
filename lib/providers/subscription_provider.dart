@@ -21,7 +21,7 @@ class SubscriptionProvider with ChangeNotifier {
           prefs.getStringList('customer_subscriptions_$userId') ?? [];
 
       _subscriptions = rawList
-          .map((item) => SubscriptionModel.fromMap(json.decode(item)))
+          .map((item) => SubscriptionModel.fromMap(json.decode(item) as Map<String, dynamic>))
           .toList();
     } catch (e) {
       debugPrint('Error loading subscriptions: $e');

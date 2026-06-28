@@ -205,9 +205,9 @@ class TierCashbackService {
         final tierData = data[tier.name] as Map<String, dynamic>?;
         if (tierData != null) {
           return _TierConfig(
-            cashbackPercent: (tierData['cashbackPercent'] ?? _defaultCashbackRates[tier]!).toDouble(),
+            cashbackPercent: ((tierData['cashbackPercent'] as num?) ?? _defaultCashbackRates[tier]!).toDouble(),
             walletRedemptionCapPercent:
-                (tierData['walletRedemptionCapPercent'] ?? _defaultWalletCap[tier]!).toDouble(),
+                ((tierData['walletRedemptionCapPercent'] as num?) ?? _defaultWalletCap[tier]!).toDouble(),
           );
         }
       }

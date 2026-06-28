@@ -44,6 +44,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '126709583600',
     projectId: 'fufaji-online-business',
     storageBucket: 'fufaji-online-business.firebasestorage.app',
+    databaseURL: 'https://fufaji-online-business-default-rtdb.firebaseio.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(

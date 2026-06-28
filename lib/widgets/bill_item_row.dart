@@ -29,10 +29,10 @@ class BillItem {
 
   factory BillItem.fromMap(Map<String, dynamic> map) => BillItem(
         name: map['name']?.toString() ?? '',
-        quantity: (map['quantity'] ?? map['qty'] ?? 0).toDouble(),
+        quantity: ((map['quantity'] ?? map['qty'] ?? 0) as num).toDouble(),
         unit: map['unit']?.toString() ?? 'kg',
         pricePerUnit:
-            (map['pricePerUnit'] ?? map['price'] ?? 0).toDouble(),
+            ((map['pricePerUnit'] ?? map['price'] ?? 0) as num).toDouble(),
       );
 }
 
@@ -98,7 +98,7 @@ class _BillItemRowState extends State<BillItemRow> {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: AppTheme.grey200),
+        side: const BorderSide(color: AppTheme.grey200),
       ),
       child: Padding(
         padding: const EdgeInsets.all(8),
@@ -121,7 +121,7 @@ class _BillItemRowState extends State<BillItemRow> {
                   child: Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: AppTheme.error.withOpacity(0.1),
+                      color: AppTheme.error.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.delete_outline,
@@ -234,16 +234,16 @@ class _BillItemRowState extends State<BillItemRow> {
         style: const TextStyle(fontSize: 12, color: AppTheme.grey900),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(fontSize: 11, color: AppTheme.grey400),
+          hintStyle: const TextStyle(fontSize: 11, color: AppTheme.grey400),
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(color: AppTheme.grey300),
+            borderSide: const BorderSide(color: AppTheme.grey300),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(color: AppTheme.grey300),
+            borderSide: const BorderSide(color: AppTheme.grey300),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),

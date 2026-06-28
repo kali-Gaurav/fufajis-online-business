@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:uuid/uuid.dart';
 import '../models/product_model.dart';
 import 'notification_service.dart';
 import 'analytics_service.dart';
@@ -13,7 +12,6 @@ class PricingEngineService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final NotificationService _notificationService = NotificationService();
   final AnalyticsService _analyticsService = AnalyticsService();
-  final Uuid _uuid = const Uuid();
 
   // Dynamic configuration — all values loaded from Firestore via DynamicPricingConfigService
   final DynamicPricingConfigService _pricingConfig = DynamicPricingConfigService();
@@ -206,14 +204,14 @@ class PricingEngineService {
         final optimalPrice = await calculateOptimalPrice(
           shopId: shopId,
           productId: product.id,
-          costPrice: product.price * 0.8, // Assume 20% margin
+          costPrice: (product.price * 0.8).toDouble(), // Assume 20% margin
           productName: product.name,
           category: product.category,
           precalculatedCompetitorPrices: competitorPrices,
         );
 
         // Check if price change is needed (threshold read from dynamic config)
-        final priceDifference = (optimalPrice - product.price) / product.price;
+        final priceDifference = (optimalPrice - product.price.toDouble()) / product.price.toDouble();
         final globalConfig = await _pricingConfig.getGlobalConfig();
         final matchThreshold = globalConfig.defaultCompetitorMatchThreshold / 100.0;
         
@@ -418,7 +416,7 @@ class PricingEngineService {
       double totalChangePercentage = 0;
 
       for (final product in products) {
-        totalPrice += product.price;
+        totalPrice += product.price.toDouble();
         
         // Get price changes in last 30 days
         final changesSnapshot = await _priceHistoryCollection(product.id)
@@ -475,7 +473,7 @@ class PricingEngineService {
 
       // Get shop owner
       final shopDoc = await _firestore.collection('shops').doc(shopId).get();
-      final ownerId = shopDoc.data()?['ownerId'];
+      final ownerId = shopDoc.data()?['ownerId'] as String?;
 
       if (ownerId == null) return;
 
@@ -599,6 +597,6 @@ class PricingEngineService {
     if (snapshot.docs.isEmpty) return null;
     
     final product = ProductModel.fromMap(snapshot.docs.first.data());
-    return product.price;
+    return product.price.toDouble();
   }
 }

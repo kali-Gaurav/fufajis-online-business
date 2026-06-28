@@ -13,9 +13,7 @@ class InventoryAlertService {
   final AnalyticsService _analyticsService = AnalyticsService();
 
   // Configuration
-  static const int _defaultReorderThreshold = 10; // items
   static const int _defaultForecastDays = 7; // days
-  static const double _lowStockThreshold = 0.2; // 20% of average daily sales
 
   // Collection references
   CollectionReference _productsCollection(String shopId) =>
@@ -332,7 +330,6 @@ class InventoryAlertService {
       // Get shop owner info
       final shopDoc = await _firestore.collection('shops').doc(shopId).get();
       final ownerId = shopDoc.data()?['ownerId'];
-      final shopName = shopDoc.data()?['shopName'] ?? 'Your Shop';
 
       if (ownerId == null) return;
 

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'dart:ui';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
-import '../../models/user_model.dart';
-import '../../providers/auth_provider.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/cart_provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../models/user_model.dart';
+import '../../models/product_model.dart';
 import '../../utils/app_theme.dart';
+import '../../utils/monetary_value.dart';
+import '../../widgets/voice_search_dialog.dart';
 import 'barcode_scanner_screen.dart';
-import 'package:flutter/services.dart';
-import '../../services/gemini_service.dart' show GeminiService;
+
 class SearchScreen extends StatefulWidget {
   final String? initialQuery;
   const SearchScreen({super.key, this.initialQuery});
@@ -19,21 +19,11 @@ class SearchScreen extends StatefulWidget {
   State<SearchScreen> createState() => _SearchScreenState();
 }
 
-
-
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  final GeminiService _geminiService = GeminiService();
   
-  // Voice search variables
-  final stt.SpeechToText _speech = stt.SpeechToText();
-  bool _isListening = false;
-  String _voiceLocale = 'hi_IN'; // Default to Hindi, can toggle to English
-  double _soundLevel = 0.0;
-  String _transcription = '';
-  bool _speechInitialized = false;
-  List<dynamic> _searchResults = [];
+  List<ProductModel> _searchResults = [];
   bool _isSearching = false;
   String _searchQuery = '';
   final List<String> _recentSearches = [];
@@ -98,339 +88,14 @@ class _SearchScreenState extends State<SearchScreen> {
     _focusNode.requestFocus();
   }
 
-  Future<bool> _initSpeech() async {
-    if (_speechInitialized) return true;
-    try {
-      _speechInitialized = await _speech.initialize(
-        onStatus: (status) {
-          debugPrint('Speech status changed: $status');
-          if (status == 'notListening' || status == 'done') {
-            setState(() => _isListening = false);
-          }
-        },
-        onError: (errorNotification) {
-          debugPrint('Speech error: $errorNotification');
-          setState(() => _isListening = false);
-        },
-      );
-      return _speechInitialized;
-    } catch (e) {
-      debugPrint('Error initializing speech: $e');
-      return false;
-    }
-  }
-
   void _startVoiceSearch() async {
-    final initialized = await _initSpeech();
-    if (!initialized) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Speech recognition is not available on this device.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-      return;
-    }
-
-    _transcription = '';
-    _soundLevel = 0.0;
-    var didStartListening = false;
-
-    showModalBottomSheet(
+    final result = await showDialog<String>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setStateBottomSheet) {
-            if (!didStartListening) {
-              didStartListening = true;
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) _startListening(setStateBottomSheet);
-              });
-            }
-
-            return BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Container(
-                height: MediaQuery.of(context).size.height * 0.45,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.9),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(24),
-                    topRight: Radius.circular(24),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 20,
-                      spreadRadius: 5,
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Handle Bar
-                    Center(
-                      child: Container(
-                        width: 40,
-                        height: 5,
-                        decoration: BoxDecoration(
-                          color: AppTheme.grey300,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    
-                    // Language Selection Toggle Row
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildLanguageToggle('hi_IN', 'à¤¹à¤¿à¤¨à¥à¤¦à¥€ (Hindi)', setStateBottomSheet),
-                        const SizedBox(width: 12),
-                        _buildLanguageToggle('en_US', 'English', setStateBottomSheet),
-                      ],
-                    ),
-                    const Spacer(),
-
-                    // Animated Mic & Soundwaves
-                    Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Ripple rings based on sound level
-                        for (int i = 1; i <= 3; i++)
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 100),
-                            width: 80 + (i * 30) + (_soundLevel * 15 * i),
-                            height: 80 + (i * 30) + (_soundLevel * 15 * i),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: AppTheme.primary.withValues(
-                                alpha: (0.15 / i) * (_isListening ? 1.0 : 0.2)
-                              ),
-                            ),
-                          ),
-                        
-                        // Central Glowing Mic Button
-                        GestureDetector(
-                          onLongPressStart: (_) {
-                            HapticFeedback.heavyImpact();
-                            _startListening(setStateBottomSheet);
-                            setStateBottomSheet(() => _isListening = true);
-                          },
-                          onLongPressEnd: (_) {
-                            HapticFeedback.selectionClick();
-                            _stopListening();
-                            setStateBottomSheet(() => _isListening = false);
-                            
-                            // Step 6.5: Auto-trigger search on speech end
-                            if (_transcription.trim().isNotEmpty) {
-                              _processVoiceResult();
-                            }
-                          },
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            width: 80,
-                            height: 80,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: LinearGradient(
-                                colors: _isListening
-                                    ? [AppTheme.primary, const Color(0xFFFF8A65)]
-                                    : [AppTheme.grey400, AppTheme.grey500],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: (_isListening ? AppTheme.primary : AppTheme.grey500)
-                                      .withValues(alpha: 0.4),
-                                  blurRadius: 15,
-                                  offset: const Offset(0, 5),
-                                ),
-                              ],
-                            ),
-                            child: Icon(
-                              _isListening ? Icons.mic : Icons.mic_none,
-                              color: Colors.white,
-                              size: 36,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-
-                    // Live Transcription display
-                    Text(
-                      _transcription.isEmpty
-                          ? (_isListening ? 'Listening... बोलिए...' : 'Hold Mic to Speak')
-                          : _transcription,
-                      style: TextStyle(
-                        fontSize: _transcription.isEmpty ? 16 : 20,
-                        fontWeight: _transcription.isEmpty ? FontWeight.normal : FontWeight.bold,
-                        color: _transcription.isEmpty ? AppTheme.grey500 : AppTheme.grey900,
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Quick Action Row
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        TextButton.icon(
-                          onPressed: () {
-                            _stopListening();
-                            Navigator.pop(context);
-                          },
-                          icon: const Icon(Icons.close, color: AppTheme.grey600),
-                          label: const Text('Cancel', style: TextStyle(color: AppTheme.grey700)),
-                        ),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            _stopListening();
-                            if (_transcription.trim().isNotEmpty) {
-                              _searchController.text = _transcription;
-                              _performSearch(_transcription);
-                            }
-                            Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.primary,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          ),
-                          icon: const Icon(Icons.search),
-                          label: const Text('Search Now'),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    ).then((_) {
-      // Clean up when bottom sheet closes
-      _stopListening();
-    });
-  }
-
-  Widget _buildLanguageToggle(String localeCode, String label, StateSetter setStateBottomSheet) {
-    final bool isSelected = _voiceLocale == localeCode;
-    return GestureDetector(
-      onTap: () {
-        setStateBottomSheet(() {
-          _voiceLocale = localeCode;
-        });
-        if (_isListening) {
-          // Restart listening with new locale
-          _stopListening();
-          Future.delayed(const Duration(milliseconds: 100), () {
-            _startListening(setStateBottomSheet);
-            setStateBottomSheet(() {});
-          });
-        }
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primary.withValues(alpha: 0.15) : AppTheme.grey100,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? AppTheme.primary : Colors.transparent,
-            width: 1.5,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? AppTheme.primary : AppTheme.grey700,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            fontSize: 14,
-          ),
-        ),
-      ),
+      builder: (ctx) => const VoiceSearchDialog(),
     );
-  }
-
-  void _processVoiceResult() async {
-    if (_transcription.trim().isEmpty) return;
-
-    // Step 6.3: Gemini parser to extract keywords
-    final keywords = await _geminiService.extractKeywordsForSearch(_transcription);
-    
-    if (mounted) {
-      final query = keywords.isNotEmpty ? keywords.join(' ') : _transcription;
-      _searchController.text = query;
-      _performSearch(query);
-      if (Navigator.canPop(context)) {
-        Navigator.pop(context);
-      }
-    }
-  }
-
-  void _startListening([StateSetter? setStateBottomSheet]) async {
-    setState(() {
-      _isListening = true;
-      _transcription = '';
-    });
-
-    await _speech.listen(
-      onResult: (result) {
-        setState(() {
-          _transcription = result.recognizedWords;
-        });
-        setStateBottomSheet?.call(() {
-          _transcription = result.recognizedWords;
-        });
-        
-        // Auto search if fully finalized result
-        if (result.finalResult && _transcription.trim().isNotEmpty) {
-          Future.delayed(const Duration(milliseconds: 800), () {
-            if (mounted && Navigator.canPop(context)) {
-              _searchController.text = _transcription;
-              _performSearch(_transcription);
-              Navigator.pop(context);
-            }
-          });
-        }
-      },
-      onSoundLevelChange: (level) {
-        setState(() => _soundLevel = level);
-        setStateBottomSheet?.call(() => _soundLevel = level);
-      },
-      listenOptions: stt.SpeechListenOptions(
-        cancelOnError: true,
-        partialResults: true,
-        localeId: _voiceLocale,
-        listenFor: const Duration(seconds: 30),
-        pauseFor: const Duration(seconds: 3),
-      ),
-    );
-  }
-
-  void _stopListening() async {
-    if (_isListening) {
-      await _speech.stop();
-      setState(() {
-        _isListening = false;
-        _soundLevel = 0.0;
-      });
+    if (result != null && result.isNotEmpty && mounted) {
+      _searchController.text = result;
+      _performSearch(result);
     }
   }
 
@@ -443,6 +108,8 @@ class _SearchScreenState extends State<SearchScreen> {
     );
     if (result != null && result.trim().isNotEmpty) {
       final query = result.trim();
+      if (!mounted) return;
+      
       final productProvider = Provider.of<ProductProvider>(context, listen: false);
       final matchedProducts = productProvider.searchProducts(query);
       
@@ -452,7 +119,7 @@ class _SearchScreenState extends State<SearchScreen> {
       } else {
         // Step 7.5: Fallback to "Product Not Found" form for owners
         final authProvider = Provider.of<AuthProvider>(context, listen: false);
-        if (authProvider.currentUser?.role == UserRole.shopOwner) {
+        if (authProvider.currentUser?.role == UserRole.owner) {
           _showProductNotFoundForOwner(query);
         } else {
           _searchController.text = query;
@@ -469,11 +136,11 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
-  void _showInstantAddDialog(dynamic product) {
+  void _showInstantAddDialog(ProductModel product) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Product Found!'),
+        title: const Text('Product Found!', style: TextStyle(fontWeight: FontWeight.w700)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -504,7 +171,7 @@ class _SearchScreenState extends State<SearchScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Product Not Found'),
+        title: const Text('Product Not Found', style: TextStyle(fontWeight: FontWeight.w700)),
         content: Text('The product with barcode $barcode was not found in our catalog. Would you like to add it to your shop?'),
         actions: [
           TextButton(
@@ -515,7 +182,7 @@ class _SearchScreenState extends State<SearchScreen> {
             onPressed: () {
               Navigator.pop(context);
               // Navigate to add product screen with pre-filled barcode
-              // context.push('/owner/add-product?barcode=$barcode');
+              context.push('/owner/products/add?barcode=$barcode');
             },
             child: const Text('Add Product'),
           ),
@@ -537,7 +204,7 @@ class _SearchScreenState extends State<SearchScreen> {
               child: _searchQuery.isEmpty
                   ? _buildInitialContent()
                   : _isSearching
-                      ? const Center(child: CircularProgressIndicator())
+                      ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
                       : _searchResults.isEmpty
                           ? _buildNoResults()
                           : _buildSearchResults(),
@@ -586,21 +253,19 @@ class _SearchScreenState extends State<SearchScreen> {
                         icon: const Icon(Icons.close, color: AppTheme.grey500),
                       ),
                     IconButton(
+                      onPressed: _startBarcodeScanner,
+                      icon: const Icon(Icons.qr_code_scanner, color: AppTheme.grey500),
+                      tooltip: 'Scan Barcode',
+                    ),
+                    IconButton(
                       onPressed: _startVoiceSearch,
                       icon: const Icon(Icons.mic, color: AppTheme.primary),
-                    ),
-                    IconButton(
-                      onPressed: _startBarcodeScanner,
-                      icon: const Icon(Icons.qr_code_scanner, color: AppTheme.primary),
-                    ),
-                    IconButton(
-                      onPressed: () => context.push('/customer/snap-to-shop'),
-                      icon: const Icon(Icons.camera_alt, color: AppTheme.primary),
+                      tooltip: 'Voice Search',
                     ),
                   ],
                 ),
                 filled: true,
-                fillColor: AppTheme.grey100,
+                fillColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.grey800 : AppTheme.grey100,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -742,7 +407,7 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _buildSearchResultItem(dynamic product) {
+  Widget _buildSearchResultItem(ProductModel product) {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     
     return GestureDetector(

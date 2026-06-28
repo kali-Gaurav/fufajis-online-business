@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/product_provider_extensions.dart';
 import '../../models/product_model.dart';
+import '../../utils/app_theme.dart';
 
 /// Expiry Tracking Screen
 /// Displays products with expiry dates and dynamic markdown pricing
@@ -58,9 +59,11 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
 
       _filterProducts(expiringProducts, expiredProducts);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading expiry data: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading expiry data: $e')),
+        );
+      }
     } finally {
       setState(() => _isLoading = false);
     }
@@ -68,7 +71,7 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
 
   double _calculateTotalLoss(List<ProductModel> expiredProducts) {
     return expiredProducts.fold(0.0, (sum, product) {
-      return sum + (product.price * product.stockQuantity);
+      return sum + (product.price * product.stockQuantity).toDouble();
     });
   }
 
@@ -122,15 +125,19 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
       final provider = context.read<ProductProvider>();
       await provider.markProductAsSold(product.id);
       
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Product marked as sold')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Product marked as sold')),
+        );
+      }
       
       await _loadExpiryData();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
     }
   }
 
@@ -147,15 +154,19 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
         final provider = context.read<ProductProvider>();
         await provider.updateExpiryDate(product.id, newDate);
         
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Expiry date updated')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Expiry date updated')),
+          );
+        }
         
         await _loadExpiryData();
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e')),
+          );
+        }
       }
     }
   }
@@ -174,22 +185,22 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
   }
 
   Color _getExpiryColor(int daysUntilExpiry) {
-    if (daysUntilExpiry <= 0) return Colors.red;
-    if (daysUntilExpiry == 1) return Colors.red;
-    if (daysUntilExpiry <= 3) return Colors.orange;
-    if (daysUntilExpiry <= 7) return Colors.amber;
-    return Colors.green;
+    if (daysUntilExpiry <= 0) return AppTheme.error;
+    if (daysUntilExpiry == 1) return AppTheme.error;
+    if (daysUntilExpiry <= 3) return AppTheme.warning;
+    if (daysUntilExpiry <= 7) return AppTheme.warning;
+    return AppTheme.success;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Expiry Tracking'),
+        title: const Text('Expiry Tracking', style: TextStyle(fontWeight: FontWeight.w700)),
         elevation: 0,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent))
           : Column(
               children: [
                 // Stats Cards
@@ -202,19 +213,19 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
                         _buildStatCard(
                           'Today',
                           _expiryStats['expiringToday']?.toString() ?? '0',
-                          Colors.red,
+                          AppTheme.error,
                         ),
                         const SizedBox(width: 8),
                         _buildStatCard(
                           'This Week',
                           _expiryStats['expiringThisWeek']?.toString() ?? '0',
-                          Colors.orange,
+                          AppTheme.warning,
                         ),
                         const SizedBox(width: 8),
                         _buildStatCard(
                           'This Month',
                           _expiryStats['expiringThisMonth']?.toString() ?? '0',
-                          Colors.amber,
+                          AppTheme.warning,
                         ),
                         const SizedBox(width: 8),
                         _buildStatCard(
@@ -228,25 +239,25 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
                 ),
 
                 // Loss Alert
-                if ((_expiryStats['totalLoss'] ?? 0) > 0)
+                if ((_expiryStats['totalLoss'] as num? ?? 0) > 0)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.red[50],
+                        color: AppTheme.error.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.red[200]!),
+                        border: Border.all(color: AppTheme.error),
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.warning, color: Colors.red[700]),
+                          const Icon(Icons.warning, color: AppTheme.error),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
                               'Potential loss: ₹${(_expiryStats['totalLoss'] ?? 0).toStringAsFixed(2)}',
-                              style: TextStyle(
-                                color: Colors.red[700],
+                              style: const TextStyle(
+                                color: AppTheme.error,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -277,8 +288,6 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
                                   selected: _selectedFilter == filter,
                                   onSelected: (_) {
                                     setState(() => _selectedFilter = filter);
-                                    final provider =
-                                        context.read<ProductProvider>();
                                     _loadExpiryData();
                                   },
                                 ),
@@ -296,10 +305,10 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.check_circle,
                                 size: 64,
-                                color: Colors.green[300],
+                                color: AppTheme.success,
                               ),
                               const SizedBox(height: 16),
                               const Text(
@@ -421,7 +430,7 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
                                       Container(
                                         padding: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
-                                          color: Colors.amber[50],
+                                          color: AppTheme.warning,
                                           borderRadius:
                                               BorderRadius.circular(8),
                                         ),
@@ -441,7 +450,7 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
                                                   ),
                                                 ),
                                                 Text(
-                                                  '₹${product.price.toStringAsFixed(2)}',
+                                                  product.price.toDisplayString(),
                                                   style: const TextStyle(
                                                     fontSize: 14,
                                                     fontWeight: FontWeight.bold,
@@ -463,11 +472,11 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
                                                   ),
                                                 ),
                                                 Text(
-                                                  '₹${markdownPrice.toStringAsFixed(2)}',
+                                                  markdownPrice.toDisplayString(),
                                                   style: const TextStyle(
                                                     fontSize: 14,
                                                     fontWeight: FontWeight.bold,
-                                                    color: Colors.green,
+                                                    color: AppTheme.success,
                                                   ),
                                                 ),
                                               ],
@@ -479,7 +488,7 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
                                                 vertical: 4,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: Colors.red,
+                                                color: AppTheme.error,
                                                 borderRadius:
                                                     BorderRadius.circular(4),
                                               ),
@@ -497,7 +506,7 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
                                       )
                                     else
                                       Text(
-                                        'Price: ₹${product.price.toStringAsFixed(2)}',
+                                        'Price: ${product.price.toDisplayString()}',
                                         style: const TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold,

@@ -4,6 +4,7 @@ import '../../services/employee_scanner_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/order_provider.dart';
 import '../../models/order_model.dart';
+import '../../utils/app_theme.dart';
 
 class DeliveryScreen extends StatefulWidget {
   final String? parcelId;
@@ -45,13 +46,13 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
     );
   }
 
   void _showSuccess(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.green),
+      SnackBar(content: Text(message), backgroundColor: AppTheme.success),
     );
   }
 
@@ -94,10 +95,17 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
   }
 
   @override
+  void dispose() {
+    _otpController.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Delivery'),
+        title: const Text('Delivery', style: TextStyle(fontWeight: FontWeight.w700)),
         actions: [
           IconButton(
             icon: const Icon(Icons.qr_code_scanner),
@@ -106,7 +114,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : _currentOrder == null
               ? _buildNoDeliveryView()
               : _buildDeliveryView(),
@@ -151,7 +159,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
         children: [
           // Delivery Status Card
           Card(
-            color: isDelivered ? Colors.green.shade50 : Colors.blue.shade50,
+            color: isDelivered ? AppTheme.success.withValues(alpha: 0.1) : AppTheme.info.withValues(alpha: 0.1),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -168,7 +176,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
                         label: Text(
                             order.status.name.replaceAll('_', ' ').toUpperCase()),
                         color: WidgetStateProperty.all(
-                          isDelivered ? Colors.green : Colors.blue,
+                          isDelivered ? AppTheme.success : AppTheme.info,
                         ),
                       ),
                     ],
@@ -255,7 +263,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _verifyDelivery,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
+                          backgroundColor: AppTheme.success,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
@@ -273,12 +281,12 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
           // Success Message
           if (isDelivered)
             Card(
-              color: Colors.green.shade50,
+              color: AppTheme.success.withValues(alpha: 0.1),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    const Icon(Icons.check_circle, size: 64, color: Colors.green),
+                    const Icon(Icons.check_circle, size: 64, color: AppTheme.success),
                     const SizedBox(height: 16),
                     Text(
                       'Delivery Completed!',
@@ -317,7 +325,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Enter Parcel ID'),
+        title: const Text('Enter Parcel ID', style: TextStyle(fontWeight: FontWeight.w700)),
         content: TextField(
           autofocus: true,
           decoration: const InputDecoration(

@@ -1,6 +1,5 @@
 plugins {
     id "com.android.application"
-    id "org.jetbrains.kotlin.android"
     id "com.google.gms.google-services"
     id "dev.flutter.flutter-gradle-plugin"
 }
@@ -36,16 +35,16 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.fufajis.online"
-    compileSdk = 36
+    compileSdk = libs.versions.compileSdk.get().toInteger()
     ndkVersion = "28.2.13676358"
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_21
-        targetCompatibility JavaVersion.VERSION_21
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
         coreLibraryDesugaringEnabled true
     }
 
     kotlinOptions {
-        jvmTarget = '21'
+        jvmTarget = '17'
     }
 
     sourceSets {
@@ -54,8 +53,8 @@ android {
 
     defaultConfig {
         applicationId = "com.fufajis.online"
-        minSdkVersion = 24
-        targetSdk = 36
+        minSdkVersion = libs.versions.minSdk.get().toInteger()
+        targetSdk = libs.versions.targetSdk.get().toInteger()
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
         multiDexEnabled = true
@@ -95,24 +94,24 @@ android {
 }
 
 dependencies {
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
-    implementation 'com.google.android.material:material:1.11.0'
-    implementation 'androidx.multidex:multidex:2.0.1'
+    coreLibraryDesugaring libs.desugar.jdk.libs
+    implementation libs.google.material
+    implementation libs.androidx.multidex
     
     // Firebase (BOM manages all versions)
-    implementation platform('com.google.firebase:firebase-bom:34.14.0')
-    implementation 'com.google.firebase:firebase-analytics'
-    implementation 'com.google.firebase:firebase-auth'
-    implementation 'com.google.firebase:firebase-firestore'
-    implementation 'com.google.firebase:firebase-storage'
-    implementation 'com.google.firebase:firebase-messaging'
-    implementation 'com.google.firebase:firebase-functions'
+    implementation platform(libs.firebase.bom)
+    implementation libs.firebase.analytics
+    implementation libs.firebase.auth
+    implementation libs.firebase.firestore
+    implementation libs.firebase.storage
+    implementation libs.firebase.messaging
+    implementation libs.firebase.functions
     // App Check — Play Integrity protects OTP/Firestore from bot abuse
-    implementation 'com.google.firebase:firebase-appcheck-playintegrity'
-    implementation 'com.google.firebase:firebase-appcheck-debug' // debug builds only
+    implementation libs.firebase.appcheck.playintegrity
+    implementation libs.firebase.appcheck.debug // debug builds only
 
     // AdMob
-    implementation 'com.google.android.gms:play-services-ads:23.0.0'
+    implementation libs.google.play.services.ads
 }
 
 flutter {

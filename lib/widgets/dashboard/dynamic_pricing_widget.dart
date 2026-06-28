@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/product_provider.dart';
+import '../../providers/product_provider_extensions.dart';
+import '../../utils/app_theme.dart';
 
 /// Dynamic Pricing Widget
 /// Displays dynamic pricing metrics on the owner dashboard
@@ -41,13 +43,13 @@ class _DynamicPricingWidgetState extends State<DynamicPricingWidget> {
   Color _getStrategyColor(String strategy) {
     switch (strategy) {
       case 'Beat':
-        return Colors.green;
+        return AppTheme.success;
       case 'Match':
-        return Colors.blue;
+        return AppTheme.info;
       case 'Premium':
         return Colors.purple;
       case 'Cost+':
-        return Colors.orange;
+        return AppTheme.warning;
       default:
         return Colors.grey;
     }
@@ -55,9 +57,9 @@ class _DynamicPricingWidgetState extends State<DynamicPricingWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final strategy = _pricingData['strategy'] ?? 'Match';
-    final pendingChanges = _pricingData['pendingChanges'] ?? 0;
-    final revenueImpact = _pricingData['revenueImpact'] ?? 0.0;
+    final String strategy = _pricingData['strategy'] as String? ?? 'Match';
+    final int pendingChanges = (_pricingData['pendingChanges'] as num? ?? 0).toInt();
+    final double revenueImpact = (_pricingData['revenueImpact'] as num? ?? 0.0).toDouble();
 
     return Card(
       elevation: 2,
@@ -180,7 +182,7 @@ class _DynamicPricingWidgetState extends State<DynamicPricingWidget> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: revenueImpact > 0 ? Colors.green : Colors.red,
+                        color: revenueImpact > 0 ? AppTheme.success : AppTheme.error,
                       ),
                     ),
                   ],

@@ -47,23 +47,19 @@ class AttendanceModel {
 
   factory AttendanceModel.fromMap(Map<String, dynamic> map) {
     return AttendanceModel(
-      id: map['id'] ?? '',
-      riderId: map['riderId'] ?? '',
-      riderName: map['riderName'] ?? '',
+      id: map['id'] as String? ?? '',
+      riderId: map['riderId'] as String? ?? '',
+      riderName: map['riderName'] as String? ?? '',
       clockInTime: (map['clockInTime'] as Timestamp).toDate(),
       clockOutTime: map['clockOutTime'] != null
           ? (map['clockOutTime'] as Timestamp).toDate()
           : null,
-      clockInLatitude: (map['clockInLatitude'] ?? 0.0).toDouble(),
-      clockInLongitude: (map['clockInLongitude'] ?? 0.0).toDouble(),
-      clockOutLatitude: map['clockOutLatitude'] != null
-          ? (map['clockOutLatitude'] as double).toDouble()
-          : null,
-      clockOutLongitude: map['clockOutLongitude'] != null
-          ? (map['clockOutLongitude'] as double).toDouble()
-          : null,
-      status: map['status'] ?? 'active',
-      date: map['date'] ?? '',
+      clockInLatitude: (map['clockInLatitude'] as num? ?? 0.0).toDouble(),
+      clockInLongitude: (map['clockInLongitude'] as num? ?? 0.0).toDouble(),
+      clockOutLatitude: (map['clockOutLatitude'] as num?)?.toDouble(),
+      clockOutLongitude: (map['clockOutLongitude'] as num?)?.toDouble(),
+      status: map['status'] as String? ?? 'active',
+      date: map['date'] as String? ?? '',
     );
   }
 

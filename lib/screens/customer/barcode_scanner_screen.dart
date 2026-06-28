@@ -32,15 +32,51 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
     super.dispose();
   }
 
+  /// Validate barcode format and length
+  bool _validateBarcode(String barcode) {
+    // Remove whitespace
+    barcode = barcode.trim();
+
+    // Check length: typical retail barcodes are 8, 12, 13, 14 digits
+    if (![8, 12, 13, 14].contains(barcode.length)) {
+      _showError('Invalid barcode length: ${barcode.length}\nExpected 8, 12, 13, or 14 digits');
+      return false;
+    }
+
+    // Check numeric only
+    if (!RegExp(r'^\d+$').hasMatch(barcode)) {
+      _showError('Barcode must be numeric only');
+      return false;
+    }
+
+    return true;
+  }
+
+  void _showError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppTheme.error,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+    // Re-enable scanning after error
+    setState(() => _isScanning = true);
+  }
+
   void _onDetect(BarcodeCapture capture) {
     if (!_isScanning) return;
     final List<Barcode> barcodes = capture.barcodes;
     if (barcodes.isNotEmpty) {
       final String? code = barcodes.first.rawValue;
       if (code != null && code.isNotEmpty) {
-        setState(() => _isScanning = false);
-        HapticFeedback.mediumImpact();
-        Navigator.pop(context, code);
+        // Validate barcode before returning
+        if (_validateBarcode(code)) {
+          setState(() => _isScanning = false);
+          HapticFeedback.mediumImpact();
+          Navigator.pop(context, code);
+        }
       }
     }
   }
@@ -71,7 +107,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
                 hintText: 'e.g. 8901234567001',
                 prefixIcon: const Icon(Icons.edit, color: AppTheme.primary),
                 filled: true,
-                fillColor: AppTheme.grey100,
+                fillColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.grey800 : AppTheme.grey100,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -92,7 +128,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
           ElevatedButton(
             onPressed: () {
               final val = manualController.text.trim();
-              if (val.isNotEmpty) {
+              if (val.isNotEmpty && _validateBarcode(val)) {
                 Navigator.pop(context); // Close dialog
                 Navigator.pop(context, val); // Return code
               }

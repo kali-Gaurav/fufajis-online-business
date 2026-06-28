@@ -74,6 +74,10 @@
 # ── Keep Fufaji app models for Firestore deserialization ──────────
 -keep class com.fufajis.online.** { *; }
 
+# ── Kotlin ──
+-dontwarn kotlin.time.Instant$Companion
+-dontwarn kotlin.time.Instant
+
 # ── Keep source file names for crash reports ─────────────────────
 -keepattributes SourceFile,LineNumberTable
 -renamesourcefileattribute SourceFile

@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/product_model.dart';
 
 class FirestoreSeedService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

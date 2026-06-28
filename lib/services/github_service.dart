@@ -20,7 +20,7 @@ class GitHubService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        String tagName = data['tag_name'] ?? '';
+        String tagName = data['tag_name'] as String? ?? '';
         // Remove 'v' prefix if present (e.g., v1.2.3 -> 1.2.3)
         if (tagName.startsWith('v')) {
           tagName = tagName.substring(1);

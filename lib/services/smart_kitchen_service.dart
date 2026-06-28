@@ -7,7 +7,8 @@ import '../models/order_model.dart';
 /// Analyzes purchase history to predict when a customer will run out of staples
 /// and suggests replenishment.
 class SmartKitchenService {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  FirebaseFirestore? db;
+  FirebaseFirestore get _db => db ?? FirebaseFirestore.instance;
 
   static final SmartKitchenService _instance = SmartKitchenService._internal();
   factory SmartKitchenService() => _instance;
@@ -160,15 +161,15 @@ class StaplePrediction {
 
   factory StaplePrediction.fromMap(Map<String, dynamic> map) {
     return StaplePrediction(
-      productId: map['productId'] ?? '',
-      productName: map['productName'] ?? '',
-      productImage: map['productImage'],
-      avgIntervalDays: (map['avgIntervalDays'] ?? 0.0).toDouble(),
+      productId: map['productId'] as String? ?? '',
+      productName: map['productName'] as String? ?? '',
+      productImage: map['productImage'] as String?,
+      avgIntervalDays: ((map['avgIntervalDays'] as num?) ?? 0.0).toDouble(),
       lastPurchasedAt: (map['lastPurchasedAt'] as Timestamp).toDate(),
       nextPredictedDate: (map['nextPredictedDate'] as Timestamp).toDate(),
-      daysRemaining: map['daysRemaining'] ?? 0,
-      isRunningLow: map['isRunningLow'] ?? false,
-      purchaseCount: map['purchaseCount'] ?? 0,
+      daysRemaining: (map['daysRemaining'] as num? ?? 0).toInt(),
+      isRunningLow: map['isRunningLow'] as bool? ?? false,
+      purchaseCount: (map['purchaseCount'] as num? ?? 0).toInt(),
     );
   }
 }

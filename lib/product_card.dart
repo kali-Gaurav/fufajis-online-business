@@ -13,7 +13,9 @@ import 'providers/location_provider.dart';
 import 'providers/shop_config_provider.dart';
 import 'services/shop_config_service.dart';
 import 'utils/app_theme.dart';
+import 'utils/pricing.dart';
 import 'widgets/common/shimmer_loader.dart';
+import 'l10n/app_localizations.dart';
 
 class ProductCard extends StatelessWidget {
   final ProductModel product;
@@ -23,9 +25,10 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cart = context.watch<CartProvider>();
-    final qty = cart.getQuantity(product.id);
+    // Optimized: Only listen to quantity changes for this specific product (Weakness 10 fix)
+    final qty = context.select<CartProvider, int>((p) => p.getQuantity(product.id));
     final discount = product.effectiveDiscount;
+    final l10n = AppLocalizations.of(context)!;
 
     // Optimized: Only listen to selectedAddress and branches changes to reduce rebuild churn (Weakness 10 fix)
     final userAddress = context.select<LocationProvider, Address?>(
@@ -147,7 +150,7 @@ class ProductCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 2),
                             Text(
-                              'Expiring Soon - ${discount > 0 ? discount.toStringAsFixed(0) : "20"}% OFF',
+                              '${l10n.translate("expiringSoon")} - ${discount > 0 ? discount.toStringAsFixed(0) : "20"}% ${l10n.translate("off")}',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 9,
@@ -169,12 +172,12 @@ class ProductCard extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [Colors.amber, Colors.orangeAccent],
+                            colors: [AppTheme.warning, AppTheme.warning],
                           ),
                           borderRadius: BorderRadius.circular(6),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.amber.withValues(alpha: 0.5),
+                              color: AppTheme.warning.withValues(alpha: 0.5),
                               blurRadius: 6,
                               spreadRadius: 1,
                             ),
@@ -190,7 +193,7 @@ class ProductCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 2),
                             Text(
-                              '${product.effectiveDiscount.toStringAsFixed(0)}% OFF',
+                              '${product.effectiveDiscount.toStringAsFixed(0)}% ${l10n.translate("off")}',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 9,
@@ -215,7 +218,7 @@ class ProductCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          '${discount.toStringAsFixed(0)}% OFF',
+                          '${discount.toStringAsFixed(0)}% ${l10n.translate("off")}',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 10,
@@ -254,7 +257,7 @@ class ProductCard extends StatelessWidget {
                               Text(
                                 product.village.isNotEmpty
                                     ? product.village
-                                    : 'Local',
+                                    : l10n.translate('localSource'),
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 9,
@@ -295,7 +298,7 @@ class ProductCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
-                              'Only ${product.stockQuantity} left!',
+                              '${l10n.only} ${product.stockQuantity} ${l10n.left}!',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 7,
@@ -314,7 +317,7 @@ class ProductCard extends StatelessWidget {
                               backgroundColor: Colors.white.withValues(
                                 alpha: 0.3,
                               ),
-                              color: Colors.redAccent,
+                              color: AppTheme.error,
                               minHeight: 3,
                             ),
                           ),
@@ -350,33 +353,37 @@ class ProductCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 5,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: stockVal > 0
-                                ? (stockVal < 10
-                                      ? Colors.orange.shade50
-                                      : Colors.green.shade50)
-                                : Colors.red.shade50,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            stockVal > 0
-                                ? (stockVal < 10
-                                      ? 'Only $stockVal Left @ $branchName'
-                                      : 'In Stock @ $branchName')
-                                : 'Out of Stock @ $branchName',
-                            style: TextStyle(
-                              fontSize: 8,
-                              fontWeight: FontWeight.bold,
+                        Flexible(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
                               color: stockVal > 0
                                   ? (stockVal < 10
-                                        ? Colors.orange.shade800
-                                        : Colors.green.shade800)
-                                  : Colors.red.shade800,
+                                        ? AppTheme.warning
+                                        : AppTheme.success)
+                                  : AppTheme.error,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              stockVal > 0
+                                  ? (stockVal < 10
+                                        ? '${l10n.only} $stockVal ${l10n.left} @ $branchName'
+                                        : '${l10n.inStock} @ $branchName')
+                                  : '${l10n.outOfStock} @ $branchName',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 8,
+                                fontWeight: FontWeight.bold,
+                                color: stockVal > 0
+                                    ? (stockVal < 10
+                                          ? AppTheme.warning
+                                          : AppTheme.success)
+                                    : AppTheme.error,
+                              ),
                             ),
                           ),
                         ),
@@ -395,17 +402,17 @@ class ProductCard extends StatelessWidget {
                                 width: 0.5,
                               ),
                             ),
-                            child: const Row(
+                            child: Row(
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.verified_user,
                                   size: 8,
                                   color: Colors.teal,
                                 ),
-                                SizedBox(width: 2),
+                                const SizedBox(width: 2),
                                 Text(
-                                  'Freshness Verified ✅',
-                                  style: TextStyle(
+                                  '${l10n.freshnessVerified} ✅',
+                                  style: const TextStyle(
                                     fontSize: 6,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.teal,
@@ -420,50 +427,56 @@ class ProductCard extends StatelessWidget {
                     const Spacer(),
                     Row(
                       children: [
-                        Text(
-                          '₹${product.discountedPrice.toStringAsFixed(0)}',
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
-                            color: AppTheme.primaryColor,
+                        Expanded(
+                          child: Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 4,
+                            children: [
+                              Text(
+                                PricingUtils.formatINRCompact(product.discountedPrice.toDouble()),
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppTheme.primaryColor,
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                  vertical: 1.5,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.info,
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(
+                                    color: AppTheme.info,
+                                    width: 0.5,
+                                  ),
+                                ),
+                                child: Text(
+                                  '${l10n.fixedPrice} 🤝',
+                                  style: const TextStyle(
+                                    fontSize: 7,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.info,
+                                  ),
+                                ),
+                              ),
+                              if (product.mrp != null &&
+                                  product.mrp! > product.discountedPrice.toDouble())
+                                Text(
+                                  PricingUtils.formatINRCompact(product.mrp!),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey[400],
+                                    decoration: TextDecoration.lineThrough,
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
+
                         const SizedBox(width: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 4,
-                            vertical: 1.5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(
-                              color: Colors.blue.shade200,
-                              width: 0.5,
-                            ),
-                          ),
-                          child: const Text(
-                            'Fixed Price 🤝',
-                            style: TextStyle(
-                              fontSize: 7,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue,
-                            ),
-                          ),
-                        ),
-                        if (product.mrp != null &&
-                            product.mrp! > product.discountedPrice) ...[
-                          const SizedBox(width: 4),
-                          Text(
-                            '₹${product.mrp!.toStringAsFixed(0)}',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey[400],
-                              decoration: TextDecoration.lineThrough,
-                            ),
-                          ),
-                        ],
-                        const Spacer(),
                         // Add to cart / quantity selector
                         qty > 0
                             ? _QuantitySelector(
@@ -471,6 +484,7 @@ class ProductCard extends StatelessWidget {
                                 quantity: qty,
                               )
                             : Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
                                   _AddButton(product: product),
                                   const SizedBox(width: 4),
@@ -497,6 +511,7 @@ class _BuyNowButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!product.inStock) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context)!;
 
     return GestureDetector(
       onTap: () {
@@ -509,12 +524,12 @@ class _BuyNowButton extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
             decoration: BoxDecoration(
-              color: Colors.amber,
+              color: AppTheme.warning,
               borderRadius: BorderRadius.circular(4),
             ),
-            child: const Text(
-              'FASTEST 🚀',
-              style: TextStyle(
+            child: Text(
+              '${l10n.fastest} 🚀',
+              style: const TextStyle(
                 color: Colors.black,
                 fontSize: 6,
                 fontWeight: FontWeight.w900,
@@ -525,12 +540,12 @@ class _BuyNowButton extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
             decoration: BoxDecoration(
-              color: AppTheme.secondary,
+              color: AppTheme.info,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Text(
-              'QUICK BOOK',
-              style: TextStyle(
+            child: Text(
+              l10n.quickBook,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 9,
                 fontWeight: FontWeight.w900,
@@ -545,6 +560,7 @@ class _BuyNowButton extends StatelessWidget {
 
 /// Show source location dialog with mini-map
 void _showSourceLocationDialog(BuildContext context, ProductModel product) {
+  final l10n = AppLocalizations.of(context)!;
   showDialog(
     context: context,
     builder: (context) {
@@ -552,11 +568,11 @@ void _showSourceLocationDialog(BuildContext context, ProductModel product) {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
-            const Icon(Icons.eco, color: Colors.green),
+            const Icon(Icons.eco, color: AppTheme.success),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                product.sourceName ?? 'Sourcing Location',
+                product.sourceName ?? l10n.sourcingLocation,
                 style: const TextStyle(fontSize: 18),
               ),
             ),
@@ -586,9 +602,9 @@ void _showSourceLocationDialog(BuildContext context, ProductModel product) {
                     fontSize: 14,
                   ),
                 ),
-                subtitle: const Text(
-                  'Local Farmer Partner',
-                  style: TextStyle(fontSize: 12),
+                subtitle: Text(
+                  l10n.farmerPartner,
+                  style: const TextStyle(fontSize: 12),
                 ),
               ),
 
@@ -601,7 +617,7 @@ void _showSourceLocationDialog(BuildContext context, ProductModel product) {
                   Text(
                     product.village.isNotEmpty
                         ? '${product.village}, ${product.origin ?? ""}'
-                        : product.origin ?? 'Local Source',
+                        : product.origin ?? l10n.localSource,
                     style: const TextStyle(fontSize: 14),
                   ),
                 ],
@@ -615,21 +631,21 @@ void _showSourceLocationDialog(BuildContext context, ProductModel product) {
                 margin: const EdgeInsets.only(bottom: 12),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.1),
+                  color: AppTheme.success.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
-                    color: Colors.green.withValues(alpha: 0.5),
+                    color: AppTheme.success.withValues(alpha: 0.5),
                   ),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.verified, color: Colors.green, size: 14),
-                    SizedBox(width: 6),
+                    const Icon(Icons.verified, color: AppTheme.success, size: 14),
+                    const SizedBox(width: 6),
                     Text(
-                      'Certified Organic',
-                      style: TextStyle(
-                        color: Colors.green,
+                      l10n.certifiedOrganic,
+                      style: const TextStyle(
+                        color: AppTheme.success,
                         fontWeight: FontWeight.bold,
                         fontSize: 11,
                       ),
@@ -643,7 +659,7 @@ void _showSourceLocationDialog(BuildContext context, ProductModel product) {
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Text(
-                  'Harvested on: ${DateFormat('dd MMM yyyy').format(product.harvestDate!)}',
+                  l10n.harvestedOn(DateFormat.yMMMd().format(product.harvestDate!)),
                   style: const TextStyle(
                     fontSize: 12,
                     color: AppTheme.grey600,
@@ -671,7 +687,7 @@ void _showSourceLocationDialog(BuildContext context, ProductModel product) {
                         Icon(Icons.map, size: 40, color: Colors.grey[400]),
                         const SizedBox(height: 8),
                         Text(
-                          '📍 ${product.sourceName ?? "Farm Location"}',
+                          '📍 ${product.sourceName ?? l10n.sourcingLocation}',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[600],
@@ -697,7 +713,7 @@ void _showSourceLocationDialog(BuildContext context, ProductModel product) {
                       child: Container(
                         padding: const EdgeInsets.all(6),
                         decoration: const BoxDecoration(
-                          color: Colors.green,
+                          color: AppTheme.success,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
@@ -717,17 +733,18 @@ void _showSourceLocationDialog(BuildContext context, ProductModel product) {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.green.withValues(alpha: 0.1),
+                color: AppTheme.success.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.info, color: Colors.green, size: 20),
+                  const Icon(Icons.info, color: AppTheme.success, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'This product is sourced directly from ${product.sourceName ?? "local farms"}. Scan QR code for full traceability.',
-                      style: TextStyle(fontSize: 12, color: Colors.green[800]),
+                      l10n.translate('sourcingTransparency',
+                          arguments: {'source': product.sourceName ?? "local farms"}),
+                      style: const TextStyle(fontSize: 12, color: AppTheme.success),
                     ),
                   ),
                 ],
@@ -738,7 +755,7 @@ void _showSourceLocationDialog(BuildContext context, ProductModel product) {
         actions: [
           TextButton(
             onPressed: () => context.pop(),
-            child: const Text('Close'),
+            child: Text(l10n.cancel),
           ),
           if (product.sourceLocation != null)
             ElevatedButton.icon(
@@ -747,9 +764,9 @@ void _showSourceLocationDialog(BuildContext context, ProductModel product) {
                 context.pop();
               },
               icon: const Icon(Icons.directions, size: 18),
-              label: const Text('Get Directions'),
+              label: Text(l10n.getDirections),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
+                backgroundColor: AppTheme.success,
                 foregroundColor: Colors.white,
               ),
             ),
@@ -790,7 +807,7 @@ void _openInMaps(BuildContext context, ProductModel product) async {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Could not open map: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppTheme.error,
         ),
       );
     }
@@ -803,10 +820,11 @@ class _AddButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (!product.inStock) {
-      return const Text(
-        'Out of Stock',
-        style: TextStyle(fontSize: 10, color: Colors.grey),
+      return Text(
+        l10n.outOfStock,
+        style: const TextStyle(fontSize: 10, color: Colors.grey),
       );
     }
     return GestureDetector(
@@ -817,9 +835,9 @@ class _AddButton extends StatelessWidget {
           color: AppTheme.primaryColor,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: const Text(
-          '+ ADD',
-          style: TextStyle(
+        child: Text(
+          '+ ${l10n.add}',
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 11,
             fontWeight: FontWeight.w700,

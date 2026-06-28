@@ -7,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import '../../services/hybrid_substitute_service.dart';
 import '../../services/wallet_service.dart';
 import '../../utils/app_theme.dart';
+import '../../utils/monetary_value.dart';
 
 /// Feature 5 — Missing Item Protection: Customer Choice Screen
 ///
@@ -40,7 +41,7 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  double get _itemValue => widget.missingItem.totalPrice;
+  MonetaryValue get _itemValue => widget.missingItem.totalPrice;
   bool get _hasReplacement => widget.suggestedReplacement != null;
 
   @override
@@ -48,8 +49,8 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAF8),
       appBar: AppBar(
-        title: const Text('Item Unavailable'),
-        backgroundColor: Colors.white,
+        title: const Text('Item Unavailable', style: TextStyle(fontWeight: FontWeight.w700)),
+        backgroundColor: AppTheme.cream,
         foregroundColor: AppTheme.grey900,
         elevation: 0,
         automaticallyImplyLeading: false,
@@ -82,7 +83,7 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: AppTheme.warning),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,15 +93,15 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.orange.shade50,
+                  color: AppTheme.primaryLight,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.orange.shade300),
+                  border: Border.all(color: AppTheme.warning),
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.inventory_2_outlined, size: 14, color: Colors.orange),
+                    Icon(Icons.inventory_2_outlined, size: 14, color: AppTheme.warning),
                     SizedBox(width: 4),
-                    Text('Out of Stock', style: TextStyle(color: Colors.orange, fontSize: 12, fontWeight: FontWeight.w600)),
+                    Text('Out of Stock', style: TextStyle(color: AppTheme.warning, fontSize: 12, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -122,17 +123,17 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.blue.shade50,
+              color: AppTheme.info.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Row(
               children: [
-                Icon(Icons.shield_outlined, size: 16, color: Colors.blue),
+                Icon(Icons.shield_outlined, size: 16, color: AppTheme.info),
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'You are fully protected. Choose how you\'d like to proceed.',
-                    style: TextStyle(color: Colors.blue, fontSize: 12),
+                    style: TextStyle(color: AppTheme.info, fontSize: 12),
                   ),
                 ),
               ],
@@ -165,7 +166,7 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
         _buildChoiceCard(
           choice: MissingItemChoice.refund,
           icon: Icons.currency_rupee,
-          color: Colors.indigo,
+          color: AppTheme.ownerAccent,
           title: 'Refund',
           subtitle: '₹${_itemValue.round()} refunded to your original payment method (2–5 days)',
         ),
@@ -304,7 +305,7 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
                             ? 'You save ₹${(_itemValue - replacement.price).round()}'
                             : 'Same price — no change',
                     style: TextStyle(
-                      color: replacement.price > _itemValue ? Colors.orange : Colors.green,
+                      color: replacement.price > _itemValue ? AppTheme.warning : AppTheme.success,
                       fontSize: 11,
                     ),
                   ),
@@ -395,7 +396,7 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
       if (_selectedChoice == MissingItemChoice.walletCredit && userId.isNotEmpty) {
         await WalletService().addToWallet(
           userId: userId,
-          amount: _itemValue,
+          amount: _itemValue.toDouble(),
           transactionType: WalletTransactionType.refund,
           orderReference: widget.orderId,
           description: 'Wallet Credit: ${widget.missingItem.productName} unavailable',
@@ -426,7 +427,7 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
       debugPrint('[MissingItemChoice] Submit error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
         );
         setState(() => _isSubmitting = false);
       }
@@ -441,7 +442,7 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
     };
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.green, duration: const Duration(seconds: 3)),
+      SnackBar(content: Text(message), backgroundColor: AppTheme.success, duration: const Duration(seconds: 3)),
     );
 
     Navigator.of(context).pop(true);

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/wallet_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/wallet_service.dart';
+import '../../utils/app_theme.dart';
 
 /// WalletHistoryScreen displays transaction history with pagination and filtering
 /// 
@@ -101,7 +102,7 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Wallet History'),
+        title: const Text('Wallet History', style: TextStyle(fontWeight: FontWeight.w700)),
         elevation: 0,
         actions: [
           IconButton(
@@ -125,7 +126,7 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
 
           if (walletProvider.isLoading && walletProvider.transactions.isEmpty) {
             return const Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(color: AppTheme.primary),
             );
           }
 
@@ -138,14 +139,14 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Colors.blueAccent, Colors.blue],
+                    colors: [AppTheme.info, AppTheme.info],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.blue.withValues(alpha: 0.3),
+                      color: AppTheme.info.withValues(alpha: 0.3),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -252,7 +253,7 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
                       if (index == walletProvider.transactions.length) {
                         return const Padding(
                           padding: EdgeInsets.all(16),
-                          child: Center(child: CircularProgressIndicator()),
+                          child: Center(child: CircularProgressIndicator(color: AppTheme.primary)),
                         );
                       }
 
@@ -274,7 +275,7 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
     WalletTransaction transaction,
   ) {
     final isCredit = transaction.amount > 0;
-    final amountColor = isCredit ? Colors.green : Colors.red;
+    final amountColor = isCredit ? AppTheme.success : AppTheme.error;
     final amountSign = isCredit ? '+' : '';
 
     return Card(
@@ -366,19 +367,19 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
     switch (type) {
       case WalletTransactionType.cashback:
         icon = Icons.card_giftcard;
-        color = Colors.green;
+        color = AppTheme.success;
         break;
       case WalletTransactionType.rewardPointsRedeemed:
         icon = Icons.stars;
-        color = Colors.amber;
+        color = AppTheme.warning;
         break;
       case WalletTransactionType.walletPayment:
         icon = Icons.payment;
-        color = Colors.blue;
+        color = AppTheme.info;
         break;
       case WalletTransactionType.refund:
         icon = Icons.undo;
-        color = Colors.orange;
+        color = AppTheme.warning;
         break;
       case WalletTransactionType.referralBonus:
         icon = Icons.people;

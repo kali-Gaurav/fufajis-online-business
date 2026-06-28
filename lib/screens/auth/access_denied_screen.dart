@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import '../../utils/app_theme.dart';
 
 class AccessDeniedScreen extends StatelessWidget {
   final String message;
   
-  const AccessDeniedScreen({Key? key, required this.message}) : super(key: key);
+  const AccessDeniedScreen({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +16,7 @@ class AccessDeniedScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, color: Colors.red, size: 64),
+              const Icon(Icons.error_outline, color: AppTheme.error, size: 64),
               const SizedBox(height: 24),
               Text(
                 message,

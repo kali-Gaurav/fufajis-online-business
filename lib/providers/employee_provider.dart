@@ -17,6 +17,9 @@ class EmployeeProvider with ChangeNotifier {
         _branchId = branchId ?? '',
         _employeeId = employeeId ?? '';
 
+  final int _pendingTaskCount = 0;
+  int get pendingTaskCount => _pendingTaskCount;
+
   // Inventory Alerts
   Stream<QuerySnapshot> getInventoryAlerts() {
     return _firestore

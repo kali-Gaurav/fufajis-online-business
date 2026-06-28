@@ -90,17 +90,17 @@ class PaymentResult {
   factory PaymentResult.fromMap(Map<String, dynamic> map) {
     return PaymentResult(
       status: PaymentStatus.values.firstWhere(
-        (e) => e.toString() == map['status'],
+        (e) => e.toString() == map['status'] as String?,
         orElse: () => PaymentStatus.unknown,
       ),
-      paymentId: map['paymentId'],
-      orderId: map['orderId'],
-      signature: map['signature'],
-      errorCode: map['errorCode'],
-      errorMessage: map['errorMessage'],
-      walletName: map['walletName'],
+      paymentId: map['paymentId'] as String?,
+      orderId: map['orderId'] as String?,
+      signature: map['signature'] as String?,
+      errorCode: map['errorCode'] as String?,
+      errorMessage: map['errorMessage'] as String?,
+      walletName: map['walletName'] as String?,
       timestamp: map['timestamp'] != null
-          ? DateTime.tryParse(map['timestamp'])
+          ? DateTime.tryParse(map['timestamp'] as String)
           : null,
     );
   }

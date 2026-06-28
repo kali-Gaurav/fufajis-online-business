@@ -103,11 +103,11 @@ class _VoiceLandmarkWidgetState extends State<VoiceLandmarkWidget> {
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: _isRecording ? Colors.red : AppTheme.primary,
+                  color: _isRecording ? AppTheme.error : AppTheme.primary,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: (_isRecording ? Colors.red : AppTheme.primary)
+                      color: (_isRecording ? AppTheme.error : AppTheme.primary)
                           .withValues(alpha: 0.4),
                       blurRadius: _isRecording ? 20 : 10,
                       spreadRadius: _isRecording ? 5 : 0,
@@ -129,7 +129,7 @@ class _VoiceLandmarkWidgetState extends State<VoiceLandmarkWidget> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
-                color: _isRecording ? Colors.red : AppTheme.grey700,
+                color: _isRecording ? AppTheme.error : AppTheme.grey700,
               ),
             ),
           ),

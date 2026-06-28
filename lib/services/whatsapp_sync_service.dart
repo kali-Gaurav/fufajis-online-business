@@ -293,6 +293,7 @@ class WhatsAppSyncService {
           originalPrice: (item['price'] ?? 0).toDouble(),
           unit: item['unit'] ?? 'piece',
           category: item['category'] ?? 'groceries',
+          categoryId: item['categoryId'] ?? item['category'] ?? 'groceries',
           shopId: shopId,
           shopName: shopName,
           imageUrl: '',
@@ -303,6 +304,7 @@ class WhatsAppSyncService {
           updatedAt: now,
           district: shopDoc.data()?['district'] ?? 'Jaipur',
         );
+
 
         await _firestore.collection('products').doc(productId).set(product.toMap());
 

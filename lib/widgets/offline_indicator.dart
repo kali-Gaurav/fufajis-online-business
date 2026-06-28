@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/network_monitor.dart';
+import '../utils/app_theme.dart';
 
 /// A wrapper widget that shows an offline indicator at the bottom
 /// of the screen when the device loses network connection.
@@ -27,7 +28,7 @@ class OfflineIndicator extends StatelessWidget {
                     child: SafeArea(
                       top: false,
                       child: Container(
-                        color: Colors.red[600],
+                        color: AppTheme.error,
                         padding: const EdgeInsets.symmetric(vertical: 4),
                         child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,

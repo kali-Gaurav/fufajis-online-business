@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fufajis_online/providers/product_provider_extensions.dart';
 import 'package:provider/provider.dart';
 import '../../providers/product_provider.dart';
+import '../../utils/app_theme.dart';
 
 /// Pricing Rules Screen
 /// Allows shop owners to configure dynamic pricing strategies
@@ -22,7 +23,6 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
   late TextEditingController _premiumPercentageController;
   late TextEditingController _costPercentageController;
 
-  Map<String, dynamic> _currentRules = {};
   int _pendingChangesCount = 0;
 
   @override
@@ -51,8 +51,7 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
       final rules = await provider.getPricingRules();
 
       setState(() {
-        _currentRules = rules;
-        _selectedStrategy = rules['strategy'] ?? 'Match';
+        _selectedStrategy = rules['strategy'] as String? ?? 'Match';
         _marginController.text = (rules['margin'] ?? 10).toString();
         _beatAmountController.text = (rules['beatAmount'] ?? 5).toString();
         _premiumPercentageController.text = (rules['premiumPercentage'] ?? 10)
@@ -65,9 +64,11 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
       final pendingChanges = await provider.getPendingPriceChanges();
       setState(() => _pendingChangesCount = pendingChanges.length);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading pricing rules: $e')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading pricing rules: $e')),
+        );
+      }
     } finally {
       setState(() => _isLoading = false);
     }
@@ -88,15 +89,19 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
 
       await provider.updatePricingStrategy(newRules);
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Pricing strategy updated')));
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Pricing strategy updated')));
+      }
 
       await _loadPricingRules();
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error updating strategy: $e')));
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error updating strategy: $e')));
+      }
     } finally {
       setState(() => _isLoading = false);
     }
@@ -105,9 +110,9 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Pricing Rules'), elevation: 0),
+      appBar: AppBar(title: const Text('Pricing Rules', style: TextStyle(fontWeight: FontWeight.w700)), elevation: 0),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent))
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -116,29 +121,29 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
                   // Pending Changes Alert
                   if (_pendingChangesCount > 0)
                     Card(
-                      color: Colors.blue[50],
+                      color: AppTheme.info.withValues(alpha: 0.08),
                       child: Padding(
                         padding: const EdgeInsets.all(12),
                         child: Row(
                           children: [
-                            Icon(Icons.info, color: Colors.blue[700]),
+                            const Icon(Icons.info, color: AppTheme.info),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
+                                  const Text(
                                     'Pending Price Changes',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.blue[700],
+                                      color: AppTheme.info,
                                     ),
                                   ),
                                   Text(
                                     '$_pendingChangesCount price changes awaiting approval',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 12,
-                                      color: Colors.blue[600],
+                                      color: AppTheme.ownerAccent,
                                     ),
                                   ),
                                 ],
@@ -209,7 +214,7 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
 
                   // Price Impact Preview
                   Card(
-                    color: Colors.amber[50],
+                    color: AppTheme.warning,
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -258,7 +263,7 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
 
                   // Strategy Information
                   Card(
-                    color: Colors.blue[50],
+                    color: AppTheme.info.withValues(alpha: 0.08),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -310,10 +315,10 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
         child: GestureDetector(
           onTap: () => setState(() => _selectedStrategy = strategy),
           child: Card(
-            color: isSelected ? Colors.blue[50] : Colors.white,
+            color: isSelected ? AppTheme.info.withValues(alpha: 0.08) : Colors.white,
             shape: RoundedRectangleBorder(
               side: BorderSide(
-                color: isSelected ? Colors.blue : Colors.grey[300]!,
+                color: isSelected ? AppTheme.ownerAccent : Colors.grey[300]!,
                 width: isSelected ? 2 : 1,
               ),
               borderRadius: BorderRadius.circular(12),
@@ -328,7 +333,7 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: isSelected ? Colors.blue : Colors.grey[400]!,
+                        color: isSelected ? AppTheme.ownerAccent : Colors.grey[400]!,
                         width: 2,
                       ),
                     ),
@@ -339,7 +344,7 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
                               height: 12,
                               decoration: const BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.blue,
+                                color: AppTheme.info,
                               ),
                             ),
                           )
@@ -437,7 +442,7 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
               newPrice,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Colors.green,
+                color: AppTheme.success,
               ),
             ),
           ],
@@ -454,7 +459,7 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
           width: 24,
           height: 24,
           decoration: BoxDecoration(
-            color: Colors.blue,
+            color: AppTheme.info,
             borderRadius: BorderRadius.circular(4),
           ),
           child: const Center(
@@ -491,8 +496,6 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
   }
 
   double _calculatePreviewPrice(double basePrice) {
-    final margin = double.tryParse(_marginController.text) ?? 10;
-
     switch (_selectedStrategy) {
       case 'Beat':
         final beatAmount = double.tryParse(_beatAmountController.text) ?? 5;

@@ -12,7 +12,7 @@ class KhataService {
       final userDoc = await transaction.get(userRef);
       if (!userDoc.exists) throw Exception('User not found');
 
-      final currentBalance = (userDoc.data()?['creditBalance'] ?? 0.0)
+      final currentBalance = ((userDoc.data()?['creditBalance'] as num?) ?? 0.0)
           .toDouble();
       double newBalance = currentBalance;
 
@@ -46,6 +46,6 @@ class KhataService {
 
   Future<double> getCustomerTotalCredit(String userId) async {
     final doc = await _db.collection('users').doc(userId).get();
-    return (doc.data()?['creditBalance'] ?? 0.0).toDouble();
+    return ((doc.data()?['creditBalance'] as num?) ?? 0.0).toDouble();
   }
 }

@@ -17,11 +17,11 @@ class ReleaseNote {
 
   factory ReleaseNote.fromMap(Map<String, dynamic> map) {
     return ReleaseNote(
-      version: map['version'] ?? '',
+      version: map['version'] as String? ?? '',
       date: (map['date'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      title: map['title'] ?? '',
-      notes: List<String>.from(map['notes'] ?? []),
-      isCritical: map['isCritical'] ?? false,
+      title: map['title'] as String? ?? '',
+      notes: List<String>.from(map['notes'] as Iterable? ?? []),
+      isCritical: map['isCritical'] as bool? ?? false,
     );
   }
 

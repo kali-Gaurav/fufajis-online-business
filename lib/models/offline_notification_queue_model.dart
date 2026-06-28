@@ -32,9 +32,9 @@ class OfflineNotificationQueueModel {
       title: map['title'] ?? '',
       body: map['body'] ?? '',
       type: map['type'] ?? '',
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
+      createdAt: _parseDateTime(map['createdAt']),
       deliveredAt: map['deliveredAt'] != null
-          ? (map['deliveredAt'] as Timestamp).toDate()
+          ? _parseDateTime(map['deliveredAt'])
           : null,
       data: map['data'],
       deepLink: map['deepLink'],
@@ -49,14 +49,25 @@ class OfflineNotificationQueueModel {
       'title': title,
       'body': body,
       'type': type,
-      'createdAt': Timestamp.fromDate(createdAt),
-      'deliveredAt': deliveredAt != null
-          ? Timestamp.fromDate(deliveredAt!)
-          : null,
+      'createdAt': createdAt.millisecondsSinceEpoch,
+      'deliveredAt': deliveredAt?.millisecondsSinceEpoch,
       'data': data,
       'deepLink': deepLink,
       'isDelivered': isDelivered,
     };
+  }
+
+  static DateTime _parseDateTime(dynamic value) {
+    if (value is Timestamp) {
+      return value.toDate();
+    } else if (value is int) {
+      return DateTime.fromMillisecondsSinceEpoch(value);
+    } else if (value is String) {
+      return DateTime.parse(value);
+    } else if (value is DateTime) {
+      return value;
+    }
+    return DateTime.now();
   }
 
   OfflineNotificationQueueModel copyWith({

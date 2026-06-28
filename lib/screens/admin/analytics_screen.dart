@@ -47,11 +47,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             // Metrics Row
             Row(
               children: [
-                _buildMetricsCard('System Revenue', '₹${adminProvider.totalRevenue.toStringAsFixed(0)}', Colors.green, Icons.monetization_on),
+                _buildMetricsCard('System Revenue', '₹${adminProvider.totalRevenue.toStringAsFixed(0)}', AppTheme.success, Icons.monetization_on),
                 const SizedBox(width: 16),
-                _buildMetricsCard('Active Shops', '${adminProvider.totalShops}', Colors.orange, Icons.store),
+                _buildMetricsCard('Active Shops', '${adminProvider.totalShops}', AppTheme.warning, Icons.store),
                 const SizedBox(width: 16),
-                _buildMetricsCard('Registered Users', '${adminProvider.totalUsers}', Colors.blue, Icons.people),
+                _buildMetricsCard('Registered Users', '${adminProvider.totalUsers}', AppTheme.info, Icons.people),
               ],
             ),
             const SizedBox(height: 24),
@@ -178,18 +178,18 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 sectionsSpace: 4,
                 centerSpaceRadius: 40,
                 sections: [
-                  PieChartSectionData(color: Colors.green, value: 40, title: '40%', radius: 50, titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  PieChartSectionData(color: Colors.orange, value: 30, title: '30%', radius: 50, titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  PieChartSectionData(color: Colors.blue, value: 15, title: '15%', radius: 50, titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  PieChartSectionData(color: AppTheme.success, value: 40, title: '40%', radius: 50, titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  PieChartSectionData(color: AppTheme.warning, value: 30, title: '30%', radius: 50, titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  PieChartSectionData(color: AppTheme.info, value: 15, title: '15%', radius: 50, titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   PieChartSectionData(color: Colors.purple, value: 15, title: '15%', radius: 50, titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 16),
-          _buildLegendRow(Colors.green, 'Vegetables & Fruits'),
-          _buildLegendRow(Colors.orange, 'Groceries & Spices'),
-          _buildLegendRow(Colors.blue, 'Dairy Products'),
+          _buildLegendRow(AppTheme.success, 'Vegetables & Fruits'),
+          _buildLegendRow(AppTheme.warning, 'Groceries & Spices'),
+          _buildLegendRow(AppTheme.info, 'Dairy Products'),
           _buildLegendRow(Colors.purple, 'Others'),
         ],
       ),
@@ -262,7 +262,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         _buildTableCell(rank),
         _buildTableCell(name),
         _buildTableCell(location),
-        _buildTableCell(sales, textStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
+        _buildTableCell(sales, textStyle: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.success)),
       ],
     );
   }

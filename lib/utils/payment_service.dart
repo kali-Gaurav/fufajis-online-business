@@ -30,17 +30,32 @@ class PaymentService {
     required String customerPhone,
   }) {
     try {
+      // Validate inputs
+      if (amount <= 0) {
+        throw Exception('Amount must be greater than 0');
+      }
+      if (orderId.isEmpty) {
+        throw Exception('Order ID cannot be empty');
+      }
+      if (customerPhone.isEmpty || customerPhone.length < 10) {
+        throw Exception('Valid phone number required');
+      }
+
       var options = {
         'key': razorpayKeyId,
         'amount': (amount * 100).toInt(), // Convert to paise
+        'currency': 'INR',
+        'receipt': orderId, // Store orderId as receipt for webhook reconciliation
         'name': "Fufaji's Online",
         'description': 'Order #$orderId',
         'prefill': {
           'contact': customerPhone,
-          'email': customerEmail,
+          'email': customerEmail.isEmpty ? 'customer@fufaji.com' : customerEmail,
+          'name': customerName.isEmpty ? 'Customer' : customerName,
         },
         'notes': {
           'order_id': orderId,
+          'customer_name': customerName,
         },
         'theme': {
           'color': '#FF5722',
@@ -49,6 +64,7 @@ class PaymentService {
       _razorpay.open(options);
     } catch (e) {
       debugPrint('Error starting payment: $e');
+      rethrow;
     }
   }
 

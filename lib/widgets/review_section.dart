@@ -57,7 +57,7 @@ class _ReviewSectionState extends State<ReviewSection> {
 
             // Reviews List
             if (reviewProvider.isLoading)
-              const Center(child: CircularProgressIndicator())
+              const Center(child: CircularProgressIndicator(color: AppTheme.primary))
             else if (reviewProvider.reviews.isEmpty)
               _buildEmptyState()
             else
@@ -173,9 +173,9 @@ class _ReviewSectionState extends State<ReviewSection> {
   }
 
   Color _getRatingColor(int rating) {
-    if (rating >= 4) return Colors.green;
-    if (rating == 3) return Colors.orange;
-    return Colors.red;
+    if (rating >= 4) return AppTheme.success;
+    if (rating == 3) return AppTheme.warning;
+    return AppTheme.error;
   }
 
   Widget _buildSortOptions(ReviewProvider reviewProvider) {
@@ -223,7 +223,7 @@ class _ReviewSectionState extends State<ReviewSection> {
           sortBy: value,
         );
       },
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.cream,
       selectedColor: AppTheme.primary.withValues(alpha: 0.2),
       labelStyle: TextStyle(
         color: isSelected ? AppTheme.primary : Colors.grey[700],
@@ -306,15 +306,15 @@ class _ReviewSectionState extends State<ReviewSection> {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.green[50],
-                                border: Border.all(color: Colors.green),
+                                color: AppTheme.success,
+                                border: Border.all(color: AppTheme.success),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: const Text(
                                 'Verified',
                                 style: TextStyle(
                                   fontSize: 10,
-                                  color: Colors.green,
+                                  color: AppTheme.success,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -386,9 +386,9 @@ class _ReviewSectionState extends State<ReviewSection> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.blue[50],
+                  color: AppTheme.info,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.blue[200]!),
+                  border: Border.all(color: AppTheme.info),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -398,7 +398,7 @@ class _ReviewSectionState extends State<ReviewSection> {
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 12,
-                        color: Colors.blue,
+                        color: AppTheme.info,
                       ),
                     ),
                     const SizedBox(height: 8),

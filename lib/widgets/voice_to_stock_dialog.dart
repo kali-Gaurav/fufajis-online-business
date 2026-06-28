@@ -5,6 +5,7 @@ import '../services/gemini_service.dart';
 import '../providers/product_provider.dart';
 import '../models/product_model.dart';
 import '../utils/app_theme.dart';
+import '../utils/monetary_value.dart';
 
 class VoiceToStockDialog extends StatefulWidget {
   const VoiceToStockDialog({super.key});
@@ -49,10 +50,11 @@ class _VoiceToStockDialogState extends State<VoiceToStockDialog> {
         if (command['action'] == 'ADD') {
           final product = ProductModel(
             id: 'prod_voice_${DateTime.now().millisecondsSinceEpoch}',
-            name: command['name'],
+            name: command['name'] as String? ?? 'Unnamed Product',
             description: "Added via Voice",
-            price: (command['price'] as num).toDouble(),
-            unit: command['unit'] ?? 'unit',
+            price: MonetaryValue((command['price'] as num? ?? 0).toDouble()),
+            unit: command['unit'] as String? ?? 'unit',
+            categoryId: 'other',
             category: 'other',
             shopId: provider.currentShopId ?? 'shop_001',
             shopName: "Fufaji's Online",
@@ -112,7 +114,7 @@ class _VoiceToStockDialogState extends State<VoiceToStockDialog> {
               onLongPressUp: _listen,
               child: CircleAvatar(
                 radius: 40,
-                backgroundColor: _isListening ? Colors.red : AppTheme.primary,
+                backgroundColor: _isListening ? AppTheme.error : AppTheme.primary,
                 child: Icon(
                   _isListening ? Icons.stop : Icons.mic,
                   color: Colors.white,
@@ -129,7 +131,7 @@ class _VoiceToStockDialogState extends State<VoiceToStockDialog> {
             if (_isProcessing)
               const Padding(
                 padding: EdgeInsets.only(top: 24),
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(color: AppTheme.primary),
               ),
           ],
         ),

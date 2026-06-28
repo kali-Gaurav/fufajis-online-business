@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../models/product_model.dart';
 import '../../utils/app_theme.dart';
+import '../../utils/monetary_value.dart';
 
 class FestivalBundlesScreen extends StatelessWidget {
   final String festivalName;
@@ -19,7 +20,7 @@ class FestivalBundlesScreen extends StatelessWidget {
         title: Text(
           '${festivalName.replaceAll('_', ' ').toUpperCase()} Bundle Deals',
         ),
-        backgroundColor: Colors.amber[700],
+        backgroundColor: AppTheme.warning,
         foregroundColor: Colors.white,
       ),
       body: Container(
@@ -60,7 +61,7 @@ class FestivalBundlesScreen extends StatelessWidget {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.amber[800],
+                    backgroundColor: AppTheme.warning,
                     foregroundColor: Colors.white,
                   ),
                   child: const Text('Add to Cart'),
@@ -80,10 +81,11 @@ class FestivalBundlesScreen extends StatelessWidget {
           id: 'diwali_sweets',
           name: 'Diwali Premium Kaju Katli Pack',
           description: 'Special Diwali Sweets Box',
-          price: 350.0,
-          originalPrice: 400.0,
+          price: MonetaryValue(350.0),
+          originalPrice: MonetaryValue(400.0),
           unit: '500g',
-          category: 'groceries',
+          categoryId: 'groceries',
+          category: 'Groceries',
           shopId: 's1',
           shopName: 'Fufaji Store',
           imageUrl:
@@ -97,10 +99,11 @@ class FestivalBundlesScreen extends StatelessWidget {
           id: 'diwali_diyas',
           name: 'Handcrafted Clay Diyas (Set of 6)',
           description: 'Decorative clay lamps for Diwali',
-          price: 50.0,
-          originalPrice: 80.0,
+          price: MonetaryValue(50.0),
+          originalPrice: MonetaryValue(80.0),
           unit: '1 set',
-          category: 'household',
+          categoryId: 'household',
+          category: 'Household',
           shopId: 's1',
           shopName: 'Fufaji Store',
           imageUrl:

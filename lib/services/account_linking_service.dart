@@ -1,5 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AccountLinkResult {
   final bool linked;
@@ -14,7 +14,6 @@ class AccountLinkResult {
 }
 
 class AccountLinkingService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<String?> checkPhoneExists(String phone) async {

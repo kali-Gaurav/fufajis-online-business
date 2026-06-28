@@ -93,6 +93,12 @@ class ScannerService {
       return ScanAction.inventoryTransfer(code);
     } else if (code.startsWith('AUDIT-')) {
       return ScanAction.stockAudit(code);
+    } else if (code.startsWith('RETURN-')) {
+      return ScanAction.returnItem(code);
+    } else if (code.startsWith('DAMAGE-')) {
+      return ScanAction.damageItem(code);
+    } else if (code.startsWith('RIDER-')) {
+      return ScanAction.riderScan(code);
     } else if (code.startsWith('ATTENDANCE-')) {
       return ScanAction.attendance(code);
     } else if (code.startsWith('SHELF-')) {
@@ -201,10 +207,10 @@ class ScanResult {
       };
 
   factory ScanResult.fromMap(Map<String, dynamic> map) => ScanResult(
-        code: map['code'] ?? '',
-        format: map['format'] ?? 'unknown',
-        type: map['type'] ?? 'unknown',
-        timestamp: DateTime.tryParse(map['timestamp'] ?? '') ?? DateTime.now(),
+        code: map['code'] as String? ?? '',
+        format: map['format'] as String? ?? 'unknown',
+        type: map['type'] as String? ?? 'unknown',
+        timestamp: DateTime.tryParse(map['timestamp'] as String? ?? '') ?? DateTime.now(),
       );
 }
 
@@ -267,6 +273,27 @@ class ScanAction {
         metadata: {'auditId': raw.replaceFirst('AUDIT-', '')},
       );
 
+  factory ScanAction.returnItem(String raw) => ScanAction._(
+        code: raw,
+        actionType: ScanMode.returnItem,
+        displayLabel: 'Return Item',
+        metadata: {'returnId': raw.replaceFirst('RETURN-', '')},
+      );
+
+  factory ScanAction.damageItem(String raw) => ScanAction._(
+        code: raw,
+        actionType: ScanMode.damageItem,
+        displayLabel: 'Damage Item',
+        metadata: {'damageId': raw.replaceFirst('DAMAGE-', '')},
+      );
+
+  factory ScanAction.riderScan(String raw) => ScanAction._(
+        code: raw,
+        actionType: ScanMode.riderScan,
+        displayLabel: 'Rider Scan',
+        metadata: {'riderId': raw.replaceFirst('RIDER-', '')},
+      );
+
   factory ScanAction.attendance(String raw) => ScanAction._(
         code: raw,
         actionType: ScanMode.attendance,
@@ -305,10 +332,10 @@ class ScanAction {
       };
 
   factory ScanAction.fromMap(Map<String, dynamic> map) => ScanAction._(
-        code: map['code'] ?? '',
-        actionType: map['actionType'] ?? ScanMode.productSearch,
-        displayLabel: map['displayLabel'] ?? '',
-        metadata: Map<String, dynamic>.from(map['metadata'] ?? {}),
+        code: map['code'] as String? ?? '',
+        actionType: map['actionType'] as String? ?? ScanMode.productSearch,
+        displayLabel: map['displayLabel'] as String? ?? '',
+        metadata: Map<String, dynamic>.from(map['metadata'] as Map? ?? {}),
       );
 }
 
@@ -325,10 +352,13 @@ class ScanMode {
   static const String deliveryPOD = 'delivery_pod';
   static const String inventoryReceiving = 'inventory_receiving';
   static const String inventoryAudit = 'inventory_audit';
+  static const String returnItem = 'return_item';
+  static const String damageItem = 'damage_item';
   static const String shelfAudit = 'shelf_audit';
   static const String customerMembership = 'customer_membership';
   static const String paymentQr = 'payment_qr';
   static const String attendance = 'attendance';
+  static const String riderScan = 'rider_scan';
 
   static const List<ScanModeConfig> all = [
     ScanModeConfig(
@@ -383,6 +413,24 @@ class ScanMode {
       description: 'Count and verify physical stock',
       icon: Icons.assignment_outlined,
       color: Color(0xFF558B2F),
+      roles: ['owner', 'employee'],
+    ),
+    ScanModeConfig(
+      id: returnItem,
+      label: 'Return Item',
+      labelHi: 'वापसी',
+      description: 'Process returned products',
+      icon: Icons.keyboard_return,
+      color: Color(0xFFD84315),
+      roles: ['owner', 'employee'],
+    ),
+    ScanModeConfig(
+      id: damageItem,
+      label: 'Damage Item',
+      labelHi: 'क्षतिग्रस्त',
+      description: 'Mark products as damaged',
+      icon: Icons.broken_image_outlined,
+      color: Color(0xFFB71C1C),
       roles: ['owner', 'employee'],
     ),
     ScanModeConfig(

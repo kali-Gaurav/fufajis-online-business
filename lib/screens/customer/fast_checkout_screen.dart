@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fufajis_online/constants/order_status.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/cart_provider.dart';
@@ -8,6 +9,8 @@ import '../../models/order_model.dart';
 import '../../models/user_model.dart';
 import '../../models/payment_method.dart';
 import '../../utils/app_theme.dart';
+import '../../utils/monetary_value.dart';
+import '../../utils/order_number_generator.dart';
 import '../../providers/payment_provider.dart';
 
 class FastCheckoutScreen extends StatefulWidget {
@@ -61,7 +64,7 @@ class _FastCheckoutScreenState extends State<FastCheckoutScreen> {
     final userEmail = auth.currentUser?.email ?? 'customer@fufajionline.com';
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     _stableOrderId ??= 'ord_${userId}_$timestamp';
-    _stableOrderNumber ??= auth.generateOrderNumber();
+    _stableOrderNumber ??= OrderNumberGenerator.generate();
 
     final order = OrderModel(
       id: _stableOrderId!,
@@ -82,12 +85,12 @@ class _FastCheckoutScreenState extends State<FastCheckoutScreen> {
         shopId: item.shopId,
         totalPrice: item.totalPrice,
       )).toList(),
-      subtotal: cart.subtotal,
-      deliveryCharge: cart.deliveryCharge,
-      discount: cart.discount,
-      tipAmount: cart.tipAmount,
-      walletAmountUsed: cart.walletAmountUsed,
-      totalAmount: cart.total,
+      subtotal: MonetaryValue(cart.subtotal),
+      deliveryCharge: MonetaryValue(cart.deliveryCharge),
+      discount: MonetaryValue(cart.discount),
+      tipAmount: MonetaryValue(cart.tipAmount),
+      walletAmountUsed: MonetaryValue(cart.walletAmountUsed),
+      totalAmount: MonetaryValue(cart.total),
       deliveryAddress: _selectedAddress!,
       paymentMethod: _paymentMethod,
       status: OrderStatus.pending,
@@ -112,7 +115,7 @@ class _FastCheckoutScreenState extends State<FastCheckoutScreen> {
         // Fufaji Credit Path
         final paymentProvider = context.read<PaymentProvider>();
         final success = await paymentProvider.processCreditPayment(
-          order.totalAmount,
+          order.totalAmount.toDouble(),
           auth.currentUser!,
           auth,
         );
@@ -159,10 +162,10 @@ class _FastCheckoutScreenState extends State<FastCheckoutScreen> {
             margin: const EdgeInsets.only(right: 16),
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.amber.withValues(alpha: 0.2),
+              color: AppTheme.warning.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Text('STEP 2 OF 3', style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 10)),
+            child: const Text('STEP 2 OF 3', style: TextStyle(color: AppTheme.warning, fontWeight: FontWeight.bold, fontSize: 10)),
           ),
         ],
       ),
@@ -170,7 +173,7 @@ class _FastCheckoutScreenState extends State<FastCheckoutScreen> {
         ? const Center(child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircularProgressIndicator(),
+              CircularProgressIndicator(color: AppTheme.primary),
               SizedBox(height: 20),
               Text('Securing your order...', style: TextStyle(fontWeight: FontWeight.bold)),
             ],
@@ -342,7 +345,7 @@ class _FastCheckoutScreenState extends State<FastCheckoutScreen> {
           height: 54,
           child: ElevatedButton(
             onPressed: _isProcessing ? null : _handlePlaceOrder,
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.secondary, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, foregroundColor: Colors.white),
             child: const Text('STEP 3: PLACE ORDER', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
           ),
         ),
@@ -361,7 +364,7 @@ class _FastCheckoutScreenState extends State<FastCheckoutScreen> {
             value,
             style: TextStyle(
               fontWeight: isDiscount ? FontWeight.bold : FontWeight.w600,
-              color: isDiscount ? Colors.green : Colors.black87,
+              color: isDiscount ? AppTheme.success : Colors.black87,
               fontSize: 14,
             ),
           ),

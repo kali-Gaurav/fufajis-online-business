@@ -125,7 +125,7 @@ class _BranchManagementScreenState extends State<BranchManagementScreen> {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save branch: $e'), backgroundColor: Colors.red),
+        SnackBar(content: Text('Failed to save branch: $e'), backgroundColor: AppTheme.error),
       );
     }
   }
@@ -147,7 +147,7 @@ class _BranchManagementScreenState extends State<BranchManagementScreen> {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete branch: $e'), backgroundColor: Colors.red),
+        SnackBar(content: Text('Failed to delete branch: $e'), backgroundColor: AppTheme.error),
       );
     }
   }
@@ -158,7 +158,7 @@ class _BranchManagementScreenState extends State<BranchManagementScreen> {
       await provider.updateBranch(branch.copyWith(isActive: !branch.isActive));
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Update failed: $e'), backgroundColor: Colors.red),
+        SnackBar(content: Text('Update failed: $e'), backgroundColor: AppTheme.error),
       );
     }
   }
@@ -178,7 +178,7 @@ class _BranchManagementScreenState extends State<BranchManagementScreen> {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Update failed: $e'), backgroundColor: Colors.red),
+        SnackBar(content: Text('Update failed: $e'), backgroundColor: AppTheme.error),
       );
     }
   }
@@ -320,7 +320,7 @@ class _BranchManagementScreenState extends State<BranchManagementScreen> {
                               itemBuilder: (context) => [
                                 const PopupMenuItem(value: 'edit', child: Text('Edit Info')),
                                 if (!b.isPrimary) const PopupMenuItem(value: 'primary', child: Text('Set as Primary')),
-                                const PopupMenuItem(value: 'delete', child: Text('Delete Branch', style: TextStyle(color: Colors.red))),
+                                const PopupMenuItem(value: 'delete', child: Text('Delete Branch', style: TextStyle(color: AppTheme.error))),
                               ],
                             ),
                           ],

@@ -25,9 +25,8 @@ class _ReceivedItem {
     this.barcode = '',
     required this.receivedQty,
     required this.unit,
-    this.costPerUnit = 0.0,
-    this.isVerified = false,
-  });
+  })  : costPerUnit = 0.0,
+        isVerified = false;
 
   bool get isValid =>
       productName.isNotEmpty && receivedQty > 0;
@@ -94,13 +93,6 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
   }
 
   // ── Barcode Scanner ──────────────────────────
-
-  void _toggleScanner() {
-    setState(() {
-      _isScannerActive = !_isScannerActive;
-      _scanFeedback = null;
-    });
-  }
 
   void _onBarcodeDetected(BarcodeCapture capture) async {
     final barcodes = capture.barcodes;
@@ -188,7 +180,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Confirm Receiving'),
+        title: const Text('Confirm Receiving', style: TextStyle(fontWeight: FontWeight.w700)),
         content: Text(
           '${validItems.length} items ka stock update ho jayega.\n'
           'Kya aap sure hain?',
@@ -450,14 +442,14 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
         // Items list
         Expanded(
           child: _items.isEmpty
-              ? Center(
+              ? const Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.inventory_2_outlined,
                           size: 64, color: AppTheme.grey300),
-                      const SizedBox(height: 16),
-                      const Text(
+                      SizedBox(height: 16),
+                      Text(
                         'Koi item nahi hai',
                         style: TextStyle(
                           fontSize: 16,
@@ -465,8 +457,8 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      const Text(
+                      SizedBox(height: 8),
+                      Text(
                         '"Scan Bill" ya "Add Item" se shuru karein',
                         style: TextStyle(color: AppTheme.grey400, fontSize: 13),
                       ),
@@ -543,7 +535,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(12),
-            color: AppTheme.success.withOpacity(0.1),
+            color: AppTheme.success.withValues(alpha: 0.1),
             child: Row(
               children: [
                 const Icon(Icons.check_circle,
@@ -625,11 +617,11 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: AppTheme.primary.withOpacity(0.1),
+                          color: AppTheme.primary.withValues(alpha: 0.1),
                           borderRadius:
                               BorderRadius.circular(AppTheme.radiusMd),
                           border: Border.all(
-                            color: AppTheme.primary.withOpacity(0.3),
+                            color: AppTheme.primary.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Column(
@@ -789,7 +781,7 @@ class _ItemEntryCardState extends State<_ItemEntryCard> {
         borderRadius: BorderRadius.circular(AppTheme.radiusMd),
         side: BorderSide(
           color: isVerified
-              ? AppTheme.success.withOpacity(0.4)
+              ? AppTheme.success.withValues(alpha: 0.4)
               : AppTheme.grey200,
         ),
       ),
@@ -806,7 +798,7 @@ class _ItemEntryCardState extends State<_ItemEntryCard> {
                   height: 28,
                   decoration: BoxDecoration(
                     color: isVerified
-                        ? AppTheme.success.withOpacity(0.15)
+                        ? AppTheme.success.withValues(alpha: 0.15)
                         : AppTheme.grey100,
                     shape: BoxShape.circle,
                   ),

@@ -81,22 +81,22 @@ class WalletTransaction {
 
   factory WalletTransaction.fromMap(Map<String, dynamic> map) {
     return WalletTransaction(
-      id: map['id'] ?? '',
-      userId: map['userId'] ?? '',
+      id: map['id'] as String? ?? '',
+      userId: map['userId'] as String? ?? '',
       type: WalletTransactionType.values.firstWhere(
-        (e) => e.toString() == map['type'],
+        (e) => e.toString() == map['type'] as String?,
         orElse: () => WalletTransactionType.cashback,
       ),
-      amount: (map['amount'] ?? 0.0).toDouble(),
-      orderReference: map['orderReference'],
+      amount: (map['amount'] as num? ?? 0.0).toDouble(),
+      orderReference: map['orderReference'] as String?,
       timestamp: map['timestamp'] != null
           ? (map['timestamp'] is DateTime
-              ? map['timestamp']
-              : map['timestamp'].toDate())
+              ? map['timestamp'] as DateTime
+              : (map['timestamp'] as Timestamp).toDate())
           : DateTime.now(),
-      description: map['description'],
-      balanceAfter: (map['balanceAfter'] ?? 0.0).toDouble(),
-      sequenceNumber: map['sequenceNumber'],
+      description: map['description'] as String?,
+      balanceAfter: (map['balanceAfter'] as num? ?? 0.0).toDouble(),
+      sequenceNumber: map['sequenceNumber'] as int?,
     );
   }
 
@@ -188,9 +188,9 @@ class WalletService {
         }
 
         final userData = userDoc.data()!;
-        final currentBalance = (userData['walletBalance'] ?? 0.0).toDouble();
+        final currentBalance = (userData['walletBalance'] as num? ?? 0.0).toDouble();
         final newBalance = currentBalance + amount;
-        final lastSeqNum = userData['lastTransactionSequenceNumber'] ?? 0;
+        final lastSeqNum = userData['lastTransactionSequenceNumber'] as int? ?? 0;
         final newSeqNum = lastSeqNum + 1;
 
         // Update user wallet balance and sequence number
@@ -244,6 +244,27 @@ class WalletService {
     }
   }
 
+  /// Helper to credit balance (used by loyalty workflow)
+  Future<bool> creditBalance(
+    String userId,
+    double amount,
+    String reason, [
+    Map<String, dynamic>? metadata,
+  ]) async {
+    WalletTransactionType type = WalletTransactionType.cashback;
+    if (reason == 'loyalty_redemption') {
+      type = WalletTransactionType.rewardPointsRedeemed;
+    } else if (reason == 'referral_bonus') {
+      type = WalletTransactionType.referralBonus;
+    }
+    return addToWallet(
+      userId: userId,
+      amount: amount,
+      transactionType: type,
+      description: '$reason: ${metadata?.toString() ?? ""}',
+    );
+  }
+
   /// Deducts amount from wallet balance and records transaction
   Future<bool> deductFromWallet({
     required String userId,
@@ -274,7 +295,7 @@ class WalletService {
         }
 
         final userData = userDoc.data()!;
-        final currentBalance = (userData['walletBalance'] ?? 0.0).toDouble();
+        final currentBalance = (userData['walletBalance'] as num? ?? 0.0).toDouble();
 
         // Check if sufficient balance
         if (currentBalance < amount) {
@@ -282,7 +303,7 @@ class WalletService {
         }
 
         final newBalance = currentBalance - amount;
-        final lastSeqNum = userData['lastTransactionSequenceNumber'] ?? 0;
+        final lastSeqNum = userData['lastTransactionSequenceNumber'] as int? ?? 0;
         final newSeqNum = lastSeqNum + 1;
 
         // Update user wallet balance and sequence number
@@ -325,7 +346,7 @@ class WalletService {
       if (!userDoc.exists) {
         return 0.0;
       }
-      return (userDoc.data()?['walletBalance'] ?? 0.0).toDouble();
+      return ((userDoc.data()?['walletBalance'] as num?) ?? 0.0).toDouble();
     } catch (e) {
       debugPrint('Error getting wallet balance: $e');
       return 0.0;
@@ -417,7 +438,7 @@ class WalletService {
         .collection('users')
         .doc(userId)
         .snapshots()
-        .map((doc) => (doc.data()?['walletBalance'] ?? 0.0).toDouble());
+        .map((doc) => ((doc.data()?['walletBalance'] as num?) ?? 0.0).toDouble());
   }
 
   /// Streams transaction history changes in real-time

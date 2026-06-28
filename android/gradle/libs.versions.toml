@@ -1,0 +1,35 @@
+[versions]
+agp = "8.9.1"
+kotlin = "2.1.10"
+googleServices = "4.4.2"
+firebaseBom = "34.14.0"
+material = "1.11.0"
+multidex = "2.0.1"
+desugarJdkLibs = "2.1.4"
+playServicesAds = "23.6.0"
+compileSdk = "36"
+targetSdk = "35"
+minSdk = "24"
+ndk = "27.0.12077973"
+
+[libraries]
+google-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-multidex = { group = "androidx.multidex", name = "multidex", version.ref = "multidex" }
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+google-play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "playServicesAds" }
+desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugarJdkLibs" }
+
+# Firebase libraries (versioned by BOM)
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
+firebase-storage = { group = "com.google.firebase", name = "firebase-storage" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
+firebase-functions = { group = "com.google.firebase", name = "firebase-functions" }
+firebase-appcheck-playintegrity = { group = "com.google.firebase", name = "firebase-appcheck-playintegrity" }
+firebase-appcheck-debug = { group = "com.google.firebase", name = "firebase-appcheck-debug" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }

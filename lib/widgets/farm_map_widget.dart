@@ -34,7 +34,7 @@ class FarmMapWidget extends StatelessWidget {
             children: [
               const Icon(
                 Icons.eco_outlined,
-                color: AppTheme.secondary,
+                color: AppTheme.info,
                 size: 24,
               ),
               const SizedBox(width: 12),

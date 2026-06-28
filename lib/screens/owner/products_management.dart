@@ -14,6 +14,12 @@ import '../../services/product_service.dart';
 import '../../services/global_catalog_service.dart';
 import '../../services/image_processing_service.dart';
 import '../../widgets/voice_to_stock_dialog.dart';
+import '../../widgets/common/fj_button.dart';
+import '../../widgets/common/fj_card.dart';
+import '../../widgets/common/empty_state.dart';
+import 'package:go_router/go_router.dart';
+import '../../utils/monetary_value.dart';
+import '../../utils/responsive.dart';
 
 class ProductsManagementScreen extends StatefulWidget {
   const ProductsManagementScreen({super.key});
@@ -43,154 +49,147 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
         ? productProvider.products 
         : productProvider.getProductsByCategory(categoryName.toLowerCase());
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Products',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.grey900,
+    return Scaffold(
+      backgroundColor: AppTheme.grey50,
+      body: SingleChildScrollView(
+        padding: AppTheme.paddingLg,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Products',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.grey900,
+                  ),
                 ),
-              ),
-              Row(
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      try {
-                        await productProvider.seedDatabase();
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Database seeded with mock products!')),
-                          );
+                Row(
+                  children: [
+                    FjButton(
+                      label: 'Seed DB',
+                      onPressed: () async {
+                        try {
+                          await productProvider.seedDatabase();
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Database seeded with mock products!')),
+                            );
+                          }
+                        } catch (e) {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Failed to seed: $e')),
+                            );
+                          }
                         }
-                      } catch (e) {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Failed to seed: $e')),
-                          );
-                        }
+                      },
+                      icon: Icons.download_done,
+                      height: 40,
+                    ),
+                    const SizedBox(width: 12),
+                    FjButton(
+                      label: 'Bulk Upload',
+                      onPressed: () => _showBulkUploadDialog(context),
+                      icon: Icons.upload_file,
+                      type: FjButtonType.secondary,
+                      height: 40,
+                    ),
+                    const SizedBox(width: 12),
+                    FjButton(
+                      label: 'Voice Entry',
+                      onPressed: () => showDialog(context: context, builder: (context) => const VoiceToStockDialog()),
+                      icon: Icons.mic,
+                      type: FjButtonType.outline,
+                      height: 40,
+                    ),
+                    const SizedBox(width: 12),
+                    FjButton(
+                      label: 'Add Product',
+                      onPressed: () => context.push('/owner/products/add'),
+                      icon: Icons.add,
+                      height: 40,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Search & Filter
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    onChanged: (val) {
+                      // search query integration can go here
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Search products...',
+                      prefixIcon: const Icon(Icons.search),
+                      filled: true,
+                      fillColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.grey800 : AppTheme.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: AppTheme.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppTheme.grey200),
+                  ),
+                  child: DropdownButton<String>(
+                    value: _categories[_selectedCategory],
+                    underline: const SizedBox(),
+                    items: _categories.map((category) => DropdownMenuItem(
+                      value: category,
+                      child: Text(category),
+                    )).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          _selectedCategory = _categories.indexOf(value);
+                        });
                       }
                     },
-                    icon: const Icon(Icons.download_done),
-                    label: const Text('Seed DB'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: AppTheme.white,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  ElevatedButton.icon(
-                    onPressed: () => _showBulkUploadDialog(context),
-                    icon: const Icon(Icons.upload_file),
-                    label: const Text('Bulk Upload'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.secondary,
-                      foregroundColor: AppTheme.white,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  ElevatedButton.icon(
-                    onPressed: () => showDialog(context: context, builder: (context) => const VoiceToStockDialog()),
-                    icon: const Icon(Icons.mic),
-                    label: const Text('Voice Entry'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.indigo,
-                      foregroundColor: AppTheme.white,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  ElevatedButton.icon(
-                    onPressed: () => _showAddProductDialog(context),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add Product'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primary,
-                      foregroundColor: AppTheme.white,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          // Search & Filter
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  onChanged: (val) {
-                    // search query integration can go here
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Search products...',
-                    prefixIcon: const Icon(Icons.search),
-                    filled: true,
-                    fillColor: AppTheme.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: AppTheme.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: DropdownButton<String>(
-                  value: _categories[_selectedCategory],
-                  underline: const SizedBox(),
-                  items: _categories.map((category) => DropdownMenuItem(
-                    value: category,
-                    child: Text(category),
-                  )).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        _selectedCategory = _categories.indexOf(value);
-                      });
-                    }
-                  },
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          // Products Grid
-          productProvider.isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _buildProductsGrid(products),
-        ],
+              ],
+            ),
+            const SizedBox(height: 24),
+            // Products Grid
+            productProvider.isLoading
+                ? const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent))
+                : _buildProductsGrid(products),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildProductsGrid(List<ProductModel> products) {
     if (products.isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(40.0),
-          child: Text('No products found in this category.'),
-        ),
+      return const FjEmptyState(
+        icon: Icons.inventory_2_outlined,
+        title: 'No products found',
+        subtitle: 'Try changing the category or add your first product.',
       );
     }
 
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: Responsive.posColumns(context),
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
         childAspectRatio: 0.8,
@@ -206,18 +205,8 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
   Widget _buildProductCard(ProductModel product) {
     final discount = product.discountPercentage;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return FjCard(
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -256,7 +245,7 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
                           color: AppTheme.grey400,
                         ),
                 ),
-                if ((discount ?? 0) > 0)
+                if ((discount?.toDouble() ?? 0) > 0)
                   Positioned(
                     top: 8,
                     left: 8,
@@ -332,7 +321,7 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
                               color: AppTheme.primary,
                             ),
                           ),
-                          if ((discount ?? 0) > 0)
+                          if ((discount?.toDouble() ?? 0) > 0)
                             Text(
                               '₹${product.originalPrice}',
                               style: const TextStyle(
@@ -346,10 +335,10 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
                       Row(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.edit, size: 20, color: AppTheme.secondary),
+                            icon: const Icon(Icons.edit, size: 20, color: AppTheme.info),
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
-                            onPressed: () => _showEditProductDialog(context, product),
+                            onPressed: () => context.push('/owner/products/add?productId=${product.id}'),
                           ),
                           const SizedBox(width: 8),
                           IconButton(
@@ -396,14 +385,6 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
     );
   }
 
-  void _showAddProductDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const SmartAddProductDialog(),
-    );
-  }
-
   void _showBulkUploadDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -411,18 +392,11 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
     );
   }
 
-  void _showEditProductDialog(BuildContext context, ProductModel product) {
-    showDialog(
-      context: context,
-      builder: (context) => EditProductDialog(product: product),
-    );
-  }
-
   void _confirmDelete(BuildContext context, ProductModel product) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Product?'),
+        title: const Text('Delete Product?', style: TextStyle(fontWeight: FontWeight.w700)),
         content: Text('Are you sure you want to delete "${product.name}"? This action cannot be undone.'),
         actions: [
           TextButton(
@@ -501,10 +475,11 @@ class _SmartAddProductDialogState extends State<SmartAddProductDialog> {
         id: 'prod_${DateTime.now().millisecondsSinceEpoch}',
         name: _selectedProduct!.name,
         description: 'Premium ${_selectedProduct!.name} from ${_selectedProduct!.brand}',
-        price: double.parse(_priceController.text),
+        price: MonetaryValue(double.parse(_priceController.text)),
         originalPrice: _selectedProduct!.mrp,
-        discountPercentage: ((_selectedProduct!.mrp - double.parse(_priceController.text)) / _selectedProduct!.mrp * 100).roundToDouble(),
+        discountPercentage: MonetaryValue(((_selectedProduct!.mrp.toDouble() - double.parse(_priceController.text)) / _selectedProduct!.mrp.toDouble() * 100).roundToDouble()),
         unit: _selectedProduct!.unit,
+        categoryId: _selectedProduct!.category.toLowerCase(),
         category: _selectedProduct!.category,
         shopId: authProvider.currentUser?.id ?? 'shop_001',
         shopName: authProvider.currentUser?.name ?? "Fufaji Online",
@@ -534,7 +509,7 @@ class _SmartAddProductDialogState extends State<SmartAddProductDialog> {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
-        width: 500,
+        width: Responsive.contentMaxWidth(context).clamp(300, 500),
         padding: const EdgeInsets.all(24),
         child: Form(
           key: _formKey,
@@ -735,13 +710,13 @@ class _AddProductDialogState extends State<AddProductDialog> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Background removed successfully!'), backgroundColor: Colors.green),
+          const SnackBar(content: Text('Background removed successfully!'), backgroundColor: AppTheme.success),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
         );
       }
     } finally {
@@ -782,7 +757,7 @@ class _AddProductDialogState extends State<AddProductDialog> {
       _unitOptions.add(ProductUnitOption(
         id: 'var_${DateTime.now().millisecondsSinceEpoch}',
         name: _variantNameController.text,
-        price: double.parse(_variantPriceController.text),
+        price: MonetaryValue(double.parse(_variantPriceController.text)),
         stockQuantity: int.tryParse(_variantStockController.text) ?? 100,
       ));
       _variantNameController.clear();
@@ -796,8 +771,8 @@ class _AddProductDialogState extends State<AddProductDialog> {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
-        width: 550,
-        height: 700,
+        width: Responsive.contentMaxWidth(context).clamp(300, 550),
+        height: MediaQuery.of(context).size.height * 0.85,
         padding: const EdgeInsets.all(24),
         child: SingleChildScrollView(
           child: Form(
@@ -854,7 +829,7 @@ class _AddProductDialogState extends State<AddProductDialog> {
                                 child: Column(
                                   children: [
                                     CircleAvatar(
-                                      backgroundColor: Colors.white,
+                                      backgroundColor: AppTheme.cream,
                                       radius: 18,
                                       child: IconButton(
                                         icon: const Icon(Icons.edit, size: 18, color: AppTheme.primary),
@@ -863,7 +838,7 @@ class _AddProductDialogState extends State<AddProductDialog> {
                                     ),
                                     const SizedBox(height: 8),
                                     CircleAvatar(
-                                      backgroundColor: AppTheme.secondary,
+                                      backgroundColor: AppTheme.info,
                                       radius: 18,
                                       child: _isRemovingBg 
                                         ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
@@ -1059,10 +1034,11 @@ class _AddProductDialogState extends State<AddProductDialog> {
         id: 'prod_${DateTime.now().millisecondsSinceEpoch}',
         name: _nameController.text,
         description: _descriptionController.text,
-        price: double.parse(_priceController.text),
-        originalPrice: _originalPriceController.text.isNotEmpty ? double.parse(_originalPriceController.text) : double.parse(_priceController.text),
+        price: MonetaryValue(double.parse(_priceController.text)),
+        originalPrice: _originalPriceController.text.isNotEmpty ? MonetaryValue(double.parse(_originalPriceController.text)) : MonetaryValue(double.parse(_priceController.text)),
         unit: _unitController.text,
-        category: _selectedCategory.toLowerCase(),
+        categoryId: _selectedCategory.toLowerCase(),
+        category: _selectedCategory,
         shopId: authProvider.currentUser?.id ?? 'shop_001',
         shopName: authProvider.currentUser?.name ?? "Fufaji Online",
         imageUrl: imageUrl ?? 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400',
@@ -1170,7 +1146,8 @@ class _EditProductDialogState extends State<EditProductDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       child: Container(
-        width: 500,
+        width: Responsive.contentMaxWidth(context).clamp(300, 500),
+        height: MediaQuery.of(context).size.height * 0.85,
         padding: const EdgeInsets.all(24),
         child: SingleChildScrollView(
           child: Form(
@@ -1319,7 +1296,7 @@ class _EditProductDialogState extends State<EditProductDialog> {
                 const SizedBox(height: 8),
                 ..._competitorPrices.map((cp) => ListTile(
                   title: Text(cp.competitorName),
-                  trailing: Text('₹${cp.price.round()}'),
+                  trailing: Text('₹${cp.price.toDouble().round()}'),
                   dense: true,
                   onLongPress: () => setState(() => _competitorPrices.remove(cp)),
                 )),
@@ -1333,7 +1310,7 @@ class _EditProductDialogState extends State<EditProductDialog> {
                         setState(() {
                           _competitorPrices.add(CompetitorPrice(
                             competitorName: _compNameController.text,
-                            price: double.parse(_compPriceController.text),
+                            price: MonetaryValue(double.parse(_compPriceController.text)),
                             updatedAt: DateTime.now(),
                           ));
                           _compNameController.clear();
@@ -1355,21 +1332,21 @@ class _EditProductDialogState extends State<EditProductDialog> {
                 const SizedBox(height: 16),
                 // Switches for Featured/OnSale/Available
                 SwitchListTile(
-                  title: const Text('Available for Purchase'),
+                  title: const Text('Available for Purchase', style: TextStyle(fontWeight: FontWeight.w700)),
                   value: _isAvailable,
                   onChanged: (val) => setState(() => _isAvailable = val),
                   contentPadding: EdgeInsets.zero,
                   activeThumbColor: AppTheme.primary,
                 ),
                 SwitchListTile(
-                  title: const Text('Mark as Featured'),
+                  title: const Text('Mark as Featured', style: TextStyle(fontWeight: FontWeight.w700)),
                   value: _isFeatured,
                   onChanged: (val) => setState(() => _isFeatured = val),
                   contentPadding: EdgeInsets.zero,
                   activeThumbColor: AppTheme.primary,
                 ),
                 SwitchListTile(
-                  title: const Text('Mark as On Sale'),
+                  title: const Text('Mark as On Sale', style: TextStyle(fontWeight: FontWeight.w700)),
                   value: _isOnSale,
                   onChanged: (val) => setState(() => _isOnSale = val),
                   contentPadding: EdgeInsets.zero,
@@ -1392,13 +1369,13 @@ class _EditProductDialogState extends State<EditProductDialog> {
                           final updatedProduct = widget.product.copyWith(
                             name: _nameController.text,
                             description: _descriptionController.text,
-                            price: double.parse(_priceController.text),
+                            price: MonetaryValue(double.parse(_priceController.text)),
                             originalPrice: _originalPriceController.text.isNotEmpty
-                                ? double.parse(_originalPriceController.text)
-                                : double.parse(_priceController.text),
+                                ? MonetaryValue(double.parse(_originalPriceController.text))
+                                : MonetaryValue(double.parse(_priceController.text)),
                             discountPercentage: _originalPriceController.text.isNotEmpty
-                                ? (((double.parse(_originalPriceController.text) - double.parse(_priceController.text)) / double.parse(_originalPriceController.text)) * 100).roundToDouble()
-                                : 0.0,
+                                ? MonetaryValue((((double.parse(_originalPriceController.text) - double.parse(_priceController.text)) / double.parse(_originalPriceController.text)) * 100).roundToDouble())
+                                : MonetaryValue(0.0),
                             category: _selectedCategory.toLowerCase(),
                             stockQuantity: int.parse(_stockController.text),
                             minimumStock: int.parse(_minStockController.text),
@@ -1528,10 +1505,11 @@ class _BulkUploadDialogState extends State<BulkUploadDialog> {
           id: 'prod_bulk_${DateTime.now().millisecondsSinceEpoch}_$i',
           name: name,
           description: description,
-          price: price,
-          originalPrice: originalPrice,
-          discountPercentage: originalPrice > 0 ? (((originalPrice - price) / originalPrice) * 100).roundToDouble() : 0.0,
+          price: MonetaryValue(price),
+          originalPrice: MonetaryValue(originalPrice),
+          discountPercentage: originalPrice > 0 ? MonetaryValue((((originalPrice - price) / originalPrice) * 100).roundToDouble()) : MonetaryValue(0.0),
           unit: unit,
+          categoryId: category,
           category: category,
           shopId: 'shop_001',
           shopName: "Fufaji Online",
@@ -1625,7 +1603,7 @@ class _BulkUploadDialogState extends State<BulkUploadDialog> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const CircularProgressIndicator(),
+                          const CircularProgressIndicator(color: AppTheme.ownerAccent),
                           const SizedBox(height: 20),
                           Text(
                             _statusLog ?? 'Processing catalog database...',
@@ -1644,10 +1622,10 @@ class _BulkUploadDialogState extends State<BulkUploadDialog> {
                             maxLines: null,
                             expands: true,
                             style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               hintText: 'Paste CSV rows here...',
-                              border: OutlineInputBorder(),
-                              fillColor: AppTheme.grey50,
+                              border: const OutlineInputBorder(),
+                              fillColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.grey800 : AppTheme.grey50,
                               filled: true,
                             ),
                           ),

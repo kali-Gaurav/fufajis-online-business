@@ -216,7 +216,7 @@ class RewardSystem {
         }
 
         final userData = userDoc.data()!;
-        final currentPoints = userData['rewardPoints'] ?? 0;
+        final currentPoints = (userData['rewardPoints'] as num? ?? 0).toInt();
 
         if (currentPoints < pointsToRedeem) {
           throw Exception('Insufficient reward points');
@@ -266,7 +266,7 @@ class RewardSystem {
       if (!userDoc.exists) {
         return 0;
       }
-      return userDoc.data()?['rewardPoints'] ?? 0;
+      return (userDoc.data()?['rewardPoints'] as num? ?? 0).toInt();
     } catch (e) {
       debugPrint('Error getting reward points: $e');
       return 0;
@@ -333,6 +333,6 @@ class RewardSystem {
         .collection('users')
         .doc(userId)
         .snapshots()
-        .map((doc) => doc.data()?['rewardPoints'] ?? 0);
+        .map((doc) => (doc.data()?['rewardPoints'] as num? ?? 0).toInt());
   }
 }

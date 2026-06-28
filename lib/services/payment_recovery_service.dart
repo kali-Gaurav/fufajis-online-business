@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../models/order_model.dart';
+import '../constants/order_status.dart';
 import 'payment_router_service.dart';
 import 'wallet_service.dart';
 import 'whatsapp_notification_service.dart';
@@ -131,7 +132,7 @@ class PaymentRecoveryService {
     final retryAt = DateTime.now().add(_retryDelays[retryCount]);
 
     await _firestore
-        .collection('payment_retries')
+        .collection('payment_retry_queue')
         .doc('retry_${orderId}_$retryCount')
         .set({
       'orderId': orderId,
@@ -154,7 +155,7 @@ class PaymentRecoveryService {
 
     try {
       final snap = await _firestore
-          .collection('payment_retries')
+          .collection('payment_retry_queue')
           .where('status', isEqualTo: 'scheduled')
           .where('retryAt', isLessThanOrEqualTo: now)
           .orderBy('retryAt')
@@ -178,16 +179,16 @@ class PaymentRecoveryService {
     debugPrint('[PaymentRecovery] Executing retry $retryCount for order $orderId');
 
     // Mark as in-progress
-    await _firestore.collection('payment_retries').doc(retryDocId).update({
+    await _firestore.collection('payment_retry_queue').doc(retryDocId).update({
       'status': 'processing',
       'processedAt': FieldValue.serverTimestamp(),
     });
 
     try {
       // Check if order is now paid (may have been resolved by customer manually)
-      final alreadyPaid = await _checkIfOrderAlreadyPaid(orderId, data['paymentId']);
+      final alreadyPaid = await _checkIfOrderAlreadyPaid(orderId, data['paymentId'] as String);
       if (alreadyPaid) {
-        await _firestore.collection('payment_retries').doc(retryDocId).update({'status': 'resolved_externally'});
+        await _firestore.collection('payment_retry_queue').doc(retryDocId).update({'status': 'resolved_externally'});
         return;
       }
 
@@ -199,12 +200,12 @@ class PaymentRecoveryService {
       await _notifyCustomerToRetry(orderId, retryCount);
 
       await _firestore
-          .collection('payment_retries')
+          .collection('payment_retry_queue')
           .doc(retryDocId)
           .update({'status': 'notified'});
     } catch (e) {
       debugPrint('[PaymentRecovery] Retry execution failed: $e');
-      await _firestore.collection('payment_retries').doc(retryDocId).update({'status': 'error', 'error': e.toString()});
+      await _firestore.collection('payment_retry_queue').doc(retryDocId).update({'status': 'error', 'error': e.toString()});
     }
   }
 

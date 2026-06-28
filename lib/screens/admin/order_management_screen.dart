@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import '../../constants/order_status.dart';
 import '../../providers/admin_provider.dart';
 import '../../utils/app_theme.dart';
 import '../../models/order_model.dart';
@@ -90,7 +91,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
             const SizedBox(height: 24),
             Expanded(
               child: adminProvider.isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(child: CircularProgressIndicator(color: AppTheme.adminAccent))
                   : filteredOrders.isEmpty
                   ? const Center(child: Text('No orders found.'))
                   : Card(
@@ -129,8 +130,8 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       leading: CircleAvatar(
         radius: 24,
-        backgroundColor: Colors.blue.withValues(alpha: 0.1),
-        child: const Icon(Icons.shopping_bag, color: Colors.blue),
+        backgroundColor: AppTheme.adminAccent.withValues(alpha: 0.1),
+        child: const Icon(Icons.shopping_bag, color: AppTheme.info),
       ),
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -195,7 +196,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
           if (order.status != OrderStatus.cancelled &&
               order.status != OrderStatus.delivered)
             IconButton(
-              icon: const Icon(Icons.cancel, color: Colors.red),
+              icon: const Icon(Icons.cancel, color: AppTheme.error),
               tooltip: 'Cancel Order',
               onPressed: () => _showCancelDialog(context, order, provider),
             ),
@@ -207,19 +208,19 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
   Color _getStatusColor(OrderStatus status) {
     switch (status) {
       case OrderStatus.pending:
-        return Colors.orange;
+        return AppTheme.warning;
       case OrderStatus.confirmed:
-        return Colors.blue;
+        return AppTheme.adminAccent;
       case OrderStatus.processing:
         return Colors.purple;
       case OrderStatus.packed:
         return Colors.teal;
       case OrderStatus.outForDelivery:
-        return Colors.indigo;
+        return AppTheme.adminAccent;
       case OrderStatus.delivered:
-        return Colors.green;
+        return AppTheme.success;
       case OrderStatus.cancelled:
-        return Colors.red;
+        return AppTheme.error;
       default:
         return Colors.grey;
     }
@@ -236,7 +237,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Cancel Order'),
+        title: const Text('Cancel Order', style: TextStyle(fontWeight: FontWeight.w700)),
         content: TextField(
           controller: controller,
           decoration: const InputDecoration(
@@ -256,7 +257,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
                 Navigator.pop(context);
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.error),
             child: const Text('Confirm Cancel'),
           ),
         ],

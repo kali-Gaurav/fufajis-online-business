@@ -31,18 +31,18 @@ class LowStockAlert {
 
   factory LowStockAlert.fromMap(Map<String, dynamic> map) {
     return LowStockAlert(
-      id: map['id'] ?? '',
-      productId: map['productId'] ?? '',
-      productName: map['productName'] ?? '',
-      currentStock: map['currentStock'] ?? 0,
-      minimumStock: map['minimumStock'] ?? 0,
+      id: map['id'] as String? ?? '',
+      productId: map['productId'] as String? ?? '',
+      productName: map['productName'] as String? ?? '',
+      currentStock: map['currentStock'] as int? ?? 0,
+      minimumStock: map['minimumStock'] as int? ?? 0,
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      isDismissed: map['isDismissed'] ?? false,
-      severity: map['severity'] ?? 'Medium',
-      recommendedReorderQuantity: map['recommendedReorderQuantity'] ?? 0,
-      averageDailySales: (map['averageDailySales'] ?? 0.0).toDouble(),
-      daysUntilStockout: map['daysUntilStockout'] ?? 0,
-      recommendedStockDays: map['recommendedStockDays'] ?? 0,
+      isDismissed: map['isDismissed'] as bool? ?? false,
+      severity: map['severity'] as String? ?? 'Medium',
+      recommendedReorderQuantity: map['recommendedReorderQuantity'] as int? ?? 0,
+      averageDailySales: (map['averageDailySales'] as num? ?? 0.0).toDouble(),
+      daysUntilStockout: map['daysUntilStockout'] as int? ?? 0,
+      recommendedStockDays: map['recommendedStockDays'] as int? ?? 0,
     );
   }
 

@@ -110,7 +110,7 @@ class _CheckoutAuthSheetState extends State<CheckoutAuthSheet> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.error.withOpacity(0.1),
+                color: AppTheme.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -173,7 +173,7 @@ class _CheckoutAuthSheetState extends State<CheckoutAuthSheet> {
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                side: BorderSide(color: AppTheme.grey300),
+                side: const BorderSide(color: AppTheme.grey300),
               ),
             ),
           ] else ...[

@@ -28,14 +28,14 @@ class AuthorizedUserModel {
 
   factory AuthorizedUserModel.fromMap(Map<String, dynamic> map) {
     return AuthorizedUserModel(
-      phoneNumber: map['phoneNumber'] ?? '',
+      phoneNumber: map['phoneNumber'] as String? ?? '',
       role: UserRole.values.firstWhere(
-        (e) => e.toString() == map['role'],
+        (e) => e.toString() == map['role'] as String?,
         orElse: () => UserRole.customer,
       ),
-      name: map['name'] ?? '',
+      name: map['name'] as String? ?? '',
       createdAt: (map['createdAt'] as Timestamp).toDate(),
-      authorizedBy: map['authorizedBy'] ?? 'admin',
+      authorizedBy: map['authorizedBy'] as String? ?? 'admin',
     );
   }
 }

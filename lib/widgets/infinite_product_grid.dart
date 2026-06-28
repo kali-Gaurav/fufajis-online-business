@@ -111,7 +111,7 @@ class _InfiniteProductGridState extends State<InfiniteProductGrid> {
         final q = widget.searchQuery!.toLowerCase();
         fetched = fetched.where((p) {
           return p.name.toLowerCase().contains(q) ||
-              (p.description?.toLowerCase().contains(q) ?? false) ||
+              p.description.toLowerCase().contains(q) ||
               p.tags.any((t) => t.toLowerCase().contains(q));
         }).toList();
       }
@@ -268,7 +268,7 @@ class _ProductTileState extends State<_ProductTile>
           ],
         ),
         duration: const Duration(seconds: 1),
-        backgroundColor: AppTheme.secondary,
+        backgroundColor: AppTheme.info,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 80),
         shape:
@@ -283,7 +283,7 @@ class _ProductTileState extends State<_ProductTile>
     final hasDiscount =
         p.originalPrice != null && p.originalPrice! > p.price;
     final discountPct = hasDiscount
-        ? ((p.originalPrice! - p.price) / p.originalPrice! * 100).round()
+        ? ((p.originalPrice!.toDouble() - p.price.toDouble()) / p.originalPrice!.toDouble() * 100).round()
         : 0;
     final isOutOfStock = p.stockQuantity <= 0;
 
@@ -374,9 +374,9 @@ class _ProductTileState extends State<_ProductTile>
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      if (p.unit != null && p.unit!.isNotEmpty)
+                      if (p.unit.isNotEmpty)
                         Text(
-                          p.unit!,
+                          p.unit,
                           style: const TextStyle(
                               fontSize: 10,
                               color: AppTheme.grey500),
@@ -438,9 +438,9 @@ class _ProductTileState extends State<_ProductTile>
   }
 
   Widget _buildImage(ProductModel p) {
-    if (p.imageUrl != null && p.imageUrl!.isNotEmpty) {
+    if (p.imageUrl.isNotEmpty) {
       return Image.network(
-        p.imageUrl!,
+        p.imageUrl,
         height: 115,
         width: double.infinity,
         fit: BoxFit.cover,

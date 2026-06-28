@@ -59,10 +59,10 @@ class _ShopLocationPickerScreenState extends State<ShopLocationPickerScreen> {
         _mapController?.animateCamera(CameraUpdate.newLatLngZoom(latLng, 13));
         await _reverseGeocode(latLng);
       } else {
-        _showSnackBar('Location not found', Colors.orange);
+        _showSnackBar('Location not found', AppTheme.warning);
       }
     } catch (e) {
-      _showSnackBar('Search failed: $e', Colors.red);
+      _showSnackBar('Search failed: $e', AppTheme.error);
     } finally {
       setState(() => _isGeocoding = false);
     }
@@ -126,6 +126,13 @@ class _ShopLocationPickerScreenState extends State<ShopLocationPickerScreen> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ShopConfigProvider>(context);
     final zones = widget.branch?.deliveryZones ?? provider.shopConfig?.deliveryZones ?? [];
@@ -142,11 +149,11 @@ class _ShopLocationPickerScreenState extends State<ShopLocationPickerScreen> {
       ),
       // Concentric active zones
       ...zones.where((z) => z.isActive).map((z) {
-        Color zoneColor = Colors.green;
+        Color zoneColor = AppTheme.success;
         if (z.deliveryCharge > 0 && z.deliveryCharge <= 20) {
-          zoneColor = Colors.orange;
+          zoneColor = AppTheme.warning;
         } else if (z.deliveryCharge > 20) {
-          zoneColor = Colors.red;
+          zoneColor = AppTheme.error;
         }
         return Circle(
           circleId: CircleId('zone_${z.id}'),

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/order_model.dart';
+import '../constants/order_status.dart';
 
 /// Service to manage rating prompts after order delivery
 class RatingPromptService {

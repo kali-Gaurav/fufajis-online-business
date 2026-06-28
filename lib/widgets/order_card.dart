@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/order_model.dart';
 import '../utils/app_theme.dart';
 import '../utils/helpers.dart';
+import '../constants/order_status.dart';
 
 /// A compact card widget that displays a summary of an order.
 ///
@@ -104,7 +105,7 @@ class OrderCard extends StatelessWidget {
 
                   // Total amount
                   Text(
-                    formatCurrency(order.totalAmount),
+                    formatCurrency(order.totalAmount.toDouble()),
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

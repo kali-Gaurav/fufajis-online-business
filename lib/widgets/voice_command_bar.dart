@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../services/speech_to_text_service.dart';
+import '../services/voice_command_executor.dart';
 import '../services/voice_command_service.dart';
 import '../utils/app_theme.dart';
 
@@ -223,7 +224,7 @@ class _VoiceCommandBarState extends State<VoiceCommandBar>
           boxShadow: [
             BoxShadow(
               color: (isListening ? AppTheme.error : AppTheme.primary)
-                  .withOpacity(0.4),
+                  .withValues(alpha: 0.4),
               blurRadius: isListening ? 20 : 8,
               spreadRadius: isListening ? 4 : 0,
             ),
@@ -359,7 +360,7 @@ class _VoiceCommandBarState extends State<VoiceCommandBar>
                     width: 4,
                     height: height,
                     decoration: BoxDecoration(
-                      color: AppTheme.primary.withOpacity(0.4 + 0.6 * (height / 40)),
+                      color: AppTheme.primary.withValues(alpha: 0.4 + 0.6 * (height / 40)),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   );
@@ -404,7 +405,7 @@ class _VoiceCommandBarState extends State<VoiceCommandBar>
 
   Widget _buildParsedContent() {
     if (_parsedCommand == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
     }
 
     return Column(
@@ -427,13 +428,13 @@ class _VoiceCommandBarState extends State<VoiceCommandBar>
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: _parsedCommand!.type == VoiceCommandType.unknown
-                ? AppTheme.warning.withOpacity(0.1)
-                : AppTheme.primary.withOpacity(0.08),
+                ? AppTheme.warning.withValues(alpha: 0.1)
+                : AppTheme.primary.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(AppTheme.radiusMd),
             border: Border.all(
               color: _parsedCommand!.type == VoiceCommandType.unknown
-                  ? AppTheme.warning.withOpacity(0.3)
-                  : AppTheme.primary.withOpacity(0.3),
+                  ? AppTheme.warning.withValues(alpha: 0.3)
+                  : AppTheme.primary.withValues(alpha: 0.3),
             ),
           ),
           child: Text(
@@ -490,12 +491,12 @@ class _VoiceCommandBarState extends State<VoiceCommandBar>
   }
 
   Widget _buildExecutingContent() {
-    return Column(
+    return const Column(
       children: [
-        const Center(
+        Center(
           child: CircularProgressIndicator(color: AppTheme.primary),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Center(
           child: Text(
             'Kaam ho raha hai...',
@@ -518,7 +519,7 @@ class _VoiceCommandBarState extends State<VoiceCommandBar>
           height: 40,
           decoration: BoxDecoration(
             color: (isError ? AppTheme.error : AppTheme.success)
-                .withOpacity(0.12),
+                .withValues(alpha: 0.12),
             shape: BoxShape.circle,
           ),
           child: Icon(
@@ -553,7 +554,7 @@ class _SoundWavePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.2)
+      ..color = Colors.white.withValues(alpha: 0.2)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
@@ -561,7 +562,7 @@ class _SoundWavePainter extends CustomPainter {
       final phase = (progress + i * 0.25) % 1.0;
       final radius = size.width * 0.3 * (0.4 + phase * 0.6);
       final opacity = 1.0 - phase;
-      paint.color = Colors.white.withOpacity(opacity * 0.3);
+      paint.color = Colors.white.withValues(alpha: opacity * 0.3);
       canvas.drawCircle(center, radius, paint);
     }
   }

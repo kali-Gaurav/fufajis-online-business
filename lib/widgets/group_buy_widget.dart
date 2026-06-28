@@ -33,16 +33,16 @@ class GroupBuyWidget extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 16),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.amber.withValues(alpha: 0.05),
+            color: AppTheme.warning.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
+            border: Border.all(color: AppTheme.warning.withValues(alpha: 0.3)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Row(
                 children: [
-                  Icon(Icons.groups, color: Colors.orange, size: 24),
+                  Icon(Icons.groups, color: AppTheme.warning, size: 24),
                   SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -90,11 +90,11 @@ class GroupBuyWidget extends StatelessWidget {
           shopId: product.shopId,
           district: user.district!,
           village: user.village!,
-          initialContribution: product.price,
-          goalAmount: product.price * 5, // Goal of 5 units
+          initialContribution: product.price.toDouble(),
+          goalAmount: (product.price * 5).toDouble(), // Goal of 5 units
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.orange,
+          backgroundColor: AppTheme.warning,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -131,7 +131,7 @@ class GroupBuyWidget extends StatelessWidget {
               Text(
                 '₹${pool.goalAmount.round() - pool.totalAmount.round()} more to go',
                 style: const TextStyle(
-                  color: Colors.orange,
+                  color: AppTheme.warning,
                   fontWeight: FontWeight.bold,
                   fontSize: 13,
                 ),
@@ -144,7 +144,7 @@ class GroupBuyWidget extends StatelessWidget {
             child: LinearProgressIndicator(
               value: pool.progress,
               backgroundColor: AppTheme.grey200,
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
+              valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.warning),
               minHeight: 8,
             ),
           ),
@@ -157,11 +157,11 @@ class GroupBuyWidget extends StatelessWidget {
                   : () => _groupBuyService.joinPool(
                       pool.id,
                       user.id,
-                      product.price,
+                      product.price.toDouble(),
                     ),
               style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.orange,
-                side: const BorderSide(color: Colors.orange),
+                foregroundColor: AppTheme.warning,
+                side: const BorderSide(color: AppTheme.warning),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'dart:async';
 import '../services/offline_notification_queue_service.dart';
+import '../services/campaign_service.dart';
 
 // Notification types enum
 enum NotificationType {
@@ -23,6 +24,7 @@ class NotificationModel {
   final bool isRead;
   final Map<String, dynamic>? data;
   final String? deepLink;
+  final String? campaignId;
 
   NotificationModel({
     required this.id,
@@ -33,18 +35,23 @@ class NotificationModel {
     this.isRead = false,
     this.data,
     this.deepLink,
+    this.campaignId,
   });
 
   factory NotificationModel.fromMap(Map<String, dynamic> map) {
+    final data = map['data'] != null ? Map<String, dynamic>.from(map['data'] as Map) : null;
     return NotificationModel(
-      id: map['id'] ?? '',
-      title: map['title'] ?? '',
-      body: map['body'] ?? '',
-      type: parseNotificationType(map['type']),
+      id: map['id'] as String? ?? '',
+      title: map['title'] as String? ?? '',
+      body: map['body'] as String? ?? '',
+      type: parseNotificationType(map['type'] as String?),
       timestamp: (map['timestamp'] as Timestamp).toDate(),
-      isRead: map['isRead'] ?? false,
-      data: map['data'],
-      deepLink: map['deepLink'],
+      // 'read' is written by the campaign fan-out backend; 'isRead' by the rest of the app.
+      isRead: map['isRead'] as bool? ?? map['read'] as bool? ?? false,
+      data: data,
+      deepLink: map['deepLink'] as String?,
+      // campaignId may be a top-level field (campaign fan-out docs) or nested in data.
+      campaignId: map['campaignId'] as String? ?? data?['campaignId'] as String?,
     );
   }
 
@@ -58,6 +65,7 @@ class NotificationModel {
       'isRead': isRead,
       'data': data,
       'deepLink': deepLink,
+      'campaignId': campaignId,
     };
   }
 
@@ -99,14 +107,14 @@ class NotificationSettings {
 
   factory NotificationSettings.fromMap(Map<String, dynamic> map) {
     return NotificationSettings(
-      orderUpdates: map['orderUpdates'] ?? true,
-      promotions: map['promotions'] ?? true,
-      priceDrops: map['priceDrops'] ?? true,
-      shopUpdates: map['shopUpdates'] ?? true,
-      systemMessages: map['systemMessages'] ?? true,
-      quietHoursStart: _parseTimeOfDay(map['quietHoursStart']),
-      quietHoursEnd: _parseTimeOfDay(map['quietHoursEnd']),
-      frequencyLimitPerHour: map['frequencyLimitPerHour'] ?? 10,
+      orderUpdates: map['orderUpdates'] as bool? ?? true,
+      promotions: map['promotions'] as bool? ?? true,
+      priceDrops: map['priceDrops'] as bool? ?? true,
+      shopUpdates: map['shopUpdates'] as bool? ?? true,
+      systemMessages: map['systemMessages'] as bool? ?? true,
+      quietHoursStart: _parseTimeOfDay(map['quietHoursStart'] as String?),
+      quietHoursEnd: _parseTimeOfDay(map['quietHoursEnd'] as String?),
+      frequencyLimitPerHour: map['frequencyLimitPerHour'] as int? ?? 10,
     );
   }
 
@@ -171,8 +179,8 @@ class NotificationProvider with ChangeNotifier {
   bool _isOnline = true;
   bool get isOnline => _isOnline;
 
-  StreamSubscription? _notificationSubscription;
-  StreamSubscription? _connectivitySubscription;
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _notificationSubscription;
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
 
   // Initialize notifications
   Future<void> initialize(String? userId) async {
@@ -455,6 +463,8 @@ class NotificationProvider with ChangeNotifier {
     try {
       // Subscribe to user-specific topic
       await subscribeToTopic('user_$userId');
+      // Subscribe to global broadcast topic
+      await subscribeToTopic('all_customers');
 
       // Subscribe to role-based topics (will be set based on user role)
       // This should be called after user role is determined
@@ -535,6 +545,12 @@ class NotificationProvider with ChangeNotifier {
       debugPrint('Navigating to: $deepLink');
       // Navigation will be handled by the app router
     }
+
+    // Track campaign click for performance reporting (sent/opened/converted).
+    final campaignId = message.data['campaignId'];
+    if (campaignId != null && campaignId.toString().isNotEmpty) {
+      CampaignService().trackClick(campaignId.toString());
+    }
   }
 
   // Queue notification for offline delivery
@@ -543,12 +559,12 @@ class NotificationProvider with ChangeNotifier {
     if (userId == null) return;
 
     _queueService.queueNotification(
-      userId,
+      userId as String,
       message.notification?.title ?? 'Notification',
       message.notification?.body ?? '',
-      message.data['type'] ?? 'systemMessage',
+      (message.data['type'] as String?) ?? 'systemMessage',
       data: message.data,
-      deepLink: message.data['deepLink'],
+      deepLink: message.data['deepLink'] as String?,
     );
   }
 

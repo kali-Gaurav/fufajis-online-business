@@ -1,13 +1,16 @@
+import '../utils/monetary_value.dart';
+
 class CartItem {
-  final String id;
+  final String id; 
+
   final String productId;
   final String productName;
   final String productImage;
   final String unit;
   final int quantity;
-  final double price;
-  final double? originalPrice;
-  final double? discountPercentage;
+  final MonetaryValue price;
+  final MonetaryValue? originalPrice;
+  final MonetaryValue? discountPercentage;
   final int stockQuantity;
   final String shopId;
   final String shopName;
@@ -37,7 +40,7 @@ class CartItem {
     required this.addedAt,
   });
 
-  double get totalPrice => price * quantity;
+  MonetaryValue get totalPrice => price * quantity;
 
   CartItem copyWith({int? quantity, String? itemNotes}) {
     return CartItem(
@@ -85,24 +88,24 @@ class CartItem {
 
   factory CartItem.fromMap(Map<String, dynamic> map) {
     return CartItem(
-      id: map['id'] ?? '',
-      productId: map['productId'] ?? '',
-      productName: map['productName'] ?? '',
-      productImage: map['productImage'] ?? '',
-      unit: map['unit'] ?? 'piece',
-      quantity: map['quantity'] ?? 1,
-      price: (map['price'] ?? 0.0).toDouble(),
-      originalPrice: (map['originalPrice'] as num?)?.toDouble(),
-      discountPercentage: (map['discountPercentage'] as num?)?.toDouble(),
-      stockQuantity: map['stockQuantity'] ?? 0,
-      shopId: map['shopId'] ?? '',
-      shopName: map['shopName'] ?? '',
-      selectedVariant: map['selectedVariant'],
-      selectedSize: map['selectedSize'],
-      selectedColor: map['selectedColor'],
-      itemNotes: map['itemNotes'],
+      id: map['id'] as String? ?? '',
+      productId: map['productId'] as String? ?? '',
+      productName: map['productName'] as String? ?? '',
+      productImage: map['productImage'] as String? ?? '',
+      unit: map['unit'] as String? ?? 'piece',
+      quantity: map['quantity'] as int? ?? 1,
+      price: MonetaryValue(map['price'] ?? 0.0),
+      originalPrice: map['originalPrice'] != null ? MonetaryValue(map['originalPrice']) : null,
+      discountPercentage: map['discountPercentage'] != null ? MonetaryValue(map['discountPercentage']) : null,
+      stockQuantity: map['stockQuantity'] as int? ?? 0,
+      shopId: map['shopId'] as String? ?? '',
+      shopName: map['shopName'] as String? ?? '',
+      selectedVariant: map['selectedVariant'] as String?,
+      selectedSize: map['selectedSize'] as String?,
+      selectedColor: map['selectedColor'] as String?,
+      itemNotes: map['itemNotes'] as String?,
       addedAt: map['addedAt'] != null
-          ? DateTime.parse(map['addedAt'])
+          ? DateTime.parse(map['addedAt'] as String)
           : DateTime.now(),
     );
   }

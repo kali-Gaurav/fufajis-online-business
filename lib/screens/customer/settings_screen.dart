@@ -54,7 +54,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: Text(
           accessibilityProvider.label(en: 'Settings', hi: 'सेटिंग्स'),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.cream,
         foregroundColor: AppTheme.grey900,
       ),
       body: SingleChildScrollView(
@@ -196,7 +196,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         ListTile(
-                          title: const Text('English'),
+                          title: const Text('English', style: TextStyle(fontWeight: FontWeight.w700)),
                           onTap: () {
                             themeProvider.setLocale(const Locale('en'));
                             accessibilityProvider.setPreferredLanguage('en');
@@ -204,7 +204,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           },
                         ),
                         ListTile(
-                          title: const Text('हिन्दी'),
+                          title: const Text('हिन्दी', style: TextStyle(fontWeight: FontWeight.w700)),
                           onTap: () {
                             themeProvider.setLocale(const Locale('hi'));
                             accessibilityProvider.setPreferredLanguage('hi');

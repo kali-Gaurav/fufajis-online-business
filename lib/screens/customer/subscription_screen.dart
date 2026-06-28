@@ -43,13 +43,13 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     return Scaffold(
       backgroundColor: AppTheme.grey50,
       appBar: AppBar(
-        title: const Text('My Daily Essentials'),
-        backgroundColor: Colors.white,
+        title: const Text('My Daily Essentials', style: TextStyle(fontWeight: FontWeight.w700)),
+        backgroundColor: AppTheme.cream,
         foregroundColor: AppTheme.grey900,
         elevation: 0,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : subscriptionProvider.subscriptions.isEmpty
           ? _buildEmptyState()
           : _buildSubscriptionList(subscriptionProvider.subscriptions),

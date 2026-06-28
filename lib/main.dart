@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
@@ -28,6 +28,18 @@ import 'providers/accessibility_provider.dart';
 import 'providers/employee_provider.dart';
 import 'providers/review_provider.dart';
 import 'providers/guest_provider.dart';
+import 'providers/pos_provider.dart';
+import 'providers/business_intelligence_provider.dart';
+import 'providers/campaign_provider.dart';
+import 'providers/retention_provider.dart';
+import 'providers/agent_provider.dart';
+import 'providers/agent_task_provider.dart';
+import 'providers/report_provider.dart';
+import 'providers/broadcast_provider.dart';
+import 'providers/operational_intelligence_provider.dart';
+import 'providers/identity_provider.dart';
+import 'providers/ai_insights_provider.dart';
+import 'providers/forecast_provider.dart';
 import 'utils/app_router.dart';
 import 'utils/app_theme.dart';
 import 'firebase_options.dart';
@@ -41,45 +53,91 @@ import 'widgets/maintenance_overlay.dart';
 import 'widgets/force_update_overlay.dart';
 import 'services/performance_monitor.dart';
 import 'services/storage_service.dart';
-import 'services/permission_service.dart';
 import 'services/ai_search_service.dart';
 import 'services/update_service.dart';
 import 'services/workflow_verification_service.dart';
 import 'dart:ui';
 
 import 'package:firebase_app_check/firebase_app_check.dart';
-import 'services/owner_initialization_service.dart';
 import 'services/logging_service.dart';
+
+import 'services/runtime_config_service.dart';
+import 'config/supabase_config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize App Check before other services (Feature: High Security)
+  // CRITICAL: Load runtime configuration from backend
+  // This ensures secrets (RAZORPAY_KEY_SECRET, etc.) are NEVER embedded in APK
+  try {
+    await RuntimeConfigService.instance.load();
+    debugPrint('[main] Runtime configuration loaded successfully');
+  } catch (e) {
+    debugPrint('[main] Warning: Could not load runtime config, using build defaults: $e');
+  }
+
+  // Initialize Firebase FIRST
   await _initializeSecurity();
 
-  const sentryDsn = String.fromEnvironment('SENTRY_DSN', defaultValue: '');
+  // Get Sentry DSN (now from runtime config, with fallback to build-time)
+  final sentryDsn = RuntimeConfig.instance.sentryDsn;
+
   if (sentryDsn.isEmpty) {
     debugPrint(
       '[Warning] SENTRY_DSN is not configured. Crash reporting is disabled.',
     );
   }
 
-  // Initialize Sentry...
+  // Initialize Sentry for error tracking, performance monitoring, and crash reporting
+  // Features:
+  // - Captures unhandled exceptions and crashes
+  // - Monitors performance with 20% sampling rate
+  // - Tracks breadcrumbs for debugging
+  // - Reports user context and device info
   await SentryFlutter.init(
     (options) {
       options.dsn = sentryDsn;
-      options.tracesSampleRate =
-          0.2; // Optimized sampling rate (Weakness 49 fix)
+      // Performance sampling rate: 10% of transactions to track performance metrics
+      // while minimizing overhead. Adjust based on traffic volume.
+      options.tracesSampleRate = 0.1;
+
+      // Set environment (development vs production)
+      options.environment = kDebugMode ? 'development' : 'production';
+
+      // Enable attachment collection for crash reports
+      options.attachStacktrace = true;
+
+      // Capture breadcrumbs for better debugging
+      options.maxBreadcrumbs = 100;
+
+      // Filter out noisy errors
+      options.beforeSend = (event, hint) {
+        // Ignore certain common non-critical errors
+        if (event.throwable?.toString().contains('Connection refused') == true) {
+          return null; // Don't send connection errors
+        }
+        return event;
+      };
     },
     appRunner: () async {
-      // Step: Global Error Handling Integration
+      // Global Flutter error handler - captures all Flutter errors
       FlutterError.onError = (details) {
-        LoggingService().error('Flutter Error', details.exception, details.stack);
+        LoggingService().error(
+          'Flutter Error: ${details.exceptionAsString()}',
+          details.exception,
+          details.stack,
+        );
       };
-      
+
+      // Platform dispatcher error handler - captures async errors
+      // These are errors that occur outside the Flutter zone
       PlatformDispatcher.instance.onError = (error, stack) {
-        LoggingService().error('Platform Dispatcher Error', error, stack);
-        return true;
+        LoggingService().error(
+          'Platform Error: $error',
+          error,
+          stack,
+        );
+        return true; // Prevent app crash
       };
 
       final appWidget = await _initializeApp();
@@ -100,46 +158,30 @@ Future<void> _initializeSecurity() async {
     }
 
     await FirebaseAppCheck.instance.activate(
-      androidProvider: AndroidProvider.playIntegrity, // Using the new class if it exists? Wait.
+      androidProvider: AndroidProvider.playIntegrity,
       appleProvider: AppleProvider.deviceCheck,
     );
     LoggingService().info('Firebase App Check activated.');
   } catch (e, stack) {
     LoggingService().error('App Check initialization failed', e, stack);
-    _securityInitError = e;
-    _securityInitStack = stack;
+    _securityInitError ??= e;
+    _securityInitStack ??= stack;
   }
 }
 
 Future<Widget> _initializeApp() async {
-  // Load environment variables
-  try {
-    await dotenv.load(fileName: ".env");
-  } catch (e) {
-    LoggingService().warning('.env file not found or failed to load');
-  }
-
   // Disable debug logs in release mode
   if (const bool.fromEnvironment('dart.vm.product')) {
     debugPrint = (String? message, {int? wrapWidth}) {};
   }
 
-  // Report App Check errors to Sentry if occurred during startup
+  // Report early startup errors (App Check / Dotenv) to Sentry
   if (_securityInitError != null) {
-    LoggingService().error('Startup Security Error', _securityInitError, _securityInitStack);
+    LoggingService().error('Startup Initialization Error', _securityInitError, _securityInitStack);
   }
 
-  // Initialize Firebase
+  // Core Firebase Services (Already initialized in _initializeSecurity, but ensuring persistence)
   try {
-    if (Firebase.apps.isEmpty) {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-    }
-
-    // Security Hardening: Seed whitelisted owners
-    await OwnerInitializationService.seedWhitelistedOwners();
-
     // Enable offline disk persistence for Firestore
     FirebaseFirestore.instance.settings = const Settings(
       persistenceEnabled: true,
@@ -148,9 +190,9 @@ Future<Widget> _initializeApp() async {
 
     // Initialize Mobile Ads
     await MobileAds.instance.initialize();
-    LoggingService().info('Core Firebase services initialized.');
+    LoggingService().info('Core Firebase services configured.');
   } catch (e, stack) {
-    LoggingService().error('Firebase Initialization error', e, stack);
+    LoggingService().error('Firebase Configuration error', e, stack);
   }
 
   // Initialize SharedPreferences
@@ -168,15 +210,14 @@ Future<Widget> _initializeApp() async {
   // Initialize Offline Order Sync Queue
   await OfflineSyncService().init();
 
+  // Initialize Supabase (Hybrid Architecture)
+  await SupabaseConfig.initialize();
+
   // Initialize Shorebird update check (background)
   ShorebirdService().checkForUpdates();
 
   // Record application startup time
   PerformanceMonitor.recordAppStartupTime();
-
-  // Initialize Permission Service & Service warm-up (Step 5)
-  final permissionService = PermissionService();
-  await permissionService.requestAllPermissions();
 
   // Warm-up AI Search Service
   await AISearchService().warmup();
@@ -211,6 +252,19 @@ Future<Widget> _initializeApp() async {
       // Guest mode — local-only, no Firebase user
       // Must come after AuthProvider so route guards can read both
       ChangeNotifierProvider(create: (_) => GuestProvider()),
+      ChangeNotifierProvider(create: (_) => PosProvider()),
+      ChangeNotifierProvider(create: (_) => BusinessIntelligenceProvider()),
+      ChangeNotifierProvider(create: (_) => CampaignProvider()),
+      ChangeNotifierProvider(create: (_) => RetentionProvider()),
+      // Mission Control ("Karyalay") - AI Agentic Employee System
+      ChangeNotifierProvider(create: (_) => AgentProvider()),
+      ChangeNotifierProvider(create: (_) => AgentTaskProvider()),
+      ChangeNotifierProvider(create: (_) => ReportProvider()),
+      ChangeNotifierProvider(create: (_) => BroadcastProvider()),
+      ChangeNotifierProvider(create: (_) => OperationalIntelligenceProvider()),
+      ChangeNotifierProvider(create: (_) => IdentityProvider()),
+      ChangeNotifierProvider(create: (_) => AiInsightsProvider()),
+      ChangeNotifierProvider(create: (_) => ForecastProvider()),
     ],
     child: const FufajiApp(),
   );
@@ -226,13 +280,22 @@ class FufajiApp extends StatefulWidget {
 class _FufajiAppState extends State<FufajiApp> {
   final GoRouter _router = AppRouter.router;
 
+  late Future<bool> _forceUpdateFuture;
+
   @override
   void initState() {
     super.initState();
+    _forceUpdateFuture = RemoteConfigService().isForceUpdateRequired();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       NotificationService().initialize(context);
       UpdateService().handleVersionCheck(context);
     });
+  }
+
+  @override
+  void dispose() {
+    // Add any necessary cleanup here
+    super.dispose();
   }
 
   ThemeMode _mapThemeMode(ThemeModeType mode) {
@@ -257,9 +320,7 @@ class _FufajiAppState extends State<FufajiApp> {
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: _mapThemeMode(themeProvider.themeMode),
-          locale: accessibilityProvider.isElderlyMode
-              ? Locale(accessibilityProvider.preferredLanguage)
-              : themeProvider.locale,
+          locale: Locale(accessibilityProvider.preferredLanguage),
           localizationsDelegates: const [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
@@ -281,7 +342,7 @@ class _FufajiAppState extends State<FufajiApp> {
             return MediaQuery(
               data: scaledMediaQuery,
               child: FutureBuilder<bool>(
-                future: remoteConfig.isForceUpdateRequired(),
+                future: _forceUpdateFuture,
                 builder: (context, snapshot) {
                   final bool forceUpdate = snapshot.data ?? false;
 

@@ -1,5 +1,6 @@
 /// App-wide constants for Fufaji's Online
 /// Collection names, route paths, status strings, and payment method strings.
+library;
 
 // ─── Firestore Collection Names ───────────────────────────────────────────────
 const String kUsersCollection = 'users';

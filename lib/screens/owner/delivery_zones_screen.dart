@@ -216,7 +216,7 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Zone overlap detected! "${curr.label}" starts at ${curr.fromRadiusKm} km, which is less than preceding zone "${prev.label}" ending at ${prev.toRadiusKm} km.'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppTheme.error,
           ),
         );
         return;
@@ -265,7 +265,7 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error saving zone: $e'), backgroundColor: Colors.red),
+        SnackBar(content: Text('Error saving zone: $e'), backgroundColor: AppTheme.error),
       );
     }
   }
@@ -293,7 +293,7 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Delete failed: $e'), backgroundColor: Colors.red),
+        SnackBar(content: Text('Delete failed: $e'), backgroundColor: AppTheme.error),
       );
     }
   }
@@ -312,7 +312,7 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Update failed: $e'), backgroundColor: Colors.red),
+        SnackBar(content: Text('Update failed: $e'), backgroundColor: AppTheme.error),
       );
     }
   }
@@ -400,7 +400,7 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
                                   zone.deliveryCharge == 0 ? 'FREE' : '₹${zone.deliveryCharge}',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    color: zone.deliveryCharge == 0 ? Colors.green : Colors.black87,
+                                    color: zone.deliveryCharge == 0 ? AppTheme.success : Colors.black87,
                                     fontSize: 14,
                                   ),
                                 ),
@@ -430,7 +430,7 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
                               tooltip: 'Edit Zone',
                             ),
                             IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.redAccent),
+                              icon: const Icon(Icons.delete, color: AppTheme.error),
                               onPressed: () => _deleteZone(zone.id),
                               tooltip: 'Delete Zone',
                             ),

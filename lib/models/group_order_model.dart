@@ -51,18 +51,18 @@ class GroupOrderModel {
 
   factory GroupOrderModel.fromMap(Map<String, dynamic> map) {
     return GroupOrderModel(
-      id: map['id'] ?? '',
-      shopId: map['shopId'] ?? '',
-      district: map['district'] ?? '',
-      village: map['village'] ?? '',
-      memberIds: List<String>.from(map['memberIds'] ?? []),
-      memberContributions: Map<String, double>.from(
-        map['memberContributions'] ?? {},
-      ),
-      totalAmount: (map['totalAmount'] ?? 0.0).toDouble(),
-      goalAmount: (map['goalAmount'] ?? 0.0).toDouble(),
-      discountPercentage: (map['discountPercentage'] ?? 20.0).toDouble(),
-      isCompleted: map['isCompleted'] ?? false,
+      id: map['id'] as String? ?? '',
+      shopId: map['shopId'] as String? ?? '',
+      district: map['district'] as String? ?? '',
+      village: map['village'] as String? ?? '',
+      memberIds: List<String>.from(map['memberIds'] as Iterable? ?? []),
+      memberContributions: (map['memberContributions'] as Map?)?.map(
+        (key, value) => MapEntry(key as String, (value as num).toDouble()),
+      ) ?? {},
+      totalAmount: (map['totalAmount'] as num? ?? 0.0).toDouble(),
+      goalAmount: (map['goalAmount'] as num? ?? 0.0).toDouble(),
+      discountPercentage: (map['discountPercentage'] as num? ?? 20.0).toDouble(),
+      isCompleted: map['isCompleted'] as bool? ?? false,
       createdAt: (map['createdAt'] as Timestamp).toDate(),
       expiresAt: (map['expiresAt'] as Timestamp).toDate(),
     );

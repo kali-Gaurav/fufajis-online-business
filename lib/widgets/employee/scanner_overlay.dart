@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+import '../../utils/app_theme.dart';
+
 /// Custom scanner overlay with scan area guide
 class ScannerOverlay extends StatelessWidget {
   final MobileScannerController controller;
@@ -40,7 +42,7 @@ class ScannerOverlay extends StatelessWidget {
                       height: scanAreaSize,
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: Colors.orange,
+                          color: AppTheme.warning,
                           width: 3,
                         ),
                         borderRadius: BorderRadius.circular(16),
@@ -51,7 +53,7 @@ class ScannerOverlay extends StatelessWidget {
                           Container(
                             width: scanAreaSize,
                             height: 2,
-                            color: Colors.orange,
+                            color: AppTheme.warning,
                           ),
                         ],
                       ),
@@ -176,7 +178,7 @@ class CompactScanner extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  const Icon(Icons.qr_code, color: Colors.green),
+                  const Icon(Icons.qr_code, color: AppTheme.success),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(

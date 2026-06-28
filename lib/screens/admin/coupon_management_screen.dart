@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/admin_provider.dart';
 import '../../utils/app_theme.dart';
+import '../../utils/monetary_value.dart';
 import '../../models/coupon.dart';
 
 class CouponManagementScreen extends StatefulWidget {
@@ -19,6 +20,12 @@ class _CouponManagementScreenState extends State<CouponManagementScreen> {
       context.read<AdminProvider>().fetchCoupons();
     });
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +58,7 @@ class _CouponManagementScreenState extends State<CouponManagementScreen> {
             const SizedBox(height: 24),
             Expanded(
               child: adminProvider.isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(child: CircularProgressIndicator(color: AppTheme.adminAccent))
                   : adminProvider.coupons.isEmpty
                       ? const Center(child: Text('No coupons created yet.'))
                       : GridView.builder(
@@ -98,7 +105,7 @@ class _CouponManagementScreenState extends State<CouponManagementScreen> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  icon: const Icon(Icons.delete_outline, color: AppTheme.error),
                   onPressed: () => provider.deleteCoupon(coupon.id),
                 ),
               ],
@@ -115,7 +122,7 @@ class _CouponManagementScreenState extends State<CouponManagementScreen> {
                   coupon.discountType == 'percentage'
                       ? '${coupon.discountValue.toStringAsFixed(0)}% OFF'
                       : '₹${coupon.discountValue.toStringAsFixed(0)} OFF',
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.success),
                 ),
                 Text(
                   'Min Order: ₹${coupon.minimumOrderAmount.toStringAsFixed(0)}',
@@ -143,7 +150,7 @@ class _CouponManagementScreenState extends State<CouponManagementScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text('Create Discount Coupon'),
+          title: const Text('Create Discount Coupon', style: TextStyle(fontWeight: FontWeight.w700)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -211,7 +218,7 @@ class _CouponManagementScreenState extends State<CouponManagementScreen> {
                     name: nameController.text,
                     description: descController.text,
                     discountType: discountType,
-                    discountValue: double.tryParse(valueController.text) ?? 0.0,
+                    discountValue: MonetaryValue(double.tryParse(valueController.text) ?? 0.0),
                     minimumOrderAmount: double.tryParse(minOrderController.text) ?? 0.0,
                     maximumDiscountAmount: double.tryParse(maxDiscountController.text) ?? 0.0,
                     startDate: DateTime.now(),

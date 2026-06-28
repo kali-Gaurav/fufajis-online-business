@@ -17,12 +17,18 @@ class _ReleaseManagementScreenState extends State<ReleaseManagementScreen> {
   final RemoteConfigService _remoteConfig = RemoteConfigService();
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Release & Adoption'),
+          title: const Text('Release & Adoption', style: TextStyle(fontWeight: FontWeight.w700)),
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Adoption Stats'),
@@ -46,7 +52,7 @@ class _ReleaseManagementScreenState extends State<ReleaseManagementScreen> {
     return StreamBuilder<QuerySnapshot>(
       stream: _db.collection('users').snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
 
         final users = snapshot.data!.docs;
         final Map<String, int> versionCounts = {};
@@ -138,7 +144,7 @@ class _ReleaseManagementScreenState extends State<ReleaseManagementScreen> {
             width: 80,
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: isLatest ? AppTheme.success.withOpacity(0.1) : AppTheme.grey200,
+              color: isLatest ? AppTheme.success.withValues(alpha: 0.1) : AppTheme.grey200,
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
@@ -163,7 +169,7 @@ class _ReleaseManagementScreenState extends State<ReleaseManagementScreen> {
                   child: Container(
                     height: 20,
                     decoration: BoxDecoration(
-                      color: isLatest ? AppTheme.success : AppTheme.primary.withOpacity(0.5),
+                      color: isLatest ? AppTheme.success : AppTheme.primary.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
@@ -182,7 +188,7 @@ class _ReleaseManagementScreenState extends State<ReleaseManagementScreen> {
     return StreamBuilder<QuerySnapshot>(
       stream: _db.collection('release_notes').orderBy('date', descending: true).snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
 
         final notes = snapshot.data!.docs
           .map((doc) => ReleaseNote.fromMap(doc.data() as Map<String, dynamic>))

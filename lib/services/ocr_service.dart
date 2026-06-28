@@ -101,7 +101,9 @@ class BillOCRService {
 
       final rawItems = result['items'] as List? ?? [];
       final items = rawItems.map((m) {
-        final map = m is Map<String, dynamic> ? m : Map<String, dynamic>.from(m);
+        final map = m is Map<String, dynamic> 
+            ? m 
+            : Map<String, dynamic>.from(m as Map);
         return BillScanItem.fromMap(map);
       }).toList();
 

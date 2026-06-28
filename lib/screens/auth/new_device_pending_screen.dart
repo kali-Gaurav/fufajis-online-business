@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../utils/app_theme.dart';
+
 class NewDevicePendingScreen extends StatelessWidget {
-  const NewDevicePendingScreen({Key? key}) : super(key: key);
+  const NewDevicePendingScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +15,7 @@ class NewDevicePendingScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.security, color: Colors.orange, size: 64),
+              const Icon(Icons.security, color: AppTheme.warning, size: 64),
               const SizedBox(height: 24),
               const Text(
                 'New Device Detected',

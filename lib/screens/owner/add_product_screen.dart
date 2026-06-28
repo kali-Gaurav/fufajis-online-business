@@ -6,15 +6,20 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/product_model.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/app_theme.dart';
+import '../../widgets/common/fj_button.dart';
+import '../../widgets/common/fj_card.dart';
+import '../../services/product_service.dart';
 
 class AddProductScreen extends StatefulWidget {
   final String? productId;
+  final String? initialBarcode;
 
-  const AddProductScreen({super.key, this.productId});
+  const AddProductScreen({super.key, this.productId, this.initialBarcode});
 
   @override
   State<AddProductScreen> createState() => _AddProductScreenState();
@@ -48,7 +53,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   bool _isAvailable = true;
 
   List<String> _tags = [];
-  List<File> _newImages = [];
+  final List<File> _newImages = [];
   List<String> _existingImageUrls = [];
 
   @override
@@ -57,6 +62,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
     _isEditMode = widget.productId != null;
     if (_isEditMode) {
       _loadExistingProduct();
+    } else if (widget.initialBarcode != null) {
+      _barcodeController.text = widget.initialBarcode!;
     }
   }
 
@@ -67,26 +74,23 @@ class _AddProductScreenState extends State<AddProductScreen> {
       if (doc.exists) {
         final data = doc.data()!;
         _existingProductId = doc.id;
-        _nameController.text = data['name'] ?? '';
-        _descriptionController.text = data['description'] ?? '';
-        _priceController.text = (data['price'] ?? 0.0).toString();
+        _nameController.text = data['name'] as String? ?? '';
+        _descriptionController.text = data['description'] as String? ?? '';
+        _priceController.text = (data['price'] as num? ?? 0.0).toString();
         _originalPriceController.text = data['originalPrice']?.toString() ?? '';
-        _unitController.text = data['unit'] ?? '';
-        _stockController.text = (data['stockQuantity'] ?? 0).toString();
-        _minStockController.text = (data['minimumStock'] ?? 10).toString();
-        _barcodeController.text = data['barcode'] ?? '';
-        _hsnController.text = data['hsnCode'] ?? '';
-        _brandController.text = data['brand'] ?? '';
-        _isFeatured = data['isFeatured'] ?? false;
-        _isAvailable = data['isAvailable'] ?? true;
-        _tags = List<String>.from(data['tags'] ?? []);
-        _existingImageUrls = List<String>.from(data['images'] ?? []);
+        _unitController.text = data['unit'] as String? ?? '';
+        _stockController.text = (data['stockQuantity'] as int? ?? 0).toString();
+        _minStockController.text = (data['minimumStock'] as int? ?? 10).toString();
+        _barcodeController.text = data['barcode'] as String? ?? '';
+        _hsnController.text = data['hsnCode'] as String? ?? '';
+        _brandController.text = data['brand'] as String? ?? '';
+        _isFeatured = data['isFeatured'] as bool? ?? false;
+        _isAvailable = data['isAvailable'] as bool? ?? true;
+        _tags = List<String>.from(data['tags'] as Iterable? ?? []);
+        _existingImageUrls = List<String>.from(data['images'] as Iterable? ?? []);
 
-        final catString = data['category'] ?? 'groceries';
-        _selectedCategory = ProductCategory.values.firstWhere(
-          (c) => c.name == catString,
-          orElse: () => ProductCategory.groceries,
-        );
+        final catId = data['categoryId'] ?? data['category'] ?? 'groceries';
+        _selectedCategory = ProductCategory.fromId(catId.toString());
       }
     } catch (e) {
       _showError('Failed to load product: $e');
@@ -146,6 +150,16 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
     setState(() => _isLoading = true);
     try {
+      final barcode = _barcodeController.text.trim();
+      if (barcode.isNotEmpty) {
+        final isUnique = await ProductService().isBarcodeUnique(barcode, excludeProductId: _existingProductId);
+        if (!isUnique) {
+          _showError('Barcode "$barcode" is already assigned to another product.');
+          setState(() => _isLoading = false);
+          return;
+        }
+      }
+
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final shopId = authProvider.currentShop?.id ?? 'shop_001';
       final shopName = authProvider.currentShop?.name ?? 'Fufaji Store';
@@ -169,7 +183,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
         'barcode': _barcodeController.text.trim(),
         'hsnCode': _hsnController.text.trim(),
         'brand': _brandController.text.trim().isEmpty ? null : _brandController.text.trim(),
-        'category': _selectedCategory.name,
+        'categoryId': _selectedCategory.name,
+        'category': _selectedCategory.nameEn,
         'isFeatured': _isFeatured,
         'isAvailable': _isAvailable,
         'tags': _tags,
@@ -186,7 +201,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
         if (!_isEditMode) 'isTrending': false,
       };
 
-      await _firestore.collection('products').doc(productId).set(data, SetOptions(merge: true));
+      if (_isEditMode) {
+         await _firestore.collection('products').doc(productId).set(data, SetOptions(merge: true));
+      } else {
+        // Use ProductProvider to trigger barcode unique check
+        final newProduct = ProductModel.fromMap({...data, 'createdAt': DateTime.now()});
+        await Provider.of<ProductProvider>(context, listen: false).addProduct(newProduct);
+      }
 
       if (mounted) {
         await Provider.of<ProductProvider>(context, listen: false).refreshProducts();
@@ -231,8 +252,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.grey50,
       appBar: AppBar(
         title: Text(_isEditMode ? 'Edit Product' : 'Add Product'),
+        backgroundColor: AppTheme.cream,
+        foregroundColor: AppTheme.grey900,
         actions: [
           if (_isLoading)
             const Padding(
@@ -248,211 +272,231 @@ class _AddProductScreenState extends State<AddProductScreen> {
         ],
       ),
       body: _isLoading && _isEditMode
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent))
           : Form(
               key: _formKey,
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
+                padding: AppTheme.paddingMd,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _sectionHeader('Product Images'),
-                    _buildImagesPicker(),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 12),
+                    FjCard(
+                      padding: const EdgeInsets.all(12),
+                      child: _buildImagesPicker(),
+                    ),
+                    const SizedBox(height: 24),
                     _sectionHeader('Basic Information'),
                     const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: const InputDecoration(labelText: 'Product Name *', hintText: 'e.g. Basmati Rice'),
-                      validator: (v) => v == null || v.trim().isEmpty ? 'Product name is required' : null,
+                    FjCard(
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            controller: _nameController,
+                            decoration: const InputDecoration(labelText: 'Product Name *', hintText: 'e.g. Basmati Rice'),
+                            validator: (v) => v == null || v.trim().isEmpty ? 'Product name is required' : null,
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _descriptionController,
+                            decoration: const InputDecoration(labelText: 'Description', hintText: 'Product details...'),
+                            maxLines: 3,
+                          ),
+                          const SizedBox(height: 16),
+                          DropdownButtonFormField<ProductCategory>(
+                            initialValue: _selectedCategory,
+                            decoration: const InputDecoration(labelText: 'Category'),
+                            items: ProductCategory.values
+                                .map((cat) => DropdownMenuItem(
+                                      value: cat,
+                                      child: Text(cat.localizedName(AppLocalizations.of(context)!.localeName)),
+                                    ))
+                                .toList(),
+                            onChanged: (v) => setState(() => _selectedCategory = v!),
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _descriptionController,
-                      decoration: const InputDecoration(labelText: 'Description', hintText: 'Product details...'),
-                      maxLines: 3,
-                    ),
-                    const SizedBox(height: 12),
-                    DropdownButtonFormField<ProductCategory>(
-                      value: _selectedCategory,
-                      decoration: const InputDecoration(labelText: 'Category'),
-                      items: ProductCategory.values
-                          .map((cat) => DropdownMenuItem(
-                                value: cat,
-                                child: Text(_formatCategory(cat.name)),
-                              ))
-                          .toList(),
-                      onChanged: (v) => setState(() => _selectedCategory = v!),
-                    ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
                     _sectionHeader('Pricing'),
                     const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _priceController,
-                            decoration: const InputDecoration(labelText: 'Price (₹) *', prefixText: '₹ '),
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
-                            validator: (v) => v == null || v.trim().isEmpty ? 'Price is required' : null,
+                    FjCard(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: _priceController,
+                              decoration: const InputDecoration(labelText: 'Price (₹) *', prefixText: '₹ '),
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
+                              validator: (v) => v == null || v.trim().isEmpty ? 'Price is required' : null,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _originalPriceController,
-                            decoration: const InputDecoration(labelText: 'MRP (₹)', prefixText: '₹ '),
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextFormField(
+                              controller: _originalPriceController,
+                              decoration: const InputDecoration(labelText: 'MRP (₹)', prefixText: '₹ '),
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
                     _sectionHeader('Stock & Unit'),
                     const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _unitController,
-                      decoration: const InputDecoration(labelText: 'Unit', hintText: 'kg, g, piece, packet, litre...'),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _stockController,
-                            decoration: const InputDecoration(labelText: 'Stock Quantity *'),
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                            validator: (v) => v == null || v.trim().isEmpty ? 'Stock is required' : null,
+                    FjCard(
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            controller: _unitController,
+                            decoration: const InputDecoration(labelText: 'Unit', hintText: 'kg, g, piece, packet, litre...'),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _minStockController,
-                            decoration: const InputDecoration(labelText: 'Min Stock Alert'),
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  controller: _stockController,
+                                  decoration: const InputDecoration(labelText: 'Stock Quantity *'),
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                  validator: (v) => v == null || v.trim().isEmpty ? 'Stock is required' : null,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: TextFormField(
+                                  controller: _minStockController,
+                                  decoration: const InputDecoration(labelText: 'Min Stock Alert'),
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
                     _sectionHeader('Barcode & Identifiers'),
                     const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _barcodeController,
-                            decoration: const InputDecoration(labelText: 'Barcode'),
+                    FjCard(
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  controller: _barcodeController,
+                                  decoration: const InputDecoration(labelText: 'Barcode'),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              FjButton(
+                                label: 'Scan',
+                                onPressed: _scanBarcode,
+                                icon: Icons.qr_code_scanner,
+                                height: 44,
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        ElevatedButton.icon(
-                          onPressed: _scanBarcode,
-                          icon: const Icon(Icons.qr_code_scanner, size: 18),
-                          label: const Text('Scan'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.primary,
-                            foregroundColor: Colors.white,
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  controller: _hsnController,
+                                  decoration: const InputDecoration(labelText: 'HSN Code (optional)'),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: TextFormField(
+                                  controller: _brandController,
+                                  decoration: const InputDecoration(labelText: 'Brand (optional)'),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _hsnController,
-                            decoration: const InputDecoration(labelText: 'HSN Code (optional)'),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _brandController,
-                            decoration: const InputDecoration(labelText: 'Brand (optional)'),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
                     _sectionHeader('Tags'),
                     const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _tagController,
-                            decoration: const InputDecoration(labelText: 'Add tag', hintText: 'e.g. organic, local'),
-                            onFieldSubmitted: (_) => _addTag(),
+                    FjCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  controller: _tagController,
+                                  decoration: const InputDecoration(labelText: 'Add tag', hintText: 'e.g. organic, local'),
+                                  onFieldSubmitted: (_) => _addTag(),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              IconButton(
+                                onPressed: _addTag,
+                                icon: const Icon(Icons.add_circle, color: AppTheme.primary),
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        IconButton(
-                          onPressed: _addTag,
-                          icon: const Icon(Icons.add_circle, color: AppTheme.primary),
-                        ),
-                      ],
-                    ),
-                    if (_tags.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 4,
-                        children: _tags
-                            .map((tag) => Chip(
-                                  label: Text(tag),
-                                  onDeleted: () => setState(() => _tags.remove(tag)),
-                                  deleteIcon: const Icon(Icons.close, size: 16),
-                                ))
-                            .toList(),
+                          if (_tags.isNotEmpty) ...[
+                            const SizedBox(height: 12),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 4,
+                              children: _tags
+                                  .map((tag) => Chip(
+                                        label: Text(tag),
+                                        onDeleted: () => setState(() => _tags.remove(tag)),
+                                        deleteIcon: const Icon(Icons.close, size: 16),
+                                      ))
+                                  .toList(),
+                            ),
+                          ],
+                        ],
                       ),
-                    ],
-                    const SizedBox(height: 20),
+                    ),
+                    const SizedBox(height: 24),
                     _sectionHeader('Visibility'),
-                    const SizedBox(height: 8),
-                    Card(
+                    const SizedBox(height: 12),
+                    FjCard(
+                      padding: EdgeInsets.zero,
                       child: Column(
                         children: [
                           SwitchListTile(
-                            title: const Text('Featured Product'),
+                            title: const Text('Featured Product', style: TextStyle(fontWeight: FontWeight.w700)),
                             subtitle: const Text('Show in Featured / Fufaji\'s Pick section'),
                             value: _isFeatured,
-                            activeColor: AppTheme.primary,
+                            activeThumbColor: AppTheme.primary,
                             onChanged: (v) => setState(() => _isFeatured = v),
                           ),
                           const Divider(height: 1),
                           SwitchListTile(
-                            title: const Text('Available for Sale'),
-                            subtitle: const Text('Customers can order this product'),
+                            title: const Text('Available for Sale', style: TextStyle(fontWeight: FontWeight.w700)),
+                            subtitle: const Text('Customers can order this product', style: TextStyle(fontWeight: FontWeight.w700)),
                             value: _isAvailable,
-                            activeColor: AppTheme.success,
+                            activeThumbColor: AppTheme.success,
                             onChanged: (v) => setState(() => _isAvailable = v),
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 32),
-                    SizedBox(
+                    FjButton(
+                      label: _isEditMode ? 'Update Product' : 'Add Product',
+                      onPressed: _isLoading ? null : _saveProduct,
+                      isLoading: _isLoading,
                       width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: _isLoading ? null : _saveProduct,
-                        icon: _isLoading
-                            ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                            : const Icon(Icons.save),
-                        label: Text(_isEditMode ? 'Update Product' : 'Add Product',
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: AppTheme.primary,
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
+                      icon: Icons.save,
                     ),
                     const SizedBox(height: 40),
                   ],
@@ -546,38 +590,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
           child: GestureDetector(
             onTap: onRemove,
             child: Container(
-              decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+              decoration: const BoxDecoration(color: AppTheme.error, shape: BoxShape.circle),
               child: const Icon(Icons.close, size: 16, color: Colors.white),
             ),
           ),
         ),
       ],
     );
-  }
-
-  String _formatCategory(String name) {
-    final map = {
-      'groceries': 'Groceries',
-      'vegetables': 'Vegetables',
-      'fruits': 'Fruits',
-      'dairy': 'Dairy',
-      'bakery': 'Bakery',
-      'snacks': 'Snacks',
-      'beverages': 'Beverages',
-      'household': 'Household',
-      'personalCare': 'Personal Care',
-      'electronics': 'Electronics',
-      'clothing': 'Clothing',
-      'footwear': 'Footwear',
-      'homeDecor': 'Home Decor',
-      'kitchenware': 'Kitchenware',
-      'stationery': 'Stationery',
-      'toys': 'Toys',
-      'medicines': 'Medicines',
-      'agricultural': 'Agricultural',
-      'other': 'Other',
-    };
-    return map[name] ?? name;
   }
 }
 
@@ -614,7 +633,7 @@ class _BarcodeScannerPageState extends State<_BarcodeScannerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scan Barcode'),
+        title: const Text('Scan Barcode', style: TextStyle(fontWeight: FontWeight.w700)),
         actions: [
           IconButton(
             icon: const Icon(Icons.flash_on),

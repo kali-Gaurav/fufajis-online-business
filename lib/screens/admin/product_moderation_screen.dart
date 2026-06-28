@@ -21,6 +21,12 @@ class _ProductModerationScreenState extends State<ProductModerationScreen> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     final adminProvider = Provider.of<AdminProvider>(context);
 
@@ -46,13 +52,13 @@ class _ProductModerationScreenState extends State<ProductModerationScreen> {
             const SizedBox(height: 24),
             Expanded(
               child: adminProvider.isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(child: CircularProgressIndicator(color: AppTheme.adminAccent))
                   : adminProvider.pendingProducts.isEmpty
                       ? const Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.check_circle_outline, size: 64, color: Colors.green),
+                              Icon(Icons.check_circle_outline, size: 64, color: AppTheme.success),
                               SizedBox(height: 16),
                               Text('No products pending approval.', style: TextStyle(fontSize: 16, color: AppTheme.grey600)),
                             ],
@@ -149,7 +155,7 @@ class _ProductModerationScreenState extends State<ProductModerationScreen> {
                       child: ElevatedButton(
                         onPressed: () => provider.approveProduct(product.shopId, product.id),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
+                          backgroundColor: AppTheme.success,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         ),
@@ -161,8 +167,8 @@ class _ProductModerationScreenState extends State<ProductModerationScreen> {
                       child: OutlinedButton(
                         onPressed: () => _showRejectDialog(context, product, provider),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.red,
-                          side: const BorderSide(color: Colors.red),
+                          foregroundColor: AppTheme.error,
+                          side: const BorderSide(color: AppTheme.error),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         ),
                         child: const Text('Reject'),
@@ -185,7 +191,7 @@ class _ProductModerationScreenState extends State<ProductModerationScreen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Reject Product'),
+        title: const Text('Reject Product', style: TextStyle(fontWeight: FontWeight.w700)),
         content: TextField(
           controller: controller,
           maxLines: 3,
@@ -206,7 +212,7 @@ class _ProductModerationScreenState extends State<ProductModerationScreen> {
                 Navigator.pop(context);
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.error),
             child: const Text('Reject'),
           ),
         ],

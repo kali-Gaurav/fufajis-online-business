@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import '../../constants/order_status.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/order_provider.dart';
@@ -14,13 +15,13 @@ import '../../models/order_model.dart';
 import '../../services/weather_service.dart';
 import '../../services/upi_payment_service.dart';
 import '../../utils/app_theme.dart';
+import '../../utils/monetary_value.dart';
 import '../../widgets/checkout/checkout_step_indicator.dart';
 import '../../widgets/checkout/address_selection_step.dart';
 import '../../widgets/checkout/payment_method_step.dart';
 import '../../widgets/checkout/order_review_step.dart';
 import '../../widgets/delivery_type_selector.dart';
 import '../../providers/location_provider.dart';
-import '../../services/delivery_charge_calculator.dart';
 import '../../providers/shop_config_provider.dart';
 import '../../services/shop_config_service.dart';
 import '../../services/razorpay_service.dart';
@@ -28,6 +29,8 @@ import 'checkout_auth_sheet.dart';
 import 'payment_verification_dialog.dart';
 
 import '../../services/billing_service.dart';
+import '../../services/notification_retry_service.dart';
+import '../../widgets/trust/fj_trust_banner.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -98,17 +101,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Checkout'),
+        title: const Text('Checkout', style: TextStyle(fontWeight: FontWeight.w700)),
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.cream,
         foregroundColor: AppTheme.grey900,
+        centerTitle: true,
       ),
       body: paymentProvider.isProcessing
           ? const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(),
+                  CircularProgressIndicator(color: AppTheme.primary),
                   SizedBox(height: 16),
                   Text('Processing Payment...'),
                 ],
@@ -152,7 +156,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         gradient: LinearGradient(
           colors: isExtreme
               ? [const Color(0xFFD32F2F), const Color(0xFFFF5252)]
-              : [const Color(0xFF1565C0), const Color(0xFF42A5F5)],
+              : [AppTheme.primary, AppTheme.primaryDark],
         ),
         borderRadius: BorderRadius.circular(12),
       ),
@@ -436,6 +440,139 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     return months[month - 1];
   }
 
+  // P0 FIX: Delivery Confidence Card — shows ETA, fee, guarantee
+  Widget _buildDeliveryConfidenceCard() {
+    final isExpress = _selectedDeliveryType == DeliveryType.express;
+    final eta = isExpress ? '10–30 minutes' : '30–60 minutes';
+    final cartProvider = Provider.of<CartProvider>(context);
+    final deliveryFee = cartProvider.deliveryCharge == 0 ? 'FREE' : '₹${cartProvider.deliveryCharge.round()}';
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.success.withValues(alpha: 0.05),
+            AppTheme.primary.withValues(alpha: 0.03),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppTheme.success.withValues(alpha: 0.2),
+          width: 1.5,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.local_shipping,
+                color: AppTheme.success,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Delivery Confidence',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: AppTheme.success,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // ETA
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.schedule, size: 16, color: AppTheme.grey600),
+                  const SizedBox(width: 8),
+                  Text(
+                    'ETA',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppTheme.grey600,
+                    ),
+                  ),
+                ],
+              ),
+              Text(
+                eta,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.grey900,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          // Delivery Fee
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.payments, size: 16, color: AppTheme.grey600),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Delivery Fee',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppTheme.grey600,
+                    ),
+                  ),
+                ],
+              ),
+              Text(
+                deliveryFee,
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: cartProvider.deliveryCharge == 0 ? AppTheme.success : AppTheme.grey900,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Guarantee
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppTheme.success.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.verified_rounded,
+                  size: 16,
+                  color: AppTheme.success,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Fufaji Guarantee: Fresh on arrival or money back',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.success,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildPaymentStep() {
     return PaymentMethodStep(
       selectedMethod: _selectedPaymentMethod,
@@ -472,6 +609,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     return Column(
       children: [
+        // P0 FIX: Add Trust Layer to Checkout
+        const FufajiTrustBanner(),
+        const SizedBox(height: 16),
+
+        // P0 FIX: Add Delivery Confidence Card
+        _buildDeliveryConfidenceCard(),
+        const SizedBox(height: 16),
+
         OrderReviewStep(
           deliveryAddress: _selectedAddress!,
           paymentMethod: _selectedPaymentMethod,
@@ -621,11 +766,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         customerName: user?.name ?? 'Customer',
         customerPhone: user?.phoneNumber ?? '',
         items: billing.items,
-        subtotal: billing.subtotal,
-        deliveryCharge: billing.deliveryCharge,
-        tax: billing.tax,
-        walletAmountUsed: cartProvider.walletAmountUsed,
-        totalAmount: billing.grandTotal,
+        subtotal: MonetaryValue(billing.subtotal),
+        deliveryCharge: MonetaryValue(billing.deliveryCharge),
+        tax: MonetaryValue(billing.tax),
+        walletAmountUsed: MonetaryValue(cartProvider.walletAmountUsed),
+        totalAmount: MonetaryValue(billing.grandTotal),
         paymentMethod: _selectedPaymentMethod,
         selectedPaymentMethod: _selectedPaymentMethod,
         deliveryType: _selectedDeliveryType,
@@ -646,11 +791,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         final otp = (1000 + Random().nextInt(9000)).toString();
         final codOrder = order.copyWith(otp: otp, paymentStatus: 'pending');
         await orderProvider.createOrder(codOrder);
-        await walletProvider.addCashback(
-          user?.id ?? 'user_001',
-          codOrder.totalAmount,
-          codOrder.id,
-        );
+        // NOTE: COD cashback is awarded on delivery confirmation (not here)
+        // to prevent abuse. The delivery_detail_screen triggers cashback
+        // when the rider marks the order as delivered.
         cartProvider.clearCart();
         if (mounted) {
           context.go(
@@ -659,7 +802,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         }
       } else if (_selectedPaymentMethod == PaymentMethod.credit) {
         final success = await paymentProvider.processCreditPayment(
-          order.totalAmount,
+          order.totalAmount.toDouble(),
           user!,
           authProvider,
         );
@@ -723,8 +866,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           },
         );
         rzpService.createOrder(
-          amount: order.totalAmount,
+          amount: order.totalAmount.toDouble(),
           orderId: pendingOrder.id,
+          customerId: user?.id ?? '',
           customerPhone: user?.phoneNumber ?? '',
           customerName: user?.name ?? 'Customer',
           customerEmail: user?.email ?? 'customer@fufajionline.com',
@@ -734,7 +878,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       } else if (_selectedPaymentMethod == PaymentMethod.upi) {
         final upiUri = UpiPaymentService.generateUpiUri(
           orderId: order.orderNumber,
-          amount: order.totalAmount,
+          amount: order.totalAmount.toDouble(),
           note: 'Fufaji Store Order ${order.orderNumber}',
         );
         final launched = await UpiPaymentService.launchUpiIntent(upiUri);
@@ -759,37 +903,51 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           }
         }
       } else if (_selectedPaymentMethod == PaymentMethod.wallet) {
-        if (walletProvider.walletBalance < order.totalAmount) {
+        if (walletProvider.walletBalance < order.totalAmount.toDouble()) {
           setState(() => _isPlacingOrder = false);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Insufficient wallet balance')),
           );
           return;
         }
-        final success = await walletProvider.payWithWallet(
-          userId: user!.id,
-          orderAmount: order.totalAmount,
-          orderId: order.id,
+        // FIX (Module 7 P0): route through the canonical OrderService.createOrder
+        // path instead of WalletProvider.payWithWalletAndCreateOrder, which created
+        // orders without ever deducting product stock. OrderService.createOrder's
+        // transaction debits the wallet (walletAmountUsed) AND deducts stock
+        // atomically, so setting walletAmountUsed to the full total here gets both
+        // for free via the same path every other payment method already uses.
+        final walletOrder = order.copyWith(
+          status: OrderStatus.confirmed,
+          paymentStatus: 'wallet_paid',
+          walletAmountUsed: order.totalAmount,
         );
-        if (success) {
-          final paidOrder = order.copyWith(status: OrderStatus.confirmed);
-          await orderProvider.createOrder(paidOrder);
-          await walletProvider.addCashback(
-            user.id,
-            order.totalAmount,
-            order.id,
-          );
+        final createdOrder = await orderProvider.createOrder(walletOrder);
+        if (createdOrder != null) {
+          // Cashback on wallet payment is awarded after delivery (not here)
           cartProvider.clearCart();
           if (mounted) {
             context.go(
-              '/customer/order-confirmation?orderId=${paidOrder.id}&orderNumber=${paidOrder.orderNumber}',
+              '/customer/order-confirmation?orderId=${createdOrder.id}&orderNumber=${createdOrder.orderNumber}',
             );
           }
         } else {
+          try {
+            await NotificationRetryService().triggerAdminAlert(
+              type: 'payment_failure',
+              severity: 'high',
+              title: 'Wallet Payment Failed',
+              description:
+                  'Wallet payment for user ${user?.id ?? "unknown"} of ₹${order.totalAmount.toStringAsFixed(0)} failed during transaction.',
+            );
+          } catch (e) {
+            debugPrint('Error logging wallet failure alert: $e');
+          }
           if (mounted) {
             setState(() => _isPlacingOrder = false);
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Failed to process wallet payment')),
+              const SnackBar(
+                content: Text('Order creation failed. Please try again.'),
+              ),
             );
           }
         }
@@ -797,10 +955,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isPlacingOrder = false);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Checkout error: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
       }
+    } finally {
+      if (mounted) setState(() => _isPlacingOrder = false);
     }
   }
 }

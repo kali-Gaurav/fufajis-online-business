@@ -126,7 +126,7 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Row(
           children: [
-            Icon(Icons.shopping_cart_checkout, color: AppTheme.secondary),
+            Icon(Icons.shopping_cart_checkout, color: AppTheme.info),
             SizedBox(width: 8),
             Text('Confirm Reorder'),
           ],
@@ -157,7 +157,7 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
                 SnackBar(content: Text('Purchase Order for ${alert.recommendedReorderQuantity} units sent to distributor!'), backgroundColor: AppTheme.success),
               );
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.secondary),
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.info),
             child: const Text('Confirm Order'),
           ),
         ],
@@ -170,9 +170,9 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
       case 'critical':
         return AppTheme.error;
       case 'high':
-        return Colors.orange;
+        return AppTheme.warning;
       case 'medium':
-        return Colors.amber[700]!;
+        return AppTheme.warning;
       case 'low':
         return AppTheme.info;
       default:
@@ -182,8 +182,8 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
 
   Color _getDaysRemainingColor(int days) {
     if (days <= 1) return AppTheme.error;
-    if (days <= 3) return Colors.orange;
-    if (days <= 7) return Colors.amber[700]!;
+    if (days <= 3) return AppTheme.warning;
+    if (days <= 7) return AppTheme.warning;
     return AppTheme.success;
   }
 
@@ -193,7 +193,7 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Inventory Forecast & Alerts'),
+        title: const Text('Inventory Forecast & Alerts', style: TextStyle(fontWeight: FontWeight.w700)),
         actions: [
           IconButton(
             onPressed: _runDiagnostics,
@@ -203,8 +203,8 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
         ],
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: AppTheme.secondary,
-          labelColor: AppTheme.secondary,
+          indicatorColor: AppTheme.info,
+          labelColor: AppTheme.info,
           unselectedLabelColor: AppTheme.grey600,
           tabs: const [
             Tab(text: 'Low Stock / कम स्टॉक'),
@@ -213,7 +213,7 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent))
           : Column(
               children: [
                 // Search and Filter
@@ -229,7 +229,7 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
                           hintText: 'Search products by name...',
                           prefixIcon: const Icon(Icons.search),
                           filled: true,
-                          fillColor: AppTheme.grey100,
+                          fillColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.grey800 : AppTheme.grey100,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
@@ -254,10 +254,10 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
                                     child: FilterChip(
                                       label: Text(severity),
                                       selected: _selectedSeverity == severity,
-                                      selectedColor: AppTheme.secondary.withValues(alpha: 0.15),
-                                      checkmarkColor: AppTheme.secondary,
+                                      selectedColor: AppTheme.info.withValues(alpha: 0.15),
+                                      checkmarkColor: AppTheme.info,
                                       labelStyle: TextStyle(
-                                        color: _selectedSeverity == severity ? AppTheme.secondary : AppTheme.grey700,
+                                        color: _selectedSeverity == severity ? AppTheme.info : AppTheme.grey700,
                                         fontWeight: _selectedSeverity == severity ? FontWeight.bold : FontWeight.normal,
                                       ),
                                       onSelected: (_) {
@@ -394,19 +394,19 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
                   'Current Stock',
                   '${alert.currentStock}',
                   Icons.inventory_2,
-                  AppTheme.secondary,
+                  AppTheme.info,
                 ),
                 _buildMetricBlock(
                   'Daily Velocity',
                   '${alert.averageDailySales.toStringAsFixed(1)} /day',
                   Icons.trending_up,
-                  Colors.blue,
+                  AppTheme.info,
                 ),
                 _buildMetricBlock(
                   _tabController.index == 1 ? 'Days Left' : 'Min Required',
                   _tabController.index == 1 ? '${alert.daysUntilStockout} days' : '${alert.minimumStock}',
                   _tabController.index == 1 ? Icons.hourglass_bottom : Icons.warning_amber,
-                  _tabController.index == 1 ? daysColor : Colors.orange,
+                  _tabController.index == 1 ? daysColor : AppTheme.warning,
                   boldText: _tabController.index == 1,
                 ),
               ],
@@ -417,19 +417,19 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.secondary.withValues(alpha: 0.05),
+                color: AppTheme.info.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.lightbulb_outline, color: AppTheme.secondary, size: 20),
+                  const Icon(Icons.lightbulb_outline, color: AppTheme.info, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Reorder ${alert.recommendedReorderQuantity} units to keep ${alert.recommendedStockDays > 0 ? alert.recommendedStockDays : 14} days safety buffer.',
                       style: const TextStyle(
                         fontSize: 12,
-                        color: AppTheme.secondary,
+                        color: AppTheme.info,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -462,7 +462,7 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
                     icon: const Icon(Icons.local_shipping, size: 16),
                     label: const Text('Reorder Now'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.secondary,
+                      backgroundColor: AppTheme.info,
                       foregroundColor: AppTheme.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       padding: const EdgeInsets.symmetric(vertical: 12),

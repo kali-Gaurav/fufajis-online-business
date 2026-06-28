@@ -2,13 +2,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../services/device_security_service.dart';
 import '../../models/owner_model.dart';
+import '../../utils/app_theme.dart';
 import '../owner/dynamic_pricing_console.dart'; // Placeholder for dashboard
 import 'package:pinput/pinput.dart';
 
 class OwnerDailyLoginScreen extends StatefulWidget {
   final Owner owner;
 
-  const OwnerDailyLoginScreen({Key? key, required this.owner}) : super(key: key);
+  const OwnerDailyLoginScreen({super.key, required this.owner});
 
   @override
   _OwnerDailyLoginScreenState createState() => _OwnerDailyLoginScreenState();
@@ -136,7 +137,7 @@ class _OwnerDailyLoginScreenState extends State<OwnerDailyLoginScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.lock, size: 64, color: Colors.blue),
+              const Icon(Icons.lock, size: 64, color: AppTheme.info),
               const SizedBox(height: 24),
               Text(
                 'Welcome back, ${widget.owner.email}',
@@ -157,11 +158,11 @@ class _OwnerDailyLoginScreenState extends State<OwnerDailyLoginScreen> {
                 Text(
                   _error, 
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w500)
+                  style: const TextStyle(color: AppTheme.error, fontWeight: FontWeight.w500)
                 ),
               ],
               const SizedBox(height: 32),
-              if (_isLoading) const CircularProgressIndicator(),
+              if (_isLoading) const CircularProgressIndicator(color: AppTheme.primary),
               if (!_isLoading && widget.owner.biometricEnabled && !_isLockedOut)
                 TextButton.icon(
                   onPressed: _checkBiometrics,

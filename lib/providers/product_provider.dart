@@ -7,14 +7,18 @@ import '../models/low_stock_alert_model.dart';
 import '../services/product_service.dart';
 import '../services/inventory_alert_service.dart';
 import '../services/expiry_checker_service.dart';
+import '../services/inventory_sync_service.dart';
 import 'dart:async';
 import '../utils/db_seeder.dart';
+import '../services/storage_service.dart';
+import '../utils/monetary_value.dart';
 
 class ProductProvider with ChangeNotifier {
   FirebaseFirestore get _db => FirebaseFirestore.instance;
   ProductService get _productService => ProductService();
   InventoryAlertService get _inventoryAlertService => InventoryAlertService();
   ExpiryCheckerService get _expiryCheckerService => ExpiryCheckerService();
+  final InventorySyncService _inventorySyncService = InventorySyncService();
 
   List<ProductModel> _products = [];
   List<ProductModel> _featuredProducts = [];
@@ -25,6 +29,12 @@ class ProductProvider with ChangeNotifier {
   List<CategoryModel> _categories = [];
   List<LowStockAlert> _lowStockAlerts = [];
   final SharedPreferences _prefs;
+
+  // Stream subscriptions for real-time sync
+  StreamSubscription<List<ProductModel>>? _allProductsSubscription;
+  StreamSubscription<ProductModel?>? _singleProductSubscription;
+  StreamSubscription<List<ProductModel>>? _categoryProductsSubscription;
+  StreamSubscription<List<ProductModel>>? _lowStockProductsSubscription;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -51,6 +61,7 @@ class ProductProvider with ChangeNotifier {
 
   ProductProvider(this._prefs, {bool enableRemoteData = true}) {
     _loadWishlist();
+    _setupInventorySyncCallbacks();
     if (enableRemoteData && _isFirebaseReady) {
       _initFirestoreListener();
       _runDailyExpiryChecks();
@@ -242,6 +253,13 @@ class ProductProvider with ChangeNotifier {
             .toList();
         _products.addAll(newProducts);
         _hasMoreProducts = newProducts.length == limit;
+
+        // Cache products to Hive for offline mode
+        try {
+          await StorageService().put('cached_products', _products.map((p) => p.toMap()).toList());
+        } catch (storageErr) {
+          debugPrint('Error caching products to Hive: $storageErr');
+        }
       } else {
         _hasMoreProducts = false;
       }
@@ -252,14 +270,33 @@ class ProductProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      debugPrint('Error fetching paged products: $e');
+      debugPrint('Error fetching paged products: $e. Attempting local Hive cache load.');
+      try {
+        final cachedData = StorageService().get('cached_products');
+        if (cachedData != null && cachedData is List) {
+          final cachedList = cachedData
+              .map((item) => ProductModel.fromMap(Map<String, dynamic>.from(item as Map)))
+              .toList();
+          if (cachedList.isNotEmpty) {
+            _products = cachedList;
+            _hasMoreProducts = false;
+            _updateCategoriesFromProducts();
+            _updateSpecialSections();
+          }
+        }
+      } catch (cacheErr) {
+        debugPrint('Failed to load products from Hive cache: $cacheErr');
+      }
       _isLoading = false;
       notifyListeners();
     }
   }
 
   void _updateCategoriesFromProducts() {
+    // Phase 1 Audit Upgrade: Decouple Logic ID from Localized Display
     final Map<String, CategoryModel> uniqueCats = {};
+    
+    // Add "All" static category
     uniqueCats['all'] = CategoryModel(
       id: 'all',
       name: 'All',
@@ -268,18 +305,11 @@ class ProductProvider with ChangeNotifier {
       color: '#FF5722',
     );
 
-    for (var p in _products) {
-      if (!uniqueCats.containsKey(p.category)) {
-        final catName = p.category[0].toUpperCase() + p.category.substring(1);
-        uniqueCats[p.category] = CategoryModel(
-          id: p.category,
-          name: catName,
-          nameHindi: catName,
-          icon: _getCategoryIcon(p.category),
-          color: _getCategoryColor(p.category),
-        );
-      }
+    // Populate from Enum Master List (Ensures consistent metadata)
+    for (final cat in ProductCategory.values) {
+      uniqueCats[cat.name] = CategoryModel.fromEnum(cat);
     }
+    
     _categories = uniqueCats.values.toList();
   }
 
@@ -338,10 +368,10 @@ class ProductProvider with ChangeNotifier {
         id: 'prod_001',
         name: 'Fresh Organic Potatoes',
         description: 'High quality local potatoes from Jaipur farms.',
-        price: 40.0,
-        originalPrice: 50.0,
+        price: MonetaryValue(40.0),
+        originalPrice: MonetaryValue(50.0),
         unit: '1 kg',
-        category: 'vegetables',
+        categoryId: 'vegetables',
         shopId: 'shop_001',
         shopName: 'Fufaji Online',
         imageUrl:
@@ -357,10 +387,10 @@ class ProductProvider with ChangeNotifier {
         id: 'prod_002',
         name: 'Full Cream Milk',
         description: 'Fresh buffalo milk delivered daily.',
-        price: 64.0,
-        originalPrice: 68.0,
+        price: MonetaryValue(64.0),
+        originalPrice: MonetaryValue(68.0),
         unit: '1 L',
-        category: 'dairy',
+        categoryId: 'dairy',
         shopId: 'shop_001',
         shopName: 'Fufaji Online',
         imageUrl:
@@ -376,10 +406,10 @@ class ProductProvider with ChangeNotifier {
         id: 'prod_003',
         name: 'Fresh Tomatoes',
         description: 'Juicy local tomatoes for daily cooking.',
-        price: 35.0,
-        originalPrice: 45.0,
+        price: MonetaryValue(35.0),
+        originalPrice: MonetaryValue(45.0),
         unit: '1 kg',
-        category: 'vegetables',
+        categoryId: 'vegetables',
         shopId: 'shop_001',
         shopName: 'Fufaji Online',
         imageUrl:
@@ -401,10 +431,10 @@ class ProductProvider with ChangeNotifier {
         id: 'prod_004',
         name: 'Red Onions',
         description: 'Fresh red onions for curries and salads.',
-        price: 42.0,
-        originalPrice: 50.0,
+        price: MonetaryValue(42.0),
+        originalPrice: MonetaryValue(50.0),
         unit: '1 kg',
-        category: 'vegetables',
+        categoryId: 'vegetables',
         shopId: 'shop_001',
         shopName: 'Fufaji Online',
         imageUrl:
@@ -419,43 +449,7 @@ class ProductProvider with ChangeNotifier {
     ];
   }
 
-  String _getCategoryIcon(String category) {
-    switch (category.toLowerCase()) {
-      case 'vegetables':
-        return '🥦';
-      case 'fruits':
-        return '🍎';
-      case 'dairy':
-        return '🥛';
-      case 'groceries':
-        return '🛒';
-      case 'bakery':
-        return '🍞';
-      case 'beverages':
-        return '🥤';
-      case 'household':
-        return '🧹';
-      default:
-        return '📦';
-    }
-  }
 
-  String _getCategoryColor(String category) {
-    switch (category.toLowerCase()) {
-      case 'vegetables':
-        return '#4CAF50';
-      case 'fruits':
-        return '#F44336';
-      case 'dairy':
-        return '#2196F3';
-      case 'groceries':
-        return '#FF9800';
-      case 'bakery':
-        return '#795548';
-      default:
-        return '#FF5722';
-    }
-  }
 
   // Search products with fuzzy matching
   List<ProductModel> searchProducts(String query) {
@@ -477,6 +471,7 @@ class ProductProvider with ChangeNotifier {
     return _products.where((p) {
       final searchableText = [
         p.name,
+        p.categoryId,
         p.category,
         p.barcode,
         ...p.tags,
@@ -511,10 +506,10 @@ class ProductProvider with ChangeNotifier {
     return aliases[token] ?? [token];
   }
 
-  List<ProductModel> getProductsByCategory(String category) {
-    if (category.toLowerCase() == 'all') return _products;
+  List<ProductModel> getProductsByCategory(String catId) {
+    if (catId.toLowerCase() == 'all') return _products;
     return _products
-        .where((p) => p.category.toLowerCase() == category.toLowerCase())
+        .where((p) => p.categoryId.toLowerCase() == catId.toLowerCase())
         .toList();
   }
 
@@ -538,8 +533,45 @@ class ProductProvider with ChangeNotifier {
     return {'strategy': 'Match', 'revenueImpact': 0.0, 'isDefault': true};
   }
 
-  Future<List<Map<String, dynamic>>> getPendingPriceChanges() async {
-    return [];
+  Stream<List<Map<String, dynamic>>> getPendingPriceChangesStream() {
+    return _productService.getPendingPriceChangesStream();
+  }
+
+  Stream<List<Map<String, dynamic>>> getPriceChangesHistoryStream() {
+    return _productService.getPriceChangesHistoryStream();
+  }
+
+  Future<void> approvePriceChange(String changeId) async {
+    await _productService.approvePriceChange(changeId);
+    notifyListeners();
+  }
+
+  Future<void> approveAllPriceChanges(List<String> changeIds) async {
+    await _productService.approveAllPriceChanges(changeIds);
+    notifyListeners();
+  }
+
+  Future<void> rejectPriceChange(String changeId, String reason) async {
+    await _productService.rejectPriceChange(changeId, reason);
+    notifyListeners();
+  }
+
+  Future<void> proposePriceChange({
+    required String productId,
+    required String productName,
+    required double oldPrice,
+    required double newPrice,
+    required String reason,
+    required String requestedBy,
+  }) async {
+    await _productService.proposePriceChange(
+      productId: productId,
+      productName: productName,
+      oldPrice: oldPrice,
+      newPrice: newPrice,
+      reason: reason,
+      requestedBy: requestedBy,
+    );
   }
 
   Future<Map<String, dynamic>> getWhatsAppSyncStatus() async {
@@ -556,11 +588,7 @@ class ProductProvider with ChangeNotifier {
   }
 
   Future<void> refreshProducts() async {
-    _isLoading = true;
-    notifyListeners();
-    await Future.delayed(const Duration(seconds: 1));
-    _isLoading = false;
-    notifyListeners();
+    await fetchProductsPaged(isRefresh: true);
   }
 
   List<ProductModel> getLocalProducts({String? district, String? village}) {
@@ -576,5 +604,248 @@ class ProductProvider with ChangeNotifier {
 
   Future<void> refreshLightningDeals() async {
     await _applyLightningDeals();
+  }
+
+  /// Setup callbacks for real-time inventory sync
+  void _setupInventorySyncCallbacks() {
+    _inventorySyncService.onProductStockUpdate = (product) {
+      _handleProductStockUpdate(product);
+    };
+
+    _inventorySyncService.onProductsUpdate = (products) {
+      _handleProductsUpdate(products);
+    };
+
+    _inventorySyncService.onProductRemoved = (productId) {
+      _handleProductRemoved(productId);
+    };
+  }
+
+  /// Handle single product stock update from Firestore
+  void _handleProductStockUpdate(ProductModel updatedProduct) {
+    try {
+      final existingIndex = _products.indexWhere((p) => p.id == updatedProduct.id);
+      if (existingIndex >= 0) {
+        _products[existingIndex] = updatedProduct;
+
+        // Update special sections if product is in them
+        if (_featuredProducts.any((p) => p.id == updatedProduct.id)) {
+          final featIndex = _featuredProducts.indexWhere((p) => p.id == updatedProduct.id);
+          if (featIndex >= 0) _featuredProducts[featIndex] = updatedProduct;
+        }
+        if (_trendingProducts.any((p) => p.id == updatedProduct.id)) {
+          final trendIndex = _trendingProducts.indexWhere((p) => p.id == updatedProduct.id);
+          if (trendIndex >= 0) _trendingProducts[trendIndex] = updatedProduct;
+        }
+        if (_dealsProducts.any((p) => p.id == updatedProduct.id)) {
+          final dealsIndex = _dealsProducts.indexWhere((p) => p.id == updatedProduct.id);
+          if (dealsIndex >= 0) _dealsProducts[dealsIndex] = updatedProduct;
+        }
+        if (_recentlyViewed.any((p) => p.id == updatedProduct.id)) {
+          final recIndex = _recentlyViewed.indexWhere((p) => p.id == updatedProduct.id);
+          if (recIndex >= 0) _recentlyViewed[recIndex] = updatedProduct;
+        }
+
+        notifyListeners();
+        debugPrint('Product stock updated: ${updatedProduct.id}');
+      }
+    } catch (e) {
+      debugPrint('Error handling product stock update: $e');
+    }
+  }
+
+  /// Handle bulk products update from Firestore
+  void _handleProductsUpdate(List<ProductModel> updatedProducts) {
+    try {
+      for (final updatedProduct in updatedProducts) {
+        final existingIndex = _products.indexWhere((p) => p.id == updatedProduct.id);
+        if (existingIndex >= 0) {
+          _products[existingIndex] = updatedProduct;
+        } else {
+          _products.add(updatedProduct);
+        }
+      }
+      _updateSpecialSections();
+      notifyListeners();
+      debugPrint('Bulk products updated: ${updatedProducts.length} items');
+    } catch (e) {
+      debugPrint('Error handling bulk products update: $e');
+    }
+  }
+
+  /// Handle product removal from Firestore
+  void _handleProductRemoved(String productId) {
+    try {
+      _products.removeWhere((p) => p.id == productId);
+      _featuredProducts.removeWhere((p) => p.id == productId);
+      _trendingProducts.removeWhere((p) => p.id == productId);
+      _dealsProducts.removeWhere((p) => p.id == productId);
+      _recentlyViewed.removeWhere((p) => p.id == productId);
+      _updateSpecialSections();
+      notifyListeners();
+      debugPrint('Product removed: $productId');
+    } catch (e) {
+      debugPrint('Error handling product removal: $e');
+    }
+  }
+
+  /// Subscribe to real-time updates for all products in a shop
+  Future<void> subscribeToAllProducts({required String shopId}) async {
+    try {
+      // Cancel existing subscription
+      await _allProductsSubscription?.cancel();
+
+      _allProductsSubscription =
+          _inventorySyncService.watchAllProducts(shopId: shopId).listen(
+        (products) {
+          _handleProductsUpdate(products);
+        },
+        onError: (Object error, StackTrace stackTrace) {
+          debugPrint('Error in all products subscription: $error');
+          debugPrintStack(stackTrace: stackTrace);
+        },
+        cancelOnError: false,
+      );
+
+      debugPrint('Subscribed to all products for shop: $shopId');
+    } catch (e) {
+      debugPrint('Error subscribing to all products: $e');
+    }
+  }
+
+  /// Subscribe to real-time updates for a single product
+  Future<void> subscribeToProduct({required String productId}) async {
+    try {
+      // Cancel existing subscription
+      await _singleProductSubscription?.cancel();
+
+      _singleProductSubscription =
+          _inventorySyncService.watchProductById(productId).listen(
+        (product) {
+          if (product != null) {
+            _handleProductStockUpdate(product);
+          }
+        },
+        onError: (Object error, StackTrace stackTrace) {
+          debugPrint('Error in single product subscription: $error');
+          debugPrintStack(stackTrace: stackTrace);
+        },
+        cancelOnError: false,
+      );
+
+      debugPrint('Subscribed to product: $productId');
+    } catch (e) {
+      debugPrint('Error subscribing to single product: $e');
+    }
+  }
+
+  /// Subscribe to real-time updates for products in a category
+  Future<void> subscribeToCategory({
+    required String shopId,
+    required String category,
+  }) async {
+    try {
+      // Cancel existing subscription
+      await _categoryProductsSubscription?.cancel();
+
+      _categoryProductsSubscription = _inventorySyncService
+          .watchProductsByCategory(shopId: shopId, category: category)
+          .listen(
+        (products) {
+          _handleProductsUpdate(products);
+        },
+        onError: (Object error, StackTrace stackTrace) {
+          debugPrint('Error in category subscription: $error');
+          debugPrintStack(stackTrace: stackTrace);
+        },
+        cancelOnError: false,
+      );
+
+      debugPrint('Subscribed to category: $category for shop: $shopId');
+    } catch (e) {
+      debugPrint('Error subscribing to category: $e');
+    }
+  }
+
+  /// Subscribe to real-time updates for low stock products
+  Future<void> subscribeToLowStockProducts({required String shopId}) async {
+    try {
+      // Cancel existing subscription
+      await _lowStockProductsSubscription?.cancel();
+
+      _lowStockProductsSubscription = _inventorySyncService
+          .watchLowStockProducts(shopId: shopId)
+          .listen(
+        (products) {
+          // Update the low stock alerts list
+          try {
+            _lowStockAlerts = products
+                .map((p) => LowStockAlert(
+                      id: '${p.id}_alert',
+                      productId: p.id,
+                      productName: p.name,
+                      currentStock: p.stockQuantity,
+                      minimumStock: p.minimumStock,
+                      createdAt: DateTime.now(),
+                    ))
+                .toList();
+            notifyListeners();
+            debugPrint('Low stock products updated: ${products.length} items');
+          } catch (e) {
+            debugPrint('Error processing low stock products: $e');
+          }
+        },
+        onError: (Object error, StackTrace stackTrace) {
+          debugPrint('Error in low stock subscription: $error');
+          debugPrintStack(stackTrace: stackTrace);
+        },
+        cancelOnError: false,
+      );
+
+      debugPrint('Subscribed to low stock products for shop: $shopId');
+    } catch (e) {
+      debugPrint('Error subscribing to low stock products: $e');
+    }
+  }
+
+  /// Unsubscribe from all real-time sync subscriptions
+  Future<void> unsubscribeFromAllUpdates() async {
+    try {
+      await _allProductsSubscription?.cancel();
+      _allProductsSubscription = null;
+
+      await _singleProductSubscription?.cancel();
+      _singleProductSubscription = null;
+
+      await _categoryProductsSubscription?.cancel();
+      _categoryProductsSubscription = null;
+
+      await _lowStockProductsSubscription?.cancel();
+      _lowStockProductsSubscription = null;
+
+      debugPrint('Unsubscribed from all real-time updates');
+    } catch (e) {
+      debugPrint('Error unsubscribing from updates: $e');
+    }
+  }
+
+  /// Get the number of active listeners
+  int getActiveListenerCount() {
+    return _inventorySyncService.getActiveListenerCount();
+  }
+
+  /// Dispose resources
+  @override
+  void dispose() {
+    // Cancel all subscriptions
+    _allProductsSubscription?.cancel();
+    _singleProductSubscription?.cancel();
+    _categoryProductsSubscription?.cancel();
+    _lowStockProductsSubscription?.cancel();
+
+    // Stop all Firestore listeners
+    _inventorySyncService.stopAllListeners();
+
+    super.dispose();
   }
 }

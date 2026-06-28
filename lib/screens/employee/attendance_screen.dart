@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import '../../services/employee_scanner_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/scanner_models.dart';
+import '../../utils/app_theme.dart';
 
 class AttendanceScreen extends StatefulWidget {
   final String? qrCodeId;
@@ -19,7 +20,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   AttendanceRecord? _todayRecord;
   bool _isLoading = false;
   LocationData? _currentLocation;
-  final String _attendanceStatus = '';
 
   bool _autoCheckInDone = false;
 
@@ -108,13 +108,13 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
     );
   }
 
   void _showSuccess(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.green),
+      SnackBar(content: Text(message), backgroundColor: AppTheme.success),
     );
   }
 
@@ -187,7 +187,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Attendance'),
+        title: const Text('Attendance', style: TextStyle(fontWeight: FontWeight.w700)),
         actions: [
           IconButton(
             icon: const Icon(Icons.qr_code_scanner),
@@ -201,7 +201,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
           children: [
             // Employee Info Card
             Card(
-              color: Colors.blue.shade50,
+              color: AppTheme.info.withValues(alpha: 0.1),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -240,7 +240,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           ? Icons.location_on
                           : Icons.location_off,
                       color:
-                          _currentLocation != null ? Colors.green : Colors.grey,
+                          _currentLocation != null ? AppTheme.success : Colors.grey,
                     ),
                     const SizedBox(width: 8),
                     Expanded(
@@ -250,7 +250,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                             : 'Getting location...',
                         style: TextStyle(
                           color: _currentLocation != null
-                              ? Colors.green
+                              ? AppTheme.success
                               : Colors.grey,
                         ),
                       ),
@@ -297,7 +297,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : _checkOut,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
+                            backgroundColor: AppTheme.error,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
@@ -313,7 +313,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : _checkIn,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
+                            backgroundColor: AppTheme.success,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
@@ -382,7 +382,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Enter Attendance QR'),
+        title: const Text('Enter Attendance QR', style: TextStyle(fontWeight: FontWeight.w700)),
         content: TextField(
           autofocus: true,
           decoration: const InputDecoration(
@@ -458,7 +458,7 @@ class _AttendanceConfirmOverlayState
   @override
   Widget build(BuildContext context) {
     final isIn = widget.type == 'In';
-    final color = isIn ? Colors.green : const Color(0xFFE65100);
+    final color = isIn ? AppTheme.success : const Color(0xFFE65100);
     final icon = isIn ? Icons.login : Icons.logout;
     final label = isIn ? 'Checked In' : 'Checked Out';
     final now = TimeOfDay.now();

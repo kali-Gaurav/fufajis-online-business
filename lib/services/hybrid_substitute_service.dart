@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../models/product_model.dart';
 import '../models/order_model.dart';
 import 'whatsapp_notification_service.dart';
+import '../utils/monetary_value.dart';
 
 /// Hybrid Out-of-Stock Substitute Service — Component 5
 ///
@@ -113,7 +114,7 @@ class HybridSubstituteService {
         orderNumber: orderNumber,
         originalName: item.productName,
         replacementName: substitute.name,
-        replacementPrice: substitute.price,
+        replacementPrice: substitute.price.toDouble(),
       );
     }
     debugPrint('[HybridSubstitute] Substitution proposed: ${item.productName} → ${substitute.name}');
@@ -142,7 +143,7 @@ class HybridSubstituteService {
             productId: it.proposedReplacementId,
             productName: it.proposedReplacementName,
             price: it.proposedReplacementPrice,
-            totalPrice: (it.proposedReplacementPrice ?? 0.0) * it.quantity,
+            totalPrice: (it.proposedReplacementPrice ?? MonetaryValue(0.0)) * it.quantity,
             substitutionStatus: isAutoResolution ? 'auto_approved' : 'approved',
             isPacked: true,
           );
@@ -151,7 +152,7 @@ class HybridSubstituteService {
             substitutionStatus: 'declined',
             isOutOfStock: true,
             isPacked: false,
-            totalPrice: 0.0,
+            totalPrice: MonetaryValue(0.0),
           );
         }
       }
@@ -160,8 +161,8 @@ class HybridSubstituteService {
 
     if (!changed) return;
 
-    final newSubtotal = updatedItems.fold(0.0, (t, it) => t + it.totalPrice);
-    final newTotal = newSubtotal + order.deliveryCharge - order.discount;
+    final newSubtotal = updatedItems.fold(0.0, (t, it) => t + it.totalPrice.toDouble());
+    final newTotal = newSubtotal + order.deliveryCharge.toDouble() - order.discount.toDouble();
 
     await docRef.update({
       'items': updatedItems.map((e) => e.toMap()).toList(),
@@ -221,7 +222,7 @@ class HybridSubstituteService {
     double score = 0;
 
     // Category match — mandatory, but score higher for same sub-category
-    if (candidate.category == original.category) score += 40;
+    if (candidate.categoryId == original.categoryId) score += 40;
     if (candidate.subCategory == original.subCategory) score += 20;
 
     // Tag overlap
@@ -229,7 +230,9 @@ class HybridSubstituteService {
     score += tagOverlap * 5;
 
     // Price proximity (within 20% price range = max score)
-    final priceDelta = (candidate.price - original.price).abs() / original.price;
+    final double candidatePrice = candidate.price.toDouble();
+    final double originalPrice = original.price.toDouble();
+    final priceDelta = originalPrice > 0 ? (candidatePrice - originalPrice).abs() / originalPrice : 0.0;
     if (priceDelta <= 0.05) {
       score += 20;
     } else if (priceDelta <= 0.10) score += 15;
@@ -276,7 +279,7 @@ class HybridSubstituteService {
       return SubstituteResult(
         substitute: substitute,
         source: SubstituteSource.manualOverride,
-        requiresCustomerApproval: data['requiresApproval'] ?? true,
+        requiresCustomerApproval: data['requiresApproval'] as bool? ?? true,
         confidenceScore: 100,
       );
     } catch (e) {
@@ -300,7 +303,7 @@ class HybridSubstituteService {
   Future<bool> _getAutoApprovePreference(String userId) async {
     try {
       final doc = await _firestore.collection('users').doc(userId).get();
-      return doc.data()?['autoApproveSubstitutions'] ?? false;
+      return doc.data()?['autoApproveSubstitutions'] as bool? ?? false;
     } catch (_) {
       return false; // default: require explicit approval
     }

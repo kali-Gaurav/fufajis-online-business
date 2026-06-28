@@ -33,8 +33,8 @@ class _QnaSectionState extends State<QnaSection> {
   String _searchQuery = '';
   String _sortBy = 'recent';
   QnaStatus? _filterStatus;
-  bool _isLoading = false;
   String? _answeringQuestionId;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -213,7 +213,7 @@ class _QnaSectionState extends State<QnaSection> {
       ),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
         }
 
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -305,10 +305,10 @@ class _QnaSectionState extends State<QnaSection> {
                         ),
                         if (qna.isVerifiedPurchase) ...[
                           const SizedBox(width: 6),
-                          Icon(
+                          const Icon(
                             Icons.verified,
                             size: 14,
-                            color: Colors.blue.shade400,
+                            color: AppTheme.info,
                           ),
                         ],
                         const Spacer(),
@@ -773,47 +773,51 @@ class _QnaSectionState extends State<QnaSection> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text('Report Question'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ...reasons.map((reason) => RadioListTile<String>(
-                title: Text(reason),
-                value: reason,
-                groupValue: selectedReason,
-                onChanged: (value) {
-                  setState(() => selectedReason = value);
-                },
-              )),
-              if (selectedReason == 'Other')
-                TextField(
-                  controller: reportController,
-                  decoration: const InputDecoration(
-                    labelText: 'Specify reason',
-                  ),
-                ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => context.pop(),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: selectedReason == null
-                  ? null
-                  : () {
-                      _flagQuestion(qna, selectedReason == 'Other' ? reportController.text : selectedReason!);
-                      context.pop();
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text('Report Question'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ...reasons.map((reason) => RadioListTile<String>(
+                    title: Text(reason),
+                    value: reason,
+                    groupValue: selectedReason,
+                    onChanged: (value) {
+                      setDialogState(() => selectedReason = value);
                     },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.error,
-                foregroundColor: Colors.white,
+                  )),
+                  if (selectedReason == 'Other')
+                    TextField(
+                      controller: reportController,
+                      decoration: const InputDecoration(
+                        labelText: 'Specify reason',
+                      ),
+                    ),
+                ],
               ),
-              child: const Text('Report'),
-            ),
-          ],
+              actions: [
+                TextButton(
+                  onPressed: () => context.pop(),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: selectedReason == null
+                      ? null
+                      : () {
+                          _flagQuestion(qna, selectedReason == 'Other' ? reportController.text : selectedReason!);
+                          context.pop();
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.error,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Report'),
+                ),
+              ],
+            );
+          },
         );
       },
     );

@@ -1,11 +1,14 @@
+import '../../services/logging_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../services/scanner_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/product_provider.dart';
 import '../../models/product_model.dart';
+import '../../utils/app_theme.dart';
 import 'order_packing_screen.dart';
 import 'inventory_receiving_screen.dart';
 import 'inventory_audit_screen.dart';
@@ -177,7 +180,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
 
     switch (action.actionType) {
       case ScanMode.productSearch:
-        await _showProductSheet(action.metadata['barcode'] ?? action.code);
+        await _showProductSheet(action.metadata['barcode'] as String? ?? action.code);
         break;
 
       case ScanMode.orderPacking:
@@ -185,7 +188,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
           context,
           MaterialPageRoute(
             builder: (_) => OrderPackingScreen(
-              orderId: action.metadata['orderId'],
+              orderId: action.metadata['orderId'] as String?,
             ),
           ),
         );
@@ -196,7 +199,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
           context,
           MaterialPageRoute(
             builder: (_) => DispatchScannerScreen(
-              orderId: action.metadata['orderId'],
+              orderId: action.metadata['orderId'] as String?,
             ),
           ),
         );
@@ -207,7 +210,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
           context,
           MaterialPageRoute(
             builder: (_) => DeliveryPodScannerScreen(
-              parcelId: action.metadata['parcelId'],
+              parcelId: action.metadata['parcelId'] as String?,
             ),
           ),
         );
@@ -218,7 +221,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
           context,
           MaterialPageRoute(
             builder: (_) => InventoryReceivingScreen(
-              barcode: action.metadata['barcode'],
+              barcode: action.metadata['barcode'] as String?,
             ),
           ),
         );
@@ -245,14 +248,14 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
           context,
           MaterialPageRoute(
             builder: (_) => CustomerMembershipScannerScreen(
-              customerId: action.metadata['customerId'],
+              customerId: action.metadata['customerId'] as String?,
             ),
           ),
         );
         break;
 
       case ScanMode.paymentQr:
-        _showPaymentSheet(action.metadata['upiUrl'] ?? action.code);
+        _showPaymentSheet(action.metadata['upiUrl'] as String? ?? action.code);
         break;
 
       case ScanMode.attendance:
@@ -260,10 +263,25 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
           context,
           MaterialPageRoute(
             builder: (_) => AttendanceScreen(
-              qrCodeId: action.metadata['attendanceId'],
+              qrCodeId: action.metadata['attendanceId'] as String?,
             ),
           ),
         );
+        break;
+
+      case ScanMode.returnItem:
+        // FIX 4: Route return items to Return/Damage Hub (now fixed)
+        context.go('/employee/return-hub');
+        break;
+
+      case ScanMode.damageItem:
+        // FIX 4: Route damage items to Return/Damage Hub (now fixed)
+        context.go('/employee/return-hub');
+        break;
+
+      case ScanMode.riderScan:
+        // Route rider scans (if implemented)
+        _showUnknownCodeSheet(action.code);
         break;
 
       default:
@@ -326,7 +344,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.help_outline, size: 48, color: Colors.orange),
+            const Icon(Icons.help_outline, size: 48, color: AppTheme.warning),
             const SizedBox(height: 12),
             const Text('Unknown Code',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
@@ -448,7 +466,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
               child: child,
             ),
             child: _ScanFrame(
-              color: modeConfig?.color ?? Colors.orange,
+              color: modeConfig?.color ?? AppTheme.warning,
               size: 240,
             ),
           ),
@@ -515,7 +533,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: _flashOn
-                          ? Colors.amber.withValues(alpha: 0.85)
+                          ? AppTheme.warning.withValues(alpha: 0.85)
                           : Colors.black54,
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -714,7 +732,7 @@ class _ProductResultSheet extends StatelessWidget {
             const Row(
               children: [
                 Icon(Icons.warning_amber_rounded,
-                    color: Colors.orange, size: 28),
+                    color: AppTheme.warning, size: 28),
                 SizedBox(width: 10),
                 Text('Product Not Found',
                     style:
@@ -740,11 +758,11 @@ class _ProductResultSheet extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
+                    color: AppTheme.info.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child:
-                      const Icon(Icons.inventory_2, color: Colors.blue, size: 28),
+                      const Icon(Icons.inventory_2, color: AppTheme.info, size: 28),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -758,7 +776,7 @@ class _ProductResultSheet extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        product!.name ?? '',
+                        product!.name,
                         style: const TextStyle(color: Colors.grey, fontSize: 13),
                       ),
                     ],
@@ -773,15 +791,15 @@ class _ProductResultSheet extends StatelessWidget {
               children: [
                 _Stat(
                     label: 'Price',
-                    value: '₹${product!.price.toStringAsFixed(0)}',
-                    color: Colors.green),
+                    value: '₹${product!.price.toDouble().toStringAsFixed(0)}',
+                    color: AppTheme.success),
                 const SizedBox(width: 12),
                 _Stat(
                   label: 'Stock',
                   value: '${product!.stockQuantity}',
                   color: product!.stockQuantity < 10
-                      ? Colors.red
-                      : Colors.blue,
+                      ? AppTheme.error
+                      : AppTheme.info,
                 ),
                 const SizedBox(width: 12),
                 _Stat(
@@ -869,7 +887,7 @@ class _PaymentQrSheet extends StatelessWidget {
     Uri? uri;
     try {
       uri = Uri.parse(upiUrl.replaceFirst('upi:', 'https:'));
-    } catch (_) {}
+    } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
 
     final pa = uri?.queryParameters['pa'] ?? '—';
     final pn = uri?.queryParameters['pn'] ?? '—';

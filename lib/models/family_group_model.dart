@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 /// Family member roles with hierarchical permissions
 enum FamilyRole {
   owner, // Full control, billing, can't be removed
@@ -106,21 +108,21 @@ class FamilyMember {
 
   factory FamilyMember.fromMap(Map<String, dynamic> map) {
     return FamilyMember(
-      userId: map['userId'] ?? '',
-      name: map['name'] ?? '',
-      phoneNumber: map['phoneNumber'] ?? '',
-      profileImageUrl: map['profileImageUrl'],
+      userId: map['userId'] as String? ?? '',
+      name: map['name'] as String? ?? '',
+      phoneNumber: map['phoneNumber'] as String? ?? '',
+      profileImageUrl: map['profileImageUrl'] as String?,
       role: FamilyRole.values.firstWhere(
-        (e) => e.toString() == map['role'],
+        (e) => e.toString() == map['role'] as String?,
         orElse: () => FamilyRole.adult,
       ),
-      monthlySpendingLimit: (map['monthlySpendingLimit'] ?? 0.0).toDouble(),
-      currentMonthSpending: (map['currentMonthSpending'] ?? 0.0).toDouble(),
-      requiresApproval: map['requiresApproval'] ?? false,
-      isActive: map['isActive'] ?? true,
-      joinedAt: map['joinedAt']?.toDate() ?? DateTime.now(),
-      lastOrderAt: map['lastOrderAt']?.toDate(),
-      invitedBy: map['invitedBy'],
+      monthlySpendingLimit: (map['monthlySpendingLimit'] as num? ?? 0.0).toDouble(),
+      currentMonthSpending: (map['currentMonthSpending'] as num? ?? 0.0).toDouble(),
+      requiresApproval: map['requiresApproval'] as bool? ?? false,
+      isActive: map['isActive'] as bool? ?? true,
+      joinedAt: (map['joinedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      lastOrderAt: (map['lastOrderAt'] as Timestamp?)?.toDate(),
+      invitedBy: map['invitedBy'] as String?,
     );
   }
 
@@ -206,17 +208,17 @@ class FamilyApprovalRequest {
 
   factory FamilyApprovalRequest.fromMap(Map<String, dynamic> map) {
     return FamilyApprovalRequest(
-      id: map['id'] ?? '',
-      orderId: map['orderId'] ?? '',
-      requestedBy: map['requestedBy'] ?? '',
-      requestedByName: map['requestedByName'] ?? '',
-      orderAmount: (map['orderAmount'] ?? 0.0).toDouble(),
-      itemNames: List<String>.from(map['itemNames'] ?? []),
-      status: map['status'] ?? 'pending',
-      approvedBy: map['approvedBy'],
-      rejectionReason: map['rejectionReason'],
-      createdAt: map['createdAt']?.toDate() ?? DateTime.now(),
-      resolvedAt: map['resolvedAt']?.toDate(),
+      id: map['id'] as String? ?? '',
+      orderId: map['orderId'] as String? ?? '',
+      requestedBy: map['requestedBy'] as String? ?? '',
+      requestedByName: map['requestedByName'] as String? ?? '',
+      orderAmount: (map['orderAmount'] as num? ?? 0.0).toDouble(),
+      itemNames: List<String>.from(map['itemNames'] as Iterable? ?? []),
+      status: map['status'] as String? ?? 'pending',
+      approvedBy: map['approvedBy'] as String?,
+      rejectionReason: map['rejectionReason'] as String?,
+      createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      resolvedAt: (map['resolvedAt'] as Timestamp?)?.toDate(),
     );
   }
 
@@ -261,14 +263,14 @@ class SharedCartItem {
 
   factory SharedCartItem.fromMap(Map<String, dynamic> map) {
     return SharedCartItem(
-      productId: map['productId'] ?? '',
-      productName: map['productName'] ?? '',
-      quantity: map['quantity'] ?? 1,
-      price: (map['price'] ?? 0.0).toDouble(),
-      addedByUserId: map['addedByUserId'] ?? '',
-      addedByName: map['addedByName'] ?? '',
-      addedAt: map['addedAt']?.toDate() ?? DateTime.now(),
-      note: map['note'],
+      productId: map['productId'] as String? ?? '',
+      productName: map['productName'] as String? ?? '',
+      quantity: map['quantity'] as int? ?? 1,
+      price: (map['price'] as num? ?? 0.0).toDouble(),
+      addedByUserId: map['addedByUserId'] as String? ?? '',
+      addedByName: map['addedByName'] as String? ?? '',
+      addedAt: (map['addedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      note: map['note'] as String?,
     );
   }
 
@@ -343,9 +345,9 @@ class FamilyGroup {
 
   factory FamilyGroup.fromMap(Map<String, dynamic> map) {
     return FamilyGroup(
-      id: map['id'] ?? '',
-      familyName: map['familyName'] ?? '',
-      ownerUserId: map['ownerUserId'] ?? '',
+      id: map['id'] as String? ?? '',
+      familyName: map['familyName'] as String? ?? '',
+      ownerUserId: map['ownerUserId'] as String? ?? '',
       members:
           (map['members'] as List<dynamic>?)
               ?.map(
@@ -371,14 +373,14 @@ class FamilyGroup {
               )
               .toList() ??
           [],
-      monthlyBudget: (map['monthlyBudget'] ?? 0.0).toDouble(),
-      currentMonthSpending: (map['currentMonthSpending'] ?? 0.0).toDouble(),
-      autoApproveUnderLimit: map['autoApproveUnderLimit'] ?? false,
-      autoApproveThreshold: (map['autoApproveThreshold'] ?? 200.0).toDouble(),
-      defaultAddressId: map['defaultAddressId'],
-      defaultPaymentMethod: map['defaultPaymentMethod'],
-      createdAt: map['createdAt']?.toDate() ?? DateTime.now(),
-      updatedAt: map['updatedAt']?.toDate() ?? DateTime.now(),
+      monthlyBudget: (map['monthlyBudget'] as num? ?? 0.0).toDouble(),
+      currentMonthSpending: (map['currentMonthSpending'] as num? ?? 0.0).toDouble(),
+      autoApproveUnderLimit: map['autoApproveUnderLimit'] as bool? ?? false,
+      autoApproveThreshold: (map['autoApproveThreshold'] as num? ?? 200.0).toDouble(),
+      defaultAddressId: map['defaultAddressId'] as String?,
+      defaultPaymentMethod: map['defaultPaymentMethod'] as String?,
+      createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      updatedAt: (map['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 

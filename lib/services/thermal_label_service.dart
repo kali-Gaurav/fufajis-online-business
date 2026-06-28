@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -57,7 +56,7 @@ class ThermalLabelService {
                       product.originalPrice! > product.price)
                     pw.Text(
                       'MRP ₹${product.originalPrice!.toStringAsFixed(0)}',
-                      style: pw.TextStyle(
+                      style: const pw.TextStyle(
                         fontSize: 8,
                         decoration: pw.TextDecoration.lineThrough,
                       ),

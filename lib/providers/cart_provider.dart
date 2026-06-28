@@ -9,10 +9,12 @@ import '../models/coupon.dart';
 import '../models/cart_item.dart';
 import '../models/cart_item_model.dart';
 import '../services/cart_sync_service.dart';
+import '../utils/monetary_value.dart';
 
 class CartProvider with ChangeNotifier {
   final CartSyncService _cartSyncService = CartSyncService();
   List<CartItem> _cartItems = [];
+  List<CartItem> _saveForLaterItems = [];
   Coupon? _appliedCoupon;
   double _walletAmountUsed = 0.0;
   double _tipAmount = 0.0; // Feature 24: Rider Tipping
@@ -21,6 +23,7 @@ class CartProvider with ChangeNotifier {
 
   bool get isLoading => _isLoading;
   List<CartItem> get cartItems => _cartItems;
+  List<CartItem> get saveForLaterItems => _saveForLaterItems;
   Coupon? get appliedCoupon => _appliedCoupon;
   double get walletAmountUsed => _walletAmountUsed;
   double get tipAmount => _tipAmount;
@@ -30,12 +33,12 @@ class CartProvider with ChangeNotifier {
       _cartItems.fold(0, (total, item) => total + item.quantity);
 
   double get subtotal =>
-      _cartItems.fold(0.0, (total, item) => total + item.totalPrice);
+      _cartItems.fold(0.0, (total, item) => total + item.totalPrice.toDouble());
 
   double get discount {
     double discount = 0.0;
     if (_appliedCoupon != null) {
-      discount = _appliedCoupon!.calculateDiscount(subtotal);
+      discount = _appliedCoupon!.calculateDiscount(MonetaryValue(subtotal)).toDouble();
     }
     return discount;
   }
@@ -65,11 +68,43 @@ class CartProvider with ChangeNotifier {
   /// Set the delivery type
   void setDeliveryType(DeliveryType type) {
     _deliveryType = type;
+    _savePreferences();
     notifyListeners();
   }
 
   void setTipAmount(double amount) {
     _tipAmount = amount;
+    _savePreferences();
+    notifyListeners();
+  }
+
+  Future<void> _savePreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    final prefsMap = {
+      'delivery_type': _deliveryType.toString(),
+      'tip_amount': _tipAmount,
+    };
+    await prefs.setString('cart_preferences', jsonEncode(prefsMap));
+  }
+
+  Future<void> loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    final prefsStr = prefs.getString('cart_preferences');
+    if (prefsStr != null) {
+      try {
+        final prefsMap = jsonDecode(prefsStr) as Map<String, dynamic>;
+        final typeStr = prefsMap['delivery_type'] as String?;
+        if (typeStr != null) {
+          _deliveryType = DeliveryType.values.firstWhere(
+            (e) => e.toString() == typeStr,
+            orElse: () => DeliveryType.standard,
+          );
+        }
+        _tipAmount = (prefsMap['tip_amount'] as num?)?.toDouble() ?? 0.0;
+      } catch (e) {
+        debugPrint('Error decoding cart prefs: $e');
+      }
+    }
     notifyListeners();
   }
 
@@ -105,8 +140,9 @@ class CartProvider with ChangeNotifier {
       );
     } else {
       final price = selectedUnit?.price ?? product.price;
-      final originalPrice =
-          selectedUnit?.originalPrice ?? product.originalPrice;
+      final originalPrice = selectedUnit?.originalPrice != null
+          ? MonetaryValue(selectedUnit!.originalPrice)
+          : product.originalPrice;
       final unitName = selectedUnit?.name ?? product.unit;
 
       final cartItem = CartItem(
@@ -191,7 +227,7 @@ class CartProvider with ChangeNotifier {
           throw Exception('This coupon has expired.');
         }
 
-        final minimumOrder = (data['minimumOrderAmount'] ?? 0.0).toDouble();
+        final minimumOrder = (data['minimumOrderAmount'] as num? ?? 0.0).toDouble();
         if (subtotal < minimumOrder) {
           throw Exception(
             'Minimum order of ₹${minimumOrder.toStringAsFixed(0)} required for this coupon.',
@@ -201,12 +237,12 @@ class CartProvider with ChangeNotifier {
         _appliedCoupon = Coupon(
           id: snapshot.docs.first.id,
           code: code,
-          name: data['name'] ?? code,
-          description: data['description'] ?? '',
-          discountType: data['discountType'] ?? 'percentage',
-          discountValue: (data['discountValue'] ?? 0).toDouble(),
+          name: data['name'] as String? ?? code,
+          description: data['description'] as String? ?? '',
+          discountType: data['discountType'] as String? ?? 'percentage',
+          discountValue: MonetaryValue((data['discountValue'] as num? ?? 0).toDouble()),
           minimumOrderAmount: minimumOrder,
-          maximumDiscountAmount: (data['maximumDiscountAmount'] ?? 0.0)
+          maximumDiscountAmount: (data['maximumDiscountAmount'] as num? ?? 0.0)
               .toDouble(),
           startDate:
               startDate ?? DateTime.now().subtract(const Duration(days: 1)),
@@ -235,7 +271,7 @@ class CartProvider with ChangeNotifier {
         name: '10% Off',
         description: 'Get 10% off on your order',
         discountType: 'percentage',
-        discountValue: 10,
+        discountValue: MonetaryValue(10),
         minimumOrderAmount: 200,
         maximumDiscountAmount: 100,
         startDate: DateTime.now().subtract(const Duration(days: 1)),
@@ -252,7 +288,7 @@ class CartProvider with ChangeNotifier {
         name: '20% Off First Order',
         description: 'Get 20% off on your first order',
         discountType: 'percentage',
-        discountValue: 20,
+        discountValue: MonetaryValue(20),
         minimumOrderAmount: 300,
         maximumDiscountAmount: 150,
         startDate: DateTime.now().subtract(const Duration(days: 1)),
@@ -318,7 +354,9 @@ class CartProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
+      await loadPreferences();
       _cartItems = await _cartSyncService.loadLocalCart();
+      _saveForLaterItems = await _cartSyncService.loadLocalSaveForLater();
     } catch (e) {
       debugPrint('Error loading cart: $e');
     } finally {
@@ -338,7 +376,9 @@ class CartProvider with ChangeNotifier {
     notifyListeners();
     try {
       _cartItems = await _cartSyncService.loadCloudCart(uid);
+      _saveForLaterItems = await _cartSyncService.loadCloudSaveForLater(uid);
       await _saveCart();
+      await _saveSaveForLater();
     } catch (e) {
       debugPrint('Error loading cloud cart: $e');
     } finally {
@@ -426,6 +466,53 @@ class CartProvider with ChangeNotifier {
     _deliveryType = DeliveryType.standard;
     _saveCart();
     notifyListeners();
+  }
+
+  // ── Save for Later Features ──
+  Future<void> saveForLater(String cartItemId, String? userId) async {
+    final index = _cartItems.indexWhere((item) => item.id == cartItemId);
+    if (index >= 0) {
+      final item = _cartItems.removeAt(index);
+      _saveForLaterItems.add(item);
+      
+      await _saveCart();
+      await _saveSaveForLater();
+      
+      if (userId != null) {
+        await syncToCloud(userId);
+        await syncSaveForLaterToCloud(userId);
+      }
+      notifyListeners();
+    }
+  }
+
+  Future<void> moveToCart(String savedItemId, String? userId) async {
+    final index = _saveForLaterItems.indexWhere((item) => item.id == savedItemId);
+    if (index >= 0) {
+      final item = _saveForLaterItems.removeAt(index);
+      _cartItems.add(item);
+      
+      await _saveCart();
+      await _saveSaveForLater();
+      
+      if (userId != null) {
+        await syncToCloud(userId);
+        await syncSaveForLaterToCloud(userId);
+      }
+      notifyListeners();
+    }
+  }
+
+  Future<void> _saveSaveForLater() async {
+    try {
+      await _cartSyncService.saveLocalSaveForLater(_saveForLaterItems);
+    } catch (e) {
+      debugPrint('Error saving save for later items: $e');
+    }
+  }
+
+  Future<void> syncSaveForLaterToCloud(String uid) async {
+    await _cartSyncService.syncSaveForLaterToCloud(uid, _saveForLaterItems);
   }
 
   // Check if product is in cart

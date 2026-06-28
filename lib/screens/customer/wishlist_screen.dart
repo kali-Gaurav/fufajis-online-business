@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/product_provider.dart';
-import '../../models/product_model.dart';
 import '../../utils/app_theme.dart';
+import '../../utils/monetary_value.dart';
 
 class WishlistScreen extends StatelessWidget {
   const WishlistScreen({super.key});
@@ -39,7 +39,7 @@ class WishlistScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Wishlist'),
+        title: const Text('My Wishlist', style: TextStyle(fontWeight: FontWeight.w700)),
         actions: [
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
@@ -68,10 +68,10 @@ class WishlistScreen extends StatelessWidget {
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
           }
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return _buildEmptyState();
+            return _buildEmptyState(context);
           }
 
           final docs = snapshot.data!.docs;
@@ -100,7 +100,7 @@ class WishlistScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -125,7 +125,9 @@ class WishlistScreen extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Add to Cart tapped')));
+            },
             icon: const Icon(Icons.shopping_bag_outlined),
             label: const Text('Browse Products'),
             style: ElevatedButton.styleFrom(
@@ -213,8 +215,8 @@ class _WishlistProductCard extends StatelessWidget {
     final product = productProvider.getProductById(productId);
 
     final name = product?.name ?? data['name'] as String? ?? 'Product';
-    final price = product?.price ?? (data['price'] as num?)?.toDouble() ?? 0.0;
-    final originalPrice = product?.originalPrice ?? (data['originalPrice'] as num?)?.toDouble();
+    final price = product?.price.toDouble() ?? (data['price'] as num?)?.toDouble() ?? 0.0;
+    final originalPrice = product?.originalPrice?.toDouble() ?? (data['originalPrice'] as num?)?.toDouble();
     final imageUrl = product?.imageUrl ?? data['imageUrl'] as String? ?? '';
     final isAvailable = product?.isAvailable ?? true;
 
@@ -270,7 +272,7 @@ class _WishlistProductCard extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(6),
                         decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                        child: const Icon(Icons.favorite, color: Colors.red, size: 18),
+                        child: const Icon(Icons.favorite, color: AppTheme.error, size: 18),
                       ),
                     ),
                   ),

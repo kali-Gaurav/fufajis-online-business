@@ -39,6 +39,13 @@ import '../screens/owner/inventory_screen.dart';
 import '../screens/owner/inventory_audit_screen.dart';
 import '../screens/owner/vendor_request_screen.dart';
 import '../screens/owner/analytics_screen.dart';
+import '../screens/owner/bi_analytics_hub_screen.dart';
+import '../screens/owner/financial_dashboard_screen.dart';
+import '../screens/owner/business_dashboard_screen.dart';
+import '../screens/owner/franchise_dashboard_screen.dart';
+import '../screens/owner/postgres_analytics_screen.dart';
+import '../screens/owner/owner_ai_dashboard.dart';
+import '../screens/owner/executive_decision_center.dart';
 import '../screens/owner/whatsapp_sync_setup_screen.dart';
 import '../screens/owner/inventory_alerts_screen.dart';
 import '../screens/owner/expiry_tracking_screen.dart';
@@ -63,6 +70,8 @@ import '../screens/delivery/smart_route_screen.dart';
 import '../screens/customer/profile_creation_screen.dart';
 import '../screens/security_pin_screen.dart';
 import '../screens/auth/verification_wall_screen.dart';
+import '../screens/auth/phone_login_screen.dart';
+import '../screens/auth/phone_verify_screen.dart';
 import '../providers/guest_provider.dart';
 
 import '../screens/employee/employee_home_screen.dart';
@@ -80,9 +89,24 @@ import '../screens/employee/shelf_refill_screen.dart';
 import '../screens/employee/expiry_management_screen.dart';
 import '../screens/employee/unified_scanner_hub.dart';
 import '../screens/employee/dispatch_scanner_screen.dart';
+import '../screens/scanner/return_damage_hub_screen.dart';
 import '../screens/employee/delivery_pod_scanner_screen.dart';
 import '../screens/employee/customer_membership_scanner_screen.dart';
 import '../screens/owner/scan_activity_screen.dart';
+import '../screens/owner/owner_chat_center_screen.dart';
+import '../screens/owner/owner_chat_detail_screen.dart';
+import '../screens/owner/bulk_inventory_query_screen.dart';
+import '../screens/owner/inventory_approval_queue_screen.dart';
+import '../screens/owner/customer_segmentation_screen.dart';
+import '../screens/owner/delivery_sla_dashboard_screen.dart';
+import '../screens/owner/failed_delivery_escalation_screen.dart';
+import '../screens/delivery/delivery_reschedule_screen.dart';
+import '../screens/rider/rider_route_history_screen.dart';
+import '../screens/customer/wallet_screen.dart';
+import '../screens/customer/membership_screen.dart';
+import '../screens/rider/rider_map_screen.dart';
+import '../screens/admin/dead_letter_dashboard_screen.dart';
+import '../screens/owner/rider_pulse_heatmap_screen.dart';
 
 /// Combines multiple [Listenable]s into one so GoRouter re-evaluates
 /// its redirect when either AuthProvider OR GuestProvider changes state.
@@ -142,6 +166,19 @@ class AppRouter {
         ),
       ),
 
+      // Phone Auth
+      GoRoute(
+        path: '/auth/phone-login',
+        builder: (context, state) => const PhoneLoginScreen(),
+      ),
+      GoRoute(
+        path: '/auth/phone-verify',
+        builder: (context, state) {
+          final phone = state.uri.queryParameters['phone'] ?? '';
+          return PhoneVerifyScreen(phoneNumber: phone);
+        },
+      ),
+
       // Security PIN
       GoRoute(
         path: '/security-pin',
@@ -170,247 +207,334 @@ class AppRouter {
       ),
 
       // Customer App Routes
-      GoRoute(
-        path: '/customer',
-        builder: (context, state) => const CustomerShell(),
+      ShellRoute(
+        builder: (context, state, child) => CustomerShell(child: child),
         routes: [
           GoRoute(
-            path: 'home',
+            path: '/customer/home',
             builder: (context, state) => const HomeScreen(),
           ),
           GoRoute(
-            path: 'search',
+            path: '/customer/search',
             builder: (context, state) => SearchScreen(
               initialQuery: state.uri.queryParameters['q'],
             ),
           ),
           GoRoute(
-            path: 'snap-to-shop',
+            path: '/customer/snap-to-shop',
             builder: (context, state) => const SnapToShopScreen(),
           ),
           GoRoute(
-            path: 'cart',
+            path: '/customer/cart',
             builder: (context, state) => const CartScreen(),
           ),
           GoRoute(
-            path: 'profile',
+            path: '/customer/profile',
             builder: (context, state) => const ProfileScreen(),
           ),
           GoRoute(
-            path: 'devices',
+            path: '/customer/devices',
             builder: (context, state) => const MyDevicesScreen(),
           ),
           GoRoute(
-            path: 'product/:productId',
+            path: '/customer/product/:productId',
             builder: (context, state) => ProductDetailScreen(
               productId: state.pathParameters['productId'] ?? '',
             ),
           ),
           GoRoute(
-            path: 'checkout',
+            path: '/customer/checkout',
             builder: (context, state) => const CheckoutScreen(),
           ),
           GoRoute(
-            path: 'order-confirmation',
+            path: '/customer/order-confirmation',
             builder: (context, state) => OrderConfirmationScreen(
               orderId: state.uri.queryParameters['orderId'],
               orderNumber: state.uri.queryParameters['orderNumber'],
             ),
           ),
           GoRoute(
-            path: 'orders',
+            path: '/customer/orders',
             builder: (context, state) => const OrdersScreen(),
           ),
           GoRoute(
-            path: 'order-detail/:orderId',
+            path: '/customer/order-detail/:orderId',
             builder: (context, state) => OrderDetailScreen(
               orderId: state.pathParameters['orderId'] ?? '',
             ),
           ),
           GoRoute(
-            path: 'dispute/:orderId',
+            path: '/customer/dispute/:orderId',
             builder: (context, state) => DisputeScreen(
               orderId: state.pathParameters['orderId'] ?? '',
             ),
           ),
           GoRoute(
-            path: 'addresses',
+            path: '/customer/addresses',
             builder: (context, state) => const AddressScreen(),
           ),
           GoRoute(
-            path: 'track/:orderId',
+            path: '/customer/track/:orderId',
             builder: (context, state) => DeliveryTrackingScreen(
               orderId: state.pathParameters['orderId'] ?? '',
             ),
           ),
           GoRoute(
-            path: 'support-chat/:orderId',
+            path: '/customer/support-chat/:orderId',
             builder: (context, state) => SupportChatScreen(
               orderId: state.pathParameters['orderId'],
             ),
           ),
           GoRoute(
-            path: 'support',
+            path: '/customer/support',
             builder: (context, state) => const SupportChatScreen(),
           ),
           GoRoute(
-            path: 'wallet',
+            path: '/customer/wallet',
             builder: (context, state) => const WalletHistoryScreen(),
           ),
           GoRoute(
-            path: 'settings',
+            path: '/customer/my-wallet',
+            builder: (context, state) => const WalletScreen(),
+          ),
+          GoRoute(
+            path: '/customer/membership',
+            builder: (context, state) => const MembershipScreen(),
+          ),
+          GoRoute(
+            path: '/customer/settings',
             builder: (context, state) => const SettingsScreen(),
           ),
           GoRoute(
-            path: 'notifications',
+            path: '/customer/notifications',
             builder: (context, state) => const NotificationCenter(),
           ),
           GoRoute(
-            path: 'notification-settings',
+            path: '/customer/notification-settings',
             builder: (context, state) => const NotificationSettingsScreen(),
           ),
         ],
       ),
 
       // Shop Owner Routes
-      GoRoute(
-        path: '/owner',
-        builder: (context, state) => const OwnerDashboard(),
+      ShellRoute(
+        builder: (context, state, child) => OwnerDashboard(child: child),
         routes: [
           GoRoute(
-            path: 'products',
+            path: '/owner',
+            builder: (context, state) => const ProductsManagementScreen(), // Default dashboard content
+          ),
+          GoRoute(
+            path: '/owner/products',
             builder: (context, state) => const ProductsManagementScreen(),
           ),
           GoRoute(
-            path: 'packing-terminal',
+            path: '/owner/packing-terminal',
             builder: (context, state) {
               final orderId = state.uri.queryParameters['orderId'];
               return PackingTerminalScreen(orderId: orderId);
             },
           ),
           GoRoute(
-            path: 'packing-dashboard',
+            path: '/owner/packing-dashboard',
             builder: (context, state) => const PackingDashboardScreen(),
           ),
           GoRoute(
-            path: 'orders',
+            path: '/owner/orders',
             builder: (context, state) => const OrdersManagementScreen(),
           ),
           GoRoute(
-            path: 'inventory',
+            path: '/owner/inventory',
             builder: (context, state) => const InventoryScreen(),
           ),
           GoRoute(
-            path: 'inventory-alerts',
+            path: '/owner/inventory-alerts',
             builder: (context, state) => const InventoryAlertsScreen(),
           ),
           GoRoute(
-            path: 'expiry-tracking',
+            path: '/owner/expiry-tracking',
             builder: (context, state) => const ExpiryTrackingScreen(),
           ),
           GoRoute(
-            path: 'pricing-rules',
+            path: '/owner/pricing-rules',
             builder: (context, state) => const PricingRulesScreen(),
           ),
           GoRoute(
-            path: 'pending-price-changes',
+            path: '/owner/pending-price-changes',
             builder: (context, state) => const PendingPriceChangesScreen(),
           ),
           GoRoute(
-            path: 'inventory-audit',
+            path: '/owner/inventory-audit',
             builder: (context, state) => const InventoryAuditScreen(),
           ),
           GoRoute(
-            path: 'vendor-request',
+            path: '/owner/vendor-request',
             builder: (context, state) => const VendorRequestScreen(),
           ),
           GoRoute(
-            path: 'analytics',
+            path: '/owner/analytics',
+            builder: (context, state) => const BiAnalyticsHubScreen(),
+          ),
+          GoRoute(
+            path: '/owner/analytics/postcode',
             builder: (context, state) => const AnalyticsScreen(),
           ),
           GoRoute(
-            path: 'packing/:orderId',
+            path: '/owner/analytics/postgres',
+            builder: (context, state) => const PostgresAnalyticsScreen(),
+          ),
+          GoRoute(
+            path: '/owner/bi/financial',
+            builder: (context, state) => const FinancialDashboardScreen(),
+          ),
+          GoRoute(
+            path: '/owner/bi/business',
+            builder: (context, state) => const BusinessDashboardScreen(),
+          ),
+          GoRoute(
+            path: '/owner/bi/franchise',
+            builder: (context, state) => const FranchiseDashboardScreen(),
+          ),
+          GoRoute(
+            path: '/owner/bi/ai-dashboard',
+            builder: (context, state) => const OwnerAiDashboard(),
+          ),
+          GoRoute(
+            path: '/owner/bi/decision-center',
+            builder: (context, state) => const ExecutiveDecisionCenter(),
+          ),
+          GoRoute(
+            path: '/owner/packing/:orderId',
             builder: (context, state) => PackingTerminalScreen(
               orderId: state.pathParameters['orderId'] ?? '',
             ),
           ),
           GoRoute(
-            path: 'khata',
+            path: '/owner/khata',
             builder: (context, state) => const BahiKhataScreen(),
           ),
           GoRoute(
-            path: 'whatsapp-sync',
+            path: '/owner/whatsapp-sync',
             builder: (context, state) => const WhatsAppSyncSetupScreen(),
           ),
           GoRoute(
-            path: 'riders',
+            path: '/owner/riders',
             builder: (context, state) => const RiderManagementScreen(),
           ),
           GoRoute(
-            path: 'shop-settings',
+            path: '/owner/fleet-tracking',
+            builder: (context, state) => const RiderPulseHeatmapScreen(),
+          ),
+          GoRoute(
+            path: '/owner/shop-settings',
             builder: (context, state) => const ShopSettingsScreen(),
           ),
           GoRoute(
-            path: 'shop-location',
+            path: '/owner/shop-location',
             builder: (context, state) => const ShopLocationPickerScreen(),
           ),
           GoRoute(
-            path: 'delivery-zones',
+            path: '/owner/delivery-zones',
             builder: (context, state) => const DeliveryZonesScreen(),
           ),
           GoRoute(
-            path: 'branches',
+            path: '/owner/branches',
             builder: (context, state) => const BranchManagementScreen(),
           ),
           GoRoute(
-            path: 'operating-hours',
+            path: '/owner/operating-hours',
             builder: (context, state) => const OperatingHoursScreen(),
           ),
           GoRoute(
-            path: 'cash-register',
+            path: '/owner/cash-register',
             builder: (context, state) => const CashRegisterScreen(),
           ),
           GoRoute(
-            path: 'bill-scanner',
+            path: '/owner/bill-scanner',
             builder: (context, state) => const BillScannerScreen(),
           ),
           GoRoute(
-            path: 'employees',
+            path: '/owner/employees',
             builder: (context, state) => const EmployeeManagementScreen(),
+          ),
+          GoRoute(
+            path: '/owner/scan-activity',
+            builder: (context, state) => const ScanActivityScreen(),
+          ),
+          GoRoute(
+            path: '/owner/chat',
+            builder: (context, state) => const OwnerChatCenterScreen(),
+          ),
+          GoRoute(
+            path: '/owner/chat/:chatId',
+            builder: (context, state) =>
+                OwnerChatDetailScreen(chatId: state.pathParameters['chatId']!),
+          ),
+          GoRoute(
+            path: '/owner/inventory-query',
+            builder: (context, state) => const BulkInventoryQueryScreen(),
+          ),
+          GoRoute(
+            path: '/owner/inventory-approval',
+            builder: (context, state) => const InventoryApprovalQueueScreen(),
+          ),
+          GoRoute(
+            path: '/owner/customer-segments',
+            builder: (context, state) => const CustomerSegmentationScreen(),
+          ),
+          GoRoute(
+            path: '/owner/delivery-sla',
+            builder: (context, state) => const DeliverySLADashboardScreen(),
+          ),
+          GoRoute(
+            path: '/owner/failed-deliveries',
+            builder: (context, state) => const FailedDeliveryEscalationScreen(),
           ),
         ],
       ),
 
       // Admin Routes
-      GoRoute(
-        path: '/admin',
-        builder: (context, state) => const AdminDashboard(),
+      ShellRoute(
+        builder: (context, state, child) => AdminDashboard(child: child),
+        routes: [
+          GoRoute(
+            path: '/admin',
+            builder: (context, state) => const Center(child: Text("Admin Overiew")),
+          ),
+          GoRoute(
+            path: '/admin/dead-letter',
+            builder: (context, state) => const DeadLetterDashboardScreen(),
+          ),
+        ],
       ),
 
       // Delivery Agent Routes
-      GoRoute(
-        path: '/delivery',
-        builder: (context, state) => const DeliveryDashboard(),
+      ShellRoute(
+        builder: (context, state, child) => DeliveryDashboard(child: child),
         routes: [
           GoRoute(
-            path: 'orders',
+            path: '/delivery',
             builder: (context, state) => const DeliveryOrdersScreen(),
           ),
           GoRoute(
-            path: 'earnings',
+            path: '/delivery/orders',
+            builder: (context, state) => const DeliveryOrdersScreen(),
+          ),
+          GoRoute(
+            path: '/delivery/earnings',
             builder: (context, state) => const DeliveryEarningsScreen(),
           ),
           GoRoute(
-            path: 'trip-sheet',
+            path: '/delivery/trip-sheet',
             builder: (context, state) => const TripRouteSheet(),
           ),
           GoRoute(
-            path: 'smart-route',
+            path: '/delivery/smart-route',
             builder: (context, state) => const SmartRouteScreen(),
           ),
         ],
       ),
-      
+
       // Employee Routes
       GoRoute(
         path: '/employee',
@@ -516,15 +640,41 @@ class AppRouter {
                   customerId: customerId);
             },
           ),
+          GoRoute(
+            path: 'return-hub',
+            builder: (context, state) => const ReturnDamageHubScreen(),
+          ),
         ],
       ),
 
-      // Owner: scan activity log
+      // Rider: Live Map screen
       GoRoute(
-        path: '/owner/scan-activity',
-        builder: (context, state) => const ScanActivityScreen(),
+        path: '/rider/map',
+        builder: (context, state) => const RiderMapScreen(),
+      ),
+
+      // Rider: Route History
+      GoRoute(
+        path: '/rider/history',
+        builder: (context, state) => const RiderRouteHistoryScreen(),
+      ),
+
+      // Delivery: Reschedule failed delivery
+      GoRoute(
+        path: '/delivery/reschedule/:orderId',
+        builder: (context, state) {
+          final orderId     = state.pathParameters['orderId']!;
+          final orderNumber = state.uri.queryParameters['orderNumber'] ?? orderId;
+          final customerId  = state.uri.queryParameters['customerId'] ?? '';
+          return DeliveryRescheduleScreen(
+            orderId: orderId,
+            orderNumber: orderNumber,
+            customerId: customerId,
+          );
+        },
       ),
     ],
+
     redirect: (context, state) {
       final authProvider  = Provider.of<AuthProvider>(context, listen: false);
       final guestProvider = Provider.of<GuestProvider>(context, listen: false);
@@ -589,13 +739,13 @@ class AppRouter {
         final path = state.uri.path;
 
         // Security Guard for Owner/Admin
-        if (user.role == UserRole.shopOwner || user.role == UserRole.admin) {
+        if (user.role == UserRole.shopOwner || user.role == UserRole.admin || user.role == UserRole.owner || user.role == UserRole.superAdmin) {
           if (authProvider.isPinRequired && path != '/security-pin') {
             return '/security-pin';
           }
           if (authProvider.isDeviceVerificationRequired && path != '/security-pin') {
             // Re-using pin screen or dedicated device screen, but logic is in AuthProvider
-            return '/security-pin'; 
+            return '/security-pin';
           }
         }
 
@@ -619,10 +769,17 @@ class AppRouter {
         if (isOnOnboarding && path != '/profile-creation') {
           switch (user.role) {
             case UserRole.shopOwner: return '/owner';
+            case UserRole.owner: return '/owner';
+            case UserRole.superAdmin: return '/owner';
             case UserRole.deliveryAgent: return '/delivery';
             case UserRole.admin: return '/admin';
             case UserRole.employee: return '/employee';
             case UserRole.customer: return '/customer/home';
+            case UserRole.rider: return '/delivery';
+            case UserRole.dispatcher: return '/owner';
+            case UserRole.branchManager: return '/owner';
+            case UserRole.supplier: return '/owner';
+            case UserRole.franchiseOwner: return '/owner';
           }
         }
 

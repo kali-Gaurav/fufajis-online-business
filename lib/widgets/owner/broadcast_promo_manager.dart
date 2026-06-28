@@ -16,6 +16,14 @@ class _BroadcastPromoManagerState extends State<BroadcastPromoManager> {
   final List<String> _villages = ['All', 'Bassi', 'Shahpura', 'Bagru', 'Achrol'];
 
   @override
+  void dispose() {
+    _titleController.dispose();
+    _msgController.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),

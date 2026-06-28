@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../utils/app_theme.dart';
+
 /// Pending Price Changes Screen
 /// Displays pending price changes for review and approval
 class PendingPriceChangesScreen extends StatefulWidget {
@@ -34,9 +36,11 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
         _approvalHistory = approvalHistory;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading changes: $e')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading changes: $e')),
+        );
+      }
     } finally {
       setState(() => _isLoading = false);
     }
@@ -96,15 +100,19 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
     setState(() => _isLoading = true);
     try {
       // Call provider to approve price change
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Price change approved')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Price change approved')),
+        );
+      }
 
       await _loadPendingChanges();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error approving change: $e')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error approving change: $e')),
+        );
+      }
     } finally {
       setState(() => _isLoading = false);
     }
@@ -117,15 +125,19 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
     setState(() => _isLoading = true);
     try {
       // Call provider to reject price change
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Price change rejected')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Price change rejected')),
+        );
+      }
 
       await _loadPendingChanges();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error rejecting change: $e')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error rejecting change: $e')),
+        );
+      }
     } finally {
       setState(() => _isLoading = false);
     }
@@ -138,15 +150,19 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
         await _approvePriceChange(change);
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('All price changes approved')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('All price changes approved')),
+        );
+      }
 
       await _loadPendingChanges();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error approving all changes: $e')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error approving all changes: $e')),
+        );
+      }
     } finally {
       setState(() => _isLoading = false);
     }
@@ -157,7 +173,7 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
     return showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Reject Price Change'),
+        title: const Text('Reject Price Change', style: TextStyle(fontWeight: FontWeight.w700)),
         content: TextField(
           controller: controller,
           decoration: const InputDecoration(
@@ -180,15 +196,18 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
     );
   }
 
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pending Price Changes'),
+        title: const Text('Pending Price Changes', style: TextStyle(fontWeight: FontWeight.w700)),
         elevation: 0,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent))
           : DefaultTabController(
               length: 2,
               child: Column(
@@ -208,7 +227,7 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.orange,
+                                color: AppTheme.warning,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
@@ -251,10 +270,10 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.check_circle,
               size: 64,
-              color: Colors.green[300],
+              color: AppTheme.success,
             ),
             const SizedBox(height: 16),
             const Text(
@@ -343,14 +362,14 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
                             ),
                             decoration: BoxDecoration(
                               color: priceChange > 0
-                                  ? Colors.red[100]
-                                  : Colors.green[100],
+                                  ? AppTheme.error
+                                  : AppTheme.success,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
                               '${priceChange > 0 ? '+' : ''}${percentChange.toStringAsFixed(1)}%',
                               style: TextStyle(
-                                color: priceChange > 0 ? Colors.red : Colors.green,
+                                color: priceChange > 0 ? AppTheme.error : AppTheme.success,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -404,7 +423,7 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.blue,
+                                    color: AppTheme.info,
                                   ),
                                 ),
                               ],
@@ -545,13 +564,13 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: isApproved ? Colors.green[100] : Colors.red[100],
+                        color: isApproved ? AppTheme.success : AppTheme.error,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         item['status'],
                         style: TextStyle(
-                          color: isApproved ? Colors.green : Colors.red,
+                          color: isApproved ? AppTheme.success : AppTheme.error,
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
                         ),

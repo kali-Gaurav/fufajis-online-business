@@ -5,6 +5,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/location_provider.dart';
 import '../../models/user_model.dart';
 import 'map_picker_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
@@ -121,11 +122,12 @@ class _AddressScreenState extends State<AddressScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: AppTheme.grey50,
+      backgroundColor: AppTheme.cream,
       appBar: AppBar(
-        title: const Text('Saved Addresses'),
-        backgroundColor: Colors.white,
+        title: Text(l10n.translate('savedAddresses')),
+        backgroundColor: AppTheme.cream,
         foregroundColor: AppTheme.grey900,
         elevation: 0,
         actions: [
@@ -133,13 +135,13 @@ class _AddressScreenState extends State<AddressScreen> {
             TextButton.icon(
               onPressed: () => _openAddressForm(),
               icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add New', style: TextStyle(fontWeight: FontWeight.bold)),
+              label: Text(l10n.translate('addNew'), style: const TextStyle(fontWeight: FontWeight.bold)),
               style: TextButton.styleFrom(foregroundColor: AppTheme.primary),
             ),
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : _isFormOpen
               ? _buildAddressForm()
               : _buildAddressesList(),
@@ -147,6 +149,7 @@ class _AddressScreenState extends State<AddressScreen> {
   }
 
   Widget _buildAddressesList() {
+    final l10n = AppLocalizations.of(context)!;
     if (_addresses.isEmpty) {
       return Center(
         child: Padding(
@@ -156,21 +159,21 @@ class _AddressScreenState extends State<AddressScreen> {
             children: [
               const Icon(Icons.location_off, size: 64, color: AppTheme.grey400),
               const SizedBox(height: 16),
-              const Text(
-                'No Saved Addresses',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey700),
+              Text(
+                l10n.translate('noSavedAddresses'),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey700),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Add shipping addresses to speed up your checkout process next time.',
+              Text(
+                l10n.translate('noSavedAddressesSubtitle'),
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: AppTheme.grey500),
+                style: const TextStyle(fontSize: 14, color: AppTheme.grey500),
               ),
               const SizedBox(height: 24),
               ElevatedButton.icon(
                 onPressed: () => _openAddressForm(),
                 icon: const Icon(Icons.add),
-                label: const Text('Add Shipping Address'),
+                label: Text(l10n.translate('addShippingAddress')),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primary,
                   foregroundColor: Colors.white,
@@ -232,7 +235,7 @@ class _AddressScreenState extends State<AddressScreen> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      address.label,
+                      _getLocalizedLabel(address.label),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -251,9 +254,9 @@ class _AddressScreenState extends State<AddressScreen> {
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(color: AppTheme.success.withValues(alpha: 0.3)),
                   ),
-                  child: const Text(
-                    'Default',
-                    style: TextStyle(
+                  child: Text(
+                    AppLocalizations.of(context)!.translate('default'),
+                    style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                       color: AppTheme.success,
@@ -306,6 +309,8 @@ class _AddressScreenState extends State<AddressScreen> {
                   child: Text(
                     'Landmark: ${address.landmark}',
                     style: const TextStyle(fontSize: 13, color: AppTheme.grey600),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -326,19 +331,21 @@ class _AddressScreenState extends State<AddressScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.amber.shade50,
+                color: AppTheme.warning.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.amber.shade200),
+                border: Border.all(color: AppTheme.warning),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.info_outline, size: 16, color: Colors.orange),
+                  const Icon(Icons.info_outline, size: 16, color: AppTheme.warning),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       address.deliveryInstructions!,
-                      style: TextStyle(fontSize: 12, color: Colors.orange.shade800, fontStyle: FontStyle.italic),
+                      style: const TextStyle(fontSize: 12, color: AppTheme.warning, fontStyle: FontStyle.italic),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
@@ -355,7 +362,7 @@ class _AddressScreenState extends State<AddressScreen> {
                 TextButton.icon(
                   onPressed: () => _setDefaultAddress(address.id),
                   icon: const Icon(Icons.check, size: 16),
-                  label: const Text('Set as Default'),
+                  label: Text(AppLocalizations.of(context)!.translate('setAsDefault')),
                   style: TextButton.styleFrom(
                     foregroundColor: AppTheme.primary,
                     textStyle: const TextStyle(fontWeight: FontWeight.bold),
@@ -371,10 +378,22 @@ class _AddressScreenState extends State<AddressScreen> {
 
   IconData _getIconForLabel(String label) {
     final l = label.toLowerCase();
-    if (l.contains('home')) return Icons.home;
-    if (l.contains('work') || l.contains('office')) return Icons.business;
-    if (l.contains('farm')) return Icons.agriculture;
+    final l10n = AppLocalizations.of(context)!;
+    if (l.contains('home') || l == l10n.labelHome.toLowerCase()) return Icons.home;
+    if (l.contains('work') || l == l10n.labelWork.toLowerCase() || l.contains('office')) return Icons.business;
+    if (l.contains('farm') || l == l10n.labelFarm.toLowerCase()) return Icons.agriculture;
     return Icons.location_on;
+  }
+
+  String _getLocalizedLabel(String label) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (label) {
+      case 'Home': return l10n.labelHome;
+      case 'Work': return l10n.labelWork;
+      case 'Village-Home': return l10n.labelVillageHome;
+      case 'Farm': return l10n.labelFarm;
+      default: return label;
+    }
   }
 
   Future<void> _setDefaultAddress(String addressId) async {
@@ -403,7 +422,7 @@ class _AddressScreenState extends State<AddressScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Address'),
+        title: const Text('Delete Address', style: TextStyle(fontWeight: FontWeight.w700)),
         content: const Text('Are you sure you want to delete this address preset?'),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         actions: [
@@ -450,6 +469,7 @@ class _AddressScreenState extends State<AddressScreen> {
   }
 
   Widget _buildAddressForm() {
+    final l10n = AppLocalizations.of(context)!;
     final isEditing = _editingAddress != null;
 
     return SingleChildScrollView(
@@ -493,113 +513,88 @@ class _AddressScreenState extends State<AddressScreen> {
               const SizedBox(height: 24),
               
               // Step 18.3: Address Type Classification
-              const Text('Property Type', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              Text(l10n.translate('propertyType'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
               const SizedBox(height: 8),
               Row(
-                children: ['House', 'Apartment', 'Shop'].map((type) {
-                  final isSelected = _addressType == type;
-                  return Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: ChoiceChip(
-                        label: Center(child: Text(type)),
-                        selected: isSelected,
-                        onSelected: (val) => setState(() => _addressType = type),
-                        selectedColor: AppTheme.primary,
-                        labelStyle: TextStyle(color: isSelected ? Colors.white : AppTheme.grey700),
-                      ),
-                    ),
-                  );
-                }).toList(),
+                children: [
+                  _PropertyTypeChip(label: l10n.typeHouse, value: 'House', groupValue: _addressType, onSelected: (v) => setState(() => _addressType = v)),
+                  _PropertyTypeChip(label: l10n.typeApartment, value: 'Apartment', groupValue: _addressType, onSelected: (v) => setState(() => _addressType = v)),
+                  _PropertyTypeChip(label: l10n.typeShop, value: 'Shop', groupValue: _addressType, onSelected: (v) => setState(() => _addressType = v)),
+                ],
               ),
               const SizedBox(height: 24),
 
               // Quick Preset Chips
-              const Text('Address Type', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              Text(l10n.translate('addressType'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: ['Home', 'Work', 'Village-Home', 'Farm'].map((label) {
-                  final isSelected = _labelController.text == label;
-                  return ChoiceChip(
-                    label: Text(label),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      if (selected) {
-                        setState(() => _labelController.text = label);
-                      }
-                    },
-                    selectedColor: AppTheme.primary.withValues(alpha: 0.15),
-                    backgroundColor: AppTheme.grey100,
-                    labelStyle: TextStyle(
-                      color: isSelected ? AppTheme.primary : AppTheme.grey700,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    ),
-                    side: BorderSide(
-                      color: isSelected ? AppTheme.primary : Colors.transparent,
-                    ),
-                  );
-                }).toList(),
+                children: [
+                  _LabelPresetChip(label: l10n.labelHome, value: 'Home', current: _labelController.text, onSelected: (v) => setState(() => _labelController.text = v)),
+                  _LabelPresetChip(label: l10n.labelWork, value: 'Work', current: _labelController.text, onSelected: (v) => setState(() => _labelController.text = v)),
+                  _LabelPresetChip(label: l10n.labelVillageHome, value: 'Village-Home', current: _labelController.text, onSelected: (v) => setState(() => _labelController.text = v)),
+                  _LabelPresetChip(label: l10n.labelFarm, value: 'Farm', current: _labelController.text, onSelected: (v) => setState(() => _labelController.text = v)),
+                ],
               ),
               const SizedBox(height: 16),
 
               TextFormField(
                 controller: _labelController,
-                decoration: const InputDecoration(
-                  labelText: 'Custom Label (e.g., Shop)',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.tag),
+                decoration: InputDecoration(
+                  labelText: l10n.translate('labelOther'),
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.tag),
                 ),
-                validator: (val) => val == null || val.trim().isEmpty ? 'Please specify label' : null,
+                validator: (val) => val == null || val.trim().isEmpty ? l10n.translate('invalidLabel') : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _fullAddressController,
                 maxLines: 2,
-                decoration: const InputDecoration(
-                  labelText: 'House No. / Building / Street',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.home_work_outlined),
+                decoration: InputDecoration(
+                  labelText: l10n.translate('fullAddress'),
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.home_work_outlined),
                   alignLabelWithHint: true,
                 ),
-                validator: (val) => val == null || val.trim().isEmpty ? 'Please enter address details' : null,
+                validator: (val) => val == null || val.trim().isEmpty ? l10n.translate('invalidAddress') : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _villageController,
-                decoration: const InputDecoration(
-                  labelText: 'Village or Colony Name',
+                decoration: InputDecoration(
+                  labelText: l10n.translate('villageColony'),
                   hintText: 'e.g. Govindgarh, Ward No. 5',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.location_city),
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.location_city),
                 ),
-                validator: (val) => val == null || val.trim().isEmpty ? 'Please enter village/colony' : null,
+                validator: (val) => val == null || val.trim().isEmpty ? l10n.translate('invalidVillage') : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _landmarkController,
-                decoration: const InputDecoration(
-                  labelText: 'Landmark (Highly Recommended)',
+                decoration: InputDecoration(
+                  labelText: l10n.translate('landmarkLabel'),
                   hintText: 'e.g. Near Water Tank, Opp. Primary School',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.assistant_navigation),
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.assistant_navigation),
                 ),
-                validator: (val) => val == null || val.trim().isEmpty ? 'Landmark helps rider find you faster' : null,
+                validator: (val) => val == null || val.trim().isEmpty ? l10n.translate('invalidLandmark') : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _pincodeController,
                 keyboardType: TextInputType.number,
                 maxLength: 6,
-                decoration: const InputDecoration(
-                  labelText: 'PIN Code (6-digit)',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.pin),
+                decoration: InputDecoration(
+                  labelText: l10n.translate('pinCode'),
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.pin),
                 ),
                 validator: (val) {
                   if (val == null || val.trim().length != 6) {
-                    return 'Please enter valid 6-digit PIN code';
+                    return l10n.translate('invalidPinCode');
                   }
                   return null;
                 },
@@ -644,8 +639,7 @@ class _AddressScreenState extends State<AddressScreen> {
               ],
               const SizedBox(height: 24),
               
-              // Step 18.1: Voice Tagging UI
-              const Text('Voice Instructions (for Rider)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              Text(l10n.translate('voiceInstructions'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.all(12),
@@ -658,18 +652,18 @@ class _AddressScreenState extends State<AddressScreen> {
                   children: [
                     IconButton(
                       onPressed: _toggleRecording,
-                      icon: Icon(_isRecording ? Icons.stop_circle : Icons.mic, color: _isRecording ? Colors.red : AppTheme.primary),
+                      icon: Icon(_isRecording ? Icons.stop_circle : Icons.mic, color: _isRecording ? AppTheme.error : AppTheme.primary),
                       iconSize: 32,
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         _isRecording 
-                            ? 'Recording... Tap to Stop' 
+                            ? l10n.translate('recordingStop') 
                             : _voiceTagPath != null 
-                                ? 'Voice Tag Attached âœ…' 
-                                : 'Record direction hints (e.g. "Behind the big Banyan tree")',
-                        style: TextStyle(fontSize: 12, color: _isRecording ? Colors.red : AppTheme.grey600),
+                                ? l10n.translate('voiceTagAttached') 
+                                : l10n.translate('recordDirectionHints'),
+                        style: TextStyle(fontSize: 12, color: _isRecording ? AppTheme.error : AppTheme.grey600),
                       ),
                     ),
                   ],
@@ -680,18 +674,18 @@ class _AddressScreenState extends State<AddressScreen> {
               TextFormField(
                 controller: _deliveryInstructionsController,
                 maxLines: 2,
-                decoration: const InputDecoration(
-                  labelText: 'Delivery Instructions (Optional)',
+                decoration: InputDecoration(
+                  labelText: l10n.translate('deliveryInstructions'),
                   hintText: 'e.g., Leave at the door, call before arriving',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.directions_bike),
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.directions_bike),
                   alignLabelWithHint: true,
                 ),
               ),
 
               const SizedBox(height: 12),
               CheckboxListTile(
-                title: const Text('Set as default shipping address', style: TextStyle(fontWeight: FontWeight.w500)),
+                title: Text(l10n.translate('setAsDefault'), style: const TextStyle(fontWeight: FontWeight.w500)),
                 value: _isDefault,
                 onChanged: (val) => setState(() => _isDefault = val ?? false),
                 controlAffinity: ListTileControlAffinity.leading,
@@ -711,7 +705,7 @@ class _AddressScreenState extends State<AddressScreen> {
                   elevation: 2,
                 ),
                 child: Text(
-                  isEditing ? 'Update Address' : 'Save Address',
+                  isEditing ? l10n.updateAddress : l10n.saveAddress,
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -735,14 +729,14 @@ class _AddressScreenState extends State<AddressScreen> {
 
     if (result != null && result is Map<String, dynamic>) {
       setState(() {
-        _capturedLatitude = result['lat'];
-        _capturedLongitude = result['lng'];
-        _fullAddressController.text = result['address'];
+        _capturedLatitude = result['lat'] as double?;
+        _capturedLongitude = result['lng'] as double?;
+        _fullAddressController.text = result['address'] as String;
       });
       
       // Auto-extract pincode if possible from address
       final RegExp pincodeRegex = RegExp(r'\b\d{6}\b');
-      final match = pincodeRegex.firstMatch(result['address']);
+      final match = pincodeRegex.firstMatch(result['address'] as String);
       if (match != null) {
         _pincodeController.text = match.group(0)!;
       }
@@ -860,6 +854,76 @@ class _AddressScreenState extends State<AddressScreen> {
         setState(() => _isLoading = false);
       }
     }
+  }
+}
+
+class _PropertyTypeChip extends StatelessWidget {
+  final String label;
+  final String value;
+  final String groupValue;
+  final ValueChanged<String> onSelected;
+
+  const _PropertyTypeChip({
+    required this.label,
+    required this.value,
+    required this.groupValue,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isSelected = value == groupValue;
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: ChoiceChip(
+          label: Center(child: Text(label)),
+          selected: isSelected,
+          onSelected: (val) => onSelected(value),
+          selectedColor: AppTheme.primary,
+          labelStyle: TextStyle(
+            color: isSelected ? Colors.white : AppTheme.grey700,
+            fontSize: 12,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LabelPresetChip extends StatelessWidget {
+  final String label;
+  final String value;
+  final String current;
+  final ValueChanged<String> onSelected;
+
+  const _LabelPresetChip({
+    required this.label,
+    required this.value,
+    required this.current,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isSelected = value == current;
+    return ChoiceChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (selected) {
+        if (selected) onSelected(value);
+      },
+      selectedColor: AppTheme.primary.withValues(alpha: 0.15),
+      backgroundColor: AppTheme.grey100,
+      labelStyle: TextStyle(
+        color: isSelected ? AppTheme.primary : AppTheme.grey700,
+        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        fontSize: 12,
+      ),
+      side: BorderSide(
+        color: isSelected ? AppTheme.primary : Colors.transparent,
+      ),
+    );
   }
 }
 

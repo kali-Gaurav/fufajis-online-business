@@ -184,7 +184,7 @@ class _VerificationWallScreenState extends State<VerificationWallScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.cream,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -250,21 +250,21 @@ class _VerificationWallScreenState extends State<VerificationWallScreen>
                       margin: const EdgeInsets.only(top: 20, bottom: 8),
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFF3E0),
+                        color: AppTheme.warning.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFFFB74D)),
+                        border: Border.all(color: AppTheme.warning),
                       ),
                       child: Row(
                         children: [
                           const Icon(Icons.shopping_cart_outlined,
-                              color: Color(0xFFE65100), size: 22),
+                              color: AppTheme.warning, size: 22),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
                               '${guest.guestCartItemCount} item(s) in your cart will be saved after verification.',
                               style: const TextStyle(
                                 fontSize: 13,
-                                color: Color(0xFFE65100),
+                                color: AppTheme.warning,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -280,7 +280,7 @@ class _VerificationWallScreenState extends State<VerificationWallScreen>
                 // ── Google Sign-In ──────────────────────────
                 OutlinedButton.icon(
                   onPressed: _isLoading ? null : _signInWithGoogle,
-                  icon: const Icon(Icons.g_mobiledata, size: 26, color: Colors.red),
+                  icon: const Icon(Icons.g_mobiledata, size: 26, color: AppTheme.error),
                   label: const Text(
                     'Continue with Google',
                     style: TextStyle(

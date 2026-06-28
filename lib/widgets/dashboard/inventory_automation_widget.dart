@@ -31,14 +31,14 @@ class InventoryAutomationWidget extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.secondary.withValues(alpha: 0.1),
+                  color: AppTheme.info.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Text(
                   'SMART',
                   style: TextStyle(
                     fontSize: 10,
-                    color: AppTheme.secondary,
+                    color: AppTheme.info,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

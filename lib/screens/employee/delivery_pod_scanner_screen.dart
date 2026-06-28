@@ -1,3 +1,4 @@
+import '../../services/logging_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,6 +12,7 @@ import 'dart:async';
 import '../../providers/auth_provider.dart';
 import '../../services/scanner_service.dart';
 import '../../services/smart_scan_service.dart';
+import '../../utils/app_theme.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DeliveryPodScannerScreen — Proof of Delivery
@@ -46,9 +48,12 @@ class _DeliveryPodScannerScreenState extends State<DeliveryPodScannerScreen> {
   String? _photoUrl;
   bool _uploadingPhoto = false;
   final TextEditingController _noteCtrl = TextEditingController();
+  final TextEditingController _otpCtrl = TextEditingController();
+  bool _cashCollected = false;
+  bool _otpVerified = false;
+  String? _otpError;
 
   // Auto-confirm additions
-  final SmartScanService _smartScan = SmartScanService();
   int _autoCountdown = 0;       // 3→2→1→0 = auto-confirm fires
   Timer? _countdownTimer;
   PodAutoConfirmResult? _gpsCheckResult;
@@ -71,6 +76,7 @@ class _DeliveryPodScannerScreenState extends State<DeliveryPodScannerScreen> {
     _countdownTimer?.cancel();
     _scanner.dispose();
     _noteCtrl.dispose();
+    _otpCtrl.dispose();
     super.dispose();
   }
 
@@ -157,7 +163,7 @@ class _DeliveryPodScannerScreenState extends State<DeliveryPodScannerScreen> {
       setState(() => _gpsPosition = pos);
       // If order already loaded, check auto-confirm now that GPS arrived
       if (_order != null) _checkAutoConfirm();
-    } catch (_) {}
+    } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
   }
 
   // ── Load order ──────────────────────────────────────────────────────────────
@@ -194,6 +200,10 @@ class _DeliveryPodScannerScreenState extends State<DeliveryPodScannerScreen> {
         _scanMode = false;
         _autoConfirmCancelled = false; // reset for new order
         _gpsCheckResult = null;
+        _cashCollected = false;
+        _otpVerified = false;
+        _otpError = null;
+        _otpCtrl.clear();
       });
       // Attempt auto-confirm if GPS already acquired
       _checkAutoConfirm();
@@ -237,7 +247,7 @@ class _DeliveryPodScannerScreenState extends State<DeliveryPodScannerScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text('Photo upload failed: $e'),
-              backgroundColor: Colors.red),
+              backgroundColor: AppTheme.error),
         );
       }
     }
@@ -247,38 +257,105 @@ class _DeliveryPodScannerScreenState extends State<DeliveryPodScannerScreen> {
 
   Future<void> _confirmDelivery() async {
     if (_order == null) return;
+    
+    final bool isCod = _order!['paymentMethod'] == 'cod' || _order!['paymentMethod'] == 'PaymentMethod.cod';
+    final bool isPendingPayment = _order!['paymentStatus'] == 'pending';
+    final String? expectedOtp = _order!['deliveryOtp'] as String?;
+    final bool requiresOtp = expectedOtp != null && expectedOtp.isNotEmpty;
+    
+    if (requiresOtp && !_otpVerified) {
+      if (_otpCtrl.text.trim() != expectedOtp) {
+        setState(() => _otpError = 'Invalid OTP');
+        return;
+      } else {
+        setState(() {
+          _otpVerified = true;
+          _otpError = null;
+        });
+      }
+    }
+    
+    if (isCod && isPendingPayment && !_cashCollected) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please confirm that you have collected the cash!'), backgroundColor: AppTheme.error),
+      );
+      return;
+    }
+
     setState(() => _loading = true);
 
     try {
       final auth = context.read<AuthProvider>();
       final shopId = auth.currentShop?.id ?? 'shop_001';
       final orderId = _order!['id'] as String;
+      final double total = (_order!['totalAmount'] as num?)?.toDouble() ?? 0.0;
 
-      final podData = {
-        'status': 'delivered',
-        'deliveredAt': FieldValue.serverTimestamp(),
-        'deliveredBy': auth.currentUser?.uid ?? '',
-        'deliveredByName': auth.currentUser?.name ?? 'Rider',
-        'podPhotoUrl': _photoUrl,
-        'podGpsLat': _gpsPosition?.latitude,
-        'podGpsLng': _gpsPosition?.longitude,
-        'podGpsAccuracy': _gpsPosition?.accuracy,
-        'podNote': _noteCtrl.text.trim(),
-        'updatedAt': FieldValue.serverTimestamp(),
-      };
+      // 1. Geofence Check (50 meters)
+      final lat = (_order!['deliveryAddress']?['latitude'] as num?)?.toDouble()
+          ?? (_order!['addressLat'] as num?)?.toDouble()
+          ?? (_order!['gpsLat'] as num?)?.toDouble();
+      final lng = (_order!['deliveryAddress']?['longitude'] as num?)?.toDouble()
+          ?? (_order!['addressLng'] as num?)?.toDouble()
+          ?? (_order!['gpsLng'] as num?)?.toDouble();
 
-      final batch = _db.batch();
+      if (lat != null && lng != null && lat != 0.0 && lng != 0.0) {
+        if (_gpsPosition == null) {
+          final pos = await Geolocator.getCurrentPosition(
+            locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+          );
+          setState(() => _gpsPosition = pos);
+        }
+        
+        final distance = Geolocator.distanceBetween(
+          _gpsPosition!.latitude,
+          _gpsPosition!.longitude,
+          lat,
+          lng,
+        );
 
-      // Update order
-      batch.update(
-        _db.collection('shops').doc(shopId).collection('orders').doc(orderId),
-        podData,
-      );
+        if (distance > 50.0) {
+          throw Exception('You must be within 50 meters of the delivery destination to confirm. Current distance: ${distance.toStringAsFixed(0)}m.');
+        }
+      }
 
-      // Write POD log
-      batch.set(
-        _db.collection('shops').doc(shopId).collection('pod_logs').doc(),
-        {
+      // 2. Atomic Firestore Transaction
+      await _db.runTransaction((transaction) async {
+        final orderRef = _db.collection('shops').doc(shopId).collection('orders').doc(orderId);
+        final orderSnap = await transaction.get(orderRef);
+        
+        if (!orderSnap.exists) {
+          throw Exception('Order does not exist.');
+        }
+        
+        final orderData = orderSnap.data()!;
+        if (orderData['status'] == 'delivered') {
+          throw Exception('This order is already marked delivered.');
+        }
+
+        final podData = {
+          'status': 'delivered',
+          'deliveredAt': FieldValue.serverTimestamp(),
+          'deliveredBy': auth.currentUser?.uid ?? '',
+          'deliveredByName': auth.currentUser?.name ?? 'Rider',
+          'podPhotoUrl': _photoUrl,
+          'podGpsLat': _gpsPosition?.latitude,
+          'podGpsLng': _gpsPosition?.longitude,
+          'podGpsAccuracy': _gpsPosition?.accuracy,
+          'podNote': _noteCtrl.text.trim(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        };
+
+        if (isCod && isPendingPayment && _cashCollected) {
+          podData['paymentStatus'] = 'paid';
+          podData['cashCollectedBy'] = auth.currentUser?.uid ?? '';
+          podData['cashCollectedAt'] = FieldValue.serverTimestamp();
+        }
+
+        transaction.update(orderRef, podData);
+
+        // Write POD log
+        final logRef = _db.collection('shops').doc(shopId).collection('pod_logs').doc();
+        transaction.set(logRef, {
           'orderId': orderId,
           'orderNumber': _order!['orderNumber'] ?? orderId,
           'customerName': _order!['customerName'] ?? '',
@@ -291,10 +368,34 @@ class _DeliveryPodScannerScreenState extends State<DeliveryPodScannerScreen> {
           'gpsLng': _gpsPosition?.longitude,
           'note': _noteCtrl.text.trim(),
           'createdAt': FieldValue.serverTimestamp(),
-        },
-      );
+        });
 
-      await batch.commit();
+        // Update Rider cash liability & COD settlement log
+        if (isCod && isPendingPayment && _cashCollected) {
+          final riderId = auth.currentUser?.uid ?? '';
+          if (riderId.isNotEmpty) {
+            final riderRef = _db.collection('users').doc(riderId);
+            transaction.update(riderRef, {
+              'currentCashBalance': FieldValue.increment(total),
+              'lastDeliveryAt': FieldValue.serverTimestamp(),
+            });
+
+            final codRef = _db.collection('cod_settlements').doc('cod_$orderId');
+            transaction.set(codRef, {
+              'id': 'cod_$orderId',
+              'orderId': orderId,
+              'riderId': riderId,
+              'riderName': auth.currentUser?.name ?? 'Rider',
+              'amount': total,
+              'status': 'collected',
+              'collectedAt': FieldValue.serverTimestamp(),
+            });
+          }
+        }
+      });
+
+      // Mirror to AWS RDS is deprecated. Status is managed in Firestore.
+      debugPrint('[DeliveryPOD] RDS Mirror deprecated for order $orderId');
 
       HapticFeedback.heavyImpact();
       setState(() {
@@ -337,7 +438,7 @@ class _DeliveryPodScannerScreenState extends State<DeliveryPodScannerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Proof of Delivery'),
+        title: const Text('Proof of Delivery', style: TextStyle(fontWeight: FontWeight.w700)),
         backgroundColor: const Color(0xFF2E7D32),
         foregroundColor: Colors.white,
         actions: [
@@ -403,7 +504,7 @@ class _DeliveryPodScannerScreenState extends State<DeliveryPodScannerScreen> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 14, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.7),
+                    color: AppTheme.success.withValues(alpha: 0.7),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: const Row(
@@ -426,7 +527,7 @@ class _DeliveryPodScannerScreenState extends State<DeliveryPodScannerScreen> {
 
   Widget _buildPodForm() {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
     }
 
     if (_errorMsg != null) {
@@ -434,7 +535,7 @@ class _DeliveryPodScannerScreenState extends State<DeliveryPodScannerScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            const Icon(Icons.error_outline, size: 64, color: AppTheme.error),
             const SizedBox(height: 12),
             Text(_errorMsg!,
                 textAlign: TextAlign.center,
@@ -467,9 +568,11 @@ class _DeliveryPodScannerScreenState extends State<DeliveryPodScannerScreen> {
         _order!['orderNumber'] as String? ?? _order!['id'];
     final total =
         (_order!['totalAmount'] as num?)?.toDouble() ?? 0.0;
-    final address = _order!['deliveryAddress'] as String? ??
+    final address = _order!['deliveryAddress']?['fullAddress'] as String? ??
         _order!['address'] as String? ??
         'Address not available';
+    final isCod = _order!['paymentMethod'] == 'cod' || _order!['paymentMethod'] == 'PaymentMethod.cod';
+    final isPendingPayment = _order!['paymentStatus'] == 'pending';
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -488,7 +591,7 @@ class _DeliveryPodScannerScreenState extends State<DeliveryPodScannerScreen> {
                   Row(
                     children: [
                       const Icon(Icons.receipt_long,
-                          color: Colors.green, size: 24),
+                          color: AppTheme.success, size: 24),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
@@ -503,7 +606,7 @@ class _DeliveryPodScannerScreenState extends State<DeliveryPodScannerScreen> {
                         style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.green),
+                            color: AppTheme.success),
                       ),
                     ],
                   ),
@@ -561,6 +664,39 @@ class _DeliveryPodScannerScreenState extends State<DeliveryPodScannerScreen> {
 
             const SizedBox(height: 12),
 
+            // OTP Verification
+            if (_order!['deliveryOtp'] != null && _order!['deliveryOtp'].toString().isNotEmpty)
+              Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppTheme.info.withValues(alpha: 0.1),
+                  border: Border.all(color: AppTheme.info.withValues(alpha: 0.2)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('OTP Verification Required', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.info)),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _otpCtrl,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        hintText: 'Enter OTP from customer',
+                        errorText: _otpError,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        prefixIcon: const Icon(Icons.password),
+                        suffixIcon: _otpVerified ? const Icon(Icons.check_circle, color: AppTheme.success) : null,
+                      ),
+                      onChanged: (val) {
+                        if (_otpError != null) setState(() => _otpError = null);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
             // Delivery note
             TextField(
               controller: _noteCtrl,
@@ -573,7 +709,45 @@ class _DeliveryPodScannerScreenState extends State<DeliveryPodScannerScreen> {
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
+
+            if (isCod && isPendingPayment)
+              Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppTheme.warning.withValues(alpha: 0.1),
+                  border: Border.all(color: AppTheme.warning),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.money, color: AppTheme.warning, size: 28),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Collect Cash: ₹${total.toStringAsFixed(0)}',
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.warning),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    CheckboxListTile(
+                      value: _cashCollected,
+                      onChanged: (val) {
+                        setState(() => _cashCollected = val ?? false);
+                        // If checking the box, cancel auto-confirm to let them do it manually
+                        if (val == true) _cancelAutoConfirm();
+                      },
+                      title: const Text('I have collected the cash from customer', style: TextStyle(fontWeight: FontWeight.bold)),
+                      controlAffinity: ListTileControlAffinity.leading,
+                      activeColor: AppTheme.warning,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ],
+                ),
+              ),
 
             ElevatedButton.icon(
               icon: const Icon(Icons.check_circle_outline, size: 22),
@@ -596,21 +770,21 @@ class _DeliveryPodScannerScreenState extends State<DeliveryPodScannerScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.green.shade50,
+                color: AppTheme.success.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.green.shade200),
+                border: Border.all(color: AppTheme.success),
               ),
               child: Column(
                 children: [
                   const Icon(Icons.check_circle,
-                      color: Colors.green, size: 56),
+                      color: AppTheme.success, size: 56),
                   const SizedBox(height: 12),
                   const Text(
                     'Delivered Successfully!',
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.green),
+                        color: AppTheme.success),
                   ),
                   const SizedBox(height: 6),
                   Text(
@@ -633,6 +807,7 @@ class _DeliveryPodScannerScreenState extends State<DeliveryPodScannerScreen> {
                   _photoUrl = null;
                   _lastCode = '';
                   _noteCtrl.clear();
+                  _otpCtrl.clear();
                 });
                 _scanner.startScanning();
               },
@@ -659,19 +834,19 @@ class _GpsStatusTile extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: ready
-            ? Colors.green.withValues(alpha: 0.08)
-            : Colors.orange.withValues(alpha: 0.08),
+            ? AppTheme.success.withValues(alpha: 0.08)
+            : AppTheme.warning.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: ready
-              ? Colors.green.withValues(alpha: 0.3)
-              : Colors.orange.withValues(alpha: 0.3),
+              ? AppTheme.success.withValues(alpha: 0.3)
+              : AppTheme.warning.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
         children: [
           Icon(Icons.location_on,
-              color: ready ? Colors.green : Colors.orange, size: 20),
+              color: ready ? AppTheme.success : AppTheme.warning, size: 20),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -679,7 +854,7 @@ class _GpsStatusTile extends StatelessWidget {
                   ? 'GPS acquired (±${position!.accuracy.toStringAsFixed(0)}m)'
                   : 'Acquiring GPS location…',
               style: TextStyle(
-                  color: ready ? Colors.green : Colors.orange,
+                  color: ready ? AppTheme.success : AppTheme.warning,
                   fontSize: 13),
             ),
           ),
@@ -708,12 +883,12 @@ class _PhotoProofTile extends StatelessWidget {
         height: 80,
         decoration: BoxDecoration(
           color: photoUrl != null
-              ? Colors.green.withValues(alpha: 0.05)
+              ? AppTheme.success.withValues(alpha: 0.05)
               : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: photoUrl != null
-                ? Colors.green.withValues(alpha: 0.4)
+                ? AppTheme.success.withValues(alpha: 0.4)
                 : Colors.grey.shade300,
           ),
         ),
@@ -726,7 +901,7 @@ class _PhotoProofTile extends StatelessWidget {
                     photoUrl != null
                         ? Icons.check_circle
                         : Icons.camera_alt_outlined,
-                    color: photoUrl != null ? Colors.green : Colors.grey,
+                    color: photoUrl != null ? AppTheme.success : Colors.grey,
                     size: 28,
                   ),
                   const SizedBox(width: 10),
@@ -735,7 +910,7 @@ class _PhotoProofTile extends StatelessWidget {
                         ? 'Photo Proof Captured'
                         : 'Take Photo Proof (optional)',
                     style: TextStyle(
-                      color: photoUrl != null ? Colors.green : Colors.grey,
+                      color: photoUrl != null ? AppTheme.success : Colors.grey,
                       fontWeight: photoUrl != null
                           ? FontWeight.bold
                           : FontWeight.normal,
@@ -782,8 +957,8 @@ class _AutoConfirmBanner extends StatelessWidget {
           Container(
             width: 44,
             height: 44,
-            decoration: BoxDecoration(
-              color: const Color(0xFF2E7D32),
+            decoration: const BoxDecoration(
+              color: Color(0xFF2E7D32),
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -820,7 +995,7 @@ class _AutoConfirmBanner extends StatelessWidget {
           TextButton(
             onPressed: onCancel,
             style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
+              foregroundColor: AppTheme.error,
               padding: const EdgeInsets.symmetric(
                   horizontal: 12, vertical: 6),
             ),
@@ -850,20 +1025,20 @@ class _GpsDistanceTile extends StatelessWidget {
           horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: ok
-            ? Colors.green.withValues(alpha: 0.08)
-            : Colors.orange.withValues(alpha: 0.08),
+            ? AppTheme.success.withValues(alpha: 0.08)
+            : AppTheme.warning.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: ok
-              ? Colors.green.withValues(alpha: 0.3)
-              : Colors.orange.withValues(alpha: 0.3),
+              ? AppTheme.success.withValues(alpha: 0.3)
+              : AppTheme.warning.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
         children: [
           Icon(
             ok ? Icons.location_on : Icons.location_searching,
-            color: ok ? Colors.green : Colors.orange,
+            color: ok ? AppTheme.success : AppTheme.warning,
             size: 18,
           ),
           const SizedBox(width: 8),
@@ -872,7 +1047,7 @@ class _GpsDistanceTile extends StatelessWidget {
               result.reason,
               style: TextStyle(
                   fontSize: 12,
-                  color: ok ? Colors.green : Colors.orange),
+                  color: ok ? AppTheme.success : AppTheme.warning),
             ),
           ),
         ],

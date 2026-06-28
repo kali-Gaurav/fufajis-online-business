@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import '../../services/printer_service.dart';
+import '../../utils/app_theme.dart';
 
 class PrinterSelectDialog extends StatefulWidget {
   final Function(BluetoothDevice) onDeviceSelected;
@@ -47,7 +48,7 @@ class _PrinterSelectDialogState extends State<PrinterSelectDialog> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to load Bluetooth devices: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppTheme.error,
         ),
       );
     }
@@ -78,7 +79,7 @@ class _PrinterSelectDialogState extends State<PrinterSelectDialog> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to connect to printer: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppTheme.error,
         ),
       );
     }
@@ -134,7 +135,7 @@ class _PrinterSelectDialogState extends State<PrinterSelectDialog> {
             const Divider(),
             Expanded(
               child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
                   : _devices.isEmpty
                   ? const Center(
                       child: Padding(
@@ -154,7 +155,7 @@ class _PrinterSelectDialogState extends State<PrinterSelectDialog> {
                         return ListTile(
                           leading: Icon(
                             Icons.print,
-                            color: isDefault ? Colors.green : null,
+                            color: isDefault ? AppTheme.success : null,
                           ),
                           title: Row(
                             children: [
@@ -171,13 +172,13 @@ class _PrinterSelectDialogState extends State<PrinterSelectDialog> {
                                     vertical: 2,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.green.shade100,
+                                    color: AppTheme.success,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: const Text(
                                     'Default',
                                     style: TextStyle(
-                                      color: Colors.green,
+                                      color: AppTheme.success,
                                       fontSize: 10,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -190,7 +191,7 @@ class _PrinterSelectDialogState extends State<PrinterSelectDialog> {
                             onPressed: () => _connectToDevice(device),
                             style: isDefault
                                 ? ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
+                                    backgroundColor: AppTheme.success,
                                     foregroundColor: Colors.white,
                                   )
                                 : null,

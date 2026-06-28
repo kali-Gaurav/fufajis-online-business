@@ -2,33 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ScanQrWidget
-//
-// Reusable widget that displays a scannable QR code for ANY entity in the app.
-// Automatically prepends the correct prefix so the UnifiedScannerHub can
-// route to the right screen when scanned.
-//
-// Usage:
-//   ScanQrWidget.order(orderId: '123')          → ORDER-123
-//   ScanQrWidget.dispatch(orderId: '123')       → DISPATCH-123
-//   ScanQrWidget.parcel(orderId: '123')         → PARCEL-123
-//   ScanQrWidget.member(customerId: 'uid')      → MEMBER-uid
-//   ScanQrWidget.shelf(shelfId: 'A1')           → SHELF-A1
-//   ScanQrWidget.attendance(branchId: 'b1')     → ATTENDANCE-b1
-//   ScanQrWidget.product(barcode: '890123')     → raw barcode (no prefix)
-//   ScanQrWidget.custom(data: 'anything')       → raw data
-// ─────────────────────────────────────────────────────────────────────────────
+import '../utils/app_theme.dart';
 
 class ScanQrWidget extends StatelessWidget {
-  final String qrData;       // full QR string with prefix
-  final String label;        // shown below the QR
-  final String? sublabel;    // optional secondary line
-  final Color color;         // frame + label color
+  final String qrData;
+  final String label;
+  final String? sublabel;
+  final Color color;
   final double size;
-  final bool showCopyButton;
-  final bool showFullscreenButton;
-  final bool compact;        // small inline version
+  final bool canCopy;
+  final bool canFullscreen;
+  final bool compact;
 
   const ScanQrWidget._({
     required this.qrData,
@@ -36,12 +20,10 @@ class ScanQrWidget extends StatelessWidget {
     this.sublabel,
     required this.color,
     this.size = 180,
-    this.showCopyButton = true,
-    this.showFullscreenButton = true,
+    this.canCopy = true,
+    this.canFullscreen = true,
     this.compact = false,
   });
-
-  // ── Named constructors per entity type ─────────────────────────────────────
 
   factory ScanQrWidget.order({
     required String orderId,
@@ -140,7 +122,7 @@ class ScanQrWidget extends StatelessWidget {
     bool compact = false,
   }) =>
       ScanQrWidget._(
-        qrData: barcode, // raw barcode — no prefix
+        qrData: barcode,
         label: 'Product Barcode',
         sublabel: productName,
         color: const Color(0xFF1565C0),
@@ -164,8 +146,6 @@ class ScanQrWidget extends StatelessWidget {
         size: size,
         compact: compact,
       );
-
-  // ── Build ───────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -191,7 +171,6 @@ class ScanQrWidget extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Header
           Row(
             children: [
               Container(
@@ -224,7 +203,7 @@ class ScanQrWidget extends StatelessWidget {
                   ],
                 ),
               ),
-              if (showFullscreenButton)
+              if (canFullscreen)
                 IconButton(
                   icon: const Icon(Icons.fullscreen, size: 20),
                   onPressed: () => _showFullscreen(context),
@@ -234,10 +213,7 @@ class ScanQrWidget extends StatelessWidget {
                 ),
             ],
           ),
-
           const SizedBox(height: 12),
-
-          // QR Code
           GestureDetector(
             onTap: () => _showFullscreen(context),
             child: Container(
@@ -256,17 +232,14 @@ class ScanQrWidget extends StatelessWidget {
                   eyeShape: QrEyeShape.square,
                   color: color,
                 ),
-                dataModuleStyle: QrDataModuleStyle(
+                dataModuleStyle: const QrDataModuleStyle(
                   dataModuleShape: QrDataModuleShape.square,
-                  color: const Color(0xFF1A1A1A),
+                  color: Color(0xFF1A1A1A),
                 ),
               ),
             ),
           ),
-
           const SizedBox(height: 10),
-
-          // Data + copy button
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -281,7 +254,7 @@ class ScanQrWidget extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              if (showCopyButton) ...[
+              if (canCopy) ...[
                 const SizedBox(width: 6),
                 GestureDetector(
                   onTap: () {
@@ -303,7 +276,6 @@ class ScanQrWidget extends StatelessWidget {
     );
   }
 
-  // Compact version — just the QR image in a small box
   Widget _buildCompact(BuildContext context) {
     return GestureDetector(
       onTap: () => _showFullscreen(context),
@@ -343,14 +315,12 @@ class ScanQrWidget extends StatelessWidget {
     );
   }
 
-  // ── Fullscreen dialog ───────────────────────────────────────────────────────
-
   void _showFullscreen(BuildContext context) {
     showDialog(
       context: context,
       barrierColor: Colors.black87,
       builder: (_) => Dialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.cream,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20)),
         child: Padding(

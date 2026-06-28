@@ -111,9 +111,9 @@ class _PaymentSuccessAnimationState extends State<PaymentSuccessAnimation>
               child: child,
             ),
           ),
-          child: Column(
+          child: const Column(
             children: [
-              const Text(
+              Text(
                 'Payment Successful!',
                 style: TextStyle(
                   fontSize: 24,
@@ -122,7 +122,7 @@ class _PaymentSuccessAnimationState extends State<PaymentSuccessAnimation>
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Text(
                 'Your order has been confirmed.',
                 style: TextStyle(

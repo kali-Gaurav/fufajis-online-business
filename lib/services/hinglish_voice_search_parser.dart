@@ -215,6 +215,7 @@ class HinglishVoiceSearchParser {
 
   String _translateProduct(String text) {
     final lower = text.toLowerCase().trim();
+    if (lower.isEmpty) return '';
 
     // 1. Try exact match using Trie
     final exactMatch = _translationTrie.findExact(lower);
@@ -224,9 +225,61 @@ class HinglishVoiceSearchParser {
     final substringMatch = _translationTrie.findTranslation(lower);
     if (substringMatch != null) return substringMatch;
 
+    // 3. Fuzzy Matching (Levenshtein) against dictionary
+    final fuzzyMatch = _findFuzzyMatch(lower);
+    if (fuzzyMatch != null) return fuzzyMatch;
+
     // Return cleaned original if no translation found
     return _titleCase(text);
   }
+
+  String? _findFuzzyMatch(String query) {
+    String? bestMatch;
+    int minDistance = 999;
+    const int threshold = 2; // Allow up to 2 character mistakes
+
+    final allTerms = {
+      ...hindiProductDictionary,
+      ..._extendedDict,
+      ..._dynamicSynonyms,
+    };
+
+    for (final entry in allTerms.entries) {
+      final key = entry.key.toLowerCase();
+      if (key.length < 3) continue;
+
+      final distance = _levenshtein(query, key);
+      if (distance < minDistance && distance <= threshold) {
+        minDistance = distance;
+        bestMatch = entry.value;
+      }
+    }
+
+    return bestMatch;
+  }
+
+  int _levenshtein(String s, String t) {
+    if (s == t) return 0;
+    if (s.isEmpty) return t.length;
+    if (t.isEmpty) return s.length;
+
+    List<int> v0 = List<int>.generate(t.length + 1, (i) => i);
+    List<int> v1 = List<int>.filled(t.length + 1, 0);
+
+    for (int i = 0; i < s.length; i++) {
+      v1[0] = i + 1;
+      for (int j = 0; j < t.length; j++) {
+        int cost = (s[i] == t[j]) ? 0 : 1;
+        v1[j + 1] = _min3(v1[j] + 1, v0[j + 1] + 1, v0[j] + cost);
+      }
+      for (int j = 0; j < v0.length; j++) {
+        v0[j] = v1[j];
+      }
+    }
+    return v0[t.length];
+  }
+
+  int _min3(int a, int b, int c) => a < b ? (a < c ? a : c) : (b < c ? b : c);
 
   // ─────────────── CATEGORY INFERENCE ───────────────
 
@@ -313,7 +366,8 @@ class HinglishVoiceSearchParser {
           .doc('voice_search_synonyms')
           .get();
       if (snap.exists) {
-        _dynamicSynonyms = Map<String, String>.from(snap.data()?['synonyms'] ?? {});
+        final data = snap.data();
+        _dynamicSynonyms = Map<String, String>.from(data?['synonyms'] as Map? ?? {});
         debugPrint('[HinglishParser] Loaded ${_dynamicSynonyms.length} dynamic synonyms.');
       }
       _buildTrie();

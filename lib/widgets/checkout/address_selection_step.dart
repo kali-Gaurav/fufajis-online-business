@@ -93,7 +93,7 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Center(child: CircularProgressIndicator()),
+            child: const Center(child: CircularProgressIndicator(color: AppTheme.primary)),
           )
         else if (_addresses.isEmpty)
           // No addresses state

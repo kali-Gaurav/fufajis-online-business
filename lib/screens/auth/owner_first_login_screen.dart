@@ -3,12 +3,13 @@ import '../../services/owner_auth_service.dart';
 import '../../models/owner_model.dart';
 import 'package:pinput/pinput.dart';
 import '../../services/device_security_service.dart';
+import '../../utils/app_theme.dart';
 import 'owner_daily_login_screen.dart';
 
 class OwnerFirstLoginScreen extends StatefulWidget {
   final Owner owner;
 
-  const OwnerFirstLoginScreen({Key? key, required this.owner}) : super(key: key);
+  const OwnerFirstLoginScreen({super.key, required this.owner});
 
   @override
   _OwnerFirstLoginScreenState createState() => _OwnerFirstLoginScreenState();
@@ -27,7 +28,10 @@ class _OwnerFirstLoginScreenState extends State<OwnerFirstLoginScreen> {
   }
 
   Future<void> _checkBiometricsSupport() async {
-    _canCheckBiometrics = await DeviceSecurityService.canCheckBiometrics();
+    bool supported = await DeviceSecurityService.canCheckBiometrics();
+    if (mounted) {
+      setState(() => _canCheckBiometrics = supported);
+    }
   }
 
   Future<void> _registerDevice() async {
@@ -60,6 +64,13 @@ class _OwnerFirstLoginScreenState extends State<OwnerFirstLoginScreen> {
   }
 
   @override
+  void dispose() {
+    _pinController.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('First Time Setup')),
@@ -70,7 +81,7 @@ class _OwnerFirstLoginScreenState extends State<OwnerFirstLoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (_step == 0) ...[
-                const Icon(Icons.devices, size: 64, color: Colors.blue),
+                const Icon(Icons.devices, size: 64, color: AppTheme.info),
                 const SizedBox(height: 24),
                 const Text(
                   'Register This Device',
@@ -83,14 +94,14 @@ class _OwnerFirstLoginScreenState extends State<OwnerFirstLoginScreen> {
                 ),
                 const SizedBox(height: 32),
                 if (_isLoading)
-                  const CircularProgressIndicator()
+                  const CircularProgressIndicator(color: AppTheme.primary)
                 else
                   ElevatedButton(
                     onPressed: _registerDevice,
                     child: const Text('Register Device'),
                   ),
               ] else if (_step == 1) ...[
-                const Icon(Icons.password, size: 64, color: Colors.blue),
+                const Icon(Icons.password, size: 64, color: AppTheme.info),
                 const SizedBox(height: 24),
                 const Text(
                   'Create Security PIN',
@@ -110,7 +121,7 @@ class _OwnerFirstLoginScreenState extends State<OwnerFirstLoginScreen> {
                   },
                 ),
               ] else if (_step == 2) ...[
-                const Icon(Icons.fingerprint, size: 64, color: Colors.blue),
+                const Icon(Icons.fingerprint, size: 64, color: AppTheme.info),
                 const SizedBox(height: 24),
                 const Text(
                   'Enable Biometrics',
@@ -121,7 +132,7 @@ class _OwnerFirstLoginScreenState extends State<OwnerFirstLoginScreen> {
                   const Text('Would you like to use FaceID/TouchID for faster login?'),
                   const SizedBox(height: 32),
                   if (_isLoading)
-                    const CircularProgressIndicator()
+                    const CircularProgressIndicator(color: AppTheme.primary)
                   else ...[
                     ElevatedButton(
                       onPressed: () => _finishSetup(true),

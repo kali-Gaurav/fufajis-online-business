@@ -34,24 +34,24 @@ class BusinessTransaction {
 
   factory BusinessTransaction.fromMap(Map<String, dynamic> map) {
     return BusinessTransaction(
-      id: map['id'] ?? '',
-      orderId: map['orderId'] ?? '',
-      orderNumber: map['orderNumber'],
-      customerId: map['customerId'] ?? '',
-      customerName: map['customerName'],
-      amount: (map['amount'] ?? 0.0).toDouble(),
+      id: map['id'] as String? ?? '',
+      orderId: map['orderId'] as String? ?? '',
+      orderNumber: map['orderNumber'] as String?,
+      customerId: map['customerId'] as String? ?? '',
+      customerName: map['customerName'] as String?,
+      amount: (map['amount'] as num? ?? 0.0).toDouble(),
       type: TransactionType.values.firstWhere(
-        (e) => e.toString() == map['type'],
+        (e) => e.toString() == map['type'] as String?,
         orElse: () => TransactionType.payment,
       ),
       status: TransactionStatus.values.firstWhere(
-        (e) => e.toString() == map['status'],
+        (e) => e.toString() == map['status'] as String?,
         orElse: () => TransactionStatus.pending,
       ),
-      paymentMethod: map['paymentMethod'] ?? 'unknown',
-      gatewayTransactionId: map['gatewayTransactionId'],
+      paymentMethod: map['paymentMethod'] as String? ?? 'unknown',
+      gatewayTransactionId: map['gatewayTransactionId'] as String?,
       createdAt: (map['createdAt'] as Timestamp).toDate(),
-      notes: map['notes'],
+      notes: map['notes'] as String?,
     );
   }
 

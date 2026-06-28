@@ -30,10 +30,10 @@ class GaonIntelligentInsights extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.indigo[50],
+                      color: AppTheme.info,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(Icons.psychology, color: Colors.indigo[700]),
+                    child: const Icon(Icons.psychology, color: AppTheme.info),
                   ),
                   const SizedBox(width: 12),
                   const Text(
@@ -52,23 +52,23 @@ class GaonIntelligentInsights extends StatelessWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.green[50],
+                  color: AppTheme.success,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Row(
+                child: const Row(
                   children: [
                     Icon(
                       Icons.auto_awesome,
                       size: 14,
-                      color: Colors.green[700],
+                      color: AppTheme.success,
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Text(
                       'AI UPDATED',
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
-                        color: Colors.green[800],
+                        color: AppTheme.success,
                       ),
                     ),
                   ],
@@ -86,13 +86,13 @@ class GaonIntelligentInsights extends StatelessWidget {
                 name: 'Cold Drinks',
                 growth: '+45%',
                 items: 'Surge after 4 PM',
-                color: Colors.blue,
+                color: AppTheme.info,
               ),
               _VillageInsight(
                 name: 'Milk/Dairy',
                 growth: '+15%',
                 items: 'Morning 7-9 AM',
-                color: Colors.orange,
+                color: AppTheme.warning,
               ),
               _VillageInsight(
                 name: 'Snacks',
@@ -214,14 +214,14 @@ class GaonIntelligentInsights extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.amber[50]?.withValues(alpha: 0.3),
+          color: AppTheme.warning.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
           children: [
             CircleAvatar(
               radius: 12,
-              backgroundColor: Colors.amber[100],
+              backgroundColor: AppTheme.warning,
               child: Text(name[0], style: const TextStyle(fontSize: 10)),
             ),
             const SizedBox(width: 8),
@@ -248,7 +248,7 @@ class GaonIntelligentInsights extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
-                color: Colors.amber,
+                color: AppTheme.warning,
               ),
             ),
           ],
@@ -261,14 +261,14 @@ class GaonIntelligentInsights extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.indigo[900]!, Colors.indigo[600]!],
+        gradient: const LinearGradient(
+          colors: [AppTheme.info, AppTheme.info],
         ),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
-          const Icon(Icons.bolt, color: Colors.amber),
+          const Icon(Icons.bolt, color: AppTheme.warning),
           const SizedBox(width: 12),
           const Expanded(
             child: Column(
@@ -296,13 +296,13 @@ class GaonIntelligentInsights extends StatelessWidget {
                   content: Text(
                     '✅ Automated order for 50kg Tomatoes placed with Mandi Supplier for Bassi route.',
                   ),
-                  backgroundColor: Colors.indigo,
+                  backgroundColor: AppTheme.info,
                 ),
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.indigo[900],
+              backgroundColor: AppTheme.cream,
+              foregroundColor: AppTheme.info,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),

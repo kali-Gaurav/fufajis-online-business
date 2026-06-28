@@ -12,6 +12,7 @@ import '../../services/image_processing_service.dart';
 import '../../providers/product_provider.dart';
 import '../../models/product_model.dart';
 import '../../utils/app_theme.dart';
+import '../../utils/monetary_value.dart';
 
 /// Voice Product Add Screen - Allows shop owners to add products via voice
 /// Supports Hindi and English voice input with AI-powered parsing
@@ -211,11 +212,12 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
         id: const Uuid().v4(),
         name: _nameController.text.trim(),
         description: _descriptionController.text.trim(),
-        price: price,
-        originalPrice: price,
+        price: MonetaryValue(price),
+        originalPrice: MonetaryValue(price),
         unit: _unitController.text.trim().isNotEmpty
             ? _unitController.text.trim()
             : 'piece',
+        categoryId: _selectedCategory,
         category: _selectedCategory,
         shopId: currentUser.id,
         shopName: currentUser.name ?? 'Shop',
@@ -258,7 +260,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Voice Add Product'),
+        title: const Text('Voice Add Product', style: TextStyle(fontWeight: FontWeight.w700)),
         backgroundColor: AppTheme.primary,
         foregroundColor: Colors.white,
         actions: [
@@ -666,7 +668,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('How to use Voice Add'),
+          title: const Text('How to use Voice Add', style: TextStyle(fontWeight: FontWeight.w700)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,

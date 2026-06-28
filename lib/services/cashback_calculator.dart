@@ -49,7 +49,7 @@ class CashbackCalculator {
       final tier = await _tierCalculator.getUserTier(userId);
       final tierBenefits = _tierCalculator.getTierBenefits(tier);
       final cashbackMultiplier =
-          (tierBenefits['cashbackPercentage'] ?? 1.0) / 1.0;
+          ((tierBenefits['cashbackPercentage'] as num?) ?? 1.0).toDouble();
 
       // Calculate cashback amount using config percentage
       final baseCashbackPct = config.cashbackPercentage / 100.0;
@@ -87,7 +87,7 @@ class CashbackCalculator {
 
       final tier = await _tierCalculator.getUserTier(userId);
       final tierBenefits = _tierCalculator.getTierBenefits(tier);
-      final tierMultiplier = (tierBenefits['cashbackPercentage'] ?? 1.0);
+      final tierMultiplier = ((tierBenefits['cashbackPercentage'] as num?) ?? 1.0).toDouble();
 
       final baseCashbackPct = config.cashbackPercentage / 100.0;
       return orderAmount * baseCashbackPct * tierMultiplier;
@@ -108,7 +108,7 @@ class CashbackCalculator {
       if (!config.enableCashback) return 0.0;
       final tier = await _tierCalculator.getUserTier(userId);
       final tierBenefits = _tierCalculator.getTierBenefits(tier);
-      final multiplier = (tierBenefits['cashbackPercentage'] ?? 1.0);
+      final multiplier = ((tierBenefits['cashbackPercentage'] as num?) ?? 1.0).toDouble();
       return config.cashbackPercentage * multiplier;
     } catch (e) {
       debugPrint('Error getting cashback percentage: $e');
@@ -147,7 +147,7 @@ class CashbackCalculator {
 
       double totalCashback = 0.0;
       for (final doc in snapshot.docs) {
-        totalCashback += (doc.data()['amount'] ?? 0.0).toDouble();
+        totalCashback += ((doc.data()['amount'] as num?) ?? 0.0).toDouble();
       }
 
       return totalCashback;

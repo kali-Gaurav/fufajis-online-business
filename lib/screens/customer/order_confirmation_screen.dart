@@ -9,12 +9,17 @@ import '../../models/delivery_type.dart';
 import '../../models/payment_method.dart';
 import '../../providers/order_provider.dart';
 import '../../providers/cart_provider.dart';
-import '../../providers/auth_provider.dart';
 import '../../services/notification_service.dart';
 import '../../services/sms_service.dart';
 import '../../utils/app_theme.dart';
+import '../../config/app_config.dart';
+import '../../constants/order_status.dart';
 import '../../services/delivery_charge_calculator.dart';
 import '../../services/invoice_service.dart';
+import '../../widgets/common/fj_button.dart';
+import '../../widgets/common/fj_card.dart';
+import '../../widgets/common/empty_state.dart';
+import '../../widgets/common/error_state.dart';
 import '../../widgets/payment_success_animation.dart';
 
 class OrderConfirmationScreen extends StatefulWidget {
@@ -150,7 +155,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
         phoneNumber: _order!.customerPhone,
         orderNumber: _order!.orderNumber,
         estimatedDeliveryDate: deliveryDate,
-        totalAmount: _order!.totalAmount,
+        totalAmount: _order!.totalAmount.toDouble(),
       );
 
       if (success) {
@@ -172,15 +177,25 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
     }
 
     if (_errorMessage != null) {
-      return _buildErrorState();
+      return Center(
+        child: FjErrorState(
+          error: _errorMessage!,
+          onRetry: _loadOrder,
+        ),
+      );
     }
 
     if (_order == null) {
-      return _buildOrderNotFoundState();
+      return const FjEmptyState(
+        icon: Icons.search_off,
+        title: 'Order Not Found',
+        subtitle: "We couldn't find the order you're looking for.",
+        actionLabel: 'Go to Home',
+      );
     }
 
     return Stack(
@@ -506,19 +521,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
   }
 
   Widget _buildOrderInfoCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return FjCard(
       child: Column(
         children: [
           Row(
@@ -560,19 +563,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
   Widget _buildDeliveryInfoCard() {
     final formattedDate = DeliveryChargeCalculator.getFormattedDeliveryDate(_order!.deliveryType);
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return FjCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -625,11 +616,11 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
                 style: TextStyle(fontSize: 13, color: AppTheme.grey600),
               ),
               Text(
-                _order!.deliveryCharge == 0 ? 'FREE' : '₹${_order!.deliveryCharge.round()}',
+                _order!.deliveryCharge.toDouble() == 0 ? 'FREE' : '₹${_order!.deliveryCharge.round()}',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
-                  color: _order!.deliveryCharge == 0 ? AppTheme.success : AppTheme.grey900,
+                  color: _order!.deliveryCharge.toDouble() == 0 ? AppTheme.success : AppTheme.grey900,
                 ),
               ),
             ],
@@ -640,19 +631,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
   }
 
   Widget _buildOrderSummaryCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return FjCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -678,22 +657,22 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
           const SizedBox(height: 16),
           ..._order!.items.map((item) => _buildOrderItemRow(item)),
           const Divider(height: 24),
-          _buildPriceRow('Subtotal', _order!.subtotal),
+          _buildPriceRow('Subtotal', _order!.subtotal.toDouble()),
           const SizedBox(height: 8),
           _buildPriceRow(
             'Delivery',
-            _order!.deliveryCharge,
-            isFree: _order!.deliveryCharge == 0,
+            _order!.deliveryCharge.toDouble(),
+            isFree: _order!.deliveryCharge.toDouble() == 0,
           ),
-          if (_order!.discount > 0) ...[
+          if (_order!.discount.toDouble() > 0) ...[
             const SizedBox(height: 8),
-            _buildPriceRow('Discount', -_order!.discount, isDiscount: true),
+            _buildPriceRow('Discount', -_order!.discount.toDouble(), isDiscount: true),
           ],
-          if (_order!.walletAmountUsed > 0) ...[
+          if (_order!.walletAmountUsed.toDouble() > 0) ...[
             const SizedBox(height: 8),
             _buildPriceRow(
               'Wallet Used',
-              -_order!.walletAmountUsed,
+              -_order!.walletAmountUsed.toDouble(),
               isDiscount: true,
             ),
           ],
@@ -829,19 +808,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
     final paymentMethodName = PaymentMethodOption.getDisplayName(_order!.paymentMethod);
     final paymentMethodOption = PaymentMethodOption.fromMethod(_order!.paymentMethod);
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return FjCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -910,7 +877,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
               ],
             ),
           ],
-          if (_order!.cashbackEarned > 0) ...[
+          if (_order!.cashbackEarned.toDouble() > 0) ...[
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(12),
@@ -942,19 +909,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
   Widget _buildDeliveryAddressCard() {
     final address = _order!.deliveryAddress;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return FjCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1057,19 +1012,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
       OrderStatus.delivered,
     ];
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return FjCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1262,85 +1205,31 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
   Widget _buildActionButtons() {
     return Column(
       children: [
-        SizedBox(
+        FjButton(
+          label: 'Track Order',
+          onPressed: _navigateToTrackOrder,
+          icon: Icons.local_shipping,
           width: double.infinity,
-          child: ElevatedButton(
-            onPressed: _navigateToTrackOrder,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.local_shipping, size: 20),
-                SizedBox(width: 8),
-                Text(
-                  'Track Order',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ),
         const SizedBox(height: 12),
 
         // Share via WhatsApp
-        SizedBox(
+        FjButton(
+          label: 'Share via WhatsApp',
+          onPressed: _shareViaWhatsApp,
+          icon: Icons.share,
           width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: _shareViaWhatsApp,
-            icon: const Icon(Icons.share, size: 18),
-            label: const Text(
-              'Share via WhatsApp',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF25D366),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
+          type: FjButtonType.primary,
+          // color: const Color(0xFF25D366), // Needs FjButton override support
         ),
         const SizedBox(height: 12),
 
-        SizedBox(
+        FjButton(
+          label: 'Continue Shopping',
+          onPressed: _navigateToHome,
+          icon: Icons.shopping_bag_outlined,
           width: double.infinity,
-          child: OutlinedButton(
-            onPressed: _navigateToHome,
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppTheme.primary,
-              side: const BorderSide(color: AppTheme.primary),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.shopping_bag_outlined, size: 20),
-                SizedBox(width: 8),
-                Text(
-                  'Continue Shopping',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          type: FjButtonType.outline,
         ),
       ],
     );
@@ -1418,104 +1307,6 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
     );
   }
 
-  Widget _buildErrorState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.error_outline,
-              color: AppTheme.error,
-              size: 64,
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Something went wrong',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.grey900,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _errorMessage!,
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppTheme.grey600,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _loadOrder,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOrderNotFoundState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.search_off,
-              color: AppTheme.grey400,
-              size: 64,
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Order Not Found',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.grey900,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'We couldn\'t find the order you\'re looking for.',
-              style: TextStyle(
-                fontSize: 14,
-                color: AppTheme.grey600,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () => context.go('/customer/home'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text('Go to Home'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   void _navigateToTrackOrder() {
     if (_order != null) {
       context.go('/customer/orders/${_order!.id}/tracking');
@@ -1527,17 +1318,30 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
   }
 
   void _onChatTap() {
-    // TODO: Implement chat with support
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Chat feature coming soon')),
-    );
+    if (_order != null) {
+      context.push('/customer/support-chat/${_order!.id}');
+    } else {
+      context.push('/customer/support');
+    }
   }
 
-  void _onCallTap() {
-    // TODO: Implement call support
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Call support: 1800-XXX-XXXX')),
-    );
+  Future<void> _onCallTap() async {
+    final phone = AppConfig.shopPhone.replaceAll(' ', '');
+    final uri = Uri.parse('tel:$phone');
+    try {
+      final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!ok && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Call us at \${AppConfig.shopPhone}')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Call us at \${AppConfig.shopPhone}')),
+        );
+      }
+    }
   }
 
   void _onInvoiceTap() {
@@ -1588,7 +1392,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
                 _order!.id,
                 'Cancelled by customer',
               );
-              if (success && mounted) {
+              if (success && context.mounted) {
                 context.go('/customer/home');
               }
             },
@@ -1620,12 +1424,12 @@ class ConfettiPainter extends CustomPainter {
       final x = (random * (i + 1) % size.width) * animationValue;
       final y = (random * (i + 2) % size.height) * animationValue;
       final color = [
-        Colors.red,
-        Colors.green,
-        Colors.blue,
+        AppTheme.error,
+        AppTheme.success,
+        AppTheme.info,
         Colors.yellow,
         Colors.purple,
-        Colors.orange,
+        AppTheme.warning,
       ][i % 6];
 
       paint.color = color.withValues(alpha: 1 - animationValue);

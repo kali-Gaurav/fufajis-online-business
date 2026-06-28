@@ -5,22 +5,40 @@ import '../../utils/app_theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/admin_provider.dart';
 import '../../services/firestore_seeder.dart';
-import 'user_management_screen.dart';
-import 'shop_management_screen.dart';
-import 'product_moderation_screen.dart';
-import 'order_management_screen.dart';
-import 'coupon_management_screen.dart';
-import 'analytics_screen.dart';
+import '../../utils/responsive.dart';
 
 class AdminDashboard extends StatefulWidget {
-  const AdminDashboard({super.key});
+  final Widget child;
+  const AdminDashboard({super.key, required this.child});
 
   @override
   State<AdminDashboard> createState() => _AdminDashboardState();
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
-  int _selectedIndex = 0;
+  int _getSelectedIndex(BuildContext context) {
+    final String location = GoRouterState.of(context).uri.path;
+    if (location == '/admin') return 0;
+    if (location.startsWith('/admin/users')) return 1;
+    if (location.startsWith('/admin/shops')) return 2;
+    if (location.startsWith('/admin/products')) return 3;
+    if (location.startsWith('/admin/orders')) return 4;
+    if (location.startsWith('/admin/coupons')) return 5;
+    if (location.startsWith('/admin/analytics')) return 6;
+    return 0;
+  }
+
+  void _onItemTapped(int index, BuildContext context) {
+    switch (index) {
+      case 0: context.go('/admin'); break;
+      case 1: context.go('/admin/users'); break;
+      case 2: context.go('/admin/shops'); break;
+      case 3: context.go('/admin/products'); break;
+      case 4: context.go('/admin/orders'); break;
+      case 5: context.go('/admin/coupons'); break;
+      case 6: context.go('/admin/analytics'); break;
+    }
+  }
 
   final List<String> _titles = [
     'Admin Overview',
@@ -32,6 +50,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
     'Global Analytics',
   ];
 
+  IconData _getIconForIndex(int index, bool isSelected) {
+    switch (index) {
+      case 0: return isSelected ? Icons.dashboard : Icons.dashboard_outlined;
+      case 1: return isSelected ? Icons.people : Icons.people_outline;
+      case 2: return isSelected ? Icons.storefront : Icons.storefront_outlined;
+      case 3: return isSelected ? Icons.inventory_2 : Icons.inventory_2_outlined;
+      case 4: return isSelected ? Icons.shopping_bag : Icons.shopping_bag_outlined;
+      case 5: return isSelected ? Icons.confirmation_number : Icons.confirmation_number_outlined;
+      case 6: return isSelected ? Icons.analytics : Icons.analytics_outlined;
+      default: return Icons.circle;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -42,16 +73,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    final useRail = Responsive.useRailNav(context);
+    final selectedIndex = _getSelectedIndex(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(_titles[_selectedIndex]),
+        title: Text(_titles[selectedIndex]),
         actions: [
           IconButton(
             onPressed: () async {
               showDialog(
                 context: context,
                 barrierDismissible: false,
-                builder: (ctx) => const Center(child: CircularProgressIndicator()),
+                builder: (ctx) => const Center(child: CircularProgressIndicator(color: AppTheme.adminAccent)),
               );
               await FirestoreSeeder.seedDatabase();
               if (mounted) Navigator.pop(context);
@@ -59,7 +93,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Catalog & Price History Seeded Successfully!'),
-                    backgroundColor: Colors.green,
+                    backgroundColor: AppTheme.success,
                   ),
                 );
               }
@@ -78,52 +112,98 @@ class _AdminDashboardState extends State<AdminDashboard> {
           ),
         ],
       ),
+      drawer: useRail ? null : Drawer(
+        child: Column(
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(color: AppTheme.primary),
+              child: Center(
+                child: Text(
+                  'Admin Dashboard',
+                  style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                itemCount: _titles.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    leading: Icon(
+                      _getIconForIndex(index, selectedIndex == index),
+                      color: selectedIndex == index ? AppTheme.primary : AppTheme.grey600,
+                    ),
+                    title: Text(
+                      _titles[index],
+                      style: TextStyle(
+                        color: selectedIndex == index ? AppTheme.primary : AppTheme.grey800,
+                        fontWeight: selectedIndex == index ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                    selected: selectedIndex == index,
+                    onTap: () {
+                      _onItemTapped(index, context);
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
       body: Row(
         children: [
-          NavigationRail(
-            selectedIndex: _selectedIndex,
-            onDestinationSelected: (index) => setState(() => _selectedIndex = index),
-            labelType: NavigationRailLabelType.all,
-            destinations: const [
-              NavigationRailDestination(icon: Icon(Icons.dashboard_outlined), selectedIcon: Icon(Icons.dashboard), label: Text('Overview')),
-              NavigationRailDestination(icon: Icon(Icons.people_outline), selectedIcon: Icon(Icons.people), label: Text('Users')),
-              NavigationRailDestination(icon: Icon(Icons.storefront_outlined), selectedIcon: Icon(Icons.storefront), label: Text('Shops')),
-              NavigationRailDestination(icon: Icon(Icons.inventory_2_outlined), selectedIcon: Icon(Icons.inventory_2), label: Text('Products')),
-              NavigationRailDestination(icon: Icon(Icons.shopping_bag_outlined), selectedIcon: Icon(Icons.shopping_bag), label: Text('Orders')),
-              NavigationRailDestination(icon: Icon(Icons.confirmation_number_outlined), selectedIcon: Icon(Icons.confirmation_number), label: Text('Coupons')),
-              NavigationRailDestination(icon: Icon(Icons.analytics_outlined), selectedIcon: Icon(Icons.analytics), label: Text('Analytics')),
-            ],
-          ),
-          const VerticalDivider(thickness: 1, width: 1),
+          if (useRail)
+            LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: IntrinsicHeight(
+                      child: NavigationRail(
+                      selectedIndex: selectedIndex,
+                      onDestinationSelected: (index) => _onItemTapped(index, context),
+                      labelType: NavigationRailLabelType.all,
+                      destinations: const [
+                        NavigationRailDestination(icon: Icon(Icons.dashboard_outlined), selectedIcon: Icon(Icons.dashboard), label: Text('Overview')),
+                        NavigationRailDestination(icon: Icon(Icons.people_outline), selectedIcon: Icon(Icons.people), label: Text('Users')),
+                        NavigationRailDestination(icon: Icon(Icons.storefront_outlined), selectedIcon: Icon(Icons.storefront), label: Text('Shops')),
+                        NavigationRailDestination(icon: Icon(Icons.inventory_2_outlined), selectedIcon: Icon(Icons.inventory_2), label: Text('Products')),
+                        NavigationRailDestination(icon: Icon(Icons.shopping_bag_outlined), selectedIcon: Icon(Icons.shopping_bag), label: Text('Orders')),
+                        NavigationRailDestination(icon: Icon(Icons.confirmation_number_outlined), selectedIcon: Icon(Icons.confirmation_number), label: Text('Coupons')),
+                        NavigationRailDestination(icon: Icon(Icons.analytics_outlined), selectedIcon: Icon(Icons.analytics), label: Text('Analytics')),
+                      ],
+                    ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          if (useRail)
+            const VerticalDivider(thickness: 1, width: 1),
           Expanded(
-            child: _buildPage(_selectedIndex),
+            child: widget.child,
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildPage(int index) {
-    switch (index) {
-      case 0: return _buildOverview();
-      case 1: return const UserManagementScreen();
-      case 2: return const ShopManagementScreen();
-      case 3: return const ProductModerationScreen();
-      case 4: return const OrderManagementScreen();
-      case 5: return const CouponManagementScreen();
-      case 6: return const AnalyticsScreen();
-      default: return const SizedBox.shrink();
-    }
-  }
+class AdminOverviewPage extends StatelessWidget {
+  const AdminOverviewPage({super.key});
 
-  Widget _buildOverview() {
+  @override
+  Widget build(BuildContext context) {
     return Consumer<AdminProvider>(
       builder: (context, adminProvider, child) {
         if (adminProvider.isLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator(color: AppTheme.adminAccent));
         }
         if (adminProvider.error.isNotEmpty) {
-          return Center(child: Text(adminProvider.error, style: const TextStyle(color: Colors.red)));
+          return Center(child: Text(adminProvider.error, style: const TextStyle(color: AppTheme.error)));
         }
 
         return RefreshIndicator(
@@ -137,7 +217,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 const SizedBox(height: 24),
                 LayoutBuilder(
                   builder: (context, constraints) {
-                    int crossAxisCount = constraints.maxWidth > 1000 ? 4 : constraints.maxWidth > 600 ? 3 : 1;
+                    int crossAxisCount = Responsive.kpiColumns(context);
                     return GridView.count(
                       crossAxisCount: crossAxisCount,
                       shrinkWrap: true,
@@ -146,9 +226,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       mainAxisSpacing: 16,
                       childAspectRatio: 1.5,
                       children: [
-                        _buildStatCard('Total Users', '${adminProvider.totalUsers}', Icons.people, Colors.blue),
-                        _buildStatCard('Active Shops', '${adminProvider.totalShops}', Icons.store, Colors.orange),
-                        _buildStatCard('Active Orders', '${adminProvider.totalActiveOrders}', Icons.shopping_bag, Colors.green),
+                        _buildStatCard('Total Users', '${adminProvider.totalUsers}', Icons.people, AppTheme.info),
+                        _buildStatCard('Active Shops', '${adminProvider.totalShops}', Icons.store, AppTheme.warning),
+                        _buildStatCard('Active Orders', '${adminProvider.totalActiveOrders}', Icons.shopping_bag, AppTheme.success),
                         _buildStatCard('Revenue', '₹${adminProvider.totalRevenue.toStringAsFixed(0)}', Icons.currency_rupee, Colors.purple),
                       ],
                     );
@@ -187,4 +267,5 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 }
+
 

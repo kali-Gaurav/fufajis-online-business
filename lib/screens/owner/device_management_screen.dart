@@ -50,7 +50,7 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
           'Allow "$deviceName" to access Fufaji Business?\n\n'
           'This device will be able to log in once approved.',
       confirmLabel: 'Approve',
-      confirmColor: Colors.green,
+      confirmColor: AppTheme.success,
     );
     if (!confirmed) return;
 
@@ -68,7 +68,7 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('"$deviceName" approved.'),
-          backgroundColor: Colors.green,
+          backgroundColor: AppTheme.success,
         ),
       );
     }
@@ -120,7 +120,7 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
     final newName = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Rename Device'),
+        title: const Text('Rename Device', style: TextStyle(fontWeight: FontWeight.w700)),
         content: TextField(
           controller: controller,
           decoration: const InputDecoration(
@@ -186,6 +186,12 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
 
   // ── Build ──────────────────────────────────────────────────
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     final auth    = Provider.of<AuthProvider>(context);
     final email   = auth.currentUser?.email ?? '';
@@ -193,7 +199,7 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Trusted Devices'),
+        title: const Text('Trusted Devices', style: TextStyle(fontWeight: FontWeight.w700)),
         backgroundColor: AppTheme.primary,
         foregroundColor: Colors.white,
         actions: [
@@ -202,7 +208,7 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
             onPressed: () => showDialog(
               context: context,
               builder: (ctx) => AlertDialog(
-                title: const Text('Device Management'),
+                title: const Text('Device Management', style: TextStyle(fontWeight: FontWeight.w700)),
                 content: const Text(
                   'Only approved devices can access the Owner Dashboard.\n\n'
                   'Removing a device logs it out immediately and requires '
@@ -339,7 +345,7 @@ class _DeviceTile extends StatelessWidget {
                         width: 8,
                         height: 8,
                         decoration: BoxDecoration(
-                          color: isPending ? AppTheme.warning : Colors.green,
+                          color: isPending ? AppTheme.warning : AppTheme.success,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -348,7 +354,7 @@ class _DeviceTile extends StatelessWidget {
                         isPending ? 'Pending Approval' : 'Approved',
                         style: TextStyle(
                             fontSize: 12,
-                            color: isPending ? AppTheme.warning : Colors.green,
+                            color: isPending ? AppTheme.warning : AppTheme.success,
                             fontWeight: FontWeight.w600),
                       ),
                     ]),
@@ -383,11 +389,11 @@ class _DeviceTile extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: onApprove,
                       icon: const Icon(Icons.check_circle_outline,
-                          size: 18, color: Colors.green),
+                          size: 18, color: AppTheme.success),
                       label: const Text('Approve',
-                          style: TextStyle(color: Colors.green)),
+                          style: TextStyle(color: AppTheme.success)),
                       style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.green)),
+                          side: const BorderSide(color: AppTheme.success)),
                     ),
                   ),
                   const SizedBox(width: 8),

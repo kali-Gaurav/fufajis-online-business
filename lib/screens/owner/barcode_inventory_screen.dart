@@ -36,7 +36,7 @@ extension InventoryModeExt on InventoryMode {
   Color get color {
     switch (this) {
       case InventoryMode.receiveStock:
-        return AppTheme.secondary;
+        return AppTheme.info;
       case InventoryMode.countStock:
         return AppTheme.info;
       case InventoryMode.pickOrder:
@@ -197,7 +197,7 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
 
       final entry = _ScanEntry(
         barcode: _scannedBarcode ?? '',
-        productName: data['name'] ?? 'Unknown',
+        productName: data['name'] as String? ?? 'Unknown',
         quantityChanged: _adjustQty,
         mode: _mode,
         time: DateTime.now(),
@@ -283,7 +283,7 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(msg),
-      backgroundColor: isError ? AppTheme.error : AppTheme.secondary,
+      backgroundColor: isError ? AppTheme.error : AppTheme.info,
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       duration: const Duration(seconds: 2),
@@ -411,20 +411,21 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
                   color:
-                      selected ? mode.color : Colors.white.withOpacity(0.1),
+                      selected ? mode.color : Colors.white.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(mode.icon,
-                        size: 18,
+                        size: 22,
                         color: selected ? Colors.white : Colors.white54),
-                    const SizedBox(height: 3),
+                    const SizedBox(height: 4),
                     Text(
                       mode.label,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: selected ? Colors.white : Colors.white54,
                       ),
@@ -449,7 +450,7 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
                 fontWeight: FontWeight.w600,
                 color: AppTheme.grey700)),
         const SizedBox(height: 4),
-        Text('Barcode will be detected automatically',
+        const Text('Barcode will be detected automatically',
             style: TextStyle(fontSize: 13, color: AppTheme.grey400)),
         if (_history.isNotEmpty) ...[
           const SizedBox(height: 16),
@@ -478,7 +479,7 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
             ),
           ),
         ] else
-          Expanded(
+          const Expanded(
             child: Center(
               child: Icon(Icons.qr_code_scanner,
                   size: 80, color: AppTheme.grey200),
@@ -493,7 +494,7 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
       dense: true,
       leading: CircleAvatar(
         radius: 18,
-        backgroundColor: entry.mode.color.withOpacity(0.15),
+        backgroundColor: entry.mode.color.withValues(alpha: 0.15),
         child: Icon(entry.mode.icon, size: 16, color: entry.mode.color),
       ),
       title: Text(entry.productName,
@@ -544,8 +545,8 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
                     horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
                   color: currentQty < 5
-                      ? AppTheme.error.withOpacity(0.1)
-                      : AppTheme.secondary.withOpacity(0.1),
+                      ? AppTheme.error.withValues(alpha: 0.1)
+                      : AppTheme.info.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -556,7 +557,7 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
                             fontWeight: FontWeight.bold,
                             color: currentQty < 5
                                 ? AppTheme.error
-                                : AppTheme.secondary)),
+                                : AppTheme.info)),
                     Text(unit,
                         style: const TextStyle(
                             fontSize: 11, color: AppTheme.grey600)),

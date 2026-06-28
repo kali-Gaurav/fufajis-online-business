@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../config/app_config.dart';
 import '../utils/lru_memory_cache.dart';
+import '../core/resilience/circuit_breaker.dart';
 
 class CacheService {
   static final CacheService _instance = CacheService._internal();
@@ -19,36 +20,26 @@ class CacheService {
   String? _redisToken;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  late final CircuitBreaker _redisCircuitBreaker;
 
   // Initialize service settings
   Future<void> init() async {
     try {
+      _redisCircuitBreaker = CircuitBreakerRegistry.get('UpstashRedis', config: const CircuitBreakerConfig(failureThreshold: 3, resetTimeout: Duration(minutes: 1)));
       _prefs = await SharedPreferences.getInstance();
       
       try {
-        _redisUrl = dotenv.get('UPSTASH_REDIS_REST_URL', fallback: '').trim();
-        if (_redisUrl == null || _redisUrl!.isEmpty) {
-          _redisUrl = dotenv.get('REDIS_REST_URL', fallback: '').trim();
-        }
-        // Fallback to verified production URL if still empty
-        if (_redisUrl == null || _redisUrl!.isEmpty) {
-          _redisUrl = 'https://pet-wallaby-138840.upstash.io';
-        }
+        _redisUrl = AppConfig.upstashRedisRestUrl.trim();
         
         // Clean trailing slash for absolute URL mapping
         if (_redisUrl != null && _redisUrl!.endsWith('/')) {
           _redisUrl = _redisUrl!.substring(0, _redisUrl!.length - 1);
         }
 
-        _redisToken = dotenv.get('UPSTASH_REDIS_REST_TOKEN', fallback: '').trim();
-        if (_redisToken == null || _redisToken!.isEmpty) {
-          _redisToken = dotenv.get('REDIS_REST_TOKEN', fallback: '').trim();
-        }
-        // Fallback to verified production Token if still empty
-        if (_redisToken == null || _redisToken!.isEmpty) {
-          _redisToken = 'gQAAAAAAAh5YAAIgcDJkMGY2OGY2ZjcyZWM0ODBjYjQ3MTdhOThlN2I5NDRhYw';
-        }
-      } catch (_) {}
+        _redisToken = AppConfig.upstashRedisRestToken.trim();
+      } catch (e, stack) {
+        debugPrint('CacheService error loading env variables: $e\\n$stack');
+      }
       
       // Step 1: URL Validation
       if (!_isValidUrl(_redisUrl)) {
@@ -64,33 +55,36 @@ class CacheService {
         return;
       }
 
-      // Step 3: Test Ping Endpoint using Upstash REST API format
-      // Upstash REST API uses GET /ping — NOT POST / with body
-      debugPrint('[CacheService] Step 3: Pinging Upstash Redis REST endpoint: $_redisUrl/ping');
-      final response = await http.get(
-        Uri.parse('$_redisUrl/ping'),
-        headers: {
-          'Authorization': 'Bearer $_redisToken',
-        },
-      ).timeout(const Duration(seconds: 5));
+      // Step 3: Test Ping Endpoint using Circuit Breaker
+      await _redisCircuitBreaker.execute<void>(() async {
+        debugPrint('[CacheService] Step 3: Pinging Upstash Redis REST endpoint: $_redisUrl/ping');
+        final response = await http.get(
+          Uri.parse('$_redisUrl/ping'),
+          headers: {
+            'Authorization': 'Bearer $_redisToken',
+          },
+        ).timeout(const Duration(seconds: 5));
 
-      if (response.statusCode == 200) {
-        final decoded = jsonDecode(response.body);
-        if ((decoded is Map && decoded.containsKey('result') && decoded['result'] == 'PONG') ||
-            response.body.toUpperCase().contains('PONG')) {
-          debugPrint('[CacheService] ✅ Upstash Redis REST authenticated successfully (PONG received).');
-          _useLocalFailover = false;
-          _useFirebaseCache = false;
+        if (response.statusCode == 200) {
+          final decoded = jsonDecode(response.body);
+          if ((decoded is Map && decoded.containsKey('result') && decoded['result'] == 'PONG') ||
+              response.body.toUpperCase().contains('PONG')) {
+            debugPrint('[CacheService] ✅ Upstash Redis REST authenticated successfully (PONG received).');
+            _useLocalFailover = false;
+            _useFirebaseCache = false;
+          } else {
+            throw Exception('Unexpected ping result: ${response.body}');
+          }
+        } else if (response.statusCode == 401) {
+          throw Exception('Upstash authentication failed — check UPSTASH_REDIS_REST_TOKEN');
         } else {
-          throw Exception('Unexpected ping result: ${response.body}');
+          throw Exception('HTTP Status ${response.statusCode} - ${response.body}');
         }
-      } else if (response.statusCode == 401) {
-        throw Exception('Upstash authentication failed — check UPSTASH_REDIS_REST_TOKEN');
-      } else {
-        throw Exception('HTTP Status ${response.statusCode} - ${response.body}');
-      }
+      }, fallback: (e) async {
+        throw e as Object;
+      });
     } catch (e) {
-      debugPrint('⚠️ [CacheService] Upstash Redis authentication failed: $e');
+      debugPrint('⚠️ [CacheService] Upstash Redis authentication failed or Circuit Open: $e');
       await _activateFirebaseCache();
     }
   }
@@ -139,10 +133,9 @@ class CacheService {
       return await _saveToFirebaseCache(key, value);
     }
 
-    // 3. Try Redis — Upstash REST API: POST /set/{key} with value in body
-    try {
+    // 3. Try Redis — Upstash REST API using CircuitBreaker
+    return await _redisCircuitBreaker.execute<bool>(() async {
       debugPrint('[CacheService] Redis Write -> $key');
-      // Upstash REST format: POST /set/{key} with value as plain body
       final response = await http.post(
         Uri.parse('$_redisUrl/set/$key'),
         headers: {
@@ -157,11 +150,11 @@ class CacheService {
       } else {
         throw Exception('HTTP ${response.statusCode}: ${response.body}');
       }
-    } catch (e) {
-      debugPrint('[CacheService] Redis Write Error, falling back to Firebase Cache: $e');
+    }, fallback: (error) async {
+      debugPrint('[CacheService] Redis Write Error, falling back to Firebase Cache: $error');
       _useFirebaseCache = true;
       return await _saveToFirebaseCache(key, value);
-    }
+    });
   }
 
   // Get cached value by key
@@ -181,9 +174,8 @@ class CacheService {
       return await _readFromFirebaseCache(key);
     }
 
-    try {
+    return await _redisCircuitBreaker.execute<String?>(() async {
       debugPrint('[CacheService] Redis Read -> $key');
-      // Upstash REST format: GET /get/{key}
       final response = await http.get(
         Uri.parse('$_redisUrl/get/$key'),
         headers: {
@@ -201,16 +193,15 @@ class CacheService {
           _memoryCache.set(key, value);
           return value;
         }
-        // Key not found in Redis — check local as secondary lookup
         return await _readFromLocal(key);
       } else {
         throw Exception('HTTP ${response.statusCode}: ${response.body}');
       }
-    } catch (e) {
-      debugPrint('[CacheService] Redis Read Error, falling back to Firebase Cache: $e');
+    }, fallback: (error) async {
+      debugPrint('[CacheService] Redis Read Error, falling back to Firebase Cache: $error');
       _useFirebaseCache = true;
       return await _readFromFirebaseCache(key);
-    }
+    });
   }
 
   // Remove key from cache
@@ -329,5 +320,241 @@ class CacheService {
       _useLocalFailover = true;
       return await _readFromLocal(key);
     }
+  }
+
+  // ============================================================
+  // TTL-aware set/get (Redis EX). Falls back to plain set/get +
+  // a stored expiry timestamp when Redis is unavailable, so the
+  // same API works against the Firestore/local failover tiers.
+  // ============================================================
+
+  /// Sets [key] to [value] with a time-to-live of [ttlSeconds].
+  /// On Upstash Redis this uses the `EX` option on SET. On the
+  /// Firestore/local fallback tiers, an `_exp` sibling key stores
+  /// the expiry epoch (ms) and is checked by [_getWithTtl].
+  Future<bool> _setWithTtl(String key, String value, int ttlSeconds) async {
+    _memoryCache.set(key, value);
+
+    if (!_useLocalFailover && !_useFirebaseCache && _redisUrl != null && _redisToken != null) {
+      try {
+        return await _redisCircuitBreaker.execute<bool>(() async {
+          final response = await http.post(
+            Uri.parse('$_redisUrl/set/${Uri.encodeComponent(key)}/${Uri.encodeComponent(value)}?EX=$ttlSeconds'),
+            headers: {'Authorization': 'Bearer $_redisToken'},
+          ).timeout(const Duration(seconds: 4));
+
+          if (response.statusCode == 200) return true;
+          throw Exception('HTTP ${response.statusCode}: ${response.body}');
+        }, fallback: (error) async {
+          debugPrint('[CacheService] Redis TTL set error, falling back: $error');
+          _useFirebaseCache = true;
+          return await _setWithTtlFallback(key, value, ttlSeconds);
+        });
+      } catch (e) {
+        debugPrint('[CacheService] _setWithTtl error: $e');
+        return await _setWithTtlFallback(key, value, ttlSeconds);
+      }
+    }
+
+    return await _setWithTtlFallback(key, value, ttlSeconds);
+  }
+
+  Future<bool> _setWithTtlFallback(String key, String value, int ttlSeconds) async {
+    final expiresAt = DateTime.now().add(Duration(seconds: ttlSeconds)).millisecondsSinceEpoch;
+    final ok1 = _useLocalFailover || _prefs == null
+        ? await _saveToLocal(key, value)
+        : (_useFirebaseCache ? await _saveToFirebaseCache(key, value) : await _saveToLocal(key, value));
+    final ok2 = _useLocalFailover || _prefs == null
+        ? await _saveToLocal('${key}_exp', expiresAt.toString())
+        : (_useFirebaseCache
+            ? await _saveToFirebaseCache('${key}_exp', expiresAt.toString())
+            : await _saveToLocal('${key}_exp', expiresAt.toString()));
+    return ok1 && ok2;
+  }
+
+  /// Gets [key], honoring TTL on the fallback tiers (Redis handles
+  /// expiry natively, so a plain [get] is used there).
+  Future<String?> _getWithTtl(String key) async {
+    if (!_useLocalFailover && !_useFirebaseCache && _redisUrl != null && _redisToken != null) {
+      return await get(key);
+    }
+
+    final expStr = await _readFromLocal('${key}_exp') ?? await _readFromFirebaseCache('${key}_exp');
+    if (expStr != null) {
+      final expiresAt = int.tryParse(expStr);
+      if (expiresAt != null && DateTime.now().millisecondsSinceEpoch > expiresAt) {
+        await remove(key);
+        await remove('${key}_exp');
+        return null;
+      }
+    }
+    return await get(key);
+  }
+
+  // ============================================================
+  // SESSIONS
+  // ============================================================
+
+  /// Stores a serialized user session, keyed by [userId], with a
+  /// default TTL of 7 days (matches typical "remember me" duration).
+  Future<bool> setUserSession(String userId, Map<String, dynamic> sessionData,
+      {int ttlSeconds = 7 * 24 * 60 * 60}) {
+    return _setWithTtl('session:$userId', jsonEncode(sessionData), ttlSeconds);
+  }
+
+  Future<Map<String, dynamic>?> getUserSession(String userId) async {
+    final raw = await _getWithTtl('session:$userId');
+    if (raw == null) return null;
+    try {
+      return Map<String, dynamic>.from(jsonDecode(raw) as Map);
+    } catch (e) {
+      debugPrint('[CacheService] getUserSession decode error: $e');
+      return null;
+    }
+  }
+
+  Future<void> invalidateSession(String userId) async {
+    await remove('session:$userId');
+    await remove('session:${userId}_exp');
+  }
+
+  // ============================================================
+  // PRODUCT CACHE
+  // ============================================================
+
+  /// Caches a product's serialized data for [ttlSeconds] (default 10
+  /// minutes) to reduce repeated Supabase/Firestore reads on hot items.
+  Future<bool> cacheProduct(String productId, Map<String, dynamic> productData,
+      {int ttlSeconds = 10 * 60}) {
+    return _setWithTtl('product:$productId', jsonEncode(productData), ttlSeconds);
+  }
+
+  Future<Map<String, dynamic>?> getCachedProduct(String productId) async {
+    final raw = await _getWithTtl('product:$productId');
+    if (raw == null) return null;
+    try {
+      return Map<String, dynamic>.from(jsonDecode(raw) as Map);
+    } catch (e) {
+      debugPrint('[CacheService] getCachedProduct decode error: $e');
+      return null;
+    }
+  }
+
+  Future<void> invalidateProductCache(String productId) async {
+    await remove('product:$productId');
+    await remove('product:${productId}_exp');
+  }
+
+  // ============================================================
+  // CART
+  // ============================================================
+
+  /// Persists the in-progress cart for [userId] so it survives app
+  /// restarts and is shared across devices. Carts use a long TTL
+  /// (default 30 days) purely as a storage-eviction safeguard for
+  /// abandoned carts — they are refreshed on every save, so an
+  /// actively-used cart never expires.
+  Future<bool> saveCart(String userId, List<Map<String, dynamic>> cartItems,
+      {int ttlSeconds = 30 * 24 * 60 * 60}) {
+    return _setWithTtl('cart:$userId', jsonEncode(cartItems), ttlSeconds);
+  }
+
+  Future<List<Map<String, dynamic>>> getCart(String userId) async {
+    final raw = await _getWithTtl('cart:$userId');
+    if (raw == null) return [];
+    try {
+      return List<Map<String, dynamic>>.from(jsonDecode(raw) as Iterable);
+    } catch (e) {
+      debugPrint('[CacheService] getCart decode error: $e');
+      return [];
+    }
+  }
+
+  Future<void> invalidateCart(String userId) async {
+    await remove('cart:$userId');
+    await remove('cart:${userId}_exp');
+  }
+
+  // ============================================================
+  // OTP
+  // ============================================================
+
+  /// Stores an OTP code for [identifier] (phone/email) with a short
+  /// TTL (default 5 minutes).
+  Future<bool> storeOTP(String identifier, String code, {int ttlSeconds = 5 * 60}) {
+    return _setWithTtl('otp:$identifier', code, ttlSeconds);
+  }
+
+  /// Returns the stored OTP for [identifier], or null if missing/expired.
+  Future<String?> getOTP(String identifier) {
+    return _getWithTtl('otp:$identifier');
+  }
+
+  // ============================================================
+  // RATE LIMITING
+  // ============================================================
+
+  /// Increments a counter for [key] within a [windowSeconds] window
+  /// and returns whether the request is still within [maxRequests].
+  /// Returns a map: `{allowed: bool, count: int, remaining: int}`.
+  Future<Map<String, dynamic>> checkRateLimit(
+    String key, {
+    int maxRequests = 10,
+    int windowSeconds = 60,
+  }) async {
+    final count = await incrementRateLimit(key, windowSeconds: windowSeconds);
+    final allowed = count <= maxRequests;
+    final remaining = (maxRequests - count).clamp(0, maxRequests);
+    return {'allowed': allowed, 'count': count, 'remaining': remaining};
+  }
+
+  /// Increments the rate-limit counter for [key], setting its
+  /// expiry to [windowSeconds] on first increment. Returns the new
+  /// count.
+  Future<int> incrementRateLimit(String key, {int windowSeconds = 60}) async {
+    final rlKey = 'ratelimit:$key';
+
+    if (!_useLocalFailover && !_useFirebaseCache && _redisUrl != null && _redisToken != null) {
+      try {
+        return await _redisCircuitBreaker.execute<int>(() async {
+          final incrResp = await http.get(
+            Uri.parse('$_redisUrl/incr/${Uri.encodeComponent(rlKey)}'),
+            headers: {'Authorization': 'Bearer $_redisToken'},
+          ).timeout(const Duration(seconds: 4));
+
+          if (incrResp.statusCode != 200) {
+            throw Exception('HTTP ${incrResp.statusCode}: ${incrResp.body}');
+          }
+          final decoded = jsonDecode(incrResp.body);
+          final count = decoded is Map ? (decoded['result'] as num?)?.toInt() ?? 1 : 1;
+
+          if (count == 1) {
+            // First hit in this window — set expiry.
+            await http.get(
+              Uri.parse('$_redisUrl/expire/${Uri.encodeComponent(rlKey)}/$windowSeconds'),
+              headers: {'Authorization': 'Bearer $_redisToken'},
+            ).timeout(const Duration(seconds: 4));
+          }
+          return count;
+        }, fallback: (error) async {
+          debugPrint('[CacheService] Redis rate limit error, falling back: $error');
+          return await _incrementRateLimitFallback(rlKey, windowSeconds);
+        });
+      } catch (e) {
+        debugPrint('[CacheService] incrementRateLimit error: $e');
+        return await _incrementRateLimitFallback(rlKey, windowSeconds);
+      }
+    }
+
+    return await _incrementRateLimitFallback(rlKey, windowSeconds);
+  }
+
+  /// Non-atomic fallback counter using the local/Firestore tiers with
+  /// TTL bookkeeping via [_setWithTtl]/[_getWithTtl].
+  Future<int> _incrementRateLimitFallback(String rlKey, int windowSeconds) async {
+    final current = await _getWithTtl(rlKey);
+    final count = (int.tryParse(current ?? '0') ?? 0) + 1;
+    await _setWithTtl(rlKey, count.toString(), windowSeconds);
+    return count;
   }
 }

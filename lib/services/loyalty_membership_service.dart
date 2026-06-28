@@ -19,7 +19,6 @@ class LoyaltyMembershipService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final MembershipTierCalculator _tierCalculator = MembershipTierCalculator();
   final RewardSystem _rewardSystem = RewardSystem();
-  final WhatsAppNotificationService _whatsappService = WhatsAppNotificationService();
 
   static final LoyaltyMembershipService _instance = LoyaltyMembershipService._internal();
   factory LoyaltyMembershipService() => _instance;
@@ -34,15 +33,6 @@ class LoyaltyMembershipService {
     MembershipTier.gold: 3,
     MembershipTier.platinum: 5,
   };
-
-  /// Maximum orders per delivery slot per tier
-  static const Map<MembershipTier, int> _maxSlotsPerTier = {
-    MembershipTier.bronze: 2,
-    MembershipTier.silver: 3,
-    MembershipTier.gold: 5,
-    MembershipTier.platinum: 10,  // Unlimited practically
-  };
-
   /// Check if a delivery slot is available for a given tier
   Future<bool> isSlotAvailable({
     required String slotId,
@@ -50,9 +40,6 @@ class LoyaltyMembershipService {
     required int currentSlotOrders,
     required int maxSlotOrders,
   }) async {
-    // Higher tiers get priority during high-demand slots
-    final tierMax = _maxSlotsPerTier[userTier] ?? 2;
-    
     // If slot is full for everyone, only Platinum can still book
     if (currentSlotOrders >= maxSlotOrders) {
       return userTier == MembershipTier.platinum;
@@ -89,8 +76,8 @@ class LoyaltyMembershipService {
 
         if (slotDoc.exists) {
           final data = slotDoc.data()!;
-          currentOrders = data['currentOrders'] ?? 0;
-          maxOrders = data['maxOrders'] ?? 10;
+          currentOrders = (data['currentOrders'] as num? ?? 0).toInt();
+          maxOrders = (data['maxOrders'] as num? ?? 10).toInt();
         }
 
         final available = await isSlotAvailable(
@@ -172,8 +159,8 @@ class LoyaltyMembershipService {
         int maxOrders = 10;
 
         if (slotDoc.exists) {
-          currentOrders = slotDoc.data()?['currentOrders'] ?? 0;
-          maxOrders = slotDoc.data()?['maxOrders'] ?? 10;
+          currentOrders = (slotDoc.data()?['currentOrders'] as num? ?? 0).toInt();
+          maxOrders = (slotDoc.data()?['maxOrders'] as num? ?? 10).toInt();
         }
 
         final available = await isSlotAvailable(
@@ -225,9 +212,9 @@ class LoyaltyMembershipService {
 
         if (streakDoc.exists) {
           final data = streakDoc.data()!;
-          currentStreak = data['currentStreak'] ?? 0;
-          longestStreak = data['longestStreak'] ?? 0;
-          lastOrderDate = data['lastOrderDate']?.toDate();
+          currentStreak = (data['currentStreak'] as num? ?? 0).toInt();
+          longestStreak = (data['longestStreak'] as num? ?? 0).toInt();
+          lastOrderDate = (data['lastOrderDate'] as Timestamp?)?.toDate();
         }
 
         final now = DateTime.now();
@@ -517,7 +504,7 @@ class LoyaltyMembershipService {
 
       double total = 0.0;
       for (final doc in snapshot.docs) {
-        total += (doc.data()['totalAmount'] ?? 0.0).toDouble();
+        total += ((doc.data()['totalAmount'] as num?) ?? 0.0).toDouble();
       }
       return total;
     } catch (e) {

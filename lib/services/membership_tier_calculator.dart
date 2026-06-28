@@ -129,7 +129,7 @@ class MembershipTierCalculator {
       double totalSpending = 0.0;
       for (final doc in snapshot.docs) {
         final data = doc.data();
-        totalSpending += (data['totalAmount'] ?? 0.0).toDouble();
+        totalSpending += ((data['totalAmount'] as num?) ?? 0.0).toDouble();
       }
 
       return totalSpending;
@@ -196,17 +196,13 @@ class MembershipTierCalculator {
     final currentTier = calculateTier(currentSpending);
     final currentThreshold = tierThresholds[currentTier] ?? 0.0;
 
-    MembershipTier? nextTier;
     double nextThreshold = 0.0;
 
     if (currentTier == MembershipTier.bronze) {
-      nextTier = MembershipTier.silver;
       nextThreshold = tierThresholds[MembershipTier.silver]!;
     } else if (currentTier == MembershipTier.silver) {
-      nextTier = MembershipTier.gold;
       nextThreshold = tierThresholds[MembershipTier.gold]!;
     } else if (currentTier == MembershipTier.gold) {
-      nextTier = MembershipTier.platinum;
       nextThreshold = tierThresholds[MembershipTier.platinum]!;
     } else {
       // Already at platinum
@@ -251,7 +247,7 @@ class MembershipTierCalculator {
 
   /// Gets tier display name
   String getTierDisplayName(MembershipTier tier) {
-    return tierBenefits[tier]?['name'] ?? 'Bronze';
+    return (tierBenefits[tier]?['name'] as String?) ?? 'Bronze';
   }
 
   /// Gets tier color for UI display

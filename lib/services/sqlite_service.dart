@@ -11,7 +11,7 @@ class SqliteService {
   SqliteService._internal();
 
   Database? _database;
-  static const int _schemaVersion = 1;
+  static const int _schemaVersion = 3;
   static const String _dbName = 'fufaji_offline.db';
 
   Future<Database> get database async {
@@ -110,7 +110,7 @@ class SqliteService {
         document_id TEXT NOT NULL,
         data_json TEXT NOT NULL,
         retry_count INTEGER DEFAULT 0,
-        status TEXT DEFAULT 'pending',
+        status TEXT DEFAULT 'queued',
         created_at INTEGER NOT NULL,
         last_tried_at INTEGER
       )
@@ -129,12 +129,99 @@ class SqliteService {
       )
     ''');
 
+    // Rider shifts table
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS rider_shifts (
+        id TEXT PRIMARY KEY,
+        rider_id TEXT NOT NULL,
+        branch_id TEXT NOT NULL,
+        current_state TEXT NOT NULL,
+        started_at INTEGER NOT NULL,
+        ended_at INTEGER,
+        total_deliveries INTEGER DEFAULT 0,
+        total_earnings REAL DEFAULT 0.0,
+        total_distance REAL DEFAULT 0.0,
+        total_incidents INTEGER DEFAULT 0,
+        is_synced INTEGER DEFAULT 0
+      )
+    ''');
+
+    // Rider location logs table
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS rider_location_logs (
+        id TEXT PRIMARY KEY,
+        delivery_id TEXT,
+        latitude REAL NOT NULL,
+        longitude REAL NOT NULL,
+        speed REAL NOT NULL,
+        accuracy REAL NOT NULL,
+        timestamp INTEGER NOT NULL,
+        is_synced INTEGER DEFAULT 0
+      )
+    ''');
+
+    // RDS write queue table
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS rds_write_queue (
+        id TEXT PRIMARY KEY,
+        sql_query TEXT NOT NULL,
+        params_json TEXT NOT NULL,
+        retry_count INTEGER DEFAULT 0,
+        status TEXT DEFAULT 'queued',
+        created_at INTEGER NOT NULL,
+        last_tried_at INTEGER
+      )
+    ''');
+
     debugPrint('[SqliteService] All tables created successfully.');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     debugPrint('[SqliteService] Upgrading from v$oldVersion to v$newVersion');
-    // Future migration logic goes here
+    if (oldVersion < 2) {
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS rider_shifts (
+          id TEXT PRIMARY KEY,
+          rider_id TEXT NOT NULL,
+          branch_id TEXT NOT NULL,
+          current_state TEXT NOT NULL,
+          started_at INTEGER NOT NULL,
+          ended_at INTEGER,
+          total_deliveries INTEGER DEFAULT 0,
+          total_earnings REAL DEFAULT 0.0,
+          total_distance REAL DEFAULT 0.0,
+          total_incidents INTEGER DEFAULT 0,
+          is_synced INTEGER DEFAULT 0
+        )
+      ''');
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS rider_location_logs (
+          id TEXT PRIMARY KEY,
+          delivery_id TEXT,
+          latitude REAL NOT NULL,
+          longitude REAL NOT NULL,
+          speed REAL NOT NULL,
+          accuracy REAL NOT NULL,
+          timestamp INTEGER NOT NULL,
+          is_synced INTEGER DEFAULT 0
+        )
+      ''');
+      debugPrint('[SqliteService] Upgrade to v2 (shifts/locations) applied.');
+    }
+    if (oldVersion < 3) {
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS rds_write_queue (
+          id TEXT PRIMARY KEY,
+          sql_query TEXT NOT NULL,
+          params_json TEXT NOT NULL,
+          retry_count INTEGER DEFAULT 0,
+          status TEXT DEFAULT 'queued',
+          created_at INTEGER NOT NULL,
+          last_tried_at INTEGER
+        )
+      ''');
+      debugPrint('[SqliteService] Upgrade to v3 (rds_write_queue) applied.');
+    }
   }
 
   // ─────────────── PRODUCTS ───────────────
@@ -359,7 +446,7 @@ class SqliteService {
       'document_id': documentId,
       'data_json': jsonEncode(data),
       'retry_count': 0,
-      'status': 'pending',
+      'status': 'queued',
       'created_at': DateTime.now().millisecondsSinceEpoch,
       'last_tried_at': null,
     }, conflictAlgorithm: ConflictAlgorithm.replace);
@@ -373,7 +460,7 @@ class SqliteService {
     final rows = await db.query(
       'pending_sync',
       where: 'status = ?',
-      whereArgs: ['pending'],
+      whereArgs: ['queued'],
       orderBy: 'created_at ASC',
     );
     return rows
@@ -394,7 +481,7 @@ class SqliteService {
     final db = await database;
     await db.update(
       'pending_sync',
-      {'status': 'done'},
+      {'status': 'synced'},
       where: 'id = ?',
       whereArgs: [syncId],
     );
@@ -409,7 +496,7 @@ class SqliteService {
     );
     if (rows.isEmpty) return;
     final retryCount = (rows.first['retry_count'] as int) + 1;
-    final newStatus = retryCount >= maxRetries ? 'failed' : 'pending';
+    final newStatus = retryCount >= maxRetries ? 'dead_letter' : 'queued';
     await db.update(
       'pending_sync',
       {
@@ -424,13 +511,13 @@ class SqliteService {
 
   Future<void> clearCompletedSyncItems() async {
     final db = await database;
-    await db.delete('pending_sync', where: 'status = ?', whereArgs: ['done']);
+    await db.delete('pending_sync', where: 'status = ?', whereArgs: ['synced']);
   }
 
   Future<int> getPendingSyncCount() async {
     final db = await database;
     final result = await db.rawQuery(
-      "SELECT COUNT(*) as count FROM pending_sync WHERE status = 'pending'",
+      "SELECT COUNT(*) as count FROM pending_sync WHERE status = 'queued' OR status = 'processing'",
     );
     return (result.first['count'] as int?) ?? 0;
   }
@@ -491,6 +578,171 @@ class SqliteService {
     await db.delete('inventory');
     await db.delete('pending_sync');
     await db.delete('audit_logs');
+    await db.delete('rider_shifts');
+    await db.delete('rider_location_logs');
+    await db.delete('rds_write_queue');
     debugPrint('[SqliteService] All local data cleared.');
+  }
+
+  // ─────────────── RDS WRITE QUEUE ───────────────
+
+  Future<void> enqueueRDSWrite({
+    required String id,
+    required String sql,
+    required List<dynamic> params,
+  }) async {
+    final db = await database;
+    await db.insert('rds_write_queue', {
+      'id': id,
+      'sql_query': sql,
+      'params_json': jsonEncode(params),
+      'retry_count': 0,
+      'status': 'queued',
+      'created_at': DateTime.now().millisecondsSinceEpoch,
+      'last_tried_at': null,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
+    debugPrint('[SqliteService] Enqueued RDS write task $id');
+  }
+
+  Future<List<Map<String, dynamic>>> getPendingRDSWrites() async {
+    final db = await database;
+    final rows = await db.query(
+      'rds_write_queue',
+      where: "status = 'queued' OR status = 'processing'",
+      orderBy: 'created_at ASC',
+    );
+    return rows.map((r) => {
+      'id': r['id'],
+      'sql': r['sql_query'],
+      'params': jsonDecode(r['params_json'] as String) as List<dynamic>,
+      'retryCount': r['retry_count'],
+    }).toList();
+  }
+
+  Future<void> markRDSWriteSynced(String id) async {
+    final db = await database;
+    await db.update(
+      'rds_write_queue',
+      {'status': 'synced'},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<void> markRDSWriteFailed(String id, {int maxRetries = 5}) async {
+    final db = await database;
+    final rows = await db.query(
+      'rds_write_queue',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    if (rows.isEmpty) return;
+    final retryCount = (rows.first['retry_count'] as int) + 1;
+    final newStatus = retryCount >= maxRetries ? 'dead_letter' : 'queued';
+    await db.update(
+      'rds_write_queue',
+      {
+        'retry_count': retryCount,
+        'status': newStatus,
+        'last_tried_at': DateTime.now().millisecondsSinceEpoch,
+      },
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<int> getPendingRDSWriteCount() async {
+    final db = await database;
+    final result = await db.rawQuery(
+      "SELECT COUNT(*) as count FROM rds_write_queue WHERE status = 'queued' OR status = 'processing'",
+    );
+    return (result.first['count'] as int?) ?? 0;
+  }
+
+  // ─────────────── RIDER SHIFTS ───────────────
+
+  Future<void> saveRiderShift(Map<String, dynamic> shift) async {
+    final db = await database;
+    await db.insert('rider_shifts', {
+      'id': shift['id'],
+      'rider_id': shift['riderId'],
+      'branch_id': shift['branchId'],
+      'current_state': shift['currentState'] ?? 'offline',
+      'started_at': shift['startedAt'] is int ? shift['startedAt'] : (shift['startedAt'] as DateTime).millisecondsSinceEpoch,
+      'ended_at': shift['endedAt'] == null ? null : (shift['endedAt'] is int ? shift['endedAt'] : (shift['endedAt'] as DateTime).millisecondsSinceEpoch),
+      'total_deliveries': shift['totalDeliveries'] ?? 0,
+      'total_earnings': (shift['totalEarnings'] ?? 0.0).toDouble(),
+      'total_distance': (shift['totalDistance'] ?? 0.0).toDouble(),
+      'total_incidents': shift['totalIncidents'] ?? 0,
+      'is_synced': shift['isSynced'] ?? 0,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  Future<List<Map<String, dynamic>>> getUnsyncedRiderShifts() async {
+    final db = await database;
+    return await db.query(
+      'rider_shifts',
+      where: 'is_synced = ?',
+      whereArgs: [0],
+    );
+  }
+
+  Future<void> markRiderShiftSynced(String id) async {
+    final db = await database;
+    await db.update(
+      'rider_shifts',
+      {'is_synced': 1},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  // ─────────────── RIDER LOCATION LOGS ───────────────
+
+  Future<void> saveRiderLocation(Map<String, dynamic> loc) async {
+    final db = await database;
+    await db.insert('rider_location_logs', {
+      'id': loc['id'] ?? '${loc['deliveryId']}_${DateTime.now().millisecondsSinceEpoch}',
+      'delivery_id': loc['deliveryId'],
+      'latitude': loc['latitude'],
+      'longitude': loc['longitude'],
+      'speed': loc['speed'] ?? 0.0,
+      'accuracy': loc['accuracy'] ?? 0.0,
+      'timestamp': loc['timestamp'] is int ? loc['timestamp'] : (loc['timestamp'] as DateTime).millisecondsSinceEpoch,
+      'is_synced': 0,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  Future<List<Map<String, dynamic>>> getUnsyncedLocations() async {
+    final db = await database;
+    return await db.query(
+      'rider_location_logs',
+      where: 'is_synced = ?',
+      whereArgs: [0],
+    );
+  }
+
+  Future<void> markLocationsSynced(List<String> ids) async {
+    if (ids.isEmpty) return;
+    final db = await database;
+    final batch = db.batch();
+    for (final id in ids) {
+      batch.update(
+        'rider_location_logs',
+        {'is_synced': 1},
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    }
+    await batch.commit(noResult: true);
+  }
+
+  Future<void> clearSyncedLocations() async {
+    final db = await database;
+    await db.delete(
+      'rider_location_logs',
+      where: 'is_synced = ?',
+      whereArgs: [1],
+    );
   }
 }

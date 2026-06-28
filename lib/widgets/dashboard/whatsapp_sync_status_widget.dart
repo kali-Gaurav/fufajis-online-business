@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/product_provider.dart';
+import '../../utils/app_theme.dart';
 
 /// WhatsApp Sync Status Widget
 /// Displays WhatsApp sync status on the owner dashboard
@@ -52,12 +53,12 @@ class _WhatsAppSyncStatusWidgetState extends State<WhatsAppSyncStatusWidget> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.green[100],
+                        color: AppTheme.success,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.chat,
-                        color: Colors.green[700],
+                        color: AppTheme.success,
                         size: 24,
                       ),
                     ),
@@ -89,7 +90,7 @@ class _WhatsAppSyncStatusWidgetState extends State<WhatsAppSyncStatusWidget> {
                 vertical: 6,
               ),
               decoration: BoxDecoration(
-                color: Colors.green[100],
+                color: AppTheme.success,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
@@ -99,7 +100,7 @@ class _WhatsAppSyncStatusWidgetState extends State<WhatsAppSyncStatusWidget> {
                     width: 8,
                     height: 8,
                     decoration: const BoxDecoration(
-                      color: Colors.green,
+                      color: AppTheme.success,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -107,7 +108,7 @@ class _WhatsAppSyncStatusWidgetState extends State<WhatsAppSyncStatusWidget> {
                   const Text(
                     'Active',
                     style: TextStyle(
-                      color: Colors.green,
+                      color: AppTheme.success,
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                     ),
@@ -173,7 +174,7 @@ class _WhatsAppSyncStatusWidgetState extends State<WhatsAppSyncStatusWidget> {
                   context.push('/owner/whatsapp-sync');
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: AppTheme.success,
                 ),
                 child: const Text('Configure'),
               ),

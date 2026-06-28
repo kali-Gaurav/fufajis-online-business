@@ -5,7 +5,8 @@ import '../models/shop_config_model.dart';
 import '../models/shop_branch_model.dart';
 
 class ShopConfigService {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  FirebaseFirestore? db;
+  FirebaseFirestore get _db => db ?? FirebaseFirestore.instance;
 
   static final ShopConfigService _instance = ShopConfigService._internal();
   factory ShopConfigService() => _instance;

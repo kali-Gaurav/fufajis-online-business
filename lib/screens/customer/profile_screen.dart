@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -63,15 +64,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildProfileHeader(dynamic user) {
+  Widget _buildProfileHeader(UserModel? user) {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFFFF5722), Color(0xFFE64A19)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+      decoration: BoxDecoration(
+        gradient: AppTheme.primaryGradient,
       ),
       child: Row(
         children: [
@@ -111,6 +108,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -119,6 +118,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     fontSize: 14,
                     color: Colors.white.withValues(alpha: 0.8),
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 8),
                 Container(
@@ -141,9 +142,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           // Edit Button
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.edit, color: Colors.white),
+          GestureDetector(
+            onTap: () => context.push('/profile-creation'),
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.edit, color: Colors.white, size: 20),
+            ),
           ),
         ],
       ),
@@ -247,7 +256,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Text(
                       '₹${(user?.walletBalance ?? 0.0).round()}',
                       style: const TextStyle(
-                        fontSize: 20,
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: AppTheme.grey900,
                       ),
@@ -276,7 +285,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Text(
                       '${user?.rewardPoints ?? 0}',
                       style: const TextStyle(
-                        fontSize: 20,
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: AppTheme.grey900,
                       ),
@@ -334,10 +343,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final tierColor = tier == 'Platinum' 
         ? Colors.purple 
         : tier == 'Gold' 
-            ? Colors.amber 
+            ? AppTheme.warning 
             : tier == 'Silver' 
                 ? Colors.grey 
-                : AppTheme.secondary;
+                : AppTheme.info;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -384,60 +393,74 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildReferralCard(AuthProvider auth) {
-    final code = auth.currentUser?.phoneNumber.replaceAll('+', '') ?? 'FUFAJI50';
-    
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppTheme.secondary.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.secondary.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        children: [
-          const Row(
-            children: [
-              Icon(Icons.people_alt, color: AppTheme.secondary),
-              SizedBox(width: 12),
-              Text(
-                'Refer & Earn ₹50',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.secondary),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'Share your referral code with friends and family. Both of you get 50 points on their first order!',
-            style: TextStyle(fontSize: 12, color: AppTheme.grey600),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.grey200),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final code = auth.currentUser?.referralCode;
+    final hasCode = code != null && code.isNotEmpty;
+    final display = hasCode ? code : 'Tap to view';
+
+    return GestureDetector(
+      onTap: () => context.push('/customer/refer'),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppTheme.info.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppTheme.info.withValues(alpha: 0.2)),
+        ),
+        child: Column(
+          children: [
+            const Row(
               children: [
-                Text(
-                  code,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+                Icon(Icons.people_alt, color: AppTheme.primary),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Refer & Earn ₹50',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.primary),
+                  ),
                 ),
-                TextButton.icon(
-                  onPressed: () {
-                    // TODO: Implement Clipboard
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Code copied to clipboard!')));
-                  },
-                  icon: const Icon(Icons.copy, size: 16),
-                  label: const Text('COPY'),
-                ),
+                Icon(Icons.chevron_right, color: AppTheme.primary),
               ],
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            const Text(
+              'Share your referral code with friends and family. You both get ₹50 in your wallet on their first order!',
+              style: TextStyle(fontSize: 12, color: AppTheme.grey600),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppTheme.grey200),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    display,
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+                  ),
+                  TextButton.icon(
+                    onPressed: () {
+                      if (hasCode) {
+                        Clipboard.setData(ClipboardData(text: code));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Code copied to clipboard!')),
+                        );
+                      } else {
+                        context.push('/customer/refer');
+                      }
+                    },
+                    icon: Icon(hasCode ? Icons.copy : Icons.arrow_forward, size: 16),
+                    label: Text(hasCode ? 'COPY' : 'OPEN'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -445,15 +468,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildMenuSection() {
     final menuItems = [
       {'icon': Icons.shopping_bag_outlined, 'title': 'My Orders', 'color': AppTheme.primary},
-      {'icon': Icons.calendar_month_outlined, 'title': 'My Subscriptions', 'color': AppTheme.secondary},
+      {'icon': Icons.calendar_month_outlined, 'title': 'My Subscriptions', 'color': AppTheme.info},
       {'icon': Icons.location_on_outlined, 'title': 'Saved Addresses', 'color': AppTheme.info},
       {'icon': Icons.payment_outlined, 'title': 'Payment Methods', 'color': AppTheme.success},
       {'icon': Icons.favorite_outline, 'title': 'Wishlist', 'color': AppTheme.error},
+      {'icon': Icons.card_giftcard_outlined, 'title': 'Rewards', 'color': AppTheme.info},
+      {'icon': Icons.workspace_premium_outlined, 'title': 'Membership', 'color': AppTheme.warning},
+      {'icon': Icons.group_outlined, 'title': 'Family Management', 'color': AppTheme.info},
+      {'icon': Icons.kitchen_outlined, 'title': 'Smart Kitchen', 'color': AppTheme.success},
       {'icon': Icons.notifications_outlined, 'title': 'Notifications', 'color': AppTheme.warning},
-      {'icon': Icons.swap_horiz_outlined, 'title': 'Switch App Role', 'color': AppTheme.secondary},
+      {'icon': Icons.swap_horiz_outlined, 'title': 'Switch App Role', 'color': AppTheme.info},
+      {'icon': Icons.contact_phone_outlined, 'title': 'Identity & Contacts', 'color': AppTheme.primary},
       {'icon': Icons.settings_outlined, 'title': 'Settings', 'color': AppTheme.grey600},
       {'icon': Icons.help_outline, 'title': 'Help & Support', 'color': AppTheme.primary},
       {'icon': Icons.info_outline, 'title': 'About App', 'color': AppTheme.grey600},
+      {'icon': Icons.logout_rounded, 'title': 'Logout', 'color': AppTheme.error},
     ];
 
     return Container(
@@ -506,9 +535,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
             onTap: () {
               if (item['title'] == 'Help & Support') {
                 _openWhatsappSupport();
+              } else if (item['title'] == 'Logout') {
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('Logout', style: TextStyle(fontWeight: FontWeight.w700)),
+                    content: const Text('Are you sure you want to logout?'),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          Provider.of<AuthProvider>(context, listen: false).logout();
+                        },
+                        child: const Text('Logout', style: TextStyle(color: AppTheme.error)),
+                      ),
+                    ],
+                  ),
+                );
               } else if (item['title'] == 'Switch App Role') {
                 final user = Provider.of<AuthProvider>(context, listen: false).currentUser;
-                if (user?.role == UserRole.admin || user?.role == UserRole.shopOwner) {
+                if (user?.role == UserRole.superAdmin || user?.role == UserRole.owner) {
                   context.push('/role-select');
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -519,10 +566,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 context.push('/customer/orders');
               } else if (item['title'] == 'Saved Addresses') {
                 context.push('/customer/addresses');
+              } else if (item['title'] == 'Identity & Contacts') {
+                context.push('/customer/identity');
               } else if (item['title'] == 'Settings') {
                 context.push('/customer/settings');
               } else if (item['title'] == 'Payment Methods') {
                 context.push('/customer/wallet');
+              } else if (item['title'] == 'Wishlist') {
+                context.push('/customer/wishlist');
+              } else if (item['title'] == 'My Subscriptions') {
+                context.push('/customer/subscriptions');
+              } else if (item['title'] == 'Notifications') {
+                context.push('/customer/notifications');
+              } else if (item['title'] == 'Rewards') {
+                context.push('/customer/loyalty');
+              } else if (item['title'] == 'Membership') {
+                context.push('/customer/membership');
+              } else if (item['title'] == 'Family Management') {
+                context.push('/customer/family');
+              } else if (item['title'] == 'Smart Kitchen') {
+                context.push('/customer/smart-kitchen');
               }
             },
           );

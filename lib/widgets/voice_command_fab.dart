@@ -1,9 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/speech_to_text_service.dart';
-import '../services/gemini_service.dart';
+import '../services/voice_command_service.dart';
 import '../services/voice_command_executor.dart';
 import '../utils/app_theme.dart';
 
@@ -12,7 +11,7 @@ import '../utils/app_theme.dart';
 class VoiceCommandFab extends StatefulWidget {
   final String? shopId;
 
-  const VoiceCommandFab({Key? key, this.shopId}) : super(key: key);
+  const VoiceCommandFab({super.key, this.shopId});
 
   @override
   State<VoiceCommandFab> createState() => _VoiceCommandFabState();
@@ -22,8 +21,6 @@ class _VoiceCommandFabState extends State<VoiceCommandFab>
     with TickerProviderStateMixin {
   // Services
   final SpeechToTextService _sttService = SpeechToTextService();
-  final GeminiService _geminiService = GeminiService();
-  final VoiceCommandExecutor _executor = VoiceCommandExecutor();
 
   // State
   bool _isListening = false;
@@ -159,22 +156,11 @@ class _VoiceCommandFabState extends State<VoiceCommandFab>
     }
 
     try {
-      final parsed = await _geminiService.parseVoiceInventoryCommand(text);
-
-      if (parsed == null) {
-        if (mounted) {
-          setState(() {
-            _isProcessing = false;
-            _showFallback = true;
-            _statusMessage = 'Samajh nahi aaya. Type karein:';
-          });
-        }
-        return;
-      }
+      final command = await VoiceCommandService().parse(text);
 
       if (mounted) {
         setState(() => _statusMessage = 'Execute ho raha hai...');
-        final confirmationMsg = await _executor.execute(parsed, context);
+        final confirmationMsg = await VoiceCommandExecutor.execute(command, context);
 
         // Save to history
         await _saveCommandToHistory(text, confirmationMsg);
@@ -200,7 +186,7 @@ class _VoiceCommandFabState extends State<VoiceCommandFab>
                 ),
               ],
             ),
-            backgroundColor: AppTheme.secondary,
+            backgroundColor: AppTheme.info,
             duration: const Duration(seconds: 4),
             behavior: SnackBarBehavior.floating,
           ),
@@ -293,7 +279,7 @@ class _VoiceCommandFabState extends State<VoiceCommandFab>
                             height: 90,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: AppTheme.primary.withOpacity(0.15),
+                              color: AppTheme.primary.withValues(alpha: 0.15),
                             ),
                           ),
                         ),
@@ -328,7 +314,7 @@ class _VoiceCommandFabState extends State<VoiceCommandFab>
                           width: 5,
                           height: heights[i] * (0.4 + 0.6 * value),
                           decoration: BoxDecoration(
-                            color: AppTheme.primary.withOpacity(0.7 + 0.3 * value),
+                            color: AppTheme.primary.withValues(alpha: 0.7 + 0.3 * value),
                             borderRadius: BorderRadius.circular(3),
                           ),
                         );
@@ -354,7 +340,7 @@ class _VoiceCommandFabState extends State<VoiceCommandFab>
                   const SizedBox(height: 8),
 
                   // Hint
-                  Text(
+                  const Text(
                     '"Aloo ka stock 50 kilo kar" • "Order 47 deliver ho gaya"',
                     textAlign: TextAlign.center,
                     style: TextStyle(

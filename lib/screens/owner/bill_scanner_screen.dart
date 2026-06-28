@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../../services/ocr_service.dart';
 import '../../services/purchase_order_service.dart';
 import '../../providers/product_provider.dart';
-import '../../providers/shop_config_provider.dart';
 import '../../utils/app_theme.dart';
 
 class BillScannerScreen extends StatefulWidget {
@@ -134,7 +133,6 @@ class _BillScannerScreenState extends State<BillScannerScreen>
     });
 
     try {
-      final shopProvider = Provider.of<ShopConfigProvider>(context, listen: false);
       final productProvider = Provider.of<ProductProvider>(context, listen: false);
       final shopId = productProvider.currentShopId ?? 'shop_001';
 
@@ -260,7 +258,7 @@ class _BillScannerScreenState extends State<BillScannerScreen>
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: AppTheme.primary.withOpacity(0.1),
+                color: AppTheme.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -303,15 +301,11 @@ class _BillScannerScreenState extends State<BillScannerScreen>
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppTheme.primary, AppTheme.primaryDark],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              gradient: AppTheme.primaryGradient,
               borderRadius: BorderRadius.circular(AppTheme.radiusLg),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primary.withOpacity(0.3),
+                  color: AppTheme.primary.withValues(alpha: 0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -345,9 +339,9 @@ class _BillScannerScreenState extends State<BillScannerScreen>
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.error.withOpacity(0.1),
+                color: AppTheme.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                border: Border.all(color: AppTheme.error.withOpacity(0.3)),
+                border: Border.all(color: AppTheme.error.withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [
@@ -406,7 +400,7 @@ class _BillScannerScreenState extends State<BillScannerScreen>
             color: Colors.white,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),
@@ -417,7 +411,7 @@ class _BillScannerScreenState extends State<BillScannerScreen>
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppTheme.primary.withOpacity(0.1),
+                  color: AppTheme.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.local_shipping, color: AppTheme.primary),
@@ -603,8 +597,8 @@ class _PickerButton extends StatelessWidget {
               height: 52,
               decoration: BoxDecoration(
                 color: isPrimary
-                    ? Colors.white.withOpacity(0.2)
-                    : AppTheme.primary.withOpacity(0.1),
+                    ? Colors.white.withValues(alpha: 0.2)
+                    : AppTheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               ),
               child: Icon(
@@ -746,11 +740,11 @@ class _BillItemCardState extends State<_BillItemCard> {
                         ),
                       ] else ...[
                         const SizedBox(height: 2),
-                        Row(
+                        const Row(
                           children: [
-                            const Icon(Icons.warning_amber, size: 14, color: AppTheme.warning),
-                            const SizedBox(width: 4),
-                            const Text(
+                            Icon(Icons.warning_amber, size: 14, color: AppTheme.warning),
+                            SizedBox(width: 4),
+                            Text(
                               'New Item (Stock won\'t update)',
                               style: TextStyle(fontSize: 12, color: AppTheme.warning, fontWeight: FontWeight.w600),
                             ),
@@ -817,7 +811,7 @@ class _BillItemCardState extends State<_BillItemCard> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppTheme.primary.withOpacity(0.1),
+                  color: AppTheme.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
@@ -844,9 +838,9 @@ class _TipsCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.info.withOpacity(0.08),
+        color: AppTheme.info.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-        border: Border.all(color: AppTheme.info.withOpacity(0.2)),
+        border: Border.all(color: AppTheme.info.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -34,6 +34,18 @@ enum SecurityEventType {
   rootDetected,
   loginSuccess,
   suspiciousActivity,
+  otpFailure,
+  otpLockout,
+  reauthenticationSuccess,
+  reauthenticationFailed,
+  pinResetRequested,
+  pinResetSuccess,
+  pinResetFailed,
+  mfaEnabled,
+  mfaDisabled,
+  mfaChallengeSent,
+  mfaChallengeSuccess,
+  mfaChallengeFailed,
 }
 
 class SecurityEventService {

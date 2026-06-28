@@ -38,6 +38,13 @@ class _WhatsAppLogicSimulatorState extends State<WhatsAppLogicSimulator> {
   }
 
   @override
+  void dispose() {
+    _messageController.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),

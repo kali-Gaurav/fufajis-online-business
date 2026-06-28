@@ -1,9 +1,35 @@
+enum EmployeeRole {
+  superOwner,
+  franchiseOwner,
+  branchManager,
+  employee,
+}
+
+extension EmployeeRoleExtension on EmployeeRole {
+  String get displayName {
+    switch (this) {
+      case EmployeeRole.superOwner:
+        return 'Super Owner';
+      case EmployeeRole.franchiseOwner:
+        return 'Franchise Owner';
+      case EmployeeRole.branchManager:
+        return 'Branch Manager';
+      case EmployeeRole.employee:
+        return 'Employee';
+    }
+  }
+
+  String get apiValue {
+    return toString().split('.').last;
+  }
+}
+
 class Employee {
   final String employeeId;
   final String uid;
   final String name;
   final String email;
-  final String role;
+  final EmployeeRole role;
   final String branchId;
   final bool isActive;
 
@@ -23,7 +49,10 @@ class Employee {
       uid: json['uid'] as String? ?? '',
       name: json['name'] as String? ?? '',
       email: json['email'] as String? ?? '',
-      role: json['role'] as String? ?? '',
+      role: EmployeeRole.values.firstWhere(
+        (e) => e.apiValue == json['role'],
+        orElse: () => EmployeeRole.employee,
+      ),
       branchId: json['branchId'] as String? ?? '',
       isActive: json['isActive'] as bool? ?? false,
     );
@@ -35,7 +64,7 @@ class Employee {
       'uid': uid,
       'name': name,
       'email': email,
-      'role': role,
+      'role': role.apiValue,
       'branchId': branchId,
       'isActive': isActive,
     };
@@ -46,7 +75,7 @@ class Employee {
     String? uid,
     String? name,
     String? email,
-    String? role,
+    EmployeeRole? role,
     String? branchId,
     bool? isActive,
   }) {

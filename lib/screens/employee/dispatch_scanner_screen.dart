@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
-import '../../providers/auth_provider.dart';
 import '../../services/scanner_service.dart';
+import '../../services/fleet_service.dart';
+import '../../services/user_service.dart';
+import '../../utils/app_theme.dart';
+import '../../widgets/common/fj_button.dart';
+import '../../widgets/common/fj_card.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DispatchScannerScreen
@@ -31,13 +33,20 @@ class DispatchScannerScreen extends StatefulWidget {
 class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final ScannerService _scanner = ScannerService();
+  final FleetService _fleetService = FleetService();
+  final UserService _userService = UserService();
 
   Map<String, dynamic>? _order;
   bool _loading = false;
   bool _dispatched = false;
   String? _errorMsg;
   bool _scanMode = false;
+  bool _scanRiderMode = false;
   String _lastCode = '';
+  
+  String? _selectedRiderId;
+  String? _selectedRiderName;
+  double _selectedRiderCash = 0.0;
 
   @override
   void initState() {
@@ -46,6 +55,7 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
       _loadOrder(widget.orderId!);
     } else {
       _scanMode = true;
+      _scanRiderMode = false;
       _scanner.startScanning();
     }
   }
@@ -66,15 +76,7 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
       _dispatched = false;
     });
     try {
-      final auth = context.read<AuthProvider>();
-      final shopId = auth.currentShop?.id ?? 'shop_001';
-
-      final snap = await _db
-          .collection('shops')
-          .doc(shopId)
-          .collection('orders')
-          .doc(orderId)
-          .get();
+      final snap = await _db.collection('orders').doc(orderId).get();
 
       if (!snap.exists) {
         setState(() {
@@ -99,51 +101,11 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
   }
 
   Future<void> _dispatchOrder() async {
-    if (_order == null) return;
+    if (_order == null || _selectedRiderId == null) return;
     setState(() => _loading = true);
 
     try {
-      final auth = context.read<AuthProvider>();
-      final shopId = auth.currentShop?.id ?? 'shop_001';
-      final orderId = _order!['id'] as String;
-
-      final batch = _db.batch();
-
-      // Update order status
-      final orderRef = _db
-          .collection('shops')
-          .doc(shopId)
-          .collection('orders')
-          .doc(orderId);
-
-      batch.update(orderRef, {
-        'status': 'dispatched',
-        'dispatchedAt': FieldValue.serverTimestamp(),
-        'dispatchedBy': auth.currentUser?.uid ?? '',
-        'dispatchedByName': auth.currentUser?.name ?? 'Employee',
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-
-      // Write dispatch log
-      final logRef = _db
-          .collection('shops')
-          .doc(shopId)
-          .collection('dispatch_logs')
-          .doc();
-
-      batch.set(logRef, {
-        'orderId': orderId,
-        'orderNumber': _order!['orderNumber'] ?? orderId,
-        'status': 'dispatched',
-        'dispatchedBy': auth.currentUser?.uid ?? '',
-        'dispatchedByName': auth.currentUser?.name ?? 'Employee',
-        'branchId': auth.currentBranch?.id ?? '',
-        'createdAt': FieldValue.serverTimestamp(),
-        'customerName': _order!['customerName'] ?? '',
-        'totalAmount': _order!['totalAmount'] ?? 0,
-      });
-
-      await batch.commit();
+      await _fleetService.assignOrderToRider(_order!['id'] as String, _selectedRiderId!);
 
       HapticFeedback.heavyImpact();
       setState(() {
@@ -154,7 +116,7 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
     } catch (e) {
       setState(() {
         _loading = false;
-        _errorMsg = 'Dispatch failed: $e';
+        _errorMsg = e.toString();
       });
     }
   }
@@ -171,6 +133,25 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
     HapticFeedback.mediumImpact();
     await _scanner.stopScanning();
 
+    if (_scanRiderMode) {
+      if (raw.startsWith('RIDER-')) {
+        final riderPhone = raw.replaceFirst('RIDER-', '').trim();
+        setState(() {
+          _selectedRiderId = riderPhone;
+          _selectedRiderName = 'Scanned Rider ($riderPhone)';
+          _scanMode = false;
+          _scanRiderMode = false;
+        });
+      } else {
+        setState(() {
+          _errorMsg = 'Invalid Rider QR. Must start with RIDER-';
+          _scanMode = false;
+          _scanRiderMode = false;
+        });
+      }
+      return;
+    }
+
     // Accept ORDER-xxx, DISPATCH-xxx, or bare UUID
     final orderId = raw
         .replaceFirst('ORDER-', '')
@@ -186,8 +167,9 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.grey50,
       appBar: AppBar(
-        title: const Text('Dispatch Scanner'),
+        title: const Text('Dispatch Scanner', style: TextStyle(fontWeight: FontWeight.w700)),
         backgroundColor: const Color(0xFFE65100),
         foregroundColor: Colors.white,
         actions: [
@@ -198,10 +180,12 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
               onPressed: () {
                 setState(() {
                   _scanMode = true;
+                  _scanRiderMode = false;
                   _order = null;
                   _dispatched = false;
                   _errorMsg = null;
                   _lastCode = '';
+                  _selectedRiderId = null;
                 });
                 _scanner.startScanning();
               },
@@ -241,9 +225,9 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
                   color: Colors.black54,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Text(
-                  'Scan DISPATCH-{OrderID} QR',
-                  style: TextStyle(color: Colors.white, fontSize: 14),
+                child: Text(
+                  _scanRiderMode ? 'Scan RIDER-{Phone} QR' : 'Scan DISPATCH-{OrderID} QR',
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
                 ),
               ),
             ],
@@ -255,32 +239,36 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
 
   Widget _buildOrderDetails() {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
     }
 
     if (_errorMsg != null) {
       return Center(
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            const Icon(Icons.error_outline, size: 64, color: AppTheme.error),
             const SizedBox(height: 12),
-            Text(_errorMsg!,
-                style: const TextStyle(fontSize: 16),
-                textAlign: TextAlign.center),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.qr_code_scanner),
-              label: const Text('Scan Again'),
-              onPressed: () {
-                setState(() {
-                  _scanMode = true;
-                  _errorMsg = null;
-                  _lastCode = '';
-                });
-                _scanner.startScanning();
-              },
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(_errorMsg!,
+                  style: const TextStyle(fontSize: 16),
+                  textAlign: TextAlign.center),
             ),
+            const SizedBox(height: 32),
+              FjButton(
+                label: 'Scan Again',
+                onPressed: () {
+                  setState(() {
+                    _scanMode = true;
+                    _scanRiderMode = false;
+                    _errorMsg = null;
+                    _lastCode = '';
+                  });
+                  _scanner.startScanning();
+                },
+                icon: Icons.qr_code_scanner,
+              ),
           ],
         ),
       );
@@ -289,9 +277,8 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
     if (_order == null) return const SizedBox.shrink();
 
     final status = _order!['status'] as String? ?? '';
-    final isPacked =
-        status == 'packed' || status == 'ready_to_dispatch';
-    final isAlreadyDispatched = status == 'dispatched' || _dispatched;
+    final isPacked = status.contains('packed');
+    final isAlreadyDispatched = status.contains('dispatched') || status.contains('outForDelivery') || _dispatched;
 
     final items = (_order!['items'] as List?)
             ?.cast<Map<String, dynamic>>() ??
@@ -304,68 +291,126 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
         _order!['orderNumber'] as String? ?? _order!['id'];
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: AppTheme.paddingLg,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Status banner
           _StatusBanner(
-            status: isAlreadyDispatched ? 'dispatched' : status,
+            status: isAlreadyDispatched ? 'dispatched' : (isPacked ? 'packed' : 'pending'),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
 
           // Order card
-          Card(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14)),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Order #$orderNumber',
+          FjCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Order #$orderNumber',
+                      style: const TextStyle(
+                          fontSize: 17, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      '₹${total.toStringAsFixed(0)}',
+                      style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.success),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  customerName,
+                  style: const TextStyle(color: AppTheme.grey600),
+                ),
+                const Divider(height: 32),
+                // Items
+                ...items.map((item) => _ItemRow(item: item)),
+                const Divider(height: 32),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Total',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text('₹${total.toStringAsFixed(2)}',
                         style: const TextStyle(
-                            fontSize: 17, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        '₹${total.toStringAsFixed(0)}',
-                        style: const TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    customerName,
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                  const Divider(height: 20),
-                  // Items
-                  ...items.map((item) => _ItemRow(item: item)),
-                  const Divider(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Total',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text('₹${total.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ],
-              ),
+                            fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ],
             ),
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
+
+          // Rider Selection
+          if (!isAlreadyDispatched && isPacked) ...[
+            const Text('Assign Delivery Rider', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const SizedBox(height: 12),
+            FjCard(
+              child: StreamBuilder<List<Map<String, dynamic>>>(
+                stream: _userService.getAuthorizedRidersStream(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
+                  final riders = snapshot.data!;
+                  return DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(labelText: 'Select Available Rider', border: OutlineInputBorder()),
+                    initialValue: riders.any((r) => r['phoneNumber'] == _selectedRiderId) ? _selectedRiderId : null,
+                    items: riders.map((r) => DropdownMenuItem(
+                      value: r['phoneNumber'] as String,
+                      child: Text('${r['name']} (Cash: ₹${(r['currentCashBalance'] ?? 0).round()})'),
+                    )).toList(),
+                    onChanged: (val) async {
+                      if (val != null) {
+                        final rider = riders.firstWhere((r) => r['phoneNumber'] == val);
+                        setState(() {
+                          _selectedRiderId = val;
+                          _selectedRiderName = rider['name'] as String?;
+                          _selectedRiderCash = (rider['currentCashBalance'] as num? ?? 0.0).toDouble();
+                        });
+                      }
+                    },
+                  );
+                }
+              ),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              icon: const Icon(Icons.qr_code_scanner),
+              label: const Text('Scan Rider QR'),
+              onPressed: () {
+                setState(() {
+                  _scanMode = true;
+                  _scanRiderMode = true;
+                  _lastCode = '';
+                });
+                _scanner.startScanning();
+              },
+            ),
+            if (_selectedRiderId != null && _selectedRiderName != null && !_selectedRiderName!.contains('('))
+               Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text('Selected Rider: $_selectedRiderName', style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.success)),
+               ),
+            if (_selectedRiderCash > 5000)
+              const Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Row(
+                  children: [
+                    Icon(Icons.error_outline, color: AppTheme.error, size: 16),
+                    SizedBox(width: 4),
+                    Expanded(child: Text('Rider has exceeded ₹5,000 cash limit. Settle cash first.', style: TextStyle(color: AppTheme.error, fontSize: 12, fontWeight: FontWeight.bold))),
+                  ],
+                ),
+              ),
+            const SizedBox(height: 24),
+          ],
 
           // Action button
           if (isAlreadyDispatched)
@@ -377,6 +422,7 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
                   _order = null;
                   _dispatched = false;
                   _lastCode = '';
+                  _selectedRiderId = null;
                 });
                 _scanner.startScanning();
               },
@@ -387,20 +433,12 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
                   'This order is not packed yet (status: $status).\nPack it before dispatching.',
             )
           else
-            ElevatedButton.icon(
-              icon: const Icon(Icons.local_shipping),
-              label: const Text(
-                'Mark as Dispatched',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFE65100),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ),
-              onPressed: _loading ? null : _dispatchOrder,
+            FjButton(
+              label: 'Mark as Dispatched',
+              onPressed: (_loading || _selectedRiderId == null || _selectedRiderCash > 5000) ? null : _dispatchOrder,
+              icon: Icons.local_shipping,
+              isLoading: _loading,
+              width: double.infinity,
             ),
         ],
       ),
@@ -419,22 +457,17 @@ class _StatusBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = {
-      'packed': (Colors.blue, Icons.inventory_outlined, 'Ready to Dispatch'),
-      'ready_to_dispatch': (
-        Colors.blue,
-        Icons.inventory_outlined,
-        'Ready to Dispatch'
-      ),
+      'packed': (AppTheme.info, Icons.inventory_outlined, 'Ready to Dispatch'),
       'dispatched': (
-        Colors.green,
+        AppTheme.success,
         Icons.local_shipping,
         'Dispatched Successfully'
       ),
-      'pending': (Colors.orange, Icons.pending_outlined, 'Pending'),
+      'pending': (AppTheme.warning, Icons.pending_outlined, 'Awaiting Packing'),
     };
 
     final (color, icon, label) = colors[status] ??
-        (Colors.grey, Icons.info_outlined, status.toUpperCase());
+        (AppTheme.grey500, Icons.info_outlined, status.toUpperCase());
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -471,13 +504,13 @@ class _ItemRow extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              '${item['name'] ?? 'Item'} × ${item['quantity'] ?? 1}',
+              '${item['productName'] ?? item['name'] ?? 'Item'} × ${item['quantity'] ?? 1}',
               style: const TextStyle(fontSize: 13),
             ),
           ),
           Text(
             '₹${((item['price'] as num? ?? 0) * (item['quantity'] as num? ?? 1)).toStringAsFixed(0)}',
-            style: const TextStyle(fontSize: 13, color: Colors.grey),
+            style: const TextStyle(fontSize: 13, color: AppTheme.grey500),
           ),
         ],
       ),
@@ -495,33 +528,30 @@ class _SuccessButton extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.green.shade50,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.green.shade200),
-          ),
+        FjCard(
+          color: AppTheme.success.withValues(alpha: 0.1),
+          border: Border.all(color: AppTheme.success),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.check_circle, color: Colors.green, size: 28),
+              const Icon(Icons.check_circle, color: AppTheme.success, size: 28),
               const SizedBox(width: 10),
               Text(
                 label,
                 style: const TextStyle(
-                    color: Colors.green,
+                    color: AppTheme.success,
                     fontWeight: FontWeight.bold,
                     fontSize: 16),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 12),
-        OutlinedButton.icon(
-          icon: const Icon(Icons.qr_code_scanner),
-          label: const Text('Scan Next Order'),
+        const SizedBox(height: 16),
+        FjButton(
+          label: 'Scan Next Order',
           onPressed: onScanNext,
+          icon: Icons.qr_code_scanner,
+          type: FjButtonType.outline,
         ),
       ],
     );
@@ -534,23 +564,19 @@ class _WarningCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange.shade200),
-      ),
+    return FjCard(
+      color: AppTheme.primaryLight,
+      border: Border.all(color: AppTheme.warning),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.warning_amber_rounded,
-              color: Colors.orange, size: 24),
+              color: AppTheme.warning, size: 24),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               message,
-              style: const TextStyle(color: Colors.orange),
+              style: const TextStyle(color: AppTheme.warning),
             ),
           ),
         ],

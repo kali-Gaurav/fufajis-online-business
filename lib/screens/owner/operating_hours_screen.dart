@@ -88,7 +88,7 @@ class _OperatingHoursScreenState extends State<OperatingHoursScreen> {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to apply: $e'), backgroundColor: Colors.red),
+        SnackBar(content: Text('Failed to apply: $e'), backgroundColor: AppTheme.error),
       );
     }
   }
@@ -100,7 +100,7 @@ class _OperatingHoursScreenState extends State<OperatingHoursScreen> {
 
     if (config == null) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent)),
       );
     }
 
@@ -119,7 +119,7 @@ class _OperatingHoursScreenState extends State<OperatingHoursScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: SwitchListTile(
                 title: const Text('Auto-Close Outside Hours', style: TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: const Text('Automatically marks the shop as closed in the customer app outside operating hours.'),
+                subtitle: const Text('Automatically marks the shop as closed in the customer app outside operating hours.', style: TextStyle(fontWeight: FontWeight.w700)),
                 value: config.autoCloseOutsideHours,
                 activeThumbColor: AppTheme.primary,
                 onChanged: (val) async {
@@ -163,7 +163,7 @@ class _OperatingHoursScreenState extends State<OperatingHoursScreen> {
                               Text(
                                 hours.isOpen ? 'Open' : 'Closed',
                                 style: TextStyle(
-                                  color: hours.isOpen ? Colors.green : Colors.red,
+                                  color: hours.isOpen ? AppTheme.success : AppTheme.error,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -216,7 +216,7 @@ class _OperatingHoursScreenState extends State<OperatingHoursScreen> {
                           children: [
                             if (hours.isOpen)
                               IconButton(
-                                icon: const Icon(Icons.copy_all, color: Colors.blueAccent, size: 20),
+                                icon: const Icon(Icons.copy_all, color: AppTheme.ownerAccent, size: 20),
                                 onPressed: () => _applyToAll(day),
                                 tooltip: 'Apply these times to all days',
                               ),

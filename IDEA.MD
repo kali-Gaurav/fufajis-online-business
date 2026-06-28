@@ -408,6 +408,15 @@ _Give this list to the AI to track development sequentially._
 - [ ] **49. Hero transitions**: Sets visual routes between details and listings.
 - [ ] **50. Shorebird pipeline**: Setup actions for instant over-the-air patches.
 
+### Phase 10: Next-Gen Premium & Local Trust Upgrades (June 2026 Refreshed Ideas)
+
+- [x] **51. Universal Logout & Shared Profile Access**: Add secure, red logout actions to all roles' dashboards and allow all roles to open user settings/profiles without dashboard redirects.
+- [x] **52. Village Rider Progress Roadmap**: Gamify cart progress using an animated motorcycle icon riding from shop to village milestones for free delivery.
+- [x] **53. Wishlist Price Drop Flags**: Display savings badge alerts dynamically when wishlisted items drop in price.
+- [x] **54. AR Laser Scanning Sweep**: Animate a green laser line and analyze supplier margins on bill uploads.
+- [x] **55. Farm-to-Kitchen Sourcing Transparency**: Show harvesting timelines, village farmer profile details, and soil health indices for fresh items.
+- [x] **56. Interactive Chaupal Feed**: Community bulletin board inside customer feeds with local voice announcements and store owner notice updates.
+
 ---
 
 ## 🛠️ Step-by-Step AI Instructions

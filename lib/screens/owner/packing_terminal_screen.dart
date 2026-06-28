@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/partial_fulfillment_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
@@ -68,7 +69,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
     return Scaffold(
       backgroundColor: AppTheme.grey100,
       appBar: AppBar(
-        title: const Text('Order Fulfillment Terminal'),
+        title: const Text('Order Fulfillment Terminal', style: TextStyle(fontWeight: FontWeight.w700)),
         backgroundColor: AppTheme.grey900,
         foregroundColor: Colors.white,
         actions: [
@@ -78,14 +79,14 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
               child: Center(
                 child: Text(
                   'Timer: $_elapsedTime',
-                  style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.bold, color: Colors.greenAccent),
+                  style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.bold, color: AppTheme.success),
                 ),
               ),
             ),
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent))
           : Row(
               children: [
                 // Left: Order Queue
@@ -136,19 +137,19 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
     String text;
     switch (status) {
       case 'pending_approval':
-        color = Colors.amber.shade800;
+        color = AppTheme.warning;
         text = 'Awaiting Review';
         break;
       case 'rejected':
-        color = Colors.red;
+        color = AppTheme.error;
         text = 'Rejected';
         break;
       case 'packing':
-        color = Colors.blue;
+        color = AppTheme.ownerAccent;
         text = 'Packing';
         break;
       case 'approved':
-        color = Colors.green;
+        color = AppTheme.success;
         text = 'Approved';
         break;
       default:
@@ -158,9 +159,9 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withOpacity(0.3), width: 0.5),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 0.5),
       ),
       child: Text(
         text,
@@ -176,7 +177,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
           .where('status', isEqualTo: 'OrderStatus.processing')
           .snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
         final docs = snapshot.data!.docs;
 
         if (docs.isEmpty) return const Center(child: Text('No orders in preparation', style: TextStyle(fontSize: 12)));
@@ -190,7 +191,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
 
             return ListTile(
               selected: isActive,
-              selectedTileColor: AppTheme.primary.withOpacity(0.05),
+              selectedTileColor: AppTheme.primary.withValues(alpha: 0.05),
               leading: CircleAvatar(
                 backgroundColor: AppTheme.grey200,
                 child: Text('${order.items.length}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.grey800)),
@@ -199,7 +200,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('₹${order.totalAmount.round()} • ${_formatDate(order.createdAt)}', style: const TextStyle(fontSize: 11)),
+                  Text('₹${order.totalAmount.toDouble().round()} • ${_formatDate(order.createdAt)}', style: const TextStyle(fontSize: 11)),
                   const SizedBox(height: 4),
                   _buildPackingStatusBadge(order.packingStatus),
                 ],
@@ -226,7 +227,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
     return StreamBuilder<DocumentSnapshot>(
       stream: FirebaseFirestore.instance.collection('orders').doc(_activeOrderId).snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData || !snapshot.data!.exists) return const Center(child: CircularProgressIndicator());
+        if (!snapshot.hasData || !snapshot.data!.exists) return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
         final order = OrderModel.fromMap(snapshot.data!.data() as Map<String, dynamic>);
 
         if (order.packingStatus == 'pending_approval') {
@@ -301,14 +302,14 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: isOos 
-            ? Colors.red.withValues(alpha: 0.05)
+            ? AppTheme.error.withValues(alpha: 0.05)
             : isPacked 
                 ? AppTheme.success.withValues(alpha: 0.05) 
                 : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isOos
-              ? Colors.red.withValues(alpha: 0.3)
+              ? AppTheme.error.withValues(alpha: 0.3)
               : isPacked 
                   ? AppTheme.success.withValues(alpha: 0.3) 
                   : AppTheme.grey200
@@ -335,7 +336,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
             Text(
               'Qty: ${item.quantity} ${item.unit}', 
               style: TextStyle(
-                color: isOos ? Colors.red : AppTheme.primary, 
+                color: isOos ? AppTheme.error : AppTheme.primary, 
                 fontWeight: FontWeight.bold
               )
             ),
@@ -378,7 +379,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
                 tooltip: 'Out of Stock / Replacement',
               ),
             if (isOos)
-              const Text('OUT OF STOCK', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 11))
+              const Text('OUT OF STOCK', style: TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold, fontSize: 11))
             else
               Transform.scale(
                 scale: 1.2,
@@ -406,7 +407,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Item Missing / Replace'),
+        title: const Text('Item Missing / Replace', style: TextStyle(fontWeight: FontWeight.w700)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -439,7 +440,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
               Navigator.pop(context);
               await _markItemOutOfStock(item);
             },
-            child: const Text('Mark OOS (No Replace)', style: TextStyle(color: Colors.red)),
+            child: const Text('Mark OOS (No Replace)', style: TextStyle(color: AppTheme.error)),
           ),
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
         ],
@@ -468,8 +469,8 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
         return it;
       }).toList();
       
-      final newSubtotal = updatedItems.fold(0.0, (total, it) => total + it.totalPrice);
-      final newTotal = newSubtotal + order.deliveryCharge - order.discount;
+      final newSubtotal = updatedItems.fold(0.0, (total, it) => total + it.totalPrice.toDouble());
+      final newTotal = newSubtotal + order.deliveryCharge.toDouble() - order.discount.toDouble();
 
       await docRef.update({
         'items': updatedItems.map((e) => e.toMap()).toList(),
@@ -486,7 +487,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
           orderNumber: order.orderNumber,
           originalName: oldItem.productName,
           replacementName: newProduct.name,
-          replacementPrice: newProduct.price,
+          replacementPrice: newProduct.price.toDouble(),
         );
       }
 
@@ -538,7 +539,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Marked ${item.productName} as Out of Stock.'),
-            backgroundColor: Colors.orange,
+            backgroundColor: AppTheme.warning,
           ),
         );
       }
@@ -566,7 +567,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
         child: ElevatedButton(
           onPressed: allHandled ? () => _finalizePacking(order) : null,
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.secondary,
+            backgroundColor: AppTheme.info,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
@@ -657,17 +658,17 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withOpacity(0.1),
+                  color: AppTheme.warning.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.amber, width: 1.5),
+                  border: Border.all(color: AppTheme.warning, width: 1.5),
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.rate_review, color: Colors.amber, size: 16),
+                    Icon(Icons.rate_review, color: AppTheme.warning, size: 16),
                     SizedBox(width: 6),
                     Text(
                       'AWAITING APPROVAL',
-                      style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 12),
+                      style: TextStyle(color: AppTheme.warning, fontWeight: FontWeight.bold, fontSize: 12),
                     ),
                   ],
                 ),
@@ -709,10 +710,10 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
                           margin: const EdgeInsets.only(bottom: 12),
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: item.isOutOfStock ? Colors.red.withOpacity(0.05) : Colors.green.withOpacity(0.05),
+                            color: item.isOutOfStock ? AppTheme.error.withValues(alpha: 0.05) : AppTheme.success.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: item.isOutOfStock ? Colors.red.withOpacity(0.2) : Colors.green.withOpacity(0.2),
+                              color: item.isOutOfStock ? AppTheme.error.withValues(alpha: 0.2) : AppTheme.success.withValues(alpha: 0.2),
                             ),
                           ),
                           child: ListTile(
@@ -731,15 +732,15 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
                                 if (isWeightUnit && packedWeight != null) ...[
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Verified Weight: ${packedWeight} kg',
-                                    style: TextStyle(color: Colors.green.shade800, fontWeight: FontWeight.bold),
+                                    'Verified Weight: $packedWeight kg',
+                                    style: const TextStyle(color: AppTheme.success, fontWeight: FontWeight.bold),
                                   ),
                                 ],
                               ],
                             ),
                             trailing: item.isOutOfStock
-                                ? const Text('OUT OF STOCK', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 11))
-                                : const Icon(Icons.check_circle, color: Colors.green),
+                                ? const Text('OUT OF STOCK', style: TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold, fontSize: 11))
+                                : const Icon(Icons.check_circle, color: AppTheme.success),
                           ),
                         );
                       }),
@@ -773,7 +774,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
                                   fit: BoxFit.cover,
                                   placeholder: (context, url) => const SizedBox(
                                     height: 300,
-                                    child: Center(child: CircularProgressIndicator()),
+                                    child: Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent)),
                                   ),
                                   errorWidget: (context, url, error) => const Icon(Icons.error),
                                 ),
@@ -839,16 +840,31 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
                   height: 52,
                   child: OutlinedButton.icon(
                     onPressed: () => _showRejectionDialog(order),
-                    icon: const Icon(Icons.cancel, color: Colors.red),
-                    label: const Text('REJECT PACKING', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                    icon: const Icon(Icons.cancel, color: AppTheme.error),
+                    label: const Text('REJECT PACKING', style: TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold)),
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.red, width: 1.5),
+                      side: const BorderSide(color: AppTheme.error, width: 1.5),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 8),
+              Expanded(
+                child: SizedBox(
+                  height: 52,
+                  child: OutlinedButton.icon(
+                    onPressed: () => _showPartialFulfillmentDialog(order),
+                    icon: const Icon(Icons.incomplete_circle, color: AppTheme.warning),
+                    label: const Text('PARTIAL', style: TextStyle(color: AppTheme.warning, fontWeight: FontWeight.bold, fontSize: 12)),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppTheme.warning, width: 1.5),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
               Expanded(
                 child: SizedBox(
                   height: 52,
@@ -857,7 +873,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
                     icon: const Icon(Icons.check_circle),
                     label: const Text('APPROVE & SHIP', style: TextStyle(fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: AppTheme.success,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
@@ -904,7 +920,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Reject Packing Submission'),
+        title: const Text('Reject Packing Submission', style: TextStyle(fontWeight: FontWeight.w700)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -938,7 +954,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
               Navigator.pop(ctx);
               await _rejectPacking(order, reason);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.error, foregroundColor: Colors.white),
             child: const Text('Confirm Rejection'),
           ),
         ],
@@ -985,7 +1001,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Order #${order.orderNumber} packing rejected. Sent back to packer.'),
-          backgroundColor: Colors.orange,
+          backgroundColor: AppTheme.warning,
         ),
       );
       setState(() {
@@ -998,5 +1014,88 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
         SnackBar(content: Text('Failed to reject order: $e'), backgroundColor: AppTheme.error),
       );
     }
+  }
+
+  void _showPartialFulfillmentDialog(OrderModel order) {
+    final List<String> unavailableItemIds = [];
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          title: const Text('Partial Fulfillment', style: TextStyle(fontWeight: FontWeight.w700)),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Select unavailable items:',
+                    style: TextStyle(fontWeight: FontWeight.w600)),
+                const SizedBox(height: 8),
+                ...order.items.map((item) {
+                  final isChecked = unavailableItemIds.contains(item.id);
+                  return CheckboxListTile(
+                    dense: true,
+                    title: Text(item.productName, style: const TextStyle(fontSize: 13)),
+                    subtitle: Text('Qty: ${item.quantity}',
+                        style: const TextStyle(fontSize: 11)),
+                    value: isChecked,
+                    onChanged: (v) {
+                      setDialogState(() {
+                        if (v == true) {
+                          unavailableItemIds.add(item.id);
+                        } else {
+                          unavailableItemIds.remove(item.id);
+                        }
+                      });
+                    },
+                  );
+                }),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.warning),
+              onPressed: unavailableItemIds.isEmpty
+                  ? null
+                  : () async {
+                      Navigator.pop(ctx);
+                      try {
+                        final result = await PartialFulfillmentService.instance
+                            .processPartialFulfillment(
+                          orderId: order.id,
+                          unavailableProductIds: unavailableItemIds,
+                          performedBy: 'owner',
+                        );
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(result.success
+                                ? 'Partial fulfillment applied. Customer notified.'
+                                : 'Error: ${result.error}'),
+                            backgroundColor:
+                                result.success ? AppTheme.warning : AppTheme.error,
+                          ));
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                            content: Text('Error: \$e'),
+                            backgroundColor: AppTheme.error,
+                          ));
+                        }
+                      }
+                    },
+              child: const Text('Apply Partial',
+                  style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

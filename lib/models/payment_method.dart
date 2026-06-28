@@ -297,19 +297,19 @@ class PaymentMethodOption {
   factory PaymentMethodOption.fromMap(Map<String, dynamic> map) {
     return PaymentMethodOption(
       method: PaymentMethod.values.firstWhere(
-        (e) => e.toString() == map['method'],
+        (e) => e.toString() == map['method'] as String?,
         orElse: () => PaymentMethod.cod,
       ),
-      name: map['name'] ?? '',
-      description: map['description'] ?? '',
+      name: map['name'] as String? ?? '',
+      description: map['description'] as String? ?? '',
       icon: Icons.payment,
-      iconColor: Color(map['iconColor'] ?? 0xFF2196F3),
-      isAvailable: map['isAvailable'] ?? true,
-      subLabel: map['subLabel'],
-      showBadge: map['showBadge'] ?? false,
-      badgeText: map['badgeText'],
-      minAmount: map['minAmount']?.toDouble(),
-      cashbackPercentage: map['cashbackPercentage']?.toDouble(),
+      iconColor: Color(map['iconColor'] as int? ?? 0xFF2196F3),
+      isAvailable: map['isAvailable'] as bool? ?? true,
+      subLabel: map['subLabel'] as String?,
+      showBadge: map['showBadge'] as bool? ?? false,
+      badgeText: map['badgeText'] as String?,
+      minAmount: (map['minAmount'] as num?)?.toDouble(),
+      cashbackPercentage: (map['cashbackPercentage'] as num?)?.toDouble(),
     );
   }
 
