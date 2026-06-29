@@ -5,14 +5,12 @@ const { verifyToken } = require('../auth');
 const crypto = require('crypto');
 const twilio = require('twilio');
 
-// Redis for rate limiting (OTP + token refresh)
-const redis = require('redis');
-const redisClient = redis.createClient({
-  host: process.env.REDIS_HOST || 'localhost',
-  port: process.env.REDIS_PORT || 6379,
-  password: process.env.REDIS_PASSWORD,
+// Redis for rate limiting (Using Upstash Redis via REST for better compatibility)
+const { Redis } = require('@upstash/redis');
+const redisClient = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
 });
-redisClient.on('error', (err) => console.error('[Redis] Error:', err));
 
 const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 const TWILIO_PHONE = process.env.TWILIO_PHONE_NUMBER;

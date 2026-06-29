@@ -30,7 +30,6 @@ const recommendations = require('./routes/recommendations');
 const notifications = require('./routes/notifications');
 const config = require('./routes/config');
 const mfa = require('./routes/mfa');
-const stripe = require('./routes/stripe');
 
 const app = express();
 
@@ -51,7 +50,6 @@ app.use('/config', config);
 
 // Feature routes.
 app.use('/payments', payments);
-app.use('/stripe', stripe);
 app.use('/admin', admin);
 app.use('/storage', storage);
 app.use('/invoices', invoices);

@@ -65,9 +65,6 @@ router.get('/app-config', async (req, res) => {
         payments: {
           razorpayKeyId: process.env.RAZORPAY_KEY_ID || '',
           // ⚠️ NEVER include RAZORPAY_KEY_SECRET here
-
-          stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY || '',
-          // ⚠️ NEVER include STRIPE_SECRET_KEY here (server-side only)
         },
 
         // Analytics & Monitoring (safe to share)
@@ -90,7 +87,6 @@ router.get('/app-config', async (req, res) => {
 
         // Feature Flags (can add more as needed)
         features: {
-          stripeEnabled: !!process.env.STRIPE_PUBLISHABLE_KEY,
           whatsappEnabled: !!process.env.WHATSAPP_TOKEN,
           aiPricingEnabled: true,
           chatbotEnabled: true,
@@ -151,7 +147,6 @@ router.get('/payment-webhooks-enabled', (req, res) => {
   res.json({
     success: true,
     razorpayEnabled: !!process.env.RAZORPAY_KEY_ID,
-    stripeEnabled: !!process.env.STRIPE_PUBLISHABLE_KEY,
   });
 });
 
