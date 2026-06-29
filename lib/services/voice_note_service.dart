@@ -36,8 +36,8 @@ class VoiceNoteService {
       final path = '${dir.path}/voice_note_${DateTime.now().millisecondsSinceEpoch}.wav';
 
       await _audioRecorder.start(
+        const RecordConfig(),
         path: path,
-        encoder: AudioEncoder.wav,
       );
 
       _recordingPath = path;

@@ -26,9 +26,9 @@ class OTPHashService {
       final salt = utf8.encode('$_algorithm:$_iterations');
 
       // Use PBKDF2-like approach via HMAC iteration
-      var hash = utf8.encode(otp);
+      List<int> hash = utf8.encode(otp);
       for (int i = 0; i < _iterations; i++) {
-        hash = sha256.convert([...hash, ...salt]).bytes;
+        hash = sha256.convert([...hash, ...salt]).bytes.toList();
       }
 
       return base64.encode(hash);

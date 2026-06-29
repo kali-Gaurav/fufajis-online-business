@@ -51,8 +51,6 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
   bool _poMode = false;
   bool _autoPrintShelfTag = false;
   static const String _keyAutoPrintShelfTag = 'auto_print_shelf_tag_on_receiving';
-  bool _autoFillActive = false;
-  int _batchCount = 0;
   Future<void> _loadAutoPrintSetting() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -390,7 +388,6 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
   Future<void> _lookupProduct(String barcode) async {
     setState(() {
       _isLoading = true;
-      _autoFillActive = false;
       _poReference = null;
     });
 
@@ -421,7 +418,6 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
         setState(() {
           _product = result.product;
           _isLoading = false;
-          _autoFillActive = true;
           if (result.openPoLine != null) {
             _quantityController.text = result.openPoLine!.quantity.toString();
             _poReference = result.openPoLine!.poId;
@@ -458,7 +454,6 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
         setState(() {
           _product = cached;
           _isLoading = false;
-          _autoFillActive = cached != null;
           if (cached != null) {
             _quantityController.text = '1';
           }
@@ -593,8 +588,6 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
         _costPriceController.clear();
         _expiryDate = null;
         _poReference = null;
-        _autoFillActive = false;
-        _batchCount++;
       });
 
       await SmartScanService.hapticComplete();
@@ -877,7 +870,6 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                             setState(() {
                               _product = null;
                               _scannedBarcode = null;
-                              _autoFillActive = false;
                               _poReference = null;
                             });
                             _showScannerDialog();

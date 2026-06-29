@@ -41,7 +41,6 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
   OrderModel? _currentOrder;
   final List<String> _verifiedItems = [];
   bool _isLoading = false;
-  bool _photoUploading = false;
   bool _allWeightsVerified = false;
   String? _parcelId;
   Map<String, ProductBatch?> _suggestedBatches = {};
@@ -1373,7 +1372,9 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
   Future<String?> _savePackingPhotoProof(AuthProvider authProvider) async {
     if (_packingPhoto == null || _currentOrder == null) return null;
 
-    setState(() => _photoUploading = true);
+    setState(() {
+      // Set any other loading state if needed here, but _photoUploading is removed
+    });
     try {
       final bytes = await _packingPhoto!.readAsBytes();
       final storageRef = FirebaseStorage.instance
@@ -1391,8 +1392,6 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
     } catch (e) {
       debugPrint('[PackingScreen] Photo upload error: $e');
       return null;
-    } finally {
-      setState(() => _photoUploading = false);
     }
   }
 

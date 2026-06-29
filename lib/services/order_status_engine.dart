@@ -423,7 +423,7 @@ class OrderStatusEngine {
           'productName': item.productName,
           'quantity': item.quantity,
         }).toList(),
-        'totalAmount': order.totalAmount,
+        'totalAmount': order.totalAmount.toDouble(),
       });
 
       // 3. Notify delivery agent
@@ -476,7 +476,7 @@ class OrderStatusEngine {
           .doc(order.customerId)
           .update({
         'loyaltyPoints': FieldValue.increment(loyaltyPoints),
-        'totalSpent': FieldValue.increment(order.totalAmount),
+        'totalSpent': FieldValue.increment(order.totalAmount.toDouble()),
       });
 
       // 2. Handle COD payment if applicable
@@ -487,7 +487,7 @@ class OrderStatusEngine {
             .set({
           'orderId': order.id,
           'customerId': order.customerId,
-          'amount': order.totalAmount,
+          'amount': order.totalAmount.toDouble(),
           'status': 'collected',
           'collectedAt': FieldValue.serverTimestamp(),
           'collectedBy': 'delivery_agent',
@@ -503,7 +503,7 @@ class OrderStatusEngine {
         'customerId': order.customerId,
         'deliveredAt': FieldValue.serverTimestamp(),
         'items': order.items.length,
-        'totalAmount': order.totalAmount,
+        'totalAmount': order.totalAmount.toDouble(),
         'status': 'delivered',
       });
 
@@ -615,7 +615,7 @@ class OrderStatusEngine {
             .add({
           'orderId': order.id,
           'customerId': order.customerId,
-          'amount': order.totalAmount,
+          'amount': order.totalAmount.toDouble(),
           'paymentMethod': order.paymentMethod,
           'originalPaymentId': order.paymentId,
           'status': 'initiated',
@@ -629,9 +629,9 @@ class OrderStatusEngine {
           .collection('wallets')
           .doc(order.customerId)
           .set({
-        'balance': FieldValue.increment(order.totalAmount),
+        'balance': FieldValue.increment(order.totalAmount.toDouble()),
         'lastRefund': order.id,
-        'lastRefundAmount': order.totalAmount,
+        'lastRefundAmount': order.totalAmount.toDouble(),
         'lastUpdated': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
@@ -642,14 +642,14 @@ class OrderStatusEngine {
           .set({
         'orderId': order.id,
         'customerId': order.customerId,
-        'refundAmount': order.totalAmount,
+        'refundAmount': order.totalAmount.toDouble(),
         'refundDate': FieldValue.serverTimestamp(),
         'paymentMethod': order.paymentMethod,
         'status': 'completed',
         'items': order.items.map((item) => {
           'productName': item.productName,
           'quantity': item.quantity,
-          'refundAmount': item.quantity * item.price,
+          'refundAmount': (item.price * item.quantity).toDouble(),
         }).toList(),
       });
 
@@ -669,7 +669,7 @@ class OrderStatusEngine {
         'type': 'refund',
         'orderId': order.id,
         'customerId': order.customerId,
-        'amount': -order.totalAmount, // Negative for outflow
+        'amount': -order.totalAmount.toDouble(), // Negative for outflow
         'createdAt': FieldValue.serverTimestamp(),
         'bookingDate': FieldValue.serverTimestamp(),
         'description': 'Refund for order ${order.id}',

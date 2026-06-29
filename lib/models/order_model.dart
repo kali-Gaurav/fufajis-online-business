@@ -86,6 +86,10 @@ class OrderItem {
   final String? proposedReplacementName;
   final MonetaryValue? proposedReplacementPrice;
   final DateTime? substitutionTimestamp;
+  final String? specialInstructions;
+
+  /// Convenience getter for productName (alias for compatibility)
+  String get name => productName;
 
   OrderItem({
     required this.id,
@@ -111,6 +115,7 @@ class OrderItem {
     this.proposedReplacementName,
     this.proposedReplacementPrice,
     this.substitutionTimestamp,
+    this.specialInstructions,
   });
 
   factory OrderItem.fromMap(Map<String, dynamic> map) {
@@ -136,13 +141,14 @@ class OrderItem {
       substitutionStatus: map['substitutionStatus'],
       proposedReplacementId: map['proposedReplacementId'],
       proposedReplacementName: map['proposedReplacementName'],
-      proposedReplacementPrice: map['proposedReplacementPrice'] != null 
+      proposedReplacementPrice: map['proposedReplacementPrice'] != null
           ? MonetaryValue(map['proposedReplacementPrice']) : null,
       substitutionTimestamp: map['substitutionTimestamp'] != null
           ? (map['substitutionTimestamp'] is Timestamp
                 ? (map['substitutionTimestamp'] as Timestamp).toDate()
                 : DateTime.tryParse(map['substitutionTimestamp'].toString()))
           : null,
+      specialInstructions: map['specialInstructions'],
     );
   }
 
@@ -252,6 +258,7 @@ class OrderModel {
   final MonetaryValue cashbackEarned;
   final int rewardPointsUsed;
   final int rewardPointsEarned;
+  final int loyaltyPointsUsed;  // Alias for rewardPointsUsed for compatibility
   final PaymentMethod paymentMethod; 
   final PaymentMethod selectedPaymentMethod; 
   final String? paymentId;
@@ -290,7 +297,11 @@ class OrderModel {
   final List<StatusHistoryEntry> statusHistory;
   final GeoPoint? liveLocation;
   final double? rating;
-  final String? packingStatus; 
+  final String? packingStatus;
+
+  /// Getters for task assignment compatibility
+  double? get deliveryLat => deliveryAddress.latitude;
+  double? get deliveryLon => deliveryAddress.longitude;
   final String? packingRejectionReason;
   final Map<String, dynamic>? packingProof;
   final List<dynamic>? packingHistory;
@@ -324,6 +335,7 @@ class OrderModel {
     MonetaryValue? cashbackEarned,
     this.rewardPointsUsed = 0,
     this.rewardPointsEarned = 0,
+    int? loyaltyPointsUsed,
     this.paymentMethod = PaymentMethod.cod,
     this.selectedPaymentMethod = PaymentMethod.cod,
     this.paymentId,
@@ -381,7 +393,14 @@ class OrderModel {
        walletAmountUsed = walletAmountUsed ?? MonetaryValue(0.0),
        cashbackEarned = cashbackEarned ?? MonetaryValue(0.0),
        tipAmount = tipAmount ?? MonetaryValue(0.0),
-       packagingFee = packagingFee ?? MonetaryValue(0.0);
+       packagingFee = packagingFee ?? MonetaryValue(0.0),
+       loyaltyPointsUsed = loyaltyPointsUsed ?? rewardPointsUsed;
+
+  factory OrderModel.fromFirestore(DocumentSnapshot doc) {
+    final map = doc.data() as Map<String, dynamic>? ?? {};
+    final id = map['id'] ?? doc.id;
+    return OrderModel.fromMap({...map, 'id': id});
+  }
 
   factory OrderModel.fromMap(Map<String, dynamic> map) {
     return OrderModel(
@@ -402,8 +421,9 @@ class OrderModel {
       totalAmount: MonetaryValue(map['totalAmount'] ?? 0.0),
       walletAmountUsed: MonetaryValue(map['walletAmountUsed'] ?? 0.0),
       cashbackEarned: MonetaryValue(map['cashbackEarned'] ?? 0.0),
-      rewardPointsUsed: map['rewardPointsUsed'] ?? 0,
+      rewardPointsUsed: map['rewardPointsUsed'] ?? map['loyaltyPointsUsed'] ?? 0,
       rewardPointsEarned: map['rewardPointsEarned'] ?? 0,
+      loyaltyPointsUsed: map['loyaltyPointsUsed'] ?? map['rewardPointsUsed'] ?? 0,
       paymentMethod: PaymentMethod.values.firstWhere(
         (e) => e.toString() == map['paymentMethod'],
         orElse: () => PaymentMethod.cod,
@@ -509,6 +529,7 @@ class OrderModel {
       'cashbackEarned': cashbackEarned.toFirestore(),
       'rewardPointsUsed': rewardPointsUsed,
       'rewardPointsEarned': rewardPointsEarned,
+      'loyaltyPointsUsed': loyaltyPointsUsed,
       'paymentMethod': paymentMethod.toString(),
       'selectedPaymentMethod': selectedPaymentMethod.toString(),
       'paymentId': paymentId,

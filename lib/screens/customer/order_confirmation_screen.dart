@@ -1346,7 +1346,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
 
   void _onInvoiceTap() {
     if (_order != null) {
-      InvoiceService.generateAndPrintInvoice(_order!);
+      InvoiceService().generateAndPrintInvoice(_order!);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Order data not available')),

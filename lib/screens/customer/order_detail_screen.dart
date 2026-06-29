@@ -111,7 +111,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             elevation: 0,
             actions: [
               IconButton(
-                onPressed: () => InvoiceService.generateAndPrintInvoice(_order!),
+                onPressed: () => InvoiceService().generateAndPrintInvoice(_order!),
                 icon: const Icon(Icons.download),
                 tooltip: 'Download Invoice',
               ),

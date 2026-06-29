@@ -1,0 +1,54 @@
+services:
+  - type: web
+    name: fufaji-backend
+    runtime: node
+    plan: standard
+    buildCommand: |
+      echo "🧹 Cleaning old artifacts..."
+      rm -rf node_modules package-lock.json dist
+      echo "📦 Installing dependencies with npm ci..."
+      npm ci --legacy-peer-deps --verbose
+      echo "✅ Build complete"
+    startCommand: npm start
+    preDeployCommand: |
+      echo "⏳ Pre-deployment checks..."
+      npm list speakeasy
+      echo "✅ All modules present"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_SERVICE_ACCOUNT_KEY
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_PHONE_NUMBER
+        sync: false
+      - key: TWILIO_WHATSAPP_NUMBER
+        sync: false
+      - key: SENDGRID_API_KEY
+        sync: false
+      - key: SENDGRID_FROM_EMAIL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: MFA_ENCRYPTION_KEY
+        sync: false
+      - key: PORT
+        value: "3001"
+      - key: LOG_LEVEL
+        value: info
+    healthCheckPath: /health
+    region: oregon
+    autoDeploy: true
+    maxInstances: 3
+    minInstances: 1

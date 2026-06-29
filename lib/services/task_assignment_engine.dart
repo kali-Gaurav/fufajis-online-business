@@ -75,13 +75,13 @@ class TaskAssignmentEngine {
       debugPrint('[TaskAssignment] Assigning delivery for order ${order.id}');
 
       // Extract delivery coordinates
-      if (order.deliveryLat == null || order.deliveryLon == null) {
+      if (order.deliveryAddress.latitude == 0.0 && order.deliveryAddress.longitude == 0.0) {
         debugPrint('[TaskAssignment] ⚠️ No delivery coordinates available');
         return null;
       }
 
-      final deliveryLat = order.deliveryLat!;
-      final deliveryLon = order.deliveryLon!;
+      final deliveryLat = order.deliveryAddress.latitude;
+      final deliveryLon = order.deliveryAddress.longitude;
 
       // 1. Get all available agents
       final agentsSnapshot = await _firestore
@@ -268,7 +268,9 @@ class TaskAssignmentEngine {
         return false;
       }
 
-      final order = OrderModel.fromFirestore(orderSnapshot);
+      final data = orderSnapshot.data() as Map<String, dynamic>;
+      if (!data.containsKey('id')) data['id'] = orderSnapshot.id;
+      final order = OrderModel.fromMap(data);
 
       // Find new agent
       final newAgentId = await assignDeliveryAgent(order);

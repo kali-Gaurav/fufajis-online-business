@@ -293,7 +293,7 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
 
       // Print receipt
       try {
-        await InvoiceService.generateAndPrintInvoice(order);
+        await InvoiceService().generateAndPrintInvoice(order);
       } catch (e) {
         debugPrint('[CashRegister] Print error: $e');
       }
@@ -768,7 +768,7 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
     try {
       final order = await _buildOrder('Print');
       if (order != null) {
-        await InvoiceService.generateAndPrintInvoice(order);
+        await InvoiceService().generateAndPrintInvoice(order);
       }
     } catch (e) {
       _showSnack('Print failed: $e');

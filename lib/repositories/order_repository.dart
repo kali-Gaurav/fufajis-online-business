@@ -426,6 +426,25 @@ class OrderRepository {
     }
   }
 
+  /// Records the start of order processing (packing/assembly)
+  Future<void> recordProcessingStart(
+    String orderId, {
+    String? employeeId,
+    String? employeeName,
+  }) async {
+    try {
+      await _ordersCollection.doc(orderId).update({
+        'packingStatus': 'in_progress',
+        'packingStartedAt': Timestamp.now(),
+        if (employeeId != null) 'employeeId': employeeId,
+        if (employeeName != null) 'employeeName': employeeName,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   // ──────────────────────────────────────────────────────────────
   // REAL-TIME LISTENERS
   // ──────────────────────────────────────────────────────────────

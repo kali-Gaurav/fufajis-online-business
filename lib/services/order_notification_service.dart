@@ -475,7 +475,7 @@ class OrderNotificationService {
         'content': 'Your invoice #${invoice.invoiceNumber} is ready!',
         'senderId': 'system',
         'orderId': order.id,
-        'invoiceId': invoice.id,
+        'invoiceId': invoice.invoiceId,
         'invoice': {
           'invoiceNumber': invoice.invoiceNumber,
           'amount': order.subtotal,
@@ -484,7 +484,6 @@ class OrderNotificationService {
           'discount': order.discount,
           'total': order.totalAmount,
           'itemCount': order.items.length,
-          'pdfSize': invoice.pdfSize,
           'timestamp': DateTime.now().toIso8601String(),
         },
         'createdAt': FieldValue.serverTimestamp(),

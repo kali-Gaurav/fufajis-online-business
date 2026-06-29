@@ -39,7 +39,7 @@ class InvoiceProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      _invoices = await InvoiceService.getCustomerInvoices(customerId);
+      _invoices = await InvoiceService().getCustomerInvoices(customerId);
       _filteredInvoices = List.from(_invoices);
       notifyListeners();
     } catch (e) {
@@ -60,7 +60,7 @@ class InvoiceProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      _invoices = await InvoiceService.getShopInvoices(
+      _invoices = await InvoiceService().getShopInvoices(
         shopId,
         startDate: startDate,
         endDate: endDate,
@@ -81,7 +81,7 @@ class InvoiceProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      _currentInvoice = await InvoiceService.getInvoice(invoiceId);
+      _currentInvoice = await InvoiceService().getInvoice(invoiceId);
       notifyListeners();
     } catch (e) {
       _setError('Failed to load invoice: $e');
@@ -143,10 +143,10 @@ class InvoiceProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      final invoice = await InvoiceService.getInvoice(invoiceId);
+      final invoice = await InvoiceService().getInvoice(invoiceId);
       if (invoice == null) throw Exception('Invoice not found');
 
-      final pdfBytes = await InvoiceService.generateInvoicePDF(invoice);
+      final pdfBytes = await InvoiceService().generateInvoicePDF(invoice);
       return pdfBytes;
     } catch (e) {
       _setError('Failed to generate PDF: $e');
@@ -166,7 +166,7 @@ class InvoiceProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      await InvoiceService.sendInvoiceEmail(invoiceId, email, pdfBytes);
+      await InvoiceService().sendInvoiceEmail(invoiceId, email, pdfBytes);
     } catch (e) {
       _setError('Failed to send email: $e');
       rethrow;
@@ -184,7 +184,7 @@ class InvoiceProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      await InvoiceService.updatePaymentStatus(invoiceId, status);
+      await InvoiceService().updatePaymentStatus(invoiceId, status);
 
       // Update local cache
       final index = _invoices.indexWhere((inv) => inv.invoiceId == invoiceId);
@@ -238,8 +238,8 @@ class InvoiceProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      _currentGSTReport = await InvoiceService.generateGSTReport(
-        shopId,
+      _currentGSTReport = await InvoiceService().generateGSTReport(
+        shopId: shopId,
         startDate: startDate,
         endDate: endDate,
       );
@@ -263,7 +263,7 @@ class InvoiceProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      await InvoiceService.saveGSTReport(shopId, _currentGSTReport!);
+      await InvoiceService().saveGSTReport(shopId, _currentGSTReport!);
     } catch (e) {
       _setError('Failed to save GST report: $e');
       rethrow;

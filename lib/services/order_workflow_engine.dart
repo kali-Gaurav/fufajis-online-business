@@ -122,7 +122,7 @@ class OrderWorkflowEngine {
       final doc = await FirebaseFirestore.instance.collection('orders').doc(orderId).get();
       if (!doc.exists) return;
 
-      await InvoiceService.finalizeInvoice(orderId);
+      await InvoiceService().finalizeInvoice(orderId);
     } catch (e) {
       debugPrint('[OrderWorkflowEngine] GST invoice generation failed for order $orderId: $e');
     }

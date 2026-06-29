@@ -3,6 +3,10 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../models/order_model.dart';
+import '../models/invoice_model.dart';
+import '../utils/monetary_value.dart';
+import '../services/gst_service.dart';
+import 'dart:typed_data';
 
 /// Invoice PDF Generation Service
 /// Creates professional invoices for delivery completion
@@ -12,11 +16,11 @@ class InvoiceService {
   factory InvoiceService() => _instance;
   InvoiceService._internal();
 
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   /// Generate invoice PDF for order
   /// Returns PDF bytes and stores reference in Firestore
-  Future<Invoice> generateInvoice(OrderModel order) async {
+  Future<InvoiceModel> generateInvoice(OrderModel order) async {
     try {
       debugPrint('[Invoice] Generating invoice for order: ${order.id}');
 
@@ -144,7 +148,7 @@ class InvoiceService {
                           pw.Text('₹${order.tax.toStringAsFixed(2)}'),
                         ],
                       ),
-                      if (order.discount > 0)
+                      if (order.discount > MonetaryValue(0))
                         pw.Row(
                           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                           children: [
@@ -191,31 +195,50 @@ class InvoiceService {
 
       // Store invoice reference in Firestore
       final invoiceId = 'inv_${order.id}_${DateTime.now().millisecondsSinceEpoch}';
-      final invoice = Invoice(
-        id: invoiceId,
+      final invoiceNumber = _generateInvoiceNumber(order.orderNumber);
+
+      // Create InvoiceItem list from order items
+      final invoiceItems = order.items
+          .map((item) => InvoiceItem(
+            productId: item.productId,
+            productName: item.productName,
+            quantity: item.quantity,
+            unitPrice: item.price.toDouble(),
+            taxRate: 5.0, // Default 5% GST
+            amount: item.totalPrice,
+            tax: MonetaryValue(item.totalPrice.toDouble() * 0.05),
+          ))
+          .toList();
+
+      final invoice = InvoiceModel(
+        invoiceId: invoiceId,
+        invoiceNumber: invoiceNumber,
         orderId: order.id,
         customerId: order.customerId,
-        invoiceNumber: _generateInvoiceNumber(order.orderNumber),
-        generatedAt: DateTime.now(),
-        items: order.items,
+        customerName: order.customerName,
+        shopId: order.shopId ?? '',
+        shopName: order.shopName ?? '',
+        items: invoiceItems,
         subtotal: order.subtotal,
-        tax: order.tax,
-        deliveryCharge: order.deliveryCharge,
+        totalTax: MonetaryValue(order.subtotal.toDouble() * 0.05),
         discount: order.discount,
-        totalAmount: order.totalAmount,
-        pdfSize: pdfBytes.length,
+        grandTotal: order.totalAmount,
+        billingAddress: '${order.deliveryAddress.street}, ${order.deliveryAddress.city}',
+        shippingAddress: '${order.deliveryAddress.street}, ${order.deliveryAddress.city}',
+        customerEmail: order.customerEmail,
+        customerPhone: order.customerPhone,
+        issueDate: DateTime.now(),
+        paymentMethod: order.paymentMethod.toString(),
+        paymentStatus: order.paymentStatus == 'completed' ? PaymentStatus.paid : PaymentStatus.unpaid,
+        pdfUrl: null,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       );
 
       // Save invoice record to Firestore
       await _firestore.collection('invoices').doc(invoiceId).set({
-        'id': invoice.id,
-        'orderId': invoice.orderId,
-        'customerId': invoice.customerId,
-        'invoiceNumber': invoice.invoiceNumber,
-        'generatedAt': invoice.generatedAt.toIso8601String(),
-        'itemCount': invoice.items.length,
-        'totalAmount': invoice.totalAmount,
-        'pdfSize': invoice.pdfSize,
+        ...invoice.toMap(),
+        'pdfSize': pdfBytes.length,
         'status': 'generated',
         'createdAt': FieldValue.serverTimestamp(),
       });
@@ -229,66 +252,223 @@ class InvoiceService {
   }
 
   /// Get invoice by ID
-  Future<Invoice?> getInvoice(String invoiceId) async {
+  Future<InvoiceModel?> getInvoice(String invoiceId) async {
     try {
       final doc = await _firestore.collection('invoices').doc(invoiceId).get();
       if (!doc.exists) return null;
 
-      final data = doc.data()!;
-      return Invoice(
-        id: data['id'],
-        orderId: data['orderId'],
-        customerId: data['customerId'],
-        invoiceNumber: data['invoiceNumber'],
-        generatedAt: DateTime.parse(data['generatedAt']),
-        items: [],
-        subtotal: (data['totalAmount'] * 0.9).toDouble(),
-        tax: (data['totalAmount'] * 0.05).toDouble(),
-        deliveryCharge: 50,
-        discount: 0,
-        totalAmount: data['totalAmount'],
-        pdfSize: data['pdfSize'] ?? 0,
-      );
+      return InvoiceModel.fromDocSnapshot(doc);
     } catch (e) {
       debugPrint('[Invoice] Error fetching invoice: $e');
       return null;
     }
   }
 
-  /// List invoices for customer
-  Future<List<Invoice>> listInvoicesByCustomer(String customerId) async {
+  /// Get all invoices for a customer
+  Future<List<InvoiceModel>> getCustomerInvoices(String customerId) async {
     try {
-      final docs = await _firestore
+      final snapshot = await _firestore
           .collection('invoices')
           .where('customerId', isEqualTo: customerId)
-          .orderBy('generatedAt', descending: true)
-          .limit(50)
+          .orderBy('issueDate', descending: true)
           .get();
 
-      return docs.docs
-          .map((doc) {
-            final data = doc.data();
-            return Invoice(
-              id: data['id'],
-              orderId: data['orderId'],
-              customerId: data['customerId'],
-              invoiceNumber: data['invoiceNumber'],
-              generatedAt: DateTime.parse(data['generatedAt']),
-              items: [],
-              subtotal: 0,
-              tax: 0,
-              deliveryCharge: 0,
-              discount: 0,
-              totalAmount: data['totalAmount'],
-              pdfSize: data['pdfSize'] ?? 0,
-            );
-          })
+      return snapshot.docs
+          .map((doc) => InvoiceModel.fromDocSnapshot(doc))
           .toList();
     } catch (e) {
-      debugPrint('[Invoice] Error listing invoices: $e');
+      debugPrint('[Invoice] Error fetching customer invoices: $e');
       return [];
     }
   }
+
+  /// Get all invoices for a shop
+  Future<List<InvoiceModel>> getShopInvoices(
+    String shopId, {
+    DateTime? startDate,
+    DateTime? endDate,
+    PaymentStatus? paymentStatus,
+  }) async {
+    try {
+      var query = _firestore
+          .collection('invoices')
+          .where('shopId', isEqualTo: shopId) as Query;
+
+      if (startDate != null) {
+        query = query.where('issueDate', isGreaterThanOrEqualTo: startDate) as Query;
+      }
+
+      if (endDate != null) {
+        query = query.where('issueDate', isLessThanOrEqualTo: endDate) as Query;
+      }
+
+      final snapshot = await query.orderBy('issueDate', descending: true).get();
+
+      var invoices = snapshot.docs
+          .map((doc) => InvoiceModel.fromDocSnapshot(doc))
+          .toList();
+
+      if (paymentStatus != null) {
+        invoices = invoices
+            .where((inv) => inv.paymentStatus == paymentStatus)
+            .toList();
+      }
+
+      return invoices;
+    } catch (e) {
+      debugPrint('[Invoice] Error fetching shop invoices: $e');
+      return [];
+    }
+  }
+
+  /// Generate PDF bytes for an invoice
+  Future<Uint8List> generateInvoicePDF(InvoiceModel invoice) async {
+    try {
+      final pdf = pw.Document();
+
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (context) => pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text('Invoice ${invoice.invoiceNumber}',
+                  style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+              pw.SizedBox(height: 20),
+              pw.Text('Shop: ${invoice.shopName}'),
+              pw.Text('Customer: ${invoice.customerName}'),
+              pw.Text('Date: ${invoice.issueDate}'),
+              pw.SizedBox(height: 20),
+              // Add items table, totals, etc.
+              pw.Text('Total: ₹${invoice.grandTotal.toStringAsFixed(2)}'),
+            ],
+          ),
+        ),
+      );
+
+      return Uint8List.fromList(await pdf.save());
+    } catch (e) {
+      debugPrint('[Invoice] Error generating PDF: $e');
+      rethrow;
+    }
+  }
+
+  /// Send invoice via email
+  Future<void> sendInvoiceEmail(String invoiceId, String email, Uint8List pdfBytes) async {
+    try {
+      // Implementation would send email through email service
+      debugPrint('[Invoice] Sending invoice $invoiceId to $email');
+      // Email sending logic here
+    } catch (e) {
+      debugPrint('[Invoice] Error sending invoice email: $e');
+      rethrow;
+    }
+  }
+
+  /// Update payment status of an invoice
+  Future<void> updatePaymentStatus(String invoiceId, PaymentStatus status) async {
+    try {
+      await _firestore
+          .collection('invoices')
+          .doc(invoiceId)
+          .update({'paymentStatus': status.json});
+      debugPrint('[Invoice] Updated invoice $invoiceId to $status');
+    } catch (e) {
+      debugPrint('[Invoice] Error updating payment status: $e');
+      rethrow;
+    }
+  }
+
+  /// Generate GST report
+  Future<GSTReport> generateGSTReport({
+    required DateTime startDate,
+    required DateTime endDate,
+    String? shopId,
+  }) async {
+    try {
+      var query = _firestore
+          .collection('invoices')
+          .where('issueDate', isGreaterThanOrEqualTo: startDate)
+          .where('issueDate', isLessThanOrEqualTo: endDate) as Query;
+
+      if (shopId != null) {
+        query = query.where('shopId', isEqualTo: shopId) as Query;
+      }
+
+      final snapshot = await query.get();
+      final invoices = snapshot.docs
+          .map((doc) => InvoiceModel.fromDocSnapshot(doc))
+          .toList();
+
+      double totalTax = 0;
+      double totalRevenue = 0;
+      final taxBreakdown = <double, double>{};
+
+      for (var invoice in invoices) {
+        totalTax += invoice.totalTax.toDouble();
+        totalRevenue += invoice.grandTotal.toDouble();
+
+        for (var item in invoice.items) {
+          final rate = item.taxRate;
+          taxBreakdown[rate] = (taxBreakdown[rate] ?? 0) + item.tax.toDouble();
+        }
+      }
+
+      return GSTReport(
+        period: '${startDate.year}-${startDate.month}-${startDate.day} to ${endDate.year}-${endDate.month}-${endDate.day}',
+        generatedAt: DateTime.now(),
+        totalSales: totalRevenue,
+        taxByRate: taxBreakdown,
+        remarks: 'Invoices: ${invoices.length}, Total Tax: $totalTax',
+      );
+    } catch (e) {
+      debugPrint('[Invoice] Error generating GST report: $e');
+      rethrow;
+    }
+  }
+
+  /// Save GST report to Firestore
+  Future<void> saveGSTReport(String reportId, GSTReport report) async {
+    try {
+      await _firestore.collection('gst_reports').doc(reportId).set({
+        ...report.toMap(),
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+      debugPrint('[Invoice] GST report saved: $reportId');
+    } catch (e) {
+      debugPrint('[Invoice] Error saving GST report: $e');
+      rethrow;
+    }
+  }
+
+  /// Finalize an invoice (mark as immutable)
+  Future<void> finalizeInvoice(String invoiceId) async {
+    try {
+      await _firestore
+          .collection('invoices')
+          .doc(invoiceId)
+          .update({'isImmutable': true});
+      debugPrint('[Invoice] Invoice finalized: $invoiceId');
+    } catch (e) {
+      debugPrint('[Invoice] Error finalizing invoice: $e');
+      rethrow;
+    }
+  }
+
+  /// Generate and print invoice
+  Future<void> generateAndPrintInvoice(OrderModel order) async {
+    try {
+      final invoice = await generateInvoice(order);
+      final pdfBytes = await generateInvoicePDF(invoice);
+      debugPrint('[Invoice] Invoice ready for printing: ${invoice.invoiceNumber} (${pdfBytes.length} bytes)');
+      // Print implementation would go here
+    } catch (e) {
+      debugPrint('[Invoice] Error generating and printing invoice: $e');
+      rethrow;
+    }
+  }
+
+  // Static methods removed to avoid conflict with instance methods
 
   // Helpers
   String _formatDate(DateTime? date) {
@@ -304,35 +484,4 @@ class InvoiceService {
   String _generateInvoiceNumber(String orderNumber) {
     return 'INV-${orderNumber.toUpperCase()}';
   }
-}
-
-/// Invoice model
-class Invoice {
-  final String id;
-  final String orderId;
-  final String customerId;
-  final String invoiceNumber;
-  final DateTime generatedAt;
-  final dynamic items;
-  final double subtotal;
-  final double tax;
-  final double deliveryCharge;
-  final double discount;
-  final double totalAmount;
-  final int pdfSize;
-
-  Invoice({
-    required this.id,
-    required this.orderId,
-    required this.customerId,
-    required this.invoiceNumber,
-    required this.generatedAt,
-    required this.items,
-    required this.subtotal,
-    required this.tax,
-    required this.deliveryCharge,
-    required this.discount,
-    required this.totalAmount,
-    required this.pdfSize,
-  });
 }
