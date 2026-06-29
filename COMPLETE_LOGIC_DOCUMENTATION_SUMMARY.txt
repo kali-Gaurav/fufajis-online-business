@@ -1,0 +1,548 @@
+================================================================================
+FUFAJI COMPLETE REQUEST/RESPONSE LOGIC DOCUMENTATION
+================================================================================
+
+OVERVIEW:
+This documentation package contains TWO comprehensive logic flow documents
+that specify EVERY authentication and payment flow with complete details.
+
+LOCATION OF DOCUMENTS:
+================================================================================
+
+1. AUTHENTICATION LOGIC
+   File: lib/services/complete_auth_flow_logic.dart
+   Size: 1000+ lines with detailed comments
+
+   Contains:
+   - Email/Password Signup (POST /auth/signup-email)
+   - Email/Password Login (POST /auth/login-email)
+   - Phone OTP Request (POST /auth/phone-otp/request)
+   - Phone OTP Verify (POST /auth/phone-otp/verify)
+   - Google Sign-In (POST /auth/google-signin)
+   - Logout (POST /auth/logout)
+   - Password Reset Request (POST /auth/password-reset/request)
+   - Password Reset Verify (POST /auth/password-reset/verify)
+   - Refresh Token (POST /auth/refresh-token)
+
+2. RAZORPAY PAYMENT LOGIC
+   File: lib/services/complete_razorpay_flow_logic.dart
+   Size: 1000+ lines with detailed comments
+
+   Contains:
+   - Create Order (POST /api/orders/create)
+   - Payment Submission (Mobile App → Razorpay)
+   - Verify Payment (POST /api/payments/verify)
+   - Payment Webhook (POST /functions/razorpay-webhook-dual-write)
+   - Refund Flow (POST /api/refunds/create)
+   - Refund Webhook (Razorpay → Backend)
+   - Security Summary
+
+
+DOCUMENT STRUCTURE:
+================================================================================
+
+Each flow is documented with:
+
+1. REQUEST FORMAT
+   - HTTP method (GET/POST/PUT/DELETE)
+   - Endpoint URL
+   - Request body JSON structure
+   - Example values
+
+2. VALIDATION LOGIC
+   - All input validation rules
+   - Format checks
+   - Business logic validation
+   - Error conditions
+
+3. BACKEND LOGIC STEPS
+   - Numbered step-by-step process
+   - Database queries (SQL-style pseudocode)
+   - API calls (service integrations)
+   - Conditional logic and error handling
+   - Transaction/atomic operations
+   - Data consistency checks
+
+4. DATABASE OPERATIONS
+   - INSERT statements (with all fields)
+   - SELECT queries (with field filters)
+   - UPDATE operations (with conditions)
+   - DELETE operations (when/why)
+   - Transaction boundaries
+
+5. RESPONSE FORMAT
+   - Success response (201/200 with JSON)
+   - Error responses (400/401/403/404/409/429/500 with JSON)
+   - Response field descriptions
+   - Example response payloads
+
+6. EDGE CASES & ERROR HANDLING
+   - Rate limiting
+   - Duplicate detection (idempotency)
+   - Race conditions
+   - Data integrity checks
+   - Recovery procedures
+   - Security considerations
+
+
+AUTHENTICATION FLOWS (8 endpoints):
+================================================================================
+
+1. SIGNUP (Email/Password)
+   - Creates Firebase Auth user
+   - Creates PostgreSQL user record
+   - Creates Firestore document
+   - Sends verification email
+   - Returns JWT token
+   - Status: New account, email not verified
+
+2. LOGIN (Email/Password)
+   - Verifies Firebase credentials
+   - Checks user status (active, not suspended)
+   - Updates last login
+   - Returns JWT token
+   - Status: Authenticated
+
+3. OTP REQUEST (Phone)
+   - Validates phone format (E.164)
+   - Rate limit: 3 requests/hour per phone
+   - Generates 6-digit OTP (5 min validity)
+   - Sends via SMS (Twilio/SNS)
+   - Status: OTP sent, awaiting verification
+
+4. OTP VERIFY (Phone)
+   - Validates OTP (constant-time comparison)
+   - Rate limit: 5 attempts max
+   - Creates or gets Firebase user
+   - Returns JWT token
+   - Status: Authenticated via phone
+
+5. GOOGLE SIGN-IN
+   - Verifies Google ID token (RS256)
+   - Checks signature expiry (< 1 hour old)
+   - Prevents replay attacks (token hash)
+   - Creates or links Google account
+   - Returns JWT token
+   - Status: Authenticated via Google
+
+6. LOGOUT
+   - Verifies JWT token
+   - Adds token to blacklist (Redis)
+   - Invalidates all sessions (optional)
+   - Clears user cache
+   - Status: Logged out, token revoked
+
+7. PASSWORD RESET REQUEST
+   - Validates email format
+   - Rate limit: 3 requests/hour per email
+   - Generates 32-char random reset token
+   - Stores in Redis (30 min validity)
+   - Sends reset email
+   - Status: Reset email sent (never reveals if email exists)
+
+8. PASSWORD RESET VERIFY
+   - Validates reset token
+   - Validates new password strength
+   - Updates Firebase password
+   - Updates PostgreSQL password hash
+   - Invalidates all existing tokens
+   - Status: Password changed, must re-login
+
+
+PAYMENT FLOWS (6 operations):
+================================================================================
+
+1. CREATE ORDER
+   - Validates items (exist, in stock, prices match)
+   - Validates delivery address (in service area)
+   - Validates coupon (if provided)
+   - Calculates totals (subtotal, tax, delivery, discount)
+   - Reserves inventory (30 min expiry)
+   - Creates PostgreSQL order
+   - Creates Razorpay order (API call)
+   - Returns order + razorpayOrderId
+   - Status: Order created, pending payment
+
+2. PAYMENT SUBMISSION
+   - Client-side only (no backend)
+   - App opens Razorpay modal
+   - User enters payment details
+   - Razorpay processes payment
+   - Returns payment_id + signature
+   - Status: Payment processed by Razorpay
+
+3. VERIFY PAYMENT
+   - Validates signature (HMAC-SHA256)
+   - Verifies order exists and matches
+   - Checks for duplicate payment (idempotency)
+   - Creates payment transaction record
+   - Deducts inventory (atomic operation)
+   - Updates order status to confirmed
+   - Sends confirmations (SMS/email/push)
+   - Status: Payment verified, order confirmed
+
+4. PAYMENT WEBHOOK
+   - Verifies webhook signature (same HMAC-SHA256)
+   - Handles: payment.authorized, payment.failed
+   - Checks for duplicate webhook (idempotency)
+   - Processes payment success/failure
+   - Updates order and payment records
+   - Deducts inventory (if success)
+   - Sends notifications
+   - Status: Webhook processed
+
+5. REFUND FLOW
+   - Validates order can be refunded (< 7 days)
+   - Validates refund amount
+   - Creates refund record in DB
+   - Calls Razorpay refund API
+   - Restores inventory
+   - Credits wallet with refund amount
+   - Sends notifications
+   - Status: Refund initiated
+
+6. REFUND WEBHOOK
+   - Handles: refund.created, refund.processed, refund.failed
+   - Updates refund status
+   - On success: confirms wallet credit
+   - On failure: reverses wallet credit
+   - Sends notifications
+   - Status: Refund webhook processed
+
+
+SECURITY MECHANISMS:
+================================================================================
+
+1. AUTHENTICATION SECURITY
+   - JWT tokens (HMAC-SHA256 signature)
+   - Token expiry (24 hours)
+   - Token blacklist (revocation)
+   - Constant-time comparison (prevent timing attacks)
+   - Rate limiting (failed attempts)
+   - Account suspension checks
+   - Email verification (optional)
+   - Phone verification
+   - Password strength requirements
+
+2. PAYMENT SECURITY
+   - Razorpay signature verification (critical)
+     - HMAC-SHA256(order_id|payment_id, key_secret)
+     - Constant-time comparison
+     - Signature verification on every payment
+   - Webhook signature verification
+     - HMAC-SHA256(raw_body, webhook_secret)
+     - Prevents tampering
+   - Idempotency checks
+     - Duplicate payment detection
+     - Duplicate webhook detection
+   - Amount verification
+     - Order amount must match webhook amount
+     - Prevents amount tampering
+   - Atomic transactions
+     - Inventory deduction in transaction
+     - All-or-nothing updates
+   - Rate limiting
+     - Prevent rapid-fire refund attempts
+   - Audit logging
+     - Log all payment transactions
+     - Log all refunds
+     - Log all webhook events
+
+3. DATA INTEGRITY
+   - Price verification (prevent tampering)
+   - Inventory checks (prevent overselling)
+   - User verification (customer owns order)
+   - Address validation (in service area)
+   - Coupon eligibility (min value, usage limits)
+   - Order status checks (can refund?)
+   - Delivery window checks (refund period)
+
+4. ERROR HANDLING
+   - Proper HTTP status codes
+   - Detailed error messages (safe for client)
+   - No sensitive data in errors
+   - Logging for debugging
+   - Retry logic for transient failures
+   - Fallback mechanisms (Firestore sync fails but PostgreSQL works)
+
+5. CONSTANTS
+   - OTP validity: 5 minutes
+   - OTP max attempts: 5
+   - Reset token validity: 30 minutes
+   - Reset max attempts: 5
+   - Login rate limit: 3 requests/hour
+   - OTP rate limit: 3 requests/hour
+   - Password reset rate limit: 3 requests/hour
+   - Inventory reservation: 30 minutes
+   - Refund window: 7 days after delivery
+   - JWT expiry: 24 hours
+
+
+DATABASE SCHEMA REQUIREMENTS:
+================================================================================
+
+USERS TABLE:
+   - id (Firebase UID, primary key)
+   - email (unique, nullable after signup)
+   - phone (unique, nullable)
+   - full_name, profile_image_url, bio
+   - google_id, apple_id (for social login)
+   - role (customer, seller, admin)
+   - status (active, suspended, deleted)
+   - email_verified, phone_verified (boolean)
+   - created_at, updated_at, last_login_at
+   - signup_method (email, phone, google, apple)
+
+ORDERS TABLE:
+   - id (UUID, primary key)
+   - customer_id (foreign key to users)
+   - shop_id
+   - items (JSON array: [{ productId, quantity, price, ... }])
+   - delivery_address_*, delivery_lat, delivery_lng
+   - subtotal, tax, delivery_fee, discount, total_amount
+   - coupon_id (foreign key to coupons, nullable)
+   - payment_method (razorpay)
+   - payment_status (pending, completed, failed)
+   - order_status (pending_payment, confirmed, preparing, ready, out_for_delivery, delivered, refunded)
+   - razorpay_order_id, razorpay_payment_id
+   - paid_at, created_at, updated_at
+
+PAYMENT_TRANSACTIONS TABLE:
+   - id (UUID, primary key)
+   - order_id (foreign key to orders)
+   - customer_id (foreign key to users)
+   - razorpay_payment_id (unique)
+   - razorpay_order_id
+   - amount, currency (INR)
+   - payment_status (authorized, captured, failed)
+   - payment_method (card, upi, netbanking, etc.)
+   - verified_at, webhook_received_at
+   - signature_verified (boolean)
+   - created_at
+
+REFUNDS TABLE:
+   - id (UUID, primary key)
+   - order_id (foreign key to orders)
+   - customer_id (foreign key to users)
+   - payment_transaction_id (foreign key)
+   - razorpay_payment_id
+   - razorpay_refund_id (unique)
+   - amount, currency (INR)
+   - reason, reason_details
+   - refund_status (pending, processing, completed, failed)
+   - initiated_at, processed_at, failed_at
+   - initiated_by (customer, admin)
+   - error_code, error_description
+   - created_at, updated_at
+
+INVENTORY_RESERVATIONS TABLE:
+   - id (UUID, primary key)
+   - order_id (foreign key to orders, nullable initially)
+   - product_id (foreign key to products)
+   - customer_id (foreign key to users)
+   - quantity
+   - reserved_at, expires_at
+   - created_at
+
+COUPON_CODES TABLE (if using database-backed coupons):
+   - id (UUID, primary key)
+   - code (unique, indexed)
+   - discount_type (flat, percentage)
+   - discount_value
+   - min_order_value (nullable)
+   - max_uses_per_user, max_uses_global
+   - usage_count
+   - active (boolean)
+   - expires_at (nullable)
+   - created_at, updated_at, disabled_at
+
+AUDIT_LOGS TABLE:
+   - id (UUID, primary key)
+   - user_id (nullable, foreign key to users)
+   - event_type (auth, payment, refund, order, etc.)
+   - event_name (specific event)
+   - details (JSON: additional context)
+   - ip_address, user_agent
+   - created_at
+
+
+EXTERNAL INTEGRATIONS:
+================================================================================
+
+FIREBASE AUTH:
+   - createUser(email, password)
+   - createUser(phoneNumber)
+   - createUser() then link Google credential
+   - signInWithEmailAndPassword(email, password)
+   - verifyIdToken(token)
+   - updateUser(uid, { password: newPassword })
+   - Webhook signature: none needed (we verify server-side)
+
+FIREBASE FIRESTORE:
+   - Create/Update: users/{uid}, orders/{orderId}, payment_transactions/{id}, refunds/{id}
+   - Real-time sync for order status updates
+   - Non-blocking: failures don't fail main operations
+   - Source of truth: PostgreSQL (Firestore is cache/sync)
+
+RAZORPAY:
+   - POST /v1/orders: Create order (get razorpayOrderId)
+   - POST /v1/payments/{paymentId}/refund: Create refund
+   - Webhook: payment.authorized, payment.failed, refund.processed, etc.
+   - Signature verification: HMAC-SHA256 with key_secret
+   - Webhook signature: HMAC-SHA256 with webhook_secret
+
+TWILIO or AWS SNS:
+   - Send OTP via SMS to phone
+   - Send order confirmation SMS (optional)
+   - Send refund status SMS
+
+SENDGRID or AWS SES:
+   - Send signup verification email
+   - Send password reset email
+   - Send order confirmation email
+   - Send refund initiation email
+
+FCM (Firebase Cloud Messaging):
+   - Send push notifications for order status
+   - Send payment confirmation notifications
+   - Send refund notifications
+
+
+CONSTANTS & THRESHOLDS:
+================================================================================
+
+OTP:
+   - Length: 6 digits
+   - Validity: 5 minutes (300 seconds)
+   - Max attempts: 5
+   - Rate limit: 3 requests per hour per phone
+   - Rate limit (IP): 10 requests per day per IP
+
+PASSWORD:
+   - Min length: 8 characters
+   - Must contain: uppercase, lowercase, number, special char
+   - Reset token length: 32 characters (hex)
+   - Reset token validity: 30 minutes
+   - Max reset attempts: 5
+   - Rate limit: 3 requests per hour per email
+
+LOGIN:
+   - Max failed attempts: 5
+   - Lockout duration: 15 minutes
+   - JWT expiry: 24 hours
+
+PAYMENT:
+   - Inventory reservation: 30 minutes
+   - Refund window: 7 days after delivery
+   - Min order value: 0 (or configurable)
+   - Max items per order: unlimited (or configurable)
+   - GST (tax): 5% (configurable per product)
+   - Delivery fee: 50 rupees (or based on distance)
+
+SIGNATURE VERIFICATION:
+   - Algorithm: HMAC-SHA256
+   - Constant-time comparison: YES (prevent timing attacks)
+   - Comparison method: byte-by-byte without short-circuit
+
+
+DEPLOYMENT REQUIREMENTS:
+================================================================================
+
+ENVIRONMENT VARIABLES (Secrets):
+   - FIREBASE_ADMIN_SDK_KEY (JSON)
+   - FIREBASE_API_KEY
+   - GOOGLE_OAUTH_CLIENT_ID
+   - RAZORPAY_KEY_ID
+   - RAZORPAY_KEY_SECRET
+   - RAZORPAY_WEBHOOK_SECRET
+   - TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN (or AWS SNS credentials)
+   - SENDGRID_API_KEY (or AWS SES credentials)
+   - FCM_SERVER_KEY
+   - JWT_SECRET_KEY
+   - DATABASE_URL (PostgreSQL)
+   - REDIS_URL
+   - Firestore service account (JSON)
+
+REDIS KEYS:
+   - otp:{phone} -> JSON
+   - login_attempts:{email} -> count
+   - password_reset_requests:{email} -> count
+   - password_reset_requests:ip:{ip} -> count
+   - reset_token:{token} -> { user_id, email, expires_at }
+   - blacklist:token_{hash} -> { uid, exp }
+   - used_google_tokens:{token_hash} -> { uid, timestamp }
+   - user:{uid}:* -> various cached user data
+
+DATABASE INDEXES:
+   - users: email (unique), phone (unique), google_id, created_at
+   - orders: customer_id, razorpay_order_id (unique), created_at
+   - payment_transactions: order_id, razorpay_payment_id (unique), customer_id
+   - refunds: order_id, razorpay_refund_id (unique), customer_id
+   - inventory_reservations: order_id, customer_id, expires_at
+   - audit_logs: user_id, event_type, created_at
+
+MONITORING & LOGGING:
+   - Log all payment verification failures (fraud attempts)
+   - Log all signature verification failures
+   - Log all webhook events
+   - Log all refunds
+   - Alert on: payment failures, signature mismatches, rate limiting triggers
+   - Audit trail: all transactions must be logged for compliance
+
+
+USAGE INSTRUCTIONS:
+================================================================================
+
+1. READ THE FLOW YOU NEED
+   - Open the appropriate file:
+     * lib/services/complete_auth_flow_logic.dart (for auth)
+     * lib/services/complete_razorpay_flow_logic.dart (for payments)
+   - Find the SECTION for the endpoint you're implementing
+
+2. FOLLOW THE STRUCTURE
+   - REQUEST FORMAT: Copy the example request structure
+   - VALIDATION LOGIC: Implement each validation rule
+   - BACKEND LOGIC STEPS: Follow numbered steps in order
+   - DATABASE OPERATIONS: Execute queries as documented
+   - RESPONSE FORMAT: Return proper status codes + JSON
+
+3. IMPLEMENT IN YOUR LANGUAGE
+   - The pseudocode is language-agnostic
+   - Adapt to your backend language (Node.js, Python, Go, Dart, etc.)
+   - Use appropriate libraries (Firebase Admin SDK, Razorpay SDK, etc.)
+
+4. TEST THOROUGHLY
+   - Test each step independently
+   - Test edge cases (duplicates, rate limiting, invalid input)
+   - Test security (signature verification, authorization)
+   - Test error scenarios (network failures, API errors)
+   - Test concurrency (race conditions in inventory)
+
+5. DEPLOY WITH CONFIDENCE
+   - All logic is documented
+   - All error cases are handled
+   - Security best practices included
+   - Database schema is defined
+   - Integration points are specified
+
+
+NEXT STEPS:
+================================================================================
+
+1. Review both documents thoroughly
+2. Map auth flows to your backend framework
+3. Map payment flows to your backend framework
+4. Set up database schema (see requirements above)
+5. Create environment configuration
+6. Implement auth endpoints (start with signup/login)
+7. Implement payment endpoints (start with order creation)
+8. Implement webhook handlers
+9. Set up monitoring and logging
+10. Test all flows end-to-end
+11. Deploy to staging
+12. Get security review
+13. Deploy to production
+
+================================================================================
+END OF DOCUMENTATION
+================================================================================

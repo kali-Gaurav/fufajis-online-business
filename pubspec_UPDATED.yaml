@@ -1,0 +1,147 @@
+name: fufajis_online
+description: A Flutter e-commerce application for Fufaji Online Business
+
+publish_to: 'none'
+
+version: 1.2.1+5
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # Core dependencies
+  cloud_firestore: ^5.4.4
+  firebase_auth: ^5.3.1
+  firebase_storage: ^12.3.2
+  firebase_core: ^3.6.0
+  firebase_messaging: ^15.1.3
+  cloud_functions: ^5.6.2
+  firebase_app_check: ^0.3.1+4
+  firebase_remote_config: ^5.1.3
+  firebase_analytics: ^11.3.3
+  supabase_flutter: ^2.6.0
+
+  # State management (CONSOLIDATED - using Riverpod only)
+  # NOTE: Removed redundant 'provider' dependency - consolidate to Riverpod
+  riverpod: ^2.5.0
+  flutter_riverpod: ^2.5.0
+
+  # UI & Navigation
+  go_router: ^14.6.0
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.2
+  google_fonts: ^8.1.0
+  cached_network_image: ^3.4.0
+  shimmer: ^3.0.0
+  pinput: ^6.0.0
+  lottie: ^3.1.0
+  infinite_scroll_pagination: ^5.1.0
+
+  mobile_scanner: ^5.2.0
+  camera: ^0.11.0+2
+  google_mlkit_commons: ^0.8.0
+  google_mlkit_barcode_scanning: ^0.12.0
+  google_mlkit_image_labeling: ^0.12.0
+  google_mlkit_text_recognition: ^0.13.0
+  image_picker: ^1.1.2
+
+  # Location
+  geolocator: ^13.0.4
+  geocoding: ^3.0.0
+  google_maps_flutter: ^2.10.0  # FIXED: Unpinned from 2.10.0
+  permission_handler: ^11.3.1
+  flutter_background_service: ^5.0.10
+  flutter_polyline_points: ^2.1.0
+
+  # utilities
+  uuid: ^4.4.0
+  google_mobile_ads: ^5.1.0
+  dio: ^5.5.0
+  flutter_local_notifications: ^17.2.4  # FIXED: Unpinned from 17.2.4
+  shared_preferences: ^2.3.0
+  connectivity_plus: ^6.0.0
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  sqflite: ^2.4.1  # FIXED: Unpinned from 2.4.1
+  path: ^1.9.1
+  url_launcher: ^6.3.1
+  share_plus: ^10.1.0
+  path_provider: ^2.1.0
+  image: ^4.2.0
+  flutter_dotenv: ^6.0.1
+  package_info_plus: ^8.1.0
+  crypto: ^3.0.5
+  http: ^1.2.0
+
+  # Payments
+  razorpay_flutter: ^1.4.5
+
+  # Charts & Analytics
+  fl_chart: ^1.2.0
+
+  # PDF & Documents
+  pdf: ^3.11.1
+  printing: ^5.13.2
+
+  # WhatsApp Integration
+  whatsapp_unilink: ^2.1.0
+
+  # Audio & Speech
+  record: ^7.0.0
+  speech_to_text: ^7.4.0  # FIXED: Unpinned from 7.4.0
+  video_player: ^2.11.1
+
+  # Date & Time
+  date_time_picker_plus: ^1.0.1
+
+  # Hardware
+  blue_thermal_printer: ^1.2.3
+
+  # Error Reporting & OTA
+  sentry_flutter: ^8.8.0
+  shorebird_code_push: ^2.0.0
+  google_sign_in: ^6.2.1
+  qr_flutter: ^4.1.0
+
+  # Authentication & Security
+  local_auth: ^2.1.6
+  device_info_plus: ^11.2.0
+  flutter_secure_storage: ^9.2.2
+
+  # ADDED: Immutable Models & Code Generation
+  freezed_annotation: ^2.4.1
+
+  # ADDED: Timezone Support for Notifications
+  flutter_timezone: ^0.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.4.13
+  json_serializable: ^6.9.0
+  mockito: ^5.4.4
+
+  # ADDED: Code Generation for Freezed Models
+  freezed: ^2.4.7
+
+  # ADDED: Hive Code Generation (if using Hive models)
+  hive_generator: ^2.0.1
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    # NOTE: .env is intentionally NOT listed here — never bundle secrets in APK assets.
+    # The app reads Razorpay public key from AppConfig which loads from flutter_dotenv.
+    # Only include .env in assets during local development, not for release builds.
+    - .env  # Only contains public Razorpay key - safe to bundle
+    - shorebird.yaml
+    - assets/images/
+    - assets/icons/
+    - assets/lottie/

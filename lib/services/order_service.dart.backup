@@ -1,0 +1,887 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:math';
+import 'package:flutter/foundation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
+import 'package:intl/intl.dart';
+import 'analytics_service.dart';
+import '../models/order_model.dart';
+import '../models/delivery_type.dart';
+import 'notification_service.dart';
+import 'order_notification_service.dart';
+import 'whatsapp_notification_service.dart';
+import 'shop_config_service.dart';
+import 'hyperlocal_expansion_service.dart';
+import 'smart_kitchen_service.dart';
+
+class OrderService {
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final OrderNotificationService _orderNotification = OrderNotificationService();
+
+  static final OrderService _instance = OrderService._internal();
+  factory OrderService() => _instance;
+  OrderService._internal();
+
+  /// Calculate distance using Haversine formula
+  double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    const p = 0.017453292519943295;
+    final double a = 0.5 - cos((lat2 - lat1) * p)/2 + 
+          cos(lat1 * p) * cos(lat2 * p) * 
+          (1 - cos((lon2 - lon1) * p))/2;
+    return 12742 * asin(sqrt(a)); // km
+  }
+
+  /// Check slot booking capacity
+  Future<bool> isDeliverySlotAvailable(DateTime date, String slot, int maxOrdersPerSlot) async {
+    final startOfDay = DateTime(date.year, date.month, date.day);
+    final endOfDay = startOfDay.add(const Duration(days: 1));
+
+    final querySnapshot = await _db
+        .collection('orders')
+        .where('scheduledDeliveryDate', isGreaterThanOrEqualTo: startOfDay)
+        .where('scheduledDeliveryDate', isLessThan: endOfDay)
+        .where('timeSlot', isEqualTo: slot)
+        .get();
+
+    final activeOrdersCount = querySnapshot.docs.where((doc) {
+      final status = doc.data()['status']?.toString();
+      return status != 'OrderStatus.cancelled';
+    }).length;
+
+    return activeOrdersCount < maxOrdersPerSlot;
+  }
+
+  Stream<List<OrderModel>> getOrdersStream(String userId) {
+    return _db
+        .collection('orders')
+        .where('customerId', isEqualTo: userId)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) => OrderModel.fromMap(doc.data())).toList();
+    });
+  }
+  
+  Stream<List<OrderModel>> getAllOrdersStream() {
+    return _db
+        .collection('orders')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) => OrderModel.fromMap(doc.data())).toList();
+    });
+  }
+
+  // ── Idempotency: prevent duplicate orders from rapid taps ──
+  static final Set<String> _activeCheckouts = {};
+
+  Future<void> createOrder(OrderModel order) async {
+    // ── Guard 1: In-memory lock for same-session double taps ──
+    final cartHash = md5.convert(utf8.encode(order.items.map((e) => e.productId + e.quantity.toString()).join(','))).toString();
+    final lockKey = '${order.customerId}_$cartHash';
+    if (_activeCheckouts.contains(lockKey)) {
+      debugPrint('[OrderService] Duplicate checkout blocked (in-memory): $lockKey');
+      throw Exception('Your order is already being placed. Please wait.');
+    }
+    _activeCheckouts.add(lockKey);
+
+    try {
+      // ── Guard 2: Firestore idempotency — block same customer placing
+      //    an identical order within the last 5 minutes ──
+      final fiveMinAgo = DateTime.now().subtract(const Duration(minutes: 5));
+      final recentDuplicates = await _db
+          .collection('orders')
+          .where('customerId', isEqualTo: order.customerId)
+          .where('cartHash', isEqualTo: cartHash)
+          .where('createdAt', isGreaterThan: Timestamp.fromDate(fiveMinAgo))
+          .limit(1)
+          .get();
+
+      if (recentDuplicates.docs.isNotEmpty) {
+        final existingOrderNum = recentDuplicates.docs.first.data()['orderNumber'] ?? '';
+        debugPrint('[OrderService] Duplicate checkout blocked (Firestore): $existingOrderNum');
+        throw Exception('A similar order ($existingOrderNum) was placed moments ago. Please check your orders before re-ordering.');
+      }
+
+      final shopConfigService = ShopConfigService();
+      final shopConfig = await shopConfigService.getShopConfig();
+
+
+      // 1. Operating Hours & Open status check
+      if (!shopConfig.isOpen) {
+        throw Exception('The store is currently closed and not accepting orders.');
+      }
+
+      if (shopConfig.autoCloseOutsideHours) {
+        final nowUtc = DateTime.now().toUtc();
+        final nowShop = nowUtc.add(const Duration(hours: 5, minutes: 30));
+        final todayDay = DateFormat('EEEE').format(nowShop);
+        final todayHours = shopConfig.operatingHours[todayDay];
+        if (todayHours != null) {
+          if (!todayHours.isOpen) {
+            throw Exception('The store is closed today ($todayDay).');
+          }
+          
+          final openParts = todayHours.openTime.split(':');
+          final closeParts = todayHours.closeTime.split(':');
+          
+          if (openParts.length == 2 && closeParts.length == 2) {
+            final openHour = int.tryParse(openParts[0]) ?? 0;
+            final openMin = int.tryParse(openParts[1]) ?? 0;
+            final closeHour = int.tryParse(closeParts[0]) ?? 23;
+            final closeMin = int.tryParse(closeParts[1]) ?? 59;
+            
+            final openDateTime = DateTime(nowShop.year, nowShop.month, nowShop.day, openHour, openMin);
+            final closeDateTime = DateTime(nowShop.year, nowShop.month, nowShop.day, closeHour, closeMin);
+            
+            if (nowShop.isBefore(openDateTime) || nowShop.isAfter(closeDateTime)) {
+              throw Exception('The store is closed. Today\'s business hours: ${todayHours.openTime} to ${todayHours.closeTime}.');
+            }
+          }
+        }
+      }
+
+      // 1b. Slot Capacity Check
+      if (order.deliveryType == DeliveryType.scheduled && order.scheduledDeliveryDate != null && order.timeSlot != null) {
+        final isAvailable = await isDeliverySlotAvailable(
+          order.scheduledDeliveryDate!,
+          order.timeSlot!,
+          shopConfig.maxOrdersPerSlot,
+        );
+        if (!isAvailable) {
+          throw Exception('The selected delivery slot (${order.timeSlot}) is fully booked for ${DateFormat('dd MMM').format(order.scheduledDeliveryDate!)}. Please pick another slot.');
+        }
+      }
+
+      // 1c. Same-day Order Cutoff Check
+      if (order.deliveryType == DeliveryType.sameDay || 
+          (order.deliveryType == DeliveryType.scheduled && 
+           order.scheduledDeliveryDate != null && 
+           order.scheduledDeliveryDate!.year == DateTime.now().add(const Duration(hours: 5, minutes: 30)).year &&
+           order.scheduledDeliveryDate!.month == DateTime.now().add(const Duration(hours: 5, minutes: 30)).month &&
+           order.scheduledDeliveryDate!.day == DateTime.now().add(const Duration(hours: 5, minutes: 30)).day)) {
+        final nowUtc = DateTime.now().toUtc();
+        final nowShop = nowUtc.add(const Duration(hours: 5, minutes: 30));
+        if (nowShop.hour >= shopConfig.sameDayCutoffHour) {
+          final cutoff12h = shopConfig.sameDayCutoffHour > 12 
+              ? '${shopConfig.sameDayCutoffHour - 12} PM' 
+              : '${shopConfig.sameDayCutoffHour} AM';
+          throw Exception('Same-day delivery order placement is closed after $cutoff12h. Please select a future date or next-day slot.');
+        }
+      }
+
+      // 2. Geofence Check (Hardened Server-side validation)
+      final branches = await shopConfigService.getBranches();
+
+      final isDeliverable = shopConfigService.isWithinDeliveryArea(
+        order.deliveryAddress.latitude,
+        order.deliveryAddress.longitude,
+        shopConfig,
+        branches,
+      );
+
+      if (!isDeliverable) {
+        throw Exception('Delivery location is outside our service area.');
+      }
+
+
+      // Assign nearest branch if any
+      final nearestBranch = shopConfigService.getNearestBranch(
+        order.deliveryAddress.latitude,
+        order.deliveryAddress.longitude,
+        branches,
+      );
+
+      final updatedOrder = (nearestBranch != null
+          ? order.copyWith(
+              shopId: nearestBranch.id,
+              shopName: nearestBranch.branchName,
+              shopAddress: nearestBranch.branchAddress,
+            )
+          : order).copyWith(cartHash: cartHash);
+
+      await _db.runTransaction((transaction) async {
+        // 2. Event-Sourced Wallet Balance Deduction
+        if (updatedOrder.walletAmountUsed > 0) {
+          final userRef = _db.collection('users').doc(updatedOrder.customerId);
+          final userDoc = await transaction.get(userRef);
+          if (!userDoc.exists) {
+            throw Exception('Customer profile not found');
+          }
+
+          final userData = userDoc.data()!;
+          final currentBalance = (userData['walletBalance'] ?? 0.0).toDouble();
+          if (currentBalance < updatedOrder.walletAmountUsed) {
+            throw Exception('Insufficient wallet balance');
+          }
+
+          final newBalance = currentBalance - updatedOrder.walletAmountUsed;
+          final lastSeqNum = userData['lastTransactionSequenceNumber'] ?? 0;
+          final newSeqNum = lastSeqNum + 1;
+
+          // Update user wallet balance and sequence number
+          transaction.update(userRef, {
+            'walletBalance': newBalance,
+            'lastTransactionSequenceNumber': newSeqNum,
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+
+          // Create transaction record idempotently
+          final txnId = 'txn_wallet_debit_${updatedOrder.id}';
+          final txnDocRef = userRef.collection('wallet_transactions').doc(txnId);
+          
+          transaction.set(txnDocRef, {
+            'id': txnId,
+            'userId': updatedOrder.customerId,
+            'type': 'WalletTransactionType.walletPayment',
+            'amount': updatedOrder.walletAmountUsed,
+            'orderReference': updatedOrder.id,
+            'timestamp': FieldValue.serverTimestamp(),
+            'description': 'Wallet payment for order #${updatedOrder.orderNumber}',
+            'balanceAfter': newBalance,
+            'sequenceNumber': newSeqNum,
+          });
+        }
+
+        // 3. Stock Allocation (Multi-branch aware)
+        for (var item in updatedOrder.items) {
+          final prodRef = _db.collection('products').doc(item.productId);
+          final snapshot = await transaction.get(prodRef);
+          
+          if (snapshot.exists) {
+            final data = snapshot.data();
+            if (data != null) {
+              final Map<dynamic, dynamic> branchStockMap = data['branchStock'] as Map? ?? {};
+              final branchId = (updatedOrder.shopId?.isEmpty ?? true) ? 'primary' : updatedOrder.shopId!;
+              
+              int currentBranchStock = 0;
+              if (branchStockMap.containsKey(branchId)) {
+                currentBranchStock = (branchStockMap[branchId] ?? 0) as int;
+              } else {
+                // Fallback/Migration: seed the branch stock under primary/first key from global stockQuantity
+                if (branchId == 'primary' || branchStockMap.isEmpty) {
+                  currentBranchStock = (data['stockQuantity'] ?? 0) as int;
+                } else {
+                  currentBranchStock = 0;
+                }
+              }
+
+              final int quantityOrdered = item.quantity;
+              
+              if (currentBranchStock >= quantityOrdered) {
+                final newBranchStock = currentBranchStock - quantityOrdered;
+                final Map<String, int> updatedBranchStock = Map<String, int>.from(
+                  branchStockMap.map((k, v) => MapEntry(k.toString(), v as int))
+                );
+                updatedBranchStock[branchId] = newBranchStock;
+                
+                // Calculate new global stock for backward compatibility
+                int newGlobalStock = 0;
+                if (updatedBranchStock.containsKey('primary')) {
+                  newGlobalStock = updatedBranchStock['primary']!;
+                } else {
+                  newGlobalStock = updatedBranchStock.values.fold(0, (total, val) => total + val);
+                }
+
+                transaction.update(prodRef, {
+                  'branchStock': updatedBranchStock,
+                  'stockQuantity': newGlobalStock,
+                  'isAvailable': newGlobalStock > 0 || updatedBranchStock.values.any((val) => val > 0),
+                });
+              } else {
+                throw Exception('Inadequate stock for ${item.productName} at branch. Available: $currentBranchStock');
+              }
+            }
+          } else {
+             throw Exception('Product ${item.productName} not found in inventory.');
+          }
+        }
+
+        final orderRef = _db.collection('orders').doc(updatedOrder.id);
+        transaction.set(orderRef, updatedOrder.toMap());
+
+        // 4. Analytics Denormalization (Populate order_items collection)
+        for (var item in updatedOrder.items) {
+          final itemId = '${updatedOrder.id}_${item.productId}';
+          final itemRef = _db.collection('order_items').doc(itemId);
+          transaction.set(itemRef, {
+            ...item.toMap(),
+            'orderId': updatedOrder.id,
+            'customerId': updatedOrder.customerId,
+            'shopId': updatedOrder.shopId,
+            'createdAt': updatedOrder.createdAt,
+            'status': updatedOrder.status.toString(),
+            'category': item.toMap()['category'] ?? 'Other', 
+          });
+        }
+      });
+
+      // 5. Track Analytics Event
+      unawaited(AnalyticsService().trackEvent('order_created', {
+        'orderId': updatedOrder.id,
+        'orderNumber': updatedOrder.orderNumber,
+        'amount': updatedOrder.totalAmount,
+        'itemCount': updatedOrder.items.length,
+        'paymentMethod': updatedOrder.paymentMethod.toString(),
+        'deliveryType': updatedOrder.deliveryType.toString(),
+      }));
+
+      // Record delivery demand for hyperlocal expansion analytics (Idea 26)
+      unawaited(HyperlocalExpansionService().recordDeliveryDemand(
+        latitude: updatedOrder.deliveryAddress.latitude,
+        longitude: updatedOrder.deliveryAddress.longitude,
+        pincode: updatedOrder.deliveryAddress.pincode,
+        orderAmount: updatedOrder.totalAmount,
+        zoneId: (updatedOrder.shopId?.isEmpty ?? true) ? 'primary' : updatedOrder.shopId!,
+      ));
+
+      // Refresh Smart Kitchen predictions (Idea 27)
+      unawaited(SmartKitchenService().refreshUserKitchenData(updatedOrder.customerId));
+
+      NotificationService().triggerLocalOrderStatusNotification(updatedOrder.orderNumber, 'placed');
+
+      // [NEW] Trigger comprehensive order notification (FCM, WhatsApp, in-app, chat)
+      unawaited(_orderNotification.notifyOrderConfirmed(updatedOrder));
+
+      if (updatedOrder.customerPhone.isNotEmpty) {
+        try {
+          await WhatsAppNotificationService.sendInvoice(
+            phoneNumber: updatedOrder.customerPhone,
+            customerName: updatedOrder.customerName,
+            orderNumber: updatedOrder.orderNumber,
+            items: updatedOrder.items.map((item) => {
+              'productName': item.productName,
+              'quantity': item.quantity,
+              'unit': item.unit,
+              'price': item.price,
+            }).toList(),
+            subtotal: updatedOrder.subtotal,
+            deliveryCharge: updatedOrder.deliveryCharge,
+            discount: updatedOrder.discount,
+            totalAmount: updatedOrder.totalAmount,
+            paymentMethod: updatedOrder.paymentMethod.toString().split('.').last.toUpperCase(),
+            estimatedDelivery: updatedOrder.timeSlot != null && updatedOrder.scheduledDeliveryDate != null
+                ? '${DateFormat('dd MMM').format(updatedOrder.scheduledDeliveryDate!)} (${updatedOrder.timeSlot})'
+                : null,
+          );
+        } catch (e) {
+          debugPrint('[OrderService] Error sending WhatsApp invoice: $e');
+        }
+      }
+    } catch (e) {
+      debugPrint('[OrderService] ERROR creating order: $e');
+      rethrow;
+    } finally {
+      // Always release the in-memory lock
+      _activeCheckouts.remove(lockKey);
+    }
+  }
+
+  /// Valid order status transitions — enforces sequential state machine
+  static const Map<String, List<String>> _validTransitions = {
+    'pending': ['confirmed', 'cancelled'],
+    'confirmed': ['processing', 'cancelled'],
+    'processing': ['packed', 'cancelled'],
+    'packed': ['outForDelivery', 'cancelled'],
+    'outForDelivery': ['delivered'],
+    'delivered': [], // Terminal state — no further transitions allowed
+    'cancelled': [], // Terminal state
+  };
+
+  /// Normalize status string from Firestore format (e.g., "OrderStatus.pending" → "pending")
+  String _normalizeStatus(String? rawStatus) {
+    if (rawStatus == null) return 'pending';
+    return rawStatus.replaceAll('OrderStatus.', '');
+  }
+
+  /// Parse status string back to OrderStatus enum
+  OrderStatus _parseOrderStatus(String statusString) {
+    final normalized = statusString.toLowerCase();
+    return OrderStatus.values.firstWhere(
+      (status) => status.toString().split('.').last == normalized,
+      orElse: () => OrderStatus.pending,
+    );
+  }
+
+  /// Approves the packing for an order, advancing status to packed (Owner Flow)
+  Future<void> approvePacking(String orderId, String ownerId, String ownerName) async {
+    final orderRef = _db.collection('orders').doc(orderId);
+    final parcelId = 'PARCEL-${DateTime.now().millisecondsSinceEpoch}';
+
+    await _db.runTransaction((transaction) async {
+      final snapshot = await transaction.get(orderRef);
+      if (!snapshot.exists) throw Exception('Order not found');
+
+      final orderData = snapshot.data()!;
+      final OrderModel currentOrder = OrderModel.fromMap(orderData);
+      final currentStatus = _normalizeStatus(currentOrder.status.toString());
+      final currentPackingStatus = orderData['packingStatus']?.toString();
+
+      if (currentStatus != 'processing' || currentPackingStatus != 'pending_approval') {
+        throw Exception('Order is not awaiting packing approval.');
+      }
+
+      final List<dynamic> historyList = orderData['packingHistory'] as List<dynamic>? ?? [];
+      final updatedHistory = List<dynamic>.from(historyList)
+        ..add({
+          'timestamp': Timestamp.now(),
+          'status': 'approved',
+          'actorId': ownerId,
+          'actorName': ownerName,
+          'note': 'Packing approved by owner.',
+        });
+
+      // Update status history via model
+      final updatedOrder = currentOrder.updateStatus(
+        OrderStatus.packed,
+        note: 'Order packing approved and ready.',
+        actorId: ownerId,
+        actorRole: 'owner',
+        actorName: ownerName,
+      );
+
+      transaction.update(orderRef, {
+        'status': updatedOrder.status.toString(),
+        'packingStatus': 'approved',
+        'parcelId': parcelId,
+        'packingApprovedBy': ownerName,
+        'packingApprovedById': ownerId,
+        'packingApprovedAt': FieldValue.serverTimestamp(),
+        'packingHistory': updatedHistory,
+        'statusHistory': updatedOrder.statusHistory.map((e) => e.toMap()).toList(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    });
+
+    // Send WhatsApp notification
+    try {
+      final doc = await orderRef.get();
+      if (doc.exists) {
+        final data = doc.data();
+        final orderNumber = data?['orderNumber'] ?? 'FufajiOrder';
+        final customerName = data?['customerName'] ?? 'Customer';
+        final customerPhone = data?['customerPhone'] ?? '';
+
+        NotificationService().triggerLocalOrderStatusNotification(orderNumber.toString(), 'packed');
+
+        if (customerPhone.isNotEmpty) {
+          await WhatsAppNotificationService.sendStatusUpdate(
+            phoneNumber: customerPhone.toString(),
+            customerName: customerName.toString(),
+            orderNumber: orderNumber.toString(),
+            status: 'packed',
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('[OrderService] Notification Error: $e');
+    }
+  }
+
+  /// Rejects the packing for an order, keeping status at processing but marking as rejected
+  Future<void> rejectPacking(String orderId, String ownerId, String ownerName, String reason) async {
+    final orderRef = _db.collection('orders').doc(orderId);
+
+    await _db.runTransaction((transaction) async {
+      final snapshot = await transaction.get(orderRef);
+      if (!snapshot.exists) throw Exception('Order not found');
+
+      final orderData = snapshot.data()!;
+      final OrderModel currentOrder = OrderModel.fromMap(orderData);
+      final currentStatus = _normalizeStatus(currentOrder.status.toString());
+      final currentPackingStatus = orderData['packingStatus']?.toString();
+
+      if (currentStatus != 'processing' || currentPackingStatus != 'pending_approval') {
+        throw Exception('Order is not awaiting packing approval.');
+      }
+
+      final List<dynamic> historyList = orderData['packingHistory'] as List<dynamic>? ?? [];
+      final updatedHistory = List<dynamic>.from(historyList)
+        ..add({
+          'timestamp': Timestamp.now(),
+          'status': 'rejected',
+          'actorId': ownerId,
+          'actorName': ownerName,
+          'note': reason,
+        });
+
+      // Log rejection in main status history as well
+      final updatedOrder = currentOrder.updateStatus(
+        OrderStatus.processing, // Keep current status but log the note
+        note: 'Packing rejected: $reason',
+        actorId: ownerId,
+        actorRole: 'owner',
+        actorName: ownerName,
+        force: true, // Allow same-status transition for logging
+      );
+
+      transaction.update(orderRef, {
+        'packingStatus': 'rejected',
+        'packingRejectionReason': reason,
+        'packingHistory': updatedHistory,
+        'statusHistory': updatedOrder.statusHistory.map((e) => e.toMap()).toList(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    });
+  }
+
+  Future<void> updateOrderStatus(String orderId, String status, {String? employeeId, String? employeeName, String? note}) async {
+    final orderRef = _db.collection('orders').doc(orderId);
+
+    String? orderNumber;
+    String? customerName;
+    String? customerPhone;
+    String? generatedOtp;
+
+    await _db.runTransaction((transaction) async {
+      final orderDoc = await transaction.get(orderRef);
+      if (!orderDoc.exists) throw Exception('Order $orderId not found.');
+
+      final data = orderDoc.data()!;
+      final currentOrder = OrderModel.fromMap(data);
+      final currentStatusStr = _normalizeStatus(currentOrder.status.toString());
+      orderNumber = currentOrder.orderNumber;
+      customerName = currentOrder.customerName;
+      customerPhone = currentOrder.customerPhone;
+
+      // Block any changes to terminal states
+      if (currentOrder.status == OrderStatus.delivered) {
+        throw Exception('Order has already been delivered. No further modifications are allowed.');
+      }
+      if (currentOrder.status == OrderStatus.cancelled) {
+        throw Exception('Order has been cancelled. No further modifications are allowed.');
+      }
+
+      // Validate allowed transition
+      final allowedNext = _validTransitions[currentStatusStr] ?? [];
+      if (!allowedNext.contains(status)) {
+        throw Exception('Invalid status transition: "$currentStatusStr" → "$status". Allowed: ${allowedNext.join(", ")}');
+      }
+
+      // ── Step 2: Packer lock — prevent two employees packing the same order ──
+      if (status == 'processing') {
+        final existingPackerId = data['packerId']?.toString();
+        if (existingPackerId != null && existingPackerId.isNotEmpty && employeeId != null && existingPackerId != employeeId) {
+          throw Exception('This order is already being packed by another employee ($existingPackerId).');
+        }
+      }
+
+      final nextStatus = _parseOrderStatus(status);
+      final updatedOrder = currentOrder.updateStatus(
+        nextStatus,
+        note: note ?? 'Status updated to $status',
+        actorId: employeeId,
+        actorRole: employeeId != null ? 'employee' : 'system',
+        actorName: employeeName,
+      );
+
+      final Map<String, dynamic> updates = {
+        'status': updatedOrder.status.toString(),
+        'statusHistory': updatedOrder.statusHistory.map((e) => e.toMap()).toList(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+
+      // Assign packer when entering processing state
+      if (status == 'processing' && employeeId != null) {
+        updates['packerId'] = employeeId;
+        updates['packerName'] = employeeName;
+        updates['packingStartedAt'] = FieldValue.serverTimestamp();
+      }
+      
+      if (status == 'outForDelivery') {
+        // Validation: check if the assigned delivery rider has exceeded cash limit
+        final deliveryAgentId = data['deliveryAgentId']?.toString() ?? data['deliveryEmployeeId']?.toString();
+        if (deliveryAgentId != null && deliveryAgentId.isNotEmpty) {
+          final riderRef = _db.collection('users').doc(deliveryAgentId);
+          final riderDoc = await transaction.get(riderRef);
+          if (riderDoc.exists) {
+            final riderData = riderDoc.data()!;
+            final currentCash = (riderData['currentCashBalance'] ?? 0.0).toDouble();
+            if (currentCash > 5000.0) {
+              throw Exception('Rider holds ₹${currentCash.toStringAsFixed(2)} cash. This exceeds the cash limit of ₹5000.00. Please settle before dispatching new orders.');
+            }
+          }
+        }
+
+        final int otpVal = 1000 + (DateTime.now().millisecondsSinceEpoch % 9000);
+        generatedOtp = otpVal.toString();
+        
+        // Store the hash on the main order document
+        final bytes = utf8.encode(generatedOtp!);
+        updates['otpHash'] = sha256.convert(bytes).toString();
+        updates['otpVerified'] = false;
+        updates['outForDeliveryAt'] = FieldValue.serverTimestamp();
+        
+        // Store the plain text in the secure subcollection
+        final secureOtpRef = orderRef.collection('secure').doc('otp');
+        transaction.set(secureOtpRef, {
+          'otp': generatedOtp,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      } else if (status == 'cancelled') {
+        // Rollback product stock to branch inventory when cancelled
+        final List<dynamic> itemsList = data['items'] as List<dynamic>? ?? [];
+        final shopId = data['shopId']?.toString() ?? 'shop_001';
+        final branchId = shopId.isEmpty ? 'primary' : shopId;
+
+        for (var itemMap in itemsList) {
+          final item = itemMap as Map<String, dynamic>;
+          final productId = item['productId'];
+          final int quantity = (item['quantity'] ?? 0) as int;
+
+          if (productId != null && quantity > 0) {
+            final prodRef = _db.collection('products').doc(productId);
+            final prodDoc = await transaction.get(prodRef);
+            if (prodDoc.exists) {
+              final prodData = prodDoc.data()!;
+              final Map<dynamic, dynamic> branchStockMap = prodData['branchStock'] as Map? ?? {};
+              
+              int currentBranchStock = 0;
+              if (branchStockMap.containsKey(branchId)) {
+                currentBranchStock = (branchStockMap[branchId] ?? 0) as int;
+              } else if (branchId == 'primary' || branchStockMap.isEmpty) {
+                currentBranchStock = (prodData['stockQuantity'] ?? 0) as int;
+              }
+
+              final newBranchStock = currentBranchStock + quantity;
+              final Map<String, int> updatedBranchStock = Map<String, int>.from(
+                branchStockMap.map((k, v) => MapEntry(k.toString(), v as int))
+              );
+              updatedBranchStock[branchId] = newBranchStock;
+
+              int newGlobalStock = 0;
+              if (updatedBranchStock.containsKey('primary')) {
+                newGlobalStock = updatedBranchStock['primary']!;
+              } else {
+                newGlobalStock = updatedBranchStock.values.fold(0, (total, val) => total + val);
+              }
+
+              transaction.update(prodRef, {
+                'branchStock': updatedBranchStock,
+                'stockQuantity': newGlobalStock,
+                'isAvailable': true,
+              });
+            }
+          }
+        }
+      } else if (status == 'delivered') {
+        updates['deliveredAt'] = FieldValue.serverTimestamp();
+        updates['otpVerified'] = true;
+
+        final String paymentMethod = data['paymentMethod']?.toString() ?? '';
+        final double totalAmount = (data['totalAmount'] ?? 0.0).toDouble();
+        final String deliveryAgentId = data['deliveryAgentId']?.toString() ?? data['deliveryEmployeeId']?.toString() ?? 'demo_rider';
+        
+        if (paymentMethod.toLowerCase().contains('cod')) {
+          updates['cashCollectedAmount'] = totalAmount;
+          updates['cashCollectedAt'] = FieldValue.serverTimestamp();
+          
+          // 1. Log in orders/{id}/cashCollection subcollection
+          final cashCollectionRef = orderRef.collection('cashCollection').doc('log');
+          transaction.set(cashCollectionRef, {
+            'amount': totalAmount,
+            'collectedBy': deliveryAgentId,
+            'collectedAt': FieldValue.serverTimestamp(),
+            'status': 'collected',
+          });
+
+          // 2. Increment Rider's Cash Balance (Audit logic for Rider Cash Limit)
+          final riderRef = _db.collection('users').doc(deliveryAgentId);
+          transaction.update(riderRef, {
+            'currentCashBalance': FieldValue.increment(totalAmount),
+            'lastCashCollectionAt': FieldValue.serverTimestamp(),
+          });
+        }
+      }
+      
+      transaction.update(orderRef, updates);
+
+      // Track Status Change Analytics
+      if (status == 'cancelled') {
+        unawaited(AnalyticsService().trackEvent('order_cancelled', {
+          'orderId': orderId,
+          'reason': note ?? 'Manual cancellation',
+          'actorId': employeeId ?? 'owner',
+        }));
+      } else if (status == 'outForDelivery') {
+        unawaited(AnalyticsService().trackEvent('order_dispatched', {
+          'orderId': orderId,
+          'riderId': employeeId ?? 'unknown',
+        }));
+      }
+    });
+
+    try {
+      if (customerPhone != null && customerPhone!.isNotEmpty) {
+        // [NEW] Trigger comprehensive notification
+        final doc = await orderRef.get(); // Refresh data for model mapping
+        if (doc.exists) {
+            final order = OrderModel.fromMap(doc.data()!);
+            unawaited(_orderNotification.notifyOrderStatusChanged(order, _parseOrderStatus(currentStatusStr!)));
+            NotificationService().triggerLocalOrderStatusNotification(orderNumber!, status);
+
+            if (status == 'outForDelivery' && generatedOtp != null) {
+              await WhatsAppNotificationService.sendDeliveryOtpWithTracking(
+                phoneNumber: customerPhone!,
+                customerName: customerName!,
+                orderNumber: orderNumber!,
+                otp: generatedOtp!,
+                orderId: orderId,
+                riderName: data['deliveryAgentName']?.toString(),
+                riderPhone: data['deliveryAgentPhone']?.toString(),
+              );
+            } else {
+              await WhatsAppNotificationService.sendStatusUpdate(
+                phoneNumber: customerPhone!,
+                customerName: customerName!,
+                orderNumber: orderNumber!,
+                status: status,
+                otp: generatedOtp,
+              );
+            }
+        }
+      }
+    } catch (e) {
+      debugPrint('Notification Error: $e');
+    }
+  }
+
+  /// Verifies the OTP and Rider's proximity via Cloud Function
+  /// (Secure path: avoids peeking plain-text OTP in client)
+  Future<bool> verifyAndDeliverOrder({
+    required String orderId,
+    required String otp,
+    required double riderLatitude,
+    required double riderLongitude,
+  }) async {
+    try {
+      final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('verifyOrderOTP');
+      final response = await callable.call({
+        'orderId': orderId,
+        'otp': otp,
+        'lat': riderLatitude,
+        'lng': riderLongitude,
+      });
+
+      if (response.data['success'] == true) {
+        // Track Revenue Analytics
+        unawaited(AnalyticsService().trackEvent('revenue_earned', {
+          'orderId': orderId,
+          'amount': order.totalAmount,
+          'type': 'delivery_completion',
+        }));
+
+        // [NEW] Trigger comprehensive notification
+        final doc = await _db.collection('orders').doc(orderId).get();
+        if (doc.exists) {
+          final order = OrderModel.fromMap(doc.data()!);
+          unawaited(_orderNotification.notifyDeliveryComplete(order));
+          NotificationService().triggerLocalOrderStatusNotification(order.orderNumber, 'delivered');
+        }
+        return true;
+      }
+      return false;
+    } catch (e) {
+      debugPrint('Error verifying and delivering order: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> updateOrderLiveLocation(String orderId, double latitude, double longitude) async {
+    await _db.collection('orders').doc(orderId).update({
+      'liveLocation': {
+        'latitude': latitude,
+        'longitude': longitude,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }
+    });
+  }
+
+  Future<void> updateOrder(String orderId, Map<String, dynamic> data) async {
+    await _db.collection('orders').doc(orderId).update(data);
+  }
+
+  Future<void> createReturnRequest(Map<String, dynamic> request) async {
+    await _db.collection('return_requests').doc(request['id']).set(request);
+  }
+
+  Stream<List<Map<String, dynamic>>> getAllReturnRequestsStream() {
+    return _db.collection('return_requests').orderBy('createdAt', descending: true).snapshots().map((snap) => snap.docs.map((doc) => doc.data()).toList());
+  }
+
+  Future<void> approveReturnRequest(String requestId) async {
+    final doc = await _db.collection('return_requests').doc(requestId).get();
+    if (!doc.exists) return;
+
+    final data = doc.data()!;
+    final customerId = data['customerId'];
+    final amount = (data['amount'] as num?)?.toDouble() ?? 0.0;
+    final orderId = data['orderId'];
+
+    await _db.runTransaction((transaction) async {
+      transaction.update(_db.collection('return_requests').doc(requestId), {
+        'status': 'refunded',
+        'resolvedAt': FieldValue.serverTimestamp(),
+        'notes': 'Refunded instantly to wallet. Transaction ID: TXN_${DateTime.now().millisecondsSinceEpoch.toString().substring(6)}',
+      });
+
+      // Actual wallet credit (assuming WalletService uses Firestore)
+      // If WalletService doesn't have a static credit method, we do it here
+      final userRef = _db.collection('users').doc(customerId);
+      transaction.update(userRef, {
+        'walletBalance': FieldValue.increment(amount),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      // Record wallet transaction
+      final txnId = 'txn_refund_${requestId}';
+      transaction.set(userRef.collection('wallet_transactions').doc(txnId), {
+        'id': txnId,
+        'userId': customerId,
+        'type': 'WalletTransactionType.refund',
+        'amount': amount,
+        'orderReference': orderId,
+        'timestamp': FieldValue.serverTimestamp(),
+        'description': 'Refund for return request $requestId',
+      });
+    });
+  }
+
+  Future<void> rejectReturnRequest(String requestId, String reason) async {
+    await _db.collection('return_requests').doc(requestId).update({
+      'status': 'rejected',
+      'resolvedAt': FieldValue.serverTimestamp(),
+      'notes': 'Rejected: $reason',
+    });
+  }
+
+  /// System reconciliation: Cancels pending orders that haven't been confirmed
+  /// by the store within 60 minutes.
+  Future<int> reconcileStuckOrders() async {
+    final oneHourAgo = DateTime.now().subtract(const Duration(minutes: 60));
+    final stuckOrders = await _db
+        .collection('orders')
+        .where('status', isEqualTo: 'OrderStatus.pending')
+        .where('createdAt', isLessThan: Timestamp.fromDate(oneHourAgo))
+        .get();
+
+    int cancelledCount = 0;
+    final batch = _db.batch();
+
+    for (var doc in stuckOrders.docs) {
+      batch.update(doc.reference, {
+        'status': 'OrderStatus.cancelled',
+        'cancellationReason': 'Auto-cancelled: Store did not confirm within 60 minutes.',
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      cancelledCount++;
+    }
+
+    if (cancelledCount > 0) {
+      await batch.commit();
+      debugPrint('[OrderService] Auto-cancelled $cancelledCount stuck orders.');
+    }
+    return cancelledCount;
+  }
+}

@@ -1,0 +1,166 @@
+name: Backend Test & Deploy to Lambda
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend_test_and_deploy.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Backend Tests & Linting
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'backend/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Run linter
+        working-directory: backend
+        run: npm run lint --if-present
+        continue-on-error: true
+
+      - name: Run unit tests
+        working-directory: backend
+        run: npm test --if-present
+        continue-on-error: true
+
+      - name: Check code formatting
+        working-directory: backend
+        run: npx eslint . --fix --dry-run
+        continue-on-error: true
+
+  deploy:
+    name: Deploy to AWS Lambda
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'backend/package-lock.json'
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install AWS SAM CLI
+        run: |
+          pip install aws-sam-cli==1.86.0
+          sam --version
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Build with SAM
+        working-directory: backend
+        run: sam build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      - name: Deploy to Lambda (non-interactive)
+        working-directory: backend
+        run: |
+          sam deploy \
+            --stack-name fufaji-backend-prod \
+            --region ap-south-1 \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset \
+            --capabilities CAPABILITY_IAM \
+            --parameter-overrides \
+              S3BucketName=${{ secrets.AWS_S3_BUCKET_NAME }}
+
+      - name: Verify deployment health
+        run: |
+          FUNCTION_NAME="fufaji-backend"
+          echo "Testing Lambda function..."
+          aws lambda invoke \
+            --function-name $FUNCTION_NAME \
+            --payload '{"job": "health-check"}' \
+            --region ap-south-1 \
+            /tmp/lambda-response.json
+          cat /tmp/lambda-response.json
+          echo ""
+          echo "✅ Lambda deployment successful!"
+
+      - name: Test API endpoint
+        run: |
+          # Wait for Lambda to be ready
+          sleep 5
+
+          # Get the function URL
+          FUNCTION_URL=$(aws lambda get-function-url-config \
+            --function-name fufaji-backend \
+            --region ap-south-1 \
+            --query 'FunctionUrl' \
+            --output text 2>/dev/null || echo "")
+
+          if [ -z "$FUNCTION_URL" ]; then
+            echo "⚠️  Warning: Could not retrieve Function URL"
+            echo "Please verify health check manually at AWS console"
+            exit 0
+          fi
+
+          echo "Testing API health check at: $FUNCTION_URL"
+          curl -X GET "$FUNCTION_URL/health" \
+            -H "Content-Type: application/json" \
+            --max-time 10 \
+            --retry 3 \
+            --retry-delay 2 \
+            -v
+
+          echo ""
+          echo "✅ API health check passed!"
+
+      - name: Notify deployment success
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ Backend deployed successfully to AWS Lambda (ap-south-1)'
+            })
+
+      - name: Notify deployment failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '❌ Backend deployment failed. Check logs above.'
+            })

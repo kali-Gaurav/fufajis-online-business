@@ -191,11 +191,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
 
                 // 1.5 TRUST LAYER — NEW P0 FIX
-                SliverToBoxAdapter(
+                const SliverToBoxAdapter(
                   child: FadeSlideIn(
                     duration: AppTheme.durationMedium,
-                    delay: const Duration(milliseconds: 100),
-                    child: const FufajiTrustBanner(),
+                    delay: Duration(milliseconds: 100),
+                    child: FufajiTrustBanner(),
                   ),
                 ),
 

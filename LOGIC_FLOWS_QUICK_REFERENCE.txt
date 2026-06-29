@@ -1,0 +1,568 @@
+================================================================================
+FUFAJI AUTHENTICATION & PAYMENT FLOWS - QUICK REFERENCE
+================================================================================
+
+
+AUTHENTICATION FLOWS
+================================================================================
+
+1. EMAIL/PASSWORD SIGNUP
+   ┌─────────────────────────────────────────────────────────────┐
+   │ POST /auth/signup-email                                     │
+   ├─────────────────────────────────────────────────────────────┤
+   │ REQUEST:                                                    │
+   │ {                                                           │
+   │   "email": "user@example.com",                             │
+   │   "password": "SecurePass123!",                            │
+   │   "fullName": "John Doe",                                  │
+   │   "phone": "+919876543210"                                 │
+   │ }                                                           │
+   ├─────────────────────────────────────────────────────────────┤
+   │ VALIDATION:                                                 │
+   │ ✓ Email format valid                                        │
+   │ ✓ Password strength (8 chars, upper, lower, num, special)  │
+   │ ✓ Full name not empty (2-100 chars)                        │
+   │ ✓ Phone E.164 format                                        │
+   │ ✓ Email not already registered                              │
+   ├─────────────────────────────────────────────────────────────┤
+   │ PROCESS:                                                    │
+   │ 1. Validate all fields                                      │
+   │ 2. Create Firebase Auth user                                │
+   │ 3. Create PostgreSQL user record                            │
+   │ 4. Create Firestore document                                │
+   │ 5. Send verification email                                  │
+   │ 6. Generate JWT token (24h)                                 │
+   │ 7. Log audit event                                          │
+   ├─────────────────────────────────────────────────────────────┤
+   │ RESPONSE: 201 Created                                       │
+   │ {                                                           │
+   │   "success": true,                                          │
+   │   "user": { uid, email, role, createdAt },                 │
+   │   "token": "eyJhbGc...",                                    │
+   │   "expiresIn": 86400,                                       │
+   │   "message": "Account created..."                           │
+   │ }                                                           │
+   └─────────────────────────────────────────────────────────────┘
+
+2. EMAIL/PASSWORD LOGIN
+   ┌─────────────────────────────────────────────────────────────┐
+   │ POST /auth/login-email                                      │
+   ├─────────────────────────────────────────────────────────────┤
+   │ REQUEST:                                                    │
+   │ { "email": "user@example.com", "password": "Pass..." }     │
+   ├─────────────────────────────────────────────────────────────┤
+   │ PROCESS:                                                    │
+   │ 1. Validate input                                           │
+   │ 2. Rate limit check (5 attempts/15 min)                     │
+   │ 3. Verify email in Firebase                                 │
+   │ 4. Authenticate password                                    │
+   │ 5. Get user from PostgreSQL                                 │
+   │ 6. Check status (not suspended)                             │
+   │ 7. Generate JWT token                                       │
+   │ 8. Update last_login                                        │
+   │ 9. Log security event                                       │
+   ├─────────────────────────────────────────────────────────────┤
+   │ ERRORS:                                                     │
+   │ • 400: Invalid email format                                 │
+   │ • 401: Invalid credentials                                  │
+   │ • 403: Account suspended                                    │
+   │ • 429: Too many attempts                                    │
+   └─────────────────────────────────────────────────────────────┘
+
+3. PHONE OTP - REQUEST
+   ┌─────────────────────────────────────────────────────────────┐
+   │ POST /auth/phone-otp/request                                │
+   ├─────────────────────────────────────────────────────────────┤
+   │ REQUEST:                                                    │
+   │ { "phone": "+919876543210", "countryCode": "IN" }          │
+   ├─────────────────────────────────────────────────────────────┤
+   │ PROCESS:                                                    │
+   │ 1. Validate phone format (E.164)                            │
+   │ 2. Rate limit (3 requests/hour per phone)                   │
+   │ 3. Rate limit (10 requests/day per IP)                      │
+   │ 4. Check country supported                                  │
+   │ 5. Generate 6-digit OTP                                     │
+   │ 6. Store in Redis (5 min expiry)                            │
+   │ 7. Send SMS via Twilio/SNS                                  │
+   │ 8. Log request                                              │
+   ├─────────────────────────────────────────────────────────────┤
+   │ RESPONSE: 200 OK                                            │
+   │ {                                                           │
+   │   "success": true,                                          │
+   │   "message": "OTP sent",                                    │
+   │   "expiresIn": 300,                                         │
+   │   "phoneHashed": "9***3210"                                 │
+   │ }                                                           │
+   └─────────────────────────────────────────────────────────────┘
+
+4. PHONE OTP - VERIFY
+   ┌─────────────────────────────────────────────────────────────┐
+   │ POST /auth/phone-otp/verify                                 │
+   ├─────────────────────────────────────────────────────────────┤
+   │ REQUEST:                                                    │
+   │ { "phone": "+919876543210", "otp": "123456" }              │
+   ├─────────────────────────────────────────────────────────────┤
+   │ PROCESS:                                                    │
+   │ 1. Validate input (6 digits)                                │
+   │ 2. Get OTP from Redis                                       │
+   │ 3. Check expiry                                             │
+   │ 4. Check attempts (max 5)                                   │
+   │ 5. Compare OTP (constant-time)                              │
+   │ 6. Get/create Firebase user                                 │
+   │ 7. Create/update PostgreSQL user                            │
+   │ 8. Generate JWT token                                       │
+   │ 9. Delete OTP from Redis                                    │
+   │ 10. Update last_login                                       │
+   ├─────────────────────────────────────────────────────────────┤
+   │ RESPONSE: 200 OK                                            │
+   │ {                                                           │
+   │   "success": true,                                          │
+   │   "user": { uid, phone, role, ... },                        │
+   │   "token": "eyJhbGc...",                                    │
+   │   "isNewUser": true/false                                   │
+   │ }                                                           │
+   └─────────────────────────────────────────────────────────────┘
+
+5. GOOGLE SIGN-IN
+   ┌─────────────────────────────────────────────────────────────┐
+   │ POST /auth/google-signin                                    │
+   ├─────────────────────────────────────────────────────────────┤
+   │ REQUEST:                                                    │
+   │ {                                                           │
+   │   "googleIdToken": "eyJhbGciOiJSUzI1NiI...",               │
+   │   "deviceId": "device-uuid-123"                             │
+   │ }                                                           │
+   ├─────────────────────────────────────────────────────────────┤
+   │ PROCESS:                                                    │
+   │ 1. Validate JWT format                                      │
+   │ 2. Verify Google signature (RS256)                          │
+   │ 3. Validate claims (iss, aud, exp)                          │
+   │ 4. Check token age (< 1 hour)                               │
+   │ 5. Check replay attack (token hash)                         │
+   │ 6. Extract user data (sub, email, name, picture)           │
+   │ 7. Check email not registered elsewhere                     │
+   │ 8. Get/create Firebase user                                 │
+   │ 9. Link Google credential                                   │
+   │ 10. Create/update PostgreSQL user                           │
+   │ 11. Create Firestore document                               │
+   │ 12. Generate JWT token                                      │
+   ├─────────────────────────────────────────────────────────────┤
+   │ RESPONSE: 200 OK                                            │
+   │ {                                                           │
+   │   "success": true,                                          │
+   │   "user": { uid, email, fullName, avatar, ... },           │
+   │   "token": "eyJhbGc...",                                    │
+   │   "isNewUser": true/false                                   │
+   │ }                                                           │
+   └─────────────────────────────────────────────────────────────┘
+
+6. LOGOUT
+   ┌─────────────────────────────────────────────────────────────┐
+   │ POST /auth/logout                                           │
+   ├─────────────────────────────────────────────────────────────┤
+   │ REQUEST: { "token": "eyJhbGc..." }                          │
+   ├─────────────────────────────────────────────────────────────┤
+   │ PROCESS:                                                    │
+   │ 1. Verify JWT token                                         │
+   │ 2. Add token to blacklist (Redis, TTL = expiry)             │
+   │ 3. Invalidate all sessions (optional)                       │
+   │ 4. Clear user cache                                         │
+   │ 5. Log logout event                                         │
+   ├─────────────────────────────────────────────────────────────┤
+   │ RESPONSE: 200 OK                                            │
+   │ { "success": true, "message": "Logged out successfully" }   │
+   └─────────────────────────────────────────────────────────────┘
+
+7. PASSWORD RESET - REQUEST
+   ┌─────────────────────────────────────────────────────────────┐
+   │ POST /auth/password-reset/request                           │
+   ├─────────────────────────────────────────────────────────────┤
+   │ REQUEST: { "email": "user@example.com" }                    │
+   ├─────────────────────────────────────────────────────────────┤
+   │ PROCESS:                                                    │
+   │ 1. Validate email format                                    │
+   │ 2. Rate limit (3 requests/hour per email)                   │
+   │ 3. Rate limit (10 requests/day per IP)                      │
+   │ 4. Check email in database (silently)                       │
+   │ 5. Generate 32-char reset token                             │
+   │ 6. Store in Redis (30 min expiry)                           │
+   │ 7. Send reset email                                         │
+   │ 8. Log request                                              │
+   ├─────────────────────────────────────────────────────────────┤
+   │ RESPONSE: 200 OK (ALWAYS - never reveal if email exists)    │
+   │ {                                                           │
+   │   "success": true,                                          │
+   │   "message": "Check your email...",                         │
+   │   "note": "Check spam folder if not received"               │
+   │ }                                                           │
+   └─────────────────────────────────────────────────────────────┘
+
+8. PASSWORD RESET - VERIFY
+   ┌─────────────────────────────────────────────────────────────┐
+   │ POST /auth/password-reset/verify                            │
+   ├─────────────────────────────────────────────────────────────┤
+   │ REQUEST:                                                    │
+   │ {                                                           │
+   │   "token": "a7f2e8d9c1b4e6f3a2d5c8e1b4f7a9c2",             │
+   │   "newPassword": "NewSecurePass123!"                        │
+   │ }                                                           │
+   ├─────────────────────────────────────────────────────────────┤
+   │ PROCESS:                                                    │
+   │ 1. Validate token format (32-char hex)                      │
+   │ 2. Validate password strength                               │
+   │ 3. Lookup token in Redis                                    │
+   │ 4. Check token not expired                                  │
+   │ 5. Check attempts (max 5)                                   │
+   │ 6. Compare with current password                            │
+   │ 7. Update Firebase password                                 │
+   │ 8. Update PostgreSQL password hash                          │
+   │ 9. Delete reset token from Redis                            │
+   │ 10. Invalidate all existing tokens (force re-login)         │
+   │ 11. Clear user cache                                        │
+   │ 12. Send confirmation email                                 │
+   ├─────────────────────────────────────────────────────────────┤
+   │ RESPONSE: 200 OK                                            │
+   │ {                                                           │
+   │   "success": true,                                          │
+   │   "message": "Password updated, please log in again"        │
+   │ }                                                           │
+   └─────────────────────────────────────────────────────────────┘
+
+
+PAYMENT FLOWS
+================================================================================
+
+1. CREATE ORDER
+   ┌─────────────────────────────────────────────────────────────┐
+   │ POST /api/orders/create                                     │
+   ├─────────────────────────────────────────────────────────────┤
+   │ REQUEST:                                                    │
+   │ {                                                           │
+   │   "items": [                                                │
+   │     { "productId": "prod-123", "quantity": 2, "price": 199 }
+   │   ],                                                        │
+   │   "deliveryAddress": {                                      │
+   │     "line": "123 Main St",                                  │
+   │     "lat": 28.7041, "lng": 77.1025                         │
+   │   },                                                        │
+   │   "couponCode": "SAVE20",                                   │
+   │   "paymentMethod": "razorpay"                               │
+   │ }                                                           │
+   ├─────────────────────────────────────────────────────────────┤
+   │ VALIDATION:                                                 │
+   │ ✓ JWT valid, user not suspended                             │
+   │ ✓ Items: not empty, quantities > 0, prices match           │
+   │ ✓ Products exist, in stock                                  │
+   │ ✓ Delivery address in service area (lat/lng)                │
+   │ ✓ Coupon valid (if provided)                                │
+   ├─────────────────────────────────────────────────────────────┤
+   │ PROCESS:                                                    │
+   │ 1. Verify JWT token                                         │
+   │ 2. Validate all fields                                      │
+   │ 3. Verify products exist + prices match                     │
+   │ 4. Check inventory availability                             │
+   │ 5. Validate delivery address + service area                 │
+   │ 6. Validate coupon (if provided)                            │
+   │ 7. Calculate totals (subtotal, tax, delivery, discount)     │
+   │ 8. Reserve inventory (30 min expiry)                        │
+   │ 9. Create order in PostgreSQL                               │
+   │ 10. Call Razorpay API: POST /v1/orders                      │
+   │ 11. Get razorpayOrderId from response                       │
+   │ 12. Update order with razorpayOrderId                       │
+   │ 13. Create Firestore document (async)                       │
+   │ 14. Log audit event                                         │
+   ├─────────────────────────────────────────────────────────────┤
+   │ RESPONSE: 201 Created                                       │
+   │ {                                                           │
+   │   "success": true,                                          │
+   │   "order": {                                                │
+   │     "orderId": "order-123",                                 │
+   │     "razorpayOrderId": "order_7Oy8OMjw3bqnIZ",              │
+   │     "amount": 25000,  // in paise                           │
+   │     "items": [...],                                         │
+   │     "subtotal": 449.97, "tax": 22.50,                       │
+   │     "deliveryFee": 50.00, "discount": 0,                    │
+   │     "total": 522.47,                                        │
+   │     "status": "pending_payment"                             │
+   │   },                                                        │
+   │   "razorpayKey": "rzp_live_xxxxx"                            │
+   │ }                                                           │
+   └─────────────────────────────────────────────────────────────┘
+
+2. VERIFY PAYMENT
+   ┌─────────────────────────────────────────────────────────────┐
+   │ POST /api/payments/verify                                   │
+   ├─────────────────────────────────────────────────────────────┤
+   │ REQUEST:                                                    │
+   │ {                                                           │
+   │   "orderId": "order-123",                                   │
+   │   "razorpayPaymentId": "pay_7Oy8OMjw3bqnIZ",                │
+   │   "razorpayOrderId": "order_7Oy8OMjw3bqnIZ",                │
+   │   "razorpaySignature": "9ef4dffbfd84f13..." // 64-char hex   │
+   │ }                                                           │
+   ├─────────────────────────────────────────────────────────────┤
+   │ SECURITY - SIGNATURE VERIFICATION (CRITICAL):               │
+   │ • Build: order_id + "|" + payment_id                        │
+   │ • Compute: HMAC-SHA256(body, RAZORPAY_KEY_SECRET)           │
+   │ • Compare: constant-time comparison                         │
+   │ • If MISMATCH: FRAUD ATTEMPT → return 401                   │
+   ├─────────────────────────────────────────────────────────────┤
+   │ PROCESS:                                                    │
+   │ 1. Verify JWT token                                         │
+   │ 2. Validate input fields                                    │
+   │ 3. Get order from PostgreSQL                                │
+   │ 4. Verify order belongs to user                             │
+   │ 5. Check payment not already processed                      │
+   │ 6. Verify razorpay_order_id matches                         │
+   │ 7. VERIFY SIGNATURE (HMAC-SHA256)                           │
+   │ 8. Check for duplicate payment (idempotency)                │
+   │ 9. Create payment_transactions record                       │
+   │ 10. Deduct inventory (atomic transaction)                   │
+   │ 11. Update order status → confirmed                         │
+   │ 12. Clear inventory reservations                            │
+   │ 13. Sync to Firestore (async)                               │
+   │ 14. Send confirmations (SMS, email, push)                   │
+   │ 15. Log audit event                                         │
+   ├─────────────────────────────────────────────────────────────┤
+   │ RESPONSE: 200 OK                                            │
+   │ {                                                           │
+   │   "success": true,                                          │
+   │   "order": {                                                │
+   │     "orderId": "order-123",                                 │
+   │     "status": "confirmed",                                  │
+   │     "paymentStatus": "completed",                           │
+   │     "total": 522.47,                                        │
+   │     "estimatedDelivery": "30-45 minutes"                    │
+   │   },                                                        │
+   │   "message": "Payment successful! Order confirmed."         │
+   │ }                                                           │
+   │                                                             │
+   │ ERRORS:                                                     │
+   │ • 401: Signature verification failed (FRAUD)                │
+   │ • 404: Order not found                                      │
+   │ • 409: Payment already processed                            │
+   └─────────────────────────────────────────────────────────────┘
+
+3. PAYMENT WEBHOOK
+   ┌─────────────────────────────────────────────────────────────┐
+   │ POST /functions/razorpay-webhook-dual-write                 │
+   ├─────────────────────────────────────────────────────────────┤
+   │ REQUEST (from Razorpay):                                    │
+   │ {                                                           │
+   │   "event": "payment.authorized",                            │
+   │   "payload": {                                              │
+   │     "payment": {                                            │
+   │       "entity": {                                           │
+   │         "id": "pay_7Oy8OMjw3bqnIZ",                         │
+   │         "order_id": "order_7Oy8OMjw3bqnIZ",                 │
+   │         "amount": 25000,                                    │
+   │         "status": "authorized",                             │
+   │         "error_code": null                                  │
+   │       }                                                     │
+   │     }                                                       │
+   │   }                                                         │
+   │ }                                                           │
+   │ Header: X-Razorpay-Signature: {signature}                   │
+   ├─────────────────────────────────────────────────────────────┤
+   │ SECURITY - SIGNATURE VERIFICATION:                          │
+   │ • Compute: HMAC-SHA256(raw_body, RAZORPAY_WEBHOOK_SECRET)   │
+   │ • Compare: constant-time comparison                         │
+   │ • If MISMATCH: return 400 (no processing)                   │
+   ├─────────────────────────────────────────────────────────────┤
+   │ PROCESS:                                                    │
+   │ 1. Extract and verify signature from header                 │
+   │ 2. Verify webhook signature (HMAC-SHA256)                   │
+   │ 3. Parse webhook body                                       │
+   │ 4. Get order by razorpay_order_id                           │
+   │ 5. Check for duplicate webhook (idempotency)                │
+   │ 6. Verify amount matches order total                        │
+   │ 7. If event="payment.authorized":                           │
+   │    • Create payment_transactions record                     │
+   │    • Deduct inventory                                       │
+   │    • Update order status → confirmed                        │
+   │    • Send notifications                                     │
+   │ 8. If event="payment.failed":                               │
+   │    • Delete inventory reservations                          │
+   │    • Update order status → payment_failed                   │
+   │    • Send user notification                                 │
+   │ 9. Log webhook event                                        │
+   │ 10. Return 200 OK (always, even on error)                   │
+   ├─────────────────────────────────────────────────────────────┤
+   │ RESPONSE: 200 OK                                            │
+   │ { "status": "ok", "message": "Webhook processed" }          │
+   │                                                             │
+   │ NOTE: Always return 200. Razorpay retries if not 200.       │
+   └─────────────────────────────────────────────────────────────┘
+
+4. CREATE REFUND
+   ┌─────────────────────────────────────────────────────────────┐
+   │ POST /api/refunds/create                                    │
+   ├─────────────────────────────────────────────────────────────┤
+   │ REQUEST:                                                    │
+   │ {                                                           │
+   │   "orderId": "order-123",                                   │
+   │   "reason": "customer_request",                             │
+   │   "reasonDetails": "Product quality issue",                 │
+   │   "amount": 522.47                                          │
+   │ }                                                           │
+   ├─────────────────────────────────────────────────────────────┤
+   │ PROCESS:                                                    │
+   │ 1. Verify JWT token                                         │
+   │ 2. Get order from PostgreSQL                                │
+   │ 3. Check can be refunded (< 7 days, paid)                   │
+   │ 4. Get payment from payment_transactions                    │
+   │ 5. Validate refund amount <= order total                    │
+   │ 6. Validate reason (in allowlist)                           │
+   │ 7. Check no existing refund for this order                  │
+   │ 8. Create refund record in PostgreSQL                       │
+   │ 9. Call Razorpay refund API                                 │
+   │ 10. Update refund with razorpay_refund_id                   │
+   │ 11. Restore inventory (if not delivered)                    │
+   │ 12. Add credit to wallet                                    │
+   │ 13. Update order status → refunded (if full)                │
+   │ 14. Sync to Firestore                                       │
+   │ 15. Send notifications                                      │
+   │ 16. Log audit event                                         │
+   ├─────────────────────────────────────────────────────────────┤
+   │ RESPONSE: 201 Created                                       │
+   │ {                                                           │
+   │   "success": true,                                          │
+   │   "refund": {                                               │
+   │     "refundId": "rfnd_7Oy8OMjw3bqnIZ",                       │
+   │     "orderId": "order-123",                                 │
+   │     "amount": 522.47,                                       │
+   │     "status": "pending",                                    │
+   │     "reason": "customer_request",                           │
+   │     "expectedInWallet": "3-5 business days"                 │
+   │   },                                                        │
+   │   "message": "Refund initiated..."                          │
+   │ }                                                           │
+   └─────────────────────────────────────────────────────────────┘
+
+
+SECURITY CHECKLIST
+================================================================================
+
+Authentication:
+  ✓ JWT tokens signed with HMAC-SHA256
+  ✓ Token expiry: 24 hours
+  ✓ Token blacklist for revocation
+  ✓ Rate limiting on failed attempts (5 attempts/15 min)
+  ✓ OTP rate limiting (3 requests/hour per phone)
+  ✓ Password reset rate limiting (3 requests/hour)
+  ✓ Constant-time comparison for OTP/signature
+  ✓ Account suspension checks
+  ✓ Email verification (optional)
+  ✓ Phone verification (required for OTP)
+  ✓ Password strength requirements
+
+Payment:
+  ✓ Razorpay signature verification (HMAC-SHA256)
+  ✓ Webhook signature verification (HMAC-SHA256)
+  ✓ Constant-time comparison for signatures
+  ✓ Idempotency checks (duplicate payment detection)
+  ✓ Amount verification (webhook vs order)
+  ✓ Customer verification (order belongs to user)
+  ✓ Atomic inventory deduction
+  ✓ Audit logging of all transactions
+  ✓ Proper error messages (no sensitive data)
+  ✓ Price verification (prevent tampering)
+  ✓ Order status checks before processing
+  ✓ Delivery window checks for refunds
+
+Data Integrity:
+  ✓ Database transactions (ACID)
+  ✓ Unique constraints (email, phone, payment IDs)
+  ✓ Foreign keys (relational integrity)
+  ✓ Indexes for performance
+  ✓ Audit trail (all operations logged)
+
+
+CONSTANTS SUMMARY
+================================================================================
+
+OTP:
+  • Length: 6 digits
+  • Validity: 5 minutes
+  • Max attempts: 5
+  • Rate limit: 3 requests/hour per phone
+
+Password:
+  • Min length: 8 chars
+  • Max reset token attempts: 5
+  • Reset token validity: 30 minutes
+  • Rate limit: 3 requests/hour
+
+Login:
+  • Max failed attempts: 5
+  • Lockout duration: 15 minutes
+  • JWT expiry: 24 hours
+
+Payment:
+  • Inventory reservation: 30 minutes
+  • Refund window: 7 days after delivery
+  • GST (tax): 5%
+  • Delivery fee: 50 rupees (configurable)
+
+Rate Limits:
+  • OTP requests: 3/hour per phone
+  • OTP requests: 10/day per IP
+  • Password reset: 3/hour per email
+  • Password reset: 10/day per IP
+  • Login attempts: 5/15 minutes
+
+
+FILE LOCATIONS
+================================================================================
+
+1. Authentication Logic:
+   C:\Projects\fufaji-online-business\lib\services\complete_auth_flow_logic.dart
+   - 1000+ lines with detailed step-by-step logic
+   - All 8 auth flows documented
+   - All validation rules specified
+   - All database operations defined
+   - Error handling for each flow
+
+2. Payment Logic:
+   C:\Projects\fufaji-online-business\lib\services\complete_razorpay_flow_logic.dart
+   - 1000+ lines with detailed step-by-step logic
+   - All 6 payment operations documented
+   - All security verifications specified
+   - All database operations defined
+   - Error handling for each flow
+
+3. Summary:
+   C:\Projects\fufaji-online-business\COMPLETE_LOGIC_DOCUMENTATION_SUMMARY.txt
+   - Overview of both documents
+   - Database schema requirements
+   - Environment variables needed
+   - Integration points
+   - Deployment checklist
+
+4. Quick Reference:
+   C:\Projects\fufaji-online-business\LOGIC_FLOWS_QUICK_REFERENCE.txt
+   - This file
+   - Visual flow diagrams
+   - Quick lookup for each endpoint
+   - Security checklist
+   - Constants summary
+
+
+NEXT STEPS
+================================================================================
+
+1. Read both .dart files thoroughly
+2. Understand the flow for each endpoint
+3. Map to your backend technology stack
+4. Implement auth endpoints (signup → login)
+5. Implement payment endpoints (order → verify)
+6. Set up database schema and migrations
+7. Configure environment variables
+8. Implement webhook handlers
+9. Set up monitoring and logging
+10. Test each flow end-to-end
+11. Security review before deployment
+
+================================================================================
+END OF QUICK REFERENCE
+================================================================================

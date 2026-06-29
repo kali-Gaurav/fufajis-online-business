@@ -1,0 +1,21 @@
+# Add these dependencies to your existing pubspec.yaml
+
+dependencies:
+  # Phone number input and validation
+  intl_phone_number_input: ^0.7.2
+
+  # OTP PIN input field with nice UI
+  pinput: ^4.0.0
+
+  # Phone number validation and formatting
+  phone_numbers_parser: ^8.2.0
+
+dev_dependencies:
+  # Optional: for testing phone auth flows
+  firebase_auth_mocks: ^0.0.5
+
+
+# Firebase dependencies (should already exist)
+  firebase_core: ^2.24.0
+  firebase_auth: ^4.15.0
+  cloud_firestore: ^4.14.0

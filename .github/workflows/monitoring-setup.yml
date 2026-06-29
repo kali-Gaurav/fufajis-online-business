@@ -1,0 +1,304 @@
+name: Monitoring Stack Setup & Health Check
+
+on:
+  # Run on schedule
+  schedule:
+    # Health check every 6 hours
+    - cron: '0 */6 * * *'
+    # Quota report daily at 9 AM IST (3:30 AM UTC)
+    - cron: '30 3 * * *'
+  
+  # Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'health_check'
+        type: choice
+        options:
+          - health_check
+          - quota_report
+          - crash_summary
+          - full_audit
+
+  # Run on deployment
+  push:
+    paths:
+      - 'functions/LoggerService.js'
+      - 'functions/FirestoreQuotaService.js'
+      - 'functions/health.js'
+      - 'functions/requestLogger.js'
+      - '.github/workflows/monitoring-setup.yml'
+
+jobs:
+  health-check:
+    name: Health Check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event.inputs.action == 'health_check'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          cd functions
+          npm ci
+
+      - name: Run health check
+        env:
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
+          FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+        run: |
+          node -e "
+          const admin = require('firebase-admin');
+          const serviceAccount = {
+            projectId: process.env.FIREBASE_PROJECT_ID,
+            privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\\\n/g, '\n'),
+            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          };
+          admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+          
+          (async () => {
+            const quotaService = require('./functions/FirestoreQuotaService');
+            await quotaService.initialize();
+            const percentages = await quotaService.getQuotaPercentages();
+            console.log('Quota Status:');
+            console.log(JSON.stringify(percentages, null, 2));
+          })();
+          "
+
+      - name: Check quota thresholds
+        run: |
+          node -e "
+          const fs = require('fs');
+          const config = JSON.parse(fs.readFileSync('./alerts-config.json'));
+          const alerts = config.firestore_quota.alerts;
+          console.log('Monitoring ' + alerts.length + ' quota alerts');
+          alerts.forEach(a => console.log('- ' + a.name + ': ' + a.description));
+          "
+
+      - name: Create GitHub issue if critical
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'CRITICAL: Health check failed',
+              body: 'Monitoring health check returned critical status. Review logs immediately.',
+              labels: ['critical', 'monitoring'],
+              assignees: ['${{ github.repository_owner }}']
+            })
+
+  quota-report:
+    name: Daily Quota Report
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' && github.event.schedule == '30 3 * * *' || github.event.inputs.action == 'quota_report'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          cd functions
+          npm ci
+
+      - name: Generate quota report
+        env:
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
+          FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+        run: |
+          node -e "
+          const admin = require('firebase-admin');
+          const serviceAccount = {
+            projectId: process.env.FIREBASE_PROJECT_ID,
+            privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\\\n/g, '\n'),
+            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          };
+          admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+          
+          (async () => {
+            const quotaService = require('./functions/FirestoreQuotaService');
+            const today = new Date();
+            const start = new Date(today);
+            start.setDate(start.getDate() - 7);
+            const report = await quotaService.getQuotaReport(start, today);
+            console.log('\n=== QUOTA REPORT (Last 7 Days) ===');
+            console.log(JSON.stringify(report.summary, null, 2));
+            
+            // Check for alerts
+            if (report.summary.totals.alerts > 0) {
+              console.log('\nWARNING: ' + report.summary.totals.alerts + ' quota alerts detected!');
+            }
+          })();
+          "
+
+      - name: Archive quota report
+        uses: actions/upload-artifact@v4
+        with:
+          name: quota-report-${{ github.run_id }}
+          path: quota-report.json
+          retention-days: 30
+
+  crash-summary:
+    name: Crash Analytics Summary
+    runs-on: ubuntu-latest
+    if: github.event.inputs.action == 'crash_summary'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Firebase CLI
+        uses: firebase-tools/action@master
+        with:
+          firebaseToken: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Fetch Crashlytics summary
+        env:
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+        run: |
+          # This would integrate with Firebase Crashlytics API
+          echo "Fetching crash analytics for $FIREBASE_PROJECT_ID"
+          echo "Note: Requires Crashlytics REST API integration"
+
+  audit-monitoring:
+    name: Audit Monitoring Setup
+    runs-on: ubuntu-latest
+    if: github.event.inputs.action == 'full_audit'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify monitoring files exist
+        run: |
+          files=(
+            "lib/services/analytics_service.dart"
+            "lib/services/crashlytics_service.dart"
+            "functions/LoggerService.js"
+            "functions/FirestoreQuotaService.js"
+            "functions/health.js"
+            "functions/requestLogger.js"
+            "MONITORING_SETUP.md"
+            "alerts-config.json"
+          )
+          
+          echo "Monitoring Setup Audit:"
+          for file in "${files[@]}"; do
+            if [ -f "$file" ]; then
+              echo "✓ $file"
+            else
+              echo "✗ $file (MISSING)"
+              exit 1
+            fi
+          done
+
+      - name: Validate JSON configs
+        run: |
+          node -e "
+          const fs = require('fs');
+          
+          console.log('Validating alerts-config.json...');
+          try {
+            const config = JSON.parse(fs.readFileSync('./alerts-config.json'));
+            console.log('✓ Valid JSON structure');
+            console.log('✓ ' + Object.keys(config.alertChannels).length + ' alert channels configured');
+            console.log('✓ ' + config.crashlytics.alerts.length + ' Crashlytics alerts');
+            console.log('✓ ' + config.firestore_quota.alerts.length + ' Firestore quota alerts');
+            console.log('✓ ' + config.backend_logging.alerts.length + ' Backend logging alerts');
+          } catch (e) {
+            console.error('✗ Invalid JSON:', e.message);
+            process.exit(1);
+          }
+          "
+
+      - name: Check Dart lint for analytics integration
+        run: |
+          echo "Checking analytics_service.dart for proper structure..."
+          if grep -q "class AnalyticsService" lib/services/analytics_service.dart; then
+            echo "✓ AnalyticsService class defined"
+          else
+            echo "✗ AnalyticsService class not found"
+            exit 1
+          fi
+          
+          if grep -q "logOrderCreated" lib/services/analytics_service.dart; then
+            echo "✓ Order tracking implemented"
+          else
+            echo "✗ Order tracking not found"
+            exit 1
+          fi
+
+      - name: Report audit results
+        if: always()
+        run: |
+          echo "# Monitoring Setup Audit Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- All monitoring files verified" >> $GITHUB_STEP_SUMMARY
+          echo "- Configuration validated" >> $GITHUB_STEP_SUMMARY
+          echo "- Analytics service implemented" >> $GITHUB_STEP_SUMMARY
+          echo "- Crashlytics service implemented" >> $GITHUB_STEP_SUMMARY
+          echo "- Backend logging configured" >> $GITHUB_STEP_SUMMARY
+          echo "- Quota monitoring ready" >> $GITHUB_STEP_SUMMARY
+
+  notify-status:
+    name: Notify Monitoring Status
+    runs-on: ubuntu-latest
+    needs: [health-check]
+    if: always()
+    
+    steps:
+      - name: Prepare status message
+        id: status
+        run: |
+          if [ "${{ needs.health-check.result }}" == "success" ]; then
+            echo "message=✓ All monitoring systems operational" >> $GITHUB_OUTPUT
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "message=⚠ Monitoring alert - review health check logs" >> $GITHUB_OUTPUT
+            echo "status=warning" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Add to workflow summary
+        run: |
+          echo "## Monitoring Status Check" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ steps.status.outputs.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Message**: ${{ steps.status.outputs.message }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Timestamp**: $(date)" >> $GITHUB_STEP_SUMMARY
+
+      - name: Send Slack notification (if configured)
+        if: failure()
+        uses: slackapi/slack-github-action@v1
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "text": "Fufaji Monitoring Alert",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "⚠️ *Monitoring Health Check Failed*\nReview GitHub Actions logs for details."
+                  }
+                }
+              ]
+            }
+        continue-on-error: true

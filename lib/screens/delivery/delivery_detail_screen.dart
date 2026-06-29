@@ -8,7 +8,6 @@ import '../../models/order_model.dart';
 import '../../services/upi_payment_service.dart';
 import '../../utils/app_theme.dart';
 import '../employee/delivery_pod_scanner_screen.dart';
-import '../../utils/monetary_value.dart';
 
 class DeliveryDetailScreen extends StatefulWidget {
   final String orderId;

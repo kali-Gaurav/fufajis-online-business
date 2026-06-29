@@ -1,0 +1,72 @@
+# --- Module 1: Users & Auth ---
+type User @table(key: ["firebaseUid"]) {
+  firebaseUid: String!
+  fullName: String!
+  email: String!
+  phone: String!
+  role: String!
+  isActive: Boolean! @default(value: true)
+  lastLogin: Timestamp
+  createdAt: Timestamp @default(expr: "request.time")
+  updatedAt: Timestamp @default(expr: "request.time")
+}
+
+type CustomerProfile @table {
+  user: User!
+  loyaltyPoints: Int! @default(value: 0)
+  totalOrders: Int! @default(value: 0)
+  walletBalance: Float! @default(value: 0.0)
+  preferredLanguage: String! @default(value: "en")
+  trustScore: Float! @default(value: 100.0)
+}
+
+type Address @table {
+  user: User!
+  label: String!
+  addressLine1: String!
+  city: String!
+  state: String!
+  pincode: String!
+  isDefault: Boolean! @default(value: false)
+}
+
+# --- Module 2: Catalog ---
+type Category @table {
+  name: String!
+  nameHindi: String
+  isActive: Boolean! @default(value: true)
+}
+
+type Product @table(key: ["sku"]) {
+  sku: String!
+  category: Category!
+  name: String!
+  mrp: Float!
+  sellingPrice: Float!
+  isActive: Boolean! @default(value: true)
+}
+
+# --- Module 3: Inventory ---
+type Inventory @table {
+  product: Product!
+  currentStock: Int! @default(value: 0)
+  reorderThreshold: Int! @default(value: 0)
+}
+
+# --- Module 4: Order ---
+type Order @table(key: ["orderNumber"]) {
+  orderNumber: String!
+  customer: User!
+  totalAmount: Float!
+  orderStatus: String!
+  placedAt: Timestamp! @default(expr: "request.time")
+}
+
+# --- Module 5: Payments ---
+type Payment @table {
+  order: Order!
+  customer: User!
+  paymentMethod: String!
+  amount: Float!
+  paymentStatus: String!
+}

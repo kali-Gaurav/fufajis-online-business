@@ -8,7 +8,6 @@ import '../../models/order_model.dart';
 import '../../models/payment_method.dart';
 import '../../models/cod_settlement_model.dart';
 import '../../constants/order_status.dart';
-import '../../utils/monetary_value.dart';
 
 class DeliveryEarningsScreen extends StatefulWidget {
   const DeliveryEarningsScreen({super.key});

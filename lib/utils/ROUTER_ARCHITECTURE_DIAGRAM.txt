@@ -1,0 +1,444 @@
+FUFAJI MULTI-ROLE NAVIGATION ARCHITECTURE
+==========================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         BOOTSTRAP & ENTRY POINT                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                              SplashScreen                                    │
+│                    Check Auth State & Initialize App                        │
+│                                 /                                           │
+└────────────────────────────────────┬────────────────────────────────────────┘
+                                     │
+                    ┌────────────────┼────────────────┐
+                    │                                 │
+         ┌──────────▼──────────┐        ┌────────────▼─────────────┐
+         │ Not Authenticated   │        │ Authenticated            │
+         │ (No Session)        │        │ (Have Auth Token)        │
+         └──────────┬──────────┘        └────────────┬─────────────┘
+                    │                                │
+                    ▼                                ▼
+            ┌───────────────┐          ┌──────────────────────┐
+            │  /login       │          │ Redirect to Role     │
+            │  LoginScreen  │          │ Specific Home        │
+            │               │          │                      │
+            │ Phone/Email   │          │ Check Active Role    │
+            │ Password      │          │ Apply Guards         │
+            └───────┬───────┘          └──────────────────────┘
+                    │
+                    ▼
+            ┌───────────────────┐
+            │  /otp/:contact    │
+            │  OTPScreen        │
+            │                   │
+            │ SMS Verification  │
+            └───────┬───────────┘
+                    │
+                    ▼
+            ┌───────────────────┐
+            │ /role-select      │
+            │ RoleSelectScreen  │
+            │                   │
+            │ Multi-Role Users  │
+            └───────────────────┘
+                    │
+                    ▼
+           ┌────────────────────────────────────────┐
+           │    /profile-creation                   │
+           │    ProfileCreationScreen               │
+           │                                        │
+           │    Complete User Profile (Optional)    │
+           │    After First Login                   │
+           └────────────────────────────────────────┘
+
+
+ROLE-BASED ROUTING
+==================
+
+┌─────────────────────┐
+│  AUTHENTICATED USER │
+│                     │
+│  Check Active Role  │
+└──────────┬──────────┘
+           │
+    ┌──────┴──────┬──────────┬────────────┬──────────┐
+    │             │          │            │          │
+    ▼             ▼          ▼            ▼          ▼
+┌────────┐  ┌──────────┐  ┌────────┐  ┌──────────┐  ┌─────┐
+│CUSTOMER│  │ OWNER    │  │DELIVERY│  │EMPLOYEE  │  │ADMIN│
+└────┬───┘  └────┬─────┘  └───┬────┘  └────┬─────┘  └──┬──┘
+     │           │            │            │           │
+     │           │            │            │           │
+     ▼           ▼            ▼            ▼           ▼
+
+
+CUSTOMER ROLE FLOW
+==================
+
+    ┌─────────────────────────────────────────────────────┐
+    │         CustomerShell (Bottom Nav - 4 Tabs)         │
+    │  ┌────────────────────────────────────────────────┐ │
+    │  │ [Home] [Search] [Cart] [Profile] [Orders]     │ │
+    │  └────────────────────────────────────────────────┘ │
+    │                     │                                │
+    │    ┌────────────────┼─────────────────────────┐     │
+    │    │                │                         │     │
+    │    ▼                ▼                         ▼     │
+    │ /customer/home   /customer/     /customer/product/:id
+    │ HomeScreen       search         ProductDetailScreen │
+    │                  SearchScreen                       │
+    │                                                     │
+    │  PROTECTED ROUTES (Requires Auth + Verified)      │
+    │  ┌──────────────────────────────────────────────┐ │
+    │  │ /customer/orders    OrdersScreen             │ │
+    │  │ /customer/checkout  CheckoutScreen          │ │
+    │  │ /customer/wallet    WalletHistoryScreen     │ │
+    │  │ /customer/addresses AddressScreen           │ │
+    │  │ /customer/profile   ProfileScreen           │ │
+    │  │ ... (25+ more routes)                       │ │
+    │  └──────────────────────────────────────────────┘ │
+    │                                                     │
+    │  GUARD: Unverified Users                           │
+    │  ┌──────────────────────────────────────────────┐ │
+    │  │ /auth/verify-wall                           │ │
+    │  │ VerificationWallScreen                      │ │
+    │  │ (Redirect on protected route access)       │ │
+    │  └──────────────────────────────────────────────┘ │
+    └─────────────────────────────────────────────────────┘
+
+
+OWNER ROLE FLOW
+===============
+
+    ┌──────────────────────────────────────────────────────┐
+    │          OwnerShell (Left Drawer Navigation)         │
+    │  ┌────────────────────────────────────────────────┐  │
+    │  │  [Shop Name]                                   │  │
+    │  │                                                │  │
+    │  │  • Dashboard           → /owner              │  │
+    │  │  • Orders              → /owner/orders       │  │
+    │  │  • Products            → /owner/products    │  │
+    │  │  • Inventory           → /owner/inventory   │  │
+    │  │  • Analytics           → /owner/analytics   │  │
+    │  │  • Employees           → /owner/employees   │  │
+    │  │  ─────────────────────────────────────────   │  │
+    │  │  • Packing             → /owner/packing...  │  │
+    │  │  • Khata (Accounting)  → /owner/khata       │  │
+    │  │  • Riders              → /owner/riders      │  │
+    │  │  ─────────────────────────────────────────   │  │
+    │  │  • Settings            → /owner/shop-...    │  │
+    │  │  • Switch Role         → /role-select       │  │
+    │  └────────────────────────────────────────────────┘  │
+    │                                                       │
+    │  SECURITY GATES                                      │
+    │  ┌────────────────────────────────────────────────┐  │
+    │  │ PIN Required? → /security-pin                  │  │
+    │  │ Device Verify? → /security-pin                 │  │
+    │  └────────────────────────────────────────────────┘  │
+    │                                                       │
+    │  NESTED ROUTES (35+ total)                           │
+    │  ┌────────────────────────────────────────────────┐  │
+    │  │ - Vendor management                           │  │
+    │  │ - Delivery zones                              │  │
+    │  │ - Cash register                               │  │
+    │  │ - Employee management                         │  │
+    │  │ - ... and more                                │  │
+    │  └────────────────────────────────────────────────┘  │
+    └──────────────────────────────────────────────────────┘
+
+
+DELIVERY AGENT ROLE FLOW
+========================
+
+    ┌─────────────────────────────────────────────────────┐
+    │    DeliveryShell (Bottom Nav - 4 Tabs)              │
+    │    (Map Tab is Primary)                             │
+    │  ┌────────────────────────────────────────────────┐ │
+    │  │ [Map] [Orders] [Earnings] [Profile]           │ │
+    │  │                                                │ │
+    │  │ Map Tab Highlighted (Largest area)            │ │
+    │  └────────────────────────────────────────────────┘ │
+    │                                                     │
+    │  /delivery/smart-route                              │
+    │    SmartRouteScreen (Real-time Map)                │
+    │      ├─ Live Location Updates                       │
+    │      ├─ Route Optimization                          │
+    │      └─ Cluster View                               │
+    │                                                     │
+    │  /delivery/orders                                   │
+    │    DeliveryOrdersScreen                            │
+    │      ├─ Active Deliveries                          │
+    │      └─ Order Details                              │
+    │                                                     │
+    │  /delivery/earnings                                 │
+    │    DeliveryEarningsScreen                          │
+    │      ├─ Daily Earnings                             │
+    │      ├─ Weekly Summary                             │
+    │      └─ Trip Breakdown                             │
+    │                                                     │
+    │  /delivery/chat                                     │
+    │    RiderChatScreen (Customer Communication)        │
+    └─────────────────────────────────────────────────────┘
+
+
+EMPLOYEE ROLE FLOW
+==================
+
+    ┌──────────────────────────────────────────────────────┐
+    │    EmployeeShell (Bottom Nav - 4 Tabs + Badge)      │
+    │  ┌────────────────────────────────────────────────┐  │
+    │  │ [Tasks(3)] [Inventory] [Delivery] [Profile]   │  │
+    │  │              ^                                  │  │
+    │  │              └─ Badge shows pending count      │  │
+    │  └────────────────────────────────────────────────┘  │
+    │                                                       │
+    │  Tab 0: TASKS                                         │
+    │  ├─ /employee/tasks        → TaskPriorityScreen     │
+    │  └─ /employee/hub?mode=... → UnifiedScannerHub      │
+    │                                                       │
+    │  Tab 1: INVENTORY OPERATIONS                          │
+    │  ├─ /employee/receiving    → InventoryReceivingScreen
+    │  ├─ /employee/transfer     → InventoryTransferScreen │
+    │  ├─ /employee/refill       → ShelfRefillScreen      │
+    │  ├─ /employee/damage       → DamageReportingScreen  │
+    │  └─ /employee/expiry       → ExpiryManagementScreen │
+    │                                                       │
+    │  Tab 2: DELIVERY SCANNING & LOGISTICS                │
+    │  ├─ /employee/packing      → OrderPackingScreen     │
+    │  ├─ /employee/dispatch     → DispatchScannerScreen  │
+    │  ├─ /employee/pod          → DeliveryPodScannerScreen
+    │  └─ /employee/delivery     → DeliveryScreen         │
+    │                                                       │
+    │  Tab 3: PROFILE & OPERATIONS                         │
+    │  ├─ /employee/attendance   → AttendanceScreen       │
+    │  ├─ /employee/cash         → CashCollectionScreen   │
+    │  ├─ /employee/returns      → ReturnsScreen          │
+    │  ├─ /employee/member       → MembershipScannerScreen
+    │  └─ /employee/chat/:id     → EmployeeChatScreen     │
+    └──────────────────────────────────────────────────────┘
+
+
+ADMIN ROLE FLOW
+===============
+
+    ┌─────────────────────────────────────────────────────┐
+    │     AdminShell (Left Sidebar + System Health)       │
+    │  ┌─────────────────────────────────────────────────┐│
+    │  │  [Admin Panel]                                  ││
+    │  │  System: ● Healthy (Real-time Status)           ││
+    │  │                                                  ││
+    │  │  • Dashboard       → /admin                     ││
+    │  │  • Users           → /admin/users               ││
+    │  │  • Shops           → /admin/shops               ││
+    │  │  • Products        → /admin/products            ││
+    │  │  • Orders          → /admin/orders              ││
+    │  │  ────────────────────────────────────────────   ││
+    │  │  • Coupons         → /admin/coupons             ││
+    │  │  • Analytics       → /admin/analytics           ││
+    │  │  ────────────────────────────────────────────   ││
+    │  │  • Audit Logs      (Coming Soon)                ││
+    │  │  • Settings        (Coming Soon)                ││
+    │  │                                                  ││
+    │  │  • Switch Role     → /role-select               ││
+    │  └─────────────────────────────────────────────────┘│
+    │                                                      │
+    │  SYSTEM MONITORING                                  │
+    │  ┌────────────────────────────────────────────────┐ │
+    │  │ Real-time Health Indicator                     │ │
+    │  │ - Server Status                                │ │
+    │  │ - Database Status                              │ │
+    │  │ - API Response Times                           │ │
+    │  │ - Error Rates                                  │ │
+    │  └────────────────────────────────────────────────┘ │
+    └─────────────────────────────────────────────────────┘
+
+
+SHARED FLOWS & GUARDS
+=====================
+
+    AUTHENTICATION WALL
+    ┌──────────────────────────────────┐
+    │  /auth/verify-wall               │
+    │  VerificationWallScreen          │
+    │                                  │
+    │  Shown when:                     │
+    │  - Guest tries protected action  │
+    │  - Unverified user blocked       │
+    │  - Requires OTP/verification     │
+    │  - Has return path + reason      │
+    └──────────────────────────────────┘
+
+    SECURITY PIN SCREEN
+    ┌──────────────────────────────────┐
+    │  /security-pin                   │
+    │  SecurityPinScreen               │
+    │                                  │
+    │  Shown when:                     │
+    │  - Owner/Admin login required    │
+    │  - Device verification needed    │
+    │  - Biometric fallback            │
+    └──────────────────────────────────┘
+
+    ERROR HANDLING
+    ┌──────────────────────────────────┐
+    │  /unauthorized                   │
+    │  UnauthorizedScreen (403)        │
+    │                                  │
+    │  Shown when:                     │
+    │  - Role mismatch                 │
+    │  - Feature access denied         │
+    │  - Permission insufficient       │
+    └──────────────────────────────────┘
+
+    ┌──────────────────────────────────┐
+    │  /network-error                  │
+    │  NetworkErrorScreen              │
+    │                                  │
+    │  Shown when:                     │
+    │  - No internet connection        │
+    │  - Connection lost               │
+    │  - Retry with offline mode       │
+    └──────────────────────────────────┘
+
+
+REDIRECT LOGIC (app_router.dart)
+=================================
+
+START
+  │
+  ├─ NOT LOGGED IN + NOT GUEST
+  │  └─ Is Open Path? (/, /login, /otp/*, /role-select, /profile-creation)
+  │     ├─ YES → Allow (return null)
+  │     └─ NO  → Redirect to /login
+  │
+  ├─ GUEST MODE (Browse-Only)
+  │  ├─ Is Open Path?
+  │  │  ├─ YES → Allow
+  │  │  └─ NO  → Continue
+  │  ├─ Is Guest Allowed? (/customer/home, /customer/search, /customer/product/*)
+  │  │  ├─ YES → Allow
+  │  │  └─ NO  → Continue
+  │  ├─ Is Verification Required?
+  │  │  ├─ YES → Verify Wall
+  │  │  └─ NO  → Continue
+  │  └─ Is Customer Path?
+  │     ├─ YES → Verify Wall
+  │     └─ NO  → Customer Home
+  │
+  ├─ LOGGED IN (Has Auth Token + User Object)
+  │  ├─ Owner/Admin?
+  │  │  ├─ PIN Required?  → /security-pin
+  │  │  └─ Device Verify? → /security-pin
+  │  │
+  │  ├─ Customer with no profile?
+  │  │  └─ → /profile-creation
+  │  │
+  │  ├─ Customer not verified?
+  │  │  ├─ Is Verification Required Route?
+  │  │  │  └─ → /auth/verify-wall
+  │  │  └─ Else → Allow
+  │  │
+  │  ├─ On Onboarding Page?
+  │  │  ├─ Has Return Path?
+  │  │  │  └─ → Return Path
+  │  │  └─ Else → Role Home (/customer/home, /owner, etc.)
+  │  │
+  │  ├─ Role Mismatch?
+  │  │  ├─ Owner route but not owner? → /owner
+  │  │  ├─ Customer route but not customer? → /customer/home
+  │  │  └─ etc.
+  │  │
+  │  └─ Else → Allow (return null)
+  │
+  └─ ELSE → Allow
+
+
+DEEP LINKING EXAMPLES
+======================
+
+fufaji://customer/home                  → Home
+fufaji://customer/product/abc123        → Product Detail
+fufaji://customer/search?q=milk         → Search Results
+fufaji://customer/orders                → Orders List
+fufaji://customer/track/ord123          → Track Order
+
+fufaji://owner                          → Owner Dashboard
+fufaji://owner/products                 → Products
+fufaji://owner/orders                   → Orders
+fufaji://owner/analytics                → Analytics
+
+fufaji://delivery/smart-route           → Delivery Map
+fufaji://delivery/orders                → Delivery Orders
+fufaji://delivery/earnings              → Earnings
+
+fufaji://employee                       → Employee Tasks
+fufaji://employee/packing               → Packing
+
+fufaji://admin                          → Admin Dashboard
+fufaji://admin/users                    → Users Management
+
+
+FILE STRUCTURE
+==============
+
+lib/
+├── utils/
+│   ├── app_router.dart                 Main GoRouter config
+│   ├── ROUTER_ARCHITECTURE.md          Complete guide
+│   ├── ROUTER_QUICK_REFERENCE.md       Developer lookup
+│   ├── ROUTER_EXAMPLES.dart            Copy-paste code
+│   ├── ROUTER_ARCHITECTURE_DIAGRAM.txt This file
+│   └── GOROUTER_SETUP_COMPLETE.md      Implementation notes
+│
+├── shells/
+│   ├── employee_shell.dart             Employee nav
+│   ├── delivery_shell.dart             Delivery nav
+│   ├── owner_shell.dart                Owner nav
+│   └── admin_shell.dart                Admin nav
+│
+├── screens/
+│   ├── splash_screen.dart              Bootstrap
+│   ├── login_screen.dart               Authentication
+│   ├── otp_screen.dart                 OTP verification
+│   ├── unauthorized_screen.dart        403 error
+│   ├── network_error_screen.dart       Offline handling
+│   │
+│   ├── customer/
+│   │   ├── customer_shell.dart         Bottom nav
+│   │   └── ... (30+ screens)
+│   │
+│   ├── owner/
+│   │   └── ... (20+ screens)
+│   │
+│   ├── delivery/
+│   │   └── ... (8+ screens)
+│   │
+│   ├── employee/
+│   │   └── ... (15+ screens)
+│   │
+│   └── admin/
+│       └── ... (6+ screens)
+│
+└── providers/
+    ├── auth_provider.dart              Auth state
+    ├── employee_provider.dart          Employee data
+    └── ... (15+ providers)
+
+
+KEY METRICS
+===========
+
+Total Routes:     70+
+Shell Routes:     5 (Customer, Owner, Employee, Delivery, Admin)
+Auth Routes:      7
+Error Routes:     2
+Customer Routes:  35+
+Owner Routes:     33+
+Employee Routes:  18+
+Delivery Routes:  9+
+Admin Routes:     7+
+
+Navigation Patterns:
+- Bottom TabBar:      3 (Customer, Employee, Delivery)
+- Drawer/Sidebar:     2 (Owner, Admin)
+- Tab Selection:      5 (1 per role)
+- Guards/Redirects:   8 (Auth, verification, profile, PIN, device, role, etc.)

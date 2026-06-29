@@ -7,7 +7,6 @@ import '../../providers/auth_provider.dart';
 import '../../models/user_model.dart';
 import '../../models/product_model.dart';
 import '../../utils/app_theme.dart';
-import '../../utils/monetary_value.dart';
 import '../../widgets/voice_search_dialog.dart';
 import 'barcode_scanner_screen.dart';
 

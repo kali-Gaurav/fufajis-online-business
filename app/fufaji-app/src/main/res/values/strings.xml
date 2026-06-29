@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Name -->
+    <string name="app_name">Fufaji Store</string>
+    <string name="app_name_hi">फुफाजी स्टोर</string>
+
+    <!-- Login Screen -->
+    <string name="enter_phone">Enter Phone Number</string>
+    <string name="enter_phone_hi">फोन नंबर दर्ज करें</string>
+    <string name="send_otp">Send OTP</string>
+    <string name="send_otp_hi">OTP भेजें</string>
+    <string name="enter_otp">Enter OTP</string>
+    <string name="enter_otp_hi">OTP दर्ज करें</string>
+    <string name="verify_otp">Verify OTP</string>
+    <string name="verify_otp_hi">OTP सत्यापित करें</string>
+
+    <!-- Home Screen -->
+    <string name="search_products">Search products...</string>
+    <string name="search_products_hi">उत्पाद खोजें...</string>
+    <string name="categories">Categories</string>
+    <string name="categories_hi">श्रेणियाँ</string>
+    <string name="no_products">No products found</string>
+    <string name="no_products_hi">कोई उत्पाद नहीं मिला</string>
+
+    <!-- Product Card -->
+    <string name="in_stock">In Stock</string>
+    <string name="in_stock_hi">स्टॉक में</string>
+    <string name="out_of_stock">Out of Stock</string>
+    <string name="out_of_stock_hi">स्टॉक से बाहर</string>
+    <string name="low_stock">Low Stock</string>
+    <string name="low_stock_hi">कम स्टॉक</string>
+    <string name="add_to_cart">Add to Cart</string>
+    <string name="add_to_cart_hi">कार्ट में जोड़ें</string>
+
+    <!-- Cart -->
+    <string name="cart">Cart</string>
+    <string name="cart_hi">कार्ट</string>
+    <string name="empty_cart">Your cart is empty</string>
+    <string name="empty_cart_hi">आपका कार्ट खाली है</string>
+    <string name="continue_shopping">Continue Shopping</string>
+    <string name="continue_shopping_hi">खरीदारी जारी रखें</string>
+    <string name="subtotal">Subtotal</string>
+    <string name="subtotal_hi">उप योग</string>
+    <string name="gst">GST (18%)</string>
+    <string name="gst_hi">जीएसटी (18%)</string>
+    <string name="total">Total</string>
+    <string name="total_hi">कुल</string>
+    <string name="proceed_to_checkout">Proceed to Checkout</string>
+    <string name="proceed_to_checkout_hi">चेकआउट के लिए आगे बढ़ें</string>
+
+    <!-- Checkout -->
+    <string name="name">Name</string>
+    <string name="name_hi">नाम</string>
+    <string name="phone">Phone</string>
+    <string name="phone_hi">फोन</string>
+    <string name="address">Delivery Address</string>
+    <string name="address_hi">डिलीवरी पता</string>
+    <string name="pincode">Pincode</string>
+    <string name="pincode_hi">पिनकोड</string>
+    <string name="payment_method">Payment Method</string>
+    <string name="payment_method_hi">भुगतान विधि</string>
+    <string name="upi">UPI</string>
+    <string name="card">Card</string>
+    <string name="pay_now">Pay Now</string>
+    <string name="pay_now_hi">अभी भुगतान करें</string>
+
+    <!-- Order -->
+    <string name="order_id">Order ID</string>
+    <string name="order_id_hi">ऑर्डर आईडी</string>
+    <string name="order_placed">Order Placed Successfully!</string>
+    <string name="order_placed_hi">ऑर्डर सफलतापूर्वक दिया गया!</string>
+    <string name="order_history">Order History</string>
+    <string name="order_history_hi">ऑर्डर का इतिहास</string>
+    <string name="pending">Pending</string>
+    <string name="pending_hi">लंबित</string>
+    <string name="confirmed">Confirmed</string>
+    <string name="confirmed_hi">की गई पुष्टि</string>
+    <string name="packed">Packed</string>
+    <string name="packed_hi">पैक किया गया</string>
+    <string name="out_for_delivery">Out for Delivery</string>
+    <string name="out_for_delivery_hi">डिलीवरी के लिए निकला</string>
+    <string name="delivered">Delivered</string>
+    <string name="delivered_hi">डिलीवर किया गया</string>
+
+    <!-- Account -->
+    <string name="account">Account</string>
+    <string name="account_hi">खाता</string>
+    <string name="profile">Profile</string>
+    <string name="profile_hi">प्रोफाइल</string>
+    <string name="logout">Logout</string>
+    <string name="logout_hi">लॉग आउट</string>
+    <string name="language">Language</string>
+    <string name="language_hi">भाषा</string>
+
+    <!-- Messages -->
+    <string name="loading">Loading...</string>
+    <string name="loading_hi">लोड हो रहा है...</string>
+    <string name="error">Error</string>
+    <string name="error_hi">त्रुटि</string>
+    <string name="success">Success</string>
+    <string name="success_hi">सफलता</string>
+    <string name="please_wait">Please wait...</string>
+    <string name="please_wait_hi">कृपया प्रतीक्षा करें...</string>
+</resources>

@@ -4,7 +4,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '../../services/realtime_database_service.dart';
 import '../../utils/app_theme.dart';
-import 'dart:math' as math;
 
 class RiderPulseHeatmapScreen extends StatefulWidget {
   const RiderPulseHeatmapScreen({super.key});

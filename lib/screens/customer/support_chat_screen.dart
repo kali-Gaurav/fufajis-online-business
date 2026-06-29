@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../models/chat_conversation_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/chat_provider.dart';
+import '../../services/voice_note_service.dart';
 import '../../utils/app_theme.dart';
 
 class SupportChatScreen extends StatefulWidget {
@@ -21,10 +22,14 @@ class SupportChatScreen extends StatefulWidget {
 class _SupportChatScreenState extends State<SupportChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  late VoiceNoteService _voiceNoteService;
+  bool _isRecordingVoice = false;
+  int _voiceRecordingDuration = 0;
 
   @override
   void initState() {
     super.initState();
+    _voiceNoteService = VoiceNoteService();
     final user = Provider.of<AuthProvider>(context, listen: false).currentUser;
     if (user != null) {
       Provider.of<ChatProvider>(context, listen: false).listenToMessages(user.id, customerView: true);
@@ -41,10 +46,70 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
     }
   }
 
+  // ✅ FIXED: Implement Voice Note shortcut
+  Future<void> _recordVoiceNote() async {
+    if (_isRecordingVoice) {
+      // Stop recording
+      final filePath = await _voiceNoteService.stopRecording();
+      if (filePath != null) {
+        final user = Provider.of<AuthProvider>(context, listen: false).currentUser;
+        if (user != null) {
+          // Upload to Firebase Storage
+          final voiceNoteUrl = await _voiceNoteService.uploadVoiceNote(
+            filePath: filePath,
+            chatId: widget.orderId ?? user.id,
+            userId: user.id,
+          );
+
+          if (voiceNoteUrl != null) {
+            // Send as chat message
+            await _voiceNoteService.sendVoiceNote(
+              chatId: widget.orderId ?? user.id,
+              userId: user.id,
+              voiceNoteUrl: voiceNoteUrl,
+              durationSeconds: _voiceRecordingDuration,
+            );
+
+            // Refresh chat
+            Provider.of<ChatProvider>(context, listen: false).listenToMessages(user.id, customerView: true);
+            _scrollToBottom();
+          }
+        }
+      }
+      setState(() {
+        _isRecordingVoice = false;
+        _voiceRecordingDuration = 0;
+      });
+    } else {
+      // Start recording
+      final started = await _voiceNoteService.startRecording();
+      if (started) {
+        setState(() {
+          _isRecordingVoice = true;
+        });
+
+        // Update duration every second
+        Future.doWhile(() async {
+          await Future.delayed(const Duration(seconds: 1));
+          if (_isRecordingVoice && mounted) {
+            setState(() {
+              _voiceRecordingDuration++;
+            });
+          }
+          return _isRecordingVoice;
+        });
+      }
+    }
+  }
+
   @override
   void dispose() {
     _controller.dispose();
     _scrollController.dispose();
+    _voiceNoteService.dispose();
+    if (_isRecordingVoice) {
+      _voiceNoteService.cancelRecording();
+    }
     super.dispose();
   }
 
@@ -122,11 +187,20 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
       child: Row(
         children: [
           IconButton(
-            onPressed: () {
-              // TODO: Implement Voice Note shortcut
-            },
-            icon: const Icon(Icons.mic, color: AppTheme.primary),
+            onPressed: _recordVoiceNote,
+            icon: Icon(
+              _isRecordingVoice ? Icons.stop_circle : Icons.mic,
+              color: _isRecordingVoice ? Colors.red : AppTheme.primary,
+            ),
           ),
+          if (_isRecordingVoice)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(
+                '$_voiceRecordingDuration"',
+                style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold),
+              ),
+            ),
           Expanded(
             child: TextField(
               controller: _controller,

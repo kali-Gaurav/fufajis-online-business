@@ -525,7 +525,7 @@ class _CartScreenState extends State<CartScreen> {
                                   width: 44,
                                   height: 44,
                                   alignment: Alignment.center,
-                                  child: Icon(
+                                  child: const Icon(
                                     Icons.remove,
                                     color: Colors.white,
                                     size: 20,
@@ -550,7 +550,7 @@ class _CartScreenState extends State<CartScreen> {
                                   width: 44,
                                   height: 44,
                                   alignment: Alignment.center,
-                                  child: Icon(
+                                  child: const Icon(
                                     Icons.add,
                                     color: Colors.white,
                                     size: 20,
@@ -600,7 +600,7 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildCartBottomSheet(CartProvider cartProvider) {
-    final minOrder = 500.0;
+    const minOrder = 500.0;
     final canCheckout = cartProvider.subtotal >= minOrder;
 
     return Container(
@@ -764,14 +764,14 @@ class _CartScreenState extends State<CartScreen> {
                   width: 1.5,
                 ),
               ),
-              child: Row(
+              child: const Row(
                 children: [
                   Icon(
                     Icons.info_outline,
                     color: AppTheme.warning,
                     size: 18,
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Minimum order: ₹500',
@@ -790,7 +790,7 @@ class _CartScreenState extends State<CartScreen> {
             width: double.infinity,
             height: 56,
             decoration: BoxDecoration(
-              gradient: canCheckout ? AppTheme.buttonGradient : LinearGradient(
+              gradient: canCheckout ? AppTheme.buttonGradient : const LinearGradient(
                 colors: [AppTheme.grey300, AppTheme.grey400],
               ),
               borderRadius: BorderRadius.circular(16),

@@ -92,7 +92,6 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
         // Parse order from Firestore document
         // This converts the raw Firestore data to OrderModel for display
-        final orderProvider = Provider.of<OrderProvider>(context, listen: false);
         _order = OrderModel.fromMap(_rawOrderData ?? {});
 
         // Show loading if order parsing failed

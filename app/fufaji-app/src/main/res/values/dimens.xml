@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Padding and Margins -->
+    <dimen name="padding_xxs">2dp</dimen>
+    <dimen name="padding_xs">4dp</dimen>
+    <dimen name="padding_sm">8dp</dimen>
+    <dimen name="padding_md">12dp</dimen>
+    <dimen name="padding_lg">16dp</dimen>
+    <dimen name="padding_xl">20dp</dimen>
+    <dimen name="padding_xxl">24dp</dimen>
+    <dimen name="padding_xxxl">32dp</dimen>
+
+    <!-- Button Heights -->
+    <dimen name="button_height_small">40dp</dimen>
+    <dimen name="button_height_normal">48dp</dimen>
+    <dimen name="button_height_large">56dp</dimen>
+
+    <!-- Text Sizes -->
+    <dimen name="text_size_caption">10sp</dimen>
+    <dimen name="text_size_small">12sp</dimen>
+    <dimen name="text_size_body">13sp</dimen>
+    <dimen name="text_size_label">14sp</dimen>
+    <dimen name="text_size_subtitle">16sp</dimen>
+    <dimen name="text_size_title">20sp</dimen>
+    <dimen name="text_size_headline">24sp</dimen>
+    <dimen name="text_size_display">32sp</dimen>
+
+    <!-- Icon Sizes -->
+    <dimen name="icon_size_small">24dp</dimen>
+    <dimen name="icon_size_normal">32dp</dimen>
+    <dimen name="icon_size_large">48dp</dimen>
+    <dimen name="icon_size_xlarge">64dp</dimen>
+
+    <!-- Component Sizes -->
+    <dimen name="header_height">56dp</dimen>
+    <dimen name="toolbar_height">64dp</dimen>
+    <dimen name="search_bar_height">48dp</dimen>
+    <dimen name="card_corner_radius">12dp</dimen>
+    <dimen name="button_corner_radius">8dp</dimen>
+
+    <!-- Product Grid -->
+    <integer name="product_grid_column_count">2</integer>
+    <dimen name="product_image_height">160dp</dimen>
+    <dimen name="category_emoji_size">40sp</dimen>
+    <dimen name="category_icon_size">72dp</dimen>
+
+    <!-- Cart Item Sizes -->
+    <dimen name="cart_item_image_size">80dp</dimen>
+    <dimen name="quantity_control_size">32dp</dimen>
+
+    <!-- Elevation -->
+    <dimen name="elevation_default">4dp</dimen>
+    <dimen name="elevation_raised">8dp</dimen>
+    <dimen name="elevation_floating">16dp</dimen>
+
+    <!-- Stroke Widths -->
+    <dimen name="stroke_width_thin">1dp</dimen>
+    <dimen name="stroke_width_normal">2dp</dimen>
+
+    <!-- Spacing Between Elements -->
+    <dimen name="spacing_between_items">8dp</dimen>
+    <dimen name="spacing_between_sections">16dp</dimen>
+
+    <!-- Min Touch Target Size (Material Design) -->
+    <dimen name="min_touch_target">48dp</dimen>
+
+    <!-- Dialog Sizes -->
+    <dimen name="dialog_min_width">280dp</dimen>
+    <dimen name="dialog_max_width">560dp</dimen>
+
+    <!-- Animation Durations (milliseconds) -->
+    <integer name="animation_duration_short">150</integer>
+    <integer name="animation_duration_normal">300</integer>
+    <integer name="animation_duration_long">500</integer>
+
+</resources>

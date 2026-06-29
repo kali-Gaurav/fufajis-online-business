@@ -31,6 +31,8 @@ coverage/
 .env.staging
 .env.production
 .env.development
+.env.edge
+.env.*
 *.env.js
 env.js
 

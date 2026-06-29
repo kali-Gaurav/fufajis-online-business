@@ -12,7 +12,6 @@ import '../../models/product_model.dart';
 import '../../models/purchase_order.dart';
 import '../../services/printer_service.dart';
 import '../../utils/app_theme.dart';
-import '../../utils/monetary_value.dart';
 import '../../widgets/employee/printer_select_dialog.dart';
 
 class InventoryReceivingScreen extends StatefulWidget {
@@ -51,10 +50,9 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
   Map<String, double> _poCostPrices = {};
   bool _poMode = false;
   bool _autoPrintShelfTag = false;
+  static const String _keyAutoPrintShelfTag = 'auto_print_shelf_tag_on_receiving';
   bool _autoFillActive = false;
   int _batchCount = 0;
-  static const String _keyAutoPrintShelfTag = 'auto_print_shelf_tag_on_receiving';
-
   Future<void> _loadAutoPrintSetting() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {

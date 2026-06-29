@@ -132,7 +132,7 @@ class _ExpiryTrackingWidgetState extends State<ExpiryTrackingWidget> {
                 child: const Row(
                   children: [
                     Icon(Icons.check_circle, color: AppTheme.success, size: 20),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Text(
                       'All products are fresh',
                       style: TextStyle(

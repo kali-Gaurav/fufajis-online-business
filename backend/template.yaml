@@ -1,0 +1,100 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Fufaji backend — one Lambda behind a free Function URL. Secrets from SSM.
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Timeout: 30
+    MemorySize: 512
+
+Parameters:
+  S3BucketName:
+    Type: String
+    Default: bucket-ofqh8w
+    Description: S3 bucket the backend may read/write (media, invoices, proofs).
+
+Resources:
+  FufajiApi:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: fufaji-backend
+      Handler: src/lambda.handler
+      CodeUri: .
+      Environment:
+        Variables:
+          SSM_PREFIX: /fufaji/
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ssm:GetParametersByPath
+                - ssm:GetParameter
+                - ssm:GetParameters
+              Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/fufaji/*'
+            - Effect: Allow
+              Action:
+                - s3:PutObject
+                - s3:GetObject
+                - s3:DeleteObject
+              Resource: !Sub 'arn:aws:s3:::${S3BucketName}/*'
+      FunctionUrlConfig:
+        AuthType: NONE
+        Cors:
+          AllowOrigins: ['*']
+          AllowMethods: ['*']
+          AllowHeaders:
+            - authorization
+            - content-type
+            - x-razorpay-signature
+      Events:
+        HourlyInventoryAlerts:
+          Type: Schedule
+          Properties:
+            Schedule: 'rate(1 hour)'
+            Input: '{"job": "checkInventoryAlerts"}'
+        HourlyProcessExpiries:
+          Type: Schedule
+          Properties:
+            Schedule: 'rate(1 hour)'
+            Input: '{"job": "processExpiries"}'
+        HourlyDynamicPricing:
+          Type: Schedule
+          Properties:
+            Schedule: 'rate(1 hour)'
+            Input: '{"job": "updateDynamicPricing"}'
+        DailyExpiryAlerts:
+          Type: Schedule
+          Properties:
+            Schedule: 'cron(0 0 * * ? *)'
+            Input: '{"job": "checkExpiryAlerts"}'
+        FifteenMinReconcileOrphans:
+          Type: Schedule
+          Properties:
+            Schedule: 'rate(15 minutes)'
+            Input: '{"job": "reconcileOrphanedPayments"}'
+        ProcessNotificationQueue:
+          Type: Schedule
+          Properties:
+            Schedule: 'rate(1 minute)'
+            Input: '{"job": "processNotificationQueue"}'
+        WeeklyNotificationQueueCleanup:
+          Type: Schedule
+          Properties:
+            Schedule: 'cron(30 21 ? * SAT *)'
+            Input: '{"job": "cleanupNotificationQueue"}'
+        DailyOwnerReport:
+          Type: Schedule
+          Properties:
+            Schedule: 'cron(30 16 * * ? *)'
+            Input: '{"job": "sendDailyOwnerReport"}'
+        HourlyTimeBasedAutomationRules:
+          Type: Schedule
+          Properties:
+            Schedule: 'rate(1 hour)'
+            Input: '{"job": "checkTimeBasedAutomationRules"}'
+
+Outputs:
+  FunctionUrl:
+    Description: Base URL of the Fufaji backend (use as API_BASE_URL in the app).
+    Value: !GetAtt FufajiApiUrl.FunctionUrl

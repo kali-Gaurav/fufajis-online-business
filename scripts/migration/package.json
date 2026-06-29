@@ -1,0 +1,21 @@
+{
+  "name": "fufaji-firestore-postgres-migration",
+  "version": "1.0.0",
+  "private": true,
+  "description": "One-time/backfill migration of historical Firestore data into the Supabase/Postgres master database for Fufaji Store.",
+  "main": "migrate.js",
+  "type": "commonjs",
+  "scripts": {
+    "migrate": "node migrate.js",
+    "migrate:dry": "node migrate.js --dry-run",
+    "backfill:category-parents": "node backfill_category_parents.js",
+    "backfill:category-parents:dry": "node backfill_category_parents.js --dry-run",
+    "backfill:shops-branches": "node backfill_shops_branches.js",
+    "backfill:shops-branches:dry": "node backfill_shops_branches.js --dry-run"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "firebase-admin": "^13.10.0",
+    "pg": "^8.11.5"
+  }
+}

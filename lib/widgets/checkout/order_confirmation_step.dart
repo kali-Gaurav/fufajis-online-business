@@ -191,11 +191,11 @@ class _OrderConfirmationStepState extends State<OrderConfirmationStep> {
             const SizedBox(height: 8),
             _buildOrderSummaryRow('Discount', -order.discount.toDouble(), isDiscount: true),
           ],
-          if ((order.walletAmountUsed?.toDouble() ?? 0.0) > 0) ...[
+          if ((order.walletAmountUsed.toDouble() ?? 0.0) > 0) ...[
             const SizedBox(height: 8),
             _buildOrderSummaryRow(
               'Wallet Used',
-              -(order.walletAmountUsed?.toDouble() ?? 0.0),
+              -(order.walletAmountUsed.toDouble() ?? 0.0),
               isDiscount: true,
             ),
           ],

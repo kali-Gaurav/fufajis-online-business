@@ -5,7 +5,7 @@ import '../models/user_model.dart';
 
 class OwnerInitializationService {
   static List<String> get _primaryOwners {
-    final ownersStr = const String.fromEnvironment('OWNER_PHONES', defaultValue: '');
+    const ownersStr = String.fromEnvironment('OWNER_PHONES', defaultValue: '');
     if (ownersStr.isEmpty) return [];
     return ownersStr.split(',').map((e) => e.trim()).toList();
   }

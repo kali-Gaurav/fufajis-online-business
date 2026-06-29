@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Network -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Location -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- Phone State (for OTP auto-fill) -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+
+    <!-- Storage -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <!-- Camera (for future use) -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <application
+        android:name=".FujafiApplication"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.FujafiStore"
+        android:usesCleartextTraffic="false"
+        tools:targetApi="31">
+
+        <!-- Login Activity (Entry Point) -->
+        <activity
+            android:name=".activities.LoginActivity"
+            android:exported="true"
+            android:theme="@style/Theme.FujafiStore.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Main Home Activity -->
+        <activity
+            android:name=".activities.MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.FujafiStore" />
+
+        <!-- Product Detail Activity -->
+        <activity
+            android:name=".activities.ProductDetailActivity"
+            android:exported="true"
+            android:theme="@style/Theme.FujafiStore" />
+
+        <!-- Cart Activity -->
+        <activity
+            android:name=".activities.CartActivity"
+            android:exported="true"
+            android:theme="@style/Theme.FujafiStore" />
+
+        <!-- Checkout Activity -->
+        <activity
+            android:name=".activities.CheckoutActivity"
+            android:exported="true"
+            android:theme="@style/Theme.FujafiStore" />
+
+        <!-- Order Success Activity -->
+        <activity
+            android:name=".activities.OrderSuccessActivity"
+            android:exported="true"
+            android:theme="@style/Theme.FujafiStore" />
+
+        <!-- Order History Activity -->
+        <activity
+            android:name=".activities.OrderHistoryActivity"
+            android:exported="true"
+            android:theme="@style/Theme.FujafiStore" />
+
+        <!-- Owner Dashboard Activity -->
+        <activity
+            android:name=".activities.OwnerDashboardActivity"
+            android:exported="true"
+            android:theme="@style/Theme.FujafiStore" />
+
+        <!-- Inventory Management Activity -->
+        <activity
+            android:name=".activities.InventoryActivity"
+            android:exported="true"
+            android:theme="@style/Theme.FujafiStore" />
+
+        <!-- Order Management Activity -->
+        <activity
+            android:name=".activities.OrderManagementActivity"
+            android:exported="true"
+            android:theme="@style/Theme.FujafiStore" />
+
+        <!-- Account/Profile Activity -->
+        <activity
+            android:name=".activities.AccountActivity"
+            android:exported="true"
+            android:theme="@style/Theme.FujafiStore" />
+
+        <!-- Firebase Cloud Messaging Service -->
+        <service
+            android:name=".services.NotificationService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- Razorpay Payment Service -->
+        <activity
+            android:name="com.razorpay.CheckoutActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/RazorpayCheckout"
+            tools:replace="android:exported,android:theme" />
+
+        <!-- Google Play Services (Maps) -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAcxtNxcPCuqoJNkPzg71PLF97mU-2d6Uk" />
+
+    </application>
+
+</manifest>

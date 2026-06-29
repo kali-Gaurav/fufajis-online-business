@@ -1,0 +1,14 @@
+; PgBouncer auth file template — copy to userlist.txt and fill in real values.
+; DO NOT commit the real userlist.txt (it contains password hashes).
+;
+; Format: "username" "md5<md5(password + username)>"
+; Generate the hash with:
+;   echo -n "<password><username>" | md5sum
+; then prefix the output with "md5".
+;
+; Add one line per Postgres role that Cloud Functions / migration scripts
+; connect as (matches rds.user in `firebase functions:config:get`), plus an
+; admin user for PgBouncer's own console (SHOW POOLS, SHOW STATS, etc.).
+
+"fufaji_app" "md5REPLACE_WITH_GENERATED_HASH"
+"pgbouncer_admin" "md5REPLACE_WITH_GENERATED_HASH"

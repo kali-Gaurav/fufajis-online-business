@@ -568,8 +568,8 @@ class OfflineSyncService {
         .get();
 
     if (!branchSnap.exists || branchSnap.data() == null) {
-      return _ContactInfo(
-        phoneNumber: const String.fromEnvironment(
+      return const _ContactInfo(
+        phoneNumber: String.fromEnvironment(
           'WHATSAPP_OPERATIONS_PHONE',
           defaultValue: '',
         ),
@@ -628,8 +628,8 @@ class OfflineSyncService {
     }
 
     // 5. Global fallback
-    return _ContactInfo(
-      phoneNumber: const String.fromEnvironment(
+    return const _ContactInfo(
+      phoneNumber: String.fromEnvironment(
         'WHATSAPP_OPERATIONS_PHONE',
         defaultValue: '919876543210',
       ),

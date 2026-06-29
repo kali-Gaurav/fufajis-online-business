@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Colors (Material Design 3) -->
+    <color name="primary_color">#1A5276</color>
+    <color name="primary_light">#4A90E2</color>
+    <color name="primary_dark">#0D2E42</color>
+
+    <!-- Secondary / Accent Colors -->
+    <color name="accent_color">#E67E22</color>
+    <color name="accent_light">#F39C12</color>
+    <color name="accent_dark">#D35400</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#BDBDBD</color>
+
+    <!-- Background Colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="light_gray">#F5F5F5</color>
+    <color name="gray">#E0E0E0</color>
+    <color name="dark_gray">#BDBDBD</color>
+
+    <!-- Status Colors -->
+    <color name="success_color">#4CAF50</color>
+    <color name="success_light">#81C784</color>
+    <color name="success_dark">#388E3C</color>
+
+    <color name="error_color">#F44336</color>
+    <color name="error_light">#EF5350</color>
+    <color name="error_dark">#D32F2F</color>
+
+    <color name="warning_color">#FF9800</color>
+    <color name="warning_light">#FFB74D</color>
+    <color name="warning_dark">#F57C00</color>
+
+    <color name="info_color">#2196F3</color>
+    <color name="info_light">#64B5F6</color>
+    <color name="info_dark">#1976D2</color>
+
+    <!-- Stock Status Colors -->
+    <color name="in_stock">#4CAF50</color>
+    <color name="low_stock">#FF9800</color>
+    <color name="out_of_stock">#F44336</color>
+
+    <!-- UI Element Colors -->
+    <color name="divider_color">#E0E0E0</color>
+    <color name="chip_background">#F0F0F0</color>
+    <color name="card_shadow">#000000</color>
+
+    <!-- Material Design 3 Extended Colors -->
+    <color name="tertiary_color">#7B2D7D</color>
+    <color name="tertiary_light">#9C4D9C</color>
+    <color name="tertiary_dark">#5A1D5A</color>
+
+    <!-- Overlay Colors -->
+    <color name="overlay_dark">#40000000</color>
+    <color name="overlay_light">#40FFFFFF</color>
+
+    <!-- Category Colors -->
+    <color name="category_vegetables">#81C784</color>
+    <color name="category_dairy">#FFB74D</color>
+    <color name="category_grains">#A1887F</color>
+    <color name="category_spices">#EF5350</color>
+    <color name="category_oils">#FFD54F</color>
+    <color name="category_fruits">#FF7043</color>
+    <color name="category_snacks">#CE93D8</color>
+    <color name="category_beverages">#4DD0E1</color>
+    <color name="category_household">#90CAF9</color>
+    <color name="category_health">#9CCC65</color>
+</resources>

@@ -1,0 +1,40 @@
+{
+  "rules": {
+    "live_orders": {
+      ".read": "auth != null",
+      "$orderId": {
+        "packing": {
+          ".write": "root.child('active_order_locks').child($orderId).child('employee_id').val() == auth.uid || root.child('user_presence').child(auth.uid).child('role').val() == 'owner' || root.child('user_presence').child(auth.uid).child('role').val() == 'admin'"
+        }
+      }
+    },
+    "active_order_locks": {
+      ".read": "auth != null",
+      "$orderId": {
+        ".write": "auth != null && (!data.exists() || data.child('employee_id').val() == auth.uid || (now - data.child('timestamp').val() > 120000))"
+      }
+    },
+    "rider_tracking": {
+      ".read": "auth != null",
+      "$riderId": {
+        ".write": "auth.uid == $riderId || root.child('user_presence').child(auth.uid).child('role').val() == 'owner'"
+      }
+    },
+    "user_presence": {
+      ".read": "auth != null",
+      "$userId": {
+        ".write": "auth.uid == $userId"
+      }
+    },
+    "chat_presence": {
+      ".read": "auth != null",
+      "$roomId": {
+        "typing": {
+          "$userId": {
+            ".write": "auth.uid == $userId"
+          }
+        }
+      }
+    }
+  }
+}

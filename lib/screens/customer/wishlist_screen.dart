@@ -6,7 +6,6 @@ import '../../providers/auth_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/product_provider.dart';
 import '../../utils/app_theme.dart';
-import '../../utils/monetary_value.dart';
 
 class WishlistScreen extends StatelessWidget {
   const WishlistScreen({super.key});

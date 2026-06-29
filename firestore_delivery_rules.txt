@@ -1,0 +1,224 @@
+/**
+ * Firestore Security Rules for Delivery System
+ *
+ * Collections created for Phase 3:
+ * - delivery_agents
+ * - delivery_tasks
+ * - delivery_locations
+ * - delivery_tracking
+ * - delivery_otps
+ * - delivery_assignments
+ * - tracking_sessions
+ * - rider_notifications
+ * - customer_notifications
+ * - delivery_feedback
+ * - feedback_requests
+ * - eta_cache
+ * - rider_locations
+ *
+ * Rules:
+ * - Only authenticated users can access
+ * - Riders can only modify their own data
+ * - Customers can only view their deliveries
+ * - Admin/backend can modify all
+ */
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return request.auth.token.admin == true;
+    }
+
+    function isRider() {
+      return request.auth.token.role == 'rider';
+    }
+
+    function isCustomer() {
+      return request.auth.token.role == 'customer';
+    }
+
+    function isRiderOwnData(riderId) {
+      return isRider() && request.auth.uid == riderId;
+    }
+
+    function isCustomerOwnData(customerId) {
+      return isCustomer() && request.auth.uid == customerId;
+    }
+
+    // Delivery Agents - Rider profiles
+    match /delivery_agents/{agentId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAdmin() || isRiderOwnData(agentId);
+      allow delete: if isAdmin();
+    }
+
+    // Delivery Tasks - Order assignments
+    match /delivery_tasks/{taskId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        isRiderOwnData(resource.data.rider_id) ||
+        isCustomerOwnData(resource.data.customer_id)
+      );
+      allow create, update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // GPS Locations - Real-time rider tracking
+    match /delivery_locations/{locationId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        isRiderOwnData(resource.data.rider_id)
+      );
+      allow create: if isAuthenticated() && isRiderOwnData(request.resource.data.rider_id);
+      allow update: if false; // Locations are immutable
+      allow delete: if isAdmin();
+    }
+
+    // Rider Current Location
+    match /rider_locations/{riderId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        isRiderOwnData(riderId)
+      );
+      allow write: if isAuthenticated() && isRiderOwnData(riderId);
+      allow delete: if isAdmin();
+    }
+
+    // Delivery Tracking - Location history
+    match /delivery_tracking/{trackingId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // OTP Records - Delivery verification
+    match /delivery_otps/{otpId} {
+      allow read: if isAuthenticated() && isAdmin();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Delivery Assignments - History
+    match /delivery_assignments/{assignmentId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Tracking Sessions
+    match /tracking_sessions/{sessionId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        isRiderOwnData(resource.data.rider_id)
+      );
+      allow create, update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Rider Notifications
+    match /rider_notifications/{notificationId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        isRiderOwnData(resource.data.rider_id)
+      );
+      allow create: if isAdmin();
+      allow update: if isAuthenticated() && isRiderOwnData(resource.data.rider_id);
+      allow delete: if isAdmin();
+    }
+
+    // Customer Notifications
+    match /customer_notifications/{notificationId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        isCustomerOwnData(resource.data.customer_id)
+      );
+      allow create: if isAdmin();
+      allow update: if isAuthenticated() && isCustomerOwnData(resource.data.customer_id);
+      allow delete: if isAdmin();
+    }
+
+    // Delivery Feedback
+    match /delivery_feedback/{feedbackId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        isCustomerOwnData(resource.data.customer_id)
+      );
+      allow create: if isAdmin() || isCustomerOwnData(request.resource.data.customer_id);
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Feedback Requests
+    match /feedback_requests/{requestId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        isCustomerOwnData(resource.data.customer_id)
+      );
+      allow create: if isAdmin();
+      allow update: if isCustomerOwnData(resource.data.customer_id) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ETA Cache
+    match /eta_cache/{cacheId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Orders - Updated for delivery
+    match /orders/{orderId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        isCustomerOwnData(resource.data.customer_id)
+      );
+      allow create: if isCustomerOwnData(request.resource.data.customer_id);
+      allow update: if isAdmin() || (
+        isCustomerOwnData(resource.data.customer_id) &&
+        request.resource.data.status != null
+      );
+      allow delete: if isAdmin();
+    }
+
+    // User Wallets
+    match /user_wallets/{userId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        isCustomerOwnData(userId)
+      );
+      allow write: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Wallet Transactions
+    match /wallet_transactions/{transactionId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        isCustomerOwnData(resource.data.user_id)
+      );
+      allow create: if isAdmin();
+      allow delete: if isAdmin();
+      allow update: if false; // Transactions immutable
+    }
+
+    // Packing Tasks
+    match /packing_tasks/{packingId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Default deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

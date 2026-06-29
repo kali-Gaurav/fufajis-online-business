@@ -1,0 +1,325 @@
+{
+  "version": "1.0.0",
+  "description": "Alert configuration for Fufaji monitoring stack",
+  "createdDate": "2026-06-22",
+  "alertChannels": {
+    "email": {
+      "type": "email",
+      "recipients": [
+        "gaurav@fufaji.com",
+        "ops@fufaji.com"
+      ],
+      "enabled": true
+    },
+    "slack": {
+      "type": "slack",
+      "webhookUrl": "${SLACK_WEBHOOK_URL}",
+      "channel": "#fufaji-alerts",
+      "enabled": false,
+      "note": "Enable after setting SLACK_WEBHOOK_URL"
+    },
+    "pagerduty": {
+      "type": "pagerduty",
+      "integrationKey": "${PAGERDUTY_INTEGRATION_KEY}",
+      "enabled": false,
+      "note": "Enable for critical production incidents"
+    }
+  },
+  "crashlytics": {
+    "enabled": true,
+    "alerts": [
+      {
+        "name": "high_crash_rate",
+        "description": "Alert when crash-free users drops below 95%",
+        "metric": "crash_free_users_percent",
+        "threshold": 95,
+        "operator": "less_than",
+        "duration": "1_hour",
+        "channels": ["email"],
+        "severity": "high"
+      },
+      {
+        "name": "new_fatal_crash",
+        "description": "Alert on any new fatal crash",
+        "metric": "new_issue",
+        "threshold": 1,
+        "operator": "greater_than_or_equal",
+        "duration": "immediate",
+        "channels": ["email", "slack"],
+        "severity": "critical"
+      },
+      {
+        "name": "crash_spike",
+        "description": "Alert when crash count spikes (>10 in 1 hour)",
+        "metric": "crashes_per_hour",
+        "threshold": 10,
+        "operator": "greater_than",
+        "duration": "1_hour",
+        "channels": ["email", "slack"],
+        "severity": "high"
+      },
+      {
+        "name": "affected_users_threshold",
+        "description": "Alert when >1000 users affected by single issue",
+        "metric": "affected_users",
+        "threshold": 1000,
+        "operator": "greater_than",
+        "duration": "immediate",
+        "channels": ["email", "slack", "pagerduty"],
+        "severity": "critical"
+      }
+    ]
+  },
+  "firebase_analytics": {
+    "enabled": true,
+    "alerts": [
+      {
+        "name": "low_dau",
+        "description": "Alert if Daily Active Users drops >30% from baseline",
+        "metric": "daily_active_users",
+        "baseline": "30_day_average",
+        "threshold": 30,
+        "operator": "percent_decrease",
+        "channels": ["email"],
+        "severity": "medium"
+      },
+      {
+        "name": "payment_failure_spike",
+        "description": "Alert if payment failure rate >5%",
+        "metric": "payment_verified_ratio",
+        "threshold": 0.95,
+        "operator": "less_than",
+        "duration": "1_hour",
+        "channels": ["email", "slack"],
+        "severity": "high"
+      },
+      {
+        "name": "order_abandonment",
+        "description": "Alert if order creation to payment drop >50%",
+        "metric": "order_created_to_payment_verified",
+        "threshold": 0.5,
+        "operator": "less_than",
+        "duration": "2_hours",
+        "channels": ["email"],
+        "severity": "medium"
+      },
+      {
+        "name": "delivery_completion_drop",
+        "description": "Alert if delivery completion rate <95%",
+        "metric": "order_delivered_ratio",
+        "threshold": 0.95,
+        "operator": "less_than",
+        "duration": "4_hours",
+        "channels": ["email"],
+        "severity": "medium"
+      }
+    ]
+  },
+  "firestore_quota": {
+    "enabled": true,
+    "checkInterval": "every_6_hours",
+    "alerts": [
+      {
+        "name": "writes_quota_warning",
+        "description": "Alert when writes exceed 16,000/day (80%)",
+        "metric": "daily_writes",
+        "threshold": 16000,
+        "operator": "greater_than",
+        "channels": ["email"],
+        "severity": "medium",
+        "recommendation": "Review write patterns, consider batching"
+      },
+      {
+        "name": "writes_quota_critical",
+        "description": "Alert when writes exceed 19,000/day (95%)",
+        "metric": "daily_writes",
+        "threshold": 19000,
+        "operator": "greater_than",
+        "channels": ["email", "slack", "pagerduty"],
+        "severity": "critical",
+        "recommendation": "Immediate action required. Check for runaway queries or loops."
+      },
+      {
+        "name": "reads_quota_warning",
+        "description": "Alert when reads exceed 40,000/day (80%)",
+        "metric": "daily_reads",
+        "threshold": 40000,
+        "operator": "greater_than",
+        "channels": ["email"],
+        "severity": "medium",
+        "recommendation": "Review read patterns, add caching"
+      },
+      {
+        "name": "reads_quota_critical",
+        "description": "Alert when reads exceed 47,500/day (95%)",
+        "metric": "daily_reads",
+        "threshold": 47500,
+        "operator": "greater_than",
+        "channels": ["email", "slack", "pagerduty"],
+        "severity": "critical",
+        "recommendation": "Immediate action required. Implement read caching or upgrade plan."
+      },
+      {
+        "name": "storage_quota_warning",
+        "description": "Alert when storage exceeds 800MB (80%)",
+        "metric": "storage_bytes",
+        "threshold": 838860800,
+        "operator": "greater_than",
+        "channels": ["email"],
+        "severity": "medium",
+        "recommendation": "Plan data archival strategy"
+      }
+    ]
+  },
+  "backend_health": {
+    "enabled": true,
+    "healthCheckInterval": "every_30_minutes",
+    "alerts": [
+      {
+        "name": "health_check_failed",
+        "description": "Alert when health endpoint returns non-200 status",
+        "metric": "http_status_code",
+        "threshold": 200,
+        "operator": "not_equal",
+        "channels": ["email", "slack"],
+        "severity": "high"
+      },
+      {
+        "name": "high_function_latency",
+        "description": "Alert if function response time >5 seconds",
+        "metric": "response_time_ms",
+        "threshold": 5000,
+        "operator": "greater_than",
+        "channels": ["email"],
+        "severity": "medium"
+      },
+      {
+        "name": "function_errors",
+        "description": "Alert if error rate >1%",
+        "metric": "error_rate_percent",
+        "threshold": 1,
+        "operator": "greater_than",
+        "duration": "1_hour",
+        "channels": ["email", "slack"],
+        "severity": "high"
+      }
+    ]
+  },
+  "backend_logging": {
+    "enabled": true,
+    "alerts": [
+      {
+        "name": "payment_verification_failures",
+        "description": "Alert on payment verification errors",
+        "logFilter": "level=ERROR AND message CONTAINS 'Payment verification'",
+        "threshold": 5,
+        "operator": "greater_than",
+        "duration": "1_hour",
+        "channels": ["email", "slack"],
+        "severity": "high"
+      },
+      {
+        "name": "database_operation_failures",
+        "description": "Alert on database operation failures",
+        "logFilter": "level=ERROR AND operation IN ('write', 'read', 'delete')",
+        "threshold": 10,
+        "operator": "greater_than",
+        "duration": "1_hour",
+        "channels": ["email"],
+        "severity": "high"
+      },
+      {
+        "name": "security_events",
+        "description": "Alert on any security events",
+        "logFilter": "level IN ('ERROR', 'FATAL') AND eventType IN ('unauthorized', 'invalid_signature', 'authentication_failed')",
+        "threshold": 1,
+        "operator": "greater_than_or_equal",
+        "duration": "immediate",
+        "channels": ["email", "slack", "pagerduty"],
+        "severity": "critical"
+      }
+    ]
+  },
+  "escalation_policies": {
+    "tier1_warning": {
+      "severity": "medium",
+      "maxRetries": 3,
+      "retryInterval": "15_minutes",
+      "escalateAfter": "1_hour",
+      "escalateTo": "tier2_critical"
+    },
+    "tier2_critical": {
+      "severity": "high",
+      "channels": ["email", "slack", "pagerduty"],
+      "oncallTeam": "ops-team",
+      "maxRetries": 5,
+      "retryInterval": "5_minutes",
+      "escalateAfter": "30_minutes",
+      "escalateTo": "tier3_emergency"
+    },
+    "tier3_emergency": {
+      "severity": "critical",
+      "channels": ["email", "slack", "pagerduty"],
+      "oncallTeam": "incident-commander",
+      "notify": ["gaurav@fufaji.com"],
+      "createIncident": true
+    }
+  },
+  "maintenance_windows": [
+    {
+      "name": "weekly_maintenance",
+      "day": "sunday",
+      "startTime": "02:00",
+      "endTime": "04:00",
+      "timezone": "Asia/Kolkata",
+      "disableAlerts": true,
+      "message": "Weekly maintenance window - alerts suspended"
+    }
+  ],
+  "slo_targets": {
+    "uptime_99_9": {
+      "target": 0.999,
+      "errorBudget": {
+        "monthly": 43.2,
+        "description": "minutes of allowed downtime per month"
+      }
+    },
+    "crashlytics_crash_free_users": {
+      "target": 0.98,
+      "errorBudget": 0.02,
+      "description": "2% of users may experience crashes"
+    },
+    "payment_success_rate": {
+      "target": 0.998,
+      "errorBudget": 0.002,
+      "description": "0.2% failure rate allowed"
+    }
+  },
+  "onCallSchedule": {
+    "enabled": true,
+    "teams": [
+      {
+        "name": "ops-team",
+        "members": [
+          {
+            "name": "Gaurav Nagar",
+            "email": "gaurav@fufaji.com",
+            "phone": "+91-9999999999"
+          }
+        ],
+        "timezone": "Asia/Kolkata",
+        "rotationInterval": "weekly"
+      }
+    ]
+  },
+  "postIncidentReview": {
+    "enabled": true,
+    "triggerOn": [
+      "critical_severity_alert",
+      "slo_breach",
+      "manual_incident_creation"
+    ],
+    "templateUrl": "https://github.com/fufaji/online-business/issues/new?template=postmortem.md",
+    "dueWithinHours": 24
+  }
+}

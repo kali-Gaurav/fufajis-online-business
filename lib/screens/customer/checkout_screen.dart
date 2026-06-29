@@ -469,7 +469,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         children: [
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.local_shipping,
                 color: AppTheme.success,
                 size: 20,
@@ -492,7 +492,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             children: [
               Row(
                 children: [
-                  Icon(Icons.schedule, size: 16, color: AppTheme.grey600),
+                  const Icon(Icons.schedule, size: 16, color: AppTheme.grey600),
                   const SizedBox(width: 8),
                   Text(
                     'ETA',
@@ -519,7 +519,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             children: [
               Row(
                 children: [
-                  Icon(Icons.payments, size: 16, color: AppTheme.grey600),
+                  const Icon(Icons.payments, size: 16, color: AppTheme.grey600),
                   const SizedBox(width: 8),
                   Text(
                     'Delivery Fee',
@@ -547,14 +547,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               color: AppTheme.success.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Row(
+            child: const Row(
               children: [
                 Icon(
                   Icons.verified_rounded,
                   size: 16,
                   color: AppTheme.success,
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Fufaji Guarantee: Fresh on arrival or money back',

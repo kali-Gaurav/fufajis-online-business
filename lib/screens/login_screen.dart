@@ -434,7 +434,7 @@ class _LoginScreenState extends State<LoginScreen>
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.phone_android_rounded, color: AppTheme.primary, size: 22),
+                            const Icon(Icons.phone_android_rounded, color: AppTheme.primary, size: 22),
                             const SizedBox(width: 12),
                             Text(
                               'Sign in with Phone',

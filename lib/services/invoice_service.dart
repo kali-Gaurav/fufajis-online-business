@@ -1,493 +1,338 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import '../models/order_model.dart';
-import '../models/invoice_model.dart';
-import '../config/app_config.dart';
-import 'package:intl/intl.dart';
-import 'gst_service.dart';
-import '../utils/pdf_theme.dart';
 
+/// Invoice PDF Generation Service
+/// Creates professional invoices for delivery completion
+/// Stores invoices in Firebase Storage for retrieval
 class InvoiceService {
-  /// Generates a professional Invoice ID and updates Firestore
-  static Future<String> finalizeInvoice(String orderId) async {
-    final year = DateTime.now().year;
-    final timestamp = DateTime.now().millisecondsSinceEpoch.toString().substring(8);
-    final invoiceId = "INV-$year-$timestamp";
-    
-    await FirebaseFirestore.instance.collection('orders').doc(orderId).update({
-      'invoiceId': invoiceId,
-      'invoiceGeneratedAt': FieldValue.serverTimestamp(),
-    });
-    
-    return invoiceId;
-  }
+  static final InvoiceService _instance = InvoiceService._internal();
+  factory InvoiceService() => _instance;
+  InvoiceService._internal();
 
-  /// Generate and print/share an invoice for [order].
-  ///
-  /// Supports thermal (58 mm / 80 mm) and A4 page formats.
-  /// Pass [pageFormat] to override – defaults to A4.
-  static Future<void> generateAndPrintInvoice(
-    OrderModel order, {
-    PdfPageFormat pageFormat = PdfPageFormat.a4,
-  }) async {
-    final pdf = pw.Document();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-    final font = await PdfGoogleFonts.notoSansRegular();
-    final boldFont = await PdfGoogleFonts.notoSansBold();
+  /// Generate invoice PDF for order
+  /// Returns PDF bytes and stores reference in Firestore
+  Future<Invoice> generateInvoice(OrderModel order) async {
+    try {
+      debugPrint('[Invoice] Generating invoice for order: ${order.id}');
 
-    // Thermal widths (58 mm ≈ 164 pt, 80 mm ≈ 227 pt)
-    final isThermal = pageFormat.width < 300;
+      // Create PDF document
+      final pdf = pw.Document();
 
-    pdf.addPage(
-      pw.Page(
-        pageFormat: pageFormat,
-        margin: isThermal
-            ? const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 8)
-            : const pw.EdgeInsets.all(24),
-        build: (pw.Context context) {
-          return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              // ── Header ────────────────────────────────────────────────
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                children: [
-                  pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      pw.Text(
-                        'TAX INVOICE',
-                        style: pw.TextStyle(
-                          font: boldFont,
-                          fontSize: isThermal ? 14 : 22,
-                          color: PdfAppTheme.info900,
-                        ),
-                      ),
-                      pw.SizedBox(height: 2),
-                      pw.Text(
-                        "Fufaji's Online Business",
-                        style: pw.TextStyle(
-                            font: boldFont, fontSize: isThermal ? 10 : 14),
-                      ),
-                      pw.Text(
-                        'Routemaster Intelligent Systems Pvt. Ltd.',
-                        style: pw.TextStyle(
-                            font: font, fontSize: isThermal ? 8 : 10),
-                      ),
-                      pw.Text(
-                        AppConfig.shopAddress,
-                        style: pw.TextStyle(
-                            font: font, fontSize: isThermal ? 7 : 9),
-                      ),
-                      pw.Text(
-                        'Ph: ${AppConfig.shopPhone}',
-                        style: pw.TextStyle(
-                            font: font, fontSize: isThermal ? 7 : 9),
-                      ),
-                      pw.Text(
-                        'GSTIN: 08AAACF1234A1Z1',
-                        style: pw.TextStyle(
-                            font: font, fontSize: isThermal ? 7 : 9),
-                      ),
-                    ],
-                  ),
-                  if (!isThermal)
-                    pw.Container(
-                      height: 60,
-                      width: 60,
-                      child: pw.BarcodeWidget(
-                        barcode: pw.Barcode.qrCode(),
-                        data:
-                            'https://fufajionline.com/track/${order.orderNumber}',
-                      ),
-                    ),
-                ],
-              ),
-              pw.SizedBox(height: isThermal ? 8 : 20),
+      // Format items for display
+      final itemsTable = order.items
+          .map((item) => [
+                item.name,
+                item.quantity.toString(),
+                '₹${item.price.toStringAsFixed(2)}',
+                '₹${(item.price * item.quantity).toStringAsFixed(2)}',
+              ])
+          .toList();
 
-              // ── QR / Order ID section ────────────────────────────────
-              pw.Container(
-                padding: const pw.EdgeInsets.all(6),
-                decoration: pw.BoxDecoration(
-                  border: pw.Border.all(color: PdfColors.grey400),
-                  borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
-                ),
-                child: pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+      // Build PDF
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                // Header
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
                     pw.Text(
-                      'Order Reference: ${order.orderNumber}',
+                      'FUFAJI STORE',
                       style: pw.TextStyle(
-                          font: boldFont, fontSize: isThermal ? 8 : 10),
+                        fontSize: 24,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
                     ),
                     pw.Text(
-                      'Order ID: ${order.id}',
+                      'INVOICE',
                       style: pw.TextStyle(
-                          font: font, fontSize: isThermal ? 7 : 8),
+                        fontSize: 18,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
-              ),
-              pw.SizedBox(height: isThermal ? 6 : 16),
+                pw.SizedBox(height: 20),
 
-              // ── Bill To & Order Info ─────────────────────────────────
-              if (!isThermal)
+                // Order details
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
                     pw.Column(
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
-                        pw.Text('BILL TO:',
-                            style: pw.TextStyle(
-                                font: boldFont, fontSize: 10)),
-                        pw.Text(order.customerName,
-                            style: pw.TextStyle(
-                                font: boldFont, fontSize: 12)),
-                        pw.Text(order.customerPhone,
-                            style:
-                                pw.TextStyle(font: font, fontSize: 10)),
-                        pw.Container(
-                          width: 200,
-                          child: pw.Text(
-                            order.deliveryAddress.fullAddress,
-                            style:
-                                pw.TextStyle(font: font, fontSize: 10),
-                          ),
+                        pw.Text(
+                          'Order #: ${order.orderNumber}',
+                          style: const pw.TextStyle(fontSize: 12),
+                        ),
+                        pw.Text(
+                          'Date: ${_formatDate(order.createdAt)}',
+                          style: const pw.TextStyle(fontSize: 12),
+                        ),
+                        pw.Text(
+                          'Time: ${_formatTime(order.createdAt)}',
+                          style: const pw.TextStyle(fontSize: 12),
                         ),
                       ],
                     ),
                     pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.end,
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
                         pw.Text(
-                          'Date: ${DateFormat('dd MMM yyyy').format(order.createdAt)}',
-                          style: pw.TextStyle(font: font, fontSize: 10),
+                          'Customer: ${order.customerName}',
+                          style: const pw.TextStyle(fontSize: 12),
                         ),
                         pw.Text(
-                          'Payment: ${order.paymentMethod.toString().split('.').last.toUpperCase()}',
-                          style: pw.TextStyle(font: font, fontSize: 10),
+                          'Phone: ${order.customerPhone}',
+                          style: const pw.TextStyle(fontSize: 12),
                         ),
                       ],
                     ),
                   ],
-                )
-              else
-                pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Text(order.customerName,
-                        style:
-                            pw.TextStyle(font: boldFont, fontSize: 9)),
-                    pw.Text(order.customerPhone,
-                        style: pw.TextStyle(font: font, fontSize: 8)),
-                    pw.Text(
-                        DateFormat('dd MMM yyyy')
-                            .format(order.createdAt),
-                        style: pw.TextStyle(font: font, fontSize: 8)),
-                  ],
                 ),
-              pw.SizedBox(height: isThermal ? 6 : 20),
+                pw.SizedBox(height: 20),
 
-              // ── Items Table ──────────────────────────────────────────
-              pw.Table(
-                border: pw.TableBorder.all(color: PdfColors.grey300),
-                columnWidths: {
-                  0: const pw.FlexColumnWidth(3),
-                  1: const pw.FlexColumnWidth(1),
-                  2: const pw.FlexColumnWidth(1),
-                  3: const pw.FlexColumnWidth(1),
-                },
-                children: [
-                  pw.TableRow(
-                    decoration:
-                        const pw.BoxDecoration(color: PdfColors.grey200),
-                    children: [
-                      _cell('Item', boldFont, 9),
-                      _cell('Qty', boldFont, 9),
-                      _cell('Rate', boldFont, 9),
-                      _cell('Amt', boldFont, 9),
-                    ],
+                // Items table
+                pw.TableHelper.fromTextArray(
+                  headers: ['Item', 'Qty', 'Price', 'Total'],
+                  data: itemsTable,
+                  border: pw.TableBorder.all(),
+                  headerStyle: pw.TextStyle(
+                    fontWeight: pw.FontWeight.bold,
                   ),
-                  ...order.items.map((item) => pw.TableRow(
-                        children: [
-                          _cell(item.productName, font, 8),
-                          _cell('${item.quantity}', font, 8),
-                          _cell(
-                              'Rs ${item.price.toStringAsFixed(2)}',
-                              font,
-                              8),
-                          _cell(
-                              'Rs ${item.totalPrice.toStringAsFixed(2)}',
-                              boldFont,
-                              8),
-                        ],
-                      )),
-                ],
-              ),
-              pw.SizedBox(height: isThermal ? 6 : 16),
+                  headerDecoration: const pw.BoxDecoration(
+                    color: PdfColors.grey300,
+                  ),
+                  cellHeight: 30,
+                  cellAlignment: pw.Alignment.centerLeft,
+                ),
+                pw.SizedBox(height: 20),
 
-              // ── Totals ───────────────────────────────────────────────
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.end,
-                children: [
-                  pw.Column(
+                // Totals
+                pw.Align(
+                  alignment: pw.Alignment.centerRight,
+                  child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.end,
                     children: [
-                      _summaryRow('Subtotal',
-                          order.subtotal.toDouble(), font, isThermal),
-                      _summaryRow('Delivery',
-                          order.deliveryCharge.toDouble(), font, isThermal),
-                      if (order.discount.toDouble() > 0)
-                        _summaryRow(
-                            'Discount', -order.discount.toDouble(), font, isThermal),
-                      // GST – configurable; currently 0% as per shop setup
-                      _summaryRow(
-                          'GST (0%)', 0.0, font, isThermal,
-                          note: true),
-                      pw.Divider(color: PdfColors.grey400),
                       pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                         children: [
-                          pw.Text('GRAND TOTAL: ',
-                              style: pw.TextStyle(
-                                  font: boldFont,
-                                  fontSize: isThermal ? 10 : 14)),
+                          pw.Text('Subtotal:'),
+                          pw.Text('₹${order.subtotal.toStringAsFixed(2)}'),
+                        ],
+                      ),
+                      pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                        children: [
+                          pw.Text('Delivery Fee:'),
+                          pw.Text('₹${order.deliveryCharge.toStringAsFixed(2)}'),
+                        ],
+                      ),
+                      pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                        children: [
+                          pw.Text('Tax (5%):'),
+                          pw.Text('₹${order.tax.toStringAsFixed(2)}'),
+                        ],
+                      ),
+                      if (order.discount > 0)
+                        pw.Row(
+                          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                          children: [
+                            pw.Text('Discount:'),
+                            pw.Text('-₹${order.discount.toStringAsFixed(2)}'),
+                          ],
+                        ),
+                      pw.Divider(),
+                      pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                        children: [
                           pw.Text(
-                            'Rs ${order.totalAmount.toStringAsFixed(2)}',
-                            style: pw.TextStyle(
-                              font: boldFont,
-                              fontSize: isThermal ? 10 : 14,
-                              color: PdfAppTheme.info900,
-                            ),
+                            'TOTAL:',
+                            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                          ),
+                          pw.Text(
+                            '₹${order.totalAmount.toStringAsFixed(2)}',
+                            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                           ),
                         ],
                       ),
                     ],
                   ),
-                ],
-              ),
-
-              pw.Spacer(),
-              pw.Divider(color: PdfColors.grey400),
-              pw.Center(
-                child: pw.Text(
-                  'Thank you for shopping with Fufaji\'s Online!',
-                  style: pw.TextStyle(
-                      font: font,
-                      fontSize: isThermal ? 8 : 10,
-                      color: PdfColors.grey600),
                 ),
-              ),
-              pw.Center(
-                child: pw.Text(
-                  'Computer generated invoice. No signature required.',
-                  style: pw.TextStyle(
-                      font: font,
-                      fontSize: isThermal ? 7 : 8,
-                      color: PdfColors.grey400),
+                pw.SizedBox(height: 20),
+
+                // Footer
+                pw.Text(
+                  'Payment Method: ${order.paymentMethod.toString().split('.').last}',
+                  style: const pw.TextStyle(fontSize: 10),
                 ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
+                pw.Text(
+                  'Thank you for shopping with Fufaji Store!',
+                  style: const pw.TextStyle(fontSize: 10),
+                ),
+              ],
+            );
+          },
+        ),
+      );
 
-    await Printing.layoutPdf(
-        onLayout: (PdfPageFormat format) async => pdf.save());
-  }
+      // Get PDF bytes
+      final pdfBytes = await pdf.save();
 
-  static Future<List<InvoiceModel>> getCustomerInvoices(String customerId) async {
-    final snap = await FirebaseFirestore.instance
-        .collection('invoices')
-        .where('customerId', isEqualTo: customerId)
-        .orderBy('issueDate', descending: true)
-        .get();
-    return snap.docs.map((doc) => InvoiceModel.fromDocSnapshot(doc)).toList();
-  }
+      // Store invoice reference in Firestore
+      final invoiceId = 'inv_${order.id}_${DateTime.now().millisecondsSinceEpoch}';
+      final invoice = Invoice(
+        id: invoiceId,
+        orderId: order.id,
+        customerId: order.customerId,
+        invoiceNumber: _generateInvoiceNumber(order.orderNumber),
+        generatedAt: DateTime.now(),
+        items: order.items,
+        subtotal: order.subtotal,
+        tax: order.tax,
+        deliveryCharge: order.deliveryCharge,
+        discount: order.discount,
+        totalAmount: order.totalAmount,
+        pdfSize: pdfBytes.length,
+      );
 
-  static Future<List<InvoiceModel>> getShopInvoices(
-    String shopId, {
-    DateTime? startDate,
-    DateTime? endDate,
-    PaymentStatus? paymentStatus,
-  }) async {
-    Query query = FirebaseFirestore.instance
-        .collection('invoices')
-        .where('shopId', isEqualTo: shopId);
+      // Save invoice record to Firestore
+      await _firestore.collection('invoices').doc(invoiceId).set({
+        'id': invoice.id,
+        'orderId': invoice.orderId,
+        'customerId': invoice.customerId,
+        'invoiceNumber': invoice.invoiceNumber,
+        'generatedAt': invoice.generatedAt.toIso8601String(),
+        'itemCount': invoice.items.length,
+        'totalAmount': invoice.totalAmount,
+        'pdfSize': invoice.pdfSize,
+        'status': 'generated',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
 
-    if (startDate != null) {
-      query = query.where('issueDate', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate));
+      debugPrint('[Invoice] ✅ Invoice generated: $invoiceId (${pdfBytes.length} bytes)');
+      return invoice;
+    } catch (e) {
+      debugPrint('[Invoice] ❌ Error generating invoice: $e');
+      rethrow;
     }
-    if (endDate != null) {
-      query = query.where('issueDate', isLessThanOrEqualTo: Timestamp.fromDate(endDate));
+  }
+
+  /// Get invoice by ID
+  Future<Invoice?> getInvoice(String invoiceId) async {
+    try {
+      final doc = await _firestore.collection('invoices').doc(invoiceId).get();
+      if (!doc.exists) return null;
+
+      final data = doc.data()!;
+      return Invoice(
+        id: data['id'],
+        orderId: data['orderId'],
+        customerId: data['customerId'],
+        invoiceNumber: data['invoiceNumber'],
+        generatedAt: DateTime.parse(data['generatedAt']),
+        items: [],
+        subtotal: (data['totalAmount'] * 0.9).toDouble(),
+        tax: (data['totalAmount'] * 0.05).toDouble(),
+        deliveryCharge: 50,
+        discount: 0,
+        totalAmount: data['totalAmount'],
+        pdfSize: data['pdfSize'] ?? 0,
+      );
+    } catch (e) {
+      debugPrint('[Invoice] Error fetching invoice: $e');
+      return null;
     }
-    if (paymentStatus != null) {
-      query = query.where('paymentStatus', isEqualTo: paymentStatus.json);
+  }
+
+  /// List invoices for customer
+  Future<List<Invoice>> listInvoicesByCustomer(String customerId) async {
+    try {
+      final docs = await _firestore
+          .collection('invoices')
+          .where('customerId', isEqualTo: customerId)
+          .orderBy('generatedAt', descending: true)
+          .limit(50)
+          .get();
+
+      return docs.docs
+          .map((doc) {
+            final data = doc.data();
+            return Invoice(
+              id: data['id'],
+              orderId: data['orderId'],
+              customerId: data['customerId'],
+              invoiceNumber: data['invoiceNumber'],
+              generatedAt: DateTime.parse(data['generatedAt']),
+              items: [],
+              subtotal: 0,
+              tax: 0,
+              deliveryCharge: 0,
+              discount: 0,
+              totalAmount: data['totalAmount'],
+              pdfSize: data['pdfSize'] ?? 0,
+            );
+          })
+          .toList();
+    } catch (e) {
+      debugPrint('[Invoice] Error listing invoices: $e');
+      return [];
     }
-
-    final snap = await query.get();
-    return snap.docs.map((doc) => InvoiceModel.fromDocSnapshot(doc)).toList();
   }
 
-  static Future<InvoiceModel?> getInvoice(String invoiceId) async {
-    final doc = await FirebaseFirestore.instance
-        .collection('invoices')
-        .doc(invoiceId)
-        .get();
-    if (!doc.exists) return null;
-    return InvoiceModel.fromDocSnapshot(doc);
+  // Helpers
+  String _formatDate(DateTime? date) {
+    if (date == null) return 'Unknown';
+    return '${date.day}/${date.month}/${date.year}';
   }
 
-  static Future<Uint8List> generateInvoicePDF(InvoiceModel invoice) async {
-    final pdf = pw.Document();
-    final font = await PdfGoogleFonts.notoSansRegular();
-    final boldFont = await PdfGoogleFonts.notoSansBold();
-
-    pdf.addPage(
-      pw.Page(
-        pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(24),
-        build: (pw.Context context) {
-          return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              pw.Text('TAX INVOICE', style: pw.TextStyle(font: boldFont, fontSize: 22)),
-              pw.SizedBox(height: 10),
-              pw.Text('Invoice #: ${invoice.invoiceNumber}', style: pw.TextStyle(font: font, fontSize: 12)),
-              pw.Text('Date: ${DateFormat('dd MMM yyyy').format(invoice.issueDate)}', style: pw.TextStyle(font: font, fontSize: 12)),
-              pw.SizedBox(height: 20),
-              pw.Text('BILL TO:', style: pw.TextStyle(font: boldFont, fontSize: 10)),
-              pw.Text(invoice.customerName, style: pw.TextStyle(font: boldFont, fontSize: 12)),
-              if (invoice.billingAddress != null) pw.Text(invoice.billingAddress!, style: pw.TextStyle(font: font, fontSize: 10)),
-              pw.SizedBox(height: 20),
-              pw.Table(
-                border: pw.TableBorder.all(color: PdfColors.grey300),
-                children: [
-                  pw.TableRow(
-                    decoration: const pw.BoxDecoration(color: PdfColors.grey200),
-                    children: [
-                      _cell('Item', boldFont, 9),
-                      _cell('Qty', boldFont, 9),
-                      _cell('Rate', boldFont, 9),
-                      _cell('Amt', boldFont, 9),
-                    ],
-                  ),
-                  ...invoice.items.map((item) => pw.TableRow(
-                        children: [
-                          _cell(item.productName, font, 8),
-                          _cell('${item.quantity}', font, 8),
-                          _cell('Rs ${item.unitPrice.toStringAsFixed(2)}', font, 8),
-                          _cell('Rs ${item.amount.toStringAsFixed(2)}', boldFont, 8),
-                        ],
-                      )),
-                ],
-              ),
-              pw.SizedBox(height: 20),
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.end,
-                children: [
-                  pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.end,
-                    children: [
-                      pw.Text('Subtotal: Rs ${invoice.subtotal.toStringAsFixed(2)}', style: pw.TextStyle(font: font, fontSize: 10)),
-                      pw.Text('Tax: Rs ${invoice.totalTax.toStringAsFixed(2)}', style: pw.TextStyle(font: font, fontSize: 10)),
-                      if (invoice.discount.toDouble() > 0) pw.Text('Discount: -Rs ${invoice.discount.toStringAsFixed(2)}', style: pw.TextStyle(font: font, fontSize: 10)),
-                      pw.Divider(),
-                      pw.Text('GRAND TOTAL: Rs ${invoice.grandTotal.toStringAsFixed(2)}', style: pw.TextStyle(font: boldFont, fontSize: 14)),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          );
-        },
-      ),
-    );
-    return pdf.save();
+  String _formatTime(DateTime? time) {
+    if (time == null) return 'Unknown';
+    return '${time.hour}:${time.minute.toString().padLeft(2, '0')}';
   }
 
-  static Future<void> sendInvoiceEmail(String invoiceId, String email, Uint8List pdfBytes) async {
-    debugPrint('[InvoiceService] Sending invoice $invoiceId to $email');
+  String _generateInvoiceNumber(String orderNumber) {
+    return 'INV-${orderNumber.toUpperCase()}';
   }
+}
 
-  static Future<void> updatePaymentStatus(String invoiceId, PaymentStatus status) async {
-    await FirebaseFirestore.instance.collection('invoices').doc(invoiceId).update({
-      'paymentStatus': status.json,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-  }
+/// Invoice model
+class Invoice {
+  final String id;
+  final String orderId;
+  final String customerId;
+  final String invoiceNumber;
+  final DateTime generatedAt;
+  final dynamic items;
+  final double subtotal;
+  final double tax;
+  final double deliveryCharge;
+  final double discount;
+  final double totalAmount;
+  final int pdfSize;
 
-  static Future<GSTReport> generateGSTReport(
-    String shopId, {
-    required DateTime startDate,
-    required DateTime endDate,
-  }) async {
-    final invoices = await getShopInvoices(shopId, startDate: startDate, endDate: endDate);
-    
-    double totalSales = 0;
-    Map<double, double> taxByRate = {};
-
-    for (var inv in invoices) {
-      totalSales += inv.subtotal.toDouble();
-      final breakdown = inv.getTaxBreakdown();
-      for (var entry in breakdown.entries) {
-        taxByRate[entry.key] = (taxByRate[entry.key] ?? 0) + entry.value;
-      }
-    }
-
-    return GSTReport(
-      period: "${DateFormat('MMM yyyy').format(startDate)} - ${DateFormat('MMM yyyy').format(endDate)}",
-      generatedAt: DateTime.now(),
-      totalSales: totalSales,
-      taxByRate: taxByRate,
-    );
-  }
-
-  static Future<void> saveGSTReport(String shopId, GSTReport report) async {
-    await FirebaseFirestore.instance
-        .collection('shops')
-        .doc(shopId)
-        .collection('gst_reports')
-        .add(report.toMap());
-  }
-
-  static pw.Widget _cell(String text, pw.Font font, double size) {
-    return pw.Padding(
-      padding: const pw.EdgeInsets.all(4),
-      child: pw.Text(text, style: pw.TextStyle(font: font, fontSize: size)),
-    );
-  }
-
-  static pw.Widget _summaryRow(
-    String label,
-    double value,
-    pw.Font font,
-    bool compact, {
-    bool note = false,
-  }) {
-    return pw.Padding(
-      padding: const pw.EdgeInsets.symmetric(vertical: 2),
-      child: pw.Row(
-        mainAxisSize: pw.MainAxisSize.min,
-        children: [
-          pw.Text('$label: ',
-              style: pw.TextStyle(
-                  font: font,
-                  fontSize: compact ? 8 : 10,
-                  color: note ? PdfColors.grey500 : PdfColors.black)),
-          pw.Text(
-            note ? 'Included' : 'Rs ${value.toStringAsFixed(2)}',
-            style: pw.TextStyle(
-                font: font,
-                fontSize: compact ? 8 : 10,
-                color: note ? PdfColors.grey500 : PdfColors.black),
-          ),
-        ],
-      ),
-    );
-  }
+  Invoice({
+    required this.id,
+    required this.orderId,
+    required this.customerId,
+    required this.invoiceNumber,
+    required this.generatedAt,
+    required this.items,
+    required this.subtotal,
+    required this.tax,
+    required this.deliveryCharge,
+    required this.discount,
+    required this.totalAmount,
+    required this.pdfSize,
+  });
 }

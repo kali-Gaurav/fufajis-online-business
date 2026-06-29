@@ -92,6 +92,9 @@ dependencies:
   # Payments
   razorpay_flutter: ^1.4.5
 
+  # Security - Hashing & Encryption
+  bcrypt: ^0.0.1
+
   # Charts & Analytics
   fl_chart: ^1.2.0
 
@@ -136,6 +139,10 @@ dev_dependencies:
   mockito: ^5.4.4
   fake_cloud_firestore: ^4.1.1
 
+  firebase_core_platform_interface: any
+  cloud_firestore_platform_interface: any
+  connectivity_plus_platform_interface: any
+  sqflite_common: any
 flutter:
   uses-material-design: true
 

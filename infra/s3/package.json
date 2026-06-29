@@ -1,0 +1,17 @@
+{
+  "name": "fufaji-s3-lifecycle",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Apply S3 bucket lifecycle rules (storage-class transitions and expirations) for the Fufaji Store bucket.",
+  "main": "apply_lifecycle_policy.js",
+  "type": "commonjs",
+  "scripts": {
+    "lifecycle:dry": "node apply_lifecycle_policy.js --dry-run",
+    "lifecycle:apply": "node apply_lifecycle_policy.js",
+    "lifecycle:verify": "node apply_lifecycle_policy.js --verify"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.600.0",
+    "dotenv": "^16.4.5"
+  }
+}

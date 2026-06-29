@@ -1,0 +1,569 @@
+================================================================================
+TASKS #19, #20, #21 DEPLOYMENT EXECUTION SUMMARY
+================================================================================
+Date: 2026-06-28
+Status: Code Ready for Deployment
+Author: DevOps Engineer
+Project: Fufaji Online Business - Supabase Infrastructure
+
+================================================================================
+EXECUTIVE SUMMARY
+================================================================================
+
+Three infrastructure tasks are ready for deployment:
+
+  TASK #19: Deploy Firebase auth verification bridge to Supabase Edge Functions
+  Status: ✅ Code Ready (firebase-bridge.ts updated with exports)
+
+  TASK #20: Deploy storage buckets migration
+  Status: ✅ Code Ready (04_storage_buckets_firestore_sync.sql verified)
+
+  TASK #21: Deploy razorpay-webhook-dual-write Edge Function
+  Status: ✅ Code Ready (index.ts import fixed)
+
+All three tasks work together to enable:
+  - Dual-write capability (PostgreSQL + Firestore)
+  - Secure payment webhook processing
+  - Storage management with RLS policies
+  - Real-time mobile app data sync
+
+================================================================================
+CHANGES MADE (Code-Only, No Docs)
+================================================================================
+
+1. Updated: supabase/functions/_shared/firebase-bridge.ts
+   - Added syncPaymentToFirestore() function
+   - Added syncOrderToFirestore() function
+   - Added default export with all functions
+   - Changed error handling: returns boolean instead of throwing
+   - Total impact: 32 lines (new exports at end of file)
+
+2. Fixed: supabase/functions/razorpay-webhook-dual-write/index.ts
+   - Changed import from named to default export
+   - From: import { firebaseBridge } from "../_shared/firebase-bridge.ts"
+   - To: import firebaseBridge from "../_shared/firebase-bridge.ts"
+   - All references to firebaseBridge.syncPaymentToFirestore() now work
+
+3. Verified: supabase/migrations/04_storage_buckets_firestore_sync.sql
+   - No changes needed
+   - 247 lines of SQL
+   - Creates: 4 buckets + 6 RLS policies + storage_references table + 3 functions + 1 materialized view
+   - Status: Ready to deploy
+
+================================================================================
+DEPLOYMENT ARTIFACTS CREATED
+================================================================================
+
+Documentation:
+  1. DEPLOYMENT_TASKS_19_20_21.md (380 lines)
+     - Detailed step-by-step guide for all 3 tasks
+     - Troubleshooting section
+     - Verification checklist
+     - Rollback procedures
+     - Post-deployment steps
+
+  2. QUICK_REFERENCE_TASKS_19_20_21.md (320 lines)
+     - One-line summaries
+     - Quick deploy commands
+     - Troubleshooting shortcuts
+     - Testing procedures
+     - Environment variables reference
+
+  3. TASKS_19_20_21_SUMMARY.txt (This file)
+     - Executive summary
+     - Code changes
+     - Deployment instructions
+     - Verification process
+
+Deployment Scripts:
+  4. deploy-tasks-19-20-21.ps1 (PowerShell script)
+     - Automated pre-deployment checks
+     - Command generation
+     - Guide output
+
+  5. deploy-tasks-19-20-21.sh (Bash script)
+     - Linux/Mac version of deployment script
+     - Same functionality as PowerShell version
+
+Verification:
+  6. verify-deployment-19-20-21.sql
+     - SQL queries for verification
+     - Organized by task
+     - Expected output documented
+
+================================================================================
+DEPLOYMENT PREREQUISITES
+================================================================================
+
+Before deployment, you need:
+
+1. Firebase Service Account JSON
+   - Get from: Firebase Console → Project Settings → Service Accounts
+   - Action: Download "Generate New Private Key"
+   - Save to: ~/fufaji-service-account.json (or your preferred location)
+
+2. Razorpay Webhook Secret
+   - Get from: Razorpay Dashboard → Settings → Webhooks
+   - Action: Copy the webhook secret for your payment provider
+   - Keep secure (will be stored in Supabase secrets)
+
+3. Supabase CLI
+   - Install from: https://supabase.com/docs/guides/cli/getting-started
+   - Verify: supabase --version
+   - Login: supabase login
+
+4. Access to Supabase Project
+   - Project ID: mxjtgpunctckovtuyfmz
+   - Region: (check your Supabase console)
+   - Permissions: Can set secrets and deploy functions
+
+================================================================================
+STEP-BY-STEP DEPLOYMENT
+================================================================================
+
+STEP 1: Deploy Firebase Bridge (Task #19)
+--------
+  1a. Set Firebase secret:
+      $content = Get-Content "C:\path\to\serviceAccount.json" -Raw
+      supabase secrets set FIREBASE_SERVICE_ACCOUNT $content
+
+  1b. Verify secret is set:
+      supabase secrets list
+      (Should show FIREBASE_SERVICE_ACCOUNT: [hidden])
+
+  1c. Deploy the function:
+      supabase functions deploy _shared/firebase-bridge
+
+  1d. Check logs:
+      Supabase Console → Edge Functions → _shared/firebase-bridge → Logs
+      (Should show: "Firebase Admin SDK initialized successfully")
+
+STEP 2: Deploy Storage Migration (Task #20)
+--------
+  2a. Deploy migration to cloud:
+      cd C:\Projects\fufaji-online-business\supabase
+      supabase db push
+
+  2b. Verify buckets created:
+      Supabase Console → SQL Editor
+      SELECT * FROM storage.buckets;
+      (Should show 4 buckets: product-images, customer-documents, order-receipts, delivery-proofs)
+
+  2c. Verify policies created:
+      SELECT COUNT(*) FROM storage.policies;
+      (Should show 6 policies)
+
+  2d. Verify functions created:
+      SELECT routine_name FROM information_schema.routines
+      WHERE routine_name LIKE '%storage%';
+      (Should show 3 functions)
+
+STEP 3: Deploy Razorpay Webhook (Task #21)
+--------
+  3a. Set Razorpay secret:
+      supabase secrets set RAZORPAY_WEBHOOK_SECRET "your-webhook-secret"
+
+  3b. Verify secret is set:
+      supabase secrets list
+      (Should show RAZORPAY_WEBHOOK_SECRET: [hidden])
+
+  3c. Deploy the function:
+      supabase functions deploy razorpay-webhook-dual-write
+
+  3d. Configure webhook in Razorpay (manual):
+      - Go to Razorpay Dashboard → Settings → Webhooks
+      - Add/Edit webhook:
+        URL: https://mxjtgpunctckovtuyfmz.supabase.co/functions/v1/razorpay-webhook-dual-write
+        Secret: [same as RAZORPAY_WEBHOOK_SECRET]
+        Events: payment.authorized, payment.failed, payment.completed
+      - Save webhook
+
+  3e. Check function deployment:
+      Supabase Console → Edge Functions → razorpay-webhook-dual-write
+      (Should show function details)
+
+================================================================================
+VERIFICATION
+================================================================================
+
+Quick Verification (2 minutes):
+  [ ] Supabase Console → Edge Functions
+      - _shared/firebase-bridge (deployed)
+      - razorpay-webhook-dual-write (deployed)
+  [ ] Supabase Console → SQL Editor
+      SELECT COUNT(*) FROM storage.buckets;
+      (Should be 4)
+  [ ] Supabase Console → Secrets
+      - FIREBASE_SERVICE_ACCOUNT (set)
+      - RAZORPAY_WEBHOOK_SECRET (set)
+
+Full Verification (10 minutes):
+  [ ] Run: verify-deployment-19-20-21.sql queries
+  [ ] Check function logs for initialization messages
+  [ ] Test storage bucket access (upload test file to product-images)
+  [ ] Test payment webhook with sample payment
+
+Detailed verification: See DEPLOYMENT_TASKS_19_20_21.md (Section "VERIFICATION CHECKLIST")
+
+================================================================================
+TEST PROCEDURE
+================================================================================
+
+After deployment, run end-to-end test:
+
+1. Create test order:
+   POST /orders with test data (customer_id, shop_id, items, amount)
+
+2. Initiate test payment:
+   Razorpay test mode: Card 4111 1111 1111 1111, any future expiry
+
+3. Complete test payment:
+   Use Razorpay payment form
+
+4. Verify results:
+   [ ] payment_transactions record created in PostgreSQL
+   [ ] order status changed to "confirmed"
+   [ ] inventory quantity_sold increased
+   [ ] Firestore payment_transactions document created
+   [ ] Firestore orders document synced
+   [ ] Edge Function logs show "✅ Valid webhook received"
+
+Expected time: 2-3 minutes per test
+
+================================================================================
+ROLLBACK PROCEDURE (If Needed)
+================================================================================
+
+If issues occur after deployment:
+
+Rollback Task #19 (Firebase Bridge):
+  supabase functions delete firebase-bridge
+  supabase secrets unset FIREBASE_SERVICE_ACCOUNT
+
+Rollback Task #20 (Storage Buckets):
+  # Create rollback migration or:
+  supabase db reset  # WARNING: Loses all data
+  # Then redeploy earlier migrations
+
+Rollback Task #21 (Razorpay Webhook):
+  supabase functions delete razorpay-webhook-dual-write
+  supabase secrets unset RAZORPAY_WEBHOOK_SECRET
+  # In Razorpay Dashboard: Delete webhook
+
+Note: Rollback Task #20 may require manual data cleanup
+
+================================================================================
+WHAT GETS DEPLOYED
+================================================================================
+
+Task #19 - Firebase Bridge:
+  What: Shared library for Firebase operations (not a public API)
+  Used by: Task #21 webhook and any other functions needing Firestore sync
+  Size: ~1.8 KB
+  Dependencies: firebase-admin npm package
+  Endpoint: Not directly callable (shared function)
+
+Task #20 - Storage Buckets:
+  What: PostgreSQL migration (SQL schema)
+  Creates: 4 storage buckets, 6 RLS policies, 1 table, 3 functions, 1 view
+  Size: ~7 KB of SQL
+  Database: Supabase PostgreSQL (mxjtgpunctckovtuyfmz)
+  Impact: Adds storage infrastructure, no breaking changes
+
+Task #21 - Razorpay Webhook:
+  What: Edge Function to handle Razorpay payment webhooks
+  Endpoint: https://mxjtgpunctckovtuyfmz.supabase.co/functions/v1/razorpay-webhook-dual-write
+  Method: POST
+  Auth: Signature verification (not JWT)
+  Size: ~10 KB
+  Dependencies: @supabase/supabase-js, firebase-bridge
+  Doubles as: Dual-write coordinator (PostgreSQL + Firestore)
+
+================================================================================
+ARCHITECTURE DIAGRAM
+================================================================================
+
+Payment Flow:
+
+  Razorpay
+     |
+     | HTTPS POST (webhook)
+     v
+  Edge Function: razorpay-webhook-dual-write
+     |
+     +---> Verify Signature (HMAC-SHA256)
+     |
+     +---> PostgreSQL: Create payment_transactions (source of truth)
+     |
+     +---> Firebase Bridge: Sync to Firestore (real-time app)
+     |
+     +---> PostgreSQL: Update order status
+     |
+     +---> PostgreSQL: Deduct inventory
+     |
+     +---> PostgreSQL: Trigger push notification
+     |
+     v
+  200 OK → Razorpay
+
+Data Flow (Dual-Write):
+
+  PostgreSQL (Source of Truth)
+     ^
+     | Read
+     |
+  Mobile App ←--- Firestore (Real-time Cache)
+     |              ^
+     | Write         |
+     +------------→ +--- Synced by Edge Function
+
+Storage Flow:
+
+  File Upload (Frontend/Mobile)
+     |
+     v
+  Supabase Storage Bucket (e.g., product-images)
+     |
+     | RLS Policy Check (auth.uid() + folder check)
+     |
+     +---> Storage_references table (track metadata)
+     |
+     v
+  Signed URL (for private files)
+     |
+     v
+  Cache in PostgreSQL (avoid repeated generation)
+
+================================================================================
+EXPECTED OUTCOMES
+================================================================================
+
+After successful deployment:
+
+✅ Task #19 Outcomes:
+  - Firebase Admin SDK initialized when Edge Functions run
+  - Firebase JWT verification available
+  - Firestore sync functions available
+  - Payment/Order data syncs to Firestore after PostgreSQL writes
+
+✅ Task #20 Outcomes:
+  - 4 storage buckets ready for uploads
+  - Public access to product images (no auth required)
+  - Private access to documents (auth required + folder-based access)
+  - Helper functions for signed URLs and metadata
+  - Storage usage tracking available
+
+✅ Task #21 Outcomes:
+  - Razorpay webhooks received and processed
+  - Payment records created in PostgreSQL
+  - Payment records synced to Firestore
+  - Order status updates propagate to Firestore
+  - Inventory deducted on successful payment
+  - Push notifications sent to customers
+  - Webhook signature verification prevents spoofing
+
+Combined Outcomes:
+  - Dual-write system operational (PostgreSQL + Firestore)
+  - Storage buckets ready for file uploads
+  - Payment processing end-to-end
+  - Mobile app can subscribe to real-time updates via Firestore
+  - Web platform has source of truth in PostgreSQL
+
+================================================================================
+PERFORMANCE NOTES
+================================================================================
+
+Expected Performance:
+
+  Webhook Processing: 100-500ms per payment
+    - Signature verification: 1-5ms
+    - PostgreSQL write: 10-50ms
+    - Firebase sync: 50-200ms (async, non-blocking)
+    - Inventory update: 20-100ms
+    - Total: 100-500ms
+
+  Storage Operations:
+    - Bucket read (public): 50-200ms (CDN cached)
+    - Bucket write: 100-500ms (RLS policy check + upload)
+    - Signed URL generation: 10-50ms (cached)
+
+  Cold start (first call): 1-3s
+  Warm start (subsequent calls): 50-200ms
+
+Scaling Considerations:
+  - Storage buckets: Unlimited (Supabase Storage limits apply)
+  - Functions: Auto-scaling (max 1000 concurrent)
+  - Database: Depends on tier (check Supabase plan)
+  - Firestore: Depends on tier (check Firebase plan)
+
+================================================================================
+MONITORING SETUP (Task #26)
+================================================================================
+
+After deployment, setup monitoring:
+
+  [ ] Supabase Edge Function Logs:
+      Dashboard → Edge Functions → [Function] → Logs
+
+  [ ] PostgreSQL Query Logs:
+      Dashboard → SQL Editor → Run: SELECT * FROM pg_stat_statements;
+
+  [ ] Firebase Firestore Rules Violations:
+      Firebase Console → Firestore → Rules → Metrics
+
+  [ ] Razorpay Webhook Status:
+      Razorpay Dashboard → Settings → Webhooks → [Webhook] → Logs
+
+Alerts to set up:
+  - Edge Function errors (500 errors)
+  - Slow webhook processing (>1000ms)
+  - Failed Firestore writes
+  - Storage quota approaching limit
+  - PostgreSQL connection pool exhaustion
+
+================================================================================
+NEXT TASKS
+================================================================================
+
+After Tasks #19, #20, #21 are deployed:
+
+Task #22: Test end-to-end order flow
+  - Create order → Checkout → Payment → Confirmation
+  - Verify payment webhook received
+  - Verify inventory deducted
+  - Verify Firestore sync
+
+Task #23: Test end-to-end delivery flow
+  - Order → Packing → Rider Assignment → Pickup → Delivery
+  - Verify delivery proofs uploaded to storage
+  - Verify delivery status synced to Firestore
+
+Task #24: Implement storage bucket upload functions
+  - Create Edge Function for file uploads
+  - Implement progress tracking
+  - Implement Firestore reference sync
+
+Task #25: Update mobile app
+  - Add Firestore listeners for real-time order updates
+  - Add Firestore listeners for payment status
+  - Add Firestore listeners for delivery tracking
+  - Implement offline sync
+
+Task #26: Setup monitoring and observability
+  - Sentry for error tracking
+  - CloudWatch for logs
+  - Performance monitoring
+  - Cost monitoring
+
+================================================================================
+FILES LOCATION
+================================================================================
+
+Deployment Files:
+  - DEPLOYMENT_TASKS_19_20_21.md (detailed guide)
+  - QUICK_REFERENCE_TASKS_19_20_21.md (quick reference)
+  - deploy-tasks-19-20-21.ps1 (PowerShell script)
+  - deploy-tasks-19-20-21.sh (Bash script)
+  - verify-deployment-19-20-21.sql (SQL verification)
+  - TASKS_19_20_21_SUMMARY.txt (this file)
+
+Code Files:
+  - supabase/functions/_shared/firebase-bridge.ts (shared library)
+  - supabase/functions/razorpay-webhook-dual-write/index.ts (webhook handler)
+  - supabase/migrations/04_storage_buckets_firestore_sync.sql (migration)
+
+All files are in: C:\Projects\fufaji-online-business\
+
+================================================================================
+SUPPORT & TROUBLESHOOTING
+================================================================================
+
+Common Issues:
+
+1. Firebase Admin SDK initialization fails
+   Solution: Verify FIREBASE_SERVICE_ACCOUNT secret is set correctly
+             Re-download service account JSON from Firebase Console
+
+2. Storage bucket already exists error
+   Solution: Normal - migrations are idempotent
+             Buckets created by previous deployment will be skipped
+
+3. Webhook signature verification fails
+   Solution: Verify RAZORPAY_WEBHOOK_SECRET matches Razorpay dashboard
+             Redeploy webhook function after updating secret
+
+4. Firestore sync fails (non-fatal)
+   Solution: This is expected (PostgreSQL is source of truth)
+             Firebase sync is async and non-blocking
+             Check Firebase credentials if persistent failure
+
+For detailed troubleshooting: See DEPLOYMENT_TASKS_19_20_21.md (Section "TROUBLESHOOTING")
+
+================================================================================
+CONTACT & REFERENCES
+================================================================================
+
+Project Info:
+  - Project Name: Fufaji Online Business
+  - Supabase Project: mxjtgpunctckovtuyfmz.supabase.co
+  - Firebase Project: fufaji-store
+  - Database: PostgreSQL 17
+  - Storage: Supabase Storage
+
+Documentation:
+  - Supabase Docs: https://supabase.com/docs
+  - Firebase Docs: https://firebase.google.com/docs
+  - Razorpay Docs: https://razorpay.com/docs
+
+Support:
+  - Supabase Support: support@supabase.io
+  - Firebase Support: support@firebase.google.com
+  - Razorpay Support: support@razorpay.com
+
+================================================================================
+DEPLOYMENT CHECKLIST
+================================================================================
+
+Before Deployment:
+  [ ] Firebase service account JSON downloaded and secured
+  [ ] Razorpay webhook secret obtained
+  [ ] Supabase CLI installed and logged in
+  [ ] All code changes reviewed and tested
+  [ ] Backup of current database created
+  [ ] Stakeholders notified of deployment window
+
+During Deployment:
+  [ ] Task #19: Set FIREBASE_SERVICE_ACCOUNT secret
+  [ ] Task #19: Deploy _shared/firebase-bridge function
+  [ ] Task #19: Verify logs show initialization success
+  [ ] Task #20: Deploy storage buckets migration
+  [ ] Task #20: Verify 4 buckets created
+  [ ] Task #20: Verify 6 RLS policies created
+  [ ] Task #21: Set RAZORPAY_WEBHOOK_SECRET secret
+  [ ] Task #21: Deploy razorpay-webhook-dual-write function
+  [ ] Task #21: Configure webhook in Razorpay dashboard
+  [ ] Task #21: Verify function deployment
+
+Post-Deployment:
+  [ ] Run SQL verification queries
+  [ ] Test storage bucket access
+  [ ] Test payment webhook with sample payment
+  [ ] Monitor logs for errors
+  [ ] Verify Firestore sync working
+  [ ] Document deployment details
+  [ ] Notify team of completion
+  [ ] Schedule Task #22 testing
+
+================================================================================
+END OF SUMMARY
+================================================================================
+
+Generated: 2026-06-28
+Status: Ready for Deployment
+Author: DevOps Engineer
+Project: Fufaji Online Business - Supabase Infrastructure
+
+Next Action: Execute deployment steps as outlined above
+             See DEPLOYMENT_TASKS_19_20_21.md for detailed guide
+
+================================================================================
