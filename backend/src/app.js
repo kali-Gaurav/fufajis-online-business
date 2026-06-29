@@ -3,6 +3,7 @@
 // signature can't be verified.
 
 const express = require('express');
+const cors = require('cors');
 const firebaseAdmin = require('./services/firebaseAdmin');
 
 // Pre-initialize Firebase if we have a service account in env (Railway path)
@@ -32,6 +33,9 @@ const mfa = require('./routes/mfa');
 const stripe = require('./routes/stripe');
 
 const app = express();
+
+// 0) Enable CORS for all origins (Required for Flutter Web/External access)
+app.use(cors());
 
 // 1) Raw body ONLY for webhooks (signature verification).
 app.use('/webhooks', express.raw({ type: '*/*', limit: '1mb' }), webhooks);

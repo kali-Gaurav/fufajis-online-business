@@ -1,15 +1,11 @@
 name: Backend Test & Deploy to Lambda
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'backend/**'
-      - '.github/workflows/backend_test_and_deploy.yml'
-  pull_request:
-    branches: [ main ]
-    paths:
-      - 'backend/**'
+  # push:
+  #   branches: [ main ]
+  #   paths:
+  #     - 'backend/**'
+  #     - '.github/workflows/backend_test_and_deploy.yml'
   workflow_dispatch:
 
 jobs:
