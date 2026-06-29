@@ -2,34 +2,54 @@ const { createClient } = require('@supabase/supabase-js');
 
 // Supabase configuration
 const supabaseUrl = process.env.SUPABASE_URL || 'https://mxjtgpunctckovtuyfmz.supabase.co';
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
+
+// Map keys from multiple possible environment variable names
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ||
+                              process.env.SUPABASE_SECRET_KEY ||
+                              process.env.SUPABASE_SECRET;
+
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY ||
+                        process.env.SUPABASE_PUBLISHABLE_KEY ||
+                        process.env.SUPABASE_ANON;
 
 if (!supabaseUrl) {
-  throw new Error('SUPABASE_URL is required');
+  console.error('❌ SUPABASE_URL is missing from environment variables');
 }
 
-if (!supabaseServiceRoleKey && !supabaseAnonKey) {
-  throw new Error(
-    'Either SUPABASE_SERVICE_ROLE_KEY or SUPABASE_ANON_KEY is required',
-  );
+// Initialize clients only if keys are available to prevent crash on startup
+let supabaseAdmin = null;
+if (supabaseUrl && supabaseServiceRoleKey) {
+  try {
+    supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: false,
+      },
+    });
+    console.log('✅ Supabase Admin initialized');
+  } catch (e) {
+    console.error('❌ Failed to initialize Supabase Admin:', e.message);
+  }
+} else {
+  console.warn('⚠️ Supabase Admin key missing (SUPABASE_SERVICE_ROLE_KEY or SUPABASE_SECRET_KEY). Admin operations will fail.');
 }
 
-// Initialize with service role key for admin operations
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: false,
-  },
-});
-
-// Initialize with anon key for public operations
-const supabasePublic = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: false,
-  },
-});
+let supabasePublic = null;
+if (supabaseUrl && supabaseAnonKey) {
+  try {
+    supabasePublic = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: false,
+      },
+    });
+    console.log('✅ Supabase Public initialized');
+  } catch (e) {
+    console.error('❌ Failed to initialize Supabase Public:', e.message);
+  }
+} else {
+  console.warn('⚠️ Supabase Anon key missing (SUPABASE_ANON_KEY or SUPABASE_PUBLISHABLE_KEY). Public operations will fail.');
+}
 
 /**
  * Supabase service for database operations
@@ -44,6 +64,7 @@ class SupabaseService {
    * Get admin client (for server-side operations)
    */
   getAdmin() {
+    if (!this.admin) throw new Error('Supabase Admin client not initialized. Check environment variables.');
     return this.admin;
   }
 
@@ -51,6 +72,7 @@ class SupabaseService {
    * Get public client (for user-facing operations)
    */
   getPublic() {
+    if (!this.public) throw new Error('Supabase Public client not initialized. Check environment variables.');
     return this.public;
   }
 
@@ -59,7 +81,12 @@ class SupabaseService {
    */
   async query(table, operation, data = {}) {
     try {
-      const client = data.useAdmin !== false ? this.admin : this.public;
+      const client = (data.useAdmin !== false ? this.admin : this.public) || this.admin || this.public;
+
+      if (!client) {
+        throw new Error('No Supabase client available. Check environment variables.');
+      }
+
       let query = client.from(table);
 
       switch (operation) {
@@ -116,10 +143,10 @@ class SupabaseService {
     }
   }
 
-  /**
-   * Create user in auth
-   */
+  // ... (rest of the methods should check for this.admin/this.public before use)
+
   async createAuthUser(email, password, metadata = {}) {
+    if (!this.admin) throw new Error('Supabase Admin client required');
     try {
       const { data, error } = await this.admin.auth.admin.createUser({
         email,
@@ -136,14 +163,10 @@ class SupabaseService {
     }
   }
 
-  /**
-   * Get user by email
-   */
   async getUserByEmail(email) {
+    if (!this.admin) throw new Error('Supabase Admin client required');
     try {
-      const { data, error } = await this.admin.auth.admin.getUserByEmail(
-        email,
-      );
+      const { data, error } = await this.admin.auth.admin.getUserByEmail(email);
       if (error) throw error;
       return data;
     } catch (error) {
@@ -152,10 +175,8 @@ class SupabaseService {
     }
   }
 
-  /**
-   * Delete user
-   */
   async deleteUser(userId) {
+    if (!this.admin) throw new Error('Supabase Admin client required');
     try {
       const { error } = await this.admin.auth.admin.deleteUser(userId);
       if (error) throw error;
@@ -165,10 +186,8 @@ class SupabaseService {
     }
   }
 
-  /**
-   * Generate token for user
-   */
   async generateToken(userId) {
+    if (!this.admin) throw new Error('Supabase Admin client required');
     try {
       const { data, error } = await this.admin.auth.admin.generateLink({
         type: 'magiclink',
@@ -186,10 +205,8 @@ class SupabaseService {
     }
   }
 
-  /**
-   * Upload file to storage
-   */
   async uploadFile(bucket, path, file, options = {}) {
+    if (!this.admin) throw new Error('Supabase Admin client required');
     try {
       const { data, error } = await this.admin.storage
         .from(bucket)
@@ -203,14 +220,11 @@ class SupabaseService {
     }
   }
 
-  /**
-   * Get public URL for file
-   */
   getPublicUrl(bucket, path) {
+    const client = this.admin || this.public;
+    if (!client) throw new Error('Supabase client required');
     try {
-      const { data } = this.admin.storage
-        .from(bucket)
-        .getPublicUrl(path);
+      const { data } = client.storage.from(bucket).getPublicUrl(path);
       return data.publicUrl;
     } catch (error) {
       console.error('[Supabase] Get public URL failed:', error.message);
@@ -218,10 +232,8 @@ class SupabaseService {
     }
   }
 
-  /**
-   * Delete file from storage
-   */
   async deleteFile(bucket, path) {
+    if (!this.admin) throw new Error('Supabase Admin client required');
     try {
       const { data, error } = await this.admin.storage
         .from(bucket)
@@ -235,12 +247,11 @@ class SupabaseService {
     }
   }
 
-  /**
-   * Batch insert
-   */
   async batchInsert(table, records) {
+    const client = this.admin || this.public;
+    if (!client) throw new Error('Supabase client required');
     try {
-      const { data, error } = await this.admin
+      const { data, error } = await client
         .from(table)
         .insert(records)
         .select();
@@ -253,15 +264,14 @@ class SupabaseService {
     }
   }
 
-  /**
-   * Batch update
-   */
   async batchUpdate(table, records, keyField = 'id') {
+    const client = this.admin || this.public;
+    if (!client) throw new Error('Supabase client required');
     try {
       const updates = [];
       for (const record of records) {
         const key = record[keyField];
-        const update = await this.admin
+        const update = await client
           .from(table)
           .update(record)
           .eq(keyField, key)
@@ -276,10 +286,8 @@ class SupabaseService {
     }
   }
 
-  /**
-   * Raw SQL query (admin only)
-   */
   async rawQuery(sql, params = []) {
+    if (!this.admin) throw new Error('Supabase Admin client required');
     try {
       const { data, error } = await this.admin.rpc('exec_sql', {
         sql,
