@@ -50,8 +50,6 @@ call flutter\bin\flutter build apk ^
     --release ^
     --dart-define=API_BASE_URL=%API_BASE_URL% ^
     --dart-define=RAZORPAY_KEY_ID=%RAZORPAY_KEY_ID% ^
-    --dart-define=UPSTASH_REDIS_REST_URL=%UPSTASH_REDIS_REST_URL% ^
-    --dart-define=UPSTASH_REDIS_REST_TOKEN=%UPSTASH_REDIS_REST_TOKEN% ^
     --dart-define=SUPABASE_URL=%SUPABASE_URL% ^
     --dart-define=SUPABASE_ANON_KEY=%SUPABASE_ANON_KEY% ^
     --dart-define=SENTRY_DSN=%SENTRY_DSN% ^

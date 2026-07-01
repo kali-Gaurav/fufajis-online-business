@@ -182,7 +182,7 @@ class _LoginScreenState extends State<LoginScreen>
       final returnPath =
           GoRouterState.of(context).uri.queryParameters['returnPath'];
       String route =
-          '/otp/${Uri.encodeComponent(contact)}?role=${_selectedRole.toString().split('.').last}';
+          '/otp/${Uri.encodeComponent(contact)}?role=${_selectedRole.name}';
       if (returnPath != null && returnPath.isNotEmpty) {
         route += '&returnPath=${Uri.encodeComponent(returnPath)}';
       }
@@ -376,7 +376,7 @@ class _LoginScreenState extends State<LoginScreen>
 
           // ── Form panel (white card) ─────────────────────────
           Positioned(
-            top: heroH + 10,
+            top: heroH - 20,
             left: 0,
             right: 0,
             bottom: 0,
@@ -389,8 +389,23 @@ class _LoginScreenState extends State<LoginScreen>
                   child: child,
                 ),
               ),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(32),
+                    topRight: Radius.circular(32),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.10),
+                      blurRadius: 24,
+                      offset: const Offset(0, -4),
+                    ),
+                  ],
+                ),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -420,7 +435,11 @@ class _LoginScreenState extends State<LoginScreen>
 
                     const SizedBox(height: 12),
                     ScaleBounce(
-                      onTap: _isLoading ? null : () => context.push('/auth/phone-login'),
+                      onTap: _isLoading
+                          ? null
+                          : () => context.push(
+                                '/auth/phone-login?role=${_selectedRole.name}',
+                              ),
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         decoration: BoxDecoration(
@@ -475,6 +494,7 @@ class _LoginScreenState extends State<LoginScreen>
                   ],
                 ),
               ),
+              ),
             ),
           ),
         ],
@@ -511,7 +531,9 @@ class _RoleSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
       children: [
         _RoleChip(
           label: 'Customer',
@@ -521,7 +543,14 @@ class _RoleSelector extends StatelessWidget {
           selected: selected == UserRole.customer,
           onTap: () => onChanged(UserRole.customer),
         ),
-        const SizedBox(width: 10),
+        _RoleChip(
+          label: 'Rider',
+          labelHi: 'डिलीवरी',
+          icon: Icons.delivery_dining_rounded,
+          accentColor: AppTheme.deliveryAccent,
+          selected: selected == UserRole.rider,
+          onTap: () => onChanged(UserRole.rider),
+        ),
         _RoleChip(
           label: 'Employee',
           labelHi: 'कर्मचारी',
@@ -530,7 +559,6 @@ class _RoleSelector extends StatelessWidget {
           selected: selected == UserRole.employee,
           onTap: () => onChanged(UserRole.employee),
         ),
-        const SizedBox(width: 10),
         _RoleChip(
           label: 'Owner',
           labelHi: 'मालिक',
@@ -564,78 +592,88 @@ class _RoleChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final screenWidth = MediaQuery.of(context).size.width;
+    // 2 chips per row with spacing: (width - padding*2 - gap) / 2
+    final chipWidth = (screenWidth - 48 - 8) / 2;
 
-    return Expanded(
-      child: ScaleBounce(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOut,
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
-          decoration: BoxDecoration(
-            gradient: selected
-                ? LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      accentColor,
-                      Color.lerp(accentColor, Colors.black, 0.18) ?? accentColor,
-                    ],
-                  )
-                : null,
+    return ScaleBounce(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOut,
+        width: chipWidth,
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+        decoration: BoxDecoration(
+          gradient: selected
+              ? LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    accentColor,
+                    Color.lerp(accentColor, Colors.black, 0.18) ?? accentColor,
+                  ],
+                )
+              : null,
+          color: selected
+              ? null
+              : (isDark ? const Color(0xFF2C2C2E) : AppTheme.grey50),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
             color: selected
-                ? null
-                : (isDark ? const Color(0xFF252525) : AppTheme.grey50),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
+                ? accentColor
+                : (isDark
+                    ? accentColor.withValues(alpha: 0.25)
+                    : AppTheme.grey200),
+            width: selected ? 1.5 : 1.0,
+          ),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: accentColor.withValues(alpha: 0.32),
+                    blurRadius: 14,
+                    offset: const Offset(0, 5),
+                  )
+                ]
+              : [],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 22,
               color: selected
-                  ? accentColor
-                  : (isDark ? const Color(0xFF333333) : AppTheme.grey200),
-              width: 1.5,
+                  ? Colors.white
+                  : (isDark ? accentColor.withValues(alpha: 0.80) : AppTheme.grey600),
             ),
-            boxShadow: selected
-                ? [
-                    BoxShadow(
-                      color: accentColor.withValues(alpha: 0.32),
-                      blurRadius: 14,
-                      offset: const Offset(0, 5),
-                    )
-                  ]
-                : [],
-          ),
-          child: Column(
-            children: [
-              Icon(
-                icon,
-                size: 26,
-                color: selected
-                    ? Colors.white
-                    : (isDark ? AppTheme.grey400 : AppTheme.grey500),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: selected
-                      ? Colors.white
-                      : (isDark ? AppTheme.grey300 : AppTheme.grey700),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: selected
+                        ? Colors.white
+                        : (isDark ? Colors.white : AppTheme.grey900),
+                  ),
                 ),
-              ),
-              Text(
-                labelHi,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 10,
-                  color: selected
-                      ? Colors.white.withValues(alpha: 0.85)
-                      : (isDark ? AppTheme.grey600 : AppTheme.grey400),
+                Text(
+                  labelHi,
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: selected
+                        ? Colors.white.withValues(alpha: 0.80)
+                        : (isDark
+                            ? accentColor.withValues(alpha: 0.70)
+                            : AppTheme.grey500),
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ),
       ),
     );

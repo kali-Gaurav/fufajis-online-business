@@ -63,26 +63,9 @@ import 'services/logging_service.dart';
 
 import 'services/runtime_config_service.dart';
 import 'config/supabase_config.dart';
-import 'package:workmanager/workmanager.dart';
-import 'services/gps_tracking_service.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Load environment variables from .env file
-  try {
-    await dotenv.load(fileName: ".env");
-    debugPrint('[main] .env loaded successfully');
-  } catch (e) {
-    debugPrint('[main] Warning: .env file not found or could not be loaded: $e');
-  }
-
-  // Initialize Workmanager for background tasks
-  Workmanager().initialize(
-    callbackDispatcher,
-    isInDebugMode: kDebugMode,
-  );
 
   // CRITICAL: Load runtime configuration from backend
   // This ensures secrets (RAZORPAY_KEY_SECRET, etc.) are NEVER embedded in APK
@@ -396,15 +379,19 @@ class FufajiApp extends StatefulWidget {
 class _FufajiAppState extends State<FufajiApp> {
   final GoRouter _router = AppRouter.router;
 
-  late Future<bool> _forceUpdateFuture;
-
   @override
   void initState() {
     super.initState();
-    _forceUpdateFuture = RemoteConfigService().isForceUpdateRequired();
+    // OPTIMIZATION: Force-update check moved to background (after UI loads)
+    // This keeps startup fast for grocery users who need instant visibility
+    // UpdateService.handleVersionCheck() will show modal if needed
     WidgetsBinding.instance.addPostFrameCallback((_) {
       NotificationService().initialize(context);
       UpdateService().handleVersionCheck(context);
+
+      // Initialize RemoteConfig in background after UI appears
+      // This is safe because UpdateService has fallbacks for RemoteConfig not being ready yet
+      RemoteConfigService().init();
     });
   }
 

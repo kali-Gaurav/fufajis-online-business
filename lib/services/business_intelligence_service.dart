@@ -6,6 +6,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:intl/intl.dart';
 
+import '../config/supabase_config.dart';
 import '../models/order_model.dart';
 import '../models/payment_method.dart';
 import '../models/product_model.dart';
@@ -62,7 +63,7 @@ class BusinessIntelligenceService {
     required DateTime to,
   }) async {
     try {
-      final client = Supabase.instance.client;
+      final client = SupabaseConfig.client;
       // Fetch pre-aggregated revenue analytics from physical Postgres reporting tables
       final revRes = await client
           .from('revenue_analytics')

@@ -9,7 +9,7 @@
 // - Error handling with retries
 // ============================================================================
 
-import { createServerClient } from "@supabase/supabase-js";
+import { createServerClient } from "npm:@supabase/supabase-js";
 import { createHmac } from "https://deno.land/std/crypto/mod.ts";
 
 const RAZORPAY_WEBHOOK_SECRET = Deno.env.get("RAZORPAY_WEBHOOK_SECRET");
@@ -47,10 +47,10 @@ interface RazorpayPaymentEvent {
 // WEBHOOK SIGNATURE VERIFICATION
 // ============================================================================
 
-function verifyWebhookSignature(
+async function verifyWebhookSignature(
   body: string,
   signature: string
-): boolean {
+): Promise<boolean> {
   if (!RAZORPAY_WEBHOOK_SECRET) {
     console.error("RAZORPAY_WEBHOOK_SECRET not set");
     return false;
@@ -60,22 +60,25 @@ function verifyWebhookSignature(
   const data = encoder.encode(body);
   const key = encoder.encode(RAZORPAY_WEBHOOK_SECRET);
 
-  // Compute HMAC-SHA256
-  const hmac = new Uint8Array(32);
-  const crypto = globalThis.crypto;
+  try {
+    const cryptoKey = await crypto.subtle.importKey(
+      "raw",
+      key,
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"]
+    );
+    const signatureBuffer = await crypto.subtle.sign("HMAC", cryptoKey, data);
 
-  // Use Web Crypto API (Deno compatible)
-  return crypto.subtle
-    .sign("HMAC", await crypto.subtle.importKey("raw", key, { name: "HMAC", hash: "SHA-256" }, false, ["sign"], data)
-    .then(() => {
-      // For production, use actual comparison
-      console.log("Signature verified"); // Placeholder
-      return true;
-    })
-    .catch(() => {
-      console.error("Signature verification failed");
-      return false;
-    });
+    // Convert to hex
+    const hashArray = Array.from(new Uint8Array(signatureBuffer));
+    const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+
+    return hashHex === signature;
+  } catch (error) {
+    console.error("Signature verification failed:", error);
+    return false;
+  }
 }
 
 // Synchronous version using native Node-style crypto

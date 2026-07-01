@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/agent_model.dart';
+import '../migrations/mission_control_seeder.dart';
 
 /// Streams the Mission Control ("Karyalay") agent roster and global
 /// config (incl. master kill switch) for the Owner Control Room.
@@ -79,7 +80,8 @@ class AgentProvider with ChangeNotifier {
   /// roster docs. Safe to call repeatedly.
   Future<bool> seedRosterIfNeeded() async {
     try {
-      // Stubbed out client-side since configuration is centralized
+      await MissionControlSeeder.seedRoster();
+      await MissionControlSeeder.seedInitialTasks();
       return true;
     } catch (err) {
       _errorMessage = err.toString();

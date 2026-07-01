@@ -2,6 +2,7 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'dart:async';
 
 class RemoteConfigService {
   static final RemoteConfigService _instance = RemoteConfigService._internal();
@@ -10,6 +11,9 @@ class RemoteConfigService {
 
   final FirebaseRemoteConfig _remoteConfig = FirebaseRemoteConfig.instance;
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
+
+  /// Signals when init() has completed (allows dependent code to wait)
+  static final Completer<void> _initCompleter = Completer<void>();
 
   // Keys
   static const String keyMinAppVersion = 'min_app_version';
@@ -29,6 +33,8 @@ class RemoteConfigService {
   static const String keyLatestBuildNumber = 'latest_build_number';
 
   Future<void> init() async {
+    if (_initCompleter.isCompleted) return; // Already initialized
+
     try {
       await _remoteConfig.setConfigSettings(
         RemoteConfigSettings(
@@ -65,8 +71,31 @@ class RemoteConfigService {
 
       // Log initialization to Analytics
       await _analytics.logEvent(name: 'remote_config_initialized');
-    } catch (e) {
-      debugPrint('Remote Config Initialization Failed: $e');
+    } catch (e, st) {
+      debugPrint('Remote Config Initialization Failed: $e\n$st');
+      // Do not rethrow — allow app to continue with defaults
+    } finally {
+      // Always signal completion to prevent deadlock
+      // Safe to call: if already completed, no-op
+      if (!_initCompleter.isCompleted) {
+        _initCompleter.complete();
+      }
+    }
+  }
+
+  /// Waits for init() to complete before returning (up to 5 second timeout).
+  /// Safe to call before init() is invoked (will wait until it is).
+  /// Always completes, even if init() failed (app uses defaults).
+  /// Use this in code that depends on RemoteConfig being ready.
+  Future<void> ensureInitialized() async {
+    if (_initCompleter.isCompleted) return;
+    try {
+      await _initCompleter.future.timeout(
+        const Duration(seconds: 5),
+      );
+    } on TimeoutException {
+      debugPrint('RemoteConfig init timeout; continuing with defaults');
+      // Continue anyway — defaults are set and safe to use
     }
   }
 

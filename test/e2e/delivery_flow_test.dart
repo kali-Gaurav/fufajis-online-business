@@ -13,6 +13,7 @@ import 'package:fufajis_online/services/delivery_service.dart';
 import 'package:fufajis_online/services/order_service.dart';
 import 'package:fufajis_online/services/delivery_tracking_service.dart';
 import 'package:fufajis_online/utils/monetary_value.dart';
+import 'package:fufajis_online/models/user_model.dart';
 
 // ════════════════════════════════════════════════════════════════════════════
 // TASK #23: END-TO-END DELIVERY FLOW TEST SUITE

@@ -1,7 +1,18 @@
 import '../services/shop_config_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConfig {
   static const appName = "Fufaji's Online";
+
+  // Helper to get env value with multiple fallbacks
+  static String _getEnv(String key, {String defaultValue = ''}) {
+    // 1. Try --dart-define (compile-time)
+    final fromEnv = String.fromEnvironment(key);
+    if (fromEnv.isNotEmpty) return fromEnv;
+    
+    // 2. Try .env file (runtime)
+    return dotenv.env[key] ?? defaultValue;
+  }
 
   // Shop: Jalawar Road, Tel Factory, Baran, Rajasthan 325205
   static double get shopLatitude {
@@ -21,54 +32,54 @@ class AppConfig {
   static const String shopAddress = 'Jalawar Road, Tel Factory, Baran, Rajasthan 325205';
 
   static String get apiBaseUrl {
-    return const String.fromEnvironment(
-      'API_BASE_URL',
-      defaultValue: 'https://fufaji-api.render.com'
-    );
+    return _getEnv('API_BASE_URL', defaultValue: 'https://fufajis-online-business.onrender.com');
   }
 
   static String get supabaseUrl {
-    return const String.fromEnvironment('SUPABASE_URL', defaultValue: '');
+    return _getEnv('SUPABASE_URL');
   }
 
   static String get supabaseAnonKey {
-    return const String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
+    // Support both naming conventions
+    final key = _getEnv('SUPABASE_ANON_KEY');
+    if (key.isNotEmpty) return key;
+    return _getEnv('SUPABASE_PUBLISHABLE_KEY');
   }
 
+  @Deprecated('Redis must only be accessed via secure backend proxy.')
   static String get upstashRedisRestUrl {
-    return const String.fromEnvironment('UPSTASH_REDIS_REST_URL', defaultValue: '');
+    return '';
   }
 
+  @Deprecated('Redis token must be kept server-side only.')
   static String get upstashRedisRestToken {
-    return const String.fromEnvironment('UPSTASH_REDIS_REST_TOKEN', defaultValue: '');
+    return '';
   }
 
   static String get googleMapsKey {
-    return const String.fromEnvironment('GOOGLE_MAPS_KEY', defaultValue: '');
+    return _getEnv('GOOGLE_MAPS_KEY');
   }
 
   static String get razorpayKeyId {
-    return const String.fromEnvironment('RAZORPAY_KEY_ID', defaultValue: '');
+    return _getEnv('RAZORPAY_KEY_ID');
   }
 
-  @deprecated
+  @Deprecated('Razorpay secret must be kept server-side only.')
   static String get razorpayKeySecret {
-    // Deprecated: Razorpay secret must be kept server-side only. Returning empty string to prevent APK leakage.
     return '';
   }
 
   static String get sentryDsn {
-    return const String.fromEnvironment('SENTRY_DSN', defaultValue: '');
+    final dsn = _getEnv('SENTRY_DSN');
+    if (dsn.contains('your-sentry-dsn')) return ''; // Ignore placeholder
+    return dsn;
   }
 
-  static const apkDownloadUrl = String.fromEnvironment('APK_DOWNLOAD_URL');
-  static const supportWhatsappNumber = String.fromEnvironment(
-    'SUPPORT_WHATSAPP_NUMBER',
-  );
+  static String get apkDownloadUrl => _getEnv('APK_DOWNLOAD_URL');
+  static String get supportWhatsappNumber => _getEnv('SUPPORT_WHATSAPP_NUMBER');
 
-  @deprecated
+  @Deprecated('Razorpay webhook secret must be kept server-side only.')
   static String get razorpayWebhookSecret {
-    // Deprecated: Razorpay webhook secret must be kept server-side only. Returning empty string to prevent APK leakage.
     return '';
   }
 
@@ -76,5 +87,4 @@ class AppConfig {
 
   static String get shopPhone =>
       ShopConfigService().cachedConfig?.shopPhone ?? '+91 9876543210';
-
 }

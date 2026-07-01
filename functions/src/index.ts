@@ -28,5 +28,6 @@ export * from './runtime/agentToolExecutor';
 export * from './runtime/seedMissionControl';
 export * from './runtime/scheduledAgentRunner';
 export * from './runtime/chiefOfStaff';
+export * from './runtime/businessAnalyst';
 export * from './runtime/broadcastSender';
 export * from './runtime/inventoryCatalog';

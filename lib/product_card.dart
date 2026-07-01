@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'models/product_model.dart';
 import 'models/shop_branch_model.dart';
 import 'models/user_model.dart';
+import 'widgets/animated_widgets.dart';
 import 'providers/cart_provider.dart';
 import 'providers/location_provider.dart';
 import 'providers/shop_config_provider.dart';
@@ -63,7 +64,8 @@ class ProductCard extends StatelessWidget {
         product.expiryDate!.difference(DateTime.now()).inDays <= 3 &&
         !product.isExpired;
 
-    return GestureDetector(
+    return ScaleBounce(
+      scaleFactor: 0.96,
       onTap: () => context.push('/customer/product/${product.id}'),
       child: Container(
         decoration: BoxDecoration(

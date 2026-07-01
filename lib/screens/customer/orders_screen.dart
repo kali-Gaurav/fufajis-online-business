@@ -12,6 +12,7 @@ import '../../utils/app_theme.dart';
 import '../../constants/order_status.dart';
 import '../../widgets/fj_empty_state.dart';
 import '../../widgets/shimmer_loading.dart';
+import '../../widgets/animated_widgets.dart';
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
@@ -178,7 +179,11 @@ class _OrdersScreenState extends State<OrdersScreen> {
                             return _buildLoadingIndicator();
                           }
                           final order = filteredOrders[index];
-                          return _buildOrderCard(order);
+                          return SpringCard(
+                            delay: Duration(milliseconds: index * 55),
+                            springDistance: 40,
+                            child: _buildOrderCard(order),
+                          );
                         },
                       ),
           ),

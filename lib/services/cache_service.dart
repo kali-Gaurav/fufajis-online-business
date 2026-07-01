@@ -1,11 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../config/app_config.dart';
 import '../utils/lru_memory_cache.dart';
-import '../core/resilience/circuit_breaker.dart';
 
 class CacheService {
   static final CacheService _instance = CacheService._internal();
@@ -16,87 +13,21 @@ class CacheService {
   bool _useLocalFailover = false;
   bool _useFirebaseCache = false;
   final LruMemoryCache<String, String> _memoryCache = LruMemoryCache(capacity: 500);
-  String? _redisUrl;
-  String? _redisToken;
+  // Redis direct access has been REMOVED for security reasons.
+  // The client must not talk directly to Redis via REST tokens.
+  // Using LocalFailover / Firebase Cache instead.
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  late final CircuitBreaker _redisCircuitBreaker;
+  bool _initialized = false;
 
   // Initialize service settings
   Future<void> init() async {
-    try {
-      _redisCircuitBreaker = CircuitBreakerRegistry.get('UpstashRedis', config: const CircuitBreakerConfig(failureThreshold: 3, resetTimeout: Duration(minutes: 1)));
-      _prefs = await SharedPreferences.getInstance();
-      
-      try {
-        _redisUrl = AppConfig.upstashRedisRestUrl.trim();
-        
-        // Clean trailing slash for absolute URL mapping
-        if (_redisUrl != null && _redisUrl!.endsWith('/')) {
-          _redisUrl = _redisUrl!.substring(0, _redisUrl!.length - 1);
-        }
+    if (_initialized) return;  // Prevent double initialization
 
-        _redisToken = AppConfig.upstashRedisRestToken.trim();
-      } catch (e, stack) {
-        debugPrint('CacheService error loading env variables: $e\\n$stack');
-      }
-      
-      // Step 1: URL Validation
-      if (!_isValidUrl(_redisUrl)) {
-        debugPrint('[CacheService] Step 1: URL validation failed or empty. Falling back to Firebase Cache.');
-        await _activateFirebaseCache();
-        return;
-      }
-
-      // Step 2: Token Validation
-      if (!_isValidToken(_redisToken)) {
-        debugPrint('[CacheService] Step 2: REST Token validation failed. Falling back to Firebase Cache.');
-        await _activateFirebaseCache();
-        return;
-      }
-
-      // Step 3: Test Ping Endpoint using Circuit Breaker
-      await _redisCircuitBreaker.execute<void>(() async {
-        debugPrint('[CacheService] Step 3: Pinging Upstash Redis REST endpoint: $_redisUrl/ping');
-        final response = await http.get(
-          Uri.parse('$_redisUrl/ping'),
-          headers: {
-            'Authorization': 'Bearer $_redisToken',
-          },
-        ).timeout(const Duration(seconds: 5));
-
-        if (response.statusCode == 200) {
-          final decoded = jsonDecode(response.body);
-          if ((decoded is Map && decoded.containsKey('result') && decoded['result'] == 'PONG') ||
-              response.body.toUpperCase().contains('PONG')) {
-            debugPrint('[CacheService] ✅ Upstash Redis REST authenticated successfully (PONG received).');
-            _useLocalFailover = false;
-            _useFirebaseCache = false;
-          } else {
-            throw Exception('Unexpected ping result: ${response.body}');
-          }
-        } else if (response.statusCode == 401) {
-          throw Exception('Upstash authentication failed — check UPSTASH_REDIS_REST_TOKEN');
-        } else {
-          throw Exception('HTTP Status ${response.statusCode} - ${response.body}');
-        }
-      }, fallback: (e) async {
-        throw e as Object;
-      });
-    } catch (e) {
-      debugPrint('⚠️ [CacheService] Upstash Redis authentication failed or Circuit Open: $e');
-      await _activateFirebaseCache();
-    }
-  }
-
-  bool _isValidUrl(String? urlStr) {
-    if (urlStr == null || urlStr.isEmpty) return false;
-    final uri = Uri.tryParse(urlStr);
-    return uri != null && uri.hasAbsolutePath && (uri.scheme == 'http' || uri.scheme == 'https');
-  }
-
-  bool _isValidToken(String? token) {
-    return token != null && token.isNotEmpty && token.length > 5;
+    debugPrint('[CacheService] ⚠️ Upstash Redis direct frontend access is DISABLED for security.');
+    _prefs = await SharedPreferences.getInstance();
+    await _activateFirebaseCache();
+    _initialized = true;
   }
 
   Future<void> _activateFirebaseCache() async {
@@ -105,7 +36,7 @@ class CacheService {
       // Verify firestore connectivity
       await _firestore.collection('cache').doc('ping_test').set({
         'pingedAt': FieldValue.serverTimestamp(),
-      }).timeout(const Duration(seconds: 3));
+      }).timeout(const Duration(seconds: 10));
       
       _useFirebaseCache = true;
       _useLocalFailover = false;
@@ -133,28 +64,10 @@ class CacheService {
       return await _saveToFirebaseCache(key, value);
     }
 
-    // 3. Try Redis — Upstash REST API using CircuitBreaker
-    return await _redisCircuitBreaker.execute<bool>(() async {
-      debugPrint('[CacheService] Redis Write -> $key');
-      final response = await http.post(
-        Uri.parse('$_redisUrl/set/$key'),
-        headers: {
-          'Authorization': 'Bearer $_redisToken',
-          'Content-Type': 'text/plain',
-        },
-        body: value,
-      ).timeout(const Duration(seconds: 4));
-
-      if (response.statusCode == 200) {
-        return true;
-      } else {
-        throw Exception('HTTP ${response.statusCode}: ${response.body}');
-      }
-    }, fallback: (error) async {
-      debugPrint('[CacheService] Redis Write Error, falling back to Firebase Cache: $error');
-      _useFirebaseCache = true;
-      return await _saveToFirebaseCache(key, value);
-    });
+    // 3. Fallback behavior (Redis path removed for security)
+    debugPrint('[CacheService] Redis path disabled. Defaulting to Firebase Cache.');
+    _useFirebaseCache = true;
+    return await _saveToFirebaseCache(key, value);
   }
 
   // Get cached value by key
@@ -174,34 +87,10 @@ class CacheService {
       return await _readFromFirebaseCache(key);
     }
 
-    return await _redisCircuitBreaker.execute<String?>(() async {
-      debugPrint('[CacheService] Redis Read -> $key');
-      final response = await http.get(
-        Uri.parse('$_redisUrl/get/$key'),
-        headers: {
-          'Authorization': 'Bearer $_redisToken',
-        },
-      ).timeout(const Duration(seconds: 4));
-
-      if (response.statusCode == 200) {
-        final decoded = jsonDecode(response.body);
-        String? value;
-        if (decoded is Map && decoded.containsKey('result') && decoded['result'] != null) {
-          value = decoded['result'].toString();
-        }
-        if (value != null) {
-          _memoryCache.set(key, value);
-          return value;
-        }
-        return await _readFromLocal(key);
-      } else {
-        throw Exception('HTTP ${response.statusCode}: ${response.body}');
-      }
-    }, fallback: (error) async {
-      debugPrint('[CacheService] Redis Read Error, falling back to Firebase Cache: $error');
-      _useFirebaseCache = true;
-      return await _readFromFirebaseCache(key);
-    });
+    // 4. Fallback behavior (Redis path removed for security)
+    debugPrint('[CacheService] Redis path disabled. Defaulting to Firebase Cache.');
+    _useFirebaseCache = true;
+    return await _readFromFirebaseCache(key);
   }
 
   // Remove key from cache
@@ -217,18 +106,6 @@ class CacheService {
         await _firestore.collection('cache').doc(key).delete();
       } catch (e) {
         debugPrint('[CacheService] Firebase Cache Delete Error: $e');
-      }
-    } else if (!_useLocalFailover && _redisUrl != null && _redisToken != null) {
-      try {
-        // Upstash REST format: GET /del/{key}
-        await http.get(
-          Uri.parse('$_redisUrl/del/$key'),
-          headers: {
-            'Authorization': 'Bearer $_redisToken',
-          },
-        ).timeout(const Duration(seconds: 3));
-      } catch (e) {
-        debugPrint('[CacheService] Redis Delete Error: $e');
       }
     }
     return localRemoved;
@@ -334,28 +211,6 @@ class CacheService {
   /// the expiry epoch (ms) and is checked by [_getWithTtl].
   Future<bool> _setWithTtl(String key, String value, int ttlSeconds) async {
     _memoryCache.set(key, value);
-
-    if (!_useLocalFailover && !_useFirebaseCache && _redisUrl != null && _redisToken != null) {
-      try {
-        return await _redisCircuitBreaker.execute<bool>(() async {
-          final response = await http.post(
-            Uri.parse('$_redisUrl/set/${Uri.encodeComponent(key)}/${Uri.encodeComponent(value)}?EX=$ttlSeconds'),
-            headers: {'Authorization': 'Bearer $_redisToken'},
-          ).timeout(const Duration(seconds: 4));
-
-          if (response.statusCode == 200) return true;
-          throw Exception('HTTP ${response.statusCode}: ${response.body}');
-        }, fallback: (error) async {
-          debugPrint('[CacheService] Redis TTL set error, falling back: $error');
-          _useFirebaseCache = true;
-          return await _setWithTtlFallback(key, value, ttlSeconds);
-        });
-      } catch (e) {
-        debugPrint('[CacheService] _setWithTtl error: $e');
-        return await _setWithTtlFallback(key, value, ttlSeconds);
-      }
-    }
-
     return await _setWithTtlFallback(key, value, ttlSeconds);
   }
 
@@ -375,9 +230,6 @@ class CacheService {
   /// Gets [key], honoring TTL on the fallback tiers (Redis handles
   /// expiry natively, so a plain [get] is used there).
   Future<String?> _getWithTtl(String key) async {
-    if (!_useLocalFailover && !_useFirebaseCache && _redisUrl != null && _redisToken != null) {
-      return await get(key);
-    }
 
     final expStr = await _readFromLocal('${key}_exp') ?? await _readFromFirebaseCache('${key}_exp');
     if (expStr != null) {
@@ -513,39 +365,6 @@ class CacheService {
   /// count.
   Future<int> incrementRateLimit(String key, {int windowSeconds = 60}) async {
     final rlKey = 'ratelimit:$key';
-
-    if (!_useLocalFailover && !_useFirebaseCache && _redisUrl != null && _redisToken != null) {
-      try {
-        return await _redisCircuitBreaker.execute<int>(() async {
-          final incrResp = await http.get(
-            Uri.parse('$_redisUrl/incr/${Uri.encodeComponent(rlKey)}'),
-            headers: {'Authorization': 'Bearer $_redisToken'},
-          ).timeout(const Duration(seconds: 4));
-
-          if (incrResp.statusCode != 200) {
-            throw Exception('HTTP ${incrResp.statusCode}: ${incrResp.body}');
-          }
-          final decoded = jsonDecode(incrResp.body);
-          final count = decoded is Map ? (decoded['result'] as num?)?.toInt() ?? 1 : 1;
-
-          if (count == 1) {
-            // First hit in this window — set expiry.
-            await http.get(
-              Uri.parse('$_redisUrl/expire/${Uri.encodeComponent(rlKey)}/$windowSeconds'),
-              headers: {'Authorization': 'Bearer $_redisToken'},
-            ).timeout(const Duration(seconds: 4));
-          }
-          return count;
-        }, fallback: (error) async {
-          debugPrint('[CacheService] Redis rate limit error, falling back: $error');
-          return await _incrementRateLimitFallback(rlKey, windowSeconds);
-        });
-      } catch (e) {
-        debugPrint('[CacheService] incrementRateLimit error: $e');
-        return await _incrementRateLimitFallback(rlKey, windowSeconds);
-      }
-    }
-
     return await _incrementRateLimitFallback(rlKey, windowSeconds);
   }
 

@@ -14,6 +14,8 @@ import '../../models/product_model.dart';
 import '../../providers/product_provider.dart';
 import '../../services/customer_state.dart';
 import 'guest_profile_screen.dart';
+import '../../widgets/animated_widgets.dart';
+import '../../widgets/missing_animations.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -40,23 +42,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Profile Header
-            _buildProfileHeader(user),
+            // Profile Header — FadeSlideIn for premium entrance
+            FadeSlideIn(
+              duration: const Duration(milliseconds: 500),
+              child: _buildProfileHeader(user),
+            ),
             const SizedBox(height: 16),
-            // Buy Again Section (Step 15.3)
-            _buildBuyAgainSection(orderProvider, productProvider),
+            // Buy Again Section
+            SpringCard(
+              delay: const Duration(milliseconds: 80),
+              child: _buildBuyAgainSection(orderProvider, productProvider),
+            ),
             const SizedBox(height: 16),
             // Wallet & Rewards
-            _buildWalletSection(user),
+            SpringCard(
+              delay: const Duration(milliseconds: 140),
+              child: _buildWalletSection(user),
+            ),
             const SizedBox(height: 16),
             // Membership
-            _buildMembershipSection(user),
+            SpringCard(
+              delay: const Duration(milliseconds: 200),
+              child: _buildMembershipSection(user),
+            ),
             const SizedBox(height: 16),
             // Referral Section
-            _buildReferralCard(authProvider),
+            SpringCard(
+              delay: const Duration(milliseconds: 260),
+              child: _buildReferralCard(authProvider),
+            ),
             const SizedBox(height: 16),
             // Menu Items
-            _buildMenuSection(),
+            SpringCard(
+              delay: const Duration(milliseconds: 320),
+              child: _buildMenuSection(),
+            ),
             const SizedBox(height: 24),
           ],
         ),
@@ -253,8 +273,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     const Icon(Icons.account_balance_wallet, color: AppTheme.primary),
                     const SizedBox(height: 4),
-                    Text(
-                      '₹${(user?.walletBalance ?? 0.0).round()}',
+                    MorphNumber(
+                      value: (user?.walletBalance ?? 0.0).round(),
+                      prefix: '₹',
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -282,8 +303,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     const Icon(Icons.stars, color: AppTheme.warning),
                     const SizedBox(height: 4),
-                    Text(
-                      '${user?.rewardPoints ?? 0}',
+                    MorphNumber(
+                      value: user?.rewardPoints ?? 0,
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,

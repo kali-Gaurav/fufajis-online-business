@@ -966,55 +966,5 @@ service cloud.firestore {
         isGlobalAdmin()
       );
     }
-
-    // ========================================================================
-    // MISSION CONTROL (AI AGENTS)
-    // ========================================================================
-
-    match /agents/{agentId} {
-      allow read: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-      allow write: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-    }
-
-    match /agent_tasks/{taskId} {
-      allow read: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-      // Owner/Admin can approve/edit/reject tasks
-      allow write: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-    }
-
-    match /reports/{reportId} {
-      allow read: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-      allow write: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-    }
-
-    match /broadcasts/{broadcastId} {
-      allow read: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-      allow write: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-    }
-
-    match /agent_config/{configId} {
-      allow read: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-      allow write: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-    }
-
-    match /agent_runs/{runId} {
-      allow read: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-      allow write: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-    }
-
-    match /agent_memory/{memId} {
-      allow read: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-      allow write: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-    }
-
-    match /ai_insights/{docId} {
-      allow read: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-      allow write: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-    }
-
-    match /pricing_recommendations/{recId} {
-      allow read: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-      allow write: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-    }
   }
 }

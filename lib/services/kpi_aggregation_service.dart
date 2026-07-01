@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../config/supabase_config.dart';
 import 'package:intl/intl.dart';
 
 /// KPI Aggregation Service
@@ -13,7 +14,7 @@ class KPIAggregationService {
   KPIAggregationService._internal();
 
   SupabaseClient? _customClient;
-  SupabaseClient get _client => _customClient ?? Supabase.instance.client;
+  SupabaseClient get _client => _customClient ?? SupabaseConfig.client;
   set client(SupabaseClient c) => _customClient = c;
 
   FirebaseFirestore? _customFirestore;

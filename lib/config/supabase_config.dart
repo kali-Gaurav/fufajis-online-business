@@ -3,10 +3,13 @@ import '../services/runtime_config_service.dart';
 
 /// Supabase configuration and initialization
 class SupabaseConfig {
-  static late final SupabaseClient _client;
+  static SupabaseClient? _client;
+  static bool _initialized = false;
 
   /// Initialize Supabase with Flutter
   static Future<void> initialize() async {
+    if (_initialized) return;
+
     try {
       final url = RuntimeConfig.instance.supabaseUrl;
       final anonKey = RuntimeConfig.instance.supabaseAnonKey;
@@ -24,34 +27,44 @@ class SupabaseConfig {
         },
       );
       _client = Supabase.instance.client;
+      _initialized = true;
       print('[Supabase] Initialized successfully at $url');
     } catch (e) {
       print('[Supabase] Initialization failed: $e');
     }
   }
 
+  /// Check if Supabase is initialized and available
+  static bool get isAvailable => _initialized && _client != null;
+
   /// Get Supabase client instance
-  static SupabaseClient get client => _client;
+  static SupabaseClient get client {
+    if (!_initialized || _client == null) {
+      throw StateError('Supabase has not been initialized. Check isAvailable first.');
+    }
+    return _client!;
+  }
 
   /// Get Auth client
-  static GoTrueClient get auth => _client.auth;
+  static GoTrueClient get auth => client.auth;
 
   /// Get Storage client
-  static SupabaseStorageClient get storage => _client.storage;
+  static SupabaseStorageClient get storage => client.storage;
 
   /// Get current user
-  static User? get currentUser => _client.auth.currentUser;
+  static User? get currentUser => isAvailable ? _client?.auth.currentUser : null;
 
   /// Get current user ID
-  static String? get userId => _client.auth.currentUser?.id;
+  static String? get userId => isAvailable ? _client?.auth.currentUser?.id : null;
 
   /// Check if user is authenticated
-  static bool get isAuthenticated => _client.auth.currentUser != null;
+  static bool get isAuthenticated => isAvailable && _client?.auth.currentUser != null;
 
   /// Sign out
   static Future<void> signOut() async {
+    if (!isAvailable) return;
     try {
-      await _client.auth.signOut();
+      await _client?.auth.signOut();
       print('[Supabase] Signed out successfully');
     } catch (e) {
       print('[Supabase] Sign out failed: $e');

@@ -15,6 +15,7 @@ import 'package:intl/intl.dart';
 import '../../services/weight_verification_service.dart';
 import '../../widgets/customer/live_packing_tracker.dart';
 import 'track_order_screen.dart';
+import '../../widgets/animated_widgets.dart';
 
 class OrderDetailScreen extends StatefulWidget {
   final String orderId;
@@ -120,21 +121,43 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           body: SingleChildScrollView(
             child: Column(
               children: [
+                // Status header — no delay, it's the hero
                 _buildStatusHeader(),
                 if (_order!.status == OrderStatus.pending ||
                     _order!.status == OrderStatus.confirmed ||
                     _order!.status == OrderStatus.processing)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: LivePackingTracker(orderId: _order!.id),
+                  SpringCard(
+                    delay: const Duration(milliseconds: 60),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: LivePackingTracker(orderId: _order!.id),
+                    ),
                   ),
-                _buildItemsList(),
-                _buildPackingAndWeightProofSection(),
-                _buildShopSection(),
-                _buildDeliverySection(),
-                _buildPriceDetails(),
+                SpringCard(
+                  delay: const Duration(milliseconds: 100),
+                  child: _buildItemsList(),
+                ),
+                SpringCard(
+                  delay: const Duration(milliseconds: 150),
+                  child: _buildPackingAndWeightProofSection(),
+                ),
+                SpringCard(
+                  delay: const Duration(milliseconds: 200),
+                  child: _buildShopSection(),
+                ),
+                SpringCard(
+                  delay: const Duration(milliseconds: 250),
+                  child: _buildDeliverySection(),
+                ),
+                SpringCard(
+                  delay: const Duration(milliseconds: 300),
+                  child: _buildPriceDetails(),
+                ),
                 const SizedBox(height: 24),
-                _buildActionButtons(),
+                SpringCard(
+                  delay: const Duration(milliseconds: 350),
+                  child: _buildActionButtons(),
+                ),
                 const SizedBox(height: 40),
               ],
             ),

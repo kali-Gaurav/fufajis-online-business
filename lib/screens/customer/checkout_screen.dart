@@ -31,6 +31,8 @@ import 'payment_verification_dialog.dart';
 import '../../services/billing_service.dart';
 import '../../services/notification_retry_service.dart';
 import '../../widgets/trust/fj_trust_banner.dart';
+import '../../widgets/animated_widgets.dart';
+import '../../widgets/missing_animations.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -108,13 +110,32 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         centerTitle: true,
       ),
       body: paymentProvider.isProcessing
-          ? const Center(
+          ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(color: AppTheme.primary),
-                  SizedBox(height: 16),
-                  Text('Processing Payment...'),
+                  LiquidProgressBar(
+                    value: 0.6,
+                    width: 200,
+                    height: 12,
+                    color: AppTheme.primary,
+                  ),
+                  const SizedBox(height: 24),
+                  const CircularProgressIndicator(color: AppTheme.primary),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Processing Payment...',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.grey900,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Please do not press back',
+                    style: TextStyle(color: AppTheme.grey500, fontSize: 13),
+                  ),
                 ],
               ),
             )
@@ -132,11 +153,27 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 if (_weatherAlert != null && _weatherAlert!.hasWarning)
                   _buildWeatherWarningBanner(),
 
-                // Step content
+                // Step content with animated crossfade
                 Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: _buildStepContent(),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeInCubic,
+                    transitionBuilder: (child, animation) {
+                      final slideAnim = Tween<Offset>(
+                        begin: const Offset(0.08, 0),
+                        end: Offset.zero,
+                      ).animate(animation);
+                      return FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(position: slideAnim, child: child),
+                      );
+                    },
+                    child: SingleChildScrollView(
+                      key: ValueKey(_currentStep),
+                      padding: const EdgeInsets.all(16),
+                      child: _buildStepContent(),
+                    ),
                   ),
                 ),
               ],

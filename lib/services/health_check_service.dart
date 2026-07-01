@@ -18,6 +18,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'cache_service.dart';
 import 'workflow_verification_service.dart';
+import '../config/supabase_config.dart';
 
 enum HealthState { ok, degraded, down }
 
@@ -44,26 +45,34 @@ class HealthCheckService {
 
   /// Runs all health checks concurrently and returns a map keyed by
   /// service name: firebase, supabase, redis, s3, internet.
+  /// Each check is wrapped to prevent any single failure from crashing others.
   Future<Map<String, HealthStatus>> checkAll({bool includeS3 = true}) async {
-    final futures = <String, Future<HealthStatus>>{
-      'firebase': _checkFirebase(),
-      'supabase': _checkSupabase(),
-      'redis': _checkRedis(),
-      'internet': _checkInternet(),
-    };
-    if (includeS3) {
-      futures['s3'] = _checkS3();
-    }
-
-    final results = <String, HealthStatus>{};
-    for (final entry in futures.entries) {
-      try {
-        results[entry.key] = await entry.value;
-      } catch (e) {
-        results[entry.key] = HealthStatus(state: HealthState.down, message: 'Check threw: $e');
+    try {
+      final futures = <String, Future<HealthStatus>>{
+        'firebase': _checkFirebase(),
+        'supabase': _checkSupabase(),
+        'redis': _checkRedis(),
+        'internet': _checkInternet(),
+      };
+      if (includeS3) {
+        futures['s3'] = _checkS3();
       }
+
+      final results = <String, HealthStatus>{};
+      for (final entry in futures.entries) {
+        try {
+          results[entry.key] = await entry.value;
+        } catch (e) {
+          results[entry.key] = HealthStatus(state: HealthState.down, message: 'Check threw: $e');
+        }
+      }
+      return results;
+    } catch (e) {
+      // Catch-all: if anything goes wrong, return a safe default
+      return {
+        'error': HealthStatus(state: HealthState.down, message: 'Health check system error: $e'),
+      };
     }
-    return results;
   }
 
   /// Convenience: true only if every checked service is at least
@@ -95,7 +104,25 @@ class HealthCheckService {
   Future<HealthStatus> _checkSupabase() async {
     final sw = Stopwatch()..start();
     try {
-      final client = Supabase.instance.client;
+      // CRITICAL: Check isAvailable before accessing client to prevent LateInitializationError
+      if (!SupabaseConfig.isAvailable) {
+        return const HealthStatus(
+          state: HealthState.down,
+          message: 'Supabase not configured (missing URL/Anon Key)',
+        );
+      }
+
+      // Double-check: wrap client access in try-catch to handle any initialization errors
+      SupabaseClient? client;
+      try {
+        client = SupabaseConfig.client;
+      } catch (e) {
+        return HealthStatus(
+          state: HealthState.down,
+          message: 'Supabase client unavailable: $e',
+        );
+      }
+
       // Cheap reachability probe: select a single row's id from a
       // small table. Errors (including RLS denials) still confirm
       // the API is reachable, so treat PostgrestException as degraded

@@ -470,8 +470,8 @@ class _TypewriterTextState extends State<TypewriterText> with SingleTickerProvid
   }
 }
 
-/// A Staggered entrance anim list helper
-class StaggeredList extends StatelessWidget {
+/// A Staggered entrance anim LIST (scrollable) — for horizontal/vertical scroll lists
+class StaggeredScrollList extends StatelessWidget {
   final List<Widget> children;
   final Duration delayStep;
   final Duration itemDuration;
@@ -479,7 +479,7 @@ class StaggeredList extends StatelessWidget {
   final ScrollController? controller;
   final EdgeInsetsGeometry? padding;
 
-  const StaggeredList({
+  const StaggeredScrollList({
     super.key,
     required this.children,
     this.delayStep = const Duration(milliseconds: 80),
@@ -1130,3 +1130,1774 @@ class _CheckPainter extends CustomPainter {
       old.progress != progress;
 }
 
+
+// ============================================================================
+//  FUFAJI ANIMATION SYSTEM v2 — Added June 2026
+//  Widgets: FufajiShimmerCard, FufajiSkeleton, SparkleOverlay, FloatingSparkles,
+//           FufajiConfetti, StaggeredList, FufajiGlowButton, BounceIn,
+//           PulsingDot, ScaleInFade, AnimatedTabIndicator, CartBounce,
+//           GlowContainer, WaveDivider, FufajiLoadingDots
+// ============================================================================
+
+// ── Shimmer skeleton — branded orange-tinted loading placeholder ─────────────
+class FufajiSkeleton extends StatelessWidget {
+  final double width;
+  final double height;
+  final double borderRadius;
+
+  const FufajiSkeleton({
+    super.key,
+    this.width = double.infinity,
+    this.height = 16,
+    this.borderRadius = 8,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _ShimmerWidget(
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
+      ),
+    );
+  }
+}
+
+/// Branded shimmer wrapper — wraps any widget in an orange shimmer effect
+class _ShimmerWidget extends StatefulWidget {
+  final Widget child;
+  const _ShimmerWidget({required this.child});
+
+  @override
+  State<_ShimmerWidget> createState() => _ShimmerWidgetState();
+}
+
+class _ShimmerWidgetState extends State<_ShimmerWidget>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _anim;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat();
+    _anim = Tween<double>(begin: -1.0, end: 2.0).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _anim,
+      builder: (context, child) {
+        return ShaderMask(
+          shaderCallback: (bounds) => LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: const [
+              Color(0xFFE8E8E8),
+              Color(0xFFFFF3E8),
+              Color(0xFFFFE0C0),
+              Color(0xFFFFF3E8),
+              Color(0xFFE8E8E8),
+            ],
+            stops: [
+              0.0,
+              (_anim.value - 0.3).clamp(0.0, 1.0),
+              _anim.value.clamp(0.0, 1.0),
+              (_anim.value + 0.3).clamp(0.0, 1.0),
+              1.0,
+            ],
+          ).createShader(bounds),
+          child: child!,
+        );
+      },
+      child: widget.child,
+    );
+  }
+}
+
+/// Full product-card skeleton for loading states
+class FufajiShimmerCard extends StatelessWidget {
+  final bool isCompact;
+  const FufajiShimmerCard({super.key, this.isCompact = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return _ShimmerWidget(
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image placeholder
+            Container(
+              height: isCompact ? 90 : 130,
+              decoration: const BoxDecoration(
+                color: Color(0xFFE8E8E8),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 12,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE8E8E8),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    height: 10,
+                    width: 80,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE8E8E8),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    height: 28,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE8E8E8),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Shimmer grid of skeleton cards for the product grid loading state
+class FufajiShimmerGrid extends StatelessWidget {
+  final int count;
+  final int crossAxisCount;
+  final bool compact;
+
+  const FufajiShimmerGrid({
+    super.key,
+    this.count = 6,
+    this.crossAxisCount = 2,
+    this.compact = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        childAspectRatio: compact ? 0.75 : 0.65,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+      ),
+      itemCount: count,
+      itemBuilder: (_, i) => FufajiShimmerCard(isCompact: compact),
+    );
+  }
+}
+
+// ── Sparkle overlay — same sparkle art as splash screen ─────────────────────
+
+class _SparklePainterV2 extends CustomPainter {
+  final double opacity;
+  final double size;
+  final Color color;
+
+  const _SparklePainterV2({
+    required this.opacity,
+    this.size = 8,
+    this.color = Colors.white,
+  });
+
+  @override
+  void paint(Canvas canvas, Size s) {
+    if (opacity <= 0) return;
+    final cx = s.width / 2;
+    final cy = s.height / 2;
+    final stroke = Paint()
+      ..color = color.withValues(alpha: opacity * 0.85)
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+    for (int i = 0; i < 4; i++) {
+      final a = i * math.pi / 2;
+      canvas.drawLine(
+        Offset(cx, cy),
+        Offset(cx + math.cos(a) * size, cy + math.sin(a) * size),
+        stroke,
+      );
+    }
+    canvas.drawCircle(
+      Offset(cx, cy),
+      size * 0.28,
+      Paint()..color = color.withValues(alpha: opacity),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _SparklePainterV2 old) =>
+      old.opacity != opacity;
+}
+
+/// A single animated sparkle. Fades in/out on a loop with the given phase offset.
+class AnimatedSparkle extends StatefulWidget {
+  final double size;
+  final Color color;
+  final double phaseOffset;
+
+  const AnimatedSparkle({
+    super.key,
+    this.size = 8,
+    this.color = Colors.white,
+    this.phaseOffset = 0.0,
+  });
+
+  @override
+  State<AnimatedSparkle> createState() => _AnimatedSparkleState();
+}
+
+class _AnimatedSparkleState extends State<AnimatedSparkle>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2400),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (_, __) {
+        final phase = (_ctrl.value + widget.phaseOffset) % 1.0;
+        final opacity = (math.sin(phase * math.pi * 2) * 0.5 + 0.5).clamp(0.0, 1.0);
+        return CustomPaint(
+          size: Size(widget.size * 2, widget.size * 2),
+          painter: _SparklePainterV2(
+            opacity: opacity,
+            size: widget.size,
+            color: widget.color,
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Drop several sparkles onto any widget using a Stack + Positioned
+class SparkleOverlay extends StatelessWidget {
+  final Widget child;
+  final int count;
+  final Color sparkleColor;
+
+  const SparkleOverlay({
+    super.key,
+    required this.child,
+    this.count = 5,
+    this.sparkleColor = Colors.white,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final positions = [
+      const Offset(0.10, 0.12),
+      const Offset(0.88, 0.10),
+      const Offset(0.50, 0.05),
+      const Offset(0.06, 0.55),
+      const Offset(0.92, 0.52),
+      const Offset(0.75, 0.85),
+      const Offset(0.22, 0.80),
+    ];
+    return RepaintBoundary(
+      child: Stack(
+        children: [
+          child,
+          ...List.generate(count.clamp(0, positions.length), (i) {
+            return Positioned(
+              left: positions[i].dx * 300,
+              top: positions[i].dy * 200,
+              child: AnimatedSparkle(
+                size: 7 + (i % 3) * 2.0,
+                color: sparkleColor,
+                phaseOffset: i / count,
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+// ── BounceIn — elastic entrance from any direction ────────────────────────────
+
+class BounceIn extends StatefulWidget {
+  final Widget child;
+  final Duration delay;
+  final double beginScale;
+  final Offset? beginOffset;
+
+  const BounceIn({
+    super.key,
+    required this.child,
+    this.delay = Duration.zero,
+    this.beginScale = 0.0,
+    this.beginOffset,
+  });
+
+  @override
+  State<BounceIn> createState() => _BounceInState();
+}
+
+class _BounceInState extends State<BounceIn>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _scale;
+  late Animation<double> _opacity;
+  Animation<Offset>? _offset;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _scale = Tween<double>(begin: widget.beginScale, end: 1.0).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.elasticOut),
+    );
+    _opacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _ctrl,
+        curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
+      ),
+    );
+    if (widget.beginOffset != null) {
+      _offset = Tween<Offset>(
+        begin: widget.beginOffset!,
+        end: Offset.zero,
+      ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.elasticOut));
+    }
+    if (widget.delay == Duration.zero) {
+      _ctrl.forward();
+    } else {
+      Future.delayed(widget.delay, () {
+        if (mounted) _ctrl.forward();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (_, child) {
+        Widget w = Transform.scale(scale: _scale.value, child: child);
+        if (_offset != null) {
+          w = FractionalTranslation(translation: _offset!.value, child: w);
+        }
+        return Opacity(opacity: _opacity.value, child: w);
+      },
+      child: widget.child,
+    );
+  }
+}
+
+// ── ScaleInFade — zoom-in from centre, fades in ───────────────────────────────
+
+class ScaleInFade extends StatefulWidget {
+  final Widget child;
+  final Duration duration;
+  final Duration delay;
+  final double beginScale;
+
+  const ScaleInFade({
+    super.key,
+    required this.child,
+    this.duration = const Duration(milliseconds: 350),
+    this.delay = Duration.zero,
+    this.beginScale = 0.85,
+  });
+
+  @override
+  State<ScaleInFade> createState() => _ScaleInFadeState();
+}
+
+class _ScaleInFadeState extends State<ScaleInFade>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _scale;
+  late Animation<double> _fade;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(vsync: this, duration: widget.duration);
+    _scale = Tween<double>(begin: widget.beginScale, end: 1.0).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack),
+    );
+    _fade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeOut),
+    );
+    Future.delayed(widget.delay, () {
+      if (mounted) _ctrl.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (_, child) => Opacity(
+        opacity: _fade.value,
+        child: Transform.scale(scale: _scale.value, child: child),
+      ),
+      child: widget.child,
+    );
+  }
+}
+
+// ── StaggeredList — staggered entrance for any list of children ───────────────
+
+class StaggeredList extends StatelessWidget {
+  final List<Widget> children;
+  final Duration itemDelay;
+  final Duration itemDuration;
+  final Offset slideOffset;
+
+  const StaggeredList({
+    super.key,
+    required this.children,
+    this.itemDelay = const Duration(milliseconds: 60),
+    this.itemDuration = AppTheme.durationMedium,
+    this.slideOffset = const Offset(0.0, 0.18),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: List.generate(children.length, (i) {
+        return FadeSlideIn(
+          delay: itemDelay * i,
+          duration: itemDuration,
+          offset: slideOffset,
+          child: children[i],
+        );
+      }),
+    );
+  }
+}
+
+// ── PulsingDot — live indicator dot ──────────────────────────────────────────
+
+class PulsingDot extends StatefulWidget {
+  final Color color;
+  final double size;
+
+  const PulsingDot({
+    super.key,
+    this.color = AppTheme.primary,
+    this.size = 10,
+  });
+
+  @override
+  State<PulsingDot> createState() => _PulsingDotState();
+}
+
+class _PulsingDotState extends State<PulsingDot>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _pulse;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+    _pulse = Tween<double>(begin: 0.4, end: 1.0).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _pulse,
+      builder: (_, __) => Container(
+        width: widget.size,
+        height: widget.size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: widget.color.withValues(alpha: _pulse.value),
+          boxShadow: [
+            BoxShadow(
+              color: widget.color.withValues(alpha: _pulse.value * 0.5),
+              blurRadius: widget.size * _pulse.value,
+              spreadRadius: widget.size * 0.2 * _pulse.value,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── GlowContainer — pulsing glow border for highlighted cards ─────────────────
+
+class GlowContainer extends StatefulWidget {
+  final Widget child;
+  final Color glowColor;
+  final double borderRadius;
+  final double maxGlowRadius;
+
+  const GlowContainer({
+    super.key,
+    required this.child,
+    this.glowColor = AppTheme.primary,
+    this.borderRadius = 16,
+    this.maxGlowRadius = 16,
+  });
+
+  @override
+  State<GlowContainer> createState() => _GlowContainerState();
+}
+
+class _GlowContainerState extends State<GlowContainer>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _glow;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    )..repeat(reverse: true);
+    _glow = Tween<double>(begin: 0.3, end: 1.0).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _glow,
+      builder: (_, child) => Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(widget.borderRadius),
+          boxShadow: [
+            BoxShadow(
+              color: widget.glowColor.withValues(alpha: _glow.value * 0.45),
+              blurRadius: widget.maxGlowRadius * _glow.value,
+              spreadRadius: 2 * _glow.value,
+            ),
+          ],
+        ),
+        child: child,
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(widget.borderRadius),
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+// ── FufajiGlowButton — pulsing CTA button ────────────────────────────────────
+
+class FufajiGlowButton extends StatefulWidget {
+  final String label;
+  final VoidCallback? onTap;
+  final bool isLoading;
+  final Color? color;
+  final IconData? icon;
+  final double height;
+
+  const FufajiGlowButton({
+    super.key,
+    required this.label,
+    this.onTap,
+    this.isLoading = false,
+    this.color,
+    this.icon,
+    this.height = 52,
+  });
+
+  @override
+  State<FufajiGlowButton> createState() => _FufajiGlowButtonState();
+}
+
+class _FufajiGlowButtonState extends State<FufajiGlowButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _scale;
+  late Animation<double> _glow;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1600),
+    )..repeat(reverse: true);
+    _scale = Tween<double>(begin: 1.0, end: 1.02).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
+    );
+    _glow = Tween<double>(begin: 0.35, end: 0.75).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final col = widget.color ?? AppTheme.primary;
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (_, __) => Transform.scale(
+        scale: _scale.value,
+        child: Container(
+          height: widget.height,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [
+              BoxShadow(
+                color: col.withValues(alpha: _glow.value * 0.6),
+                blurRadius: 18 * _glow.value,
+                spreadRadius: 2 * _glow.value,
+              ),
+            ],
+          ),
+          child: Material(
+            color: col,
+            borderRadius: BorderRadius.circular(14),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: widget.isLoading ? null : widget.onTap,
+              child: Center(
+                child: widget.isLoading
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2.5,
+                        ),
+                      )
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (widget.icon != null) ...[
+                            Icon(widget.icon, color: Colors.white, size: 20),
+                            const SizedBox(width: 8),
+                          ],
+                          Text(
+                            widget.label,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── FufajiConfetti — canvas-drawn confetti celebration ────────────────────────
+
+class _ConfettiParticle {
+  Offset position;
+  Offset velocity;
+  Color color;
+  double rotation;
+  double rotationSpeed;
+  double size;
+  double opacity;
+
+  _ConfettiParticle({
+    required this.position,
+    required this.velocity,
+    required this.color,
+    required this.rotation,
+    required this.rotationSpeed,
+    required this.size,
+    this.opacity = 1.0,
+  });
+}
+
+class _ConfettiPainter extends CustomPainter {
+  final List<_ConfettiParticle> particles;
+  const _ConfettiPainter(this.particles);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (final p in particles) {
+      if (p.opacity <= 0) continue;
+      canvas.save();
+      canvas.translate(p.position.dx, p.position.dy);
+      canvas.rotate(p.rotation);
+      final paint = Paint()
+        ..color = p.color.withValues(alpha: p.opacity)
+        ..style = PaintingStyle.fill;
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromCenter(
+            center: Offset.zero,
+            width: p.size,
+            height: p.size * 0.45,
+          ),
+          const Radius.circular(2),
+        ),
+        paint,
+      );
+      canvas.restore();
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _ConfettiPainter old) => true;
+}
+
+class FufajiConfetti extends StatefulWidget {
+  final bool play;
+  final Widget child;
+
+  const FufajiConfetti({
+    super.key,
+    required this.child,
+    this.play = true,
+  });
+
+  @override
+  State<FufajiConfetti> createState() => _FufajiConfettiState();
+}
+
+class _FufajiConfettiState extends State<FufajiConfetti>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  final List<_ConfettiParticle> _particles = [];
+  final _rng = math.Random();
+
+  static const _colors = [
+    Color(0xFFFF6B00),
+    Color(0xFFFFB347),
+    Color(0xFF4CAF50),
+    Color(0xFF2196F3),
+    Color(0xFFE91E63),
+    Color(0xFFFFEB3B),
+    Color(0xFF9C27B0),
+    Color(0xFF00BCD4),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 16),
+    )..addListener(_tick);
+    if (widget.play) _launch();
+  }
+
+  @override
+  void didUpdateWidget(FufajiConfetti old) {
+    super.didUpdateWidget(old);
+    if (widget.play && !old.play) _launch();
+  }
+
+  void _launch() {
+    _particles.clear();
+    for (int i = 0; i < 80; i++) {
+      _particles.add(_ConfettiParticle(
+        position: Offset(
+          100 + _rng.nextDouble() * 200,
+          -20 - _rng.nextDouble() * 40,
+        ),
+        velocity: Offset(
+          (_rng.nextDouble() - 0.5) * 6,
+          3 + _rng.nextDouble() * 5,
+        ),
+        color: _colors[_rng.nextInt(_colors.length)],
+        rotation: _rng.nextDouble() * math.pi * 2,
+        rotationSpeed: (_rng.nextDouble() - 0.5) * 0.18,
+        size: 8 + _rng.nextDouble() * 8,
+        opacity: 1.0,
+      ));
+    }
+    _ctrl.repeat();
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) _ctrl.stop();
+    });
+  }
+
+  void _tick() {
+    if (!mounted) return;
+    setState(() {
+      for (final p in _particles) {
+        p.position += p.velocity;
+        p.velocity = Offset(p.velocity.dx * 0.99, p.velocity.dy + 0.12);
+        p.rotation += p.rotationSpeed;
+        if (p.position.dy > 700) p.opacity = (p.opacity - 0.04).clamp(0.0, 1.0);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RepaintBoundary(
+      child: Stack(
+        children: [
+          widget.child,
+          if (widget.play)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: CustomPaint(painter: _ConfettiPainter(_particles)),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── FufajiLoadingDots — 3 bouncing dots (reusable, not locked to splash) ─────
+
+class FufajiLoadingDots extends StatefulWidget {
+  final Color color;
+  final double dotSize;
+
+  const FufajiLoadingDots({
+    super.key,
+    this.color = AppTheme.primary,
+    this.dotSize = 8,
+  });
+
+  @override
+  State<FufajiLoadingDots> createState() => _FufajiLoadingDotsState();
+}
+
+class _FufajiLoadingDotsState extends State<FufajiLoadingDots>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (_, __) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: List.generate(3, (i) {
+          final phase = (_ctrl.value + 1.0 - i / 3.0) % 1.0;
+          final bounce = math.sin(phase * math.pi).clamp(0.0, 1.0);
+          return Container(
+            margin: EdgeInsets.symmetric(horizontal: widget.dotSize * 0.4),
+            width: widget.dotSize,
+            height: widget.dotSize,
+            transform: Matrix4.translationValues(0, -widget.dotSize * 1.2 * bounce, 0),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: widget.color.withValues(alpha: 0.55 + 0.45 * bounce),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+}
+
+// ── AnimatedTabItem — bottom nav tab with animated scale + indicator ──────────
+
+class AnimatedTabItem extends StatefulWidget {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final int badgeCount;
+
+  const AnimatedTabItem({
+    super.key,
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+    this.badgeCount = 0,
+  });
+
+  @override
+  State<AnimatedTabItem> createState() => _AnimatedTabItemState();
+}
+
+class _AnimatedTabItemState extends State<AnimatedTabItem>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _scale;
+  late Animation<double> _indicatorWidth;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _scale = Tween<double>(begin: 1.0, end: 1.18).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.elasticOut),
+    );
+    _indicatorWidth = Tween<double>(begin: 0, end: 24).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic),
+    );
+    if (widget.isSelected) _ctrl.forward();
+  }
+
+  @override
+  void didUpdateWidget(AnimatedTabItem old) {
+    super.didUpdateWidget(old);
+    if (widget.isSelected && !old.isSelected) {
+      _ctrl.forward(from: 0);
+    } else if (!widget.isSelected && old.isSelected) {
+      _ctrl.reverse();
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: widget.onTap,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedBuilder(
+        animation: _ctrl,
+        builder: (_, __) => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Active dot indicator
+            Container(
+              width: _indicatorWidth.value,
+              height: 3,
+              decoration: BoxDecoration(
+                color: AppTheme.primary,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 6),
+            // Icon with badge
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Transform.scale(
+                  scale: _scale.value,
+                  child: Icon(
+                    widget.isSelected ? widget.activeIcon : widget.icon,
+                    color: widget.isSelected ? AppTheme.primary : Colors.grey[500],
+                    size: 24,
+                  ),
+                ),
+                if (widget.badgeCount > 0)
+                  Positioned(
+                    top: -4,
+                    right: -6,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        widget.badgeCount > 99 ? '99+' : widget.badgeCount.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            // Label
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 200),
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: widget.isSelected ? FontWeight.w700 : FontWeight.w400,
+                color: widget.isSelected ? AppTheme.primary : Colors.grey[500],
+              ),
+              child: Text(widget.label),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── CartAddBurst — quick scale-up burst when item added to cart ───────────────
+
+class CartAddBurst extends StatefulWidget {
+  final Widget child;
+  final bool trigger;
+
+  const CartAddBurst({super.key, required this.child, required this.trigger});
+
+  @override
+  State<CartAddBurst> createState() => _CartAddBurstState();
+}
+
+class _CartAddBurstState extends State<CartAddBurst>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+    _scale = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.35), weight: 30),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.35, end: 1.0),
+        weight: 70,
+      ),
+    ]).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack));
+  }
+
+  @override
+  void didUpdateWidget(CartAddBurst old) {
+    super.didUpdateWidget(old);
+    if (widget.trigger != old.trigger && widget.trigger) {
+      _ctrl.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _scale,
+      builder: (_, child) => Transform.scale(scale: _scale.value, child: child),
+      child: widget.child,
+    );
+  }
+}
+
+// ── SlideUpReveal — for bottom sheets and modal-style cards ──────────────────
+
+class SlideUpReveal extends StatefulWidget {
+  final Widget child;
+  final Duration duration;
+  final Duration delay;
+
+  const SlideUpReveal({
+    super.key,
+    required this.child,
+    this.duration = const Duration(milliseconds: 480),
+    this.delay = Duration.zero,
+  });
+
+  @override
+  State<SlideUpReveal> createState() => _SlideUpRevealState();
+}
+
+class _SlideUpRevealState extends State<SlideUpReveal>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<Offset> _slide;
+  late Animation<double> _fade;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(vsync: this, duration: widget.duration);
+    _slide = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
+    _fade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeOut),
+    );
+    Future.delayed(widget.delay, () {
+      if (mounted) _ctrl.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (_, child) => Opacity(
+        opacity: _fade.value,
+        child: FractionalTranslation(translation: _slide.value, child: child),
+      ),
+      child: widget.child,
+    );
+  }
+}
+
+// ── FloatingSparklesBackground — orange-bg sparkle field (for auth/onboarding)─
+
+class FloatingSparklesBackground extends StatefulWidget {
+  final Widget child;
+  final Color bgColor;
+  final int sparkleCount;
+
+  const FloatingSparklesBackground({
+    super.key,
+    required this.child,
+    this.bgColor = const Color(0xFFFF6B00),
+    this.sparkleCount = 8,
+  });
+
+  @override
+  State<FloatingSparklesBackground> createState() =>
+      _FloatingSparklesBackgroundState();
+}
+
+class _FloatingSparklesBackgroundState
+    extends State<FloatingSparklesBackground> {
+  final _rng = math.Random(42);
+
+  late final List<double> _xFracs;
+  late final List<double> _yFracs;
+  late final List<double> _sizes;
+
+  @override
+  void initState() {
+    super.initState();
+    _xFracs = List.generate(widget.sparkleCount, (_) => _rng.nextDouble());
+    _yFracs = List.generate(widget.sparkleCount, (_) => _rng.nextDouble());
+    _sizes = List.generate(widget.sparkleCount, (_) => 6 + _rng.nextDouble() * 6);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RepaintBoundary(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Stack(
+            children: [
+              Positioned.fill(child: ColoredBox(color: widget.bgColor)),
+              ...List.generate(widget.sparkleCount, (i) {
+                return Positioned(
+                  left: _xFracs[i] * constraints.maxWidth,
+                  top: _yFracs[i] * constraints.maxHeight,
+                  child: AnimatedSparkle(
+                    size: _sizes[i],
+                    phaseOffset: i / widget.sparkleCount,
+                  ),
+                );
+              }),
+              widget.child,
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ── ConfettiShower — stateful widget with GlobalKey<ConfettiShowerState>.play()
+//    API matches usage in order_confirmation_screen.dart:
+//      ConfettiShower(key: _key, count: 70, autoPlay: false, child: ...)
+//      _key.currentState?.play()
+// ─────────────────────────────────────────────────────────────────────────────
+
+class ConfettiShower extends StatefulWidget {
+  final Widget child;
+  final int count;
+  final bool autoPlay;
+  final Duration duration;
+
+  const ConfettiShower({
+    super.key,
+    required this.child,
+    this.count = 60,
+    this.autoPlay = true,
+    this.duration = const Duration(seconds: 4),
+  });
+
+  @override
+  ConfettiShowerState createState() => ConfettiShowerState();
+}
+
+class ConfettiShowerState extends State<ConfettiShower>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  final List<_ConfettiParticle> _particles = [];
+  final _rng = math.Random();
+  bool _playing = false;
+
+  static const _colors = [
+    Color(0xFFFF6B00),
+    Color(0xFFFFB347),
+    Color(0xFF4CAF50),
+    Color(0xFF2196F3),
+    Color(0xFFE91E63),
+    Color(0xFFFFEB3B),
+    Color(0xFF9C27B0),
+    Color(0xFF00BCD4),
+    Colors.white,
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 16),
+    )..addListener(_tick);
+    if (widget.autoPlay) play();
+  }
+
+  /// Call via GlobalKey: `_confettiKey.currentState?.play()`
+  void play() {
+    if (_playing) return;
+    _playing = true;
+    _particles.clear();
+    // Spawn particles across screen width
+    for (int i = 0; i < widget.count; i++) {
+      _particles.add(_ConfettiParticle(
+        position: Offset(
+          50 + _rng.nextDouble() * 300,
+          -30 - _rng.nextDouble() * 60,
+        ),
+        velocity: Offset(
+          (_rng.nextDouble() - 0.5) * 7,
+          4 + _rng.nextDouble() * 6,
+        ),
+        color: _colors[_rng.nextInt(_colors.length)],
+        rotation: _rng.nextDouble() * math.pi * 2,
+        rotationSpeed: (_rng.nextDouble() - 0.5) * 0.2,
+        size: 7 + _rng.nextDouble() * 9,
+        opacity: 1.0,
+      ));
+    }
+    _ctrl.repeat();
+    Future.delayed(widget.duration, stop);
+  }
+
+  void stop() {
+    if (!mounted) return;
+    _ctrl.stop();
+    setState(() {
+      _playing = false;
+      _particles.clear();
+    });
+  }
+
+  void _tick() {
+    if (!mounted || !_playing) return;
+    setState(() {
+      for (final p in _particles) {
+        p.position += p.velocity;
+        p.velocity = Offset(p.velocity.dx * 0.99, p.velocity.dy + 0.14);
+        p.rotation += p.rotationSpeed;
+        if (p.position.dy > 750) {
+          p.opacity = (p.opacity - 0.035).clamp(0.0, 1.0);
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RepaintBoundary(
+      child: Stack(
+        children: [
+          widget.child,
+          if (_playing)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: CustomPaint(painter: _ConfettiPainter(_particles)),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── SpringCard — spring-physics entrance for cards in rails/grids ─────────────
+//    Usage: SpringCard(delay: Duration(ms: i*55), springDistance: 40, child: ...)
+
+class SpringCard extends StatefulWidget {
+  final Widget child;
+  final Duration delay;
+  final double springDistance;
+
+  const SpringCard({
+    super.key,
+    required this.child,
+    this.delay = Duration.zero,
+    this.springDistance = 32,
+  });
+
+  @override
+  State<SpringCard> createState() => _SpringCardState();
+}
+
+class _SpringCardState extends State<SpringCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _slide;
+  late Animation<double> _opacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 550),
+    );
+    _slide = Tween<double>(begin: widget.springDistance, end: 0.0).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.elasticOut),
+    );
+    _opacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _ctrl,
+        curve: const Interval(0.0, 0.45, curve: Curves.easeOut),
+      ),
+    );
+    Future.delayed(widget.delay, () {
+      if (mounted) _ctrl.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (_, child) => Opacity(
+        opacity: _opacity.value,
+        child: Transform.translate(
+          offset: Offset(0, _slide.value),
+          child: child,
+        ),
+      ),
+      child: widget.child,
+    );
+  }
+}
+
+// ── CountdownRing — circular progress ring for OTP resend timer ───────────────
+//    Usage: CountdownRing(seconds: _timer, size: 44, ringColor: primary,
+//             trackColor: primary.withValues(alpha:0.12), textStyle: ...,
+//             onComplete: () { setState(()=>_canResend=true); })
+
+class CountdownRing extends StatefulWidget {
+  final int seconds;
+  final double size;
+  final Color ringColor;
+  final Color trackColor;
+  final TextStyle? textStyle;
+  final VoidCallback? onComplete;
+
+  const CountdownRing({
+    super.key,
+    required this.seconds,
+    this.size = 48,
+    required this.ringColor,
+    required this.trackColor,
+    this.textStyle,
+    this.onComplete,
+  });
+
+  @override
+  State<CountdownRing> createState() => _CountdownRingState();
+}
+
+class _CountdownRingState extends State<CountdownRing>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late int _maxSeconds;
+
+  @override
+  void initState() {
+    super.initState();
+    _maxSeconds = widget.seconds;
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: _maxSeconds),
+    )..forward();
+    _ctrl.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        widget.onComplete?.call();
+      }
+    });
+  }
+
+  @override
+  void didUpdateWidget(CountdownRing old) {
+    super.didUpdateWidget(old);
+    if (old.seconds != widget.seconds && widget.seconds > 0) {
+      _maxSeconds = widget.seconds;
+      _ctrl.duration = Duration(seconds: _maxSeconds);
+      _ctrl.forward(from: 0.0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (_, __) {
+        final remaining = (widget.seconds * (1.0 - _ctrl.value)).ceil();
+        final progress = 1.0 - _ctrl.value;
+        return SizedBox(
+          width: widget.size,
+          height: widget.size,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              CustomPaint(
+                size: Size(widget.size, widget.size),
+                painter: _RingPainter(
+                  progress: progress,
+                  ringColor: widget.ringColor,
+                  trackColor: widget.trackColor,
+                  strokeWidth: widget.size * 0.08,
+                ),
+              ),
+              Text(
+                '$remaining',
+                style: widget.textStyle ??
+                    TextStyle(
+                      fontSize: widget.size * 0.3,
+                      fontWeight: FontWeight.bold,
+                      color: widget.ringColor,
+                    ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _RingPainter extends CustomPainter {
+  final double progress;
+  final Color ringColor;
+  final Color trackColor;
+  final double strokeWidth;
+
+  _RingPainter({
+    required this.progress,
+    required this.ringColor,
+    required this.trackColor,
+    required this.strokeWidth,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = (size.width - strokeWidth) / 2;
+    final trackPaint = Paint()
+      ..color = trackColor
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+    final ringPaint = Paint()
+      ..color = ringColor
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    // Track
+    canvas.drawCircle(center, radius, trackPaint);
+    // Ring arc — starts from 12 o'clock, shrinks as timer runs down
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -math.pi / 2,
+      2 * math.pi * progress,
+      false,
+      ringPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_RingPainter old) =>
+      old.progress != progress ||
+      old.ringColor != ringColor ||
+      old.trackColor != trackColor;
+}
+
+// ── ParticlesBurst — success particle explosion, triggered imperatively ───────
+//    Usage: ParticlesBurst(key: _burstKey, radius: 120, child: ...)
+//           _burstKey.currentState?.trigger()
+
+class ParticlesBurst extends StatefulWidget {
+  final Widget? child;
+  final double radius;
+  final int particleCount;
+  final Color color;
+  final List<Color>? colors;
+
+  const ParticlesBurst({
+    super.key,
+    this.child,
+    this.radius = 100,
+    this.particleCount = 24,
+    this.color = const Color(0xFFFF5722),
+    this.colors,
+  });
+
+  @override
+  ParticlesBurstState createState() => ParticlesBurstState();
+}
+
+class ParticlesBurstState extends State<ParticlesBurst>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  final List<_BurstParticle> _particles = [];
+  bool _active = false;
+  final math.Random _rng = math.Random();
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    )..addStatusListener((s) {
+        if (s == AnimationStatus.completed) {
+          if (mounted) setState(() => _active = false);
+        }
+      });
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void trigger() {
+    _particles.clear();
+    for (int i = 0; i < widget.particleCount; i++) {
+      final angle = 2 * math.pi * i / widget.particleCount;
+      final speed = widget.radius * (0.5 + _rng.nextDouble() * 0.5);
+      _particles.add(_BurstParticle(
+        dx: math.cos(angle) * speed,
+        dy: math.sin(angle) * speed,
+        color: widget.colors != null && widget.colors!.isNotEmpty
+            ? widget.colors![_rng.nextInt(widget.colors!.length)]
+            : HSVColor.fromAHSV(
+                1.0,
+                _rng.nextDouble() * 60 + 10,
+                0.8 + _rng.nextDouble() * 0.2,
+                0.9 + _rng.nextDouble() * 0.1,
+              ).toColor(),
+        size: 4 + _rng.nextDouble() * 6,
+      ));
+    }
+    setState(() => _active = true);
+    _ctrl.forward(from: 0.0);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        if (widget.child != null) widget.child!,
+        if (_active)
+          Positioned.fill(
+            child: IgnorePointer(
+              child: RepaintBoundary(
+                child: AnimatedBuilder(
+                  animation: _ctrl,
+                  builder: (_, __) => CustomPaint(
+                    painter: _BurstPainter(
+                      particles: _particles,
+                      progress: _ctrl.value,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _BurstParticle {
+  final double dx;
+  final double dy;
+  final Color color;
+  final double size;
+  const _BurstParticle({
+    required this.dx,
+    required this.dy,
+    required this.color,
+    required this.size,
+  });
+}
+
+class _BurstPainter extends CustomPainter {
+  final List<_BurstParticle> particles;
+  final double progress;
+
+  _BurstPainter({required this.particles, required this.progress});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final ease = Curves.easeOut.transform(progress);
+    final fade = 1.0 - Curves.easeIn.transform(progress);
+
+    for (final p in particles) {
+      final pos = center + Offset(p.dx * ease, p.dy * ease + 60 * ease * ease);
+      final paint = Paint()
+        ..color = p.color.withValues(alpha: fade)
+        ..style = PaintingStyle.fill;
+      canvas.drawCircle(pos, p.size * (1.0 - ease * 0.5), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_BurstPainter old) => old.progress != progress;
+}

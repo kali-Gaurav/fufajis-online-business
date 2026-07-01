@@ -37,6 +37,8 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
   late AnimationController _lockController;
   late Animation<double> _lockScaleAnim;
 
+  final GlobalKey<ParticlesBurstState> _burstKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -102,6 +104,28 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
     });
   }
 
+  String _routeForRole(UserRole role) {
+    switch (role) {
+      case UserRole.owner:
+      case UserRole.shopOwner:
+      case UserRole.branchManager:
+      case UserRole.franchiseOwner:
+        return '/owner';
+      case UserRole.superAdmin:
+      case UserRole.admin:
+        return '/admin';
+      case UserRole.rider:
+      case UserRole.deliveryAgent:
+      case UserRole.dispatcher:
+        return '/delivery';
+      case UserRole.employee:
+      case UserRole.supplier:
+        return '/employee';
+      case UserRole.customer:
+        return '/customer/home';
+    }
+  }
+
   void _verifyOTP() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
@@ -120,6 +144,10 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
 
     if (isValid) {
       if (!mounted) return;
+      // Fire particle burst before routing
+      _burstKey.currentState?.trigger();
+      await Future.delayed(const Duration(milliseconds: 600));
+      if (!mounted) return;
 
       // Feature: High-Security Owner MFA Check
       if (authProvider.isMfaStepRequired) {
@@ -130,7 +158,10 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
           if (returnPath != null && returnPath.isNotEmpty) {
             context.go(returnPath);
           } else {
-            context.go('/');
+            // Route directly by the verified role — no splash re-init
+            final user = authProvider.currentUser;
+            final role = user?.role ?? parsedRole ?? UserRole.customer;
+            context.go(_routeForRole(role));
           }
         }
       }
@@ -246,7 +277,10 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
           icon: Icon(Icons.arrow_back_rounded, color: textColor),
         ),
       ),
-      body: SafeArea(
+      body: ParticlesBurst(
+        key: _burstKey,
+        radius: 120,
+        child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           child: Column(
@@ -424,17 +458,22 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
                       : Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                value: _resendTimer / 60.0,
-                                strokeWidth: 2,
-                                valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primary),
-                                backgroundColor: AppTheme.grey300,
+                            CountdownRing(
+                              seconds: _resendTimer,
+                              size: 44,
+                              ringColor: AppTheme.primary,
+                              trackColor: AppTheme.primary.withValues(alpha: 0.12),
+                              textStyle: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: AppTheme.primary,
                               ),
+                              onComplete: () {
+                                if (mounted) setState(() => _canResend = true);
+                              },
                             ),
                             const SizedBox(width: 12),
+
                             Text(
                               'Resend code in ${_resendTimer}s',
                               style: TextStyle(
@@ -448,7 +487,7 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
                 ),
               ),
               const SizedBox(height: 32),
-              
+
               FadeSlideIn(
                 duration: AppTheme.durationMedium,
                 delay: const Duration(milliseconds: 350),
@@ -467,6 +506,7 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
             ],
           ),
         ),
+        ), // ParticlesBurst
       ),
     );
   }

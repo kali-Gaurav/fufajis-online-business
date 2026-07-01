@@ -1,5 +1,5 @@
 // Shared Supabase middleware for Edge Functions
-import { createServerClient } from "@supabase/supabase-js";
+import { createServerClient } from "npm:@supabase/supabase-js";
 
 export interface FunctionRequest extends Request {
   supabase?: ReturnType<typeof createServerClient>;

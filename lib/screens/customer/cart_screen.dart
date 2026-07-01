@@ -11,6 +11,8 @@ import '../../utils/app_theme.dart';
 import '../../widgets/fj_empty_state.dart';
 import '../../models/cart_item.dart';
 import '../../widgets/trust/fj_trust_banner.dart';
+import '../../widgets/animated_widgets.dart';
+import '../../widgets/missing_animations.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -196,8 +198,11 @@ class _CartScreenState extends State<CartScreen> {
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       final item = cartProvider.cartItems[index];
-                      // Step 16.2: Swipe-to-delete
-                      return Dismissible(
+                      // Step 16.2: Swipe-to-delete — wrapped in spring entrance
+                      return SpringCard(
+                        delay: Duration(milliseconds: index * 60),
+                        springDistance: 50,
+                        child: Dismissible(
                         key: Key(item.id),
                         direction: DismissDirection.endToStart,
                         onDismissed: (_) {
@@ -215,7 +220,8 @@ class _CartScreenState extends State<CartScreen> {
                           child: const Icon(Icons.delete, color: Colors.white),
                         ),
                         child: _buildCartItem(item, cartProvider),
-                      );
+                      ),
+                      ); // SpringCard
                     },
                     childCount: cartProvider.cartItems.length,
                   ),
@@ -741,8 +747,9 @@ class _CartScreenState extends State<CartScreen> {
                   color: AppTheme.grey900,
                 ),
               ),
-              Text(
-                '₹${cartProvider.total.round()}',
+              MorphNumber(
+                value: cartProvider.total.round(),
+                prefix: '₹',
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -786,21 +793,24 @@ class _CartScreenState extends State<CartScreen> {
               ),
             ),
           const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            height: 56,
-            decoration: BoxDecoration(
-              gradient: canCheckout ? AppTheme.buttonGradient : const LinearGradient(
-                colors: [AppTheme.grey300, AppTheme.grey400],
-              ),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: canCheckout ? AppTheme.primaryGlowShadows() : null,
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: canCheckout ? () => context.push('/customer/checkout') : null,
-                borderRadius: BorderRadius.circular(16),
+          ScaleBounce(
+            onTap: canCheckout ? () => context.push('/customer/checkout') : null,
+            child: ParticlesBurst(
+              colors: const [
+                Color(0xFFFF6B00),
+                Color(0xFFFFD700),
+                Color(0xFFFF8C42),
+              ],
+              child: Container(
+                width: double.infinity,
+                height: 56,
+                decoration: BoxDecoration(
+                  gradient: canCheckout ? AppTheme.buttonGradient : const LinearGradient(
+                    colors: [AppTheme.grey300, AppTheme.grey400],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: canCheckout ? AppTheme.primaryGlowShadows() : null,
+                ),
                 child: Center(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -872,12 +882,14 @@ class _CartScreenState extends State<CartScreen> {
       color: AppTheme.warning.withValues(alpha: 0.15),
       child: const Row(
         children: [
-          Icon(Icons.warning_amber_rounded, color: AppTheme.warning, size: 20),
-          SizedBox(width: 12),
+          Icon
+          (Icons.warning_amber_rounded, color: AppTheme.warning),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Your cart has items from multiple shops. This may result in separate delivery charges.',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.brown),
+              'Your cart contains items from multiple shops. '
+              'Only items from one shop can be checked out at a time.',
+              style: TextStyle(fontSize: 12, color: AppTheme.grey700),
             ),
           ),
         ],

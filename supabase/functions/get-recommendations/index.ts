@@ -9,7 +9,7 @@
 // - Cold start handling
 // ============================================================================
 
-import { createServerClient } from "@supabase/supabase-js";
+import { createServerClient } from "npm:@supabase/supabase-js";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 const SUPABASE_SECRET_KEY = Deno.env.get("SUPABASE_SECRET_KEY");

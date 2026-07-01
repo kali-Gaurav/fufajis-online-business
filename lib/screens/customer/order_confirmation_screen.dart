@@ -21,6 +21,8 @@ import '../../widgets/common/fj_card.dart';
 import '../../widgets/common/empty_state.dart';
 import '../../widgets/common/error_state.dart';
 import '../../widgets/payment_success_animation.dart';
+import '../../widgets/animated_widgets.dart';
+import '../../widgets/missing_animations.dart';
 
 class OrderConfirmationScreen extends StatefulWidget {
   final String? orderId;
@@ -42,6 +44,8 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
   String? _errorMessage;
   late AnimationController _scaleController;
   late AnimationController _confettiController;
+  final GlobalKey<ParticlesBurstState> _burstKey = GlobalKey();
+  final GlobalKey<ConfettiShowerState> _confettiKey = GlobalKey();
 
   @override
   void initState() {
@@ -94,9 +98,14 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
           _isLoading = false;
         });
 
-        // Trigger celebration animation
-        _confettiController.forward();
+        // Trigger celebration animations
         _scaleController.forward();
+        Future.delayed(const Duration(milliseconds: 400), () {
+          if (mounted) {
+            _burstKey.currentState?.trigger();
+            _confettiKey.currentState?.play();
+          }
+        });
 
         // Clear cart and send notification
         _finalizeOrder();
@@ -204,9 +213,12 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Celebration animation
+              // Celebration animation header
               _buildCelebrationHeader(),
-              
+
+              // Wave divider between header and content
+              const WaveDivider(color: AppTheme.primary, height: 20),
+
               // Order details
               Padding(
                 padding: const EdgeInsets.all(16),
@@ -216,43 +228,73 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
                     // Payment success animation (for online paid orders)
                     _buildPaymentSuccessSection(),
 
-                    // Success message
-                    _buildSuccessMessage(),
+                    // Success message — springs in
+                    SpringCard(
+                      delay: const Duration(milliseconds: 100),
+                      child: _buildSuccessMessage(),
+                    ),
                     const SizedBox(height: 20),
 
-                    // COD delivery OTP (shown only for COD orders)
-                    _buildCodOtpCard(),
+                    // COD delivery OTP
+                    SpringCard(
+                      delay: const Duration(milliseconds: 160),
+                      child: _buildCodOtpCard(),
+                    ),
 
                     // Order number and status
-                    _buildOrderInfoCard(),
+                    SpringCard(
+                      delay: const Duration(milliseconds: 220),
+                      child: _buildOrderInfoCard(),
+                    ),
                     const SizedBox(height: 12),
-                    
+
                     // Estimated delivery
-                    _buildDeliveryInfoCard(),
+                    SpringCard(
+                      delay: const Duration(milliseconds: 280),
+                      child: _buildDeliveryInfoCard(),
+                    ),
                     const SizedBox(height: 12),
-                    
+
                     // Order summary
-                    _buildOrderSummaryCard(),
+                    SpringCard(
+                      delay: const Duration(milliseconds: 340),
+                      child: _buildOrderSummaryCard(),
+                    ),
                     const SizedBox(height: 12),
-                    
+
                     // Payment info
-                    _buildPaymentInfoCard(),
+                    SpringCard(
+                      delay: const Duration(milliseconds: 400),
+                      child: _buildPaymentInfoCard(),
+                    ),
                     const SizedBox(height: 12),
-                    
+
                     // Delivery address
-                    _buildDeliveryAddressCard(),
+                    SpringCard(
+                      delay: const Duration(milliseconds: 460),
+                      child: _buildDeliveryAddressCard(),
+                    ),
                     const SizedBox(height: 12),
 
                     // Order status timeline
-                    _buildOrderStatusTimeline(),
+                    SpringCard(
+                      delay: const Duration(milliseconds: 520),
+                      child: _buildOrderStatusTimeline(),
+                    ),
                     const SizedBox(height: 24),
-                    
+
                     // Action buttons
-                    _buildActionButtons(),
+                    SpringCard(
+                      delay: const Duration(milliseconds: 580),
+                      child: _buildActionButtons(),
+                    ),
                     const SizedBox(height: 16),
-                    
+
                     // Help section
-                    _buildHelpSection(),
+                    SpringCard(
+                      delay: const Duration(milliseconds: 640),
+                      child: _buildHelpSection(),
+                    ),
                     const SizedBox(height: 24),
                   ],
                 ),
@@ -423,45 +465,64 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
   }
 
   Widget _buildCelebrationHeader() {
-    return Container(
-      height: 200,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            AppTheme.primary.withValues(alpha: 0.1),
-            Colors.white,
-          ],
-        ),
-      ),
-      child: Center(
-        child: ScaleTransition(
-          scale: CurvedAnimation(
-            parent: _scaleController,
-            curve: Curves.elasticOut,
-          ),
-          child: Container(
-            width: 120,
-            height: 120,
+    return SizedBox(
+      height: 220,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Gradient background
+          Container(
             decoration: BoxDecoration(
-              color: AppTheme.success.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.success.withValues(alpha: 0.2),
-                  blurRadius: 20,
-                  spreadRadius: 5,
-                ),
-              ],
-            ),
-            child: const Icon(
-              Icons.check_circle,
-              color: AppTheme.success,
-              size: 100,
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  AppTheme.primary.withValues(alpha: 0.12),
+                  Colors.white,
+                ],
+              ),
             ),
           ),
-        ),
+          // Ambient floating bubbles
+          const FloatingBubbles(
+            color: AppTheme.primary,
+            count: 8,
+          ),
+          // Animated success icon with particle burst
+          Center(
+            child: ParticlesBurst(
+              key: _burstKey,
+              radius: 100,
+              child: ScaleTransition(
+                scale: CurvedAnimation(
+                  parent: _scaleController,
+                  curve: Curves.elasticOut,
+                ),
+                child: Container(
+                  width: 130,
+                  height: 130,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.success.withValues(alpha: 0.3),
+                        blurRadius: 30,
+                        spreadRadius: 8,
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: AnimatedCheck(
+                      size: 90,
+                      color: AppTheme.success,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -469,29 +530,13 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
   Widget _buildConfettiOverlay() {
     return Positioned.fill(
       child: IgnorePointer(
-        child: Lottie.asset(
-          'assets/animations/confetti.json',
-          controller: _confettiController,
-          repeat: false,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            // Fallback celebration animation
-            return _buildFallbackCelebration();
-          },
+        child: ConfettiShower(
+          key: _confettiKey,
+          count: 70,
+          autoPlay: false,
+          child: const SizedBox.expand(),
         ),
       ),
-    );
-  }
-
-  Widget _buildFallbackCelebration() {
-    return AnimatedBuilder(
-      animation: _confettiController,
-      builder: (context, child) {
-        return CustomPaint(
-          painter: ConfettiPainter(_confettiController.value),
-          size: Size.infinite,
-        );
-      },
     );
   }
 
@@ -1494,27 +1539,20 @@ class _RateExperienceSheetState extends State<_RateExperienceSheet> {
               return IconButton(
                 onPressed: () => setState(() => _rating = star),
                 icon: Icon(
-                  star <= _rating ? Icons.star_rounded : Icons.star_outline_rounded,
+                  star <= _rating
+                      ? Icons.star_rounded
+                      : Icons.star_outline_rounded,
                   color: star <= _rating ? AppTheme.warning : AppTheme.grey300,
                   size: 40,
                 ),
               );
             }),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: _rating > 0
-                  ? () {
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Thank you for your feedback!'),
-                        ),
-                      );
-                    }
-                  : null,
+              onPressed: _rating == 0 ? null : () => Navigator.pop(context),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primary,
                 foregroundColor: Colors.white,
@@ -1524,19 +1562,16 @@ class _RateExperienceSheetState extends State<_RateExperienceSheet> {
                 ),
               ),
               child: const Text(
-                'Submit',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                'Submit Feedback',
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
           ),
+          const SizedBox(height: 8),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Maybe later',
-              style: TextStyle(color: AppTheme.grey500),
-            ),
+            child: const Text('Skip', style: TextStyle(color: AppTheme.grey600)),
           ),
-          const SizedBox(height: 8),
         ],
       ),
     );

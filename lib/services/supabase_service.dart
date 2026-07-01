@@ -3,7 +3,10 @@ import '../config/supabase_config.dart';
 
 /// Service for Supabase database operations
 class SupabaseService {
-  final _client = SupabaseConfig.client;
+  SupabaseClient get _client => SupabaseConfig.client;
+
+  /// Check if the service is available for use
+  bool get isAvailable => SupabaseConfig.isAvailable;
 
   // ==================== AUTH ====================
 

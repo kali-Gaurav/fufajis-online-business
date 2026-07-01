@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/user_model.dart';
 import '../../models/product_model.dart';
 import '../../utils/app_theme.dart';
+import '../../widgets/animated_widgets.dart';
 import '../../widgets/voice_search_dialog.dart';
 import 'barcode_scanner_screen.dart';
 
@@ -25,7 +27,8 @@ class _SearchScreenState extends State<SearchScreen> {
   List<ProductModel> _searchResults = [];
   bool _isSearching = false;
   String _searchQuery = '';
-  final List<String> _recentSearches = [];
+  List<String> _recentSearches = [];
+  static const _kRecentKey = 'search_recent_v1';
   final List<String> _popularSearches = [
     'Rice', 'Wheat Flour', 'Sugar', 'Milk', 'Bread', 
     'Vegetables', 'Fruits', 'Oil', 'Spices', 'Dal',
@@ -34,6 +37,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void initState() {
     super.initState();
+    _loadRecentSearches();
     if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
       _searchController.text = widget.initialQuery!;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -42,6 +46,23 @@ class _SearchScreenState extends State<SearchScreen> {
     } else {
       _focusNode.requestFocus();
     }
+  }
+
+  Future<void> _loadRecentSearches() async {
+    final prefs = await SharedPreferences.getInstance();
+    final stored = prefs.getStringList(_kRecentKey) ?? [];
+    if (mounted) setState(() => _recentSearches = stored);
+  }
+
+  Future<void> _saveRecentSearches() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_kRecentKey, _recentSearches);
+  }
+
+  Future<void> _clearAllRecent() async {
+    setState(() => _recentSearches.clear());
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_kRecentKey);
   }
 
   @override
@@ -73,6 +94,7 @@ class _SearchScreenState extends State<SearchScreen> {
       if (_recentSearches.length > 10) {
         _recentSearches.removeLast();
       }
+      _saveRecentSearches();
     }
 
     setState(() => _isSearching = false);
@@ -299,9 +321,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {
-                    setState(() => _recentSearches.clear());
-                  },
+                  onPressed: _clearAllRecent,
                   child: const Text(
                     'Clear All',
                     style: TextStyle(color: AppTheme.primary),
@@ -401,7 +421,12 @@ class _SearchScreenState extends State<SearchScreen> {
       itemCount: _searchResults.length,
       itemBuilder: (context, index) {
         final product = _searchResults[index];
-        return _buildSearchResultItem(product);
+        return FadeSlideIn(
+          delay: Duration(milliseconds: index * 35),
+          duration: const Duration(milliseconds: 280),
+          offset: const Offset(0, 0.08),
+          child: _buildSearchResultItem(product),
+        );
       },
     );
   }

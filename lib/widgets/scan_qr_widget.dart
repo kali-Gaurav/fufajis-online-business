@@ -37,6 +37,7 @@ class ScanQrWidget extends StatelessWidget {
         sublabel: orderNumber != null ? '#$orderNumber' : null,
         color: const Color(0xFF6A1B9A),
         size: size,
+        canCopy: true,
         compact: compact,
       );
 

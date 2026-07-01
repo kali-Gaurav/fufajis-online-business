@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'page_transitions.dart';
 import '../providers/auth_provider.dart';
 import '../models/user_model.dart';
 import '../screens/splash_screen.dart';
@@ -57,6 +58,7 @@ import '../screens/owner/shop_location_picker_screen.dart';
 import '../screens/owner/delivery_zones_screen.dart';
 import '../screens/owner/branch_management_screen.dart';
 import '../screens/owner/operating_hours_screen.dart';
+import '../screens/owner/mission_control/team_room_screen.dart';
 import '../screens/admin/admin_dashboard.dart';
 import '../screens/delivery/delivery_dashboard.dart';
 import '../screens/delivery/delivery_orders_screen.dart';
@@ -107,6 +109,14 @@ import '../screens/customer/membership_screen.dart';
 import '../screens/rider/rider_map_screen.dart';
 import '../screens/admin/dead_letter_dashboard_screen.dart';
 import '../screens/owner/rider_pulse_heatmap_screen.dart';
+import '../screens/customer/wishlist_screen.dart';
+import '../screens/customer/loyalty_screen.dart';
+import '../screens/customer/family_management_screen.dart';
+import '../screens/customer/smart_kitchen_screen.dart';
+import '../screens/customer/subscription_screen.dart';
+import '../screens/customer/identity_contacts_screen.dart';
+import '../screens/customer/refer_earn_screen.dart';
+import '../screens/customer/add_review_screen.dart';
 
 /// Combines multiple [Listenable]s into one so GoRouter re-evaluates
 /// its redirect when either AuthProvider OR GuestProvider changes state.
@@ -139,71 +149,102 @@ class AppRouter {
       FirebaseAnalyticsObserver(analytics: _analytics),
     ],
     routes: [
-      // Splash Screen
+      // Splash Screen — no transition (first frame)
       GoRoute(
         path: '/',
-        builder: (context, state) => const SplashScreen(),
-      ),
-
-      // Profile Creation (Onboarding)
-      GoRoute(
-        path: '/profile-creation',
-        builder: (context, state) => const ProfileCreationScreen(),
-      ),
-
-      // Login Screen
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginScreen(),
-      ),
-
-      // Verification Wall — shown when guest/unverified tries protected action
-      GoRoute(
-        path: '/auth/verify-wall',
-        builder: (context, state) => VerificationWallScreen(
-          returnPath: state.uri.queryParameters['returnPath'] ?? '/customer/home',
-          reason: state.uri.queryParameters['reason'],
+        pageBuilder: (context, state) => FufajiNoTransition(
+          key: state.pageKey,
+          child: const SplashScreen(),
         ),
       ),
 
-      // Phone Auth
+      // Profile Creation — fade+scale (onboarding feel)
+      GoRoute(
+        path: '/profile-creation',
+        pageBuilder: (context, state) => FufajiFadeScaleTransition(
+          key: state.pageKey,
+          child: const ProfileCreationScreen(),
+        ),
+      ),
+
+      // Login Screen — fade+scale
+      GoRoute(
+        path: '/login',
+        pageBuilder: (context, state) => FufajiFadeScaleTransition(
+          key: state.pageKey,
+          child: const LoginScreen(),
+        ),
+      ),
+
+      // Verification Wall — slide up (it's an interruption)
+      GoRoute(
+        path: '/auth/verify-wall',
+        pageBuilder: (context, state) => FufajiSlideUpTransition(
+          key: state.pageKey,
+          child: VerificationWallScreen(
+            returnPath: state.uri.queryParameters['returnPath'] ?? '/customer/home',
+            reason: state.uri.queryParameters['reason'],
+          ),
+        ),
+      ),
+
+      // Phone Auth — shared axis horizontal (wizard step)
       GoRoute(
         path: '/auth/phone-login',
-        builder: (context, state) => const PhoneLoginScreen(),
+        pageBuilder: (context, state) => FufajiSharedAxisH(
+          key: state.pageKey,
+          child: const PhoneLoginScreen(),
+        ),
       ),
       GoRoute(
         path: '/auth/phone-verify',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final phone = state.uri.queryParameters['phone'] ?? '';
-          return PhoneVerifyScreen(phoneNumber: phone);
+          final role  = state.uri.queryParameters['role'];
+          return FufajiSharedAxisH(
+            key: state.pageKey,
+            child: PhoneVerifyScreen(phoneNumber: phone, role: role),
+          );
         },
       ),
 
-      // Security PIN
+      // Security PIN — slide up (gate/guard feel)
       GoRoute(
         path: '/security-pin',
-        builder: (context, state) => const SecurityPinScreen(),
-      ),
-
-      // Account Picker
-      GoRoute(
-        path: '/account-picker',
-        builder: (context, state) => const AccountPickerScreen(),
-      ),
-
-      // OTP Verification
-      GoRoute(
-        path: '/otp/:contact',
-        builder: (context, state) => OTPScreen(
-          phoneNumber: Uri.decodeComponent(state.pathParameters['contact'] ?? ''),
-          role: state.uri.queryParameters['role'],
+        pageBuilder: (context, state) => FufajiSlideUpTransition(
+          key: state.pageKey,
+          child: const SecurityPinScreen(),
         ),
       ),
 
-      // Role Selection
+      // Account Picker — fade+scale
+      GoRoute(
+        path: '/account-picker',
+        pageBuilder: (context, state) => FufajiFadeScaleTransition(
+          key: state.pageKey,
+          child: const AccountPickerScreen(),
+        ),
+      ),
+
+      // OTP Verification — shared axis (wizard step forward)
+      GoRoute(
+        path: '/otp/:contact',
+        pageBuilder: (context, state) => FufajiSharedAxisH(
+          key: state.pageKey,
+          child: OTPScreen(
+            phoneNumber: Uri.decodeComponent(state.pathParameters['contact'] ?? ''),
+            role: state.uri.queryParameters['role'],
+          ),
+        ),
+      ),
+
+      // Role Selection — fade+scale (decision screen)
       GoRoute(
         path: '/role-select',
-        builder: (context, state) => const RoleSelectScreen(),
+        pageBuilder: (context, state) => FufajiFadeScaleTransition(
+          key: state.pageKey,
+          child: const RoleSelectScreen(),
+        ),
       ),
 
       // Customer App Routes
@@ -238,40 +279,61 @@ class AppRouter {
           ),
           GoRoute(
             path: '/customer/product/:productId',
-            builder: (context, state) => ProductDetailScreen(
-              productId: state.pathParameters['productId'] ?? '',
+            pageBuilder: (context, state) => FufajiZoomTransition(
+              key: state.pageKey,
+              child: ProductDetailScreen(
+                productId: state.pathParameters['productId'] ?? '',
+              ),
             ),
           ),
           GoRoute(
             path: '/customer/checkout',
-            builder: (context, state) => const CheckoutScreen(),
+            pageBuilder: (context, state) => FufajiSlideUpTransition(
+              key: state.pageKey,
+              child: const CheckoutScreen(),
+            ),
           ),
           GoRoute(
             path: '/customer/order-confirmation',
-            builder: (context, state) => OrderConfirmationScreen(
-              orderId: state.uri.queryParameters['orderId'],
-              orderNumber: state.uri.queryParameters['orderNumber'],
+            pageBuilder: (context, state) => FufajiZoomTransition(
+              key: state.pageKey,
+              child: OrderConfirmationScreen(
+                orderId: state.uri.queryParameters['orderId'],
+                orderNumber: state.uri.queryParameters['orderNumber'],
+              ),
             ),
           ),
           GoRoute(
             path: '/customer/orders',
-            builder: (context, state) => const OrdersScreen(),
+            pageBuilder: (context, state) => FufajiPageTransition(
+              key: state.pageKey,
+              child: const OrdersScreen(),
+            ),
           ),
           GoRoute(
             path: '/customer/order-detail/:orderId',
-            builder: (context, state) => OrderDetailScreen(
-              orderId: state.pathParameters['orderId'] ?? '',
+            pageBuilder: (context, state) => FufajiPageTransition(
+              key: state.pageKey,
+              child: OrderDetailScreen(
+                orderId: state.pathParameters['orderId'] ?? '',
+              ),
             ),
           ),
           GoRoute(
             path: '/customer/dispute/:orderId',
-            builder: (context, state) => DisputeScreen(
-              orderId: state.pathParameters['orderId'] ?? '',
+            pageBuilder: (context, state) => FufajiSlideUpTransition(
+              key: state.pageKey,
+              child: DisputeScreen(
+                orderId: state.pathParameters['orderId'] ?? '',
+              ),
             ),
           ),
           GoRoute(
             path: '/customer/addresses',
-            builder: (context, state) => const AddressScreen(),
+            pageBuilder: (context, state) => FufajiSlideUpTransition(
+              key: state.pageKey,
+              child: const AddressScreen(),
+            ),
           ),
           GoRoute(
             path: '/customer/track/:orderId',
@@ -312,6 +374,66 @@ class AppRouter {
           GoRoute(
             path: '/customer/notification-settings',
             builder: (context, state) => const NotificationSettingsScreen(),
+          ),
+          // ── Missing customer routes wired up ──────────────────────────────
+          GoRoute(
+            path: '/customer/wishlist',
+            pageBuilder: (context, state) => FufajiPageTransition(
+              key: state.pageKey,
+              child: const WishlistScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/customer/loyalty',
+            pageBuilder: (context, state) => FufajiPageTransition(
+              key: state.pageKey,
+              child: const LoyaltyScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/customer/family',
+            pageBuilder: (context, state) => FufajiPageTransition(
+              key: state.pageKey,
+              child: const FamilyManagementScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/customer/smart-kitchen',
+            pageBuilder: (context, state) => FufajiPageTransition(
+              key: state.pageKey,
+              child: const SmartKitchenScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/customer/subscriptions',
+            pageBuilder: (context, state) => FufajiPageTransition(
+              key: state.pageKey,
+              child: const SubscriptionScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/customer/identity',
+            pageBuilder: (context, state) => FufajiPageTransition(
+              key: state.pageKey,
+              child: const IdentityContactsScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/customer/refer',
+            pageBuilder: (context, state) => FufajiPageTransition(
+              key: state.pageKey,
+              child: const ReferEarnScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/customer/add-review/:productId',
+            pageBuilder: (context, state) => FufajiSlideUpTransition(
+              key: state.pageKey,
+              child: AddReviewScreen(
+                productId: state.pathParameters['productId'] ?? '',
+                productName: state.uri.queryParameters['name'] ?? '',
+              ),
+            ),
           ),
         ],
       ),
@@ -489,6 +611,10 @@ class AppRouter {
           GoRoute(
             path: '/owner/failed-deliveries',
             builder: (context, state) => const FailedDeliveryEscalationScreen(),
+          ),
+          GoRoute(
+            path: '/owner/mission-control',
+            builder: (context, state) => const TeamRoomScreen(),
           ),
         ],
       ),

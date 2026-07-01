@@ -35,6 +35,7 @@ import '../../models/product_model.dart';
 import '../../models/reorder_template_model.dart';
 import '../../utils/app_theme.dart';
 import '../../widgets/animated_widgets.dart';
+import '../../widgets/missing_animations.dart';
 import '../../services/shop_service.dart';
 import '../../services/remote_config_service.dart';
 import '../../services/reorder_service.dart';
@@ -356,6 +357,16 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         child: Stack(
           children: [
+            // Ambient living background
+            Positioned.fill(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: const FloatingBubbles(
+                  color: Colors.white,
+                  count: 5,
+                ),
+              ),
+            ),
             Positioned(
               right: -30,
               top: -30,
@@ -881,9 +892,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   childAspectRatio: 0.85,
                 ),
                 itemCount: categories.length,
-                itemBuilder: (context, index) =>
-                    _categoryChip(categories[index], productProvider),
+                itemBuilder: (context, index) => SpringCard(
+                  delay: Duration(milliseconds: index * 35),
+                  springDistance: 28,
+                  child: _categoryChip(categories[index], productProvider),
+                ),
               ),
+            ),
+            const SizedBox(height: 8),
+            const WaveDivider(
+              color: AppTheme.primary,
+              height: 16,
+              speed: 0.6,
             ),
           ],
         );
@@ -1058,7 +1078,13 @@ class _HomeScreenState extends State<HomeScreen> {
       title: '⚡ Lightning Deals',
       subtitleWidget: Row(
         children: [
-          const Text('Hurry! Ends in ',
+          const PulsingLive(
+            color: Color(0xFFEF4444),
+            size: 8,
+            label: 'LIVE',
+          ),
+          const SizedBox(width: 8),
+          const Text('Ends in ',
               style: TextStyle(fontSize: 12, color: AppTheme.grey600)),
           CountdownTimer(
             endTime: endTime,
@@ -1417,7 +1443,38 @@ class _HomeScreenState extends State<HomeScreen> {
     Widget? subtitleWidget,
     required List<ProductModel> products,
     String? categoryFilter,
+    bool isLoading = false,
   }) {
+    // Show shimmer skeleton while data loads
+    if (isLoading) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: FufajiSkeleton(width: 180, height: 18, borderRadius: 6),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 262,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                itemCount: 4,
+                itemBuilder: (_, __) => Container(
+                  width: 160,
+                  margin: const EdgeInsets.only(right: 12),
+                  child: const FufajiShimmerCard(),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     final filtered = (categoryFilter != null && categoryFilter.isNotEmpty)
         ? products
             .where((p) =>
@@ -1470,10 +1527,14 @@ class _HomeScreenState extends State<HomeScreen> {
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 12),
               itemCount: filtered.length,
-              itemBuilder: (context, index) => Container(
-                width: 160,
-                margin: const EdgeInsets.only(right: 12),
-                child: ProductCard(product: filtered[index]),
+              itemBuilder: (context, index) => SpringCard(
+                delay: Duration(milliseconds: index * 55),
+                springDistance: 40,
+                child: Container(
+                  width: 160,
+                  margin: const EdgeInsets.only(right: 12),
+                  child: ProductCard(product: filtered[index]),
+                ),
               ),
             ),
           ),
@@ -2048,28 +2109,6 @@ class _LocationRow extends StatelessWidget {
                     color: AppTheme.grey900),
               ),
             ),
-            const Icon(Icons.expand_more_rounded,
-                size: 16, color: AppTheme.grey500),
-            const Spacer(),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: AppTheme.info.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.bolt_rounded, size: 12, color: AppTheme.info),
-                  SizedBox(width: 2),
-                  Text('10 min',
-                      style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.info)),
-                ],
-              ),
-            ),
           ],
         ),
       ),
@@ -2077,15 +2116,13 @@ class _LocationRow extends StatelessWidget {
   }
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-//  SMALL MODELS
-// ════════════════════════════════════════════════════════════════════════════
 class _Offer {
   final String title;
   final String subtitle;
   final String code;
   final IconData icon;
   final List<Color> colors;
+
   const _Offer({
     required this.title,
     required this.subtitle,
@@ -2100,6 +2137,7 @@ class _QuickAction {
   final String label;
   final Color color;
   final VoidCallback onTap;
+
   const _QuickAction({
     required this.icon,
     required this.label,

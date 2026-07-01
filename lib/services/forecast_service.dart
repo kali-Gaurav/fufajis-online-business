@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart';
+import '../config/supabase_config.dart';
 import 'aws_bedrock_service.dart';
 
 /// Forecast Service
@@ -15,7 +16,7 @@ class ForecastService {
   ForecastService._internal();
 
   SupabaseClient? _customClient;
-  SupabaseClient get _client => _customClient ?? Supabase.instance.client;
+  SupabaseClient get _client => _customClient ?? SupabaseConfig.client;
   set client(SupabaseClient c) => _customClient = c;
 
   FirebaseFirestore? _customFirestore;

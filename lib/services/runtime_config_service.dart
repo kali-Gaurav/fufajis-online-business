@@ -61,6 +61,12 @@ class RuntimeConfigService {
         _config = json['data'] ?? {};
         _isLoaded = true;
         debugPrint('[RuntimeConfig] Successfully loaded configuration');
+        if (kDebugMode) {
+          debugPrint('[RuntimeConfig] Received keys: ${_config.keys.join(', ')}');
+          if (_config['supabase'] == null) {
+            debugPrint('[RuntimeConfig] WARNING: "supabase" section missing in config response');
+          }
+        }
       } else {
         debugPrint(
           '[RuntimeConfig] Failed to load config (${response.statusCode}): ${response.body}',

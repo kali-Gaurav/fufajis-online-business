@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../config/supabase_config.dart';
 import 'aws_bedrock_service.dart';
 import '../models/pricing_recommendation_model.dart';
 
@@ -13,7 +14,7 @@ class AIInsightsService {
   factory AIInsightsService() => _instance;
   AIInsightsService._internal();
 
-  final SupabaseClient _client = Supabase.instance.client;
+  SupabaseClient get _client => SupabaseConfig.client;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final AWSBedrockService _bedrock = AWSBedrockService();
 

@@ -49,7 +49,8 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
     if (location.startsWith('/owner/campaigns')) return 22;
     if (location.startsWith('/owner/retention')) return 23;
     if (location.startsWith('/owner/logistics-command-center')) return 24;
-    if (location.startsWith('/owner/bi/decision-center')) return 25;
+    if (location.startsWith('/owner/failed-deliveries')) return 26;
+    if (location.startsWith('/owner/mission-control')) return 27;
     return 0;
   }
 
@@ -81,6 +82,8 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
       case 23: context.go('/owner/retention'); break;
       case 24: context.go('/owner/logistics-command-center'); break;
       case 25: context.go('/owner/bi/decision-center'); break;
+      case 26: context.go('/owner/failed-deliveries'); break;
+      case 27: context.go('/owner/mission-control'); break;
     }
   }
 
@@ -120,6 +123,8 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
     'Customer Retention',
     'Logistics Command Center',
     'AI Decision Center',
+    'Failed Deliveries',
+    'Mission Control',
   ];
 
   IconData _getIconForIndex(int index, bool isSelected) {
@@ -150,6 +155,8 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
       case 23: return isSelected ? Icons.favorite : Icons.favorite_outline;
       case 24: return isSelected ? Icons.flight_takeoff : Icons.flight_takeoff_outlined;
       case 25: return isSelected ? Icons.gavel : Icons.gavel_outlined;
+      case 26: return isSelected ? Icons.report_problem : Icons.report_problem_outlined;
+      case 27: return isSelected ? Icons.rocket_launch : Icons.rocket_launch_outlined;
       default: return Icons.circle;
     }
   }
@@ -456,6 +463,11 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                           icon: Icon(Icons.gavel_outlined),
                           selectedIcon: Icon(Icons.gavel),
                           label: Text('AI Decisions'),
+                        ),
+                        NavigationRailDestination(
+                          icon: Icon(Icons.rocket_launch_outlined),
+                          selectedIcon: Icon(Icons.rocket_launch),
+                          label: Text('Mission Control'),
                         ),
                       ],
 

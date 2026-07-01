@@ -61,25 +61,23 @@ echo.
 echo [STEP 4] Building production APK with public configs...
 echo.
 echo [CONFIG] Using --dart-define for:
-echo          - API_BASE_URL=https://fufaji-api.render.com
-echo          - RAZORPAY_KEY_ID=rzp_live_Sr7JfZt4NbXzMw
-echo          - STRIPE_PUBLISHABLE_KEY=pk_live_your_key
-echo          - GOOGLE_MAPS_KEY=your_restricted_key
-echo          - SENTRY_DSN=your_sentry_dsn
-echo          - SUPPORT_WHATSAPP_NUMBER=+91XXXXXXXXXX
+echo          - API_BASE_URL=https://fufajis-online-business.onrender.com
+echo          - RAZORPAY_KEY_ID=rzp_live_T72SdW8PsZ2Nhj
+echo          - GOOGLE_MAPS_KEY=AIzaSyAcxtNxcPCuqoJNkPzg71PLF97mU-2d6Uk
+echo          - SUPPORT_WHATSAPP_NUMBER=+918529841981
 echo.
 echo [SECURITY] NOT passing any backend secrets (*_SECRET keys)
 echo            Backend secrets loaded at runtime from /config endpoint
 echo.
 
-REM ⚠️  UPDATE THESE VALUES TO YOUR REAL PRODUCTION VALUES ⚠️
+REM ⚠️  REAL PRODUCTION VALUES ⚠️
 
-set "API_BASE_URL=https://fufaji-api.render.com"
-set "RAZORPAY_KEY_ID=rzp_live_Sr7JfZt4NbXzMw"
-set "STRIPE_PUBLISHABLE_KEY=pk_live_your_publishable_key"
-set "GOOGLE_MAPS_KEY=your_production_maps_key"
-set "SENTRY_DSN=https://your-sentry-dsn@sentry.io/project-id"
-set "SUPPORT_WHATSAPP_NUMBER=+91XXXXXXXXXX"
+set "API_BASE_URL=https://fufajis-online-business.onrender.com"
+set "RAZORPAY_KEY_ID=rzp_live_T72SdW8PsZ2Nhj"
+set "GOOGLE_MAPS_KEY=AIzaSyAcxtNxcPCuqoJNkPzg71PLF97mU-2d6Uk"
+set "SENTRY_DSN="
+set "SUPPORT_WHATSAPP_NUMBER=+918529841981"
+set "APK_DOWNLOAD_URL=https://github.com/kali-Gaurav/fufaji-online-business/releases/download"
 set "UPSTASH_REDIS_REST_URL="
 set "APK_DOWNLOAD_URL=https://github.com/kali-Gaurav/fufajis-online-business/releases/download"
 

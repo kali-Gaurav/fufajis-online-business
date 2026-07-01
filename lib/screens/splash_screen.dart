@@ -251,33 +251,22 @@ class _SplashScreenState extends State<SplashScreen>
   void _routeByRole(UserRole role) {
     switch (role) {
       case UserRole.owner:
+      case UserRole.shopOwner:
+      case UserRole.branchManager:
+      case UserRole.franchiseOwner:
         context.go('/owner');
       case UserRole.superAdmin:
-        context.go('/admin');
-      case UserRole.rider:
-        context.go('/delivery');
-      case UserRole.shopOwner:
-        context.go('/owner');
       case UserRole.admin:
         context.go('/admin');
+      case UserRole.rider:
       case UserRole.deliveryAgent:
+      case UserRole.dispatcher:
         context.go('/delivery');
       case UserRole.employee:
+      case UserRole.supplier:
         context.go('/employee');
       case UserRole.customer:
         context.go('/customer/home');
-      case UserRole.dispatcher:
-        // TODO: Handle this case.
-        throw UnimplementedError();
-      case UserRole.branchManager:
-        // TODO: Handle this case.
-        throw UnimplementedError();
-      case UserRole.supplier:
-        // TODO: Handle this case.
-        throw UnimplementedError();
-      case UserRole.franchiseOwner:
-        // TODO: Handle this case.
-        throw UnimplementedError();
     }
   }
 

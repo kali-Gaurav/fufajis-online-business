@@ -3,13 +3,16 @@ import 'package:provider/provider.dart';
 import 'package:pinput/pinput.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
+import '../../models/user_model.dart';
 
 class PhoneVerifyScreen extends StatefulWidget {
   final String phoneNumber;
+  final String? role;
 
   const PhoneVerifyScreen({
     super.key,
     required this.phoneNumber,
+    this.role,
   });
 
   @override
@@ -33,6 +36,29 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
     _pinController.dispose();
     _pinFocusNode.dispose();
     super.dispose();
+  }
+
+  // Centralised role→route mapping (mirrors SplashScreen + OTPScreen)
+  String _routeForRole(UserRole role) {
+    switch (role) {
+      case UserRole.owner:
+      case UserRole.shopOwner:
+      case UserRole.branchManager:
+      case UserRole.franchiseOwner:
+        return '/owner';
+      case UserRole.superAdmin:
+      case UserRole.admin:
+        return '/admin';
+      case UserRole.rider:
+      case UserRole.deliveryAgent:
+      case UserRole.dispatcher:
+        return '/delivery';
+      case UserRole.employee:
+      case UserRole.supplier:
+        return '/employee';
+      case UserRole.customer:
+        return '/customer/home';
+    }
   }
 
   void _startResendTimer() {
@@ -61,10 +87,23 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
 
     try {
       final authProvider = context.read<AuthProvider>();
+
+      // Parse the role from the query param so it can be applied during verify
+      UserRole? parsedRole;
+      if (widget.role != null) {
+        parsedRole = UserRole.values.firstWhere(
+          (e) => e.name == widget.role,
+          orElse: () => UserRole.customer,
+        );
+      }
+
       final success = await authProvider.verifyPhoneOTP(otp);
 
       if (success && mounted) {
-        context.go('/');
+        // Route directly to the appropriate dashboard — no splash re-init
+        final user = authProvider.currentUser;
+        final role = user?.role ?? parsedRole ?? UserRole.customer;
+        context.go(_routeForRole(role));
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Invalid OTP. Please try again.')),
@@ -173,9 +212,7 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
                         ? const SizedBox(
                             height: 24,
                             width: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                            ),
+                            child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Text('Verify'),
                   ),
@@ -206,7 +243,7 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('Didn\'t receive the code? '),
+                const Text("Didn't receive the code? "),
                 Consumer<AuthProvider>(
                   builder: (context, authProvider, _) {
                     return TextButton(

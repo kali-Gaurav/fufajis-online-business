@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../config/supabase_config.dart';
 import '../models/order_model.dart';
 import '../models/payment_method.dart';
 import 'alert_service.dart';
@@ -16,7 +17,7 @@ class FraudDetectionService {
   FraudDetectionService._internal();
 
   SupabaseClient? _customClient;
-  SupabaseClient get _client => _customClient ?? Supabase.instance.client;
+  SupabaseClient get _client => _customClient ?? SupabaseConfig.client;
   set client(SupabaseClient c) => _customClient = c;
 
   AlertService? _customAlertService;
