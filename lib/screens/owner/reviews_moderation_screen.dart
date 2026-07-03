@@ -6,16 +6,14 @@ class ReviewsModerationScreen extends StatefulWidget {
   const ReviewsModerationScreen({super.key});
 
   @override
-  State<ReviewsModerationScreen> createState() =>
-      _ReviewsModerationScreenState();
+  State<ReviewsModerationScreen> createState() => _ReviewsModerationScreenState();
 }
 
 class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
   // State list of mock reviews
   late List<ProductReview> _reviews;
   String _searchQuery = '';
-  String _selectedTab =
-      'All'; // 'All', 'Low Ratings', 'Flagged', 'Pending Reply', 'Featured'
+  String _selectedTab = 'All'; // 'All', 'Low Ratings', 'Flagged', 'Pending Reply', 'Featured'
 
   // New state for multi-select
   final Set<String> _selectedReviewIds = {};
@@ -34,8 +32,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
         productId: 'prod_tomatoes',
         userId: 'u_101',
         userName: 'Ramesh Chaudhary',
-        userImage:
-            'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100',
+        userImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100',
         rating: 2.0,
         review:
             'The tomatoes delivered were a bit squished and overripe. Delivery rider reached Bassi village very late today.',
@@ -49,14 +46,12 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
         productId: 'prod_potatoes',
         userId: 'u_102',
         userName: 'Kamla Devi',
-        userImage:
-            'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100',
+        userImage: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100',
         rating: 5.0,
         review:
             'आलू बहुत अच्छे और ताज़ा हैं! हमारे गांव में इतनी अच्छी सर्विस पहली बार मिली है। बहुत-बहुत धन्यवाद।',
         createdAt: DateTime.now().subtract(const Duration(days: 1)),
-        ownerReply:
-            'बहुत धन्यवाद कमला जी, हम हमेशा आपके लिए ताज़ा सब्ज़ियां लाते रहेंगे!',
+        ownerReply: 'बहुत धन्यवाद कमला जी, हम हमेशा आपके लिए ताज़ा सब्ज़ियां लाते रहेंगे!',
         isFlagged: false,
         isFeatured: true,
       ),
@@ -65,8 +60,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
         productId: 'prod_mango',
         userId: 'u_103',
         userName: 'Mahendra Singh',
-        userImage:
-            'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100',
+        userImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100',
         rating: 4.0,
         review:
             'Alphonso Mangoes are delicious and sweet. One or two mangoes were small but overall great quality.',
@@ -80,8 +74,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
         productId: 'prod_onions',
         userId: 'u_104',
         userName: 'Suresh Gurjar',
-        userImage:
-            'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100',
+        userImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100',
         rating: 1.0,
         review:
             'The onions had a foul smell and black spots inside. Unusable in my Dhaba. Extremely disappointed.',
@@ -95,14 +88,12 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
         productId: 'prod_milk',
         userId: 'u_105',
         userName: 'Vikram Yadav',
-        userImage:
-            'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100',
+        userImage: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100',
         rating: 5.0,
         review:
             'Full cream milk delivered chilled before 7 AM at Chomu outskirts. Outstanding service consistency!',
         createdAt: DateTime.now().subtract(const Duration(days: 4)),
-        ownerReply:
-            'Thank you Vikram! Glad we met your morning timing expectations.',
+        ownerReply: 'Thank you Vikram! Glad we met your morning timing expectations.',
         isFlagged: false,
         isFeatured: true,
       ),
@@ -111,8 +102,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
         productId: 'prod_atta',
         userId: 'u_106',
         userName: 'Rajesh Meena',
-        userImage:
-            'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=100',
+        userImage: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=100',
         rating: 3.0,
         review:
             'Atta packing was slightly torn, flour was spilling inside the bag. Please look into logistics.',
@@ -129,13 +119,9 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
     return {
       'sentiment': 'Mostly Positive (78%)',
       'main_praise': 'Product freshness and community-focused service.',
-      'main_complaint':
-          'Delivery delays in Bassi village and packaging durability.',
-      'action_item':
-          'Check Bassi delivery route & replace paper bags for Atta.',
-      'urgent_alerts': _reviews
-          .where((r) => r.rating <= 2 && !r.isFlagged)
-          .length,
+      'main_complaint': 'Delivery delays in Bassi village and packaging durability.',
+      'action_item': 'Check Bassi delivery route & replace paper bags for Atta.',
+      'urgent_alerts': _reviews.where((r) => r.rating <= 2 && !r.isFlagged).length,
     };
   }
 
@@ -162,17 +148,14 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
   // Calculate statistics
   double get _avgRating {
     if (_reviews.isEmpty) return 0.0;
-    return _reviews.map((r) => r.rating).reduce((a, b) => a + b) /
-        _reviews.length;
+    return _reviews.map((r) => r.rating).reduce((a, b) => a + b) / _reviews.length;
   }
 
   int get _totalReviews => _reviews.length;
   int get _flaggedCount => _reviews.where((r) => r.isFlagged).length;
-  int get _pendingReplyCount =>
-      _reviews.where((r) => r.ownerReply == null).length;
+  int get _pendingReplyCount => _reviews.where((r) => r.ownerReply == null).length;
 
-  int _ratingCount(double val) =>
-      _reviews.where((r) => r.rating.roundToDouble() == val).length;
+  int _ratingCount(double val) => _reviews.where((r) => r.rating.roundToDouble() == val).length;
 
   // Bulk action handlers
   void _toggleSelection(String id) {
@@ -333,9 +316,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: AppTheme.success,
-            content: Text(
-              'Reply submitted successfully to ${current.userName}.',
-            ),
+            content: Text('Reply submitted successfully to ${current.userName}.'),
           ),
         );
       }
@@ -347,7 +328,6 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     // Filter reviews
@@ -356,9 +336,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
       final matchQuery =
           r.userName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           r.review.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          _getProductName(
-            r.productId,
-          ).toLowerCase().contains(_searchQuery.toLowerCase());
+          _getProductName(r.productId).toLowerCase().contains(_searchQuery.toLowerCase());
 
       if (!matchQuery) return false;
 
@@ -391,10 +369,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (_isSelectionMode)
-                    _buildSelectionToolbar()
-                  else
-                    _buildHeader(),
+                  if (_isSelectionMode) _buildSelectionToolbar() else _buildHeader(),
                   const SizedBox(height: 24),
                   _buildAIInsightsCard(),
                   const SizedBox(height: 24),
@@ -471,27 +446,18 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
           ),
           Text(
             '${_selectedReviewIds.length} Selected',
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           const Spacer(),
           TextButton.icon(
             onPressed: _bulkFeature,
             icon: const Icon(Icons.star, color: Colors.white, size: 18),
-            label: const Text(
-              'Feature All',
-              style: TextStyle(color: Colors.white),
-            ),
+            label: const Text('Feature All', style: TextStyle(color: Colors.white)),
           ),
           TextButton.icon(
             onPressed: _bulkFlag,
             icon: const Icon(Icons.flag, color: Colors.white, size: 18),
-            label: const Text(
-              'Flag All',
-              style: TextStyle(color: Colors.white),
-            ),
+            label: const Text('Flag All', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -526,19 +492,12 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
               const SizedBox(width: 12),
               const Text(
                 'AI Smart Insights for Fufaji',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
               ),
               const Spacer(),
               if (insights['urgent_alerts'] > 0)
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: AppTheme.error,
                     borderRadius: BorderRadius.circular(20),
@@ -558,30 +517,16 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Expanded(child: _buildInsightItem(Icons.mood, 'Sentiment', insights['sentiment'])),
               Expanded(
-                child: _buildInsightItem(
-                  Icons.mood,
-                  'Sentiment',
-                  insights['sentiment'],
-                ),
-              ),
-              Expanded(
-                child: _buildInsightItem(
-                  Icons.recommend,
-                  'Top Praise',
-                  insights['main_praise'],
-                ),
+                child: _buildInsightItem(Icons.recommend, 'Top Praise', insights['main_praise']),
               ),
             ],
           ),
           const Divider(color: Colors.white24, height: 24),
           Row(
             children: [
-              const Icon(
-                Icons.lightbulb_outline,
-                color: AppTheme.warning,
-                size: 20,
-              ),
+              const Icon(Icons.lightbulb_outline, color: AppTheme.warning, size: 20),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -608,9 +553,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
                   backgroundColor: Colors.white.withValues(alpha: 0.2),
                   foregroundColor: Colors.white,
                   elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
                 child: const Text('Apply Fix', style: TextStyle(fontSize: 11)),
               ),
@@ -630,10 +573,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                style: const TextStyle(color: Colors.white60, fontSize: 11),
-              ),
+              Text(title, style: const TextStyle(color: Colors.white60, fontSize: 11)),
               Text(
                 value,
                 style: const TextStyle(
@@ -670,9 +610,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
                 ),
                 Text(
                   'Review ratings, reply to rural users, and manage storefront visibility.',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -719,21 +657,13 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
 
   Widget _buildFilterTabs() {
     final List<Map<String, dynamic>> tabs = [
-      {
-        'name': 'All',
-        'icon': Icons.rate_review_outlined,
-        'count': _reviews.length,
-      },
+      {'name': 'All', 'icon': Icons.rate_review_outlined, 'count': _reviews.length},
       {
         'name': 'Low Ratings',
         'icon': Icons.thumb_down_alt_outlined,
         'count': _reviews.where((r) => r.rating <= 3.0).length,
       },
-      {
-        'name': 'Pending Reply',
-        'icon': Icons.reply_all_outlined,
-        'count': _pendingReplyCount,
-      },
+      {'name': 'Pending Reply', 'icon': Icons.reply_all_outlined, 'count': _pendingReplyCount},
       {'name': 'Flagged', 'icon': Icons.flag_outlined, 'count': _flaggedCount},
       {
         'name': 'Featured',
@@ -769,9 +699,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
               backgroundColor: AppTheme.cream,
-              side: BorderSide(
-                color: isSelected ? Colors.transparent : Colors.grey[300]!,
-              ),
+              side: BorderSide(color: isSelected ? Colors.transparent : Colors.grey[300]!),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             ),
           );
@@ -807,11 +735,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
               decoration: InputDecoration(
                 hintText: 'Search customer name, product, or review text...',
                 hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
-                prefixIcon: Icon(
-                  Icons.search,
-                  color: Colors.grey[400],
-                  size: 20,
-                ),
+                prefixIcon: Icon(Icons.search, color: Colors.grey[400], size: 20),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(vertical: 10),
               ),
@@ -821,11 +745,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
         const SizedBox(width: 16),
         Text(
           'Showing $resultsCount reviews',
-          style: TextStyle(
-            color: Colors.grey[500],
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-          ),
+          style: TextStyle(color: Colors.grey[500], fontSize: 13, fontWeight: FontWeight.w500),
         ),
       ],
     );
@@ -844,11 +764,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
         child: Center(
           child: Column(
             children: [
-              Icon(
-                Icons.rate_review_rounded,
-                size: 64,
-                color: Colors.grey[300],
-              ),
+              Icon(Icons.rate_review_rounded, size: 64, color: Colors.grey[300]),
               const SizedBox(height: 16),
               Text(
                 'No Reviews Found',
@@ -882,9 +798,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppTheme.primaryColor.withValues(alpha: 0.05)
-              : Colors.white,
+          color: isSelected ? AppTheme.primaryColor.withValues(alpha: 0.05) : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
@@ -894,9 +808,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
                 : review.isFlagged
                 ? AppTheme.error.withValues(alpha: 0.3)
                 : Colors.grey[200]!,
-            width: isSelected || review.isFeatured || review.isFlagged
-                ? 1.5
-                : 1.0,
+            width: isSelected || review.isFeatured || review.isFlagged ? 1.5 : 1.0,
           ),
           boxShadow: [
             BoxShadow(
@@ -913,12 +825,11 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
             if (review.isFeatured || review.isFlagged)
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 6,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 decoration: BoxDecoration(
-                  color: review.isFeatured ? AppTheme.warning : AppTheme.error.withValues(alpha: 0.1),
+                  color: review.isFeatured
+                      ? AppTheme.warning
+                      : AppTheme.error.withValues(alpha: 0.1),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(14),
                     topRight: Radius.circular(14),
@@ -927,13 +838,9 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
                 child: Row(
                   children: [
                     Icon(
-                      review.isFeatured
-                          ? Icons.star_rounded
-                          : Icons.warning_amber_rounded,
+                      review.isFeatured ? Icons.star_rounded : Icons.warning_amber_rounded,
                       size: 16,
-                      color: review.isFeatured
-                          ? AppTheme.warning
-                          : AppTheme.error,
+                      color: review.isFeatured ? AppTheme.warning : AppTheme.error,
                     ),
                     const SizedBox(width: 6),
                     Text(
@@ -943,9 +850,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
-                        color: review.isFeatured
-                            ? AppTheme.warning
-                            : AppTheme.error,
+                        color: review.isFeatured ? AppTheme.warning : AppTheme.error,
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -1000,26 +905,16 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
                             const SizedBox(height: 2),
                             Row(
                               children: [
-                                const Icon(
-                                  Icons.location_on,
-                                  size: 12,
-                                  color: Colors.grey,
-                                ),
+                                const Icon(Icons.location_on, size: 12, color: Colors.grey),
                                 const SizedBox(width: 4),
                                 Text(
                                   _getUserVillage(review.userName),
-                                  style: TextStyle(
-                                    color: Colors.grey[500],
-                                    fontSize: 11,
-                                  ),
+                                  style: TextStyle(color: Colors.grey[500], fontSize: 11),
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
                                   '•   ${_formatDate(review.createdAt)}',
-                                  style: TextStyle(
-                                    color: Colors.grey[400],
-                                    fontSize: 11,
-                                  ),
+                                  style: TextStyle(color: Colors.grey[400], fontSize: 11),
                                 ),
                               ],
                             ),
@@ -1033,10 +928,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
 
                   // Product link info
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 8,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.grey[50],
                       borderRadius: BorderRadius.circular(8),
@@ -1044,18 +936,11 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
                     ),
                     child: Row(
                       children: [
-                        Icon(
-                          Icons.shopping_basket_outlined,
-                          size: 16,
-                          color: Colors.grey[600],
-                        ),
+                        Icon(Icons.shopping_basket_outlined, size: 16, color: Colors.grey[600]),
                         const SizedBox(width: 8),
                         Text(
                           'Product Reviewed: ',
-                          style: TextStyle(
-                            color: Colors.grey[500],
-                            fontSize: 12,
-                          ),
+                          style: TextStyle(color: Colors.grey[500], fontSize: 12),
                         ),
                         Text(
                           prodName,
@@ -1077,9 +962,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
                       fontSize: 13.5,
                       height: 1.5,
                       color: Colors.grey[800],
-                      fontStyle: isLowRating
-                          ? FontStyle.italic
-                          : FontStyle.normal,
+                      fontStyle: isLowRating ? FontStyle.italic : FontStyle.normal,
                     ),
                   ),
 
@@ -1112,11 +995,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
           SizedBox(width: 3),
           Text(
             'VERIFIED',
-            style: TextStyle(
-              fontSize: 8,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.ownerAccent,
-            ),
+            style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: AppTheme.ownerAccent),
           ),
         ],
       ),
@@ -1197,10 +1076,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
             ],
           ),
           const SizedBox(height: 6),
-          Text(
-            replyText,
-            style: const TextStyle(fontSize: 12.5, color: AppTheme.success),
-          ),
+          Text(replyText, style: const TextStyle(fontSize: 12.5, color: AppTheme.success)),
         ],
       ),
     );
@@ -1209,14 +1085,8 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
   Widget _buildReplyComposer(String reviewId, bool isLowRating) {
     final controller = TextEditingController();
     final suggestions = isLowRating
-        ? [
-            'हम असुविधा के लिए खेद है, हम सुधार करेंगे।',
-            'We are looking into this quality issue.',
-          ]
-        : [
-            'बहुत धन्यवाद! आपके सहयोग के लिए आभार।',
-            'Thank you for your kind words!',
-          ];
+        ? ['हम असुविधा के लिए खेद है, हम सुधार करेंगे।', 'We are looking into this quality issue.']
+        : ['बहुत धन्यवाद! आपके सहयोग के लिए आभार।', 'Thank you for your kind words!'];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1248,11 +1118,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
           ),
           child: Row(
             children: [
-              const Icon(
-                Icons.mic_none,
-                color: AppTheme.primaryColor,
-                size: 20,
-              ),
+              const Icon(Icons.mic_none, color: AppTheme.primaryColor, size: 20),
               const SizedBox(width: 8),
               Expanded(
                 child: TextField(
@@ -1260,10 +1126,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
                   style: const TextStyle(fontSize: 13),
                   decoration: InputDecoration(
                     hintText: 'Type or speak response...',
-                    hintStyle: TextStyle(
-                      color: Colors.grey[400],
-                      fontSize: 12.5,
-                    ),
+                    hintStyle: TextStyle(color: Colors.grey[400], fontSize: 12.5),
                     border: InputBorder.none,
                     isDense: true,
                   ),
@@ -1278,13 +1141,8 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryColor,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 8,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
                 child: const Text(
                   'Reply',
@@ -1323,11 +1181,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
                       ),
                     ),
                     const SizedBox(width: 4),
-                    const Icon(
-                      Icons.star_rounded,
-                      size: 14,
-                      color: AppTheme.warning,
-                    ),
+                    const Icon(Icons.star_rounded, size: 14, color: AppTheme.warning),
                   ],
                 ),
               ),
@@ -1397,9 +1251,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
               ],
             ),
             const SizedBox(height: 10),
-            _buildGuidelineItem(
-              'Flag reviews containing offensive language or spam to hide them.',
-            ),
+            _buildGuidelineItem('Flag reviews containing offensive language or spam to hide them.'),
             _buildGuidelineItem(
               'Highlight detailed positive feedback to pin them at the top of the app.',
             ),
@@ -1422,11 +1274,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
-                fontSize: 11.5,
-                color: AppTheme.ownerAccent,
-                height: 1.4,
-              ),
+              style: const TextStyle(fontSize: 11.5, color: AppTheme.ownerAccent, height: 1.4),
             ),
           ),
         ],

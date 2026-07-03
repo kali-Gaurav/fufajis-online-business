@@ -18,14 +18,14 @@ class MutationService {
   Future<Map<String, dynamic>> _getClientMetadata() async {
     String deviceId = 'unknown';
     String appVersion = 'unknown';
-    
+
     try {
       deviceId = await DeviceSecurityService.getDeviceId();
       final packageInfo = await PackageInfo.fromPlatform();
       appVersion = '${packageInfo.version}+${packageInfo.buildNumber}';
     } catch (_) {}
 
-    final auth = AuthProvider.instance;
+    final auth = AuthProvider();
     final userId = auth.currentUser?.id ?? 'unauthenticated';
     final branchId = auth.currentUser?.branchId ?? 'global';
     final sessionId = auth.currentSessionId ?? 'no_session';
@@ -41,7 +41,11 @@ class MutationService {
   }
 
   /// Sets a document, merging metadata
-  Future<void> setDocument(DocumentReference ref, Map<String, dynamic> data, {SetOptions? options}) async {
+  Future<void> setDocument(
+    DocumentReference ref,
+    Map<String, dynamic> data, {
+    SetOptions? options,
+  }) async {
     final meta = await _getClientMetadata();
     final enrichedData = Map<String, dynamic>.from(data)..addAll(meta);
     await ref.set(enrichedData, options);

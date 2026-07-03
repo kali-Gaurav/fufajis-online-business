@@ -94,6 +94,57 @@ Resources:
             Schedule: 'rate(1 hour)'
             Input: '{"job": "checkTimeBasedAutomationRules"}'
 
+        # =====================================================
+        # PHASE C: Sync Engine Schedules
+        # =====================================================
+
+        # CLASS A: Realtime (event-driven, no schedule needed)
+        # triggered by webhooks from Supabase/Firestore
+
+        # CLASS B: Scheduled (5m-1h SLA)
+        FiveMinSyncProducts:
+          Type: Schedule
+          Properties:
+            Schedule: 'rate(5 minutes)'
+            Input: '{"job": "syncProductsToFirestore", "workerClass": "B_SYNC_PRODUCTS"}'
+
+        TenMinRefreshSearch:
+          Type: Schedule
+          Properties:
+            Schedule: 'rate(10 minutes)'
+            Input: '{"job": "refreshSearchCache", "workerClass": "B_REFRESH_SEARCH"}'
+
+        FiveMinDetectDrift:
+          Type: Schedule
+          Properties:
+            Schedule: 'rate(5 minutes)'
+            Input: '{"job": "detectDrift", "workerClass": "B_DETECT_DRIFT"}'
+
+        ThirtyMinSyncOrders:
+          Type: Schedule
+          Properties:
+            Schedule: 'rate(30 minutes)'
+            Input: '{"job": "replicateOrdersToSupabase", "workerClass": "A_REPLICATE_ORDERS"}'
+
+        # CLASS C: Recovery (best effort)
+        OneHourRetryFailed:
+          Type: Schedule
+          Properties:
+            Schedule: 'rate(1 hour)'
+            Input: '{"job": "retryFailedSyncJobs", "workerClass": "C_RETRY_FAILED"}'
+
+        ThirtyMinProcessDLQ:
+          Type: Schedule
+          Properties:
+            Schedule: 'rate(30 minutes)'
+            Input: '{"job": "processDeadLetterQueue", "workerClass": "C_PROCESS_DLQ"}'
+
+        FifteenMinExpireReservations:
+          Type: Schedule
+          Properties:
+            Schedule: 'rate(15 minutes)'
+            Input: '{"job": "expireOldReservations", "workerClass": "C_EXPIRE_RESERVATIONS"}'
+
 Outputs:
   FunctionUrl:
     Description: Base URL of the Fufaji backend (use as API_BASE_URL in the app).

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum CampaignType { push, banner, whatsapp, email }
+
 enum CampaignStatus { draft, scheduled, active, completed, cancelled }
 
 class CampaignModel {
@@ -9,21 +10,21 @@ class CampaignModel {
   final String messageBody;
   final CampaignType type;
   final CampaignStatus status;
-  
+
   // Segmentation
   final List<String> targetSegments; // e.g., 'all', 'vip', 'dormant', 'new'
   final int estimatedAudienceSize;
-  
+
   // Scheduling
   final DateTime? scheduledAt;
   final DateTime? sentAt;
   final DateTime createdAt;
-  
+
   // Content details
   final String? imageUrl;
   final String? actionUrl; // Deep link when clicked
   final String? couponCode;
-  
+
   // Analytics tracking
   final int impressions;
   final int clicks;

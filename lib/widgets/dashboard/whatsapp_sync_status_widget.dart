@@ -10,8 +10,7 @@ class WhatsAppSyncStatusWidget extends StatefulWidget {
   const WhatsAppSyncStatusWidget({super.key});
 
   @override
-  State<WhatsAppSyncStatusWidget> createState() =>
-      _WhatsAppSyncStatusWidgetState();
+  State<WhatsAppSyncStatusWidget> createState() => _WhatsAppSyncStatusWidgetState();
 }
 
 class _WhatsAppSyncStatusWidgetState extends State<WhatsAppSyncStatusWidget> {
@@ -56,28 +55,18 @@ class _WhatsAppSyncStatusWidgetState extends State<WhatsAppSyncStatusWidget> {
                         color: AppTheme.success,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(
-                        Icons.chat,
-                        color: AppTheme.success,
-                        size: 24,
-                      ),
+                      child: const Icon(Icons.chat, color: AppTheme.success, size: 24),
                     ),
                     const SizedBox(width: 12),
                     const Text(
                       'WhatsApp Sync',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
                 GestureDetector(
                   onTap: _loadStatus,
-                  child: Icon(
-                    Icons.refresh,
-                    color: Colors.grey[600],
-                  ),
+                  child: Icon(Icons.refresh, color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -85,10 +74,7 @@ class _WhatsAppSyncStatusWidgetState extends State<WhatsAppSyncStatusWidget> {
 
             // Status
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 6,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: AppTheme.success,
                 borderRadius: BorderRadius.circular(20),
@@ -125,40 +111,19 @@ class _WhatsAppSyncStatusWidgetState extends State<WhatsAppSyncStatusWidget> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Items Synced',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                    ),
+                    Text('Items Synced', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                     const SizedBox(height: 4),
-                    const Text(
-                      '24',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    const Text('24', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   ],
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      'Last Sync',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                    ),
+                    Text('Last Sync', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                     const SizedBox(height: 4),
                     const Text(
                       '2 hours ago',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
@@ -173,9 +138,7 @@ class _WhatsAppSyncStatusWidgetState extends State<WhatsAppSyncStatusWidget> {
                 onPressed: () {
                   context.push('/owner/whatsapp-sync');
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.success,
-                ),
+                style: ElevatedButton.styleFrom(backgroundColor: AppTheme.success),
                 child: const Text('Configure'),
               ),
             ),

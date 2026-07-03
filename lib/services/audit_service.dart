@@ -63,6 +63,12 @@ enum AuditAction {
   // AI support
   aiSupportReply,
   aiSupportEscalated,
+  // Mission Control
+  agentTaskApproved,
+  agentTaskRejected,
+  agentShiftStarted,
+  agentShiftCompleted,
+  agentActionExecuted,
 }
 
 class AuditService {
@@ -89,8 +95,8 @@ class AuditService {
     required AuditAction action,
     required String description,
     Map<String, dynamic>? metadata,
-    String? targetId,     // orderId, employeeId, productId, etc.
-    String? targetType,   // 'order' | 'product' | 'user' | 'coupon' | etc.
+    String? targetId, // orderId, employeeId, productId, etc.
+    String? targetType, // 'order' | 'product' | 'user' | 'coupon' | etc.
     String? branchId,
     Map<String, dynamic>? oldValue,
     Map<String, dynamic>? newValue,
@@ -99,19 +105,19 @@ class AuditService {
   }) async {
     try {
       await _db.collection('audit_logs').add({
-        'userId':      userId,
-        'userName':    userName,
-        'action':      action.name,
+        'userId': userId,
+        'userName': userName,
+        'action': action.name,
         'description': description,
-        'targetId':    targetId,
-        'targetType':  targetType,
-        'branchId':    branchId,
-        'oldValue':    oldValue,
-        'newValue':    newValue,
-        'ipAddress':   ipAddress,
-        'deviceInfo':  deviceInfo,
-        'metadata':    metadata,
-        'timestamp':   FieldValue.serverTimestamp(),
+        'targetId': targetId,
+        'targetType': targetType,
+        'branchId': branchId,
+        'oldValue': oldValue,
+        'newValue': newValue,
+        'ipAddress': ipAddress,
+        'deviceInfo': deviceInfo,
+        'metadata': metadata,
+        'timestamp': FieldValue.serverTimestamp(),
       });
       debugPrint('[Audit] ${action.name} by $userName');
     } catch (e) {
@@ -138,41 +144,43 @@ class AuditService {
   // ── Convenience helpers ────────────────────────────────────
 
   Future<void> logLogin(String userId, String userName) => logAction(
-        userId: userId, userName: userName,
-        action: AuditAction.login,
-        description: '$userName logged in',
-      );
+    userId: userId,
+    userName: userName,
+    action: AuditAction.login,
+    description: '$userName logged in',
+  );
 
   Future<void> logLogout(String userId, String userName) => logAction(
-        userId: userId, userName: userName,
-        action: AuditAction.logout,
-        description: '$userName logged out',
-      );
+    userId: userId,
+    userName: userName,
+    action: AuditAction.logout,
+    description: '$userName logged out',
+  );
 
   Future<void> logEmployeeCreated({
     required String byUserId,
     required String byUserName,
     required String employeeEmail,
     required String role,
-  }) =>
-      logAction(
-        userId: byUserId, userName: byUserName,
-        action: AuditAction.employeeCreated,
-        description: 'Employee $employeeEmail added with role $role',
-        metadata: {'employeeEmail': employeeEmail, 'role': role},
-      );
+  }) => logAction(
+    userId: byUserId,
+    userName: byUserName,
+    action: AuditAction.employeeCreated,
+    description: 'Employee $employeeEmail added with role $role',
+    metadata: {'employeeEmail': employeeEmail, 'role': role},
+  );
 
   Future<void> logEmployeeRemoved({
     required String byUserId,
     required String byUserName,
     required String employeeEmail,
-  }) =>
-      logAction(
-        userId: byUserId, userName: byUserName,
-        action: AuditAction.employeeRemoved,
-        description: 'Employee $employeeEmail removed',
-        metadata: {'employeeEmail': employeeEmail},
-      );
+  }) => logAction(
+    userId: byUserId,
+    userName: byUserName,
+    action: AuditAction.employeeRemoved,
+    description: 'Employee $employeeEmail removed',
+    metadata: {'employeeEmail': employeeEmail},
+  );
 
   Future<void> logRefund({
     required String byUserId,
@@ -180,69 +188,67 @@ class AuditService {
     required String orderId,
     required double amount,
     required bool approved,
-  }) =>
-      logAction(
-        userId: byUserId, userName: byUserName,
-        action: approved ? AuditAction.refundApproved : AuditAction.refundRejected,
-        description:
-            '${approved ? "Approved" : "Rejected"} refund ₹$amount for order $orderId',
-        targetId: orderId,
-        metadata: {'amount': amount, 'approved': approved},
-      );
+  }) => logAction(
+    userId: byUserId,
+    userName: byUserName,
+    action: approved ? AuditAction.refundApproved : AuditAction.refundRejected,
+    description: '${approved ? "Approved" : "Rejected"} refund ₹$amount for order $orderId',
+    targetId: orderId,
+    metadata: {'amount': amount, 'approved': approved},
+  );
 
   Future<void> logDeviceApproved({
     required String byUserId,
     required String byUserName,
     required String deviceId,
     required String deviceName,
-  }) =>
-      logAction(
-        userId: byUserId, userName: byUserName,
-        action: AuditAction.deviceApproved,
-        description: 'Device "$deviceName" approved',
-        metadata: {'deviceId': deviceId, 'deviceName': deviceName},
-      );
+  }) => logAction(
+    userId: byUserId,
+    userName: byUserName,
+    action: AuditAction.deviceApproved,
+    description: 'Device "$deviceName" approved',
+    metadata: {'deviceId': deviceId, 'deviceName': deviceName},
+  );
 
   Future<void> logDeviceRevoked({
     required String byUserId,
     required String byUserName,
     required String deviceId,
     required String deviceName,
-  }) =>
-      logAction(
-        userId: byUserId, userName: byUserName,
-        action: AuditAction.deviceRevoked,
-        description: 'Device "$deviceName" revoked',
-        metadata: {'deviceId': deviceId, 'deviceName': deviceName},
-      );
+  }) => logAction(
+    userId: byUserId,
+    userName: byUserName,
+    action: AuditAction.deviceRevoked,
+    description: 'Device "$deviceName" revoked',
+    metadata: {'deviceId': deviceId, 'deviceName': deviceName},
+  );
 
   Future<void> logAdminAction(
     String description, {
     required String targetUserId,
     Map<String, dynamic>? metadata,
-  }) =>
-      logAction(
-        userId: targetUserId,
-        userName: 'System/Admin',
-        action: AuditAction.adminAction,
-        description: description,
-        targetId: targetUserId,
-        metadata: metadata,
-      );
+  }) => logAction(
+    userId: targetUserId,
+    userName: 'System/Admin',
+    action: AuditAction.adminAction,
+    description: description,
+    targetId: targetUserId,
+    metadata: metadata,
+  );
 
   Future<void> logOrderCancelled({
     required String byUserId,
     required String byUserName,
     required String orderId,
     required String reason,
-  }) =>
-      logAction(
-        userId: byUserId, userName: byUserName,
-        action: AuditAction.orderCancellation,
-        description: 'Order $orderId cancelled: $reason',
-        targetId: orderId,
-        metadata: {'reason': reason},
-      );
+  }) => logAction(
+    userId: byUserId,
+    userName: byUserName,
+    action: AuditAction.orderCancellation,
+    description: 'Order $orderId cancelled: $reason',
+    targetId: orderId,
+    metadata: {'reason': reason},
+  );
 
   Future<void> logInventoryRestock({
     required String byUserId,
@@ -252,20 +258,19 @@ class AuditService {
     required int quantityAdded,
     required String reason,
     required int newStock,
-  }) =>
-      logAction(
-        userId: byUserId,
-        userName: byUserName,
-        action: AuditAction.inventoryRestock,
-        description: 'Restocked $quantityAdded units of $productName. Reason: $reason',
-        targetId: productId,
-        metadata: {
-          'productName': productName,
-          'quantityAdded': quantityAdded,
-          'newStock': newStock,
-          'reason': reason,
-        },
-      );
+  }) => logAction(
+    userId: byUserId,
+    userName: byUserName,
+    action: AuditAction.inventoryRestock,
+    description: 'Restocked $quantityAdded units of $productName. Reason: $reason',
+    targetId: productId,
+    metadata: {
+      'productName': productName,
+      'quantityAdded': quantityAdded,
+      'newStock': newStock,
+      'reason': reason,
+    },
+  );
 
   Future<void> logStockAdjustment({
     required String byUserId,
@@ -275,20 +280,19 @@ class AuditService {
     required int oldStock,
     required int newStock,
     required String reason,
-  }) =>
-      logAction(
-        userId: byUserId,
-        userName: byUserName,
-        action: AuditAction.stockAdjustment,
-        description: 'Adjusted stock for $productName: $oldStock → $newStock. Reason: $reason',
-        targetId: productId,
-        metadata: {
-          'productName': productName,
-          'oldStock': oldStock,
-          'newStock': newStock,
-          'reason': reason,
-        },
-      );
+  }) => logAction(
+    userId: byUserId,
+    userName: byUserName,
+    action: AuditAction.stockAdjustment,
+    description: 'Adjusted stock for $productName: $oldStock → $newStock. Reason: $reason',
+    targetId: productId,
+    metadata: {
+      'productName': productName,
+      'oldStock': oldStock,
+      'newStock': newStock,
+      'reason': reason,
+    },
+  );
 
   // ── Firestore read stream ──────────────────────────────────
 
@@ -309,7 +313,6 @@ class AuditService {
       query = query.where('userId', isEqualTo: filterUserId);
     }
 
-    return query.snapshots().map(
-        (s) => s.docs.map((d) => d.data()).toList());
+    return query.snapshots().map((s) => s.docs.map((d) => d.data()).toList());
   }
 }

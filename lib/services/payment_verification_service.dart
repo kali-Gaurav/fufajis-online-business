@@ -35,20 +35,15 @@ class PaymentVerificationService {
   }) async {
     try {
       // Call Node.js backend endpoint (replaces Firebase Cloud Functions)
-      final response = await ApiClient.instance.post(
-        '/payments/razorpay/verify',
-        {
-          'razorpay_payment_id': paymentId,
-          'razorpay_order_id': orderId,
-          'razorpay_signature': signature,
-          'order_id': orderId,
-        },
-      );
+      final response = await ApiClient.instance.post('/payments/razorpay/verify', {
+        'razorpay_payment_id': paymentId,
+        'razorpay_order_id': orderId,
+        'razorpay_signature': signature,
+        'order_id': orderId,
+      });
 
       if (response.data['success'] == true) {
-        debugPrint(
-          'PaymentVerificationService: Secure signature verification succeeded',
-        );
+        debugPrint('PaymentVerificationService: Secure signature verification succeeded');
         return true;
       }
 
@@ -57,9 +52,7 @@ class PaymentVerificationService {
       );
       return false;
     } catch (e) {
-      debugPrint(
-        'PaymentVerificationService: Signature verification error - $e',
-      );
+      debugPrint('PaymentVerificationService: Signature verification error - $e');
       return false;
     }
   }
@@ -74,10 +67,7 @@ class PaymentVerificationService {
   }) async {
     try {
       // Check if payment already verified in Firestore
-      final paymentDoc = await _firestore
-          .collection('payments')
-          .doc(paymentId)
-          .get();
+      final paymentDoc = await _firestore.collection('payments').doc(paymentId).get();
 
       if (paymentDoc.exists) {
         final data = paymentDoc.data()!;
@@ -128,9 +118,7 @@ class PaymentVerificationService {
     try {
       // Verify payment first
       if (!paymentResult.isSuccess) {
-        debugPrint(
-          'PaymentVerificationService: Cannot create order - payment not successful',
-        );
+        debugPrint('PaymentVerificationService: Cannot create order - payment not successful');
         return null;
       }
 
@@ -142,7 +130,9 @@ class PaymentVerificationService {
       );
 
       if (!isSignatureValid) {
-        debugPrint('PaymentVerificationService: Signature verification failed. Aborting order creation.');
+        debugPrint(
+          'PaymentVerificationService: Signature verification failed. Aborting order creation.',
+        );
         return null;
       }
 
@@ -168,9 +158,7 @@ class PaymentVerificationService {
 
       // Create order model
       final order = OrderModel(
-        id:
-            paymentResult.orderId ??
-            'order_${DateTime.now().millisecondsSinceEpoch}',
+        id: paymentResult.orderId ?? 'order_${DateTime.now().millisecondsSinceEpoch}',
         orderNumber: orderNumber,
         customerId: customerId,
         customerName: customerName,
@@ -230,9 +218,7 @@ class PaymentVerificationService {
         'createdAt': DateTime.now().toIso8601String(),
       });
 
-      debugPrint(
-        'PaymentVerificationService: Order created successfully - $orderNumber',
-      );
+      debugPrint('PaymentVerificationService: Order created successfully - $orderNumber');
       return order;
     } catch (e) {
       debugPrint('PaymentVerificationService: Order creation error - $e');
@@ -264,16 +250,14 @@ class PaymentVerificationService {
           paymentId: doc.id,
           orderId: data['orderId'] as String?,
           timestamp: data['createdAt'] != null
-              ? (data['createdAt'] is Timestamp 
-                  ? (data['createdAt'] as Timestamp).toDate() 
-                  : DateTime.tryParse(data['createdAt'].toString()))
+              ? (data['createdAt'] is Timestamp
+                    ? (data['createdAt'] as Timestamp).toDate()
+                    : DateTime.tryParse(data['createdAt'].toString()))
               : null,
         );
       }).toList();
     } catch (e) {
-      debugPrint(
-        'PaymentVerificationService: Error fetching payment history - $e',
-      );
+      debugPrint('PaymentVerificationService: Error fetching payment history - $e');
       return [];
     }
   }
@@ -308,18 +292,12 @@ class PaymentVerificationService {
     required double amount,
   }) async {
     try {
-      debugPrint(
-        '[PaymentReconciliation] Webhook received for payment: $razorpayPaymentId',
-      );
+      debugPrint('[PaymentReconciliation] Webhook received for payment: $razorpayPaymentId');
 
       // 1. Check if this payment was already reconciled (idempotency guard)
-      final existingPayment = await _firestore
-          .collection('payments')
-          .doc(razorpayPaymentId)
-          .get();
+      final existingPayment = await _firestore.collection('payments').doc(razorpayPaymentId).get();
 
-      if (existingPayment.exists &&
-          existingPayment.data()?['verified'] == true) {
+      if (existingPayment.exists && existingPayment.data()?['verified'] == true) {
         debugPrint(
           '[PaymentReconciliation] Payment $razorpayPaymentId already reconciled. Skipping.',
         );
@@ -338,10 +316,7 @@ class PaymentVerificationService {
         firestoreOrderId = orderQuery.docs.first.id;
       } else if (razorpayOrderId.isNotEmpty) {
         // Check if the razorpayOrderId is the Firestore document ID
-        final directDoc = await _firestore
-            .collection('orders')
-            .doc(razorpayOrderId)
-            .get();
+        final directDoc = await _firestore.collection('orders').doc(razorpayOrderId).get();
         if (directDoc.exists) {
           firestoreOrderId = razorpayOrderId;
         }
@@ -363,14 +338,10 @@ class PaymentVerificationService {
 
       // 4. Update order status if found and still pending
       if (firestoreOrderId != null) {
-        final orderDoc = await _firestore
-            .collection('orders')
-            .doc(firestoreOrderId)
-            .get();
+        final orderDoc = await _firestore.collection('orders').doc(firestoreOrderId).get();
         if (orderDoc.exists) {
           final currentStatus = orderDoc.data()?['status']?.toString() ?? '';
-          final paymentStatus =
-              orderDoc.data()?['paymentStatus']?.toString() ?? '';
+          final paymentStatus = orderDoc.data()?['paymentStatus']?.toString() ?? '';
 
           // Only reconcile if order is still in a pre-payment state
           if (paymentStatus != 'paid' ||
@@ -384,9 +355,7 @@ class PaymentVerificationService {
               'reconciliationSource': 'razorpay_webhook',
               'reconciledAt': FieldValue.serverTimestamp(),
             });
-            debugPrint(
-              '[PaymentReconciliation] Order $firestoreOrderId reconciled to CONFIRMED.',
-            );
+            debugPrint('[PaymentReconciliation] Order $firestoreOrderId reconciled to CONFIRMED.');
           }
         }
       }
@@ -402,9 +371,7 @@ class PaymentVerificationService {
 
       return true;
     } catch (e) {
-      debugPrint(
-        '[PaymentReconciliation] Error reconciling webhook payment: $e',
-      );
+      debugPrint('[PaymentReconciliation] Error reconciling webhook payment: $e');
 
       // Log the failure for manual review
       try {
@@ -416,7 +383,9 @@ class PaymentVerificationService {
           'error': e.toString(),
           'timestamp': FieldValue.serverTimestamp(),
         });
-      } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
+      } catch (e, stack) {
+        LoggingService().error('Silent error caught', e, stack);
+      }
 
       return false;
     }
@@ -441,10 +410,7 @@ class PaymentVerificationService {
         if (paymentId == null || paymentId.isEmpty) continue;
 
         // Check if payment was actually captured in our payments collection
-        final paymentDoc = await _firestore
-            .collection('payments')
-            .doc(paymentId)
-            .get();
+        final paymentDoc = await _firestore.collection('payments').doc(paymentId).get();
         if (paymentDoc.exists && paymentDoc.data()?['status'] == 'captured') {
           await _firestore.collection('orders').doc(doc.id).update({
             'paymentStatus': 'paid',
@@ -458,9 +424,7 @@ class PaymentVerificationService {
         }
       }
 
-      debugPrint(
-        '[PaymentReconciliation] Orphan scan complete. Reconciled: $reconciled',
-      );
+      debugPrint('[PaymentReconciliation] Orphan scan complete. Reconciled: $reconciled');
       return reconciled;
     } catch (e) {
       debugPrint('[PaymentReconciliation] Orphan scan error: $e');

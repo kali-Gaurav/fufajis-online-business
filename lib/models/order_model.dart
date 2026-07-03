@@ -48,11 +48,7 @@ class StatusHistoryEntry {
     };
   }
 
-  StatusHistoryEntry copyWith({
-    OrderStatus? status,
-    DateTime? timestamp,
-    String? note,
-  }) {
+  StatusHistoryEntry copyWith({OrderStatus? status, DateTime? timestamp, String? note}) {
     return StatusHistoryEntry(
       status: status ?? this.status,
       timestamp: timestamp ?? this.timestamp,
@@ -129,7 +125,9 @@ class OrderItem {
       quantity: map['quantity'] ?? 1,
       price: MonetaryValue(map['price'] ?? 0.0),
       originalPrice: map['originalPrice'] != null ? MonetaryValue(map['originalPrice']) : null,
-      discountPercentage: map['discountPercentage'] != null ? MonetaryValue(map['discountPercentage']) : null,
+      discountPercentage: map['discountPercentage'] != null
+          ? MonetaryValue(map['discountPercentage'])
+          : null,
       totalPrice: MonetaryValue(map['totalPrice'] ?? 0.0),
       shopId: map['shopId'],
       shopName: map['shopName'],
@@ -142,7 +140,8 @@ class OrderItem {
       proposedReplacementId: map['proposedReplacementId'],
       proposedReplacementName: map['proposedReplacementName'],
       proposedReplacementPrice: map['proposedReplacementPrice'] != null
-          ? MonetaryValue(map['proposedReplacementPrice']) : null,
+          ? MonetaryValue(map['proposedReplacementPrice'])
+          : null,
       substitutionTimestamp: map['substitutionTimestamp'] != null
           ? (map['substitutionTimestamp'] is Timestamp
                 ? (map['substitutionTimestamp'] as Timestamp).toDate()
@@ -227,14 +226,10 @@ class OrderItem {
       isPacked: isPacked ?? this.isPacked,
       isOutOfStock: isOutOfStock ?? this.isOutOfStock,
       substitutionStatus: substitutionStatus ?? this.substitutionStatus,
-      proposedReplacementId:
-          proposedReplacementId ?? this.proposedReplacementId,
-      proposedReplacementName:
-          proposedReplacementName ?? this.proposedReplacementName,
-      proposedReplacementPrice:
-          proposedReplacementPrice ?? this.proposedReplacementPrice,
-      substitutionTimestamp:
-          substitutionTimestamp ?? this.substitutionTimestamp,
+      proposedReplacementId: proposedReplacementId ?? this.proposedReplacementId,
+      proposedReplacementName: proposedReplacementName ?? this.proposedReplacementName,
+      proposedReplacementPrice: proposedReplacementPrice ?? this.proposedReplacementPrice,
+      substitutionTimestamp: substitutionTimestamp ?? this.substitutionTimestamp,
     );
   }
 }
@@ -258,12 +253,12 @@ class OrderModel {
   final MonetaryValue cashbackEarned;
   final int rewardPointsUsed;
   final int rewardPointsEarned;
-  final int loyaltyPointsUsed;  // Alias for rewardPointsUsed for compatibility
-  final PaymentMethod paymentMethod; 
-  final PaymentMethod selectedPaymentMethod; 
+  final int loyaltyPointsUsed; // Alias for rewardPointsUsed for compatibility
+  final PaymentMethod paymentMethod;
+  final PaymentMethod selectedPaymentMethod;
   final String? paymentId;
   final String? paymentStatus;
-  final String? paymentConvertedFrom; 
+  final String? paymentConvertedFrom;
   final OrderStatus status;
   final DeliveryType deliveryType;
   final Address deliveryAddress;
@@ -410,7 +405,8 @@ class OrderModel {
       customerName: map['customerName'] ?? '',
       customerPhone: map['customerPhone'] ?? '',
       customerEmail: map['customerEmail'],
-      items: (map['items'] as List?)
+      items:
+          (map['items'] as List?)
               ?.map((item) => OrderItem.fromMap(item as Map<String, dynamic>))
               .toList() ??
           [],
@@ -479,7 +475,8 @@ class OrderModel {
       packagingFee: MonetaryValue(map['packagingFee'] ?? 0.0),
       isGift: map['isGift'] ?? false,
       giftMessage: map['giftMessage'],
-      statusHistory: (map['statusHistory'] as List?)
+      statusHistory:
+          (map['statusHistory'] as List?)
               ?.map((entry) => StatusHistoryEntry.fromMap(entry as Map<String, dynamic>))
               .toList() ??
           [],
@@ -487,19 +484,21 @@ class OrderModel {
       rating: (map['rating'] as num?)?.toDouble(),
       packingStatus: map['packingStatus'],
       packingRejectionReason: map['packingRejectionReason'],
-      packingProof: map['packingProof'] != null ? Map<String, dynamic>.from(map['packingProof'] as Map) : null,
+      packingProof: map['packingProof'] != null
+          ? Map<String, dynamic>.from(map['packingProof'] as Map)
+          : null,
       packingHistory: map['packingHistory'] as List<dynamic>?,
       packingStartedAt: map['packingStartedAt'] != null
           ? (map['packingStartedAt'] is Timestamp
-              ? (map['packingStartedAt'] as Timestamp).toDate()
-              : DateTime.tryParse(map['packingStartedAt'].toString()))
+                ? (map['packingStartedAt'] as Timestamp).toDate()
+                : DateTime.tryParse(map['packingStartedAt'].toString()))
           : null,
       packingCompletedAt: map['packingCompletedAt'] != null
           ? (map['packingCompletedAt'] is Timestamp
-              ? (map['packingCompletedAt'] as Timestamp).toDate()
-              : DateTime.tryParse(map['packingCompletedAt'].toString()))
+                ? (map['packingCompletedAt'] as Timestamp).toDate()
+                : DateTime.tryParse(map['packingCompletedAt'].toString()))
           : null,
-      splitPayment: map['splitPayment'] != null 
+      splitPayment: map['splitPayment'] != null
           ? (map['splitPayment'] as Map).map((k, v) => MapEntry(k.toString(), MonetaryValue(v)))
           : null,
       branchId: map['branchId'],
@@ -539,7 +538,9 @@ class OrderModel {
       'deliveryType': deliveryType.toString(),
       'deliveryAddress': deliveryAddress.toMap(),
       'deliveryInstructions': deliveryInstructions,
-      'scheduledDeliveryDate': scheduledDeliveryDate != null ? Timestamp.fromDate(scheduledDeliveryDate!) : null,
+      'scheduledDeliveryDate': scheduledDeliveryDate != null
+          ? Timestamp.fromDate(scheduledDeliveryDate!)
+          : null,
       'timeSlot': timeSlot,
       'deliveryAgentId': deliveryAgentId,
       'deliveryAgentName': deliveryAgentName,
@@ -571,7 +572,9 @@ class OrderModel {
       'packingProof': packingProof,
       'packingHistory': packingHistory,
       'packingStartedAt': packingStartedAt != null ? Timestamp.fromDate(packingStartedAt!) : null,
-      'packingCompletedAt': packingCompletedAt != null ? Timestamp.fromDate(packingCompletedAt!) : null,
+      'packingCompletedAt': packingCompletedAt != null
+          ? Timestamp.fromDate(packingCompletedAt!)
+          : null,
       'splitPayment': splitPayment?.map((k, v) => MapEntry(k, v.toFirestore())),
       'branchId': branchId,
       'couponCode': couponCode,
@@ -676,8 +679,7 @@ class OrderModel {
       deliveryType: deliveryType ?? this.deliveryType,
       deliveryAddress: deliveryAddress ?? this.deliveryAddress,
       deliveryInstructions: deliveryInstructions ?? this.deliveryInstructions,
-      scheduledDeliveryDate:
-          scheduledDeliveryDate ?? this.scheduledDeliveryDate,
+      scheduledDeliveryDate: scheduledDeliveryDate ?? this.scheduledDeliveryDate,
       timeSlot: timeSlot ?? this.timeSlot,
       deliveryAgentId: deliveryAgentId ?? this.deliveryAgentId,
       deliveryAgentName: deliveryAgentName ?? this.deliveryAgentName,
@@ -725,7 +727,14 @@ class OrderModel {
     return status.canTransitionTo(newStatus);
   }
 
-  OrderModel updateStatus(OrderStatus newStatus, {String? note, String? actorId, String? actorRole, String? actorName, bool force = false}) {
+  OrderModel updateStatus(
+    OrderStatus newStatus, {
+    String? note,
+    String? actorId,
+    String? actorRole,
+    String? actorName,
+    bool force = false,
+  }) {
     if (!force && !isValidTransition(newStatus)) {
       throw StateError('Invalid order status transition from $status to $newStatus');
     }
@@ -740,11 +749,7 @@ class OrderModel {
       actorName: actorName,
     );
 
-    return copyWith(
-      status: newStatus,
-      updatedAt: now,
-      statusHistory: [...statusHistory, newEntry],
-    );
+    return copyWith(status: newStatus, updatedAt: now, statusHistory: [...statusHistory, newEntry]);
   }
 
   String generateDeliveryOTP() {
@@ -767,7 +772,18 @@ class OrderModel {
   }
 
   bool get canCancel => status.canCancel;
-  bool get canReturn => status.canReturn;
+
+  /// FIX (Module 5, P0-5.1 port): return eligibility now enforces a 7-day
+  /// window from delivery (matching the supplier-return convention). The dead
+  /// order engine had this check; the live path never did — customers could
+  /// request returns months after delivery.
+  static const int returnWindowDays = 7;
+  bool get canReturn {
+    if (!status.canReturn) return false;
+    final deliveredOn = deliveredAt ?? updatedAt;
+    return DateTime.now().difference(deliveredOn).inDays <= returnWindowDays;
+  }
+
   bool get isActive => status.isActive;
   bool get isTerminal => status.isTerminal;
 

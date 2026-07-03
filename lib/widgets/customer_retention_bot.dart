@@ -30,7 +30,11 @@ class CustomerRetentionBot extends StatelessWidget {
                   children: [
                     Text(
                       'Customer Churn Warning',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                     Text(
                       '3 regular customers haven\'t ordered this week',
@@ -60,7 +64,9 @@ class CustomerRetentionBot extends StatelessWidget {
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('📲 Personal discount vouchers sent to 3 customers via WhatsApp.'),
+                      content: Text(
+                        '📲 Personal discount vouchers sent to 3 customers via WhatsApp.',
+                      ),
                       backgroundColor: Colors.teal,
                     ),
                   );
@@ -90,7 +96,14 @@ class CustomerRetentionBot extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+              Text(
+                name,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
               Text(detail, style: const TextStyle(color: Colors.white70, fontSize: 10)),
             ],
           ),
@@ -99,7 +112,14 @@ class CustomerRetentionBot extends StatelessWidget {
           onPressed: () {
             // Future: Integrate with phone dialer
           },
-          child: const Text('Call Now', style: TextStyle(color: Colors.white, fontSize: 11, decoration: TextDecoration.underline)),
+          child: const Text(
+            'Call Now',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 11,
+              decoration: TextDecoration.underline,
+            ),
+          ),
         ),
       ],
     );

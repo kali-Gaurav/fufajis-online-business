@@ -5,11 +5,7 @@ import 'package:intl/intl.dart';
 import '../../utils/app_theme.dart';
 import '../../providers/business_intelligence_provider.dart';
 
-final NumberFormat kInr = NumberFormat.currency(
-  locale: 'en_IN',
-  symbol: '₹',
-  decimalDigits: 0,
-);
+final NumberFormat kInr = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
 
 String compactInr(double v) {
   if (v.abs() >= 10000000) return '₹${(v / 10000000).toStringAsFixed(2)}Cr';
@@ -22,21 +18,11 @@ String compactInr(double v) {
 class BiRangeSelector extends StatelessWidget {
   final BiRange selected;
   final ValueChanged<BiRange> onSelected;
-  const BiRangeSelector({
-    super.key,
-    required this.selected,
-    required this.onSelected,
-  });
+  const BiRangeSelector({super.key, required this.selected, required this.onSelected});
 
   @override
   Widget build(BuildContext context) {
-    const ranges = [
-      BiRange.today,
-      BiRange.week,
-      BiRange.month,
-      BiRange.quarter,
-      BiRange.year,
-    ];
+    const ranges = [BiRange.today, BiRange.week, BiRange.month, BiRange.quarter, BiRange.year];
     return SizedBox(
       height: 38,
       child: ListView.separated(
@@ -89,13 +75,11 @@ class BiGrowthChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(up ? Icons.arrow_upward : Icons.arrow_downward,
-              size: 12, color: color),
+          Icon(up ? Icons.arrow_upward : Icons.arrow_downward, size: 12, color: color),
           const SizedBox(width: 2),
           Text(
             '${pct.abs().toStringAsFixed(1)}%',
-            style: TextStyle(
-                fontSize: 12, fontWeight: FontWeight.bold, color: color),
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: color),
           ),
         ],
       ),
@@ -167,16 +151,10 @@ class BiKpiCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 2),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
-          ),
+          Text(label, style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
           if (subtitle != null) ...[
             const SizedBox(height: 2),
-            Text(
-              subtitle!,
-              style: TextStyle(fontSize: 11, color: color),
-            ),
+            Text(subtitle!, style: TextStyle(fontSize: 11, color: color)),
           ],
         ],
       ),
@@ -189,12 +167,7 @@ class BiSectionCard extends StatelessWidget {
   final String title;
   final Widget child;
   final Widget? trailing;
-  const BiSectionCard({
-    super.key,
-    required this.title,
-    required this.child,
-    this.trailing,
-  });
+  const BiSectionCard({super.key, required this.title, required this.child, this.trailing});
 
   @override
   Widget build(BuildContext context) {
@@ -268,8 +241,7 @@ class BiDonutChart extends StatelessWidget {
       );
     }
     final total = data.values.fold(0.0, (a, b) => a + b);
-    final entries = data.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+    final entries = data.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
     final sections = <PieChartSectionData>[];
     for (var i = 0; i < entries.length; i++) {
       final pct = total > 0 ? (entries[i].value / total) * 100 : 0;
@@ -292,11 +264,7 @@ class BiDonutChart extends StatelessWidget {
         SizedBox(
           height: height,
           child: PieChart(
-            PieChartData(
-              sections: sections,
-              sectionsSpace: 2,
-              centerSpaceRadius: 36,
-            ),
+            PieChartData(sections: sections, sectionsSpace: 2, centerSpaceRadius: 36),
           ),
         ),
         const SizedBox(height: 12),
@@ -319,8 +287,7 @@ class BiDonutChart extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     entries[i].key,
-                    style: const TextStyle(
-                        fontSize: 11, color: AppTheme.grey700),
+                    style: const TextStyle(fontSize: 11, color: AppTheme.grey700),
                   ),
                 ],
               ),
@@ -353,24 +320,17 @@ class BiLineChart extends StatelessWidget {
         ),
       );
     }
-    final spots = <FlSpot>[
-      for (var i = 0; i < values.length; i++)
-        FlSpot(i.toDouble(), values[i]),
-    ];
+    final spots = <FlSpot>[for (var i = 0; i < values.length; i++) FlSpot(i.toDouble(), values[i])];
     return SizedBox(
       height: height,
       child: LineChart(
         LineChartData(
           gridData: const FlGridData(show: false),
           titlesData: const FlTitlesData(
-            topTitles:
-                AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles:
-                AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            bottomTitles:
-                AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            leftTitles:
-                AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
           borderData: FlBorderData(show: false),
           lineBarsData: [
@@ -380,10 +340,7 @@ class BiLineChart extends StatelessWidget {
               color: color,
               barWidth: 3,
               dotData: const FlDotData(show: false),
-              belowBarData: BarAreaData(
-                show: true,
-                color: color.withValues(alpha: 0.12),
-              ),
+              belowBarData: BarAreaData(show: true, color: color.withValues(alpha: 0.12)),
             ),
           ],
         ),
@@ -425,9 +382,7 @@ class BiBarChart extends StatelessWidget {
               toY: entries[i].value,
               color: color,
               width: 18,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(4),
-              ),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
             ),
           ],
         ),
@@ -441,12 +396,9 @@ class BiBarChart extends StatelessWidget {
           gridData: const FlGridData(show: false),
           borderData: FlBorderData(show: false),
           titlesData: FlTitlesData(
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            leftTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -460,8 +412,7 @@ class BiBarChart extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
                       entries[i].key,
-                      style: const TextStyle(
-                          fontSize: 9, color: AppTheme.grey600),
+                      style: const TextStyle(fontSize: 9, color: AppTheme.grey600),
                       textAlign: TextAlign.center,
                     ),
                   );

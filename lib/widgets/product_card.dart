@@ -64,7 +64,7 @@ class ProductCard extends StatelessWidget {
                     )
                   : const Icon(Icons.shopping_bag_outlined, color: AppTheme.grey400, size: 40),
             ),
-            
+
             // CONTENT
             Expanded(
               child: Padding(
@@ -72,21 +72,39 @@ class ProductCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(name, maxLines: 2, overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                    Text(
+                      name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                    ),
                     const SizedBox(height: 4),
-                    Text(description, maxLines: 1, overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall),
+                    Text(
+                      description,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                     const Spacer(),
-                    Text(pricing.basePriceCompact,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.primary)),
-                    Text('+ ${pricing.gstDisplayString}',
-                      style: Theme.of(context).textTheme.bodySmall),
+                    Text(
+                      pricing.basePriceCompact,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.primary,
+                      ),
+                    ),
+                    Text(
+                      '+ ${pricing.gstDisplayString}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ],
                 ),
               ),
             ),
-            
+
             // BUTTON
             Padding(
               padding: const EdgeInsets.all(12),
@@ -96,8 +114,14 @@ class ProductCard extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: inStock ? onAddToCart : null,
                   icon: const Icon(Icons.shopping_cart_outlined, size: 18, color: Colors.white),
-                  label: Text(inStock ? 'कार्ट में जोड़ें' : 'Stock में नहीं',
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14)),
+                  label: Text(
+                    inStock ? 'कार्ट में जोड़ें' : 'Stock में नहीं',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: inStock ? AppTheme.primary : AppTheme.grey400,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

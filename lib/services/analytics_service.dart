@@ -138,10 +138,7 @@ class AnalyticsService {
   }
 
   /// Track order confirmed (moved to packing)
-  Future<void> logOrderConfirmed({
-    required String orderId,
-    required String userId,
-  }) async {
+  Future<void> logOrderConfirmed({required String orderId, required String userId}) async {
     try {
       await _analytics.logEvent(
         name: 'order_confirmed',
@@ -295,15 +292,10 @@ class AnalyticsService {
         if (orderId != null) 'order_id': orderId,
         if (paymentId != null) 'payment_id': paymentId,
         if (additionalContext != null)
-          ...additionalContext
-              .map((k, v) => MapEntry(k, v.toString()))
-              .cast<String, String>(),
+          ...additionalContext.map((k, v) => MapEntry(k, v.toString())).cast<String, String>(),
       };
 
-      await _analytics.logEvent(
-        name: 'error_occurred',
-        parameters: params,
-      );
+      await _analytics.logEvent(name: 'error_occurred', parameters: params);
       debugPrint('[Analytics] error_occurred tracked: $errorType');
     } catch (e) {
       debugPrint('[Analytics] Error logging error_occurred: $e');
@@ -351,10 +343,7 @@ class AnalyticsService {
       };
 
       for (final entry in properties.entries) {
-        await _analytics.setUserProperty(
-          name: entry.key,
-          value: entry.value,
-        );
+        await _analytics.setUserProperty(name: entry.key, value: entry.value);
       }
 
       debugPrint('[Analytics] User properties set for: $userId');
@@ -383,9 +372,7 @@ class AnalyticsService {
     try {
       await _analytics.logEvent(
         name: eventName,
-        parameters: parameters
-            .map((k, v) => MapEntry(k, v.toString()))
-            .cast<String, String>(),
+        parameters: parameters.map((k, v) => MapEntry(k, v.toString())).cast<String, String>(),
       );
       debugPrint('[Analytics] custom event tracked: $eventName');
     } catch (e) {
@@ -578,7 +565,9 @@ class AnalyticsService {
           'timestamp': DateTime.now().toIso8601String(),
         },
       );
-      debugPrint('[Analytics] Delivery Assignment: ${isAssigned ?? false ? 'ASSIGNED' : 'PENDING'}');
+      debugPrint(
+        '[Analytics] Delivery Assignment: ${isAssigned ?? false ? 'ASSIGNED' : 'PENDING'}',
+      );
     } catch (e) {
       debugPrint('[Analytics] Error logging delivery assignment rate: $e');
     }

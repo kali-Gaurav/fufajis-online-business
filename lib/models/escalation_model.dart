@@ -1,11 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'user_model.dart';
 
-enum EscalationStatus {
-  active,
-  resolved,
-  dismissed
-}
+enum EscalationStatus { active, resolved, dismissed }
 
 class EscalationModel {
   final String id;

@@ -152,11 +152,7 @@ class _PinResetScreenState extends State<PinResetScreen> {
     return PinTheme(
       width: 50,
       height: 56,
-      textStyle: TextStyle(
-        fontSize: 22,
-        fontWeight: FontWeight.bold,
-        color: textColor,
-      ),
+      textStyle: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: textColor),
       decoration: BoxDecoration(
         color: isDark ? AppTheme.grey800 : AppTheme.white,
         borderRadius: BorderRadius.circular(12),
@@ -208,11 +204,7 @@ class _PinResetScreenState extends State<PinResetScreen> {
                 child: Text(
                   _titleForStep(),
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
-                  ),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: textColor),
                 ),
               ),
               const SizedBox(height: 8),

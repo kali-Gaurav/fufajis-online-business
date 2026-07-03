@@ -30,9 +30,7 @@ class MetaWhatsAppService {
           "components": [
             {
               "type": "body",
-              "parameters": parameters
-                  .map((p) => {"type": "text", "text": p})
-                  .toList(),
+              "parameters": parameters.map((p) => {"type": "text", "text": p}).toList(),
             },
           ],
         },
@@ -47,12 +45,7 @@ class MetaWhatsAppService {
   }
 
   /// Sends the delivery OTP to the customer (Feature 29/37)
-  Future<void> sendDeliveryOTP(
-    String phone,
-    String name,
-    String orderNum,
-    String otp,
-  ) async {
+  Future<void> sendDeliveryOTP(String phone, String name, String orderNum, String otp) async {
     await sendTemplateMessage(
       recipientPhone: phone,
       templateName: templateOrderOutForDelivery,

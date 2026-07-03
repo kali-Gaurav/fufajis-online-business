@@ -21,15 +21,15 @@ class _InventoryApprovalQueueScreenState extends State<InventoryApprovalQueueScr
   final _service = InventoryChangeRequestService();
   final Set<String> _processingIds = {};
 
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.cream,
       appBar: AppBar(
-        title: const Text('Inventory Approval Queue', style: TextStyle(fontWeight: FontWeight.w700)),
+        title: const Text(
+          'Inventory Approval Queue',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
         backgroundColor: AppTheme.primary,
         foregroundColor: AppTheme.white,
       ),
@@ -100,7 +100,11 @@ class _InventoryApprovalQueueScreenState extends State<InventoryApprovalQueueScr
                   ),
                   child: Text(
                     _typeLabel(request.type),
-                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.primaryDark),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.primaryDark,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -139,30 +143,42 @@ class _InventoryApprovalQueueScreenState extends State<InventoryApprovalQueueScr
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(productName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                        ...changes.map((c) => Padding(
-                              padding: const EdgeInsets.only(left: 8, top: 2),
-                              child: Row(
-                                children: [
-                                  Text('${c.field}: ', style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
-                                  Text(
-                                    '${c.oldValue}',
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: AppTheme.error,
-                                      decoration: TextDecoration.lineThrough,
-                                    ),
+                        Text(
+                          productName,
+                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                        ),
+                        ...changes.map(
+                          (c) => Padding(
+                            padding: const EdgeInsets.only(left: 8, top: 2),
+                            child: Row(
+                              children: [
+                                Text(
+                                  '${c.field}: ',
+                                  style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
+                                ),
+                                Text(
+                                  '${c.oldValue}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: AppTheme.error,
+                                    decoration: TextDecoration.lineThrough,
                                   ),
-                                  const SizedBox(width: 6),
-                                  const Icon(Icons.arrow_forward, size: 12, color: AppTheme.grey500),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    '${c.newValue}',
-                                    style: const TextStyle(fontSize: 12, color: AppTheme.success, fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(width: 6),
+                                const Icon(Icons.arrow_forward, size: 12, color: AppTheme.grey500),
+                                const SizedBox(width: 6),
+                                Text(
+                                  '${c.newValue}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: AppTheme.success,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                ],
-                              ),
-                            )),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                         const Divider(height: 8),
                       ],
                     ),
@@ -186,7 +202,11 @@ class _InventoryApprovalQueueScreenState extends State<InventoryApprovalQueueScr
                   child: ElevatedButton.icon(
                     onPressed: isProcessing ? null : () => _approve(request),
                     icon: isProcessing
-                        ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.white))
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.white),
+                          )
                         : const Icon(Icons.check),
                     label: const Text('Approve & Apply'),
                     style: ElevatedButton.styleFrom(
@@ -225,7 +245,9 @@ class _InventoryApprovalQueueScreenState extends State<InventoryApprovalQueueScr
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to approve: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to approve: $e')));
       }
     } finally {
       if (mounted) setState(() => _processingIds.remove(request.id));
@@ -249,9 +271,9 @@ class _InventoryApprovalQueueScreenState extends State<InventoryApprovalQueueScr
         reviewNote: reason.isEmpty ? null : reason,
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Request rejected.')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Request rejected.')));
       }
     } catch (e) {
       if (mounted) {
@@ -277,13 +299,13 @@ class _InventoryApprovalQueueScreenState extends State<InventoryApprovalQueueScr
           maxLines: 3,
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(controller.text.trim()),
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.error, foregroundColor: AppTheme.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.error,
+              foregroundColor: AppTheme.white,
+            ),
             child: const Text('Reject'),
           ),
         ],

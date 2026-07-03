@@ -50,18 +50,9 @@ class CrashlyticsService {
 
       // Record with reason
       if (reason != null) {
-        await _crashlytics.recordError(
-          error,
-          stackTrace,
-          reason: reason,
-          fatal: fatal,
-        );
+        await _crashlytics.recordError(error, stackTrace, reason: reason, fatal: fatal);
       } else {
-        await _crashlytics.recordError(
-          error,
-          stackTrace,
-          fatal: fatal,
-        );
+        await _crashlytics.recordError(error, stackTrace, fatal: fatal);
       }
 
       debugPrint('[Crashlytics] Error recorded: $error (fatal: $fatal)');
@@ -71,10 +62,7 @@ class CrashlyticsService {
   }
 
   /// Record Flutter error
-  Future<void> recordFlutterError({
-    required FlutterErrorDetails details,
-    String? context,
-  }) async {
+  Future<void> recordFlutterError({required FlutterErrorDetails details, String? context}) async {
     try {
       if (context != null) {
         await _crashlytics.setCustomKey('flutter_context', context);

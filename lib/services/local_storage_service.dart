@@ -47,9 +47,7 @@ class LocalStorageService {
           keyCipherAlgorithm: KeyCipherAlgorithm.RSA_ECB_OAEPwithSHA_256andMGF1Padding,
           storageCipherAlgorithm: StorageCipherAlgorithm.AES_GCM_NoPadding,
         ),
-        iOptions: IOSOptions(
-          accessibility: KeychainAccessibility.first_unlock,
-        ),
+        iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
       );
       debugPrint('[LocalStorageService] Secure Storage initialized');
 
@@ -76,11 +74,7 @@ class LocalStorageService {
       final dbPath = await getDatabasesPath();
       final path = path_helper.join(dbPath, 'fufaji_user_data.db');
 
-      _db = await openDatabase(
-        path,
-        version: 1,
-        onCreate: _createTables,
-      );
+      _db = await openDatabase(path, version: 1, onCreate: _createTables);
     } catch (e) {
       debugPrint('[LocalStorageService] Database initialization error: $e');
       rethrow;
@@ -450,10 +444,7 @@ class LocalStorageService {
   }
 
   /// Execute raw query
-  Future<List<Map<String, dynamic>>> rawQuery(
-    String sql, [
-    List<dynamic>? args,
-  ]) async {
+  Future<List<Map<String, dynamic>>> rawQuery(String sql, [List<dynamic>? args]) async {
     try {
       return await _db.rawQuery(sql, args);
     } catch (e) {

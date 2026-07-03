@@ -57,10 +57,12 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
     final locationProvider = Provider.of<LocationProvider>(context, listen: false);
     final configProvider = Provider.of<ShopConfigProvider>(context, listen: false);
 
-    final distanceKm = locationProvider.distanceFromShopInMeters(
-      latitude: widget.deliveryAddress.latitude,
-      longitude: widget.deliveryAddress.longitude,
-    ) / 1000.0;
+    final distanceKm =
+        locationProvider.distanceFromShopInMeters(
+          latitude: widget.deliveryAddress.latitude,
+          longitude: widget.deliveryAddress.longitude,
+        ) /
+        1000.0;
 
     final branches = configProvider.branches;
     final nearestBranch = ShopConfigService().getNearestBranch(
@@ -79,7 +81,14 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
 
     final tax = cartProvider.subtotal * 0.05; // 5% tax
     final walletUsed = _useWallet ? cartProvider.walletAmountUsed : 0;
-    final total = (cartProvider.subtotal - cartProvider.discount + deliveryFee + cartProvider.tipAmount + tax - walletUsed).clamp(0.0, double.infinity);
+    final total =
+        (cartProvider.subtotal -
+                cartProvider.discount +
+                deliveryFee +
+                cartProvider.tipAmount +
+                tax -
+                walletUsed)
+            .clamp(0.0, double.infinity);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -137,16 +146,11 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
             backgroundColor: AppTheme.primary,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
           child: Text(
             'Place Order - ₹${total.round()}',
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
       ],
@@ -212,10 +216,8 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
   }
 
   Widget _buildDeliveryTypeCard(double charge) {
-    final formattedDate = DeliveryChargeCalculator.getFormattedDeliveryDate(
-      widget.deliveryType,
-    );
- 
+    final formattedDate = DeliveryChargeCalculator.getFormattedDeliveryDate(widget.deliveryType);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -274,7 +276,8 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
               const Icon(Icons.access_time, color: AppTheme.grey500, size: 14),
               const SizedBox(width: 4),
               Text(
-                widget.deliveryType == DeliveryType.scheduled && widget.scheduledDeliveryDate != null
+                widget.deliveryType == DeliveryType.scheduled &&
+                        widget.scheduledDeliveryDate != null
                     ? 'Scheduled: ${_formatDate(widget.scheduledDeliveryDate!)} (${widget.timeSlot ?? "Anytime"})'
                     : 'Estimated delivery: $formattedDate',
                 style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
@@ -410,11 +413,7 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
           const SizedBox(width: 8),
           const Text(
             'Payment',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.primary,
-            ),
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.primary),
           ),
           const Spacer(),
           Text(
@@ -450,9 +449,10 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
           setState(() {
             _useWallet = value;
             if (_useWallet) {
-              final double orderTotalBeforeWallet = cartProvider.subtotal + 
-                  cartProvider.deliveryCharge + 
-                  cartProvider.tipAmount - 
+              final double orderTotalBeforeWallet =
+                  cartProvider.subtotal +
+                  cartProvider.deliveryCharge +
+                  cartProvider.tipAmount -
                   cartProvider.discount;
               final double maxWalletUse = orderTotalBeforeWallet * 0.5;
               final double amountToUse = orderProvider.walletBalance < maxWalletUse
@@ -475,7 +475,7 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
   Widget _buildPriceSummary(CartProvider cartProvider, double deliveryFee, double total) {
     final tax = cartProvider.subtotal * 0.05; // 5% tax
     final walletUsed = _useWallet ? cartProvider.walletAmountUsed : 0;
- 
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -494,20 +494,12 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
         children: [
           const Text(
             'Price Summary',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.grey900,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.grey900),
           ),
           const SizedBox(height: 12),
           _buildSummaryRow('Subtotal', cartProvider.subtotal),
           const SizedBox(height: 8),
-          _buildSummaryRow(
-            'Delivery',
-            deliveryFee,
-            isFree: deliveryFee == 0,
-          ),
+          _buildSummaryRow('Delivery', deliveryFee, isFree: deliveryFee == 0),
           const SizedBox(height: 8),
           _buildSummaryRow('Tax (5%)', tax),
           if (cartProvider.discount > 0) ...[
@@ -545,32 +537,33 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
     );
   }
 
-  Widget _buildSummaryRow(String label, double value,
-      {bool isFree = false, bool isDiscount = false}) {
+  Widget _buildSummaryRow(
+    String label,
+    double value, {
+    bool isFree = false,
+    bool isDiscount = false,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
-          style: TextStyle(
-            fontSize: 14,
-            color: isFree ? AppTheme.success : AppTheme.grey600,
-          ),
+          style: TextStyle(fontSize: 14, color: isFree ? AppTheme.success : AppTheme.grey600),
         ),
         Text(
           isDiscount
               ? '- ₹${value.abs().round()}'
               : isFree
-                  ? 'FREE'
-                  : '₹${value.round()}',
+              ? 'FREE'
+              : '₹${value.round()}',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
             color: isFree
                 ? AppTheme.success
                 : isDiscount
-                    ? AppTheme.success
-                    : AppTheme.grey900,
+                ? AppTheme.success
+                : AppTheme.grey900,
           ),
         ),
       ],

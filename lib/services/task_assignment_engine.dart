@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:math';
 import '../models/order_model.dart';
@@ -19,20 +18,13 @@ class TaskAssignmentEngine {
   static const double _proximityRadiusKm = 5.0; // Assign agents within 5km
 
   /// Calculate distance between two coordinates (haversine formula)
-  double _calculateDistance(
-    double lat1,
-    double lon1,
-    double lat2,
-    double lon2,
-  ) {
+  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
     const earthRadiusKm = 6371.0;
     final dLat = _toRad(lat2 - lat1);
     final dLon = _toRad(lon2 - lon1);
-    final a = sin(dLat / 2) * sin(dLat / 2) +
-        cos(_toRad(lat1)) *
-            cos(_toRad(lat2)) *
-            sin(dLon / 2) *
-            sin(dLon / 2);
+    final a =
+        sin(dLat / 2) * sin(dLat / 2) +
+        cos(_toRad(lat1)) * cos(_toRad(lat2)) * sin(dLon / 2) * sin(dLon / 2);
     final c = 2 * atan2(sqrt(a), sqrt(1 - a));
     return earthRadiusKm * c;
   }
@@ -42,10 +34,7 @@ class TaskAssignmentEngine {
   /// Get agent's current location
   Future<({double lat, double lon})?> _getAgentLocation(String agentId) async {
     try {
-      final doc = await _firestore
-          .collection('delivery_agents')
-          .doc(agentId)
-          .get();
+      final doc = await _firestore.collection('delivery_agents').doc(agentId).get();
 
       if (!doc.exists) return null;
 
@@ -55,7 +44,7 @@ class TaskAssignmentEngine {
       if (location is Map<String, dynamic>) {
         return (
           lat: (location['latitude'] ?? 0.0) as double,
-          lon: (location['longitude'] ?? 0.0) as double
+          lon: (location['longitude'] ?? 0.0) as double,
         );
       }
       return null;
@@ -135,16 +124,14 @@ class TaskAssignmentEngine {
         final workloadScore = max(0.0, 100.0 - (workload * 10.0)); // 0-100
         final finalScore = (proximityScore * 0.7) + (workloadScore * 0.3);
 
-        scoredAgents[agentId] = (
-          proximity: distance,
-          workload: workload,
-          score: finalScore,
-        );
+        scoredAgents[agentId] = (proximity: distance, workload: workload, score: finalScore);
 
-        debugPrint('[TaskAssignment] Agent $agentId: '
-            'distance=${distance.toStringAsFixed(2)}km, '
-            'workload=$workload, '
-            'score=${finalScore.toStringAsFixed(2)}');
+        debugPrint(
+          '[TaskAssignment] Agent $agentId: '
+          'distance=${distance.toStringAsFixed(2)}km, '
+          'workload=$workload, '
+          'score=${finalScore.toStringAsFixed(2)}',
+        );
       }
 
       if (scoredAgents.isEmpty) {
@@ -153,14 +140,18 @@ class TaskAssignmentEngine {
       }
 
       // 3. Select agent with highest score
-      final bestAgent = scoredAgents.entries.reduce((a, b) => a.value.score > b.value.score ? a : b);
+      final bestAgent = scoredAgents.entries.reduce(
+        (a, b) => a.value.score > b.value.score ? a : b,
+      );
       final agentId = bestAgent.key;
       final agentScore = bestAgent.value;
 
-      debugPrint('[TaskAssignment] ✅ Assigned to agent $agentId '
-          '(proximity=${agentScore.proximity.toStringAsFixed(2)}km, '
-          'workload=${agentScore.workload}, '
-          'score=${agentScore.score.toStringAsFixed(2)})');
+      debugPrint(
+        '[TaskAssignment] ✅ Assigned to agent $agentId '
+        '(proximity=${agentScore.proximity.toStringAsFixed(2)}km, '
+        'workload=${agentScore.workload}, '
+        'score=${agentScore.score.toStringAsFixed(2)})',
+      );
 
       return agentId;
     } catch (e) {
@@ -225,25 +216,25 @@ class TaskAssignmentEngine {
         final speedScore = max(0.0, 100.0 - (avgTime / 60 * 100)); // 0-100
         final finalScore = (workloadScore * 0.6) + (speedScore * 0.4);
 
-        scoredStaff[staffId] = (
-          workload: workload,
-          avgTime: avgTime,
-          score: finalScore,
-        );
+        scoredStaff[staffId] = (workload: workload, avgTime: avgTime, score: finalScore);
 
-        debugPrint('[TaskAssignment] Kitchen staff $staffId: '
-            'workload=$workload, '
-            'avgTime=${avgTime.toStringAsFixed(1)}min, '
-            'score=${finalScore.toStringAsFixed(2)}');
+        debugPrint(
+          '[TaskAssignment] Kitchen staff $staffId: '
+          'workload=$workload, '
+          'avgTime=${avgTime.toStringAsFixed(1)}min, '
+          'score=${finalScore.toStringAsFixed(2)}',
+        );
       }
 
       // 3. Select staff with highest score
       final bestStaff = scoredStaff.entries.reduce((a, b) => a.value.score > b.value.score ? a : b);
       final staffId = bestStaff.key;
 
-      debugPrint('[TaskAssignment] ✅ Assigned to kitchen staff $staffId '
-          '(workload=${bestStaff.value.workload}, '
-          'avgTime=${bestStaff.value.avgTime.toStringAsFixed(1)}min)');
+      debugPrint(
+        '[TaskAssignment] ✅ Assigned to kitchen staff $staffId '
+        '(workload=${bestStaff.value.workload}, '
+        'avgTime=${bestStaff.value.avgTime.toStringAsFixed(1)}min)',
+      );
 
       return staffId;
     } catch (e) {
@@ -258,10 +249,7 @@ class TaskAssignmentEngine {
       debugPrint('[TaskAssignment] Reassigning task $taskId');
 
       // Get order details
-      final orderSnapshot = await _firestore
-          .collection('orders')
-          .doc(orderId)
-          .get();
+      final orderSnapshot = await _firestore.collection('orders').doc(orderId).get();
 
       if (!orderSnapshot.exists) {
         debugPrint('[TaskAssignment] Order $orderId not found');
@@ -283,7 +271,8 @@ class TaskAssignmentEngine {
       await _firestore.collection('delivery_tasks').doc(taskId).update({
         'assignedAgentId': newAgentId,
         'reassignedAt': FieldValue.serverTimestamp(),
-        'previousAgentId': (await _firestore.collection('delivery_tasks').doc(taskId).get()).data()?['assignedAgentId'],
+        'previousAgentId': (await _firestore.collection('delivery_tasks').doc(taskId).get())
+            .data()?['assignedAgentId'],
       });
 
       debugPrint('[TaskAssignment] ✅ Task reassigned to $newAgentId');

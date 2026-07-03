@@ -36,10 +36,7 @@ class _BiAnalyticsHubScreenState extends State<BiAnalyticsHubScreen> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                BiRangeSelector(
-                  selected: p.range,
-                  onSelected: (r) => p.setRange(r),
-                ),
+                BiRangeSelector(selected: p.range, onSelected: (r) => p.setRange(r)),
                 const SizedBox(height: 16),
                 if (p.isLoading && p.data == null)
                   const Padding(
@@ -67,8 +64,7 @@ class _BiAnalyticsHubScreenState extends State<BiAnalyticsHubScreen> {
                         value: kInr.format(p.financial.grossProfit),
                         icon: Icons.savings_outlined,
                         color: AppTheme.success,
-                        subtitle:
-                            '${p.financial.profitMargin.toStringAsFixed(1)}% margin',
+                        subtitle: '${p.financial.profitMargin.toStringAsFixed(1)}% margin',
                       ),
                       BiKpiCard(
                         label: 'Orders',
@@ -79,8 +75,7 @@ class _BiAnalyticsHubScreenState extends State<BiAnalyticsHubScreen> {
                       ),
                       BiKpiCard(
                         label: 'Retention',
-                        value:
-                            '${p.business.retentionRate.toStringAsFixed(1)}%',
+                        value: '${p.business.retentionRate.toStringAsFixed(1)}%',
                         icon: Icons.favorite_outline,
                         color: AppTheme.warning,
                       ),
@@ -91,8 +86,7 @@ class _BiAnalyticsHubScreenState extends State<BiAnalyticsHubScreen> {
                 _navCard(
                   context,
                   title: 'Financial Dashboard',
-                  subtitle:
-                      'Revenue, refunds, COGS margin, payment & category mix',
+                  subtitle: 'Revenue, refunds, COGS margin, payment & category mix',
                   icon: Icons.account_balance_outlined,
                   color: AppTheme.primary,
                   route: '/owner/bi/financial',
@@ -100,8 +94,7 @@ class _BiAnalyticsHubScreenState extends State<BiAnalyticsHubScreen> {
                 _navCard(
                   context,
                   title: 'Business Dashboard',
-                  subtitle:
-                      'Orders funnel, retention, churn, AOV, CLV distribution',
+                  subtitle: 'Orders funnel, retention, churn, AOV, CLV distribution',
                   icon: Icons.insights_outlined,
                   color: AppTheme.info,
                   route: '/owner/bi/business',
@@ -126,7 +119,8 @@ class _BiAnalyticsHubScreenState extends State<BiAnalyticsHubScreen> {
                 _navCard(
                   context,
                   title: 'AI Business Intelligence',
-                  subtitle: '7d/30d sales forecasts, dynamic pricing suggestions, and marketing prompts',
+                  subtitle:
+                      '7d/30d sales forecasts, dynamic pricing suggestions, and marketing prompts',
                   icon: Icons.psychology_outlined,
                   color: Colors.purple,
                   route: '/owner/bi/ai-dashboard',
@@ -134,7 +128,8 @@ class _BiAnalyticsHubScreenState extends State<BiAnalyticsHubScreen> {
                 _navCard(
                   context,
                   title: 'AI Decision Center',
-                  subtitle: 'Root cause analysis, business health AI scoring, and auto-reorder actions',
+                  subtitle:
+                      'Root cause analysis, business health AI scoring, and auto-reorder actions',
                   icon: Icons.gavel_outlined,
                   color: AppTheme.ownerAccent,
                   route: '/owner/bi/decision-center',
@@ -151,8 +146,7 @@ class _BiAnalyticsHubScreenState extends State<BiAnalyticsHubScreen> {
                 const SizedBox(height: 12),
                 Center(
                   child: TextButton.icon(
-                    onPressed:
-                        p.data == null ? null : () => p.exportPdf(),
+                    onPressed: p.data == null ? null : () => p.exportPdf(),
                     icon: const Icon(Icons.picture_as_pdf_outlined),
                     label: const Text('Export full PDF report'),
                   ),
@@ -189,8 +183,7 @@ class _BiAnalyticsHubScreenState extends State<BiAnalyticsHubScreen> {
         ],
       ),
       child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
@@ -201,15 +194,10 @@ class _BiAnalyticsHubScreenState extends State<BiAnalyticsHubScreen> {
         ),
         title: Text(
           title,
-          style: const TextStyle(
-              fontWeight: FontWeight.bold, color: AppTheme.grey900),
+          style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.grey900),
         ),
-        subtitle: Text(
-          subtitle,
-          style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
-        ),
-        trailing:
-            const Icon(Icons.chevron_right, color: AppTheme.grey400),
+        subtitle: Text(subtitle, style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
+        trailing: const Icon(Icons.chevron_right, color: AppTheme.grey400),
         onTap: () => context.push(route),
       ),
     );

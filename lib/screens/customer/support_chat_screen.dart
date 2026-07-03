@@ -10,10 +10,7 @@ import '../../utils/app_theme.dart';
 class SupportChatScreen extends StatefulWidget {
   final String? orderId;
 
-  const SupportChatScreen({
-    super.key,
-    this.orderId,
-  });
+  const SupportChatScreen({super.key, this.orderId});
 
   @override
   State<SupportChatScreen> createState() => _SupportChatScreenState();
@@ -32,7 +29,10 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
     _voiceNoteService = VoiceNoteService();
     final user = Provider.of<AuthProvider>(context, listen: false).currentUser;
     if (user != null) {
-      Provider.of<ChatProvider>(context, listen: false).listenToMessages(user.id, customerView: true);
+      Provider.of<ChatProvider>(
+        context,
+        listen: false,
+      ).listenToMessages(user.id, customerView: true);
     }
   }
 
@@ -71,7 +71,10 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
             );
 
             // Refresh chat
-            Provider.of<ChatProvider>(context, listen: false).listenToMessages(user.id, customerView: true);
+            Provider.of<ChatProvider>(
+              context,
+              listen: false,
+            ).listenToMessages(user.id, customerView: true);
             _scrollToBottom();
           }
         }
@@ -112,7 +115,6 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
     }
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +174,10 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
             const SizedBox(height: 4),
             Text(
               DateFormat('hh:mm a').format(msg.timestamp),
-              style: TextStyle(color: (isMe ? Colors.white : AppTheme.grey600).withValues(alpha: 0.7), fontSize: 10),
+              style: TextStyle(
+                color: (isMe ? Colors.white : AppTheme.grey600).withValues(alpha: 0.7),
+                fontSize: 10,
+              ),
             ),
           ],
         ),
@@ -183,7 +188,10 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
   Widget _buildInputArea(dynamic user) {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: const BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: AppTheme.grey200))),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: AppTheme.grey200)),
+      ),
       child: Row(
         children: [
           IconButton(
@@ -198,7 +206,11 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Text(
                 '$_voiceRecordingDuration"',
-                style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: Colors.red,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           Expanded(
@@ -206,7 +218,10 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
               controller: _controller,
               decoration: InputDecoration(
                 hintText: 'Ask Fufaji something...',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(24),
+                  borderSide: BorderSide.none,
+                ),
                 fillColor: AppTheme.grey100,
                 filled: true,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16),
@@ -234,7 +249,6 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
             ),
           ),
         ],
- 
       ),
     );
   }

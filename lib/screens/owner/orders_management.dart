@@ -21,12 +21,7 @@ class OrdersManagementScreen extends StatefulWidget {
 
 class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
   int _selectedTab = 0;
-  final List<String> _tabs = [
-    'New',
-    'Processing',
-    'Out for Delivery',
-    'Completed',
-  ];
+  final List<String> _tabs = ['New', 'Processing', 'Out for Delivery', 'Completed'];
   final OrderService _orderService = OrderService();
 
   @override
@@ -62,7 +57,9 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                   const SizedBox(width: 12),
                   IconButton(
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('View Order Details tapped')));
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(const SnackBar(content: Text('View Order Details tapped')));
                     },
                     icon: const Icon(Icons.filter_list),
                   ),
@@ -85,9 +82,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: _selectedTab == index
-                            ? AppTheme.primary
-                            : Colors.transparent,
+                        color: _selectedTab == index ? AppTheme.primary : Colors.transparent,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -95,12 +90,8 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: _selectedTab == index
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                          color: _selectedTab == index
-                              ? AppTheme.white
-                              : AppTheme.grey700,
+                          fontWeight: _selectedTab == index ? FontWeight.bold : FontWeight.normal,
+                          color: _selectedTab == index ? AppTheme.white : AppTheme.grey700,
                         ),
                       ),
                     ),
@@ -220,17 +211,11 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
             children: [
               const Icon(Icons.person, size: 16, color: AppTheme.grey500),
               const SizedBox(width: 8),
-              Text(
-                order.customerName,
-                style: const TextStyle(fontWeight: FontWeight.w500),
-              ),
+              Text(order.customerName, style: const TextStyle(fontWeight: FontWeight.w500)),
               const SizedBox(width: 16),
               const Icon(Icons.phone, size: 16, color: AppTheme.grey500),
               const SizedBox(width: 8),
-              Text(
-                order.customerPhone,
-                style: const TextStyle(color: AppTheme.grey600),
-              ),
+              Text(order.customerPhone, style: const TextStyle(color: AppTheme.grey600)),
             ],
           ),
           const SizedBox(height: 8),
@@ -260,10 +245,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
               const SizedBox(width: 16),
               const Icon(Icons.access_time, size: 16, color: AppTheme.grey500),
               const SizedBox(width: 8),
-              Text(
-                timeString,
-                style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
-              ),
+              Text(timeString, style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
               const SizedBox(width: 16),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -285,8 +267,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
               ),
             ],
           ),
-          if (order.paymentMethod != PaymentMethod.cod &&
-              order.paymentStatus != 'paid') ...[
+          if (order.paymentMethod != PaymentMethod.cod && order.paymentStatus != 'paid') ...[
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(12),
@@ -297,11 +278,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.warning_amber_rounded,
-                    color: AppTheme.warning,
-                    size: 24,
-                  ),
+                  const Icon(Icons.warning_amber_rounded, color: AppTheme.warning, size: 24),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -327,10 +304,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                         const SizedBox(height: 2),
                         Text(
                           'Please verify that funds have reached your account.',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey.shade600,
-                          ),
+                          style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
                         ),
                       ],
                     ),
@@ -367,19 +341,13 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                   children: [
                     OutlinedButton(
                       onPressed: () async {
-                        await _orderService.updateOrderStatus(
-                          order.id,
-                          'cancelled',
-                        );
+                        await _orderService.updateOrderStatus(order.id, 'cancelled');
                       },
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         side: const BorderSide(color: AppTheme.error),
                       ),
-                      child: const Text(
-                        'Reject',
-                        style: TextStyle(color: AppTheme.error),
-                      ),
+                      child: const Text('Reject', style: TextStyle(color: AppTheme.error)),
                     ),
                     const SizedBox(width: 8),
                     ElevatedButton(
@@ -406,8 +374,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                       ),
                       child: Text(
-                        order.paymentMethod != PaymentMethod.cod &&
-                                order.paymentStatus != 'paid'
+                        order.paymentMethod != PaymentMethod.cod && order.paymentStatus != 'paid'
                             ? 'Accept & Verify'
                             : 'Accept',
                       ),
@@ -422,22 +389,20 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                   onPressed: () => showDialog(
                     context: context,
                     builder: (_) => Dialog(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       child: Padding(
                         padding: const EdgeInsets.all(20),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Text('Packing QR',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16)),
+                            const Text(
+                              'Packing QR',
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
                             const SizedBox(height: 4),
                             const Text(
                               'Employee scans this to open order packing',
-                              style: TextStyle(
-                                  color: Colors.grey, fontSize: 12),
+                              style: TextStyle(color: Colors.grey, fontSize: 12),
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 16),
@@ -478,28 +443,25 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
               if (order.status == OrderStatus.packed) ...[
                 // Show DISPATCH QR — dispatch employee scans this
                 IconButton(
-                  icon: const Icon(Icons.qr_code,
-                      color: Color(0xFFE65100)),
+                  icon: const Icon(Icons.qr_code, color: Color(0xFFE65100)),
                   tooltip: 'Show DISPATCH QR',
                   onPressed: () => showDialog(
                     context: context,
                     builder: (_) => Dialog(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       child: Padding(
                         padding: const EdgeInsets.all(20),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Text('Dispatch QR',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16)),
+                            const Text(
+                              'Dispatch QR',
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
                             const SizedBox(height: 4),
                             const Text(
                               'Dispatch employee scans to verify & dispatch',
-                              style: TextStyle(
-                                  color: Colors.grey, fontSize: 12),
+                              style: TextStyle(color: Colors.grey, fontSize: 12),
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 16),
@@ -510,23 +472,17 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                             ),
                             const SizedBox(height: 8),
                             Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceEvenly,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 TextButton(
-                                  onPressed: () =>
-                                      Navigator.pop(context),
+                                  onPressed: () => Navigator.pop(context),
                                   child: const Text('Close'),
                                 ),
                                 ElevatedButton.icon(
-                                  icon: const Icon(
-                                      Icons.qr_code_scanner,
-                                      size: 16),
-                                  label:
-                                      const Text('Scan to Dispatch'),
+                                  icon: const Icon(Icons.qr_code_scanner, size: 16),
+                                  label: const Text('Scan to Dispatch'),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        const Color(0xFFE65100),
+                                    backgroundColor: const Color(0xFFE65100),
                                     foregroundColor: Colors.white,
                                   ),
                                   onPressed: () {
@@ -534,9 +490,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (_) =>
-                                            DispatchScannerScreen(
-                                                orderId: order.id),
+                                        builder: (_) => DispatchScannerScreen(orderId: order.id),
                                       ),
                                     );
                                   },
@@ -551,8 +505,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    await _orderService.updateOrderStatus(
-                        order.id, 'outForDelivery');
+                    await _orderService.updateOrderStatus(order.id, 'outForDelivery');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.purple,

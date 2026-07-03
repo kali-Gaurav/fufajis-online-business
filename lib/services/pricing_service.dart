@@ -68,14 +68,7 @@ class PricingService {
       final current = base * (1 + swing / 100.0);
 
       String category = 'groceries';
-      if ([
-        'potato',
-        'onion',
-        'tomato',
-        'coriander',
-        'spinach',
-        'cauliflower',
-      ].contains(key)) {
+      if (['potato', 'onion', 'tomato', 'coriander', 'spinach', 'cauliflower'].contains(key)) {
         category = 'vegetables';
       } else if (['mango', 'banana', 'apple'].contains(key)) {
         category = 'fruits';
@@ -96,11 +89,7 @@ class PricingService {
   /// Calculates Suggested Retail Price (SRP) adding markup, transport surcharge, and wastage buffers
   double calculateSuggestedRetailPrice(double mandiPrice) {
     final totalMultiplier =
-        1.0 +
-        (marginPercentage +
-                transportChargePercentage +
-                wastageBufferPercentage) /
-            100.0;
+        1.0 + (marginPercentage + transportChargePercentage + wastageBufferPercentage) / 100.0;
     final suggested = mandiPrice * totalMultiplier;
     // Round to nearest rupee for clean customer pricing
     return suggested.roundToDouble();
@@ -127,9 +116,7 @@ class PricingService {
   }
 
   /// Automatically updates all eligible product prices matching current Mandi rates
-  Future<int> autoUpdateEligibleProductPrices(
-    List<ProductModel> allProducts,
-  ) async {
+  Future<int> autoUpdateEligibleProductPrices(List<ProductModel> allProducts) async {
     try {
       final config = await ShopConfigService().getShopConfig();
       if (!config.isAutoPilotEnabled) {
@@ -159,10 +146,7 @@ class PricingService {
               updatedAt: DateTime.now(),
             );
 
-            await productService.updateProduct(
-              updatedProd.id,
-              updatedProd.toMap(),
-            );
+            await productService.updateProduct(updatedProd.id, updatedProd.toMap());
             updatedCount++;
           }
         }

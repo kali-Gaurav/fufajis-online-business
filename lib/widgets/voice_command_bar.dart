@@ -21,8 +21,7 @@ class VoiceCommandBar extends StatefulWidget {
   State<VoiceCommandBar> createState() => _VoiceCommandBarState();
 }
 
-class _VoiceCommandBarState extends State<VoiceCommandBar>
-    with TickerProviderStateMixin {
+class _VoiceCommandBarState extends State<VoiceCommandBar> with TickerProviderStateMixin {
   final SpeechToTextService _stt = SpeechToTextService();
   final VoiceCommandService _commandService = VoiceCommandService();
 
@@ -40,20 +39,15 @@ class _VoiceCommandBarState extends State<VoiceCommandBar>
   @override
   void initState() {
     super.initState();
-    _waveController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    )..repeat();
+    _waveController = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))
+      ..repeat();
 
     _expandController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
 
-    _expandAnimation = CurvedAnimation(
-      parent: _expandController,
-      curve: Curves.easeOutCubic,
-    );
+    _expandAnimation = CurvedAnimation(parent: _expandController, curve: Curves.easeOutCubic);
   }
 
   @override
@@ -67,8 +61,7 @@ class _VoiceCommandBarState extends State<VoiceCommandBar>
   // ── Listening ──────────────────────────────────
 
   Future<void> _startListening() async {
-    if (_barState != _VoiceBarState.idle &&
-        _barState != _VoiceBarState.result) {
+    if (_barState != _VoiceBarState.idle && _barState != _VoiceBarState.result) {
       return;
     }
 
@@ -136,8 +129,7 @@ class _VoiceCommandBarState extends State<VoiceCommandBar>
     setState(() => _barState = _VoiceBarState.executing);
 
     try {
-      final result =
-          await VoiceCommandExecutor.execute(_parsedCommand!, context);
+      final result = await VoiceCommandExecutor.execute(_parsedCommand!, context);
       if (mounted) {
         setState(() {
           _barState = _VoiceBarState.result;
@@ -178,10 +170,7 @@ class _VoiceCommandBarState extends State<VoiceCommandBar>
 
   void _showSnackBar(String msg, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(msg),
-        backgroundColor: isError ? AppTheme.error : AppTheme.success,
-      ),
+      SnackBar(content: Text(msg), backgroundColor: isError ? AppTheme.error : AppTheme.success),
     );
   }
 
@@ -223,8 +212,7 @@ class _VoiceCommandBarState extends State<VoiceCommandBar>
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: (isListening ? AppTheme.error : AppTheme.primary)
-                  .withValues(alpha: 0.4),
+              color: (isListening ? AppTheme.error : AppTheme.primary).withValues(alpha: 0.4),
               blurRadius: isListening ? 20 : 8,
               spreadRadius: isListening ? 4 : 0,
             ),
@@ -234,11 +222,7 @@ class _VoiceCommandBarState extends State<VoiceCommandBar>
           alignment: Alignment.center,
           children: [
             if (isListening) _buildSoundWaves(),
-            Icon(
-              isListening ? Icons.stop : Icons.mic,
-              color: Colors.white,
-              size: 28,
-            ),
+            Icon(isListening ? Icons.stop : Icons.mic, color: Colors.white, size: 28),
           ],
         ),
       ),
@@ -287,10 +271,7 @@ class _VoiceCommandBarState extends State<VoiceCommandBar>
                 const SizedBox(width: 8),
                 Text(
                   _barStateLabel,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
                 GestureDetector(
@@ -301,10 +282,7 @@ class _VoiceCommandBarState extends State<VoiceCommandBar>
             ),
           ),
 
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: _buildPanelContent(),
-          ),
+          Padding(padding: const EdgeInsets.all(16), child: _buildPanelContent()),
         ],
       ),
     );
@@ -353,8 +331,7 @@ class _VoiceCommandBarState extends State<VoiceCommandBar>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(7, (i) {
                   final phase = (_waveController.value + i * 0.15) % 1.0;
-                  final height =
-                      20.0 + 20.0 * math.sin(phase * math.pi);
+                  final height = 20.0 + 20.0 * math.sin(phase * math.pi);
                   return Container(
                     margin: const EdgeInsets.symmetric(horizontal: 3),
                     width: 4,
@@ -394,10 +371,7 @@ class _VoiceCommandBarState extends State<VoiceCommandBar>
           ),
         const SizedBox(height: 12),
         Center(
-          child: TextButton(
-            onPressed: _stopAndParse,
-            child: const Text('Done bolna'),
-          ),
+          child: TextButton(onPressed: _stopAndParse, child: const Text('Done bolna')),
         ),
       ],
     );
@@ -458,9 +432,7 @@ class _VoiceCommandBarState extends State<VoiceCommandBar>
                   onPressed: _cancelCommand,
                   icon: const Icon(Icons.close),
                   label: const Text('Nahi'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppTheme.grey700,
-                  ),
+                  style: OutlinedButton.styleFrom(foregroundColor: AppTheme.grey700),
                 ),
               ),
               const SizedBox(width: 12),
@@ -480,10 +452,7 @@ class _VoiceCommandBarState extends State<VoiceCommandBar>
         ] else ...[
           const SizedBox(height: 12),
           Center(
-            child: ElevatedButton(
-              onPressed: _cancelCommand,
-              child: const Text('Phir se boliye'),
-            ),
+            child: ElevatedButton(onPressed: _cancelCommand, child: const Text('Phir se boliye')),
           ),
         ],
       ],
@@ -493,15 +462,10 @@ class _VoiceCommandBarState extends State<VoiceCommandBar>
   Widget _buildExecutingContent() {
     return const Column(
       children: [
-        Center(
-          child: CircularProgressIndicator(color: AppTheme.primary),
-        ),
+        Center(child: CircularProgressIndicator(color: AppTheme.primary)),
         SizedBox(height: 12),
         Center(
-          child: Text(
-            'Kaam ho raha hai...',
-            style: TextStyle(color: AppTheme.grey600),
-          ),
+          child: Text('Kaam ho raha hai...', style: TextStyle(color: AppTheme.grey600)),
         ),
       ],
     );
@@ -518,8 +482,7 @@ class _VoiceCommandBarState extends State<VoiceCommandBar>
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: (isError ? AppTheme.error : AppTheme.success)
-                .withValues(alpha: 0.12),
+            color: (isError ? AppTheme.error : AppTheme.success).withValues(alpha: 0.12),
             shape: BoxShape.circle,
           ),
           child: Icon(

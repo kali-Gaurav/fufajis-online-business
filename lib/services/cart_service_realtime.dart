@@ -11,8 +11,7 @@ import 'package:flutter/foundation.dart';
 /// Usage:
 ///   Stream<CartData> stream = CartService().watchCart(userId);
 class CartServiceRealtime {
-  static final CartServiceRealtime _instance =
-      CartServiceRealtime._internal();
+  static final CartServiceRealtime _instance = CartServiceRealtime._internal();
   factory CartServiceRealtime() => _instance;
   CartServiceRealtime._internal();
 
@@ -58,10 +57,8 @@ class CartServiceRealtime {
         .orderBy('addedAt', descending: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs
-          .map((doc) => CartItem.fromMap(doc.id, doc.data()))
-          .toList();
-    });
+          return snapshot.docs.map((doc) => CartItem.fromMap(doc.id, doc.data())).toList();
+        });
   }
 
   /// Add item to cart (syncs across devices)
@@ -81,25 +78,17 @@ class CartServiceRealtime {
           .doc('current');
 
       // Ensure cart document exists
-      await cartRef.set(
-        {
-          'updatedAt': FieldValue.serverTimestamp(),
-        },
-        SetOptions(merge: true),
-      );
+      await cartRef.set({'updatedAt': FieldValue.serverTimestamp()}, SetOptions(merge: true));
 
       // Add or update item in cart
-      await cartRef.collection('items').doc(productId).set(
-        {
-          'productId': productId,
-          'productName': productName,
-          'productImage': productImage,
-          'price': price,
-          'quantity': quantity,
-          'addedAt': FieldValue.serverTimestamp(),
-        },
-        SetOptions(merge: true),
-      );
+      await cartRef.collection('items').doc(productId).set({
+        'productId': productId,
+        'productName': productName,
+        'productImage': productImage,
+        'price': price,
+        'quantity': quantity,
+        'addedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
 
       debugPrint('[CartService] Item added to cart: $productId');
     } catch (e) {
@@ -109,10 +98,7 @@ class CartServiceRealtime {
   }
 
   /// Remove item from cart (syncs across devices)
-  Future<void> removeFromCart({
-    required String userId,
-    required String productId,
-  }) async {
+  Future<void> removeFromCart({required String userId, required String productId}) async {
     try {
       await _firestore
           .collection('customers')
@@ -150,10 +136,7 @@ class CartServiceRealtime {
           .doc('current')
           .collection('items')
           .doc(productId)
-          .update({
-        'quantity': quantity,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+          .update({'quantity': quantity, 'updatedAt': FieldValue.serverTimestamp()});
 
       debugPrint('[CartService] Quantity updated: $productId → $quantity');
     } catch (e) {
@@ -206,19 +189,12 @@ class CartServiceRealtime {
         totalPrice += (item.price.toDouble() * item.quantity);
       }
 
-      return CartSummary(
-        totalItems: totalItems,
-        totalPrice: totalPrice,
-        itemCount: items.length,
-      );
+      return CartSummary(totalItems: totalItems, totalPrice: totalPrice, itemCount: items.length);
     });
   }
 
   /// Check if product is in cart
-  Future<bool> isInCart({
-    required String userId,
-    required String productId,
-  }) async {
+  Future<bool> isInCart({required String userId, required String productId}) async {
     try {
       final doc = await _firestore
           .collection('customers')
@@ -237,10 +213,7 @@ class CartServiceRealtime {
   }
 
   /// Get current quantity of item in cart
-  Future<int> getQuantity({
-    required String userId,
-    required String productId,
-  }) async {
+  Future<int> getQuantity({required String userId, required String productId}) async {
     try {
       final doc = await _firestore
           .collection('customers')
@@ -310,9 +283,5 @@ class CartSummary {
   final double totalPrice;
   final int itemCount; // Distinct items
 
-  CartSummary({
-    required this.totalItems,
-    required this.totalPrice,
-    required this.itemCount,
-  });
+  CartSummary({required this.totalItems, required this.totalPrice, required this.itemCount});
 }

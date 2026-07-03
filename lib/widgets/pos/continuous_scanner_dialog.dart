@@ -41,7 +41,7 @@ class _ContinuousScannerDialogState extends State<ContinuousScannerDialog> {
   void _onDetect(BarcodeCapture capture) {
     final barcode = capture.barcodes.firstOrNull;
     if (barcode == null) return;
-    
+
     final code = barcode.rawValue ?? '';
     if (code.isEmpty || code == _lastCode) return;
 
@@ -51,14 +51,12 @@ class _ContinuousScannerDialogState extends State<ContinuousScannerDialog> {
 
   void _handleCode(String code) {
     try {
-      final match = widget.products.firstWhere(
-        (p) => p.barcode == code || p.id == code,
-      );
+      final match = widget.products.firstWhere((p) => p.barcode == code || p.id == code);
 
       HapticFeedback.heavyImpact();
       SystemSound.play(SystemSoundType.click);
       widget.onProductScanned(match);
-      
+
       setState(() {
         _statusMsg = 'Added: ${match.name}';
         _statusColor = AppTheme.success;
@@ -89,11 +87,8 @@ class _ContinuousScannerDialogState extends State<ContinuousScannerDialog> {
       backgroundColor: Colors.black,
       child: Stack(
         children: [
-          MobileScanner(
-            controller: _scanner.controller,
-            onDetect: _onDetect,
-          ),
-          
+          MobileScanner(controller: _scanner.controller, onDetect: _onDetect),
+
           // Overlay UI
           Positioned.fill(
             child: Column(
@@ -110,7 +105,7 @@ class _ContinuousScannerDialogState extends State<ContinuousScannerDialog> {
                   ],
                 ),
                 const Spacer(),
-                
+
                 // Scan target area
                 Container(
                   width: 250,
@@ -120,9 +115,9 @@ class _ContinuousScannerDialogState extends State<ContinuousScannerDialog> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                 ),
-                
+
                 const Spacer(),
-                
+
                 // Status Indicator
                 if (_statusMsg != null)
                   Container(
@@ -138,7 +133,7 @@ class _ContinuousScannerDialogState extends State<ContinuousScannerDialog> {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                
+
                 Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: FjButton(

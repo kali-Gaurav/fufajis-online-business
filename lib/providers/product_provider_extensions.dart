@@ -1,5 +1,5 @@
 /// ProductProvider Extensions for Phase 11-14 Features
-/// This file contains extension methods for WhatsApp Sync, Inventory Alerts, 
+/// This file contains extension methods for WhatsApp Sync, Inventory Alerts,
 /// Expiry Tracking, and Dynamic Pricing integration
 library;
 
@@ -23,12 +23,7 @@ extension ProductProviderPhase11To14 on ProductProvider {
           .get();
 
       if (!doc.exists) {
-        return {
-          'enabled': false,
-          'lastSyncTime': null,
-          'itemsCount': 0,
-          'recentItems': [],
-        };
+        return {'enabled': false, 'lastSyncTime': null, 'itemsCount': 0, 'recentItems': []};
       }
 
       final data = doc.data() ?? {};
@@ -54,9 +49,9 @@ extension ProductProviderPhase11To14 on ProductProvider {
           .collection('settings')
           .doc('whatsapp_sync')
           .set({
-        'enabled': enabled,
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+            'enabled': enabled,
+            'updatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
     } catch (e) {
       print('Error updating WhatsApp sync status: $e');
       rethrow;
@@ -85,10 +80,10 @@ extension ProductProviderPhase11To14 on ProductProvider {
           .collection('settings')
           .doc('whatsapp_sync')
           .set({
-        'lastSyncTime': FieldValue.serverTimestamp(),
-        'itemsCount': FieldValue.increment(items.length),
-        'recentItems': items.map((p) => p.id).toList(),
-      }, SetOptions(merge: true));
+            'lastSyncTime': FieldValue.serverTimestamp(),
+            'itemsCount': FieldValue.increment(items.length),
+            'recentItems': items.map((p) => p.id).toList(),
+          }, SetOptions(merge: true));
     } catch (e) {
       print('Error recording WhatsApp sync: $e');
       rethrow;
@@ -136,11 +131,7 @@ extension ProductProviderPhase11To14 on ProductProvider {
   Future<void> recordSale(String productId, int quantity) async {
     try {
       final firestore = FirebaseFirestore.instance;
-      await firestore
-          .collection('products')
-          .doc(productId)
-          .collection('sales_history')
-          .add({
+      await firestore.collection('products').doc(productId).collection('sales_history').add({
         'quantity': quantity,
         'createdAt': FieldValue.serverTimestamp(),
       });
@@ -205,9 +196,7 @@ extension ProductProviderPhase11To14 on ProductProvider {
           .where('expiryDate', isLessThanOrEqualTo: Timestamp.fromDate(thirtyDaysLater))
           .get();
 
-      return snapshot.docs
-          .map((doc) => ProductModel.fromMap(doc.data()))
-          .toList();
+      return snapshot.docs.map((doc) => ProductModel.fromMap(doc.data())).toList();
     } catch (e) {
       print('Error getting expiring products: $e');
       return [];
@@ -225,9 +214,7 @@ extension ProductProviderPhase11To14 on ProductProvider {
           .where('expiryDate', isLessThan: Timestamp.fromDate(now))
           .get();
 
-      return snapshot.docs
-          .map((doc) => ProductModel.fromMap(doc.data()))
-          .toList();
+      return snapshot.docs.map((doc) => ProductModel.fromMap(doc.data())).toList();
     } catch (e) {
       print('Error getting expired products: $e');
       return [];
@@ -336,10 +323,7 @@ extension ProductProviderPhase11To14 on ProductProvider {
           .doc(currentShopId ?? 'shop_001')
           .collection('price_changes')
           .doc(changeId)
-          .update({
-        'status': 'approved',
-        'approvedAt': FieldValue.serverTimestamp(),
-      });
+          .update({'status': 'approved', 'approvedAt': FieldValue.serverTimestamp()});
     } catch (e) {
       print('Error approving price change: $e');
       rethrow;
@@ -356,10 +340,10 @@ extension ProductProviderPhase11To14 on ProductProvider {
           .collection('price_changes')
           .doc(changeId)
           .update({
-        'status': 'rejected',
-        'rejectionReason': reason,
-        'rejectedAt': FieldValue.serverTimestamp(),
-      });
+            'status': 'rejected',
+            'rejectionReason': reason,
+            'rejectedAt': FieldValue.serverTimestamp(),
+          });
     } catch (e) {
       print('Error rejecting price change: $e');
       rethrow;

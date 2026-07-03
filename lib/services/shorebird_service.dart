@@ -1,4 +1,5 @@
 import 'package:shorebird_code_push/shorebird_code_push.dart';
+import 'package:flutter/foundation.dart';
 import 'logging_service.dart';
 
 class ShorebirdService {
@@ -7,10 +8,20 @@ class ShorebirdService {
   ShorebirdService._internal();
 
   final _shorebirdUpdater = ShorebirdUpdater();
+  bool _updateChecked = false;
 
   /// Check if a patch is available and download it in the background
   Future<void> checkForUpdates() async {
+    // Shorebird is only available in release builds and on supported platforms.
+    if (kDebugMode) {
+      return;
+    }
+
     try {
+      // Only check once per session to avoid redundant logs
+      if (_updateChecked) return;
+      _updateChecked = true;
+
       final status = await _shorebirdUpdater.checkForUpdate();
       if (status == UpdateStatus.outdated) {
         LoggingService().info('[Shorebird] New patch available. Updating...');

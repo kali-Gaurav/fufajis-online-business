@@ -9,7 +9,7 @@ import '../../utils/app_theme.dart';
 class ChatMessage {
   final String text;
   final bool isUser;
-  
+
   ChatMessage(this.text, this.isUser);
 }
 
@@ -33,11 +33,16 @@ class _AiShoppingAssistantScreenState extends State<AiShoppingAssistantScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final auth = context.read<AuthProvider>();
       final cart = context.read<CartProvider>();
-      
+
       _aiService.initializeSession(auth.currentUser?.name ?? 'Guest', cart.cartItems);
-      
+
       setState(() {
-        _messages.add(ChatMessage("Hi there! I'm your Fufaji AI Assistant. Ask me for recipes, product recommendations, or help finding anything in the store!", false));
+        _messages.add(
+          ChatMessage(
+            "Hi there! I'm your Fufaji AI Assistant. Ask me for recipes, product recommendations, or help finding anything in the store!",
+            false,
+          ),
+        );
       });
     });
   }
@@ -51,7 +56,7 @@ class _AiShoppingAssistantScreenState extends State<AiShoppingAssistantScreen> {
       _messages.add(ChatMessage(text, true));
       _isTyping = true;
     });
-    
+
     _scrollToBottom();
 
     final cart = context.read<CartProvider>();
@@ -85,7 +90,6 @@ class _AiShoppingAssistantScreenState extends State<AiShoppingAssistantScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,7 +122,10 @@ class _AiShoppingAssistantScreenState extends State<AiShoppingAssistantScreen> {
               padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Text('AI is typing...', style: TextStyle(color: AppTheme.grey500, fontStyle: FontStyle.italic)),
+                child: Text(
+                  'AI is typing...',
+                  style: TextStyle(color: AppTheme.grey500, fontStyle: FontStyle.italic),
+                ),
               ),
             ),
           _buildQuickActions(),
@@ -144,10 +151,7 @@ class _AiShoppingAssistantScreenState extends State<AiShoppingAssistantScreen> {
         ),
         child: Text(
           message.text,
-          style: TextStyle(
-            color: message.isUser ? Colors.white : AppTheme.grey900,
-            fontSize: 15,
-          ),
+          style: TextStyle(color: message.isUser ? Colors.white : AppTheme.grey900, fontSize: 15),
         ),
       ),
     );
@@ -180,7 +184,11 @@ class _AiShoppingAssistantScreenState extends State<AiShoppingAssistantScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -5)),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
         ],
       ),
       child: Row(

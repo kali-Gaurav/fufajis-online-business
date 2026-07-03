@@ -25,9 +25,7 @@ class _VoiceToStockDialogState extends State<VoiceToStockDialog> {
       bool available = await _speech.initialize();
       if (available) {
         setState(() => _isListening = true);
-        _speech.listen(
-          onResult: (val) => setState(() => _text = val.recognizedWords),
-        );
+        _speech.listen(onResult: (val) => setState(() => _text = val.recognizedWords));
       }
     } else {
       setState(() => _isListening = false);
@@ -70,9 +68,7 @@ class _VoiceToStockDialogState extends State<VoiceToStockDialog> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                '✅ Inventory updated: ${command['action']} ${command['name']}',
-              ),
+              content: Text('✅ Inventory updated: ${command['action']} ${command['name']}'),
               backgroundColor: AppTheme.success,
             ),
           );
@@ -81,12 +77,9 @@ class _VoiceToStockDialogState extends State<VoiceToStockDialog> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ Error: $e'),
-            backgroundColor: AppTheme.error,
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('❌ Error: $e'), backgroundColor: AppTheme.error));
       }
     } finally {
       if (mounted) setState(() => _isProcessing = false);
@@ -115,11 +108,7 @@ class _VoiceToStockDialogState extends State<VoiceToStockDialog> {
               child: CircleAvatar(
                 radius: 40,
                 backgroundColor: _isListening ? AppTheme.error : AppTheme.primary,
-                child: Icon(
-                  _isListening ? Icons.stop : Icons.mic,
-                  color: Colors.white,
-                  size: 40,
-                ),
+                child: Icon(_isListening ? Icons.stop : Icons.mic, color: Colors.white, size: 40),
               ),
             ),
             const SizedBox(height: 24),

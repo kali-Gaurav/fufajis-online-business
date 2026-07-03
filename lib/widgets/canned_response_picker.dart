@@ -24,10 +24,7 @@ class CannedResponsePicker {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _CannedResponseSheet(
-        allowManage: allowManage,
-        accentColor: accentColor,
-      ),
+      builder: (_) => _CannedResponseSheet(allowManage: allowManage, accentColor: accentColor),
     );
   }
 }
@@ -36,10 +33,7 @@ class _CannedResponseSheet extends StatefulWidget {
   final bool allowManage;
   final Color accentColor;
 
-  const _CannedResponseSheet({
-    required this.allowManage,
-    required this.accentColor,
-  });
+  const _CannedResponseSheet({required this.allowManage, required this.accentColor});
 
   @override
   State<_CannedResponseSheet> createState() => _CannedResponseSheetState();
@@ -73,16 +67,13 @@ class _CannedResponseSheetState extends State<_CannedResponseSheet> {
     if (_query.trim().isNotEmpty) {
       final q = _query.trim().toLowerCase();
       list = list
-          .where((r) =>
-              r.title.toLowerCase().contains(q) ||
-              r.text.toLowerCase().contains(q))
+          .where((r) => r.title.toLowerCase().contains(q) || r.text.toLowerCase().contains(q))
           .toList();
     }
     return list;
   }
 
-  Set<String> _categories(List<CannedResponseModel> all) =>
-      all.map((r) => r.category).toSet();
+  Set<String> _categories(List<CannedResponseModel> all) => all.map((r) => r.category).toSet();
 
   @override
   Widget build(BuildContext context) {
@@ -110,24 +101,20 @@ class _CannedResponseSheetState extends State<_CannedResponseSheet> {
             padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
             child: Row(
               children: [
-                Icon(Icons.flash_on_rounded,
-                    color: widget.accentColor, size: 20),
+                Icon(Icons.flash_on_rounded, color: widget.accentColor, size: 20),
                 const SizedBox(width: 8),
-                const Text('Quick Replies',
-                    style: TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Quick Replies',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
                 const Spacer(),
                 if (widget.allowManage)
                   IconButton(
-                    icon: Icon(Icons.add_circle_outline,
-                        color: widget.accentColor),
+                    icon: Icon(Icons.add_circle_outline, color: widget.accentColor),
                     tooltip: 'Add new response',
                     onPressed: () => _showAddDialog(),
                   ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
-                ),
+                IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
               ],
             ),
           ),
@@ -145,8 +132,7 @@ class _CannedResponseSheetState extends State<_CannedResponseSheet> {
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
               ),
             ),
           ),
@@ -176,16 +162,16 @@ class _CannedResponseSheetState extends State<_CannedResponseSheet> {
                               label: 'All',
                               selected: _selectedCategory == null,
                               color: widget.accentColor,
-                              onTap: () => setState(
-                                  () => _selectedCategory = null),
+                              onTap: () => setState(() => _selectedCategory = null),
                             ),
-                            ...categories.map((c) => _CategoryChip(
-                                  label: c,
-                                  selected: _selectedCategory == c,
-                                  color: widget.accentColor,
-                                  onTap: () => setState(
-                                      () => _selectedCategory = c),
-                                )),
+                            ...categories.map(
+                              (c) => _CategoryChip(
+                                label: c,
+                                selected: _selectedCategory == c,
+                                color: widget.accentColor,
+                                onTap: () => setState(() => _selectedCategory = c),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -202,15 +188,13 @@ class _CannedResponseSheetState extends State<_CannedResponseSheet> {
                               ),
                             )
                           : ListView.builder(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 12),
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
                               itemCount: filtered.length,
                               itemBuilder: (ctx, i) => _ResponseTile(
                                 response: filtered[i],
                                 accentColor: widget.accentColor,
                                 allowManage: widget.allowManage,
-                                onSelect: (text) =>
-                                    Navigator.pop(context, text),
+                                onSelect: (text) => Navigator.pop(context, text),
                                 onDelete: (id) => _service.delete(id),
                                 onEdit: (r) => _showEditDialog(r),
                               ),
@@ -228,9 +212,12 @@ class _CannedResponseSheetState extends State<_CannedResponseSheet> {
   }
 
   void _showAddDialog() {
-    _showResponseDialog(title: 'Add Quick Reply', onSave: (t, tx, c) {
-      _service.add(title: t, text: tx, category: c);
-    });
+    _showResponseDialog(
+      title: 'Add Quick Reply',
+      onSave: (t, tx, c) {
+        _service.add(title: t, text: tx, category: c);
+      },
+    );
   }
 
   void _showEditDialog(CannedResponseModel r) {
@@ -239,8 +226,7 @@ class _CannedResponseSheetState extends State<_CannedResponseSheet> {
       initialTitle: r.title,
       initialText: r.text,
       initialCategory: r.category,
-      onSave: (t, tx, c) =>
-          _service.update(r.id, title: t, text: tx, category: c),
+      onSave: (t, tx, c) => _service.update(r.id, title: t, text: tx, category: c),
     );
   }
 
@@ -291,10 +277,7 @@ class _CannedResponseSheetState extends State<_CannedResponseSheet> {
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               if (titleCtrl.text.isNotEmpty && textCtrl.text.isNotEmpty) {
@@ -358,8 +341,7 @@ class _ResponseTile extends StatelessWidget {
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 7, vertical: 2),
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                           decoration: BoxDecoration(
                             color: accentColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(6),
@@ -377,10 +359,7 @@ class _ResponseTile extends StatelessWidget {
                         Expanded(
                           child: Text(
                             response.title,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                            ),
+                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -391,11 +370,7 @@ class _ResponseTile extends StatelessWidget {
                       response.text,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                        height: 1.4,
-                      ),
+                      style: const TextStyle(fontSize: 12, color: Colors.grey, height: 1.4),
                     ),
                   ],
                 ),
@@ -407,23 +382,20 @@ class _ResponseTile extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.edit_outlined, size: 16),
                       color: Colors.grey,
-                      constraints: const BoxConstraints(
-                          minWidth: 30, minHeight: 30),
+                      constraints: const BoxConstraints(minWidth: 30, minHeight: 30),
                       padding: EdgeInsets.zero,
                       onPressed: () => onEdit(response),
                     ),
                     IconButton(
                       icon: const Icon(Icons.delete_outline, size: 16),
                       color: AppTheme.error,
-                      constraints: const BoxConstraints(
-                          minWidth: 30, minHeight: 30),
+                      constraints: const BoxConstraints(minWidth: 30, minHeight: 30),
                       padding: EdgeInsets.zero,
                       onPressed: () => showDialog(
                         context: context,
                         builder: (_) => AlertDialog(
                           title: const Text('Delete Response'),
-                          content: Text(
-                              'Delete "${response.title}"?'),
+                          content: Text('Delete "${response.title}"?'),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context),
@@ -434,8 +406,7 @@ class _ResponseTile extends StatelessWidget {
                                 onDelete(response.id);
                                 Navigator.pop(context);
                               },
-                              child: const Text('Delete',
-                                  style: TextStyle(color: AppTheme.error)),
+                              child: const Text('Delete', style: TextStyle(color: AppTheme.error)),
                             ),
                           ],
                         ),
@@ -478,9 +449,7 @@ class _CategoryChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? color : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: selected ? color : Colors.grey.shade300,
-          ),
+          border: Border.all(color: selected ? color : Colors.grey.shade300),
         ),
         child: Text(
           label,

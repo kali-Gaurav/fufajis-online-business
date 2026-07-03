@@ -26,9 +26,7 @@ class ThemeProvider with ChangeNotifier {
     if (savedLocale != null) {
       try {
         final parts = savedLocale.split('_');
-        _locale = parts.length > 1
-            ? Locale(parts[0], parts[1])
-            : Locale(parts[0]);
+        _locale = parts.length > 1 ? Locale(parts[0], parts[1]) : Locale(parts[0]);
       } catch (e) {
         _locale = const Locale('en');
       }
@@ -82,7 +80,7 @@ class ThemeProvider with ChangeNotifier {
   /// Toggles between supported languages
   Future<void> toggleLanguage() async {
     final newLocale = _locale.languageCode == 'en'
-        ? const Locale('hi')  // English to Hindi
+        ? const Locale('hi') // English to Hindi
         : const Locale('en'); // Hindi to English
     await setLocale(newLocale);
   }

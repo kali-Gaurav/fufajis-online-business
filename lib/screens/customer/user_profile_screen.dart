@@ -74,25 +74,22 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile updated successfully')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Profile updated successfully')));
         _toggleEditMode();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
       }
     }
   }
 
   void _showAddAddressDialog() {
-    showDialog(
-      context: context,
-      builder: (_) => const _AddAddressDialog(),
-    );
+    showDialog(context: context, builder: (_) => const _AddAddressDialog());
   }
 
   void _showEditAddressDialog(AddressModel address) {
@@ -114,9 +111,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           final user = userProvider.currentUser;
 
           if (user == null) {
-            return const Center(
-              child: Text('No user data available'),
-            );
+            return const Center(child: Text('No user data available'));
           }
 
           return SingleChildScrollView(
@@ -165,16 +160,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               : null,
         ),
         const SizedBox(height: 16),
-        Text(
-          user.name ?? 'User',
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
+        Text(user.name ?? 'User', style: Theme.of(context).textTheme.headlineSmall),
         const SizedBox(height: 4),
         Text(
           user.phoneNumber,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
         ),
       ],
     );
@@ -190,10 +180,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Profile Information',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+                Text('Profile Information', style: Theme.of(context).textTheme.titleMedium),
                 TextButton(
                   onPressed: _toggleEditMode,
                   child: Text(_isEditingProfile ? 'Cancel' : 'Edit'),
@@ -230,10 +217,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _saveProfile,
-                  child: const Text('Save Changes'),
-                ),
+                child: ElevatedButton(onPressed: _saveProfile, child: const Text('Save Changes')),
               ),
             ] else ...[
               _buildInfoRow('Name', user.name ?? 'Not set'),
@@ -257,10 +241,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Preferences',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            Text('Preferences', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 16),
             _buildLanguageToggle(),
             const Divider(height: 24),
@@ -287,9 +268,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 Text('Language', style: Theme.of(context).textTheme.bodyLarge),
                 Text(
                   currentLang == 'en' ? 'English' : 'हिन्दी',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -320,9 +299,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 Text('Theme', style: Theme.of(context).textTheme.bodyLarge),
                 Text(
                   _getThemeName(themeProvider.themeMode),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -331,22 +308,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 themeProvider.setThemeMode(mode);
               },
               itemBuilder: (context) => [
-                const PopupMenuItem(
-                  value: ThemeModeType.light,
-                  child: Text('Light'),
-                ),
-                const PopupMenuItem(
-                  value: ThemeModeType.dark,
-                  child: Text('Dark'),
-                ),
-                const PopupMenuItem(
-                  value: ThemeModeType.system,
-                  child: Text('System'),
-                ),
+                const PopupMenuItem(value: ThemeModeType.light, child: Text('Light')),
+                const PopupMenuItem(value: ThemeModeType.dark, child: Text('Dark')),
+                const PopupMenuItem(value: ThemeModeType.system, child: Text('System')),
               ],
-              child: Icon(
-                _getThemeIcon(themeProvider.themeMode),
-              ),
+              child: Icon(_getThemeIcon(themeProvider.themeMode)),
             ),
           ],
         );
@@ -365,15 +331,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Notifications',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
+                Text('Notifications', style: Theme.of(context).textTheme.bodyLarge),
                 Text(
                   prefs?.notificationsEnabled == true ? 'Enabled' : 'Disabled',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -396,10 +357,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Delivery Addresses',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            Text('Delivery Addresses', style: Theme.of(context).textTheme.titleMedium),
             ElevatedButton.icon(
               onPressed: _showAddAddressDialog,
               icon: const Icon(Icons.add),
@@ -450,24 +408,16 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   backgroundColor: AppTheme.info.withValues(alpha: 0.1),
                 ),
                 if (address.isDefault)
-                  const Chip(
-                    label: Text('Default'),
-                    backgroundColor: AppTheme.success,
-                  ),
+                  const Chip(label: Text('Default'), backgroundColor: AppTheme.success),
               ],
             ),
             const SizedBox(height: 8),
-            Text(
-              address.toString(),
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+            Text(address.toString(), style: Theme.of(context).textTheme.bodyMedium),
             if (address.landmark != null) ...[
               const SizedBox(height: 4),
               Text(
                 'Landmark: ${address.landmark}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[600],
-                    ),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
               ),
             ],
             const SizedBox(height: 8),
@@ -476,8 +426,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               children: [
                 if (!address.isDefault)
                   TextButton(
-                    onPressed: () =>
-                        userProvider.setDefaultAddress(address.id),
+                    onPressed: () => userProvider.setDefaultAddress(address.id),
                     child: const Text('Set as Default'),
                   ),
                 TextButton(
@@ -503,25 +452,20 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         title: const Text('Delete Address?', style: TextStyle(fontWeight: FontWeight.w700)),
         content: Text('Are you sure you want to delete this address?\n\n$address'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
               try {
                 await userProvider.deleteAddressById(address.id);
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Address deleted')),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('Address deleted')));
                 }
               } catch (e) {
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error: $e')),
-                  );
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
                 }
               }
             },
@@ -543,10 +487,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               title: const Text('Sign Out?', style: TextStyle(fontWeight: FontWeight.w700)),
               content: const Text('Are you sure you want to sign out?'),
               actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
-                ),
+                TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
                 TextButton(
                   onPressed: () {
                     context.read<UserProvider>().clearUserData();
@@ -577,9 +518,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           child: Text(
             value,
             textAlign: TextAlign.end,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
         ),
       ],
@@ -666,18 +605,12 @@ class __AddAddressDialogState extends State<_AddAddressDialog> {
             const SizedBox(height: 12),
             TextField(
               controller: _cityController,
-              decoration: const InputDecoration(
-                label: Text('City'),
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(label: Text('City'), border: OutlineInputBorder()),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _stateController,
-              decoration: const InputDecoration(
-                label: Text('State'),
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(label: Text('State'), border: OutlineInputBorder()),
             ),
             const SizedBox(height: 12),
             TextField(
@@ -703,10 +636,9 @@ class __AddAddressDialogState extends State<_AddAddressDialog> {
                 border: OutlineInputBorder(),
               ),
               items: AddressType.values
-                  .map((type) => DropdownMenuItem(
-                        value: type,
-                        child: Text(type.name.toUpperCase()),
-                      ))
+                  .map(
+                    (type) => DropdownMenuItem(value: type, child: Text(type.name.toUpperCase())),
+                  )
                   .toList(),
               onChanged: (value) {
                 if (value != null) {
@@ -718,19 +650,16 @@ class __AddAddressDialogState extends State<_AddAddressDialog> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
         TextButton(
           onPressed: () async {
             if (_streetController.text.isEmpty ||
                 _cityController.text.isEmpty ||
                 _stateController.text.isEmpty ||
                 _postalCodeController.text.isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Please fill all required fields')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Please fill all required fields')));
               return;
             }
 
@@ -744,9 +673,7 @@ class __AddAddressDialogState extends State<_AddAddressDialog> {
               latitude: 0.0,
               longitude: 0.0,
               addressType: _selectedType,
-              landmark: _landmarkController.text.isEmpty
-                  ? null
-                  : _landmarkController.text,
+              landmark: _landmarkController.text.isEmpty ? null : _landmarkController.text,
               createdAt: DateTime.now(),
               updatedAt: DateTime.now(),
             );
@@ -755,15 +682,13 @@ class __AddAddressDialogState extends State<_AddAddressDialog> {
               await context.read<UserProvider>().addNewAddress(address);
               if (mounted) {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Address added successfully')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Address added successfully')));
               }
             } catch (e) {
               if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error: $e')),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
               }
             }
           },
@@ -777,9 +702,7 @@ class __AddAddressDialogState extends State<_AddAddressDialog> {
 class _EditAddressDialog extends StatefulWidget {
   final AddressModel address;
 
-  const _EditAddressDialog({
-    required this.address,
-  });
+  const _EditAddressDialog({required this.address});
 
   @override
   State<_EditAddressDialog> createState() => __EditAddressDialogState();
@@ -832,18 +755,12 @@ class __EditAddressDialogState extends State<_EditAddressDialog> {
             const SizedBox(height: 12),
             TextField(
               controller: _cityController,
-              decoration: const InputDecoration(
-                label: Text('City'),
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(label: Text('City'), border: OutlineInputBorder()),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _stateController,
-              decoration: const InputDecoration(
-                label: Text('State'),
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(label: Text('State'), border: OutlineInputBorder()),
             ),
             const SizedBox(height: 12),
             TextField(
@@ -869,10 +786,9 @@ class __EditAddressDialogState extends State<_EditAddressDialog> {
                 border: OutlineInputBorder(),
               ),
               items: AddressType.values
-                  .map((type) => DropdownMenuItem(
-                        value: type,
-                        child: Text(type.name.toUpperCase()),
-                      ))
+                  .map(
+                    (type) => DropdownMenuItem(value: type, child: Text(type.name.toUpperCase())),
+                  )
                   .toList(),
               onChanged: (value) {
                 if (value != null) {
@@ -884,19 +800,16 @@ class __EditAddressDialogState extends State<_EditAddressDialog> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
         TextButton(
           onPressed: () async {
             if (_streetController.text.isEmpty ||
                 _cityController.text.isEmpty ||
                 _stateController.text.isEmpty ||
                 _postalCodeController.text.isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Please fill all required fields')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Please fill all required fields')));
               return;
             }
 
@@ -906,27 +819,24 @@ class __EditAddressDialogState extends State<_EditAddressDialog> {
               state: _stateController.text,
               postalCode: _postalCodeController.text,
               addressType: _selectedType,
-              landmark: _landmarkController.text.isEmpty
-                  ? null
-                  : _landmarkController.text,
+              landmark: _landmarkController.text.isEmpty ? null : _landmarkController.text,
               updatedAt: DateTime.now(),
             );
 
             try {
-              await context
-                  .read<UserProvider>()
-                  .updateExistingAddress(widget.address.id, updatedAddress);
+              await context.read<UserProvider>().updateExistingAddress(
+                widget.address.id,
+                updatedAddress,
+              );
               if (mounted) {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Address updated successfully')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Address updated successfully')));
               }
             } catch (e) {
               if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error: $e')),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
               }
             }
           },

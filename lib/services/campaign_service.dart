@@ -26,9 +26,7 @@ class CampaignService {
         .collection('marketing_campaigns')
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs
-            .map((doc) => CampaignModel.fromMap(doc.data(), doc.id))
-            .toList());
+        .map((snap) => snap.docs.map((doc) => CampaignModel.fromMap(doc.data(), doc.id)).toList());
   }
 
   Future<CampaignModel?> getCampaign(String id) async {
@@ -39,7 +37,7 @@ class CampaignService {
 
   Future<String> createCampaign(CampaignModel campaign, String adminId, String adminName) async {
     final docRef = await _db.collection('marketing_campaigns').add(campaign.toMap());
-    
+
     await AuditService().logAction(
       userId: adminId,
       userName: adminName,
@@ -48,13 +46,13 @@ class CampaignService {
       targetId: docRef.id,
       metadata: {'type': campaign.type.name, 'segments': campaign.targetSegments},
     );
-    
+
     return docRef.id;
   }
 
   Future<void> updateCampaign(CampaignModel campaign, String adminId, String adminName) async {
     await _db.collection('marketing_campaigns').doc(campaign.id).update(campaign.toMap());
-    
+
     await AuditService().logAction(
       userId: adminId,
       userName: adminName,
@@ -66,7 +64,7 @@ class CampaignService {
 
   Future<void> deleteCampaign(String id, String adminId, String adminName) async {
     await _db.collection('marketing_campaigns').doc(id).delete();
-    
+
     await AuditService().logAction(
       userId: adminId,
       userName: adminName,
@@ -81,33 +79,41 @@ class CampaignService {
   /// Estimates audience size by counting users who match the selected segments.
   Future<int> estimateAudienceSize(List<String> segments) async {
     if (segments.contains('all')) {
-      final snap = await _db.collection('users').where('role', isEqualTo: 'UserRole.customer').count().get();
+      final snap = await _db
+          .collection('users')
+          .where('role', isEqualTo: 'UserRole.customer')
+          .count()
+          .get();
       return snap.count ?? 0;
     }
-    
-    // In a real production system, this would be a more complex query based on order history, 
+
+    // In a real production system, this would be a more complex query based on order history,
     // last active dates, and other aggregated user metrics stored in their profile.
     // For now, we'll run separate queries or use an approximation.
-    
+
     int count = 0;
-    
+
     if (segments.contains('vip')) {
-      final snap = await _db.collection('users')
+      final snap = await _db
+          .collection('users')
           .where('role', isEqualTo: 'UserRole.customer')
           .where('tier', whereIn: ['MembershipTier.gold', 'MembershipTier.platinum'])
-          .count().get();
+          .count()
+          .get();
       count += snap.count ?? 0;
     }
-    
+
     if (segments.contains('new')) {
       final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
-      final snap = await _db.collection('users')
+      final snap = await _db
+          .collection('users')
           .where('role', isEqualTo: 'UserRole.customer')
           .where('createdAt', isGreaterThan: Timestamp.fromDate(thirtyDaysAgo))
-          .count().get();
+          .count()
+          .get();
       count += snap.count ?? 0;
     }
-    
+
     // Avoid overcounting if 'all' is not selected but multiple segments are
     // This is an approximation. A robust system would query the aggregated 'customer_stats' collection.
     return count > 0 ? count : 50; // default minimum for testing
@@ -119,15 +125,15 @@ class CampaignService {
   Future<void> launchCampaign(String campaignId, String adminId, String adminName) async {
     final campaign = await getCampaign(campaignId);
     if (campaign == null) throw Exception("Campaign not found");
-    
+
     final now = DateTime.now();
-    
+
     if (campaign.scheduledAt != null && campaign.scheduledAt!.isAfter(now)) {
       // It's scheduled for the future
       await _db.collection('marketing_campaigns').doc(campaignId).update({
         'status': CampaignStatus.scheduled.name,
       });
-      
+
       await AuditService().logAction(
         userId: adminId,
         userName: adminName,
@@ -258,7 +264,7 @@ class CampaignService {
     await _db.collection('marketing_campaigns').doc(campaignId).update({
       'status': CampaignStatus.cancelled.name,
     });
-    
+
     await AuditService().logAction(
       userId: adminId,
       userName: adminName,

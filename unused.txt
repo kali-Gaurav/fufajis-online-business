@@ -1,0 +1,32 @@
+﻿WARNING|STATIC_WARNING|UNUSED_FIELD|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\order_packing_screen.dart|49|8|19|The value of the field '_allWeightsVerified' isn't used.
+WARNING|STATIC_WARNING|UNUSED_FIELD|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\rider_navigation_screen.dart|30|8|15|The value of the field '_isLoadingRoute' isn't used.
+WARNING|STATIC_WARNING|UNUSED_FIELD|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\shelf_refill_screen.dart|28|8|11|The value of the field '_autoFilled' isn't used.
+WARNING|STATIC_WARNING|UNUSED_FIELD|C:\\Projects\\fufaji-online-business\\lib\\screens\\mission_control\\customer_insights_screen.dart|27|7|17|The value of the field '_selectedTabIndex' isn't used.
+WARNING|STATIC_WARNING|UNUSED_FIELD|C:\\Projects\\fufaji-online-business\\lib\\services\\bulk_import_service.dart|15|24|15|The value of the field '_productService' isn't used.
+WARNING|STATIC_WARNING|UNUSED_FIELD|C:\\Projects\\fufaji-online-business\\lib\\services\\customer_analyst_service.dart|14|25|12|The value of the field '_geminiModel' isn't used.
+WARNING|STATIC_WARNING|UNUSED_FIELD|C:\\Projects\\fufaji-online-business\\lib\\services\\delivery_proof_service.dart|22|26|17|The value of the field '_signedUrlService' isn't used.
+WARNING|STATIC_WARNING|UNUSED_FIELD|C:\\Projects\\fufaji-online-business\\lib\\services\\kyc_document_service.dart|22|26|17|The value of the field '_signedUrlService' isn't used.
+WARNING|STATIC_WARNING|UNUSED_FIELD|C:\\Projects\\fufaji-online-business\\lib\\services\\otp_hash_service.dart|17|20|11|The value of the field '_hashLength' isn't used.
+WARNING|STATIC_WARNING|UNUSED_ELEMENT|C:\\Projects\\fufaji-online-business\\lib\\services\\payment_router_service.dart|37|21|22|The declaration '_razorpayWebhookSecret' isn't referenced.
+WARNING|STATIC_WARNING|UNUSED_ELEMENT|C:\\Projects\\fufaji-online-business\\lib\\services\\payment_router_service.dart|57|8|25|The declaration '_validateWebhookSignature' isn't referenced.
+WARNING|STATIC_WARNING|UNUSED_ELEMENT|C:\\Projects\\fufaji-online-business\\lib\\services\\payment_router_service.dart|68|16|17|The declaration '_onPaymentSuccess' isn't referenced.
+WARNING|STATIC_WARNING|UNUSED_ELEMENT|C:\\Projects\\fufaji-online-business\\lib\\services\\payment_router_service.dart|120|16|16|The declaration '_onPaymentFailed' isn't referenced.
+WARNING|STATIC_WARNING|UNUSED_ELEMENT|C:\\Projects\\fufaji-online-business\\lib\\services\\payment_router_service.dart|151|16|13|The declaration '_onUpiSuccess' isn't referenced.
+WARNING|STATIC_WARNING|UNUSED_FIELD|C:\\Projects\\fufaji-online-business\\lib\\services\\product_image_service.dart|23|26|17|The value of the field '_signedUrlService' isn't used.
+WARNING|STATIC_WARNING|UNUSED_FIELD|C:\\Projects\\fufaji-online-business\\lib\\services\\refund_inventory_service.dart|21|23|7|The value of the field '_wallet' isn't used.
+WARNING|STATIC_WARNING|UNUSED_FIELD|C:\\Projects\\fufaji-online-business\\lib\\services\\refund_inventory_service.dart|22|32|7|The value of the field '_ledger' isn't used.
+WARNING|STATIC_WARNING|UNUSED_FIELD|C:\\Projects\\fufaji-online-business\\lib\\services\\update_service.dart|20|23|14|The value of the field '_githubService' isn't used.
+WARNING|STATIC_WARNING|UNUSED_ELEMENT|C:\\Projects\\fufaji-online-business\\lib\\services\\update_service.dart|129|8|15|The declaration '_isVersionLower' isn't referenced.
+WARNING|STATIC_WARNING|UNUSED_ELEMENT|C:\\Projects\\fufaji-online-business\\lib\\services\\wallet_order_service.dart|304|10|16|The declaration '_generateOrderId' isn't referenced.
+WARNING|STATIC_WARNING|UNUSED_ELEMENT|C:\\Projects\\fufaji-online-business\\lib\\services\\whatsapp_notification_service.dart|41|21|8|The declaration '_phoneId' isn't referenced.
+WARNING|STATIC_WARNING|UNUSED_FIELD|C:\\Projects\\fufaji-online-business\\lib\\utils\\payment_service.dart|69|23|21|The value of the field 'EVENT_PAYMENT_SUCCESS' isn't used.
+WARNING|STATIC_WARNING|UNUSED_FIELD|C:\\Projects\\fufaji-online-business\\lib\\utils\\payment_service.dart|70|23|19|The value of the field 'EVENT_PAYMENT_ERROR' isn't used.
+WARNING|STATIC_WARNING|UNUSED_FIELD|C:\\Projects\\fufaji-online-business\\lib\\utils\\payment_service.dart|71|23|21|The value of the field 'EVENT_EXTERNAL_WALLET' isn't used.
+WARNING|STATIC_WARNING|UNUSED_FIELD|C:\\Projects\\fufaji-online-business\\lib\\widgets\\dashboard\\whatsapp_sync_status_widget.dart|17|8|10|The value of the field '_isLoading' isn't used.
+WARNING|STATIC_WARNING|UNUSED_FIELD|C:\\Projects\\fufaji-online-business\\lib\\widgets\\mission_control\\churn_alert_card.dart|17|14|11|The value of the field '_isExpanded' isn't used.
+WARNING|STATIC_WARNING|UNUSED_FIELD|C:\\Projects\\fufaji-online-business\\lib\\widgets\\mission_control\\customer_segment_card.dart|16|14|11|The value of the field '_isExpanded' isn't used.
+WARNING|STATIC_WARNING|UNUSED_FIELD|C:\\Projects\\fufaji-online-business\\lib\\widgets\\mission_control\\feedback_synthesis_card.dart|16|14|17|The value of the field '_expandedProducts' isn't used.
+WARNING|STATIC_WARNING|UNUSED_ELEMENT|C:\\Projects\\fufaji-online-business\\lib\\widgets\\mission_control\\feedback_synthesis_card.dart|18|9|18|The declaration '_getSentimentColor' isn't referenced.
+WARNING|STATIC_WARNING|UNUSED_ELEMENT|C:\\Projects\\fufaji-online-business\\lib\\widgets\\mission_control\\feedback_synthesis_card.dart|31|10|17|The declaration '_getSentimentIcon' isn't referenced.
+WARNING|STATIC_WARNING|UNUSED_FIELD|C:\\Projects\\fufaji-online-business\\lib\\widgets\\mission_control\\pricing_recommendation_card.dart|26|14|11|The value of the field '_isExpanded' isn't used.
+WARNING|STATIC_WARNING|UNUSED_FIELD|C:\\Projects\\fufaji-online-business\\lib\\widgets\\qna_section.dart|32|8|10|The value of the field '_isLoading' isn't used.

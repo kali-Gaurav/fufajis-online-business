@@ -55,35 +55,62 @@ class _SupplierCommandCenterState extends State<SupplierCommandCenter> {
             // Section 2: Quick Actions
             QuickActionFramework(
               actions: [
-                QuickAction(icon: Icons.local_shipping, label: 'Mark Dispatched', onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Mark Dispatched Action')));
-                }),
-                QuickAction(icon: Icons.request_quote, label: 'Submit Quotes', onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Submit Quotes Action')));
-                }),
-                QuickAction(icon: Icons.account_balance, label: 'View Settlements', onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('View Settlements Action')));
-                }, color: AppTheme.info),
+                QuickAction(
+                  icon: Icons.local_shipping,
+                  label: 'Mark Dispatched',
+                  onTap: () {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(const SnackBar(content: Text('Mark Dispatched Action')));
+                  },
+                ),
+                QuickAction(
+                  icon: Icons.request_quote,
+                  label: 'Submit Quotes',
+                  onTap: () {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(const SnackBar(content: Text('Submit Quotes Action')));
+                  },
+                ),
+                QuickAction(
+                  icon: Icons.account_balance,
+                  label: 'View Settlements',
+                  onTap: () {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(const SnackBar(content: Text('View Settlements Action')));
+                  },
+                  color: AppTheme.info,
+                ),
               ],
             ),
             const SizedBox(height: 32),
 
             // Section 3: Active Orders Tracking
-            const Text('ACTIVE ORDERS', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey600)),
+            const Text(
+              'ACTIVE ORDERS',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey600),
+            ),
             const SizedBox(height: 12),
             _buildOrderTrackingCard('PO-1022', 'Awaiting Dispatch', OperationalStatus.warning),
             _buildOrderTrackingCard('PO-1020', 'In Transit', OperationalStatus.healthy),
             const SizedBox(height: 32),
 
             // Section 4: Actionable Work Queue
-            const Text('ACTION REQUIRED', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey600)),
+            const Text(
+              'ACTION REQUIRED',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey600),
+            ),
             const SizedBox(height: 12),
             UniversalWorkQueueUI(
               tasks: _mockQueue,
               actionLabel: 'Respond',
               onTaskTap: (task) {},
               onTaskAction: (task) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Action selected for ${task.title}')));
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('Action selected for ${task.title}')));
               },
             ),
           ],
@@ -102,14 +129,23 @@ class _SupplierCommandCenterState extends State<SupplierCommandCenter> {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: AppTheme.info.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.info.withValues(alpha: 0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('Pending Settlements', style: TextStyle(color: Colors.white70, fontSize: 14)),
           const SizedBox(height: 8),
-          const Text('₹1,45,000', style: TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.bold)),
+          const Text(
+            '₹1,45,000',
+            style: TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -118,7 +154,7 @@ class _SupplierCommandCenterState extends State<SupplierCommandCenter> {
               _buildMiniStat('Quotes Needed', '2'),
               _buildMiniStat('In Transit', '1'),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -128,7 +164,10 @@ class _SupplierCommandCenterState extends State<SupplierCommandCenter> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(value, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+        Text(
+          value,
+          style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+        ),
         Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
       ],
     );
@@ -137,14 +176,19 @@ class _SupplierCommandCenterState extends State<SupplierCommandCenter> {
   Widget _buildOrderTrackingCard(String title, String status, OperationalStatus opStatus) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: opStatus.color.withValues(alpha: 0.3))),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: opStatus.color.withValues(alpha: 0.3)),
+      ),
       child: ListTile(
         leading: Icon(Icons.inventory, color: opStatus.color),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text(status),
         trailing: const Icon(Icons.chevron_right),
         onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Action Tapped')));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Action Tapped')));
         },
       ),
     );

@@ -25,12 +25,12 @@ import 'audit_service.dart';
 /// Prevents mismatch where packing status != delivery status
 
 enum DeliveryWorkflowStatus {
-  assigned,     // Rider assigned, awaiting pickup
-  picked_up,    // Rider collected from shop
-  in_transit,   // On the way
-  delivered,    // Delivered to customer
-  failed,       // Delivery failed, needs reassignment
-  cancelled,    // Order cancelled
+  assigned, // Rider assigned, awaiting pickup
+  picked_up, // Rider collected from shop
+  in_transit, // On the way
+  delivered, // Delivered to customer
+  failed, // Delivery failed, needs reassignment
+  cancelled, // Order cancelled
 }
 
 class DeliveryWorkflowService {
@@ -99,7 +99,7 @@ class DeliveryWorkflowService {
             'timestamp': Timestamp.fromDate(now),
             'changedBy': 'system',
             'reason': 'task_created',
-          }
+          },
         ],
         'assignedRiderId': null,
         'assignedRiderName': null,
@@ -169,23 +169,19 @@ class DeliveryWorkflowService {
             'timestamp': Timestamp.fromDate(now),
             'changedBy': 'dispatcher',
             'reason': 'rider_assigned',
-          }
-        ])
+          },
+        ]),
       });
 
       // Notify rider with order details and delivery address
-      await _notifications.notifyRider(
-        riderId,
-        'New delivery order assigned',
-        {
-          'taskId': taskId,
-          'orderId': taskData['orderId'],
-          'deliveryAddress': taskData['deliveryAddress'],
-          'customerPhone': taskData['customerPhone'],
-          'deliveryFee': taskData['deliveryFee'],
-          'action': 'accept_delivery',
-        },
-      );
+      await _notifications.notifyRider(riderId, 'New delivery order assigned', {
+        'taskId': taskId,
+        'orderId': taskData['orderId'],
+        'deliveryAddress': taskData['deliveryAddress'],
+        'customerPhone': taskData['customerPhone'],
+        'deliveryFee': taskData['deliveryFee'],
+        'action': 'accept_delivery',
+      });
 
       // Log to audit
       await _audit.log('rider_assigned', {
@@ -232,7 +228,7 @@ class DeliveryWorkflowService {
             'timestamp': Timestamp.fromDate(now),
             'changedBy': riderId ?? 'rider',
             'reason': 'picked_up_from_shop',
-          }
+          },
         ]),
         'trackingUpdates': FieldValue.arrayUnion([
           {
@@ -240,8 +236,8 @@ class DeliveryWorkflowService {
             'lat': latitude,
             'lng': longitude,
             'timestamp': Timestamp.fromDate(now),
-          }
-        ])
+          },
+        ]),
       });
 
       // Update order status
@@ -250,10 +246,7 @@ class DeliveryWorkflowService {
         'updatedAt': Timestamp.fromDate(now),
       });
 
-      await _audit.log('delivery_picked_up', {
-        'taskId': taskId,
-        'riderId': riderId,
-      });
+      await _audit.log('delivery_picked_up', {'taskId': taskId, 'riderId': riderId});
 
       debugPrint('[DeliveryWorkflowService] Marked delivery task $taskId as picked up');
     } catch (e) {
@@ -298,7 +291,7 @@ class DeliveryWorkflowService {
             'lng': longitude,
             'timestamp': Timestamp.fromDate(now),
             'riderId': riderId,
-          }
+          },
         ]),
         if (currentStatus == 'picked_up')
           'statusHistory': FieldValue.arrayUnion([
@@ -307,11 +300,13 @@ class DeliveryWorkflowService {
               'timestamp': Timestamp.fromDate(now),
               'changedBy': riderId ?? 'gps',
               'reason': 'in_transit',
-            }
-          ])
+            },
+          ]),
       });
 
-      debugPrint('[DeliveryWorkflowService] Updated location for task $taskId: ($latitude, $longitude)');
+      debugPrint(
+        '[DeliveryWorkflowService] Updated location for task $taskId: ($latitude, $longitude)',
+      );
     } catch (e) {
       debugPrint('[DeliveryWorkflowService] Failed to update location: $e');
       rethrow;
@@ -355,7 +350,7 @@ class DeliveryWorkflowService {
             'timestamp': Timestamp.fromDate(now),
             'changedBy': riderId ?? 'system',
             'reason': 'delivered_to_customer',
-          }
+          },
         ]),
         'trackingUpdates': FieldValue.arrayUnion([
           {
@@ -363,8 +358,8 @@ class DeliveryWorkflowService {
             'lat': latitude,
             'lng': longitude,
             'timestamp': Timestamp.fromDate(now),
-          }
-        ])
+          },
+        ]),
       });
 
       // Update order status to delivered
@@ -375,14 +370,10 @@ class DeliveryWorkflowService {
       });
 
       // Notify customer that order is delivered
-      await _notifications.notifyCustomer(
-        customerId,
-        'Your order has been delivered!',
-        {
-          'orderId': orderId,
-          'action': 'rate_delivery',
-        },
-      );
+      await _notifications.notifyCustomer(customerId, 'Your order has been delivered!', {
+        'orderId': orderId,
+        'action': 'rate_delivery',
+      });
 
       await _audit.log('delivery_completed', {
         'taskId': taskId,
@@ -432,7 +423,7 @@ class DeliveryWorkflowService {
             'failedAt': Timestamp.fromDate(now),
             'lat': latitude,
             'lng': longitude,
-          }
+          },
         ]),
         'attemptCount': attemptCount,
         'updatedAt': Timestamp.fromDate(now),
@@ -442,20 +433,18 @@ class DeliveryWorkflowService {
             'timestamp': Timestamp.fromDate(now),
             'changedBy': riderId ?? 'system',
             'reason': failureReason,
-          }
-        ])
+          },
+        ]),
       });
 
       // Notify dispatcher for reassignment
-      await _notifications.notifyDispatcher(
-        'Delivery attempt #$attemptCount failed for task: $taskId',
-        {
-          'taskId': taskId,
-          'reason': failureReason,
-          'attemptCount': attemptCount,
-          'action': 'reassign_rider',
-        },
-      );
+      await _notifications
+          .notifyDispatcher('Delivery attempt #$attemptCount failed for task: $taskId', {
+            'taskId': taskId,
+            'reason': failureReason,
+            'attemptCount': attemptCount,
+            'action': 'reassign_rider',
+          });
 
       await _audit.log('delivery_failed', {
         'taskId': taskId,
@@ -464,7 +453,9 @@ class DeliveryWorkflowService {
         'riderId': riderId,
       });
 
-      debugPrint('[DeliveryWorkflowService] Marked delivery task $taskId as failed: $failureReason');
+      debugPrint(
+        '[DeliveryWorkflowService] Marked delivery task $taskId as failed: $failureReason',
+      );
     } catch (e) {
       debugPrint('[DeliveryWorkflowService] Failed to mark failed: $e');
       rethrow;
@@ -483,11 +474,14 @@ class DeliveryWorkflowService {
       final snap = await _db
           .collection('delivery_tasks')
           .where('assignedRiderId', isEqualTo: riderId)
-          .where('status', whereIn: [
-            DeliveryWorkflowStatus.assigned.name,
-            DeliveryWorkflowStatus.picked_up.name,
-            DeliveryWorkflowStatus.in_transit.name,
-          ])
+          .where(
+            'status',
+            whereIn: [
+              DeliveryWorkflowStatus.assigned.name,
+              DeliveryWorkflowStatus.picked_up.name,
+              DeliveryWorkflowStatus.in_transit.name,
+            ],
+          )
           .orderBy('assignedAt', descending: true)
           .limit(10)
           .get();
@@ -500,10 +494,7 @@ class DeliveryWorkflowService {
         if (orderId != null) {
           final orderSnap = await _db.collection('orders').doc(orderId).get();
           if (orderSnap.exists) {
-            enrichedTasks.add({
-              ...taskData,
-              'order': orderSnap.data(),
-            });
+            enrichedTasks.add({...taskData, 'order': orderSnap.data()});
           }
         }
       }
@@ -553,9 +544,7 @@ class DeliveryWorkflowService {
 
   /// Stream real-time tracking for a delivery
   Stream<Map<String, dynamic>?> trackDelivery(String taskId) {
-    return _db.collection('delivery_tasks').doc(taskId).snapshots().map(
-      (snap) => snap.data(),
-    );
+    return _db.collection('delivery_tasks').doc(taskId).snapshots().map((snap) => snap.data());
   }
 
   /// Get tracking history for a delivery

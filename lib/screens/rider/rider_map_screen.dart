@@ -25,12 +25,13 @@ class RiderMapScreen extends StatelessWidget {
           children: [
             Icon(Icons.map_outlined, size: 64, color: AppTheme.grey400),
             SizedBox(height: 12),
-            Text('Live Map',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+            Text('Live Map', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             SizedBox(height: 8),
-            Text('Google Maps integration active via DeliveryProvider',
-                style: TextStyle(color: AppTheme.grey500, fontSize: 13),
-                textAlign: TextAlign.center),
+            Text(
+              'Google Maps integration active via DeliveryProvider',
+              style: TextStyle(color: AppTheme.grey500, fontSize: 13),
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
       ),

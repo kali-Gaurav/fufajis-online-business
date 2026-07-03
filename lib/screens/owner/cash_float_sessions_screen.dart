@@ -68,24 +68,22 @@ class _CashFloatSessionsScreenState extends State<CashFloatSessionsScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent))
           : _error != null
-              ? Center(child: Text('Failed to load: $_error'))
-              : _sessions.isEmpty
-                  ? const FjEmptyState(
-                      icon: Icons.savings_outlined,
-                      title: 'No register sessions yet',
-                      subtitle: 'Cash float open/close sessions from the Cash Register will appear here.',
-                    )
-                  : RefreshIndicator(
-                      onRefresh: _load,
-                      child: ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: _sessions.length,
-                        itemBuilder: (context, index) => _SessionCard(
-                          data: _sessions[index].data(),
-                          dateFmt: _dateFmt,
-                        ),
-                      ),
-                    ),
+          ? Center(child: Text('Failed to load: $_error'))
+          : _sessions.isEmpty
+          ? const FjEmptyState(
+              icon: Icons.savings_outlined,
+              title: 'No register sessions yet',
+              subtitle: 'Cash float open/close sessions from the Cash Register will appear here.',
+            )
+          : RefreshIndicator(
+              onRefresh: _load,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: _sessions.length,
+                itemBuilder: (context, index) =>
+                    _SessionCard(data: _sessions[index].data(), dateFmt: _dateFmt),
+              ),
+            ),
     );
   }
 }
@@ -102,10 +100,13 @@ class _SessionCard extends StatelessWidget {
     final cashSales = (data['cashSales'] as num? ?? 0.0).toDouble();
     final actualClosingCash = (data['actualClosingCash'] as num? ?? 0.0).toDouble();
     final isOpen = data['isOpen'] as bool? ?? false;
-    final variance = (data['variance'] as num? ?? (actualClosingCash - (openingFloat + cashSales))).toDouble();
+    final variance = (data['variance'] as num? ?? (actualClosingCash - (openingFloat + cashSales)))
+        .toDouble();
     final userName = data['userName'] as String? ?? 'Unknown';
     final openedAt = DateTime.tryParse(data['openedAt'] as String? ?? '');
-    final closedAt = data['closedAt'] != null ? DateTime.tryParse(data['closedAt'] as String) : null;
+    final closedAt = data['closedAt'] != null
+        ? DateTime.tryParse(data['closedAt'] as String)
+        : null;
     final expectedCash = openingFloat + cashSales;
 
     final hasDiscrepancy = !isOpen && variance.abs() > 0.5;
@@ -119,19 +120,27 @@ class _SessionCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Text(userName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                child: Text(
+                  userName,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: (isOpen ? AppTheme.warning : (hasDiscrepancy ? AppTheme.error : AppTheme.success))
-                      .withValues(alpha: 0.12),
+                  color:
+                      (isOpen
+                              ? AppTheme.warning
+                              : (hasDiscrepancy ? AppTheme.error : AppTheme.success))
+                          .withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   isOpen ? 'Open' : (hasDiscrepancy ? 'Discrepancy' : 'Balanced'),
                   style: TextStyle(
-                    color: isOpen ? AppTheme.warning : (hasDiscrepancy ? AppTheme.error : AppTheme.success),
+                    color: isOpen
+                        ? AppTheme.warning
+                        : (hasDiscrepancy ? AppTheme.error : AppTheme.success),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                   ),
@@ -141,9 +150,7 @@ class _SessionCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            openedAt != null
-                ? 'Opened: ${dateFmt.format(openedAt)}'
-                : 'Opened: —',
+            openedAt != null ? 'Opened: ${dateFmt.format(openedAt)}' : 'Opened: —',
             style: TextStyle(color: Colors.grey[600], fontSize: 12),
           ),
           if (closedAt != null)
@@ -155,7 +162,10 @@ class _SessionCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Opening Float: ${kInr.format(openingFloat)}', style: const TextStyle(fontSize: 13)),
+              Text(
+                'Opening Float: ${kInr.format(openingFloat)}',
+                style: const TextStyle(fontSize: 13),
+              ),
               Text('Cash Sales: ${kInr.format(cashSales)}', style: const TextStyle(fontSize: 13)),
             ],
           ),
@@ -165,7 +175,10 @@ class _SessionCard extends StatelessWidget {
             children: [
               Text('Expected: ${kInr.format(expectedCash)}', style: const TextStyle(fontSize: 13)),
               if (!isOpen)
-                Text('Actual: ${kInr.format(actualClosingCash)}', style: const TextStyle(fontSize: 13)),
+                Text(
+                  'Actual: ${kInr.format(actualClosingCash)}',
+                  style: const TextStyle(fontSize: 13),
+                ),
             ],
           ),
           if (!isOpen) ...[

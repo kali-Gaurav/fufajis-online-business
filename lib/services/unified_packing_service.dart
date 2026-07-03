@@ -68,10 +68,7 @@ class UnifiedPackingService {
         'createdAt': Timestamp.fromDate(now),
         'updatedAt': Timestamp.fromDate(now),
         'statusHistory': [
-          {
-            'status': 'new',
-            'timestamp': Timestamp.fromDate(now),
-          }
+          {'status': 'new', 'timestamp': Timestamp.fromDate(now)},
         ],
         'pickedItems': [],
         'verifiedItems': [],
@@ -114,8 +111,7 @@ class UnifiedPackingService {
         },
       );
 
-      debugPrint(
-          '[UnifiedPackingService] Assigned task $taskId to employee $employeeId');
+      debugPrint('[UnifiedPackingService] Assigned task $taskId to employee $employeeId');
     } catch (e) {
       debugPrint('[UnifiedPackingService] Failed to assign task: $e');
       rethrow;
@@ -132,9 +128,7 @@ class UnifiedPackingService {
       await _transitionTask(
         taskId: taskId,
         toStatus: 'picking',
-        updates: {
-          'pickingStartedAt': Timestamp.fromDate(DateTime.now()),
-        },
+        updates: {'pickingStartedAt': Timestamp.fromDate(DateTime.now())},
       );
 
       debugPrint('[UnifiedPackingService] Started picking for task $taskId');
@@ -159,8 +153,7 @@ class UnifiedPackingService {
       }
 
       final taskData = taskSnap.data() as Map<String, dynamic>;
-      final pickedItems = List<Map<String, dynamic>>.from(
-          (taskData['pickedItems'] as List?) ?? []);
+      final pickedItems = List<Map<String, dynamic>>.from((taskData['pickedItems'] as List?) ?? []);
 
       // Add to picked items
       pickedItems.add({
@@ -176,8 +169,7 @@ class UnifiedPackingService {
         'updatedAt': Timestamp.fromDate(DateTime.now()),
       });
 
-      debugPrint(
-          '[UnifiedPackingService] Marked item $itemId picked in task $taskId');
+      debugPrint('[UnifiedPackingService] Marked item $itemId picked in task $taskId');
     } catch (e) {
       debugPrint('[UnifiedPackingService] Failed to mark item picked: $e');
       rethrow;
@@ -194,9 +186,7 @@ class UnifiedPackingService {
       await _transitionTask(
         taskId: taskId,
         toStatus: 'quality_check',
-        updates: {
-          'qualityCheckRequestedAt': Timestamp.fromDate(DateTime.now()),
-        },
+        updates: {'qualityCheckRequestedAt': Timestamp.fromDate(DateTime.now())},
       );
 
       debugPrint('[UnifiedPackingService] Requested QC for task $taskId');
@@ -220,7 +210,8 @@ class UnifiedPackingService {
 
       final taskData = taskSnap.data() as Map<String, dynamic>;
       final verifiedItems = List<Map<String, dynamic>>.from(
-          (taskData['verifiedItems'] as List?) ?? []);
+        (taskData['verifiedItems'] as List?) ?? [],
+      );
 
       verifiedItems.add({
         'itemId': itemId,
@@ -246,10 +237,7 @@ class UnifiedPackingService {
 
   /// Complete fulfillment task - ready for shipment
   /// CRITICAL: This MUST have all items verified to prevent shipping incomplete orders
-  Future<void> completePacking({
-    required String taskId,
-    String? packageTrackingNumber,
-  }) async {
+  Future<void> completePacking({required String taskId, String? packageTrackingNumber}) async {
     try {
       final taskSnap = await _db.collection('fulfillment_tasks').doc(taskId).get();
       if (!taskSnap.exists) {
@@ -263,7 +251,8 @@ class UnifiedPackingService {
       // Validation: all items must be verified before completion
       if (verifiedItems.length != items.length) {
         throw Exception(
-            'Cannot complete: ${items.length - verifiedItems.length} items not verified');
+          'Cannot complete: ${items.length - verifiedItems.length} items not verified',
+        );
       }
 
       // Transition to completed (bypassing verified if needed for backward compat)
@@ -317,7 +306,8 @@ class UnifiedPackingService {
 
       // Add rejection to history
       final statusHistory = List<Map<String, dynamic>>.from(
-          (taskData['statusHistory'] as List?) ?? []);
+        (taskData['statusHistory'] as List?) ?? [],
+      );
       statusHistory.add({
         'status': 'rejected',
         'timestamp': Timestamp.fromDate(DateTime.now()),
@@ -427,8 +417,7 @@ class UnifiedPackingService {
 
       // Validate transition
       if (!canTransition(currentStatus, toStatus)) {
-        throw Exception(
-            'Invalid transition: $currentStatus → $toStatus for task $taskId');
+        throw Exception('Invalid transition: $currentStatus → $toStatus for task $taskId');
       }
 
       final now = DateTime.now();
@@ -440,17 +429,14 @@ class UnifiedPackingService {
 
       // Add to status history
       final statusHistory = List<Map<String, dynamic>>.from(
-          (taskData['statusHistory'] as List?) ?? []);
-      statusHistory.add({
-        'status': toStatus,
-        'timestamp': Timestamp.fromDate(now),
-      });
+        (taskData['statusHistory'] as List?) ?? [],
+      );
+      statusHistory.add({'status': toStatus, 'timestamp': Timestamp.fromDate(now)});
       updateData['statusHistory'] = statusHistory;
 
       await _db.collection('fulfillment_tasks').doc(taskId).update(updateData);
 
-      debugPrint(
-          '[UnifiedPackingService] Task $taskId transitioned: $currentStatus → $toStatus');
+      debugPrint('[UnifiedPackingService] Task $taskId transitioned: $currentStatus → $toStatus');
     } catch (e) {
       debugPrint('[UnifiedPackingService] Transition failed: $e');
       rethrow;

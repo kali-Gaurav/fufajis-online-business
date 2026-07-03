@@ -46,9 +46,7 @@ class WalletProvider with ChangeNotifier {
       _membershipTier = await _tierCalculator.getUserTier(userId);
 
       // Fetch transaction history
-      _transactions = await _walletService.getTransactionHistory(
-        userId: userId,
-      );
+      _transactions = await _walletService.getTransactionHistory(userId: userId);
 
       _isLoading = false;
       notifyListeners();
@@ -69,10 +67,7 @@ class WalletProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      _transactions = await _walletService.getTransactionHistory(
-        userId: userId,
-        limit: limit,
-      );
+      _transactions = await _walletService.getTransactionHistory(userId: userId, limit: limit);
       _isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -86,19 +81,13 @@ class WalletProvider with ChangeNotifier {
   /// Filters transactions by type
   ///
   /// [Requirements 11.7]: Add filter by transaction type
-  Future<void> filterTransactionsByType(
-    String userId,
-    WalletTransactionType type,
-  ) async {
+  Future<void> filterTransactionsByType(String userId, WalletTransactionType type) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      _transactions = await _walletService.getTransactionsByType(
-        userId: userId,
-        type: type,
-      );
+      _transactions = await _walletService.getTransactionsByType(userId: userId, type: type);
       _isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -138,16 +127,8 @@ class WalletProvider with ChangeNotifier {
   }
 
   /// Alias for applyCashback for backward compatibility
-  Future<bool> addCashback(
-    String userId,
-    double orderAmount,
-    String orderId,
-  ) async {
-    return applyCashback(
-      userId: userId,
-      orderAmount: orderAmount,
-      orderId: orderId,
-    );
+  Future<bool> addCashback(String userId, double orderAmount, String orderId) async {
+    return applyCashback(userId: userId, orderAmount: orderAmount, orderId: orderId);
   }
 
   /// Processes an auto-refund for a cancelled order (Feature 13)
@@ -174,9 +155,7 @@ class WalletProvider with ChangeNotifier {
 
       if (success) {
         _walletBalance = await _walletService.getWalletBalance(userId);
-        _transactions = await _walletService.getTransactionHistory(
-          userId: userId,
-        );
+        _transactions = await _walletService.getTransactionHistory(userId: userId);
       }
 
       _isLoading = false;
@@ -234,8 +213,7 @@ class WalletProvider with ChangeNotifier {
         final userSnap = await transaction.get(userRef);
         if (!userSnap.exists) throw Exception('User not found');
 
-        final currentBalance =
-            (userSnap.data()?['walletBalance'] as num?)?.toDouble() ?? 0.0;
+        final currentBalance = (userSnap.data()?['walletBalance'] as num?)?.toDouble() ?? 0.0;
         if (currentBalance < orderAmount) {
           throw Exception('Insufficient wallet balance');
         }
@@ -257,9 +235,7 @@ class WalletProvider with ChangeNotifier {
         });
 
         // 3. Wallet transaction record
-        final txnRef = userRef.collection('wallet_transactions').doc(
-          'txn_wallet_debit_$orderId',
-        );
+        final txnRef = userRef.collection('wallet_transactions').doc('txn_wallet_debit_$orderId');
         transaction.set(txnRef, {
           'id': 'txn_wallet_debit_$orderId',
           'userId': userId,
@@ -370,10 +346,7 @@ class WalletProvider with ChangeNotifier {
   /// Redeems reward points for wallet credit
   ///
   /// [Requirements 11.3]: Implements points-to-currency conversion (100 points = ₹1)
-  Future<bool> redeemRewardPoints({
-    required String userId,
-    required int pointsToRedeem,
-  }) async {
+  Future<bool> redeemRewardPoints({required String userId, required int pointsToRedeem}) async {
     try {
       final walletCredit = await _rewardSystem.redeemPoints(
         userId: userId,
@@ -485,8 +458,19 @@ class WalletProvider with ChangeNotifier {
     });
   }
 
-  /// Adds money to the wallet via WalletService
-  Future<bool> addMoney(String userId, double amount) async {
+  /// Adds money to the wallet via WalletService.
+  ///
+  /// SECURITY FIX (Module 10): [paymentId] is now REQUIRED and must be a real
+  /// Razorpay payment id. Previously this method credited the wallet with no
+  /// payment at all — the wallet screen's quick-add buttons were minting free,
+  /// spendable money. Using the payment id as the transaction id also makes
+  /// the credit idempotent (double-tap / retry can't double-credit).
+  Future<bool> addMoney(String userId, double amount, {required String paymentId}) async {
+    if (paymentId.isEmpty) {
+      _errorMessage = 'Payment reference missing — top-up not credited.';
+      notifyListeners();
+      return false;
+    }
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -496,16 +480,14 @@ class WalletProvider with ChangeNotifier {
         userId: userId,
         amount: amount,
         transactionType: WalletTransactionType.refund, // Used for manual top-ups / refunds
-        orderReference: 'topup_${DateTime.now().millisecondsSinceEpoch}',
-        description: 'Wallet Top-up',
-        transactionId: 'txn_topup_${DateTime.now().millisecondsSinceEpoch}',
+        orderReference: 'topup_$paymentId',
+        description: 'Wallet Top-up (Razorpay: $paymentId)',
+        transactionId: 'txn_topup_$paymentId',
       );
 
       if (success) {
         _walletBalance = await _walletService.getWalletBalance(userId);
-        _transactions = await _walletService.getTransactionHistory(
-          userId: userId,
-        );
+        _transactions = await _walletService.getTransactionHistory(userId: userId);
       }
 
       _isLoading = false;

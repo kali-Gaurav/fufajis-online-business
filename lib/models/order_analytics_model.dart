@@ -32,8 +32,7 @@ class OrderAnalyticsModel {
       refundedOrders: json['refundedOrders'] as int? ?? 0,
       avgTimeToDeliver: (json['avgTimeToDeliver'] as num?)?.toDouble() ?? 0.0,
       onTimeDeliveryRate: (json['onTimeDeliveryRate'] as num?)?.toDouble() ?? 0.0,
-      customerSatisfactionRating:
-          (json['customerSatisfactionRating'] as num?)?.toDouble() ?? 0.0,
+      customerSatisfactionRating: (json['customerSatisfactionRating'] as num?)?.toDouble() ?? 0.0,
       timestamp: json['timestamp'] != null
           ? DateTime.parse(json['timestamp'] as String)
           : DateTime.now(),
@@ -56,8 +55,7 @@ class OrderAnalyticsModel {
   }
 
   /// Calculate total non-completed orders
-  int get totalFailedOrders =>
-      cancelledOrders + returnedOrders + refundedOrders;
+  int get totalFailedOrders => cancelledOrders + returnedOrders + refundedOrders;
 
   /// Calculate success rate percentage
   double get successRate {
@@ -87,8 +85,7 @@ class OrderAnalyticsModel {
       refundedOrders: refundedOrders ?? this.refundedOrders,
       avgTimeToDeliver: avgTimeToDeliver ?? this.avgTimeToDeliver,
       onTimeDeliveryRate: onTimeDeliveryRate ?? this.onTimeDeliveryRate,
-      customerSatisfactionRating:
-          customerSatisfactionRating ?? this.customerSatisfactionRating,
+      customerSatisfactionRating: customerSatisfactionRating ?? this.customerSatisfactionRating,
       timestamp: timestamp ?? this.timestamp,
     );
   }

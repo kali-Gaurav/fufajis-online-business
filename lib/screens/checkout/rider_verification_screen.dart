@@ -40,10 +40,7 @@ class _RiderVerificationScreenState extends State<RiderVerificationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Confirm Your Rider'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Confirm Your Rider'), centerTitle: true),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -51,10 +48,7 @@ class _RiderVerificationScreenState extends State<RiderVerificationScreen> {
               child: Column(
                 children: [
                   // Rider Photo
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundImage: NetworkImage(riderInfo['photoUrl']),
-                  ),
+                  CircleAvatar(radius: 50, backgroundImage: NetworkImage(riderInfo['photoUrl'])),
                   const SizedBox(height: 16),
 
                   // Name & Phone
@@ -93,8 +87,10 @@ class _RiderVerificationScreenState extends State<RiderVerificationScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Vehicle Details',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        const Text(
+                          'Vehicle Details',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         const SizedBox(height: 8),
                         Text('Type: ${riderInfo['vehicleType']}'),
                         Text('Number: ${riderInfo['vehicleNumber']}'),
@@ -118,8 +114,7 @@ class _RiderVerificationScreenState extends State<RiderVerificationScreen> {
                         children: [
                           Icon(Icons.star, color: Colors.amber, size: 30),
                           SizedBox(height: 4),
-                          Text('Highly Rated',
-                              style: TextStyle(fontSize: 12)),
+                          Text('Highly Rated', style: TextStyle(fontSize: 12)),
                         ],
                       ),
                     ],

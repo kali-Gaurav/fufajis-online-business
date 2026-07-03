@@ -29,8 +29,8 @@ class OrderItemCard extends StatelessWidget {
         color: isSelected
             ? AppTheme.info.withValues(alpha: 0.1)
             : isDark
-                ? Colors.grey[800]
-                : Colors.white,
+            ? Colors.grey[800]
+            : Colors.white,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Column(
@@ -52,12 +52,10 @@ class OrderItemCard extends StatelessWidget {
                               item.productImage!,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) =>
-                                  Icon(Icons.image_not_supported,
-                                      color: Colors.grey[400]),
+                                  Icon(Icons.image_not_supported, color: Colors.grey[400]),
                             ),
                           )
-                        : Icon(Icons.inventory_2,
-                            color: Colors.grey[400], size: 40),
+                        : Icon(Icons.inventory_2, color: Colors.grey[400], size: 40),
                   ),
                   const SizedBox(width: 16),
                   // Product details
@@ -67,18 +65,18 @@ class OrderItemCard extends StatelessWidget {
                       children: [
                         Text(
                           item.productName,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
                         Text(
                           '${item.requiredQuantity.toStringAsFixed(2)} ${item.unit} required',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Colors.grey[600],
-                              ),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                         ),
                         const SizedBox(height: 8),
                         // Progress indicator
@@ -100,9 +98,9 @@ class OrderItemCard extends StatelessWidget {
                             const SizedBox(width: 8),
                             Text(
                               item.packedQuantity.toStringAsFixed(2),
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -128,8 +126,7 @@ class OrderItemCard extends StatelessWidget {
                             shape: BoxShape.circle,
                           ),
                           padding: const EdgeInsets.all(4),
-                          child:
-                              const Icon(Icons.schedule, color: Colors.white, size: 16),
+                          child: const Icon(Icons.schedule, color: Colors.white, size: 16),
                         ),
                       const SizedBox(height: 8),
                       if (item.verified)
@@ -180,17 +177,17 @@ class PackingProgressIndicator extends StatelessWidget {
               children: [
                 Text(
                   '$packedCount / $totalCount',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
                 Text(
                   '${(progress * 100).toStringAsFixed(0)}%',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppTheme.success,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    color: AppTheme.success,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -205,8 +202,8 @@ class PackingProgressIndicator extends StatelessWidget {
                   progress < 0.5
                       ? AppTheme.warning
                       : progress < 0.9
-                          ? AppTheme.info
-                          : AppTheme.success,
+                      ? AppTheme.info
+                      : AppTheme.success,
                 ),
               ),
             ),
@@ -234,11 +231,7 @@ class SpecialNotesAlert extends StatelessWidget {
   final String notes;
   final Color? backgroundColor;
 
-  const SpecialNotesAlert({
-    super.key,
-    required this.notes,
-    this.backgroundColor,
-  });
+  const SpecialNotesAlert({super.key, required this.notes, this.backgroundColor});
 
   @override
   Widget build(BuildContext context) {
@@ -257,9 +250,7 @@ class SpecialNotesAlert extends StatelessWidget {
           Expanded(
             child: Text(
               notes,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppTheme.warning,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.warning),
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
@@ -308,14 +299,14 @@ class _LabelPrinterState extends State<LabelPrinter> {
       // );
 
       widget.onPrintSuccess?.call();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Label printed successfully')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Label printed successfully')));
     } catch (e) {
       widget.onPrintError?.call();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Print failed: $e'), backgroundColor: AppTheme.error),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Print failed: $e'), backgroundColor: AppTheme.error));
     } finally {
       setState(() => _isPrinting = false);
     }
@@ -331,9 +322,7 @@ class _LabelPrinterState extends State<LabelPrinter> {
               height: 20,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  Theme.of(context).primaryColor,
-                ),
+                valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
               ),
             )
           : const Icon(Icons.print),
@@ -404,14 +393,9 @@ class _BarcodeScannerState extends State<BarcodeScanner> {
             hintText: widget.hintText ?? 'Scan barcode',
             prefixIcon: const Icon(Icons.barcode_reader),
             suffixIcon: widget.showCameraButton
-                ? IconButton(
-                    icon: const Icon(Icons.camera_alt),
-                    onPressed: _openCameraScanner,
-                  )
+                ? IconButton(icon: const Icon(Icons.camera_alt), onPressed: _openCameraScanner)
                 : null,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
           ),
         ),
         const SizedBox(height: 8),
@@ -458,34 +442,18 @@ class OrderHeaderCard extends StatelessWidget {
           children: [
             Text(
               'Order #$orderId',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            _InfoRow(
-              label: 'Customer',
-              value: customerName,
-              icon: Icons.person,
-            ),
+            _InfoRow(label: 'Customer', value: customerName, icon: Icons.person),
             if (customerPhone != null)
-              _InfoRow(
-                label: 'Phone',
-                value: customerPhone!,
-                icon: Icons.phone,
-              ),
+              _InfoRow(label: 'Phone', value: customerPhone!, icon: Icons.phone),
             if (address != null)
-              _InfoRow(
-                label: 'Address',
-                value: address!,
-                icon: Icons.location_on,
-              ),
+              _InfoRow(label: 'Address', value: address!, icon: Icons.location_on),
             if (createdAt != null)
-              _InfoRow(
-                label: 'Created',
-                value: _formatDate(createdAt!),
-                icon: Icons.schedule,
-              ),
+              _InfoRow(label: 'Created', value: _formatDate(createdAt!), icon: Icons.schedule),
           ],
         ),
       ),
@@ -502,11 +470,7 @@ class _InfoRow extends StatelessWidget {
   final String value;
   final IconData icon;
 
-  const _InfoRow({
-    required this.label,
-    required this.value,
-    required this.icon,
-  });
+  const _InfoRow({required this.label, required this.value, required this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -518,17 +482,13 @@ class _InfoRow extends StatelessWidget {
           const SizedBox(width: 12),
           Text(
             label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
-                ),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
           ),
           const Spacer(),
           Expanded(
             child: Text(
               value,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
               textAlign: TextAlign.end,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -575,25 +535,21 @@ class StatsCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               value,
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
             Text(
               label,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
             if (unit != null) ...[
               const SizedBox(height: 4),
               Text(
                 unit!,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Colors.grey[500],
-                    ),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.grey[500]),
               ),
             ],
           ],
@@ -638,8 +594,8 @@ class _QualityCheckItemCardState extends State<QualityCheckItemCard> {
       color: _checked
           ? AppTheme.success.withValues(alpha: 0.1)
           : isDark
-              ? Colors.grey[800]
-              : Colors.white,
+          ? Colors.grey[800]
+          : Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
@@ -657,18 +613,16 @@ class _QualityCheckItemCardState extends State<QualityCheckItemCard> {
                 children: [
                   Text(
                     widget.item.productName,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '${widget.item.packedQuantity.toStringAsFixed(2)} / ${widget.item.requiredQuantity.toStringAsFixed(2)} ${widget.item.unit}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
-                        ),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                   ),
                 ],
               ),

@@ -30,10 +30,8 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> with SingleTickerPr
   void initState() {
     super.initState();
     // Waving hand controller
-    _waveController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    )..repeat(reverse: true);
+    _waveController = AnimationController(vsync: this, duration: const Duration(milliseconds: 1000))
+      ..repeat(reverse: true);
   }
 
   @override
@@ -72,12 +70,9 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> with SingleTickerPr
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: AppTheme.error,
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error));
       }
     } finally {
       if (mounted) {
@@ -101,7 +96,7 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> with SingleTickerPr
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 30),
-              
+
               // Animated Icon Header
               Center(
                 child: FadeSlideIn(
@@ -120,16 +115,12 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> with SingleTickerPr
                         ),
                       ],
                     ),
-                    child: const Icon(
-                      Icons.person_pin_rounded,
-                      size: 48,
-                      color: AppTheme.primary,
-                    ),
+                    child: const Icon(Icons.person_pin_rounded, size: 48, color: AppTheme.primary),
                   ),
                 ),
               ),
               const SizedBox(height: 32),
-              
+
               // Title with waving hand emoji
               FadeSlideIn(
                 duration: AppTheme.durationMedium,
@@ -162,7 +153,7 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> with SingleTickerPr
                 ),
               ),
               const SizedBox(height: 12),
-              
+
               FadeSlideIn(
                 duration: AppTheme.durationMedium,
                 delay: const Duration(milliseconds: 150),
@@ -173,7 +164,7 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> with SingleTickerPr
                 ),
               ),
               const SizedBox(height: 40),
-              
+
               // Customer Card (Slide in from right)
               FadeSlideIn(
                 duration: AppTheme.durationMedium,
@@ -190,7 +181,7 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> with SingleTickerPr
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Shop Owner Card
               FadeSlideIn(
                 duration: AppTheme.durationMedium,
@@ -207,7 +198,7 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> with SingleTickerPr
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Delivery Partner Card
               FadeSlideIn(
                 duration: AppTheme.durationMedium,
@@ -224,7 +215,7 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> with SingleTickerPr
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Store Staff Card
               FadeSlideIn(
                 duration: AppTheme.durationMedium,
@@ -240,13 +231,11 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> with SingleTickerPr
                   isDark: isDark,
                 ),
               ),
-              
+
               if (_isLoading)
                 const Padding(
                   padding: EdgeInsets.all(24),
-                  child: Center(
-                    child: CircularProgressIndicator(color: AppTheme.primary),
-                  ),
+                  child: Center(child: CircularProgressIndicator(color: AppTheme.primary)),
                 ),
               const SizedBox(height: 30),
             ],
@@ -282,7 +271,7 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> with SingleTickerPr
                 color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
-              )
+              ),
             ],
           ),
           child: Padding(

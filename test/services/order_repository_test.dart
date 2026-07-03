@@ -31,91 +31,50 @@ void main() {
     });
 
     test('validates pending -> confirmed transition', () {
-      expect(
-        engine.isValidTransition(OrderStatus.pending, OrderStatus.confirmed),
-        true,
-      );
+      expect(engine.isValidTransition(OrderStatus.pending, OrderStatus.confirmed), true);
     });
 
     test('validates pending -> cancelled transition', () {
-      expect(
-        engine.isValidTransition(OrderStatus.pending, OrderStatus.cancelled),
-        true,
-      );
+      expect(engine.isValidTransition(OrderStatus.pending, OrderStatus.cancelled), true);
     });
 
     test('rejects pending -> delivered transition (invalid)', () {
-      expect(
-        engine.isValidTransition(OrderStatus.pending, OrderStatus.delivered),
-        false,
-      );
+      expect(engine.isValidTransition(OrderStatus.pending, OrderStatus.delivered), false);
     });
 
-    test('validates linear progression: pending->confirmed->processing->packed',
-        () {
-      expect(
-        engine.isValidTransition(OrderStatus.pending, OrderStatus.confirmed),
-        true,
-      );
-      expect(
-        engine.isValidTransition(OrderStatus.confirmed, OrderStatus.processing),
-        true,
-      );
-      expect(
-        engine.isValidTransition(OrderStatus.processing, OrderStatus.packed),
-        true,
-      );
+    test('validates linear progression: pending->confirmed->processing->packed', () {
+      expect(engine.isValidTransition(OrderStatus.pending, OrderStatus.confirmed), true);
+      expect(engine.isValidTransition(OrderStatus.confirmed, OrderStatus.processing), true);
+      expect(engine.isValidTransition(OrderStatus.processing, OrderStatus.packed), true);
     });
 
     test('rejects backward transitions (e.g., packed -> processing)', () {
-      expect(
-        engine.isValidTransition(OrderStatus.packed, OrderStatus.processing),
-        false,
-      );
+      expect(engine.isValidTransition(OrderStatus.packed, OrderStatus.processing), false);
     });
 
     test('allows same status transition (idempotent)', () {
-      expect(
-        engine.isValidTransition(OrderStatus.confirmed, OrderStatus.confirmed),
-        true,
-      );
+      expect(engine.isValidTransition(OrderStatus.confirmed, OrderStatus.confirmed), true);
     });
 
     test('validates delivered -> returned transition', () {
-      expect(
-        engine.isValidTransition(OrderStatus.delivered, OrderStatus.returned),
-        true,
-      );
+      expect(engine.isValidTransition(OrderStatus.delivered, OrderStatus.returned), true);
     });
 
     test('validates returned -> refunded transition', () {
-      expect(
-        engine.isValidTransition(OrderStatus.returned, OrderStatus.refunded),
-        true,
-      );
+      expect(engine.isValidTransition(OrderStatus.returned, OrderStatus.refunded), true);
     });
 
     test('validates cancelled -> refunded transition', () {
-      expect(
-        engine.isValidTransition(OrderStatus.cancelled, OrderStatus.refunded),
-        true,
-      );
+      expect(engine.isValidTransition(OrderStatus.cancelled, OrderStatus.refunded), true);
     });
 
     test('rejects transition from refunded (terminal state)', () {
-      expect(
-        engine.isValidTransition(OrderStatus.refunded, OrderStatus.cancelled),
-        false,
-      );
+      expect(engine.isValidTransition(OrderStatus.refunded, OrderStatus.cancelled), false);
     });
 
     test('throws exception on invalid transition', () {
       expect(
-        () => engine.validateTransition(
-          OrderStatus.pending,
-          OrderStatus.delivered,
-          'customer',
-        ),
+        () => engine.validateTransition(OrderStatus.pending, OrderStatus.delivered, 'customer'),
         throwsA(isA<InvalidStatusTransitionException>()),
       );
     });
@@ -135,13 +94,28 @@ void main() {
     test('canCancel returns true for active states', () {
       // Create a dummy order for testing
       OrderModel createOrder(OrderStatus status) => OrderModel(
-        id: '1', orderNumber: '1', customerId: '1', customerName: '1', customerPhone: '1',
-        items: [], subtotal: MonetaryValue(0), tax: MonetaryValue(0), discount: MonetaryValue(0), deliveryCharge: MonetaryValue(0), totalAmount: MonetaryValue(0),
-        walletAmountUsed: MonetaryValue(0), cashbackEarned: MonetaryValue(0), rewardPointsUsed: 0, rewardPointsEarned: 0,
-        paymentMethod: PaymentMethod.cod, selectedPaymentMethod: PaymentMethod.cod,
-        status: status, deliveryType: DeliveryType.standard,
+        id: '1',
+        orderNumber: '1',
+        customerId: '1',
+        customerName: '1',
+        customerPhone: '1',
+        items: [],
+        subtotal: MonetaryValue(0),
+        tax: MonetaryValue(0),
+        discount: MonetaryValue(0),
+        deliveryCharge: MonetaryValue(0),
+        totalAmount: MonetaryValue(0),
+        walletAmountUsed: MonetaryValue(0),
+        cashbackEarned: MonetaryValue(0),
+        rewardPointsUsed: 0,
+        rewardPointsEarned: 0,
+        paymentMethod: PaymentMethod.cod,
+        selectedPaymentMethod: PaymentMethod.cod,
+        status: status,
+        deliveryType: DeliveryType.standard,
         deliveryAddress: user_model.Address(id: '1', label: 'Home', latitude: 0, longitude: 0),
-        createdAt: DateTime.now(), updatedAt: DateTime.now(),
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       );
 
       expect(engine.canCancel(createOrder(OrderStatus.pending)), true);
@@ -152,13 +126,28 @@ void main() {
 
     test('canCancel returns false for terminal states', () {
       OrderModel createOrder(OrderStatus status) => OrderModel(
-        id: '1', orderNumber: '1', customerId: '1', customerName: '1', customerPhone: '1',
-        items: [], subtotal: MonetaryValue(0), tax: MonetaryValue(0), discount: MonetaryValue(0), deliveryCharge: MonetaryValue(0), totalAmount: MonetaryValue(0),
-        walletAmountUsed: MonetaryValue(0), cashbackEarned: MonetaryValue(0), rewardPointsUsed: 0, rewardPointsEarned: 0,
-        paymentMethod: PaymentMethod.cod, selectedPaymentMethod: PaymentMethod.cod,
-        status: status, deliveryType: DeliveryType.standard,
+        id: '1',
+        orderNumber: '1',
+        customerId: '1',
+        customerName: '1',
+        customerPhone: '1',
+        items: [],
+        subtotal: MonetaryValue(0),
+        tax: MonetaryValue(0),
+        discount: MonetaryValue(0),
+        deliveryCharge: MonetaryValue(0),
+        totalAmount: MonetaryValue(0),
+        walletAmountUsed: MonetaryValue(0),
+        cashbackEarned: MonetaryValue(0),
+        rewardPointsUsed: 0,
+        rewardPointsEarned: 0,
+        paymentMethod: PaymentMethod.cod,
+        selectedPaymentMethod: PaymentMethod.cod,
+        status: status,
+        deliveryType: DeliveryType.standard,
         deliveryAddress: user_model.Address(id: '1', label: 'Home', latitude: 0, longitude: 0),
-        createdAt: DateTime.now(), updatedAt: DateTime.now(),
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       );
 
       expect(engine.canCancel(createOrder(OrderStatus.delivered)), false);
@@ -169,13 +158,28 @@ void main() {
 
     test('canReturn returns true only for delivered', () {
       OrderModel createOrder(OrderStatus status) => OrderModel(
-        id: '1', orderNumber: '1', customerId: '1', customerName: '1', customerPhone: '1',
-        items: [], subtotal: MonetaryValue(0), tax: MonetaryValue(0), discount: MonetaryValue(0), deliveryCharge: MonetaryValue(0), totalAmount: MonetaryValue(0),
-        walletAmountUsed: MonetaryValue(0), cashbackEarned: MonetaryValue(0), rewardPointsUsed: 0, rewardPointsEarned: 0,
-        paymentMethod: PaymentMethod.cod, selectedPaymentMethod: PaymentMethod.cod,
-        status: status, deliveryType: DeliveryType.standard,
+        id: '1',
+        orderNumber: '1',
+        customerId: '1',
+        customerName: '1',
+        customerPhone: '1',
+        items: [],
+        subtotal: MonetaryValue(0),
+        tax: MonetaryValue(0),
+        discount: MonetaryValue(0),
+        deliveryCharge: MonetaryValue(0),
+        totalAmount: MonetaryValue(0),
+        walletAmountUsed: MonetaryValue(0),
+        cashbackEarned: MonetaryValue(0),
+        rewardPointsUsed: 0,
+        rewardPointsEarned: 0,
+        paymentMethod: PaymentMethod.cod,
+        selectedPaymentMethod: PaymentMethod.cod,
+        status: status,
+        deliveryType: DeliveryType.standard,
         deliveryAddress: user_model.Address(id: '1', label: 'Home', latitude: 0, longitude: 0),
-        createdAt: DateTime.now(), updatedAt: DateTime.now(),
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       );
 
       expect(engine.canReturn(createOrder(OrderStatus.delivered)), true);
@@ -319,10 +323,7 @@ void main() {
         deliveryType: DeliveryType.standard,
       );
 
-      expect(
-        () => order.updateStatus(OrderStatus.pending),
-        throwsA(isA<StateError>()),
-      );
+      expect(() => order.updateStatus(OrderStatus.pending), throwsA(isA<StateError>()));
     });
 
     test('OrderModel.isValidTransition works correctly', () {
@@ -467,10 +468,7 @@ void main() {
         status: OrderStatus.pending,
       );
 
-      final updated = order.copyWith(
-        status: OrderStatus.confirmed,
-        paymentStatus: 'paid',
-      );
+      final updated = order.copyWith(status: OrderStatus.confirmed, paymentStatus: 'paid');
 
       expect(updated.id, order.id);
       expect(updated.orderNumber, order.orderNumber);

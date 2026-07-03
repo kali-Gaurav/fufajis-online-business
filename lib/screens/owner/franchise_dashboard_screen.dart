@@ -12,8 +12,7 @@ class FranchiseDashboardScreen extends StatefulWidget {
   const FranchiseDashboardScreen({super.key});
 
   @override
-  State<FranchiseDashboardScreen> createState() =>
-      _FranchiseDashboardScreenState();
+  State<FranchiseDashboardScreen> createState() => _FranchiseDashboardScreenState();
 }
 
 class _FranchiseDashboardScreenState extends State<FranchiseDashboardScreen> {
@@ -50,10 +49,7 @@ class _FranchiseDashboardScreenState extends State<FranchiseDashboardScreen> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                BiRangeSelector(
-                  selected: p.range,
-                  onSelected: (r) => p.setRange(r),
-                ),
+                BiRangeSelector(selected: p.range, onSelected: (r) => p.setRange(r)),
                 const SizedBox(height: 16),
                 if (p.isLoading)
                   const Padding(
@@ -64,8 +60,7 @@ class _FranchiseDashboardScreenState extends State<FranchiseDashboardScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 60),
                     child: Center(
-                      child: Text(p.error!,
-                          style: const TextStyle(color: AppTheme.error)),
+                      child: Text(p.error!, style: const TextStyle(color: AppTheme.error)),
                     ),
                   )
                 else
@@ -84,16 +79,16 @@ class _FranchiseDashboardScreenState extends State<FranchiseDashboardScreen> {
         const Padding(
           padding: EdgeInsets.symmetric(vertical: 60),
           child: Center(
-            child: Text('No branch data for this period',
-                style: TextStyle(color: AppTheme.grey500)),
+            child: Text(
+              'No branch data for this period',
+              style: TextStyle(color: AppTheme.grey500),
+            ),
           ),
         ),
       ];
     }
 
-    final revenueByBranch = {
-      for (final b in fr.branches) b.branchName: b.revenue,
-    };
+    final revenueByBranch = {for (final b in fr.branches) b.branchName: b.revenue};
     final top = fr.branches.first;
 
     return [
@@ -126,9 +121,7 @@ class _FranchiseDashboardScreenState extends State<FranchiseDashboardScreen> {
           ),
           BiKpiCard(
             label: 'Est. Total Profit',
-            value: kInr.format(
-              fr.branches.fold(0.0, (s, b) => s + b.estimatedProfit),
-            ),
+            value: kInr.format(fr.branches.fold(0.0, (s, b) => s + b.estimatedProfit)),
             icon: Icons.savings_outlined,
             color: AppTheme.info,
           ),
@@ -144,8 +137,7 @@ class _FranchiseDashboardScreenState extends State<FranchiseDashboardScreen> {
         title: 'Branch Performance Ranking',
         child: Column(
           children: [
-            for (var i = 0; i < fr.branches.length; i++)
-              _branchRow(i + 1, fr.branches[i]),
+            for (var i = 0; i < fr.branches.length; i++) _branchRow(i + 1, fr.branches[i]),
           ],
         ),
       ),
@@ -169,9 +161,7 @@ class _FranchiseDashboardScreenState extends State<FranchiseDashboardScreen> {
             height: 28,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: rank == 1
-                  ? AppTheme.warning
-                  : AppTheme.primary.withValues(alpha: 0.12),
+              color: rank == 1 ? AppTheme.warning : AppTheme.primary.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: Text(
@@ -191,9 +181,10 @@ class _FranchiseDashboardScreenState extends State<FranchiseDashboardScreen> {
                 Text(
                   b.branchName,
                   style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.grey900),
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.grey900,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -201,8 +192,7 @@ class _FranchiseDashboardScreenState extends State<FranchiseDashboardScreen> {
                 Text(
                   '${b.orders} orders · AOV ${kInr.format(b.avgOrderValue)} · '
                   '★ ${b.avgRating.toStringAsFixed(1)}',
-                  style:
-                      const TextStyle(fontSize: 11, color: AppTheme.grey600),
+                  style: const TextStyle(fontSize: 11, color: AppTheme.grey600),
                 ),
               ],
             ),
@@ -213,14 +203,14 @@ class _FranchiseDashboardScreenState extends State<FranchiseDashboardScreen> {
               Text(
                 kInr.format(b.revenue),
                 style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.grey900),
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.grey900,
+                ),
               ),
               Text(
                 '~${kInr.format(b.estimatedProfit)} profit',
-                style: const TextStyle(
-                    fontSize: 11, color: AppTheme.success),
+                style: const TextStyle(fontSize: 11, color: AppTheme.success),
               ),
             ],
           ),

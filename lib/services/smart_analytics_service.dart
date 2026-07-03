@@ -14,8 +14,7 @@ import '../constants/order_status.dart';
 /// - Win-back segment identification
 /// - VIP customer detection
 class SmartAnalyticsService {
-  static final SmartAnalyticsService _instance =
-      SmartAnalyticsService._internal();
+  static final SmartAnalyticsService _instance = SmartAnalyticsService._internal();
   factory SmartAnalyticsService() => _instance;
   SmartAnalyticsService._internal();
 
@@ -32,10 +31,8 @@ class SmartAnalyticsService {
   /// Uses exponential decay with half-life of 21 days, modulated by order frequency
   double calculateChurnRiskScore(List<OrderModel> orders) {
     if (orders.isEmpty) return 1.0;
-    final sorted = [...orders]
-      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    final daysSinceLast =
-        DateTime.now().difference(sorted.first.createdAt).inDays;
+    final sorted = [...orders]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    final daysSinceLast = DateTime.now().difference(sorted.first.createdAt).inDays;
 
     // Exponential decay: half-life ≈ 21 days
     final raw = 1 - exp(-daysSinceLast / 21.0);
@@ -45,8 +42,8 @@ class SmartAnalyticsService {
     final freqFactor = freq > 8
         ? 0.55
         : freq > 4
-            ? 0.75
-            : 1.0;
+        ? 0.75
+        : 1.0;
 
     return (raw * freqFactor).clamp(0.0, 1.0);
   }
@@ -54,10 +51,8 @@ class SmartAnalyticsService {
   // ─── Order frequency (orders/month) ──────────────────────────────────────────
   double calculateOrderFrequency(List<OrderModel> orders) {
     if (orders.length < 2) return 0.0;
-    final sorted = [...orders]
-      ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
-    final span =
-        sorted.last.createdAt.difference(sorted.first.createdAt).inDays;
+    final sorted = [...orders]..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    final span = sorted.last.createdAt.difference(sorted.first.createdAt).inDays;
     if (span == 0) return orders.length.toDouble();
     return (orders.length / span) * 30;
   }
@@ -80,22 +75,16 @@ class SmartAnalyticsService {
   }
 
   // ─── Win-back eligible customers from Firestore ───────────────────────────────
-  Future<List<CustomerSegment>> getWinBackCustomersTyped({
-    String shopId = 'shop_001',
-  }) async {
+  Future<List<CustomerSegment>> getWinBackCustomersTyped({String shopId = 'shop_001'}) async {
     try {
-      final thirtyDaysAgo =
-          Timestamp.fromDate(DateTime.now().subtract(const Duration(days: 30)));
-      final sixtyDaysAgo =
-          Timestamp.fromDate(DateTime.now().subtract(const Duration(days: 60)));
+      final thirtyDaysAgo = Timestamp.fromDate(DateTime.now().subtract(const Duration(days: 30)));
+      final sixtyDaysAgo = Timestamp.fromDate(DateTime.now().subtract(const Duration(days: 60)));
 
       final snap = await _db
           .collection('users')
           .where('role', isEqualTo: 'UserRole.customer')
-          .where('lastOrderAt',
-              isLessThan: thirtyDaysAgo)
-          .where('lastOrderAt',
-              isGreaterThan: sixtyDaysAgo)
+          .where('lastOrderAt', isLessThan: thirtyDaysAgo)
+          .where('lastOrderAt', isGreaterThan: sixtyDaysAgo)
           .limit(100)
           .get();
 
@@ -116,8 +105,7 @@ class SmartAnalyticsService {
           daysSinceLast: days,
           segment: ltv > 5000 ? 'VIP Win-back' : 'Regular Win-back',
         );
-      }).toList()
-        ..sort((a, b) => b.ltv.compareTo(a.ltv));
+      }).toList()..sort((a, b) => b.ltv.compareTo(a.ltv));
     } catch (e) {
       debugPrint('[SmartAnalytics] Win-back query error: $e');
       return [];
@@ -126,13 +114,9 @@ class SmartAnalyticsService {
 
   // ─── Demand forecast (Holt exponential smoothing, α=0.4) ─────────────────────
   /// Returns predicted units to sell per product in next [forecastDays] days
-  Future<Map<String, double>> forecastDemand({
-    int forecastDays = 7,
-  }) async {
+  Future<Map<String, double>> forecastDemand({int forecastDays = 7}) async {
     try {
-      final cutoff = Timestamp.fromDate(
-        DateTime.now().subtract(const Duration(days: 60)),
-      );
+      final cutoff = Timestamp.fromDate(DateTime.now().subtract(const Duration(days: 60)));
       final snap = await _db
           .collection('order_items')
           .where('createdAt', isGreaterThan: cutoff)
@@ -154,8 +138,7 @@ class SmartAnalyticsService {
       final Map<String, double> forecast = {};
       for (final entry in matrix.entries) {
         // Build 60-element series (oldest → newest)
-        final series =
-            List.generate(60, (i) => entry.value[59 - i] ?? 0.0);
+        final series = List.generate(60, (i) => entry.value[59 - i] ?? 0.0);
         double s = series.first;
         for (final obs in series.skip(1)) {
           s = alpha * obs + (1 - alpha) * s;
@@ -170,10 +153,7 @@ class SmartAnalyticsService {
   }
 
   // ─── Basket affinity ──────────────────────────────────────────────────────────
-  Future<List<String>> getFrequentlyBoughtTogether(
-    String productId, {
-    int topN = 5,
-  }) async {
+  Future<List<String>> getFrequentlyBoughtTogether(String productId, {int topN = 5}) async {
     try {
       final orderIdsSnap = await _db
           .collection('order_items')
@@ -190,10 +170,7 @@ class SmartAnalyticsService {
 
       if (orderIds.isEmpty) return [];
 
-      final coSnap = await _db
-          .collection('order_items')
-          .where('orderId', whereIn: orderIds)
-          .get();
+      final coSnap = await _db.collection('order_items').where('orderId', whereIn: orderIds).get();
 
       final Map<String, int> freq = {};
       for (final doc in coSnap.docs) {
@@ -203,8 +180,7 @@ class SmartAnalyticsService {
         }
       }
 
-      return (freq.entries.toList()
-            ..sort((a, b) => b.value.compareTo(a.value)))
+      return (freq.entries.toList()..sort((a, b) => b.value.compareTo(a.value)))
           .take(topN)
           .map((e) => e.key)
           .toList();
@@ -246,9 +222,9 @@ class SmartAnalyticsService {
 
         for (final item in (data['items'] as List? ?? [])) {
           final cat = (item as Map)['category'] as String? ?? 'Other';
-          byCategory[cat] = (byCategory[cat] ?? 0) +
-              (item['price'] as num? ?? 0).toDouble() *
-                  (item['quantity'] as num? ?? 1).toDouble();
+          byCategory[cat] =
+              (byCategory[cat] ?? 0) +
+              (item['price'] as num? ?? 0).toDouble() * (item['quantity'] as num? ?? 1).toDouble();
         }
       }
 
@@ -283,7 +259,6 @@ class SmartAnalyticsService {
     }, SetOptions(merge: true));
   }
 
-
   // ─── Adapter methods for CustomerSegmentationScreen ─────────────────────
   /// Returns customers with churn risk above [thresholdScore].
   Future<List<Map<String, dynamic>>> predictChurnRiskList({
@@ -291,8 +266,7 @@ class SmartAnalyticsService {
     String shopId = 'shop_001',
   }) async {
     try {
-      final cutoff = Timestamp.fromDate(
-          DateTime.now().subtract(const Duration(days: 14)));
+      final cutoff = Timestamp.fromDate(DateTime.now().subtract(const Duration(days: 14)));
       final snap = await _db
           .collection('users')
           .where('role', isEqualTo: 'UserRole.customer')
@@ -357,9 +331,11 @@ class SmartAnalyticsService {
   }) async {
     try {
       final cutoff = Timestamp.fromDate(
-          DateTime.now().subtract(Duration(days: daysSinceLastOrder)));
+        DateTime.now().subtract(Duration(days: daysSinceLastOrder)),
+      );
       final cutoffOld = Timestamp.fromDate(
-          DateTime.now().subtract(Duration(days: daysSinceLastOrder * 2)));
+        DateTime.now().subtract(Duration(days: daysSinceLastOrder * 2)),
+      );
       final snap = await _db
           .collection('users')
           .where('role', isEqualTo: 'UserRole.customer')
@@ -444,16 +420,15 @@ class RevenueReport {
   });
 
   factory RevenueReport.empty(DateTime from, DateTime to) => RevenueReport(
-        totalRevenue: 0,
-        totalProfit: 0,
-        totalOrders: 0,
-        byCategory: {},
-        byDay: {},
-        from: from,
-        to: to,
-      );
+    totalRevenue: 0,
+    totalProfit: 0,
+    totalOrders: 0,
+    byCategory: {},
+    byDay: {},
+    from: from,
+    to: to,
+  );
 
   double get avgOrderValue => totalOrders > 0 ? totalRevenue / totalOrders : 0;
-  double get grossMarginPct =>
-      totalRevenue > 0 ? totalProfit / totalRevenue : 0;
+  double get grossMarginPct => totalRevenue > 0 ? totalProfit / totalRevenue : 0;
 }

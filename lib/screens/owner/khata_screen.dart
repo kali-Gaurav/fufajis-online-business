@@ -24,9 +24,7 @@ class _KhataScreenState extends State<KhataScreen> {
       body: Column(
         children: [
           _buildSearchHeader(),
-          Expanded(
-            child: _buildCustomerList(),
-          ),
+          Expanded(child: _buildCustomerList()),
         ],
       ),
     );
@@ -43,7 +41,9 @@ class _KhataScreenState extends State<KhataScreen> {
           prefixIcon: const Icon(Icons.search),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           filled: true,
-          fillColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.grey800 : AppTheme.grey50,
+          fillColor: Theme.of(context).brightness == Brightness.dark
+              ? AppTheme.grey800
+              : AppTheme.grey50,
         ),
       ),
     );
@@ -60,9 +60,9 @@ class _KhataScreenState extends State<KhataScreen> {
           {'name': 'Suresh Singh', 'phone': '9988776655', 'balance': 450.0, 'limit': 2000.0},
           {'name': 'Amit Sharma', 'phone': '9122334455', 'balance': 0.0, 'limit': 5000.0},
         ];
-        
+
         final customer = demoCustomers[index];
-        if (_searchQuery.isNotEmpty && 
+        if (_searchQuery.isNotEmpty &&
             !(customer['name'] as String).toLowerCase().contains(_searchQuery.toLowerCase()) &&
             !(customer['phone'] as String).contains(_searchQuery)) {
           return const SizedBox.shrink();
@@ -98,15 +98,24 @@ class _KhataScreenState extends State<KhataScreen> {
             children: [
               CircleAvatar(
                 backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
-                child: Text((customer['name'] as String)[0], style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold)),
+                child: Text(
+                  (customer['name'] as String)[0],
+                  style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold),
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(customer['name'] as String, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    Text(customer['phone'] as String, style: const TextStyle(color: AppTheme.grey500, fontSize: 12)),
+                    Text(
+                      customer['name'] as String,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    Text(
+                      customer['phone'] as String,
+                      style: const TextStyle(color: AppTheme.grey500, fontSize: 12),
+                    ),
                   ],
                 ),
               ),
@@ -121,7 +130,10 @@ class _KhataScreenState extends State<KhataScreen> {
                       color: balance > 0 ? AppTheme.error : AppTheme.success,
                     ),
                   ),
-                  const Text('Outstanding', style: TextStyle(fontSize: 10, color: AppTheme.grey500)),
+                  const Text(
+                    'Outstanding',
+                    style: TextStyle(fontSize: 10, color: AppTheme.grey500),
+                  ),
                 ],
               ),
             ],
@@ -137,8 +149,14 @@ class _KhataScreenState extends State<KhataScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Limit: ₹${limit.toStringAsFixed(0)}', style: const TextStyle(fontSize: 11, color: AppTheme.grey600)),
-              Text('${(usagePercent * 100).toStringAsFixed(0)}% used', style: const TextStyle(fontSize: 11, color: AppTheme.grey600)),
+              Text(
+                'Limit: ₹${limit.toStringAsFixed(0)}',
+                style: const TextStyle(fontSize: 11, color: AppTheme.grey600),
+              ),
+              Text(
+                '${(usagePercent * 100).toStringAsFixed(0)}% used',
+                style: const TextStyle(fontSize: 11, color: AppTheme.grey600),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -162,7 +180,10 @@ class _KhataScreenState extends State<KhataScreen> {
                   },
                   icon: const Icon(Icons.check_circle, size: 16),
                   label: const Text('Settle'),
-                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, foregroundColor: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primary,
+                    foregroundColor: Colors.white,
+                  ),
                 ),
               ),
             ],
@@ -172,4 +193,3 @@ class _KhataScreenState extends State<KhataScreen> {
     );
   }
 }
-

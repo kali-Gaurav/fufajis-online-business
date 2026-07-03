@@ -62,13 +62,10 @@ class RoleGreetingHeader extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: accentColor.withValues(alpha: 0.12),
-              border:
-                  Border.all(color: accentColor.withValues(alpha: 0.25), width: 2),
+              border: Border.all(color: accentColor.withValues(alpha: 0.25), width: 2),
             ),
             child: avatarUrl != null
-                ? ClipOval(
-                    child: Image.network(avatarUrl!, fit: BoxFit.cover),
-                  )
+                ? ClipOval(child: Image.network(avatarUrl!, fit: BoxFit.cover))
                 : Center(
                     child: Text(
                       name.isNotEmpty ? name[0].toUpperCase() : '?',
@@ -101,8 +98,7 @@ class RoleGreetingHeader extends StatelessWidget {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
                         color: accentColor.withValues(alpha: 0.10),
                         borderRadius: BorderRadius.circular(6),
@@ -125,10 +121,7 @@ class RoleGreetingHeader extends StatelessWidget {
                           subtitle!,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.grey500,
-                          ),
+                          style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
                         ),
                       ),
                     ],
@@ -184,8 +177,7 @@ class ShiftStatusChip extends StatelessWidget {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
-              color:
-                  isOnShift ? AppTheme.success : AppTheme.warning,
+              color: isOnShift ? AppTheme.success : AppTheme.warning,
             ),
           ),
         ],

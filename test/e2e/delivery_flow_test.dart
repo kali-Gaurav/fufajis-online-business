@@ -4,14 +4,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:mockito/mockito.dart';
 import 'package:fufajis_online/models/order_model.dart';
-import 'package:fufajis_online/models/delivery_model.dart';
-import 'package:fufajis_online/models/delivery_agent_model.dart';
 import 'package:fufajis_online/models/payment_method.dart';
 import 'package:fufajis_online/models/delivery_type.dart';
 import 'package:fufajis_online/constants/order_status.dart';
 import 'package:fufajis_online/services/delivery_service.dart';
 import 'package:fufajis_online/services/order_service.dart';
-import 'package:fufajis_online/services/delivery_tracking_service.dart';
 import 'package:fufajis_online/utils/monetary_value.dart';
 import 'package:fufajis_online/models/user_model.dart';
 
@@ -94,12 +91,10 @@ class MockLocationTrackingService extends Mock {
   /// Calculates distance between two coordinates (Haversine formula)
   double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
     const p = 0.017453292519943295;
-    final a = 0.5 -
+    final a =
+        0.5 -
         cos((lat2 - lat1) * p) / 2 +
-        cos(lat1 * p) *
-            cos(lat2 * p) *
-            (1 - cos((lon2 - lon1) * p)) /
-            2;
+        cos(lat1 * p) * cos(lat2 * p) * (1 - cos((lon2 - lon1) * p)) / 2;
     return 12742 * asin(sqrt(a)); // distance in km
   }
 }
@@ -192,18 +187,16 @@ void main() {
     await fakeDb.collection('users').doc(testCustomerId).set(testCustomer);
     await fakeDb.collection('users').doc(testRiderId).set(testRider);
     await fakeDb.collection('products').doc((testProduct['id']! as String)).set(testProduct);
-    await fakeDb
-        .collection('shop_config')
-        .doc('shop_config_primary')
-        .set(testShopConfig);
+    await fakeDb.collection('shop_config').doc('shop_config_primary').set(testShopConfig);
   });
 
   group('Delivery Flow E2E Tests', () {
     // ────────────────────────────────────────────────────────────────────────
     // TEST 1: Happy Path - Complete Delivery Successfully
     // ────────────────────────────────────────────────────────────────────────
-    testWidgets('Happy Path: Complete delivery from order ready → pickup → delivery',
-        (WidgetTester tester) async {
+    testWidgets('Happy Path: Complete delivery from order ready → pickup → delivery', (
+      WidgetTester tester,
+    ) async {
       // ARRANGE: Create a confirmed order
       final items = [
         OrderItem(
@@ -244,10 +237,7 @@ void main() {
       );
 
       // Create order in Firestore
-      await fakeDb
-          .collection('orders')
-          .doc(testOrderId)
-          .set(confirmedOrder.toMap());
+      await fakeDb.collection('orders').doc(testOrderId).set(confirmedOrder.toMap());
 
       // STEP 1: Shop owner marks order ready for packing
       await fakeDb.collection('orders').doc(testOrderId).update({
@@ -286,14 +276,8 @@ void main() {
         'riderId': testRiderId,
         'status': 'assigned',
         'assignedAt': FieldValue.serverTimestamp(),
-        'customerLocation': {
-          'latitude': customerLatitude,
-          'longitude': customerLongitude,
-        },
-        'shopLocation': {
-          'latitude': shopLatitude,
-          'longitude': shopLongitude,
-        },
+        'customerLocation': {'latitude': customerLatitude, 'longitude': customerLongitude},
+        'shopLocation': {'latitude': shopLatitude, 'longitude': shopLongitude},
       });
 
       // Update order with delivery assignment
@@ -310,14 +294,11 @@ void main() {
         'riderAcceptedAt': FieldValue.serverTimestamp(),
       });
 
-      var deliverySnapshot =
-          await fakeDb.collection('deliveries').doc(assignmentId).get();
+      var deliverySnapshot = await fakeDb.collection('deliveries').doc(assignmentId).get();
       expect(deliverySnapshot['status'], equals('accepted'));
 
       // Update order status
-      await fakeDb.collection('orders').doc(testOrderId).update({
-        'status': 'out_for_delivery',
-      });
+      await fakeDb.collection('orders').doc(testOrderId).update({'status': 'out_for_delivery'});
 
       // STEP 5: Rider picks up order from shop
       await fakeDb.collection('deliveries').doc(assignmentId).update({
@@ -326,8 +307,7 @@ void main() {
         'pickupConfirmedByRider': true,
       });
 
-      deliverySnapshot =
-          await fakeDb.collection('deliveries').doc(assignmentId).get();
+      deliverySnapshot = await fakeDb.collection('deliveries').doc(assignmentId).get();
       expect(deliverySnapshot['status'], equals('picked_up'));
 
       // STEP 6: Simulate location tracking during transit
@@ -357,8 +337,7 @@ void main() {
 
       // ASSERT: Verify location tracking
       expect(mockLocationTracking.locationUpdates.length, equals(3));
-      final lastLocation =
-          await mockLocationTracking.getLastKnownLocation(testRiderId);
+      final lastLocation = await mockLocationTracking.getLastKnownLocation(testRiderId);
       expect(lastLocation, isNotNull);
       expect(
         lastLocation!['latitude'],
@@ -385,8 +364,7 @@ void main() {
         'deliveryNotes': 'Package delivered in good condition',
       });
 
-      deliverySnapshot =
-          await fakeDb.collection('deliveries').doc(assignmentId).get();
+      deliverySnapshot = await fakeDb.collection('deliveries').doc(assignmentId).get();
       expect(deliverySnapshot['status'], equals('delivered'));
       expect(deliverySnapshot['proofOfDeliveryId'], equals(podId));
 
@@ -425,8 +403,9 @@ void main() {
     // ────────────────────────────────────────────────────────────────────────
     // TEST 2: Edge Case - Assignment to Wrong Rider Should Fail
     // ────────────────────────────────────────────────────────────────────────
-    testWidgets('Edge Case: Cannot assign delivery to rider outside service zone',
-        (WidgetTester tester) async {
+    testWidgets('Edge Case: Cannot assign delivery to rider outside service zone', (
+      WidgetTester tester,
+    ) async {
       // ARRANGE: Create a rider that is not in service zone
       const wrongRiderId = 'rider_wrong_zone';
       await fakeDb.collection('users').doc(wrongRiderId).set({
@@ -441,8 +420,7 @@ void main() {
       });
 
       // ACT & ASSERT: Verify rider eligibility check fails
-      final isEligible =
-          await mockAssignmentEngine.isRiderEligibleForZone(
+      final isEligible = await mockAssignmentEngine.isRiderEligibleForZone(
         riderId: wrongRiderId,
         latitude: customerLatitude,
         longitude: customerLongitude,
@@ -456,8 +434,7 @@ void main() {
     // ────────────────────────────────────────────────────────────────────────
     // TEST 3: Edge Case - Location Tracking Accuracy
     // ────────────────────────────────────────────────────────────────────────
-    testWidgets('Edge Case: Location tracking updates are accurate',
-        (WidgetTester tester) async {
+    testWidgets('Edge Case: Location tracking updates are accurate', (WidgetTester tester) async {
       // ARRANGE
       const testRiderForTracking = 'rider_tracking_test';
 
@@ -497,24 +474,17 @@ void main() {
         lastLoc['longitude'],
       );
 
-      expect(
-        distance,
-        greaterThan(0),
-        reason: 'Distance between shop and customer should be > 0',
-      );
+      expect(distance, greaterThan(0), reason: 'Distance between shop and customer should be > 0');
 
-      expect(
-        distance,
-        lessThan(10),
-        reason: 'Distance should be within delivery radius of 10km',
-      );
+      expect(distance, lessThan(10), reason: 'Distance should be within delivery radius of 10km');
     });
 
     // ────────────────────────────────────────────────────────────────────────
     // TEST 4: Edge Case - Proof of Delivery Photo Upload
     // ────────────────────────────────────────────────────────────────────────
-    testWidgets('Edge Case: Proof-of-delivery photo upload and verification',
-        (WidgetTester tester) async {
+    testWidgets('Edge Case: Proof-of-delivery photo upload and verification', (
+      WidgetTester tester,
+    ) async {
       // ARRANGE: Setup order for delivery completion
       const deliveryId = 'delivery_pod_test';
 
@@ -555,8 +525,9 @@ void main() {
     // ────────────────────────────────────────────────────────────────────────
     // TEST 5: Edge Case - Refund After Delivery Restores Stock
     // ────────────────────────────────────────────────────────────────────────
-    testWidgets('Edge Case: Refund after delivery restores inventory stock',
-        (WidgetTester tester) async {
+    testWidgets('Edge Case: Refund after delivery restores inventory stock', (
+      WidgetTester tester,
+    ) async {
       // ARRANGE: Create delivered order
       final itemsForRefund = [
         OrderItem(
@@ -598,16 +569,14 @@ void main() {
       );
 
       // Create order
-      await fakeDb
-          .collection('orders')
-          .doc('order_refund_test')
-          .set(refundOrder.toMap());
+      await fakeDb.collection('orders').doc('order_refund_test').set(refundOrder.toMap());
 
       // Record initial stock (should be reduced due to order)
-      var productSnapshot =
-          await fakeDb.collection('products').doc((testProduct['id']! as String)).get();
-      var initialStock =
-          productSnapshot['branchStock']['primary'] as int;
+      var productSnapshot = await fakeDb
+          .collection('products')
+          .doc((testProduct['id']! as String))
+          .get();
+      var initialStock = productSnapshot['branchStock']['primary'] as int;
 
       // ACT: Process refund for delivered order
       // In real scenario, customer initiates return request
@@ -618,22 +587,19 @@ void main() {
       });
 
       // Restore inventory when refund is processed
-      final quantityToRestore =
-          itemsForRefund.fold<int>(0, (sum, item) => sum + item.quantity);
+      final quantityToRestore = itemsForRefund.fold<int>(0, (sum, item) => sum + item.quantity);
 
-      await fakeDb
-          .collection('products')
-          .doc((testProduct['id']! as String))
-          .update({
+      await fakeDb.collection('products').doc((testProduct['id']! as String)).update({
         'branchStock.primary': FieldValue.increment(quantityToRestore),
         'stockQuantity': FieldValue.increment(quantityToRestore),
       });
 
       // ASSERT: Verify stock was restored
-      productSnapshot =
-          await fakeDb.collection('products').doc((testProduct['id']! as String)).get();
-      var restoredStock =
-          productSnapshot['branchStock']['primary'] as int;
+      productSnapshot = await fakeDb
+          .collection('products')
+          .doc((testProduct['id']! as String))
+          .get();
+      var restoredStock = productSnapshot['branchStock']['primary'] as int;
 
       expect(
         restoredStock,
@@ -642,8 +608,7 @@ void main() {
       );
 
       // Verify refund record exists
-      final refundorderDoc =
-          await fakeDb.collection('orders').doc('order_refund_test').get();
+      final refundorderDoc = await fakeDb.collection('orders').doc('order_refund_test').get();
       expect(refundorderDoc['status'], equals('refunded'));
       expect(refundorderDoc['refundAmount'], equals(130.0));
     });
@@ -651,8 +616,7 @@ void main() {
     // ────────────────────────────────────────────────────────────────────────
     // TEST 6: Real-time Status Updates Stream
     // ────────────────────────────────────────────────────────────────────────
-    testWidgets('Real-time status updates appear in customer app',
-        (WidgetTester tester) async {
+    testWidgets('Real-time status updates appear in customer app', (WidgetTester tester) async {
       // ARRANGE: Create order for customer to track
       final trackingOrder = OrderModel(
         id: 'order_realtime_tracking',
@@ -690,20 +654,14 @@ void main() {
         updatedAt: DateTime.now(),
       );
 
-      await fakeDb
-          .collection('orders')
-          .doc('order_realtime_tracking')
-          .set(trackingOrder.toMap());
+      await fakeDb.collection('orders').doc('order_realtime_tracking').set(trackingOrder.toMap());
 
       // ACT: Simulate status progression that customer should see in real-time
       final statusProgression = [
         {'status': 'confirmed', 'message': 'Order Confirmed'},
         {'status': 'packing_in_progress', 'message': 'Being Packed'},
         {'status': 'packed', 'message': 'Ready for Delivery'},
-        {
-          'status': 'assigned_for_delivery',
-          'message': 'Assigned to Rider'
-        },
+        {'status': 'assigned_for_delivery', 'message': 'Assigned to Rider'},
         {'status': 'out_for_delivery', 'message': 'Out for Delivery'},
         {'status': 'delivered', 'message': 'Delivered'},
       ];
@@ -712,10 +670,7 @@ void main() {
         // Simulate delay between status updates
         await Future.delayed(const Duration(milliseconds: 100));
 
-        await fakeDb
-            .collection('orders')
-            .doc('order_realtime_tracking')
-            .update({
+        await fakeDb.collection('orders').doc('order_realtime_tracking').update({
           'status': statusProgression[i]['status'],
           'updatedAt': FieldValue.serverTimestamp(),
         });
@@ -723,15 +678,14 @@ void main() {
         // Create status update log for real-time stream
         await fakeDb
             .collection('order_status_updates')
-            .doc(
-                'update_${i}_${DateTime.now().millisecondsSinceEpoch}')
+            .doc('update_${i}_${DateTime.now().millisecondsSinceEpoch}')
             .set({
-          'orderId': 'order_realtime_tracking',
-          'customerId': testCustomerId,
-          'status': statusProgression[i]['status'],
-          'message': statusProgression[i]['message'],
-          'timestamp': FieldValue.serverTimestamp(),
-        });
+              'orderId': 'order_realtime_tracking',
+              'customerId': testCustomerId,
+              'status': statusProgression[i]['status'],
+              'message': statusProgression[i]['message'],
+              'timestamp': FieldValue.serverTimestamp(),
+            });
       }
 
       // ASSERT: Verify all status updates are recorded
@@ -749,22 +703,18 @@ void main() {
       );
 
       // Verify final status is delivered
-      final finalOrder =
-          await fakeDb.collection('orders').doc('order_realtime_tracking').get();
+      final finalOrder = await fakeDb.collection('orders').doc('order_realtime_tracking').get();
       expect(finalOrder['status'], equals('delivered'));
     });
 
     // ────────────────────────────────────────────────────────────────────────
     // TEST 7: Multiple Deliveries Assignment
     // ────────────────────────────────────────────────────────────────────────
-    testWidgets('Rider can be assigned multiple orders in delivery batch',
-        (WidgetTester tester) async {
+    testWidgets('Rider can be assigned multiple orders in delivery batch', (
+      WidgetTester tester,
+    ) async {
       // ARRANGE: Create multiple orders ready for delivery
-      final orderIds = [
-        'order_batch_001',
-        'order_batch_002',
-        'order_batch_003',
-      ];
+      final orderIds = ['order_batch_001', 'order_batch_002', 'order_batch_003'];
 
       for (var orderId in orderIds) {
         await fakeDb.collection('orders').doc(orderId).set({
@@ -780,8 +730,7 @@ void main() {
       }
 
       // ACT: Assign all orders to same rider for batch delivery
-      final batchAssignmentId =
-          'batch_${DateTime.now().millisecondsSinceEpoch}';
+      final batchAssignmentId = 'batch_${DateTime.now().millisecondsSinceEpoch}';
 
       await fakeDb.collection('delivery_batches').doc(batchAssignmentId).set({
         'id': batchAssignmentId,
@@ -802,8 +751,7 @@ void main() {
       }
 
       // ASSERT: Verify batch assignment
-      final batchDoc =
-          await fakeDb.collection('delivery_batches').doc(batchAssignmentId).get();
+      final batchDoc = await fakeDb.collection('delivery_batches').doc(batchAssignmentId).get();
       expect(batchDoc['totalOrders'], equals(3));
       expect(batchDoc['riderId'], equals(testRiderId));
 
@@ -813,11 +761,7 @@ void main() {
           .where('deliveryBatchId', isEqualTo: batchAssignmentId)
           .get();
 
-      expect(
-        batchOrders.docs.length,
-        equals(3),
-        reason: 'All 3 orders should be in the batch',
-      );
+      expect(batchOrders.docs.length, equals(3), reason: 'All 3 orders should be in the batch');
 
       for (var orderDoc in batchOrders.docs) {
         expect(orderDoc['assignedRiderId'], equals(testRiderId));
@@ -827,8 +771,9 @@ void main() {
     // ────────────────────────────────────────────────────────────────────────
     // TEST 8: Delivery Performance Metrics
     // ────────────────────────────────────────────────────────────────────────
-    testWidgets('Delivery performance metrics are tracked and updated',
-        (WidgetTester tester) async {
+    testWidgets('Delivery performance metrics are tracked and updated', (
+      WidgetTester tester,
+    ) async {
       // ARRANGE: Complete a delivery and record metrics
       const deliveryMetricsId = 'metrics_delivery_001';
 
@@ -837,8 +782,7 @@ void main() {
       await Future.delayed(const Duration(milliseconds: 500));
       final endTime = DateTime.now();
 
-      final deliveryDurationMinutes =
-          endTime.difference(startTime).inMinutes;
+      final deliveryDurationMinutes = endTime.difference(startTime).inMinutes;
 
       await fakeDb.collection('delivery_metrics').doc(deliveryMetricsId).set({
         'id': deliveryMetricsId,
@@ -854,8 +798,7 @@ void main() {
       });
 
       // ASSERT: Verify metrics are recorded
-      final metricsDoc =
-          await fakeDb.collection('delivery_metrics').doc(deliveryMetricsId).get();
+      final metricsDoc = await fakeDb.collection('delivery_metrics').doc(deliveryMetricsId).get();
       expect(metricsDoc.exists, isTrue);
       expect(metricsDoc['riderId'], equals(testRiderId));
       expect(metricsDoc['customerRating'], equals(5));
@@ -872,8 +815,7 @@ void main() {
     // ────────────────────────────────────────────────────────────────────────
     // TEST 9: Delivery Exception Handling
     // ────────────────────────────────────────────────────────────────────────
-    testWidgets('Delivery exceptions are logged and escalated',
-        (WidgetTester tester) async {
+    testWidgets('Delivery exceptions are logged and escalated', (WidgetTester tester) async {
       // ARRANGE: Create a delivery scenario where exception occurs
       const deliveryId = 'delivery_exception_001';
 
@@ -892,21 +834,16 @@ void main() {
         'orderId': testOrderId,
         'riderId': testRiderId,
         'exceptionType': 'customer_not_available',
-        'exceptionDetails':
-            'Customer did not answer phone, package left at security desk',
+        'exceptionDetails': 'Customer did not answer phone, package left at security desk',
         'photoUrl': 'https://example.com/exception_photo.jpg',
         'reportedAt': FieldValue.serverTimestamp(),
         'status': 'reported', // pending_action | resolved
       });
 
       // ASSERT: Verify exception is recorded
-      final exceptionDoc =
-          await fakeDb.collection('delivery_exceptions').doc(deliveryId).get();
+      final exceptionDoc = await fakeDb.collection('delivery_exceptions').doc(deliveryId).get();
       expect(exceptionDoc.exists, isTrue);
-      expect(
-        exceptionDoc['exceptionType'],
-        equals('customer_not_available'),
-      );
+      expect(exceptionDoc['exceptionType'], equals('customer_not_available'));
       expect(exceptionDoc['status'], equals('reported'));
 
       // Exception should trigger escalation workflow
@@ -914,4 +851,3 @@ void main() {
     });
   });
 }
-

@@ -21,8 +21,7 @@ class OwnerChatDetailScreen extends StatefulWidget {
   const OwnerChatDetailScreen({super.key, required this.chatId});
 
   @override
-  State<OwnerChatDetailScreen> createState() =>
-      _OwnerChatDetailScreenState();
+  State<OwnerChatDetailScreen> createState() => _OwnerChatDetailScreenState();
 }
 
 class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
@@ -68,8 +67,7 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
     super.initState();
     _viewTabController = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final chatProvider =
-          Provider.of<ChatProvider>(context, listen: false);
+      final chatProvider = Provider.of<ChatProvider>(context, listen: false);
       // Show all messages (including internal notes) for staff
       chatProvider.listenToMessages(widget.chatId, customerView: false);
       chatProvider.listenToConversationMeta(widget.chatId);
@@ -97,15 +95,13 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
     final text = _controller.text.trim();
     if (text.isEmpty) return;
 
-    final user =
-        Provider.of<AuthProvider>(context, listen: false).currentUser;
+    final user = Provider.of<AuthProvider>(context, listen: false).currentUser;
     if (user == null) return;
 
     _controller.clear();
     HapticFeedback.lightImpact();
 
-    final chatProvider =
-        Provider.of<ChatProvider>(context, listen: false);
+    final chatProvider = Provider.of<ChatProvider>(context, listen: false);
 
     if (_isInternalNote) {
       await chatProvider.sendInternalNote(
@@ -164,148 +160,143 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
   }
 
   Widget _buildHeader(bool isDark) {
-    return Consumer<ChatProvider>(builder: (ctx, chatProvider, _) {
-      final conv = chatProvider.activeConversation;
-      return Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF1565C0), Color(0xFF0D47A1)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+    return Consumer<ChatProvider>(
+      builder: (ctx, chatProvider, _) {
+        final conv = chatProvider.activeConversation;
+        return Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF1565C0), Color(0xFF0D47A1)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
           ),
-        ),
-        child: SafeArea(
-          bottom: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(4, 8, 12, 12),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new,
-                      color: Colors.white, size: 20),
-                  onPressed: () => NavigationHelper.safePop(context),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        conv?.customerName ?? 'Customer',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      if (conv?.orderNumber != null)
-                        Text(
-                          'Order #${conv!.orderNumber}',
-                          style: const TextStyle(
-                              color: Colors.white70, fontSize: 12),
-                        ),
-                    ],
+          child: SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(4, 8, 12, 12),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+                    onPressed: () => NavigationHelper.safePop(context),
                   ),
-                ),
-                // Status chip
-                if (conv != null)
-                  _StatusChip(status: conv.status),
-                const SizedBox(width: 8),
-                // Overflow menu
-                PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert, color: Colors.white),
-                  onSelected: (val) => _handleMenuAction(val, conv),
-                  itemBuilder: (_) => [
-                    const PopupMenuItem(
-                        value: 'assign', child: Text('Assign Staff')),
-                    if (conv?.status != ChatStatus.closed) ...[
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          conv?.customerName ?? 'Customer',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        if (conv?.orderNumber != null)
+                          Text(
+                            'Order #${conv!.orderNumber}',
+                            style: const TextStyle(color: Colors.white70, fontSize: 12),
+                          ),
+                      ],
+                    ),
+                  ),
+                  // Status chip
+                  if (conv != null) _StatusChip(status: conv.status),
+                  const SizedBox(width: 8),
+                  // Overflow menu
+                  PopupMenuButton<String>(
+                    icon: const Icon(Icons.more_vert, color: Colors.white),
+                    onSelected: (val) => _handleMenuAction(val, conv),
+                    itemBuilder: (_) => [
+                      const PopupMenuItem(value: 'assign', child: Text('Assign Staff')),
+                      if (conv?.status != ChatStatus.closed) ...[
+                        const PopupMenuItem(value: 'close', child: Text('Close Ticket')),
+                        // Task #67 — Archive moves conversation to Archive tab
+                        const PopupMenuItem(
+                          value: 'archive',
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.archive_outlined,
+                                size: 18,
+                                color: AppTheme.ownerAccentGrey,
+                              ),
+                              SizedBox(width: 8),
+                              Text('Archive Chat'),
+                            ],
+                          ),
+                        ),
+                      ],
+                      const PopupMenuItem(value: 'invoice', child: Text('Send Invoice')),
+                      // Task #69 — FAQ management
                       const PopupMenuItem(
-                          value: 'close', child: Text('Close Ticket')),
-                      // Task #67 — Archive moves conversation to Archive tab
-                      const PopupMenuItem(
-                        value: 'archive',
+                        value: 'faq',
                         child: Row(
                           children: [
-                            Icon(Icons.archive_outlined,
-                                size: 18, color: AppTheme.ownerAccentGrey),
+                            Icon(Icons.menu_book_outlined, size: 18, color: Colors.teal),
                             SizedBox(width: 8),
-                            Text('Archive Chat'),
+                            Text('FAQ Knowledgebase'),
+                          ],
+                        ),
+                      ),
+                      // Task #70 — Export chat transcript (compliance)
+                      const PopupMenuItem(
+                        value: 'export',
+                        child: Row(
+                          children: [
+                            Icon(Icons.download_outlined, size: 18, color: AppTheme.ownerAccent),
+                            SizedBox(width: 8),
+                            Text('Export Chat'),
                           ],
                         ),
                       ),
                     ],
-                    const PopupMenuItem(
-                        value: 'invoice', child: Text('Send Invoice')),
-                    // Task #69 — FAQ management
-                    const PopupMenuItem(
-                      value: 'faq',
-                      child: Row(
-                        children: [
-                          Icon(Icons.menu_book_outlined,
-                              size: 18, color: Colors.teal),
-                          SizedBox(width: 8),
-                          Text('FAQ Knowledgebase'),
-                        ],
-                      ),
-                    ),
-                    // Task #70 — Export chat transcript (compliance)
-                    const PopupMenuItem(
-                      value: 'export',
-                      child: Row(
-                        children: [
-                          Icon(Icons.download_outlined,
-                              size: 18, color: AppTheme.ownerAccent),
-                          SizedBox(width: 8),
-                          Text('Export Chat'),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 
   Widget _buildCustomerInfo(bool isDark) {
-    return Consumer<ChatProvider>(builder: (ctx, chatProvider, _) {
-      final conv = chatProvider.activeConversation;
-      if (conv == null) return const SizedBox.shrink();
-      return Container(
-        color: isDark ? AppTheme.grey800 : Colors.white,
-        padding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        child: Row(
-          children: [
-            const Icon(Icons.person_outline,
-                size: 16, color: AppTheme.grey400),
-            const SizedBox(width: 6),
-            Text(
-              conv.customerPhone,
-              style: const TextStyle(
-                  fontSize: 12, color: AppTheme.grey500),
-            ),
-            const Spacer(),
-            // Task #68 — Sentiment indicator in the info bar
-            if (conv.overallSentiment != null) ...[
-              _SentimentPill(sentiment: conv.overallSentiment!),
-              const SizedBox(width: 8),
-            ],
-            if (conv.isTypingCustomer) ...[
-              const Icon(Icons.edit, size: 14, color: AppTheme.info),
-              const SizedBox(width: 4),
-              const Text(
-                'Customer is typing...',
-                style: TextStyle(
-                    fontSize: 11, color: AppTheme.info),
+    return Consumer<ChatProvider>(
+      builder: (ctx, chatProvider, _) {
+        final conv = chatProvider.activeConversation;
+        if (conv == null) return const SizedBox.shrink();
+        return Container(
+          color: isDark ? AppTheme.grey800 : Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            children: [
+              const Icon(Icons.person_outline, size: 16, color: AppTheme.grey400),
+              const SizedBox(width: 6),
+              Text(
+                conv.customerPhone,
+                style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
               ),
+              const Spacer(),
+              // Task #68 — Sentiment indicator in the info bar
+              if (conv.overallSentiment != null) ...[
+                _SentimentPill(sentiment: conv.overallSentiment!),
+                const SizedBox(width: 8),
+              ],
+              if (conv.isTypingCustomer) ...[
+                const Icon(Icons.edit, size: 14, color: AppTheme.info),
+                const SizedBox(width: 4),
+                const Text(
+                  'Customer is typing...',
+                  style: TextStyle(fontSize: 11, color: AppTheme.info),
+                ),
+              ],
             ],
-          ],
-        ),
-      );
-    });
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildViewTabs(bool isDark) {
@@ -320,8 +311,7 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
         labelColor: AppTheme.ownerAccent,
         unselectedLabelColor: AppTheme.grey500,
         indicatorColor: AppTheme.ownerAccent,
-        labelStyle: const TextStyle(
-            fontWeight: FontWeight.w600, fontSize: 13),
+        labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
         onTap: (index) {
           setState(() => _isInternalNote = index == 1);
         },
@@ -330,84 +320,80 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
   }
 
   Widget _buildMessageArea(bool isDark) {
-    return Consumer<ChatProvider>(builder: (ctx, chatProvider, _) {
-      if (chatProvider.isLoading) {
-        return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
-      }
+    return Consumer<ChatProvider>(
+      builder: (ctx, chatProvider, _) {
+        if (chatProvider.isLoading) {
+          return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
+        }
 
-      final allMsgs = chatProvider.messages;
-      final viewIndex = _viewTabController.index;
+        final allMsgs = chatProvider.messages;
+        final viewIndex = _viewTabController.index;
 
-      final msgs = viewIndex == 1
-          ? allMsgs.where((m) => m.isInternalNote).toList()
-          : allMsgs.where((m) => !m.isInternalNote).toList();
+        final msgs = viewIndex == 1
+            ? allMsgs.where((m) => m.isInternalNote).toList()
+            : allMsgs.where((m) => !m.isInternalNote).toList();
 
-      // Task #69 — FAQ auto-link: check latest customer message against cache
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (_faqCache.isNotEmpty && msgs.isNotEmpty) {
-          final last = msgs.lastWhere(
-            (m) => m.senderRole == SenderRole.customer,
-            orElse: () => msgs.last,
-          );
-          if (last.senderRole == SenderRole.customer) {
-            final match =
-                _faqService.findMatchSync(last.text, _faqCache);
-            if (match?.id != _suggestedFaq?.id) {
-              setState(() => _suggestedFaq = match);
+        // Task #69 — FAQ auto-link: check latest customer message against cache
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_faqCache.isNotEmpty && msgs.isNotEmpty) {
+            final last = msgs.lastWhere(
+              (m) => m.senderRole == SenderRole.customer,
+              orElse: () => msgs.last,
+            );
+            if (last.senderRole == SenderRole.customer) {
+              final match = _faqService.findMatchSync(last.text, _faqCache);
+              if (match?.id != _suggestedFaq?.id) {
+                setState(() => _suggestedFaq = match);
+              }
             }
           }
+        });
+
+        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+
+        if (msgs.isEmpty) {
+          return Center(
+            child: Text(
+              viewIndex == 1 ? 'No internal notes yet' : 'No messages yet',
+              style: const TextStyle(color: AppTheme.grey400),
+            ),
+          );
         }
-      });
 
-      WidgetsBinding.instance
-          .addPostFrameCallback((_) => _scrollToBottom());
-
-      if (msgs.isEmpty) {
-        return Center(
-          child: Text(
-            viewIndex == 1
-                ? 'No internal notes yet'
-                : 'No messages yet',
-            style: const TextStyle(color: AppTheme.grey400),
-          ),
-        );
-      }
-
-      return Column(
-        children: [
-          // Task #69 — Suggested FAQ banner (above messages)
-          if (_suggestedFaq != null && viewIndex == 0) ...[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
-              child: FaqArticleCard(
-                article: _suggestedFaq!,
-                accentColor: Colors.teal,
-                initiallyExpanded: false,
-                onDismiss: () => setState(() => _suggestedFaq = null),
+        return Column(
+          children: [
+            // Task #69 — Suggested FAQ banner (above messages)
+            if (_suggestedFaq != null && viewIndex == 0) ...[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
+                child: FaqArticleCard(
+                  article: _suggestedFaq!,
+                  accentColor: Colors.teal,
+                  initiallyExpanded: false,
+                  onDismiss: () => setState(() => _suggestedFaq = null),
+                ),
+              ),
+            ],
+            Expanded(
+              child: ListView.builder(
+                controller: _scrollController,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                itemCount: msgs.length,
+                itemBuilder: (context, index) {
+                  final msg = msgs[index];
+                  final isOwnerOrStaff =
+                      msg.senderRole != SenderRole.customer && msg.senderRole != SenderRole.system;
+                  return _buildMessageItem(msg, isOwnerOrStaff, isDark);
+                },
               ),
             ),
           ],
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              itemCount: msgs.length,
-              itemBuilder: (context, index) {
-                final msg = msgs[index];
-                final isOwnerOrStaff =
-                    msg.senderRole != SenderRole.customer &&
-                        msg.senderRole != SenderRole.system;
-                return _buildMessageItem(msg, isOwnerOrStaff, isDark);
-              },
-            ),
-          ),
-        ],
-      );
-    });
+        );
+      },
+    );
   }
 
-  Widget _buildMessageItem(
-      ChatMessage msg, bool isStaff, bool isDark) {
+  Widget _buildMessageItem(ChatMessage msg, bool isStaff, bool isDark) {
     if (msg.messageType == MessageType.systemMessage) {
       return _buildSystemMsg(msg, isDark);
     }
@@ -422,24 +408,21 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: Center(
         child: Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           constraints: const BoxConstraints(maxWidth: 320),
           decoration: BoxDecoration(
             color: isDark ? AppTheme.grey800 : const Color(0xFFEDF4FF),
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-                color: AppTheme.info.withValues(alpha: 0.3)),
+            border: Border.all(color: AppTheme.info.withValues(alpha: 0.3)),
           ),
           child: Text(
             msg.text,
             textAlign: TextAlign.center,
             style: TextStyle(
-                fontSize: 12,
-                color: isDark
-                    ? AppTheme.grey300
-                    : const Color(0xFF1A237E),
-                height: 1.5),
+              fontSize: 12,
+              color: isDark ? AppTheme.grey300 : const Color(0xFF1A237E),
+              height: 1.5,
+            ),
           ),
         ),
       ),
@@ -460,8 +443,7 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
         children: [
           Row(
             children: [
-              const Icon(Icons.lock_outline,
-                  size: 13, color: Color(0xFFF57F17)),
+              const Icon(Icons.lock_outline, size: 13, color: Color(0xFFF57F17)),
               const SizedBox(width: 5),
               Text(
                 '${msg.senderName} — Internal Note',
@@ -474,33 +456,28 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
               const Spacer(),
               Text(
                 DateFormat('hh:mm a').format(msg.timestamp),
-                style: const TextStyle(
-                    fontSize: 10, color: AppTheme.grey500),
+                style: const TextStyle(fontSize: 10, color: AppTheme.grey500),
               ),
             ],
           ),
           const SizedBox(height: 6),
           Text(
             msg.text,
-            style: const TextStyle(
-                fontSize: 13,
-                color: Color(0xFF5D4037),
-                height: 1.4),
+            style: const TextStyle(fontSize: 13, color: Color(0xFF5D4037), height: 1.4),
           ),
           if (msg.mentions.isNotEmpty) ...[
             const SizedBox(height: 6),
             Wrap(
               spacing: 4,
               children: msg.mentions
-                  .map((m) => Chip(
-                        label: Text(m,
-                            style: const TextStyle(
-                                fontSize: 10, color: Colors.white)),
-                        backgroundColor: AppTheme.ownerAccent,
-                        padding: EdgeInsets.zero,
-                        materialTapTargetSize:
-                            MaterialTapTargetSize.shrinkWrap,
-                      ))
+                  .map(
+                    (m) => Chip(
+                      label: Text(m, style: const TextStyle(fontSize: 10, color: Colors.white)),
+                      backgroundColor: AppTheme.ownerAccent,
+                      padding: EdgeInsets.zero,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  )
                   .toList(),
             ),
           ],
@@ -509,12 +486,10 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
     );
   }
 
-  Widget _buildBubble(
-      ChatMessage msg, bool isStaff, bool isDark) {
+  Widget _buildBubble(ChatMessage msg, bool isStaff, bool isDark) {
     final isCustomer = msg.senderRole == SenderRole.customer;
     return Align(
-      alignment:
-          isCustomer ? Alignment.centerLeft : Alignment.centerRight,
+      alignment: isCustomer ? Alignment.centerLeft : Alignment.centerRight,
       child: Container(
         margin: EdgeInsets.only(
           top: 3,
@@ -523,23 +498,21 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
           right: isCustomer ? 60 : 0,
         ),
         child: Column(
-          crossAxisAlignment: isCustomer
-              ? CrossAxisAlignment.start
-              : CrossAxisAlignment.end,
+          crossAxisAlignment: isCustomer ? CrossAxisAlignment.start : CrossAxisAlignment.end,
           children: [
             Padding(
               padding: const EdgeInsets.only(bottom: 3, left: 4, right: 4),
               child: Text(
                 isCustomer ? msg.senderName : '${msg.senderName} (Staff)',
                 style: const TextStyle(
-                    fontSize: 11,
-                    color: AppTheme.grey400,
-                    fontWeight: FontWeight.w600),
+                  fontSize: 11,
+                  color: AppTheme.grey400,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
             Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 16, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
                 color: isCustomer
                     ? (isDark ? AppTheme.grey800 : Colors.white)
@@ -548,8 +521,7 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
                   topLeft: const Radius.circular(18),
                   topRight: const Radius.circular(18),
                   bottomLeft: Radius.circular(isCustomer ? 4 : 18),
-                  bottomRight:
-                      Radius.circular(isCustomer ? 18 : 4),
+                  bottomRight: Radius.circular(isCustomer ? 18 : 4),
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -560,16 +532,12 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
                 ],
               ),
               child: Column(
-                crossAxisAlignment: isCustomer
-                    ? CrossAxisAlignment.start
-                    : CrossAxisAlignment.end,
+                crossAxisAlignment: isCustomer ? CrossAxisAlignment.start : CrossAxisAlignment.end,
                 children: [
                   Text(
                     msg.text,
                     style: TextStyle(
-                      color: isCustomer
-                          ? (isDark ? Colors.white : AppTheme.grey900)
-                          : Colors.white,
+                      color: isCustomer ? (isDark ? Colors.white : AppTheme.grey900) : Colors.white,
                       fontSize: 14,
                       height: 1.4,
                     ),
@@ -578,9 +546,7 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
                   Text(
                     DateFormat('hh:mm a').format(msg.timestamp),
                     style: TextStyle(
-                      color: isCustomer
-                          ? AppTheme.grey400
-                          : Colors.white70,
+                      color: isCustomer ? AppTheme.grey400 : Colors.white70,
                       fontSize: 10,
                     ),
                   ),
@@ -600,39 +566,37 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: isDark ? AppTheme.grey800 : const Color(0xFFEEF2FF),
-        border: Border(
-            top: BorderSide(
-                color: isDark
-                    ? AppTheme.grey700
-                    : AppTheme.grey200)),
+        border: Border(top: BorderSide(color: isDark ? AppTheme.grey700 : AppTheme.grey200)),
       ),
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
           _QuickChip(
             label: '🔖 Order Confirmed',
-            onTap: () => _insertQuickReply(
-                'Your order has been confirmed! We\'re preparing it now. 🎉'),
+            onTap: () =>
+                _insertQuickReply('Your order has been confirmed! We\'re preparing it now. 🎉'),
           ),
           _QuickChip(
             label: '🚚 Out for Delivery',
-            onTap: () => _insertQuickReply(
-                'Your order is out for delivery and will arrive shortly! 🚚'),
+            onTap: () =>
+                _insertQuickReply('Your order is out for delivery and will arrive shortly! 🚚'),
           ),
           _QuickChip(
             label: '✅ Delivered',
             onTap: () => _insertQuickReply(
-                'Your order has been delivered successfully. Thank you for shopping with Fufaji! 🙏'),
+              'Your order has been delivered successfully. Thank you for shopping with Fufaji! 🙏',
+            ),
           ),
           _QuickChip(
             label: '📄 Invoice Sent',
-            onTap: () => _insertQuickReply(
-                'Your invoice has been shared in this chat. Please check above.'),
+            onTap: () =>
+                _insertQuickReply('Your invoice has been shared in this chat. Please check above.'),
           ),
           _QuickChip(
             label: '⏳ Slight Delay',
             onTap: () => _insertQuickReply(
-                'We\'re sorry for the slight delay in your order. It will reach you very soon!'),
+              'We\'re sorry for the slight delay in your order. It will reach you very soon!',
+            ),
           ),
         ],
       ),
@@ -669,26 +633,20 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
               color: _isInternalNote
                   ? const Color(0xFFFFF9C4)
                   : (isDark ? AppTheme.grey900 : Colors.white),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               child: Row(
                 children: [
                   GestureDetector(
                     onTap: () => setState(() {
                       _isInternalNote = !_isInternalNote;
-                      _viewTabController
-                          .animateTo(_isInternalNote ? 1 : 0);
+                      _viewTabController.animateTo(_isInternalNote ? 1 : 0);
                     }),
                     child: Row(
                       children: [
                         Icon(
-                          _isInternalNote
-                              ? Icons.lock
-                              : Icons.reply,
+                          _isInternalNote ? Icons.lock : Icons.reply,
                           size: 16,
-                          color: _isInternalNote
-                              ? const Color(0xFFF57F17)
-                              : AppTheme.ownerAccent,
+                          color: _isInternalNote ? const Color(0xFFF57F17) : AppTheme.ownerAccent,
                         ),
                         const SizedBox(width: 5),
                         Text(
@@ -698,9 +656,7 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: _isInternalNote
-                                ? const Color(0xFFF57F17)
-                                : AppTheme.ownerAccent,
+                            color: _isInternalNote ? const Color(0xFFF57F17) : AppTheme.ownerAccent,
                           ),
                         ),
                       ],
@@ -729,22 +685,16 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
                       decoration: BoxDecoration(
                         color: _isInternalNote
                             ? const Color(0xFFFFFDE7)
-                            : (isDark
-                                ? AppTheme.grey800
-                                : AppTheme.grey100),
+                            : (isDark ? AppTheme.grey800 : AppTheme.grey100),
                         borderRadius: BorderRadius.circular(24),
-                        border: _isInternalNote
-                            ? Border.all(
-                                color: const Color(0xFFFFD54F))
-                            : null,
+                        border: _isInternalNote ? Border.all(color: const Color(0xFFFFD54F)) : null,
                       ),
                       child: TextField(
                         controller: _controller,
                         focusNode: _focusNode,
                         maxLines: 5,
                         minLines: 1,
-                        textCapitalization:
-                            TextCapitalization.sentences,
+                        textCapitalization: TextCapitalization.sentences,
                         style: TextStyle(
                           color: isDark ? Colors.white : AppTheme.grey900,
                           fontSize: 14,
@@ -758,12 +708,9 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
                           hintText: _isInternalNote
                               ? 'Add internal note...'
                               : 'Reply to customer...',
-                          hintStyle: const TextStyle(
-                              color: AppTheme.grey400),
+                          hintStyle: const TextStyle(color: AppTheme.grey400),
                           border: InputBorder.none,
-                          contentPadding:
-                              const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 10),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         ),
                       ),
                     ),
@@ -772,16 +719,12 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
                   Consumer<ChatProvider>(
                     builder: (ctx, chatProvider, _) {
                       return GestureDetector(
-                        onTap: chatProvider.isSending
-                            ? null
-                            : _sendMessage,
+                        onTap: chatProvider.isSending ? null : _sendMessage,
                         child: Container(
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            color: _isInternalNote
-                                ? const Color(0xFFF57F17)
-                                : AppTheme.ownerAccent,
+                            color: _isInternalNote ? const Color(0xFFF57F17) : AppTheme.ownerAccent,
                             shape: BoxShape.circle,
                           ),
                           child: chatProvider.isSending
@@ -793,9 +736,7 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
                                   ),
                                 )
                               : Icon(
-                                  _isInternalNote
-                                      ? Icons.lock_outline
-                                      : Icons.send_rounded,
+                                  _isInternalNote ? Icons.lock_outline : Icons.send_rounded,
                                   color: Colors.white,
                                   size: 20,
                                 ),
@@ -821,10 +762,7 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
         children: [
           const Text(
             'Tag:',
-            style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFFF57F17)),
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFFF57F17)),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -842,25 +780,19 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
                   }),
                   child: Container(
                     margin: const EdgeInsets.only(right: 6, top: 5, bottom: 5),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                     decoration: BoxDecoration(
-                      color: isSelected
-                          ? AppTheme.ownerAccent
-                          : Colors.white,
+                      color: isSelected ? AppTheme.ownerAccent : Colors.white,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                          color: isSelected
-                              ? AppTheme.ownerAccent
-                              : AppTheme.grey300),
+                        color: isSelected ? AppTheme.ownerAccent : AppTheme.grey300,
+                      ),
                     ),
                     child: Text(
                       m,
                       style: TextStyle(
                         fontSize: 12,
-                        color: isSelected
-                            ? Colors.white
-                            : AppTheme.grey700,
+                        color: isSelected ? Colors.white : AppTheme.grey700,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -874,26 +806,25 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
     );
   }
 
-  void _handleMenuAction(
-      String action, ChatConversationModel? conv) async {
+  void _handleMenuAction(String action, ChatConversationModel? conv) async {
     if (conv == null) return;
-    final chatProvider =
-        Provider.of<ChatProvider>(context, listen: false);
+    final chatProvider = Provider.of<ChatProvider>(context, listen: false);
     switch (action) {
       case 'close':
         final confirmed = await showDialog<bool>(
           context: context,
           builder: (_) => AlertDialog(
             title: const Text('Close Ticket', style: TextStyle(fontWeight: FontWeight.w700)),
-            content: const Text(
-                'Are you sure you want to close this conversation?'),
+            content: const Text('Are you sure you want to close this conversation?'),
             actions: [
               TextButton(
-                  onPressed: () => NavigationHelper.safePopWithResult(context, false),
-                  child: const Text('Cancel')),
+                onPressed: () => NavigationHelper.safePopWithResult(context, false),
+                child: const Text('Cancel'),
+              ),
               ElevatedButton(
-                  onPressed: () => NavigationHelper.safePopWithResult(context, true),
-                  child: const Text('Close')),
+                onPressed: () => NavigationHelper.safePopWithResult(context, true),
+                child: const Text('Close'),
+              ),
             ],
           ),
         );
@@ -921,15 +852,14 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
             ),
             actions: [
               TextButton(
-                  onPressed: () =>
-                      NavigationHelper.safePopWithResult(context, false),
-                  child: const Text('Cancel')),
+                onPressed: () => NavigationHelper.safePopWithResult(context, false),
+                child: const Text('Cancel'),
+              ),
               ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.ownerAccentGrey),
-                  onPressed: () =>
-                      NavigationHelper.safePopWithResult(context, true),
-                  child: const Text('Archive')),
+                style: ElevatedButton.styleFrom(backgroundColor: AppTheme.ownerAccentGrey),
+                onPressed: () => NavigationHelper.safePopWithResult(context, true),
+                child: const Text('Archive'),
+              ),
             ],
           ),
         );
@@ -946,11 +876,12 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
         _showAssignDialog(chatProvider);
         break;
       case 'invoice':
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text(
-              'Invoice will be sent automatically after order confirmation.'),
-          backgroundColor: AppTheme.info,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Invoice will be sent automatically after order confirmation.'),
+            backgroundColor: AppTheme.info,
+          ),
+        );
         break;
       case 'export':
         // Task #70 — Export full chat transcript as CSV for compliance
@@ -958,10 +889,9 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
           await ChatExportService().exportAsCsv(widget.chatId);
         } catch (e) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text('Export failed: $e'),
-              backgroundColor: AppTheme.error,
-            ));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Export failed: $e'), backgroundColor: AppTheme.error),
+            );
           }
         }
         break;
@@ -992,7 +922,8 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
                 final employees = snapshot.data!;
                 if (employees.isEmpty) {
                   return const Text(
-                      'No active employees found. Add staff in Employee Management first.');
+                    'No active employees found. Add staff in Employee Management first.',
+                  );
                 }
                 return DropdownButtonFormField<Employee>(
                   initialValue: selected,
@@ -1002,22 +933,23 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
                     prefixIcon: Icon(Icons.badge_outlined),
                   ),
                   items: employees
-                      .map((e) => DropdownMenuItem<Employee>(
-                            value: e,
-                            child: Text(
-                                '${e.name} (${e.role.displayName})'),
-                          ))
+                      .map(
+                        (e) => DropdownMenuItem<Employee>(
+                          value: e,
+                          child: Text('${e.name} (${e.role.displayName})'),
+                        ),
+                      )
                       .toList(),
-                  onChanged: (value) =>
-                      setDialogState(() => selected = value),
+                  onChanged: (value) => setDialogState(() => selected = value),
                 );
               },
             ),
           ),
           actions: [
             TextButton(
-                onPressed: () => NavigationHelper.safePop(context),
-                child: const Text('Cancel')),
+              onPressed: () => NavigationHelper.safePop(context),
+              child: const Text('Cancel'),
+            ),
             ElevatedButton(
               onPressed: selected == null
                   ? null
@@ -1065,8 +997,7 @@ class _StatusChip extends StatelessWidget {
         break;
     }
     return Container(
-      padding:
-          const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
@@ -1074,10 +1005,7 @@ class _StatusChip extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(
-            fontSize: 11,
-            color: color,
-            fontWeight: FontWeight.w700),
+        style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w700),
       ),
     );
   }
@@ -1091,10 +1019,14 @@ class _SentimentPill extends StatelessWidget {
 
   Color get _color {
     switch (sentiment) {
-      case SentimentLabel.positive: return const Color(0xFF2E7D32);
-      case SentimentLabel.neutral:  return const Color(0xFF757575);
-      case SentimentLabel.negative: return const Color(0xFFE65100);
-      case SentimentLabel.angry:    return const Color(0xFFC62828);
+      case SentimentLabel.positive:
+        return const Color(0xFF2E7D32);
+      case SentimentLabel.neutral:
+        return const Color(0xFF757575);
+      case SentimentLabel.negative:
+        return const Color(0xFFE65100);
+      case SentimentLabel.angry:
+        return const Color(0xFFC62828);
     }
   }
 
@@ -1114,11 +1046,7 @@ class _SentimentPill extends StatelessWidget {
           const SizedBox(width: 3),
           Text(
             sentiment.label,
-            style: TextStyle(
-              fontSize: 10,
-              color: _color,
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(fontSize: 10, color: _color, fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -1138,20 +1066,19 @@ class _QuickChip extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(right: 8, top: 7, bottom: 7),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
           color: AppTheme.ownerAccent.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-              color: AppTheme.ownerAccent.withValues(alpha: 0.3)),
+          border: Border.all(color: AppTheme.ownerAccent.withValues(alpha: 0.3)),
         ),
         child: Text(
           label,
           style: const TextStyle(
-              fontSize: 12,
-              color: AppTheme.ownerAccent,
-              fontWeight: FontWeight.w500),
+            fontSize: 12,
+            color: AppTheme.ownerAccent,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ),
     );

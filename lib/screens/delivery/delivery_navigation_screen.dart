@@ -12,10 +12,7 @@ import '../../widgets/common/fj_button.dart';
 class DeliveryNavigationScreen extends StatefulWidget {
   final String orderId;
 
-  const DeliveryNavigationScreen({
-    super.key,
-    required this.orderId,
-  });
+  const DeliveryNavigationScreen({super.key, required this.orderId});
 
   @override
   State<DeliveryNavigationScreen> createState() => _DeliveryNavigationScreenState();
@@ -45,7 +42,7 @@ class _DeliveryNavigationScreenState extends State<DeliveryNavigationScreen> {
     try {
       final orderProvider = Provider.of<OrderProvider>(context, listen: false);
       final order = await orderProvider.getOrderById(widget.orderId);
-      
+
       // Request location permission and get location
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
@@ -69,19 +66,20 @@ class _DeliveryNavigationScreenState extends State<DeliveryNavigationScreen> {
       );
 
       // Subscribe to location updates
-      _positionStreamSubscription = Geolocator.getPositionStream(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          distanceFilter: 10,
-        ),
-      ).listen((Position position) {
-        if (mounted) {
-          setState(() {
-            _currentPosition = position;
+      _positionStreamSubscription =
+          Geolocator.getPositionStream(
+            locationSettings: const LocationSettings(
+              accuracy: LocationAccuracy.high,
+              distanceFilter: 10,
+            ),
+          ).listen((Position position) {
+            if (mounted) {
+              setState(() {
+                _currentPosition = position;
+              });
+              _updateMapCamera();
+            }
           });
-          _updateMapCamera();
-        }
-      });
 
       if (mounted) {
         setState(() {
@@ -94,7 +92,10 @@ class _DeliveryNavigationScreenState extends State<DeliveryNavigationScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error initializing navigation: $e'), backgroundColor: AppTheme.error),
+          SnackBar(
+            content: Text('Error initializing navigation: $e'),
+            backgroundColor: AppTheme.error,
+          ),
         );
       }
     }
@@ -103,9 +104,7 @@ class _DeliveryNavigationScreenState extends State<DeliveryNavigationScreen> {
   void _updateMapCamera() {
     if (_mapController != null && _currentPosition != null) {
       _mapController!.animateCamera(
-        CameraUpdate.newLatLng(
-          LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-        ),
+        CameraUpdate.newLatLng(LatLng(_currentPosition!.latitude, _currentPosition!.longitude)),
       );
     }
   }
@@ -118,7 +117,8 @@ class _DeliveryNavigationScreenState extends State<DeliveryNavigationScreen> {
     final riderLat = _currentPosition!.latitude;
     final riderLng = _currentPosition!.longitude;
 
-    final url = 'https://www.google.com/maps/dir/?api=1&origin=$riderLat,$riderLng&destination=$customerLat,$customerLng&travelmode=driving';
+    final url =
+        'https://www.google.com/maps/dir/?api=1&origin=$riderLat,$riderLng&destination=$customerLat,$customerLng&travelmode=driving';
     final uri = Uri.parse(url);
 
     if (await canLaunchUrl(uri)) {
@@ -126,7 +126,10 @@ class _DeliveryNavigationScreenState extends State<DeliveryNavigationScreen> {
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not launch external map application.'), backgroundColor: AppTheme.error),
+          const SnackBar(
+            content: Text('Could not launch external map application.'),
+            backgroundColor: AppTheme.error,
+          ),
         );
       }
     }
@@ -141,9 +144,7 @@ class _DeliveryNavigationScreenState extends State<DeliveryNavigationScreen> {
     }
 
     if (_order == null) {
-      return const Scaffold(
-        body: Center(child: Text('Order details could not be loaded.')),
-      );
+      return const Scaffold(body: Center(child: Text('Order details could not be loaded.')));
     }
 
     final order = _order!;
@@ -190,10 +191,7 @@ class _DeliveryNavigationScreenState extends State<DeliveryNavigationScreen> {
       body: Stack(
         children: [
           GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: riderLatLng,
-              zoom: 14.5,
-            ),
+            initialCameraPosition: CameraPosition(target: riderLatLng, zoom: 14.5),
             onMapCreated: (controller) => _mapController = controller,
             markers: markers,
             myLocationEnabled: true,
@@ -209,11 +207,7 @@ class _DeliveryNavigationScreenState extends State<DeliveryNavigationScreen> {
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                 boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 10,
-                    offset: Offset(0, -2),
-                  ),
+                  BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -2)),
                 ],
               ),
               child: Column(
@@ -246,7 +240,8 @@ class _DeliveryNavigationScreenState extends State<DeliveryNavigationScreen> {
                       ),
                     ],
                   ),
-                  if (order.deliveryInstructions != null && order.deliveryInstructions!.isNotEmpty) ...[
+                  if (order.deliveryInstructions != null &&
+                      order.deliveryInstructions!.isNotEmpty) ...[
                     const SizedBox(height: 12),
                     Container(
                       padding: const EdgeInsets.all(10),

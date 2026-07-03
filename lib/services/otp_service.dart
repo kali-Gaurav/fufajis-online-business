@@ -37,7 +37,10 @@ class OTPService {
     bool seq = true;
     for (int i = 1; i < s.length; i++) {
       final diff = int.parse(s[i]) - int.parse(s[i - 1]);
-      if (diff != 1 && diff != -9) { seq = false; break; }
+      if (diff != 1 && diff != -9) {
+        seq = false;
+        break;
+      }
     }
     return seq;
   }
@@ -155,25 +158,26 @@ class _OTPTracker {
   });
 
   factory _OTPTracker.fromMap(Map<String, dynamic> m) => _OTPTracker(
-        deliveryId: m['deliveryId'] as String? ?? '',
-        failedAttempts: m['failedAttempts'] as int? ?? 0,
-        isVerified: m['isVerified'] as bool? ?? false,
-        otpVerifiedAt: m['otpVerifiedAt'] as String?,
-        otpGeneratedAtIso: m['otpGeneratedAtIso'] as String?,
-      );
+    deliveryId: m['deliveryId'] as String? ?? '',
+    failedAttempts: m['failedAttempts'] as int? ?? 0,
+    isVerified: m['isVerified'] as bool? ?? false,
+    otpVerifiedAt: m['otpVerifiedAt'] as String?,
+    otpGeneratedAtIso: m['otpGeneratedAtIso'] as String?,
+  );
 
   Map<String, dynamic> toMap() => {
-        'deliveryId': deliveryId,
-        'failedAttempts': failedAttempts,
-        'isVerified': isVerified,
-        'otpVerifiedAt': otpVerifiedAt,
-        'otpGeneratedAtIso': otpGeneratedAtIso,
-      };
+    'deliveryId': deliveryId,
+    'failedAttempts': failedAttempts,
+    'isVerified': isVerified,
+    'otpVerifiedAt': otpVerifiedAt,
+    'otpGeneratedAtIso': otpGeneratedAtIso,
+  };
 
   DateTime? get expiresAt {
     if (otpGeneratedAtIso == null) return null;
-    return DateTime.tryParse(otpGeneratedAtIso!)
-        ?.add(const Duration(minutes: OTPService.otpValidityMinutes));
+    return DateTime.tryParse(
+      otpGeneratedAtIso!,
+    )?.add(const Duration(minutes: OTPService.otpValidityMinutes));
   }
 }
 

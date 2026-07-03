@@ -18,7 +18,7 @@ class VoiceAssistantService extends ChangeNotifier {
   final stt.SpeechToText _speech = stt.SpeechToText();
   final FlutterTts _tts = FlutterTts();
   final VoiceCommandService _commandService = VoiceCommandService();
-  
+
   bool _isListening = false;
   String _lastWords = '';
   String _statusMessage = 'Speak now...';
@@ -57,7 +57,7 @@ class VoiceAssistantService extends ChangeNotifier {
 
   Future<void> startListening({required BuildContext context}) async {
     if (!_isInitialized) await _initSTT();
-    
+
     if (_isInitialized) {
       _isListening = true;
       _lastWords = '';
@@ -100,7 +100,7 @@ class VoiceAssistantService extends ChangeNotifier {
     try {
       // Parse the command
       final command = await _commandService.parse(text);
-      
+
       if (command.type == VoiceCommandType.unknown) {
         _statusMessage = 'Samajh nahi aaya: "$text"';
         await speak("Maaf kijiye, mujhe samajh nahi aaya. Phir se boliye.");
@@ -113,10 +113,10 @@ class VoiceAssistantService extends ChangeNotifier {
 
       // Execute the command
       final response = await VoiceCommandExecutor.execute(command, context);
-      
+
       // Give voice feedback
       await speak(response);
-      
+
       _statusMessage = response;
       notifyListeners();
 
@@ -126,7 +126,6 @@ class VoiceAssistantService extends ChangeNotifier {
         _statusMessage = 'Ready';
         notifyListeners();
       });
-      
     } catch (e) {
       _statusMessage = 'Error: $e';
       await speak("Kuch galati ho gayi. Phir se koshish karein.");

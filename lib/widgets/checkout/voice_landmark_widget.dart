@@ -6,10 +6,7 @@ import '../../utils/app_theme.dart';
 class VoiceLandmarkWidget extends StatefulWidget {
   final Function(String) onRecordingComplete;
 
-  const VoiceLandmarkWidget({
-    super.key,
-    required this.onRecordingComplete,
-  });
+  const VoiceLandmarkWidget({super.key, required this.onRecordingComplete});
 
   @override
   State<VoiceLandmarkWidget> createState() => _VoiceLandmarkWidgetState();
@@ -107,18 +104,15 @@ class _VoiceLandmarkWidgetState extends State<VoiceLandmarkWidget> {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: (_isRecording ? AppTheme.error : AppTheme.primary)
-                          .withValues(alpha: 0.4),
+                      color: (_isRecording ? AppTheme.error : AppTheme.primary).withValues(
+                        alpha: 0.4,
+                      ),
                       blurRadius: _isRecording ? 20 : 10,
                       spreadRadius: _isRecording ? 5 : 0,
                     ),
                   ],
                 ),
-                child: Icon(
-                  _isRecording ? Icons.stop : Icons.mic,
-                  color: Colors.white,
-                  size: 32,
-                ),
+                child: Icon(_isRecording ? Icons.stop : Icons.mic, color: Colors.white, size: 32),
               ),
             ),
           ),

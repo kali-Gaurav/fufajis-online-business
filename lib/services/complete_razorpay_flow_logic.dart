@@ -1103,10 +1103,7 @@ Future<WebhookResponse> handleRazorpayWebhook({
   // INSERT audit_logs: webhook_received
 
   // RETURN 200 OK
-  return WebhookResponse(
-    status: 'ok',
-    message: 'Webhook processed successfully',
-  );
+  return WebhookResponse(status: 'ok', message: 'Webhook processed successfully');
 }
 
 /// ============================================================================
@@ -1554,21 +1551,14 @@ class VerifyPaymentResponse {
   final OrderData order;
   final String message;
 
-  VerifyPaymentResponse({
-    required this.success,
-    required this.order,
-    required this.message,
-  });
+  VerifyPaymentResponse({required this.success, required this.order, required this.message});
 }
 
 class WebhookResponse {
   final String status;
   final String message;
 
-  WebhookResponse({
-    required this.status,
-    required this.message,
-  });
+  WebhookResponse({required this.status, required this.message});
 }
 
 class CreateRefundResponse {
@@ -1576,11 +1566,7 @@ class CreateRefundResponse {
   final RefundData refund;
   final String message;
 
-  CreateRefundResponse({
-    required this.success,
-    required this.refund,
-    required this.message,
-  });
+  CreateRefundResponse({required this.success, required this.refund, required this.message});
 }
 
 class RefundData {

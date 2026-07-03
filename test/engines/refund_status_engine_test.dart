@@ -4,7 +4,6 @@ import 'package:fufajis_online/models/refund_request_model.dart';
 import 'package:fufajis_online/services/order_status_engine.dart';
 
 void main() {
-
   late RefundStatusEngine engine;
 
   setUp(() {
@@ -13,9 +12,18 @@ void main() {
 
   group('RefundStatusEngine Workflow Validation', () {
     test('Valid workflow transitions should succeed', () {
-      expect(() => engine.validateTransition(RefundStatus.pending, RefundStatus.approved, 'admin'), returnsNormally);
-      expect(() => engine.validateTransition(RefundStatus.approved, RefundStatus.processing, 'finance'), returnsNormally);
-      expect(() => engine.validateTransition(RefundStatus.processing, RefundStatus.completed, 'system'), returnsNormally);
+      expect(
+        () => engine.validateTransition(RefundStatus.pending, RefundStatus.approved, 'admin'),
+        returnsNormally,
+      );
+      expect(
+        () => engine.validateTransition(RefundStatus.approved, RefundStatus.processing, 'finance'),
+        returnsNormally,
+      );
+      expect(
+        () => engine.validateTransition(RefundStatus.processing, RefundStatus.completed, 'system'),
+        returnsNormally,
+      );
     });
 
     test('Unauthorized user cannot approve refund', () {
@@ -24,14 +32,24 @@ void main() {
         throwsA(isA<UnauthorizedWorkflowException>()),
       );
       expect(
-        () => engine.validateTransition(RefundStatus.pending, RefundStatus.approved, 'delivery_partner'),
+        () => engine.validateTransition(
+          RefundStatus.pending,
+          RefundStatus.approved,
+          'delivery_partner',
+        ),
         throwsA(isA<UnauthorizedWorkflowException>()),
       );
     });
 
     test('Finance role is authorized for processing and completing', () {
-      expect(() => engine.validateTransition(RefundStatus.approved, RefundStatus.processing, 'finance'), returnsNormally);
-      expect(() => engine.validateTransition(RefundStatus.processing, RefundStatus.completed, 'finance'), returnsNormally);
+      expect(
+        () => engine.validateTransition(RefundStatus.approved, RefundStatus.processing, 'finance'),
+        returnsNormally,
+      );
+      expect(
+        () => engine.validateTransition(RefundStatus.processing, RefundStatus.completed, 'finance'),
+        returnsNormally,
+      );
     });
   });
 }

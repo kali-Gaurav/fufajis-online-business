@@ -6,16 +6,10 @@ enum ApprovalTargetType {
   refund,
   ai_action,
   inventory_adjustment,
-  other
+  other,
 }
 
-enum ApprovalStatus {
-  pending,
-  approved,
-  rejected,
-  escalated,
-  cancelled
-}
+enum ApprovalStatus { pending, approved, rejected, escalated, cancelled }
 
 class ApprovalRequestModel {
   final String id;
@@ -26,11 +20,11 @@ class ApprovalRequestModel {
   final String title;
   final String description;
   final Map<String, dynamic> metadata; // Arbitrary payload to execute on approval
-  
+
   final String? approverId;
   final ApprovalStatus status;
   final String? resolutionNotes;
-  
+
   final DateTime createdAt;
   final DateTime? resolvedAt;
 

@@ -19,7 +19,7 @@ class ExplainableAiCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final confPercent = (recommendation.confidence * 100).toInt();
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(
@@ -72,19 +72,29 @@ class ExplainableAiCard extends StatelessWidget {
             const SizedBox(height: 8),
 
             // WHY
-            const Text('WHY?', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.grey600)),
+            const Text(
+              'WHY?',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.grey600),
+            ),
             const SizedBox(height: 8),
-            ...recommendation.supportingFactors.map((factor) => Padding(
-              padding: const EdgeInsets.only(bottom: 4.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('• ', style: TextStyle(color: AppTheme.grey600, fontWeight: FontWeight.bold)),
-                  Expanded(child: Text(factor, style: TextStyle(color: Colors.grey[800]))),
-                ],
+            ...recommendation.supportingFactors.map(
+              (factor) => Padding(
+                padding: const EdgeInsets.only(bottom: 4.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      '• ',
+                      style: TextStyle(color: AppTheme.grey600, fontWeight: FontWeight.bold),
+                    ),
+                    Expanded(
+                      child: Text(factor, style: TextStyle(color: Colors.grey[800])),
+                    ),
+                  ],
+                ),
               ),
-            )),
-            
+            ),
+
             const SizedBox(height: 16),
 
             // IMPACT & RISK & ROLLBACK
@@ -92,11 +102,19 @@ class ExplainableAiCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: _buildInfoSection('EXPECTED IMPACT', recommendation.expectedOutcome, AppTheme.success),
+                  child: _buildInfoSection(
+                    'EXPECTED IMPACT',
+                    recommendation.expectedOutcome,
+                    AppTheme.success,
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: _buildInfoSection('POTENTIAL RISK', recommendation.potentialRisk, AppTheme.warning),
+                  child: _buildInfoSection(
+                    'POTENTIAL RISK',
+                    recommendation.potentialRisk,
+                    AppTheme.warning,
+                  ),
                 ),
               ],
             ),
@@ -128,13 +146,10 @@ class ExplainableAiCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: TextButton(
-                    onPressed: onInvestigate,
-                    child: const Text('Investigate'),
-                  ),
+                  child: TextButton(onPressed: onInvestigate, child: const Text('Investigate')),
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -145,7 +160,10 @@ class ExplainableAiCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: titleColor)),
+        Text(
+          title,
+          style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: titleColor),
+        ),
         const SizedBox(height: 4),
         Text(content, style: const TextStyle(fontSize: 13)),
       ],

@@ -9,21 +9,13 @@ class ScannerOverlay extends StatelessWidget {
   final void Function(BarcodeCapture)? onDetect;
   final Widget? child;
 
-  const ScannerOverlay({
-    super.key,
-    required this.controller,
-    this.onDetect,
-    this.child,
-  });
+  const ScannerOverlay({super.key, required this.controller, this.onDetect, this.child});
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        MobileScanner(
-          controller: controller,
-          onDetect: onDetect ?? (capture) {},
-        ),
+        MobileScanner(controller: controller, onDetect: onDetect ?? (capture) {}),
         // Overlay with transparent center
         Positioned.fill(
           child: LayoutBuilder(
@@ -41,20 +33,13 @@ class ScannerOverlay extends StatelessWidget {
                       width: scanAreaSize,
                       height: scanAreaSize,
                       decoration: BoxDecoration(
-                        border: Border.all(
-                          color: AppTheme.warning,
-                          width: 3,
-                        ),
+                        border: Border.all(color: AppTheme.warning, width: 3),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Container(
-                            width: scanAreaSize,
-                            height: 2,
-                            color: AppTheme.warning,
-                          ),
+                          Container(width: scanAreaSize, height: 2, color: AppTheme.warning),
                         ],
                       ),
                     ),
@@ -151,11 +136,7 @@ class CompactScanner extends StatelessWidget {
   final void Function(String) onCode;
   final String? initialCode;
 
-  const CompactScanner({
-    super.key,
-    required this.onCode,
-    this.initialCode,
-  });
+  const CompactScanner({super.key, required this.onCode, this.initialCode});
 
   @override
   Widget build(BuildContext context) {
@@ -181,15 +162,9 @@ class CompactScanner extends StatelessWidget {
                   const Icon(Icons.qr_code, color: AppTheme.success),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(
-                      initialCode!,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                    child: Text(initialCode!, style: const TextStyle(fontWeight: FontWeight.bold)),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => onCode(''),
-                  ),
+                  IconButton(icon: const Icon(Icons.close), onPressed: () => onCode('')),
                 ],
               ),
             ),

@@ -25,7 +25,6 @@ class _ProductModerationScreenState extends State<ProductModerationScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     final adminProvider = Provider.of<AdminProvider>(context);
@@ -40,12 +39,18 @@ class _ProductModerationScreenState extends State<ProductModerationScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Product Moderation Queue', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Product Moderation Queue',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
                 ElevatedButton.icon(
                   onPressed: () => adminProvider.fetchPendingProducts(),
                   icon: const Icon(Icons.refresh),
                   label: const Text('Refresh'),
-                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, foregroundColor: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primary,
+                    foregroundColor: Colors.white,
+                  ),
                 ),
               ],
             ),
@@ -54,29 +59,32 @@ class _ProductModerationScreenState extends State<ProductModerationScreen> {
               child: adminProvider.isLoading
                   ? const Center(child: CircularProgressIndicator(color: AppTheme.adminAccent))
                   : adminProvider.pendingProducts.isEmpty
-                      ? const Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.check_circle_outline, size: 64, color: AppTheme.success),
-                              SizedBox(height: 16),
-                              Text('No products pending approval.', style: TextStyle(fontSize: 16, color: AppTheme.grey600)),
-                            ],
+                  ? const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.check_circle_outline, size: 64, color: AppTheme.success),
+                          SizedBox(height: 16),
+                          Text(
+                            'No products pending approval.',
+                            style: TextStyle(fontSize: 16, color: AppTheme.grey600),
                           ),
-                        )
-                      : GridView.builder(
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                            childAspectRatio: 0.75,
-                          ),
-                          itemCount: adminProvider.pendingProducts.length,
-                          itemBuilder: (context, index) {
-                            final product = adminProvider.pendingProducts[index];
-                            return _buildProductCard(context, product, adminProvider);
-                          },
-                        ),
+                        ],
+                      ),
+                    )
+                  : GridView.builder(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                        childAspectRatio: 0.75,
+                      ),
+                      itemCount: adminProvider.pendingProducts.length,
+                      itemBuilder: (context, index) {
+                        final product = adminProvider.pendingProducts[index];
+                        return _buildProductCard(context, product, adminProvider);
+                      },
+                    ),
             ),
           ],
         ),
@@ -104,7 +112,12 @@ class _ProductModerationScreenState extends State<ProductModerationScreen> {
                     child: product.imageUrl.isNotEmpty
                         ? ClipRRect(
                             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                            child: Image.network(product.imageUrl, fit: BoxFit.cover, width: double.infinity, height: double.infinity),
+                            child: Image.network(
+                              product.imageUrl,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: double.infinity,
+                            ),
                           )
                         : const Icon(Icons.shopping_bag, size: 64, color: AppTheme.grey400),
                   ),
@@ -119,7 +132,11 @@ class _ProductModerationScreenState extends State<ProductModerationScreen> {
                       ),
                       child: Text(
                         '₹${product.price.toStringAsFixed(0)}',
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                       ),
                     ),
                   ),
@@ -201,10 +218,7 @@ class _ProductModerationScreenState extends State<ProductModerationScreen> {
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               if (controller.text.isNotEmpty) {

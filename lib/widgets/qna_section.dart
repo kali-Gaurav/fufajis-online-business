@@ -13,12 +13,7 @@ class QnaSection extends StatefulWidget {
   final bool isShopOwner;
   final String? shopId;
 
-  const QnaSection({
-    super.key,
-    required this.productId,
-    this.isShopOwner = false,
-    this.shopId,
-  });
+  const QnaSection({super.key, required this.productId, this.isShopOwner = false, this.shopId});
 
   @override
   State<QnaSection> createState() => _QnaSectionState();
@@ -54,22 +49,21 @@ class _QnaSectionState extends State<QnaSection> {
       children: [
         // Header with search and filter
         _buildHeader(currentUserId),
-        
+
         const SizedBox(height: 16),
-        
+
         // Search and filter bar
         _buildSearchAndFilter(),
-        
+
         const SizedBox(height: 16),
-        
+
         // Q&A list
         _buildQnaList(currentUserId),
-        
+
         const SizedBox(height: 16),
-        
+
         // Ask question button (for customers)
-        if (!widget.isShopOwner)
-          _buildAskQuestionButton(),
+        if (!widget.isShopOwner) _buildAskQuestionButton(),
       ],
     );
   }
@@ -117,7 +111,7 @@ class _QnaSectionState extends State<QnaSection> {
               ),
             ],
           ),
-          
+
           // Sort dropdown
           PopupMenuButton<String>(
             icon: const Icon(Icons.sort, color: AppTheme.grey600),
@@ -165,9 +159,9 @@ class _QnaSectionState extends State<QnaSection> {
               contentPadding: const EdgeInsets.all(16),
             ),
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           // Filter chips
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -259,9 +253,7 @@ class _QnaSectionState extends State<QnaSection> {
             offset: const Offset(0, 2),
           ),
         ],
-        border: qna.isFlagged
-            ? Border.all(color: AppTheme.error.withValues(alpha: 0.3))
-            : null,
+        border: qna.isFlagged ? Border.all(color: AppTheme.error.withValues(alpha: 0.3)) : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -298,49 +290,33 @@ class _QnaSectionState extends State<QnaSection> {
                       children: [
                         Text(
                           qna.customerName,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
+                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                         ),
                         if (qna.isVerifiedPurchase) ...[
                           const SizedBox(width: 6),
-                          const Icon(
-                            Icons.verified,
-                            size: 14,
-                            color: AppTheme.info,
-                          ),
+                          const Icon(Icons.verified, size: 14, color: AppTheme.info),
                         ],
                         const Spacer(),
                         Text(
                           qna.timeAgo,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.grey500,
-                          ),
+                          style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
                         ),
                       ],
                     ),
                     const SizedBox(height: 4),
                     Text(
                       qna.question,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        color: AppTheme.grey900,
-                      ),
+                      style: const TextStyle(fontSize: 15, color: AppTheme.grey900),
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          
+
           // Answer section
-          if (qna.answer != null) ...[
-            const SizedBox(height: 16),
-            _buildAnswerSection(qna),
-          ],
-          
+          if (qna.answer != null) ...[const SizedBox(height: 16), _buildAnswerSection(qna)],
+
           // Shop owner answer form
           if (widget.isShopOwner &&
               widget.shopId != null &&
@@ -349,7 +325,7 @@ class _QnaSectionState extends State<QnaSection> {
             const SizedBox(height: 16),
             _buildAnswerForm(qna),
           ],
-          
+
           // Actions row
           const SizedBox(height: 16),
           _buildActionsRow(qna, currentUserId),
@@ -385,22 +361,13 @@ class _QnaSectionState extends State<QnaSection> {
                 const SizedBox(width: 8),
                 Text(
                   '• ${qna.answerTimeAgo}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.grey500,
-                  ),
+                  style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
                 ),
               ],
             ],
           ),
           const SizedBox(height: 8),
-          Text(
-            qna.answer!,
-            style: const TextStyle(
-              fontSize: 14,
-              color: AppTheme.grey800,
-            ),
-          ),
+          Text(qna.answer!, style: const TextStyle(fontSize: 14, color: AppTheme.grey800)),
         ],
       ),
     );
@@ -419,10 +386,7 @@ class _QnaSectionState extends State<QnaSection> {
         children: [
           const Text(
             'Write your answer',
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-            ),
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
           ),
           const SizedBox(height: 8),
           TextField(
@@ -430,9 +394,7 @@ class _QnaSectionState extends State<QnaSection> {
             maxLines: 3,
             decoration: InputDecoration(
               hintText: 'Type your answer here...',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
               contentPadding: const EdgeInsets.all(12),
             ),
           ),
@@ -449,9 +411,7 @@ class _QnaSectionState extends State<QnaSection> {
               ),
               const SizedBox(width: 8),
               ElevatedButton(
-                onPressed: _answerController.text.trim().isEmpty
-                    ? null
-                    : () => _submitAnswer(qna),
+                onPressed: _answerController.text.trim().isEmpty ? null : () => _submitAnswer(qna),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primary,
                   foregroundColor: Colors.white,
@@ -481,7 +441,7 @@ class _QnaSectionState extends State<QnaSection> {
               : null,
         ),
         const SizedBox(width: 16),
-        
+
         // Unhelpful vote
         _buildVoteButton(
           icon: qna.hasUserVotedUnhelpful(currentUserId ?? '')
@@ -494,9 +454,9 @@ class _QnaSectionState extends State<QnaSection> {
               ? () => _voteUnhelpful(qna)
               : null,
         ),
-        
+
         const Spacer(),
-        
+
         // Report button
         if (currentUserId != null && currentUserId != qna.customerId)
           PopupMenuButton<String>(
@@ -534,18 +494,11 @@ class _QnaSectionState extends State<QnaSection> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 18,
-              color: isActive ? AppTheme.primary : AppTheme.grey500,
-            ),
+            Icon(icon, size: 18, color: isActive ? AppTheme.primary : AppTheme.grey500),
             const SizedBox(width: 4),
             Text(
               '$count $label',
-              style: TextStyle(
-                fontSize: 13,
-                color: isActive ? AppTheme.primary : AppTheme.grey600,
-              ),
+              style: TextStyle(fontSize: 13, color: isActive ? AppTheme.primary : AppTheme.grey600),
             ),
           ],
         ),
@@ -557,34 +510,20 @@ class _QnaSectionState extends State<QnaSection> {
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: AppTheme.grey100,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      decoration: BoxDecoration(color: AppTheme.grey100, borderRadius: BorderRadius.circular(16)),
       child: const Center(
         child: Column(
           children: [
-            Icon(
-              Icons.question_answer_outlined,
-              size: 48,
-              color: AppTheme.grey400,
-            ),
+            Icon(Icons.question_answer_outlined, size: 48, color: AppTheme.grey400),
             SizedBox(height: 16),
             Text(
               'No questions yet',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.grey600,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.grey600),
             ),
             SizedBox(height: 8),
             Text(
               'Be the first to ask a question about this product!',
-              style: TextStyle(
-                fontSize: 14,
-                color: AppTheme.grey500,
-              ),
+              style: TextStyle(fontSize: 14, color: AppTheme.grey500),
               textAlign: TextAlign.center,
             ),
           ],
@@ -597,34 +536,20 @@ class _QnaSectionState extends State<QnaSection> {
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: AppTheme.grey100,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      decoration: BoxDecoration(color: AppTheme.grey100, borderRadius: BorderRadius.circular(16)),
       child: const Center(
         child: Column(
           children: [
-            Icon(
-              Icons.search_off,
-              size: 48,
-              color: AppTheme.grey400,
-            ),
+            Icon(Icons.search_off, size: 48, color: AppTheme.grey400),
             SizedBox(height: 16),
             Text(
               'No matching questions',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.grey600,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.grey600),
             ),
             SizedBox(height: 8),
             Text(
               'Try a different search term',
-              style: TextStyle(
-                fontSize: 14,
-                color: AppTheme.grey500,
-              ),
+              style: TextStyle(fontSize: 14, color: AppTheme.grey500),
             ),
           ],
         ),
@@ -642,18 +567,12 @@ class _QnaSectionState extends State<QnaSection> {
           icon: const Icon(Icons.help_outline, color: Colors.white),
           label: const Text(
             'Ask a Question',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
           ),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.primary,
             padding: const EdgeInsets.symmetric(vertical: 14),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
       ),
@@ -667,9 +586,7 @@ class _QnaSectionState extends State<QnaSection> {
       backgroundColor: Colors.transparent,
       builder: (context) {
         return Container(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -693,7 +610,7 @@ class _QnaSectionState extends State<QnaSection> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Title
                   const Text(
                     'Ask a Question',
@@ -704,16 +621,13 @@ class _QnaSectionState extends State<QnaSection> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  
+
                   const Text(
                     'Get answers from the shop owner and other customers',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppTheme.grey600,
-                    ),
+                    style: TextStyle(fontSize: 14, color: AppTheme.grey600),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Question input
                   TextField(
                     controller: _questionController,
@@ -727,7 +641,7 @@ class _QnaSectionState extends State<QnaSection> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Submit button
                   ElevatedButton(
                     onPressed: _questionController.text.trim().isEmpty
@@ -737,16 +651,11 @@ class _QnaSectionState extends State<QnaSection> {
                       backgroundColor: AppTheme.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: const Text(
                       'Submit Question',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -780,33 +689,33 @@ class _QnaSectionState extends State<QnaSection> {
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  ...reasons.map((reason) => RadioListTile<String>(
-                    title: Text(reason),
-                    value: reason,
-                    groupValue: selectedReason,
-                    onChanged: (value) {
-                      setDialogState(() => selectedReason = value);
-                    },
-                  )),
+                  ...reasons.map(
+                    (reason) => RadioListTile<String>(
+                      title: Text(reason),
+                      value: reason,
+                      groupValue: selectedReason,
+                      onChanged: (value) {
+                        setDialogState(() => selectedReason = value);
+                      },
+                    ),
+                  ),
                   if (selectedReason == 'Other')
                     TextField(
                       controller: reportController,
-                      decoration: const InputDecoration(
-                        labelText: 'Specify reason',
-                      ),
+                      decoration: const InputDecoration(labelText: 'Specify reason'),
                     ),
                 ],
               ),
               actions: [
-                TextButton(
-                  onPressed: () => context.pop(),
-                  child: const Text('Cancel'),
-                ),
+                TextButton(onPressed: () => context.pop(), child: const Text('Cancel')),
                 ElevatedButton(
                   onPressed: selectedReason == null
                       ? null
                       : () {
-                          _flagQuestion(qna, selectedReason == 'Other' ? reportController.text : selectedReason!);
+                          _flagQuestion(
+                            qna,
+                            selectedReason == 'Other' ? reportController.text : selectedReason!,
+                          );
                           context.pop();
                         },
                   style: ElevatedButton.styleFrom(
@@ -828,9 +737,9 @@ class _QnaSectionState extends State<QnaSection> {
     final currentUser = authProvider.currentUser;
 
     if (currentUser == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please login to ask a question')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please login to ask a question')));
       return;
     }
 
@@ -853,19 +762,13 @@ class _QnaSectionState extends State<QnaSection> {
         _questionController.clear();
         context.pop(); // Close modal
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Question submitted!'),
-            backgroundColor: AppTheme.success,
-          ),
+          const SnackBar(content: Text('Question submitted!'), backgroundColor: AppTheme.success),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to submit question: $e'),
-            backgroundColor: AppTheme.error,
-          ),
+          SnackBar(content: Text('Failed to submit question: $e'), backgroundColor: AppTheme.error),
         );
       }
     } finally {
@@ -894,19 +797,13 @@ class _QnaSectionState extends State<QnaSection> {
         _answerController.clear();
         setState(() => _answeringQuestionId = null);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Answer submitted!'),
-            backgroundColor: AppTheme.success,
-          ),
+          const SnackBar(content: Text('Answer submitted!'), backgroundColor: AppTheme.success),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to submit answer: $e'),
-            backgroundColor: AppTheme.error,
-          ),
+          SnackBar(content: Text('Failed to submit answer: $e'), backgroundColor: AppTheme.error),
         );
       }
     } finally {
@@ -927,9 +824,7 @@ class _QnaSectionState extends State<QnaSection> {
         userId: currentUserId,
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to vote: $e')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to vote: $e')));
     }
   }
 
@@ -946,9 +841,7 @@ class _QnaSectionState extends State<QnaSection> {
         userId: currentUserId,
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to vote: $e')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to vote: $e')));
     }
   }
 
@@ -974,12 +867,8 @@ class _QnaSectionState extends State<QnaSection> {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to report: $e'),
-          backgroundColor: AppTheme.error,
-        ),
+        SnackBar(content: Text('Failed to report: $e'), backgroundColor: AppTheme.error),
       );
     }
   }
 }
-

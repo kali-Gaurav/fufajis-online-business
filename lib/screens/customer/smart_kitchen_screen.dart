@@ -57,9 +57,9 @@ class _SmartKitchenScreenState extends State<SmartKitchenScreen> {
         ),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Product not found in current inventory.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Product not found in current inventory.')));
     }
   }
 
@@ -93,29 +93,27 @@ class _SmartKitchenScreenState extends State<SmartKitchenScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Smart Kitchen', style: TextStyle(fontWeight: FontWeight.w700)),
-        actions: [
-          IconButton(onPressed: _loadData, icon: const Icon(Icons.refresh)),
-        ],
+        actions: [IconButton(onPressed: _loadData, icon: const Icon(Icons.refresh))],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : _staples.isEmpty
-              ? _buildEmptyState()
-              : Column(
-                  children: [
-                    _buildUrgentHeader(),
-                    Expanded(
-                      child: ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: _staples.length,
-                        itemBuilder: (context, index) {
-                          final staple = _staples[index];
-                          return _buildStapleCard(staple);
-                        },
-                      ),
-                    ),
-                  ],
+          ? _buildEmptyState()
+          : Column(
+              children: [
+                _buildUrgentHeader(),
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _staples.length,
+                    itemBuilder: (context, index) {
+                      final staple = _staples[index];
+                      return _buildStapleCard(staple);
+                    },
+                  ),
                 ),
+              ],
+            ),
     );
   }
 

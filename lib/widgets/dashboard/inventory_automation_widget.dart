@@ -11,12 +11,7 @@ class InventoryAutomationWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,11 +31,7 @@ class InventoryAutomationWidget extends StatelessWidget {
                 ),
                 child: const Text(
                   'SMART',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: AppTheme.info,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 10, color: AppTheme.info, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -65,17 +56,8 @@ class InventoryAutomationWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Text(
-                status,
-                style: const TextStyle(fontSize: 11, color: AppTheme.grey600),
-              ),
+              Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+              Text(status, style: const TextStyle(fontSize: 11, color: AppTheme.grey600)),
             ],
           ),
         ),

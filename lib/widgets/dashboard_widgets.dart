@@ -22,7 +22,7 @@ class _InventoryHealthScoreWidgetState extends State<InventoryHealthScoreWidget>
 
     final score = health['score'] as int;
     final status = health['status'] as String;
-    
+
     Color scoreColor;
     if (score >= 80) {
       scoreColor = AppTheme.success;
@@ -37,12 +37,7 @@ class _InventoryHealthScoreWidgetState extends State<InventoryHealthScoreWidget>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)],
       ),
       child: Column(
         children: [
@@ -75,21 +70,14 @@ class _InventoryHealthScoreWidgetState extends State<InventoryHealthScoreWidget>
               ),
               Text(
                 '$score%',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: scoreColor,
-                ),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: scoreColor),
               ),
             ],
           ),
           const SizedBox(height: 16),
           Text(
             status.toUpperCase(),
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: scoreColor,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, color: scoreColor),
           ),
           const SizedBox(height: 16),
           Row(
@@ -117,7 +105,10 @@ class _InventoryHealthScoreWidgetState extends State<InventoryHealthScoreWidget>
   Widget _buildMiniStat(String label, String value, Color color) {
     return Column(
       children: [
-        Text(value, style: TextStyle(fontWeight: FontWeight.bold, color: color)),
+        Text(
+          value,
+          style: TextStyle(fontWeight: FontWeight.bold, color: color),
+        ),
         Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
       ],
     );
@@ -130,7 +121,9 @@ class LowStockAlertWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final productProvider = context.watch<ProductProvider>();
-    final products = productProvider.products.where((p) => p.stockQuantity <= (p.minimumStock)).toList();
+    final products = productProvider.products
+        .where((p) => p.stockQuantity <= (p.minimumStock))
+        .toList();
 
     if (products.isEmpty) return const SizedBox.shrink();
 
@@ -147,11 +140,24 @@ class LowStockAlertWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Low Stock Alerts', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const Text(
+                'Low Stock Alerts',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(color: AppTheme.error.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-                child: Text('${products.length}', style: const TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold, fontSize: 12)),
+                decoration: BoxDecoration(
+                  color: AppTheme.error.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${products.length}',
+                  style: const TextStyle(
+                    color: AppTheme.error,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
               ),
             ],
           ),
@@ -164,10 +170,22 @@ class LowStockAlertWidget extends StatelessWidget {
               final p = products[index];
               return ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: CircleAvatar(backgroundColor: AppTheme.error.withValues(alpha: 0.1), child: const Icon(Icons.warning, color: AppTheme.error, size: 16)),
-                title: Text(p.name, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
-                subtitle: Text('Only ${p.stockQuantity} ${p.unit} left', style: const TextStyle(fontSize: 11)),
-                trailing: TextButton(onPressed: () => context.push('/owner/inventory-alerts'), child: const Text('Restock', style: TextStyle(fontSize: 11))),
+                leading: CircleAvatar(
+                  backgroundColor: AppTheme.error.withValues(alpha: 0.1),
+                  child: const Icon(Icons.warning, color: AppTheme.error, size: 16),
+                ),
+                title: Text(
+                  p.name,
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                ),
+                subtitle: Text(
+                  'Only ${p.stockQuantity} ${p.unit} left',
+                  style: const TextStyle(fontSize: 11),
+                ),
+                trailing: TextButton(
+                  onPressed: () => context.push('/owner/inventory-alerts'),
+                  child: const Text('Restock', style: TextStyle(fontSize: 11)),
+                ),
               );
             },
           ),
@@ -205,7 +223,10 @@ class ExpiringSoonWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Expiring Soon', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const Text(
+                'Expiring Soon',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
               IconButton(
                 icon: const Icon(Icons.arrow_forward, color: AppTheme.primary, size: 20),
                 onPressed: () => context.push('/owner/expiry-tracking'),
@@ -217,11 +238,34 @@ class ExpiringSoonWidget extends StatelessWidget {
             final days = p.expiryDate!.difference(now).inDays;
             return ListTile(
               contentPadding: EdgeInsets.zero,
-              title: Text(p.name, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
-              subtitle: Text('Expires in $days days', style: TextStyle(fontSize: 11, color: days < 3 ? AppTheme.error : AppTheme.warning)),
-              trailing: p.isOnSale 
-                ? Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: AppTheme.success.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)), child: const Text('ON SALE', style: TextStyle(fontSize: 9, color: AppTheme.success, fontWeight: FontWeight.bold)))
-                : TextButton(onPressed: () => context.push('/owner/pending-price-changes'), child: const Text('Apply Discount', style: TextStyle(fontSize: 11))),
+              title: Text(
+                p.name,
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+              ),
+              subtitle: Text(
+                'Expires in $days days',
+                style: TextStyle(fontSize: 11, color: days < 3 ? AppTheme.error : AppTheme.warning),
+              ),
+              trailing: p.isOnSale
+                  ? Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppTheme.success.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text(
+                        'ON SALE',
+                        style: TextStyle(
+                          fontSize: 9,
+                          color: AppTheme.success,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    )
+                  : TextButton(
+                      onPressed: () => context.push('/owner/pending-price-changes'),
+                      child: const Text('Apply Discount', style: TextStyle(fontSize: 11)),
+                    ),
             );
           }),
         ],
@@ -239,7 +283,7 @@ class PendingPriceChangesWidget extends StatelessWidget {
       future: context.read<ProductProvider>().getPendingPriceChanges(),
       builder: (context, snapshot) {
         if (!snapshot.hasData || snapshot.data!.isEmpty) return const SizedBox.shrink();
-        
+
         final changes = snapshot.data!;
 
         return Container(
@@ -255,7 +299,10 @@ class PendingPriceChangesWidget extends StatelessWidget {
               const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Price Recommendations', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text(
+                    'Price Recommendations',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
                   Icon(Icons.trending_up, color: AppTheme.primary, size: 20),
                 ],
               ),
@@ -264,17 +311,29 @@ class PendingPriceChangesWidget extends StatelessWidget {
                 final diff = c['changePercentage'] as int;
                 return ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(c['productName'] as String, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
-                  subtitle: Text('₹${c['currentPrice']} → ₹${c['newPrice']}', style: const TextStyle(fontSize: 11)),
+                  title: Text(
+                    c['productName'] as String,
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                  ),
+                  subtitle: Text(
+                    '₹${c['currentPrice']} → ₹${c['newPrice']}',
+                    style: const TextStyle(fontSize: 11),
+                  ),
                   trailing: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: diff < 0 ? AppTheme.success.withValues(alpha: 0.1) : AppTheme.error.withValues(alpha: 0.1),
+                      color: diff < 0
+                          ? AppTheme.success.withValues(alpha: 0.1)
+                          : AppTheme.error.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
                       '${diff > 0 ? "+" : ""}$diff%',
-                      style: TextStyle(fontSize: 10, color: diff < 0 ? AppTheme.success : AppTheme.error, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: diff < 0 ? AppTheme.success : AppTheme.error,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 );
@@ -283,7 +342,7 @@ class PendingPriceChangesWidget extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => context.push('/owner/pending-price-changes'), 
+                  onPressed: () => context.push('/owner/pending-price-changes'),
                   child: const Text('Review All Changes'),
                 ),
               ),
@@ -294,4 +353,3 @@ class PendingPriceChangesWidget extends StatelessWidget {
     );
   }
 }
-

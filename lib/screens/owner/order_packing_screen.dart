@@ -45,7 +45,9 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
     final orderProvider = Provider.of<OrderProvider>(context);
 
     if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent)));
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent)),
+      );
     }
     if (_order == null) {
       return const Scaffold(body: Center(child: Text('Order not found')));
@@ -74,10 +76,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
             child: ElevatedButton(
               onPressed: _packedItems.values.every((v) => v)
                   ? () async {
-                      await orderProvider.updateOrderStatusSafe(
-                        order.id,
-                        OrderStatus.packed,
-                      );
+                      await orderProvider.updateOrderStatusSafe(order.id, OrderStatus.packed);
                       if (context.mounted) Navigator.of(context).pop();
                     }
                   : null,

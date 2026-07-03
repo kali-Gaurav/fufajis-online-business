@@ -42,8 +42,7 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
   }
 
   // ── Approve pending device ─────────────────────────────────
-  Future<void> _approveDevice(
-      String email, String deviceId, String deviceName) async {
+  Future<void> _approveDevice(String email, String deviceId, String deviceName) async {
     final confirmed = await _confirm(
       title: 'Approve Device',
       content:
@@ -66,17 +65,13 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('"$deviceName" approved.'),
-          backgroundColor: AppTheme.success,
-        ),
+        SnackBar(content: Text('"$deviceName" approved.'), backgroundColor: AppTheme.success),
       );
     }
   }
 
   // ── Revoke / remove device ─────────────────────────────────
-  Future<void> _revokeDevice(
-      String email, String deviceId, String deviceName) async {
+  Future<void> _revokeDevice(String email, String deviceId, String deviceName) async {
     final confirmed = await _confirm(
       title: 'Remove Device',
       content:
@@ -105,17 +100,13 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('"$deviceName" removed.'),
-          backgroundColor: AppTheme.error,
-        ),
+        SnackBar(content: Text('"$deviceName" removed.'), backgroundColor: AppTheme.error),
       );
     }
   }
 
   // ── Rename device ──────────────────────────────────────────
-  Future<void> _renameDevice(
-      String email, String deviceId, String currentName) async {
+  Future<void> _renameDevice(String email, String deviceId, String currentName) async {
     final controller = TextEditingController(text: currentName);
     final newName = await showDialog<String>(
       context: context,
@@ -123,22 +114,17 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
         title: const Text('Rename Device', style: TextStyle(fontWeight: FontWeight.w700)),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Device Name',
-            border: OutlineInputBorder(),
-          ),
+          decoration: const InputDecoration(labelText: 'Device Name', border: OutlineInputBorder()),
           autofocus: true,
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, controller.text.trim()),
             style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primary,
-                foregroundColor: Colors.white),
+              backgroundColor: AppTheme.primary,
+              foregroundColor: Colors.white,
+            ),
             child: const Text('Save'),
           ),
         ],
@@ -148,9 +134,7 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
     if (newName == null || newName.isEmpty || newName == currentName) return;
     await OwnerAuthService.renameDevice(email, deviceId, newName);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Device renamed.')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Device renamed.')));
     }
   }
 
@@ -167,15 +151,13 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
             title: Text(title),
             content: Text(content, style: const TextStyle(height: 1.5)),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('Cancel'),
-              ),
+              TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
               ElevatedButton(
                 onPressed: () => Navigator.pop(ctx, true),
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: confirmColor,
-                    foregroundColor: Colors.white),
+                  backgroundColor: confirmColor,
+                  foregroundColor: Colors.white,
+                ),
                 child: Text(confirmLabel),
               ),
             ],
@@ -190,11 +172,10 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
-    final auth    = Provider.of<AuthProvider>(context);
-    final email   = auth.currentUser?.email ?? '';
+    final auth = Provider.of<AuthProvider>(context);
+    final email = auth.currentUser?.email ?? '';
     final devices = auth.currentUser?.approvedDevices ?? [];
 
     return Scaffold(
@@ -208,7 +189,10 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
             onPressed: () => showDialog(
               context: context,
               builder: (ctx) => AlertDialog(
-                title: const Text('Device Management', style: TextStyle(fontWeight: FontWeight.w700)),
+                title: const Text(
+                  'Device Management',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
                 content: const Text(
                   'Only approved devices can access the Owner Dashboard.\n\n'
                   'Removing a device logs it out immediately and requires '
@@ -216,10 +200,7 @@ class _DeviceManagementScreenState extends State<DeviceManagementScreen> {
                   style: TextStyle(height: 1.5),
                 ),
                 actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    child: const Text('Got it'),
-                  ),
+                  TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Got it')),
                 ],
               ),
             ),
@@ -284,8 +265,8 @@ class _DeviceTile extends StatelessWidget {
           color: isPending
               ? AppTheme.warning
               : isCurrent
-                  ? AppTheme.primary
-                  : Colors.transparent,
+              ? AppTheme.primary
+              : Colors.transparent,
           width: 1.5,
         ),
       ),
@@ -295,79 +276,84 @@ class _DeviceTile extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ── Header row ──────────────────────────────────
-            Row(children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: isPending
-                      ? AppTheme.warning.withValues(alpha: 0.15)
-                      : AppTheme.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: isPending
+                        ? AppTheme.warning.withValues(alpha: 0.15)
+                        : AppTheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.phone_android,
+                    color: isPending ? AppTheme.warning : AppTheme.primary,
+                  ),
                 ),
-                child: Icon(
-                  Icons.phone_android,
-                  color: isPending ? AppTheme.warning : AppTheme.primary,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(children: [
-                      Expanded(
-                        child: Text(
-                          device.deviceName,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
-                      ),
-                      if (isCurrent)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(20),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              device.deviceName,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
                           ),
-                          child: const Text(
-                            'This device',
+                          if (isCurrent)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: AppTheme.primary.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Text(
+                                'This device',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: AppTheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      Row(
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: isPending ? AppTheme.warning : AppTheme.success,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            isPending ? 'Pending Approval' : 'Approved',
                             style: TextStyle(
-                                fontSize: 11,
-                                color: AppTheme.primary,
-                                fontWeight: FontWeight.bold),
+                              fontSize: 12,
+                              color: isPending ? AppTheme.warning : AppTheme.success,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                    ]),
-                    const SizedBox(height: 3),
-                    Row(children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: isPending ? AppTheme.warning : AppTheme.success,
-                          shape: BoxShape.circle,
-                        ),
+                        ],
                       ),
-                      const SizedBox(width: 6),
+                      const SizedBox(height: 2),
                       Text(
-                        isPending ? 'Pending Approval' : 'Approved',
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: isPending ? AppTheme.warning : AppTheme.success,
-                            fontWeight: FontWeight.w600),
+                        'Added ${device.registeredAt.day}/${device.registeredAt.month}/${device.registeredAt.year}',
+                        style: const TextStyle(fontSize: 11, color: AppTheme.grey500),
                       ),
-                    ]),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Added ${device.registeredAt.day}/${device.registeredAt.month}/${device.registeredAt.year}',
-                      style: const TextStyle(
-                          fontSize: 11, color: AppTheme.grey500),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ]),
+              ],
+            ),
 
             // ── Action row ───────────────────────────────────
             const SizedBox(height: 12),
@@ -378,51 +364,59 @@ class _DeviceTile extends StatelessWidget {
               const Text(
                 'You cannot remove the device you are currently using.',
                 style: TextStyle(
-                    fontSize: 11,
-                    color: AppTheme.grey400,
-                    fontStyle: FontStyle.italic),
+                  fontSize: 11,
+                  color: AppTheme.grey400,
+                  fontStyle: FontStyle.italic,
+                ),
               )
             else
-              Row(children: [
-                if (onApprove != null) ...[
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: onApprove,
-                      icon: const Icon(Icons.check_circle_outline,
-                          size: 18, color: AppTheme.success),
-                      label: const Text('Approve',
-                          style: TextStyle(color: AppTheme.success)),
-                      style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppTheme.success)),
+              Row(
+                children: [
+                  if (onApprove != null) ...[
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: onApprove,
+                        icon: const Icon(
+                          Icons.check_circle_outline,
+                          size: 18,
+                          color: AppTheme.success,
+                        ),
+                        label: const Text('Approve', style: TextStyle(color: AppTheme.success)),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: AppTheme.success),
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
+                    const SizedBox(width: 8),
+                  ],
+                  if (onRename != null) ...[
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: onRename,
+                        icon: const Icon(Icons.edit_outlined, size: 18),
+                        label: const Text('Rename'),
+                        style: OutlinedButton.styleFrom(foregroundColor: AppTheme.grey700),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  if (onRevoke != null)
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: onRevoke,
+                        icon: const Icon(
+                          Icons.remove_circle_outline,
+                          size: 18,
+                          color: AppTheme.error,
+                        ),
+                        label: const Text('Remove', style: TextStyle(color: AppTheme.error)),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: AppTheme.error),
+                        ),
+                      ),
+                    ),
                 ],
-                if (onRename != null) ...[
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: onRename,
-                      icon: const Icon(Icons.edit_outlined, size: 18),
-                      label: const Text('Rename'),
-                      style: OutlinedButton.styleFrom(
-                          foregroundColor: AppTheme.grey700),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-                if (onRevoke != null)
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: onRevoke,
-                      icon: const Icon(Icons.remove_circle_outline,
-                          size: 18, color: AppTheme.error),
-                      label: const Text('Remove',
-                          style: TextStyle(color: AppTheme.error)),
-                      style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppTheme.error)),
-                    ),
-                  ),
-              ]),
+              ),
           ],
         ),
       ),
@@ -446,10 +440,7 @@ class _EmptyState extends StatelessWidget {
             SizedBox(height: 20),
             Text(
               'No devices registered',
-              style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.grey700),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.grey700),
             ),
             SizedBox(height: 8),
             Text(

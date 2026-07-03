@@ -33,9 +33,7 @@ class SessionModel {
       loginTime: map['loginTime'] != null
           ? (map['loginTime'] as Timestamp).toDate()
           : DateTime.now(),
-      lastSeen: map['lastSeen'] != null
-          ? (map['lastSeen'] as Timestamp).toDate()
-          : DateTime.now(),
+      lastSeen: map['lastSeen'] != null ? (map['lastSeen'] as Timestamp).toDate() : DateTime.now(),
       isActive: map['isActive'] as bool? ?? false,
     );
   }
@@ -91,10 +89,7 @@ class SessionService {
         isActive: true,
       );
 
-      await _firestore
-          .collection('active_sessions')
-          .doc(sessionId)
-          .set(session.toMap());
+      await _firestore.collection('active_sessions').doc(sessionId).set(session.toMap());
 
       return sessionId;
     } catch (e) {
@@ -154,10 +149,9 @@ class SessionService {
   /// Update last active time for the current session (heartbeat)
   Future<void> updateLastSeen(String sessionId) async {
     try {
-      await _firestore
-          .collection('active_sessions')
-          .doc(sessionId)
-          .update({'lastSeen': FieldValue.serverTimestamp()});
+      await _firestore.collection('active_sessions').doc(sessionId).update({
+        'lastSeen': FieldValue.serverTimestamp(),
+      });
     } catch (e) {
       print('Error updating last seen: $e');
     }
@@ -170,21 +164,24 @@ class SessionService {
         .collection('active_sessions')
         .doc(sessionId)
         .snapshots()
-        .listen((snapshot) {
-      if (!snapshot.exists) {
-        onRevoked();
-        return;
-      }
-      final data = snapshot.data();
-      if (data != null) {
-        final bool isActive = data['isActive'] as bool? ?? false;
-        if (!isActive) {
-          onRevoked();
-        }
-      }
-    }, onError: (err) {
-      print('Error listening to session: $err');
-    });
+        .listen(
+          (snapshot) {
+            if (!snapshot.exists) {
+              onRevoked();
+              return;
+            }
+            final data = snapshot.data();
+            if (data != null) {
+              final bool isActive = data['isActive'] as bool? ?? false;
+              if (!isActive) {
+                onRevoked();
+              }
+            }
+          },
+          onError: (err) {
+            print('Error listening to session: $err');
+          },
+        );
   }
 
   /// Stop listening to session state
@@ -200,13 +197,15 @@ class SessionService {
         .where('userId', isEqualTo: userId)
         .where('isActive', isEqualTo: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => SessionModel.fromMap(doc.data()))
-            .toList());
+        .map((snapshot) => snapshot.docs.map((doc) => SessionModel.fromMap(doc.data())).toList());
   }
 
   /// Revoke an active session remotely
-  Future<void> revokeSession(String sessionId, String revokedByUserId, String revokedByUserName) async {
+  Future<void> revokeSession(
+    String sessionId,
+    String revokedByUserId,
+    String revokedByUserName,
+  ) async {
     try {
       // Fetch session details for logging
       final doc = await _firestore.collection('active_sessions').doc(sessionId).get();
@@ -226,11 +225,7 @@ class SessionService {
         userName: revokedByUserName,
         action: AuditAction.adminAction,
         description: 'Revoked active session for user $targetUserId on device "$deviceName"',
-        metadata: {
-          'sessionId': sessionId,
-          'targetUserId': targetUserId,
-          'deviceName': deviceName,
-        },
+        metadata: {'sessionId': sessionId, 'targetUserId': targetUserId, 'deviceName': deviceName},
       );
     } catch (e) {
       print('Error revoking session: $e');

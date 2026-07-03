@@ -30,30 +30,20 @@ class ThermalLabelService {
             children: [
               pw.Text(
                 product.name,
-                style: pw.TextStyle(
-                  fontSize: 10,
-                  fontWeight: pw.FontWeight.bold,
-                ),
+                style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
                 maxLines: 2,
               ),
               pw.SizedBox(height: 2),
-              pw.Text(
-                product.unit,
-                style: const pw.TextStyle(fontSize: 8),
-              ),
+              pw.Text(product.unit, style: const pw.TextStyle(fontSize: 8)),
               pw.Spacer(),
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
                   pw.Text(
                     '₹${product.price.toStringAsFixed(0)}',
-                    style: pw.TextStyle(
-                      fontSize: 14,
-                      fontWeight: pw.FontWeight.bold,
-                    ),
+                    style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
                   ),
-                  if (product.originalPrice != null &&
-                      product.originalPrice! > product.price)
+                  if (product.originalPrice != null && product.originalPrice! > product.price)
                     pw.Text(
                       'MRP ₹${product.originalPrice!.toStringAsFixed(0)}',
                       style: const pw.TextStyle(
@@ -67,9 +57,7 @@ class ThermalLabelService {
               // Barcode representation using product barcode/id
               pw.BarcodeWidget(
                 barcode: pw.Barcode.code128(),
-                data: product.barcode.isNotEmpty
-                    ? product.barcode
-                    : product.id,
+                data: product.barcode.isNotEmpty ? product.barcode : product.id,
                 height: 20,
                 width: double.infinity,
                 drawText: true,
@@ -108,13 +96,9 @@ class ThermalLabelService {
                 children: [
                   pw.Text(
                     'Fufaji\'s Online',
-                    style: pw.TextStyle(
-                        fontSize: 11, fontWeight: pw.FontWeight.bold),
+                    style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold),
                   ),
-                  pw.Text(
-                    'Order #${order.orderNumber}',
-                    style: const pw.TextStyle(fontSize: 9),
-                  ),
+                  pw.Text('Order #${order.orderNumber}', style: const pw.TextStyle(fontSize: 9)),
                 ],
               ),
               pw.Divider(thickness: 0.5),
@@ -122,27 +106,16 @@ class ThermalLabelService {
               // To address
               pw.Text(
                 'TO: ${order.customerName}',
-                style: pw.TextStyle(
-                    fontSize: 10, fontWeight: pw.FontWeight.bold),
+                style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
               ),
-              pw.Text(
-                addr.fullAddress,
-                style: const pw.TextStyle(fontSize: 8),
-                maxLines: 2,
-              ),
+              pw.Text(addr.fullAddress, style: const pw.TextStyle(fontSize: 8), maxLines: 2),
               if (addr.landmark.isNotEmpty)
-                pw.Text(
-                  'Near: ${addr.landmark}',
-                  style: const pw.TextStyle(fontSize: 8),
-                ),
+                pw.Text('Near: ${addr.landmark}', style: const pw.TextStyle(fontSize: 8)),
               pw.Text(
                 addr.village.isNotEmpty ? addr.village : addr.pincode,
                 style: const pw.TextStyle(fontSize: 8),
               ),
-              pw.Text(
-                'Ph: ${order.customerPhone}',
-                style: const pw.TextStyle(fontSize: 8),
-              ),
+              pw.Text('Ph: ${order.customerPhone}', style: const pw.TextStyle(fontSize: 8)),
               pw.Spacer(),
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -153,18 +126,12 @@ class ThermalLabelService {
                   ),
                   pw.Text(
                     order.paymentMethod.toString().split('.').last.toUpperCase(),
-                    style: pw.TextStyle(
-                        fontSize: 8, fontWeight: pw.FontWeight.bold),
+                    style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
                   ),
                 ],
               ),
               pw.SizedBox(height: 2),
-              pw.BarcodeWidget(
-                barcode: pw.Barcode.qrCode(),
-                data: order.id,
-                width: 36,
-                height: 36,
-              ),
+              pw.BarcodeWidget(barcode: pw.Barcode.qrCode(), data: order.id, width: 36, height: 36),
             ],
           );
         },
@@ -186,9 +153,7 @@ class ThermalLabelService {
 
     // Chunk products into A4 pages
     const labelsPerPage = cols * 8; // ~8 rows on A4
-    for (int pageStart = 0;
-        pageStart < products.length;
-        pageStart += labelsPerPage) {
+    for (int pageStart = 0; pageStart < products.length; pageStart += labelsPerPage) {
       final pageProducts = products.skip(pageStart).take(labelsPerPage).toList();
 
       doc.addPage(
@@ -202,25 +167,21 @@ class ThermalLabelService {
                   height: labelH,
                   padding: const pw.EdgeInsets.all(3),
                   decoration: pw.BoxDecoration(
-                    border: pw.Border.all(
-                        color: PdfColors.grey400, width: 0.5),
+                    border: pw.Border.all(color: PdfColors.grey400, width: 0.5),
                   ),
                   child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
                       pw.Text(
                         p.name,
-                        style: pw.TextStyle(
-                            fontSize: 9, fontWeight: pw.FontWeight.bold),
+                        style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold),
                         maxLines: 2,
                       ),
-                      pw.Text(p.unit,
-                          style: const pw.TextStyle(fontSize: 7)),
+                      pw.Text(p.unit, style: const pw.TextStyle(fontSize: 7)),
                       pw.Spacer(),
                       pw.Text(
                         '₹${p.price.toStringAsFixed(0)}',
-                        style: pw.TextStyle(
-                            fontSize: 12, fontWeight: pw.FontWeight.bold),
+                        style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
                       ),
                       pw.BarcodeWidget(
                         barcode: pw.Barcode.code128(),
@@ -252,10 +213,7 @@ class ThermalLabelService {
   /// returns false gracefully.
   Future<bool> printLabel(Uint8List labelData) async {
     try {
-      final result = await _channel.invokeMethod<bool>(
-        'printBytes',
-        {'data': labelData},
-      );
+      final result = await _channel.invokeMethod<bool>('printBytes', {'data': labelData});
       return result ?? false;
     } on MissingPluginException {
       // Thermal printer plugin not installed — silently fail

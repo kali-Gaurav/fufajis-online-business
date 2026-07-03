@@ -33,9 +33,7 @@ class AttendanceModel {
       'riderId': riderId,
       'riderName': riderName,
       'clockInTime': Timestamp.fromDate(clockInTime),
-      'clockOutTime': clockOutTime != null
-          ? Timestamp.fromDate(clockOutTime!)
-          : null,
+      'clockOutTime': clockOutTime != null ? Timestamp.fromDate(clockOutTime!) : null,
       'clockInLatitude': clockInLatitude,
       'clockInLongitude': clockInLongitude,
       'clockOutLatitude': clockOutLatitude,

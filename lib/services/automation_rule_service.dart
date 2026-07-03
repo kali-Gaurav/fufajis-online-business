@@ -19,9 +19,10 @@ class AutomationRuleService {
         .collection('automation_rules')
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs
-            .map((doc) => AutomationRuleModel.fromMap(doc.data(), doc.id))
-            .toList());
+        .map(
+          (snap) =>
+              snap.docs.map((doc) => AutomationRuleModel.fromMap(doc.data(), doc.id)).toList(),
+        );
   }
 
   Future<AutomationRuleModel?> getRule(String id) async {

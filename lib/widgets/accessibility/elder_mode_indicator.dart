@@ -12,11 +12,7 @@ class ElderModeIndicator extends StatelessWidget {
   final VoidCallback? onToggle;
   final bool isElderlyMode;
 
-  const ElderModeIndicator({
-    super.key,
-    this.onToggle,
-    required this.isElderlyMode,
-  });
+  const ElderModeIndicator({super.key, this.onToggle, required this.isElderlyMode});
 
   @override
   Widget build(BuildContext context) {
@@ -27,20 +23,14 @@ class ElderModeIndicator extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.success.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppTheme.success.withValues(alpha: 0.3),
-          width: 1.5,
-        ),
+        border: Border.all(color: AppTheme.success.withValues(alpha: 0.3), width: 1.5),
       ),
       child: GestureDetector(
         onTap: onToggle,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              '👴',
-              style: TextStyle(fontSize: 14),
-            ),
+            const Text('👴', style: TextStyle(fontSize: 14)),
             const SizedBox(width: 6),
             Text(
               'Elder Mode',
@@ -51,11 +41,7 @@ class ElderModeIndicator extends StatelessWidget {
             ),
             if (onToggle != null) ...[
               const SizedBox(width: 4),
-              const Icon(
-                Icons.close,
-                size: 14,
-                color: AppTheme.success,
-              ),
+              const Icon(Icons.close, size: 14, color: AppTheme.success),
             ],
           ],
         ),

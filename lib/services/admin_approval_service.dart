@@ -11,11 +11,7 @@ class AdminApprovalService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   // Valid admin roles that can approve products
-  static const Set<String> _validAdminRoles = {
-    'admin',
-    'superAdmin',
-    'owner',
-  };
+  static const Set<String> _validAdminRoles = {'admin', 'superAdmin', 'owner'};
 
   /// Approves a product for public visibility.
   /// Only users with admin roles can approve products.
@@ -77,7 +73,9 @@ class AdminApprovalService {
         action: 'APPROVED',
       );
 
-      debugPrint('[AdminApprovalService] Product $productId approved by $approverId ($approverRole)');
+      debugPrint(
+        '[AdminApprovalService] Product $productId approved by $approverId ($approverRole)',
+      );
       return true;
     } catch (e) {
       debugPrint('[AdminApprovalService] Approval failed: $e');
@@ -142,7 +140,9 @@ class AdminApprovalService {
         action: 'REJECTED',
       );
 
-      debugPrint('[AdminApprovalService] Product $productId rejected by $approverId ($approverRole)');
+      debugPrint(
+        '[AdminApprovalService] Product $productId rejected by $approverId ($approverRole)',
+      );
       return true;
     } catch (e) {
       debugPrint('[AdminApprovalService] Rejection failed: $e');
@@ -160,12 +160,7 @@ class AdminApprovalService {
           .limit(limit)
           .get();
 
-      return query.docs
-          .map((doc) => {
-                'id': doc.id,
-                ...doc.data(),
-              })
-          .toList();
+      return query.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList();
     } catch (e) {
       debugPrint('[AdminApprovalService] Error fetching pending approvals: $e');
       return [];

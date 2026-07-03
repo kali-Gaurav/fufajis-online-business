@@ -26,7 +26,6 @@ class _CouponManagementScreenState extends State<CouponManagementScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     final adminProvider = Provider.of<AdminProvider>(context);
@@ -46,12 +45,18 @@ class _CouponManagementScreenState extends State<CouponManagementScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Discount Coupon Hub', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Discount Coupon Hub',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
                 ElevatedButton.icon(
                   onPressed: () => adminProvider.fetchCoupons(),
                   icon: const Icon(Icons.refresh),
                   label: const Text('Refresh'),
-                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, foregroundColor: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primary,
+                    foregroundColor: Colors.white,
+                  ),
                 ),
               ],
             ),
@@ -60,20 +65,20 @@ class _CouponManagementScreenState extends State<CouponManagementScreen> {
               child: adminProvider.isLoading
                   ? const Center(child: CircularProgressIndicator(color: AppTheme.adminAccent))
                   : adminProvider.coupons.isEmpty
-                      ? const Center(child: Text('No coupons created yet.'))
-                      : GridView.builder(
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                            childAspectRatio: 1.5,
-                          ),
-                          itemCount: adminProvider.coupons.length,
-                          itemBuilder: (context, index) {
-                            final coupon = adminProvider.coupons[index];
-                            return _buildCouponCard(context, coupon, adminProvider);
-                          },
-                        ),
+                  ? const Center(child: Text('No coupons created yet.'))
+                  : GridView.builder(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                        childAspectRatio: 1.5,
+                      ),
+                      itemCount: adminProvider.coupons.length,
+                      itemBuilder: (context, index) {
+                        final coupon = adminProvider.coupons[index];
+                        return _buildCouponCard(context, coupon, adminProvider);
+                      },
+                    ),
             ),
           ],
         ),
@@ -101,7 +106,12 @@ class _CouponManagementScreenState extends State<CouponManagementScreen> {
                   ),
                   child: Text(
                     coupon.code,
-                    style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 1.1),
+                    style: const TextStyle(
+                      color: AppTheme.primary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      letterSpacing: 1.1,
+                    ),
                   ),
                 ),
                 IconButton(
@@ -150,29 +160,44 @@ class _CouponManagementScreenState extends State<CouponManagementScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text('Create Discount Coupon', style: TextStyle(fontWeight: FontWeight.w700)),
+          title: const Text(
+            'Create Discount Coupon',
+            style: TextStyle(fontWeight: FontWeight.w700),
+          ),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
                   controller: codeController,
-                  decoration: const InputDecoration(labelText: 'Promo Code (e.g. SAVE20)', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Promo Code (e.g. SAVE20)',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: nameController,
-                  decoration: const InputDecoration(labelText: 'Name', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Name',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: descController,
-                  decoration: const InputDecoration(labelText: 'Description', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Description',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   initialValue: discountType,
-                  decoration: const InputDecoration(labelText: 'Type', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Type',
+                    border: OutlineInputBorder(),
+                  ),
                   items: const [
                     DropdownMenuItem(value: 'percentage', child: Text('Percentage (%)')),
                     DropdownMenuItem(value: 'fixed', child: Text('Fixed Amount (₹)')),
@@ -187,28 +212,34 @@ class _CouponManagementScreenState extends State<CouponManagementScreen> {
                 TextField(
                   controller: valueController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Discount Value', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Discount Value',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: minOrderController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Min Order Amount (₹)', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Min Order Amount (₹)',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: maxDiscountController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Max Discount Limit (₹)', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Max Discount Limit (₹)',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
               ],
             ),
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
             ElevatedButton(
               onPressed: () {
                 if (codeController.text.isNotEmpty && valueController.text.isNotEmpty) {

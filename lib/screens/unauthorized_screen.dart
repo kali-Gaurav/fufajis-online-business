@@ -16,17 +16,14 @@ class UnauthorizedScreen extends StatefulWidget {
   final String? reason;
   final String? returnPath;
 
-  const UnauthorizedScreen({
-    super.key,
-    this.reason,
-    this.returnPath,
-  });
+  const UnauthorizedScreen({super.key, this.reason, this.returnPath});
 
   @override
   State<UnauthorizedScreen> createState() => _UnauthorizedScreenState();
 }
 
-class _UnauthorizedScreenState extends State<UnauthorizedScreen> with SingleTickerProviderStateMixin {
+class _UnauthorizedScreenState extends State<UnauthorizedScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _shakeController;
   late Animation<double> _shakeAnim;
 
@@ -37,9 +34,10 @@ class _UnauthorizedScreenState extends State<UnauthorizedScreen> with SingleTick
       vsync: this,
       duration: const Duration(milliseconds: 650),
     );
-    _shakeAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _shakeController, curve: _ShakeCurve()),
-    );
+    _shakeAnim = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _shakeController, curve: _ShakeCurve()));
 
     // Shake the padlock after screen enters
     Future.delayed(const Duration(milliseconds: 400), () {
@@ -80,10 +78,7 @@ class _UnauthorizedScreenState extends State<UnauthorizedScreen> with SingleTick
                   animation: _shakeAnim,
                   builder: (context, child) {
                     final angle = _shakeAnim.value * 0.15;
-                    return Transform.rotate(
-                      angle: angle,
-                      child: child,
-                    );
+                    return Transform.rotate(angle: angle, child: child);
                   },
                   child: PulseGlow(
                     glowColor: AppTheme.adminAccent.withValues(alpha: 0.15),
@@ -94,10 +89,7 @@ class _UnauthorizedScreenState extends State<UnauthorizedScreen> with SingleTick
                         color: isDark ? AppTheme.grey800 : Colors.white,
                         shape: BoxShape.circle,
                         boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.03),
-                            blurRadius: 12,
-                          )
+                          BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 12),
                         ],
                       ),
                       child: const Icon(
@@ -134,12 +126,8 @@ class _UnauthorizedScreenState extends State<UnauthorizedScreen> with SingleTick
                 child: Text(
                   widget.reason ??
                       'You do not have permission to access this resource. '
-                      'Please contact your administrator if you believe this is an error.',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: subTextColor,
-                    height: 1.4,
-                  ),
+                          'Please contact your administrator if you believe this is an error.',
+                  style: TextStyle(fontSize: 16, color: subTextColor, height: 1.4),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -168,7 +156,7 @@ class _UnauthorizedScreenState extends State<UnauthorizedScreen> with SingleTick
                                 color: AppTheme.primary.withValues(alpha: 0.35),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
-                              )
+                              ),
                             ],
                           ),
                           alignment: Alignment.center,
@@ -196,9 +184,7 @@ class _UnauthorizedScreenState extends State<UnauthorizedScreen> with SingleTick
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           decoration: BoxDecoration(
                             color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.white,
-                            border: Border.all(
-                              color: isDark ? AppTheme.grey800 : AppTheme.grey200,
-                            ),
+                            border: Border.all(color: isDark ? AppTheme.grey800 : AppTheme.grey200),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           alignment: Alignment.center,
@@ -227,10 +213,7 @@ class _UnauthorizedScreenState extends State<UnauthorizedScreen> with SingleTick
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           decoration: BoxDecoration(
                             color: isDark ? Colors.white.withValues(alpha: 0.02) : Colors.white,
-                            border: Border.all(
-                              color: AppTheme.adminAccent,
-                              width: 1.5,
-                            ),
+                            border: Border.all(color: AppTheme.adminAccent, width: 1.5),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           alignment: Alignment.center,
@@ -259,9 +242,7 @@ class _UnauthorizedScreenState extends State<UnauthorizedScreen> with SingleTick
                   decoration: BoxDecoration(
                     color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isDark ? const Color(0xFF2C2C2C) : AppTheme.grey200,
-                    ),
+                    border: Border.all(color: isDark ? const Color(0xFF2C2C2C) : AppTheme.grey200),
                   ),
                   child: Column(
                     children: [

@@ -67,10 +67,7 @@ class SMSService {
   }
 
   /// Send promotional SMS
-  Future<bool> sendPromotionalSMS({
-    required String phoneNumber,
-    required String message,
-  }) async {
+  Future<bool> sendPromotionalSMS({required String phoneNumber, required String message}) async {
     debugPrint('[SMSService] Stub: Promotional SMS to $phoneNumber');
     return true;
   }

@@ -9,26 +9,34 @@ enum SenderRole { customer, owner, employee, deliveryAgent, system }
 /// Task #68 — Sentiment label produced by SentimentService.
 /// Scores range from -1.0 (angry) to +1.0 (positive).
 enum SentimentLabel {
-  positive,   // score ≥ 0.2
-  neutral,    // -0.2 < score < 0.2
-  negative,   // -0.6 ≤ score < -0.2
-  angry;      // score < -0.6  — triggers escalation alert
+  positive, // score ≥ 0.2
+  neutral, // -0.2 < score < 0.2
+  negative, // -0.6 ≤ score < -0.2
+  angry; // score < -0.6  — triggers escalation alert
 
   String get emoji {
     switch (this) {
-      case positive: return '😊';
-      case neutral:  return '😐';
-      case negative: return '😞';
-      case angry:    return '😡';
+      case positive:
+        return '😊';
+      case neutral:
+        return '😐';
+      case negative:
+        return '😞';
+      case angry:
+        return '😡';
     }
   }
 
   String get label {
     switch (this) {
-      case positive: return 'Positive';
-      case neutral:  return 'Neutral';
-      case negative: return 'Negative';
-      case angry:    return 'Angry';
+      case positive:
+        return 'Positive';
+      case neutral:
+        return 'Neutral';
+      case negative:
+        return 'Negative';
+      case angry:
+        return 'Angry';
     }
   }
 
@@ -111,7 +119,8 @@ class ChatConversationModel {
       overallSentiment: map['overallSentiment'] != null
           ? SentimentLabel.values.firstWhere(
               (s) => s.name == map['overallSentiment'],
-              orElse: () => SentimentLabel.neutral)
+              orElse: () => SentimentLabel.neutral,
+            )
           : null,
     );
   }
@@ -261,7 +270,8 @@ class ChatMessage {
       sentimentLabel: map['sentimentLabel'] != null
           ? SentimentLabel.values.firstWhere(
               (s) => s.name == map['sentimentLabel'],
-              orElse: () => SentimentLabel.neutral)
+              orElse: () => SentimentLabel.neutral,
+            )
           : null,
     );
   }

@@ -71,7 +71,8 @@ class OperationalHealthEngine {
   }
 
   /// Calculates the Digital Twin Operational Health for a branch
-  OperationalHealthModel calculateBranchHealth(String branchId, {
+  OperationalHealthModel calculateBranchHealth(
+    String branchId, {
     required double inventoryHealth,
     required double deliveryHealth,
     required double employeeHealth,

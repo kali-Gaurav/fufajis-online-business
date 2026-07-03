@@ -23,14 +23,11 @@ import '../../utils/app_theme.dart';
 class VerificationWallScreen extends StatefulWidget {
   /// Where to navigate after successful verification.
   final String returnPath;
+
   /// Human-readable reason shown to the user.
   final String? reason;
 
-  const VerificationWallScreen({
-    super.key,
-    this.returnPath = '/customer/home',
-    this.reason,
-  });
+  const VerificationWallScreen({super.key, this.returnPath = '/customer/home', this.reason});
 
   @override
   State<VerificationWallScreen> createState() => _VerificationWallScreenState();
@@ -54,10 +51,7 @@ class _VerificationWallScreenState extends State<VerificationWallScreen>
   @override
   void initState() {
     super.initState();
-    _animController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 400),
-    );
+    _animController = AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
     _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeIn);
     _animController.forward();
 
@@ -139,8 +133,8 @@ class _VerificationWallScreenState extends State<VerificationWallScreen>
   // ── Post-verification: migrate guest cart, route forward ───
   Future<void> _migrateAndProceed() async {
     final guest = Provider.of<GuestProvider>(context, listen: false);
-    final cart  = Provider.of<CartProvider>(context, listen: false);
-    final auth  = Provider.of<AuthProvider>(context, listen: false);
+    final cart = Provider.of<CartProvider>(context, listen: false);
+    final auth = Provider.of<AuthProvider>(context, listen: false);
 
     // 1. Pull out guest cart items before clearing
     if (guest.isGuestMode && guest.guestCart.isNotEmpty) {
@@ -175,9 +169,9 @@ class _VerificationWallScreenState extends State<VerificationWallScreen>
   }
 
   void _showError(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg), backgroundColor: AppTheme.error),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(msg), backgroundColor: AppTheme.error));
   }
 
   // ── Build ──────────────────────────────────────────────────
@@ -232,11 +226,7 @@ class _VerificationWallScreenState extends State<VerificationWallScreen>
                 Text(
                   widget.reason ??
                       'To place orders, track deliveries, and access your history, please verify your identity.',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: AppTheme.grey600,
-                    height: 1.5,
-                  ),
+                  style: const TextStyle(fontSize: 14, color: AppTheme.grey600, height: 1.5),
                   textAlign: TextAlign.center,
                 ),
 
@@ -256,8 +246,11 @@ class _VerificationWallScreenState extends State<VerificationWallScreen>
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.shopping_cart_outlined,
-                              color: AppTheme.warning, size: 22),
+                          const Icon(
+                            Icons.shopping_cart_outlined,
+                            color: AppTheme.warning,
+                            size: 22,
+                          ),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
@@ -292,24 +285,24 @@ class _VerificationWallScreenState extends State<VerificationWallScreen>
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     side: const BorderSide(color: AppTheme.grey300, width: 1.5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
 
                 const SizedBox(height: 20),
-                const Row(children: [
-                  Expanded(child: Divider()),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 14),
-                    child: Text('OR',
-                        style: TextStyle(
-                            color: AppTheme.grey400,
-                            fontWeight: FontWeight.bold)),
-                  ),
-                  Expanded(child: Divider()),
-                ]),
+                const Row(
+                  children: [
+                    Expanded(child: Divider()),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 14),
+                      child: Text(
+                        'OR',
+                        style: TextStyle(color: AppTheme.grey400, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Expanded(child: Divider()),
+                  ],
+                ),
                 const SizedBox(height: 20),
 
                 // ── Phone OTP ───────────────────────────────
@@ -319,11 +312,14 @@ class _VerificationWallScreenState extends State<VerificationWallScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Mobile Number',
-                            style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.grey700)),
+                        const Text(
+                          'Mobile Number',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.grey700,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _phoneController,
@@ -333,27 +329,27 @@ class _VerificationWallScreenState extends State<VerificationWallScreen>
                             LengthLimitingTextInputFormatter(10),
                           ],
                           style: const TextStyle(
-                              fontSize: 18,
-                              letterSpacing: 1,
-                              fontWeight: FontWeight.bold),
+                            fontSize: 18,
+                            letterSpacing: 1,
+                            fontWeight: FontWeight.bold,
+                          ),
                           decoration: InputDecoration(
                             prefixIcon: Container(
                               padding: const EdgeInsets.all(14),
-                              child: const Text('+91',
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppTheme.grey700)),
+                              child: const Text(
+                                '+91',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.grey700,
+                                ),
+                              ),
                             ),
                             hintText: '00000 00000',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                           ),
                           validator: (v) =>
-                              (v == null || v.length != 10)
-                                  ? 'Enter valid 10-digit number'
-                                  : null,
+                              (v == null || v.length != 10) ? 'Enter valid 10-digit number' : null,
                         ),
                       ],
                     ),
@@ -364,27 +360,28 @@ class _VerificationWallScreenState extends State<VerificationWallScreen>
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primary,
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: _isLoading
                         ? const SizedBox(
                             width: 22,
                             height: 22,
-                            child: CircularProgressIndicator(
-                                color: Colors.white, strokeWidth: 2))
-                        : const Text('Get OTP',
+                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          )
+                        : const Text(
+                            'Get OTP',
                             style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white)),
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ] else ...[
                   // ── OTP entry ─────────────────────────────
                   Text(
                     'OTP sent to +91 ${_phoneController.text}',
-                    style: const TextStyle(
-                        fontSize: 14, color: AppTheme.grey600),
+                    style: const TextStyle(fontSize: 14, color: AppTheme.grey600),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20),
@@ -395,15 +392,14 @@ class _VerificationWallScreenState extends State<VerificationWallScreen>
                     maxLength: 6,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 8),
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 8,
+                    ),
                     decoration: InputDecoration(
                       hintText: '------',
                       counterText: '',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     onChanged: (v) {
                       if (v.length == 6) _verifyOTP();
@@ -415,20 +411,22 @@ class _VerificationWallScreenState extends State<VerificationWallScreen>
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primary,
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: _isLoading
                         ? const SizedBox(
                             width: 22,
                             height: 22,
-                            child: CircularProgressIndicator(
-                                color: Colors.white, strokeWidth: 2))
-                        : const Text('Verify & Continue',
+                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          )
+                        : const Text(
+                            'Verify & Continue',
                             style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white)),
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                   const SizedBox(height: 16),
                   Center(
@@ -440,8 +438,10 @@ class _VerificationWallScreenState extends State<VerificationWallScreen>
                                 _otpController.clear();
                               });
                             },
-                            child: const Text('Change Number / Resend OTP',
-                                style: TextStyle(color: AppTheme.primary)),
+                            child: const Text(
+                              'Change Number / Resend OTP',
+                              style: TextStyle(color: AppTheme.primary),
+                            ),
                           )
                         : Text(
                             'Resend in $_resendTimer s',

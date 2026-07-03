@@ -8,9 +8,8 @@ import '../constants/firestore_collections.dart';
 class FirebaseIntegrationTestHelper {
   final FirestoreDataService _firestoreService;
 
-  FirebaseIntegrationTestHelper({
-    required FirestoreDataService firestoreService,
-  }) : _firestoreService = firestoreService;
+  FirebaseIntegrationTestHelper({required FirestoreDataService firestoreService})
+    : _firestoreService = firestoreService;
 
   /// Test Firebase Auth connection
   Future<bool> testAuthConnection() async {
@@ -46,15 +45,9 @@ class FirebaseIntegrationTestHelper {
   /// Test creating a test document
   Future<bool> testCreateDocument() async {
     try {
-      final testData = {
-        'testField': 'testValue',
-        'timestamp': FieldValue.serverTimestamp(),
-      };
+      final testData = {'testField': 'testValue', 'timestamp': FieldValue.serverTimestamp()};
 
-      await _firestoreService.addDocument(
-        FirestoreCollections.AUDIT_LOG,
-        testData,
-      );
+      await _firestoreService.addDocument(FirestoreCollections.AUDIT_LOG, testData);
 
       print('Document creation test passed');
       return true;
@@ -67,10 +60,7 @@ class FirebaseIntegrationTestHelper {
   /// Test reading a document
   Future<bool> testReadDocument(String docId) async {
     try {
-      final doc = await _firestoreService.getDocument(
-        FirestoreCollections.AUDIT_LOG,
-        docId,
-      );
+      final doc = await _firestoreService.getDocument(FirestoreCollections.AUDIT_LOG, docId);
 
       print('Document read test passed: ${doc != null}');
       return doc != null;
@@ -83,11 +73,10 @@ class FirebaseIntegrationTestHelper {
   /// Test updating a document
   Future<bool> testUpdateDocument(String docId) async {
     try {
-      await _firestoreService.updateDocument(
-        FirestoreCollections.AUDIT_LOG,
-        docId,
-        {'updated': true, 'updatedAt': FieldValue.serverTimestamp()},
-      );
+      await _firestoreService.updateDocument(FirestoreCollections.AUDIT_LOG, docId, {
+        'updated': true,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
 
       print('Document update test passed');
       return true;
@@ -100,10 +89,7 @@ class FirebaseIntegrationTestHelper {
   /// Test collection query
   Future<bool> testCollectionQuery() async {
     try {
-      final docs = await _firestoreService.getCollection(
-        FirestoreCollections.AUDIT_LOG,
-        limit: 10,
-      );
+      final docs = await _firestoreService.getCollection(FirestoreCollections.AUDIT_LOG, limit: 10);
 
       print('Collection query test passed: retrieved ${docs.length} documents');
       return true;
@@ -117,14 +103,8 @@ class FirebaseIntegrationTestHelper {
   Future<bool> testBatchWrite() async {
     try {
       final operations = {
-        '${FirestoreCollections.AUDIT_LOG}/batch_test_1': {
-          'type': 'batch_test',
-          'index': 1,
-        },
-        '${FirestoreCollections.AUDIT_LOG}/batch_test_2': {
-          'type': 'batch_test',
-          'index': 2,
-        },
+        '${FirestoreCollections.AUDIT_LOG}/batch_test_1': {'type': 'batch_test', 'index': 1},
+        '${FirestoreCollections.AUDIT_LOG}/batch_test_2': {'type': 'batch_test', 'index': 2},
       };
 
       await _firestoreService.batchWrite(operations);
@@ -160,10 +140,7 @@ class FirebaseIntegrationTestHelper {
   /// Test streaming
   Future<bool> testStream() async {
     try {
-      final stream = _firestoreService.streamCollection(
-        FirestoreCollections.AUDIT_LOG,
-        limit: 5,
-      );
+      final stream = _firestoreService.streamCollection(FirestoreCollections.AUDIT_LOG, limit: 5);
 
       // Take first emission
       final docs = await stream.first;
@@ -242,10 +219,7 @@ class FirebaseIntegrationTestHelper {
     results['create_document'] = await testCreateDocument();
 
     // Get the first document for other tests
-    final docs = await _firestoreService.getCollection(
-      FirestoreCollections.AUDIT_LOG,
-      limit: 1,
-    );
+    final docs = await _firestoreService.getCollection(FirestoreCollections.AUDIT_LOG, limit: 1);
 
     if (docs.isNotEmpty) {
       // Extract docId from the retrieved doc (assuming 'id' field exists)
@@ -300,10 +274,7 @@ class FirebaseIntegrationTestHelper {
       ];
 
       for (final collection in collectionsToCheck) {
-        final docs = await _firestoreService.getCollection(
-          collection,
-          limit: 1,
-        );
+        final docs = await _firestoreService.getCollection(collection, limit: 1);
         print('Collection $collection: ${docs.isEmpty ? 'empty' : 'has documents'}');
       }
 
@@ -332,15 +303,9 @@ class FirebaseIntegrationTestHelper {
   Future<bool> _testSecurityRule(String operation) async {
     try {
       if (operation == 'read') {
-        await _firestoreService.getCollection(
-          FirestoreCollections.AUDIT_LOG,
-          limit: 1,
-        );
+        await _firestoreService.getCollection(FirestoreCollections.AUDIT_LOG, limit: 1);
       } else {
-        await _firestoreService.addDocument(
-          FirestoreCollections.AUDIT_LOG,
-          {'securityTest': true},
-        );
+        await _firestoreService.addDocument(FirestoreCollections.AUDIT_LOG, {'securityTest': true});
       }
       return true;
     } catch (e) {

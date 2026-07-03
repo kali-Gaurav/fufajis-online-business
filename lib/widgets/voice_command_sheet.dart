@@ -28,8 +28,7 @@ class VoiceCommandSheet extends StatefulWidget {
 
 enum _SheetState { idle, listening, processing, confirm, result, error }
 
-class _VoiceCommandSheetState extends State<VoiceCommandSheet>
-    with TickerProviderStateMixin {
+class _VoiceCommandSheetState extends State<VoiceCommandSheet> with TickerProviderStateMixin {
   final SpeechToTextService _stt = SpeechToTextService();
   final VoiceCommandService _vc = VoiceCommandService();
 
@@ -49,18 +48,15 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet>
   void initState() {
     super.initState();
 
-    _pulseCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..repeat(reverse: true);
-    _pulseAnim = Tween<double>(begin: 0.85, end: 1.15).animate(
-      CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
-    );
+    _pulseCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 900))
+      ..repeat(reverse: true);
+    _pulseAnim = Tween<double>(
+      begin: 0.85,
+      end: 1.15,
+    ).animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
 
-    _waveCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    )..repeat(reverse: true);
+    _waveCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 600))
+      ..repeat(reverse: true);
   }
 
   @override
@@ -110,8 +106,7 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet>
     if (cmd.type == VoiceCommandType.unknown) {
       setState(() {
         _state = _SheetState.error;
-        _resultText =
-            'Samajh nahi aaya: "$text"\nExample: "Aloo ka stock 50 kilo kar"';
+        _resultText = 'Samajh nahi aaya: "$text"\nExample: "Aloo ka stock 50 kilo kar"';
       });
     } else {
       setState(() {
@@ -269,11 +264,7 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet>
         const SizedBox(height: 20),
         const Text(
           'Mic tap karein aur boliye',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.grey700,
-          ),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.grey700),
         ),
       ],
     );
@@ -332,11 +323,7 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet>
         const SizedBox(height: 16),
         const Text(
           'Sun raha hoon...',
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.primary,
-          ),
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.primary),
         ),
         if (_liveText.isNotEmpty) ...[
           const SizedBox(height: 12),
@@ -361,9 +348,7 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet>
         const SizedBox(height: 12),
         OutlinedButton(
           onPressed: _stopListeningAndParse,
-          style: OutlinedButton.styleFrom(
-            side: const BorderSide(color: AppTheme.primary),
-          ),
+          style: OutlinedButton.styleFrom(side: const BorderSide(color: AppTheme.primary)),
           child: const Text('Ruk jao — Process karo'),
         ),
       ],
@@ -378,17 +363,10 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet>
         SizedBox(height: 20),
         Text(
           'Samajh raha hoon...',
-          style: TextStyle(
-            fontSize: 15,
-            color: AppTheme.grey600,
-            fontWeight: FontWeight.w500,
-          ),
+          style: TextStyle(fontSize: 15, color: AppTheme.grey600, fontWeight: FontWeight.w500),
         ),
         SizedBox(height: 8),
-        Text(
-          'Thoda sa ruko bhaiya! 🙏',
-          style: TextStyle(fontSize: 13, color: AppTheme.grey400),
-        ),
+        Text('Thoda sa ruko bhaiya! 🙏', style: TextStyle(fontSize: 13, color: AppTheme.grey400)),
       ],
     );
   }
@@ -406,8 +384,7 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet>
           ),
           child: Column(
             children: [
-              const Icon(Icons.record_voice_over,
-                  color: AppTheme.primary, size: 32),
+              const Icon(Icons.record_voice_over, color: AppTheme.primary, size: 32),
               const SizedBox(height: 12),
               Text(
                 cmd.confirmationText,
@@ -437,9 +414,7 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet>
                 }),
                 icon: const Icon(Icons.refresh, size: 18),
                 label: const Text('Dobara bolo'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
+                style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
               ),
             ),
             const SizedBox(width: 12),
@@ -468,12 +443,10 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet>
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: (isSuccess ? AppTheme.success : AppTheme.error)
-                .withValues(alpha: 0.08),
+            color: (isSuccess ? AppTheme.success : AppTheme.error).withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: (isSuccess ? AppTheme.success : AppTheme.error)
-                  .withValues(alpha: 0.25),
+              color: (isSuccess ? AppTheme.success : AppTheme.error).withValues(alpha: 0.25),
             ),
           ),
           child: Column(
@@ -509,9 +482,7 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet>
                 }),
                 icon: const Icon(Icons.mic, size: 18),
                 label: const Text('Phir se bolo'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
+                style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
               ),
             ),
             const SizedBox(width: 12),
@@ -552,11 +523,7 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet>
         const SizedBox(height: 8),
         const Text(
           'Ye bol sakte ho 👇',
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
-            color: AppTheme.grey600,
-          ),
+          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppTheme.grey600),
         ),
         const SizedBox(height: 10),
         ...examples.map(

@@ -15,8 +15,7 @@ class SupplierBillScannerScreen extends StatefulWidget {
   const SupplierBillScannerScreen({super.key});
 
   @override
-  State<SupplierBillScannerScreen> createState() =>
-      _SupplierBillScannerScreenState();
+  State<SupplierBillScannerScreen> createState() => _SupplierBillScannerScreenState();
 }
 
 class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
@@ -30,8 +29,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
   bool _hasResult = false;
 
   // Bill data
-  final TextEditingController _supplierCtrl =
-      TextEditingController(text: 'Unknown');
+  final TextEditingController _supplierCtrl = TextEditingController(text: 'Unknown');
   final TextEditingController _billNumberCtrl = TextEditingController();
   final TextEditingController _billDateCtrl = TextEditingController();
   List<BillItem> _items = [];
@@ -44,16 +42,14 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
   @override
   void initState() {
     super.initState();
-    _spinCtrl = AnimationController(
-        vsync: this, duration: const Duration(seconds: 1))
-      ..repeat();
+    _spinCtrl = AnimationController(vsync: this, duration: const Duration(seconds: 1))..repeat();
 
-    _scanLineCtrl = AnimationController(
-        vsync: this, duration: const Duration(seconds: 2))
+    _scanLineCtrl = AnimationController(vsync: this, duration: const Duration(seconds: 2))
       ..repeat(reverse: true);
-    _scanLineAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _scanLineCtrl, curve: Curves.easeInOut),
-    );
+    _scanLineAnim = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _scanLineCtrl, curve: Curves.easeInOut));
   }
 
   @override
@@ -69,16 +65,14 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
   // ─── Image Actions ───
 
   Future<void> _scanWithCamera() async {
-    final xFile = await _picker.pickImage(
-        source: ImageSource.camera, imageQuality: 85);
+    final xFile = await _picker.pickImage(source: ImageSource.camera, imageQuality: 85);
     if (xFile == null) return;
     final bytes = await xFile.readAsBytes();
     await _processImage(bytes);
   }
 
   Future<void> _uploadFromGallery() async {
-    final xFile = await _picker.pickImage(
-        source: ImageSource.gallery, imageQuality: 85);
+    final xFile = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
     if (xFile == null) return;
     final bytes = await xFile.readAsBytes();
     await _processImage(bytes);
@@ -90,13 +84,11 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
       final result = await _gemini.extractBillWithSupplierDetails(bytes);
       _supplierCtrl.text = result['supplier']?.toString() ?? 'Unknown';
       _billNumberCtrl.text = result['billNumber']?.toString() ?? 'N/A';
-      _billDateCtrl.text = result['billDate']?.toString() ??
-          DateTime.now().toString().substring(0, 10);
+      _billDateCtrl.text =
+          result['billDate']?.toString() ?? DateTime.now().toString().substring(0, 10);
 
       final rawItems = result['items'] as List? ?? [];
-      _items = rawItems
-          .map((e) => BillItem.fromMap(e as Map<String, dynamic>))
-          .toList();
+      _items = rawItems.map((e) => BillItem.fromMap(e as Map<String, dynamic>)).toList();
 
       if (_items.isEmpty) _items.add(BillItem());
 
@@ -137,8 +129,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
     int createdCount = 0;
     double totalBillValue = 0;
 
-    final authProvider =
-        Provider.of<app_auth.AuthProvider>(context, listen: false);
+    final authProvider = Provider.of<app_auth.AuthProvider>(context, listen: false);
     final shopId = authProvider.currentShop?.id ?? 'shop_001';
     final shopName = authProvider.currentShop?.name ?? 'Fufaji Store';
 
@@ -149,10 +140,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
 
         // Fuzzy match: search Firestore by name (case-insensitive contains)
         final nameLower = item.name.toLowerCase().trim();
-        final snapshot = await _db
-            .collection('products')
-            .where('shopId', isEqualTo: shopId)
-            .get();
+        final snapshot = await _db.collection('products').where('shopId', isEqualTo: shopId).get();
 
         DocumentSnapshot? match;
         for (final doc in snapshot.docs) {
@@ -165,8 +153,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
         }
 
         if (match != null) {
-          final currentQty =
-              (match.data() as Map<String, dynamic>)['stockQuantity'] ?? 0;
+          final currentQty = (match.data() as Map<String, dynamic>)['stockQuantity'] ?? 0;
           await match.reference.update({
             'stockQuantity': currentQty + item.quantity.toInt(),
             'costPrice': item.pricePerUnit,
@@ -193,8 +180,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
             createdAt: DateTime.now(),
             updatedAt: DateTime.now(),
           );
-          final productProvider =
-              Provider.of<ProductProvider>(context, listen: false);
+          final productProvider = Provider.of<ProductProvider>(context, listen: false);
           await productProvider.addProduct(newProduct);
           createdCount++;
         }
@@ -213,7 +199,8 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
 
       if (mounted) Navigator.of(context).pop(); // close dialog
       _showSnack(
-          'Stock updated: $updatedCount updated, $createdCount created. Total: ₹${totalBillValue.toStringAsFixed(0)}');
+        'Stock updated: $updatedCount updated, $createdCount created. Total: ₹${totalBillValue.toStringAsFixed(0)}',
+      );
       setState(() => _hasResult = false);
     } catch (e) {
       if (mounted) Navigator.of(context).pop();
@@ -223,12 +210,14 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
 
   void _showSnack(String msg, {bool isError = false}) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(msg),
-      backgroundColor: isError ? AppTheme.error : AppTheme.info,
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        backgroundColor: isError ? AppTheme.error : AppTheme.info,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
 
   // ─── UI ───
@@ -238,8 +227,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
     return Scaffold(
       backgroundColor: AppTheme.grey50,
       appBar: AppBar(
-        title: const Text('Supplier Bill Scanner',
-            style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Supplier Bill Scanner', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: AppTheme.primary,
         foregroundColor: AppTheme.white,
         elevation: 0,
@@ -248,8 +236,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
                 TextButton.icon(
                   onPressed: () => setState(() => _hasResult = false),
                   icon: const Icon(Icons.refresh, color: AppTheme.white),
-                  label: const Text('Rescan',
-                      style: TextStyle(color: AppTheme.white)),
+                  label: const Text('Rescan', style: TextStyle(color: AppTheme.white)),
                 ),
               ]
             : null,
@@ -257,8 +244,8 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
       body: _isLoading
           ? _buildLoading()
           : _hasResult
-              ? _buildResultView()
-              : _buildLandingView(),
+          ? _buildResultView()
+          : _buildLandingView(),
     );
   }
 
@@ -278,15 +265,13 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
                 color: AppTheme.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.document_scanner_outlined,
-                  size: 60, color: AppTheme.primary),
+              child: const Icon(Icons.document_scanner_outlined, size: 60, color: AppTheme.primary),
             ),
             const SizedBox(height: 24),
-            const Text('Scan Supplier Bill',
-                style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.grey900)),
+            const Text(
+              'Scan Supplier Bill',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.grey900),
+            ),
             const SizedBox(height: 8),
             const Text(
               'AI will extract all product details\nfrom your supplier bill or challan',
@@ -345,20 +330,22 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold)),
-                  Text(subtitle,
-                      style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.8),
-                          fontSize: 13)),
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 13),
+                  ),
                 ],
               ),
               const Spacer(),
-              const Icon(Icons.arrow_forward_ios,
-                  color: Colors.white, size: 16),
+              const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
             ],
           ),
         ),
@@ -427,8 +414,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
                       animation: _scanLineAnim,
                       builder: (context, child) {
                         return Positioned(
-                          top: _scanLineAnim.value *
-                              280, // sweeps within 300px height
+                          top: _scanLineAnim.value * 280, // sweeps within 300px height
                           left: 10,
                           right: 10,
                           child: Container(
@@ -458,8 +444,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
               tween: Tween(begin: 0.6, end: 1.0),
               duration: const Duration(seconds: 1),
               curve: Curves.easeInOut,
-              builder: (context, val, child) =>
-                  Opacity(opacity: val, child: child),
+              builder: (context, val, child) => Opacity(opacity: val, child: child),
               child: const Text(
                 'Reading bill with AI...',
                 style: TextStyle(
@@ -483,8 +468,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
   // ─── Result View ───
 
   Widget _buildResultView() {
-    final totalValue =
-        _items.fold<double>(0, (s, item) => s + item.total);
+    final totalValue = _items.fold<double>(0, (s, item) => s + item.total);
 
     return Column(
       children: [
@@ -497,9 +481,10 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2)),
+                color: Colors.black.withValues(alpha: 0.06),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
             ],
           ),
           child: Column(
@@ -507,18 +492,19 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
             children: [
               Row(
                 children: [
-                  const Icon(Icons.receipt_long,
-                      color: AppTheme.primary, size: 20),
+                  const Icon(Icons.receipt_long, color: AppTheme.primary, size: 20),
                   const SizedBox(width: 8),
-                  const Text('Bill Details',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                          color: AppTheme.grey900)),
+                  const Text(
+                    'Bill Details',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: AppTheme.grey900,
+                    ),
+                  ),
                   const Spacer(),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: AppTheme.info.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
@@ -526,9 +512,10 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
                     child: Text(
                       '₹${totalValue.toStringAsFixed(0)}',
                       style: const TextStyle(
-                          color: AppTheme.info,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14),
+                        color: AppTheme.info,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
                     ),
                   ),
                 ],
@@ -538,13 +525,9 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Expanded(
-                      child: _buildMetaField(
-                          'Bill No.', _billNumberCtrl, Icons.tag)),
+                  Expanded(child: _buildMetaField('Bill No.', _billNumberCtrl, Icons.tag)),
                   const SizedBox(width: 8),
-                  Expanded(
-                      child: _buildMetaField(
-                          'Date', _billDateCtrl, Icons.calendar_today)),
+                  Expanded(child: _buildMetaField('Date', _billDateCtrl, Icons.calendar_today)),
                 ],
               ),
             ],
@@ -557,40 +540,60 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
           child: Row(
             children: [
               Expanded(
-                  flex: 4,
-                  child: Text('Product',
-                      style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.grey600))),
+                flex: 4,
+                child: Text(
+                  'Product',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.grey600,
+                  ),
+                ),
+              ),
               Expanded(
-                  flex: 2,
-                  child: Text('Qty',
-                      style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.grey600))),
+                flex: 2,
+                child: Text(
+                  'Qty',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.grey600,
+                  ),
+                ),
+              ),
               Expanded(
-                  flex: 2,
-                  child: Text('Unit',
-                      style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.grey600))),
+                flex: 2,
+                child: Text(
+                  'Unit',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.grey600,
+                  ),
+                ),
+              ),
               Expanded(
-                  flex: 2,
-                  child: Text('Price',
-                      style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.grey600))),
+                flex: 2,
+                child: Text(
+                  'Price',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.grey600,
+                  ),
+                ),
+              ),
               Expanded(
-                  flex: 2,
-                  child: Text('Total',
-                      style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.grey600))),
+                flex: 2,
+                child: Text(
+                  'Total',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.grey600,
+                  ),
+                ),
+              ),
               SizedBox(width: 32),
             ],
           ),
@@ -608,12 +611,10 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
                   child: OutlinedButton.icon(
                     onPressed: () => setState(() => _items.add(BillItem())),
                     icon: const Icon(Icons.add, color: AppTheme.primary),
-                    label: const Text('Add Row',
-                        style: TextStyle(color: AppTheme.primary)),
+                    label: const Text('Add Row', style: TextStyle(color: AppTheme.primary)),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: AppTheme.primary),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                   ),
                 );
@@ -635,9 +636,10 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
             color: AppTheme.white,
             boxShadow: [
               BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 8,
-                  offset: const Offset(0, -2)),
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 8,
+                offset: const Offset(0, -2),
+              ),
             ],
           ),
           child: SafeArea(
@@ -650,14 +652,14 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
                 label: Text(
                   'Update Inventory (${_items.length} items)',
                   style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold),
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primary,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   elevation: 0,
                 ),
               ),
@@ -668,21 +670,18 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
     );
   }
 
-  Widget _buildMetaField(
-      String label, TextEditingController ctrl, IconData icon) {
+  Widget _buildMetaField(String label, TextEditingController ctrl, IconData icon) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: const TextStyle(fontSize: 11, color: AppTheme.grey500)),
+        Text(label, style: const TextStyle(fontSize: 11, color: AppTheme.grey500)),
         const SizedBox(height: 4),
         TextFormField(
           controller: ctrl,
           style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
           decoration: InputDecoration(
             prefixIcon: Icon(icon, size: 16, color: AppTheme.primary),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: const BorderSide(color: AppTheme.grey200),

@@ -35,7 +35,7 @@ class _RetentionDashboardScreenState extends State<RetentionDashboardScreen> {
             onPressed: () {
               context.read<RetentionProvider>().loadRetentionData();
             },
-          )
+          ),
         ],
       ),
       body: Consumer<RetentionProvider>(
@@ -51,7 +51,10 @@ class _RetentionDashboardScreenState extends State<RetentionDashboardScreen> {
                 children: [
                   const Icon(Icons.error_outline, color: AppTheme.error, size: 48),
                   const SizedBox(height: 16),
-                  Text('Failed to load retention data', style: Theme.of(context).textTheme.titleLarge),
+                  Text(
+                    'Failed to load retention data',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                   Text(provider.error!, style: const TextStyle(color: AppTheme.grey600)),
                 ],
               ),
@@ -68,10 +71,14 @@ class _RetentionDashboardScreenState extends State<RetentionDashboardScreen> {
                 children: [
                   _buildRecoveryKPIs(provider.recoveryStats),
                   const SizedBox(height: 24),
-                  
+
                   const Text(
                     'At-Risk Customers',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey800),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.grey800,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   const Text(
@@ -79,17 +86,24 @@ class _RetentionDashboardScreenState extends State<RetentionDashboardScreen> {
                     style: TextStyle(color: AppTheme.grey600),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   if (provider.atRiskCustomers.isEmpty)
                     Center(
                       child: Padding(
                         padding: const EdgeInsets.all(32),
                         child: Column(
                           children: [
-                            const Icon(Icons.check_circle_outline, size: 64, color: AppTheme.success),
+                            const Icon(
+                              Icons.check_circle_outline,
+                              size: 64,
+                              color: AppTheme.success,
+                            ),
                             const SizedBox(height: 16),
                             Text('Great Retention!', style: Theme.of(context).textTheme.titleLarge),
-                            const Text('No customers are currently at risk of churning.', style: TextStyle(color: AppTheme.grey600)),
+                            const Text(
+                              'No customers are currently at risk of churning.',
+                              style: TextStyle(color: AppTheme.grey600),
+                            ),
                           ],
                         ),
                       ),
@@ -131,10 +145,22 @@ class _RetentionDashboardScreenState extends State<RetentionDashboardScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _StatBlock('Incentives Sent', stats['totalIncentivized'].toString(), AppTheme.grey800),
+                _StatBlock(
+                  'Incentives Sent',
+                  stats['totalIncentivized'].toString(),
+                  AppTheme.grey800,
+                ),
                 _StatBlock('Recovered', stats['successfullyRecovered'].toString(), AppTheme.info),
-                _StatBlock('Win-back %', '${(stats['recoveryRate'] as num).toStringAsFixed(1)}%', AppTheme.success),
-                _StatBlock('Revenue', '₹${(stats['recoveredRevenue'] as num).toStringAsFixed(0)}', AppTheme.primary),
+                _StatBlock(
+                  'Win-back %',
+                  '${(stats['recoveryRate'] as num).toStringAsFixed(1)}%',
+                  AppTheme.success,
+                ),
+                _StatBlock(
+                  'Revenue',
+                  '₹${(stats['recoveredRevenue'] as num).toStringAsFixed(0)}',
+                  AppTheme.primary,
+                ),
               ],
             ),
           ],
@@ -155,9 +181,19 @@ class _StatBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(value, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: valueColor)),
+        Text(
+          value,
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: valueColor),
+        ),
         const SizedBox(height: 6),
-        Text(label, style: const TextStyle(color: AppTheme.grey600, fontSize: 12, fontWeight: FontWeight.w500)),
+        Text(
+          label,
+          style: const TextStyle(
+            color: AppTheme.grey600,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ],
     );
   }
@@ -173,21 +209,21 @@ class _AtRiskCustomerCard extends StatelessWidget {
     // Safely parse Firestore Timestamps
     final lastOrderDynamic = customer['lastOrderAt'];
     final createdAtDynamic = customer['createdAt'];
-    
+
     DateTime? lastOrderDate;
     if (lastOrderDynamic != null && lastOrderDynamic is Timestamp) {
       lastOrderDate = lastOrderDynamic.toDate();
     }
-    
+
     DateTime accountCreatedDate = DateTime.now();
     if (createdAtDynamic != null && createdAtDynamic is Timestamp) {
       accountCreatedDate = createdAtDynamic.toDate();
     }
-    
-    final daysSinceLastOrder = lastOrderDate != null 
-        ? DateTime.now().difference(lastOrderDate).inDays 
+
+    final daysSinceLastOrder = lastOrderDate != null
+        ? DateTime.now().difference(lastOrderDate).inDays
         : accountCreatedDate.difference(DateTime.now()).inDays.abs();
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -225,7 +261,11 @@ class _AtRiskCustomerCard extends StatelessWidget {
                   ),
                   child: Text(
                     '$daysSinceLastOrder days ago',
-                    style: const TextStyle(color: AppTheme.error, fontSize: 12, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      color: AppTheme.error,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -253,8 +293,13 @@ class _AtRiskCustomerCard extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Send Reactivation Incentive', style: TextStyle(fontWeight: FontWeight.w700)),
-        content: Text('This will add ₹50 to ${(customer['name'] as String?) ?? 'this customer'}\'s wallet and send them a push notification.'),
+        title: const Text(
+          'Send Reactivation Incentive',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+        content: Text(
+          'This will add ₹50 to ${(customer['name'] as String?) ?? 'this customer'}\'s wallet and send them a push notification.',
+        ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           ElevatedButton(
@@ -263,22 +308,27 @@ class _AtRiskCustomerCard extends StatelessWidget {
               final auth = context.read<AuthProvider>();
               final adminId = auth.currentUser?.id ?? 'admin';
               final adminName = auth.currentUser?.name ?? 'Admin';
-              
+
               try {
                 await context.read<RetentionProvider>().sendIncentiveToCustomer(
                   userId: customer['id'] as String,
                   amount: 50.0,
-                  message: 'We miss you! Here is ₹50 in your Fufaji Wallet to use on your next order.',
+                  message:
+                      'We miss you! Here is ₹50 in your Fufaji Wallet to use on your next order.',
                   adminId: adminId,
                   adminName: adminName,
                 );
-                
+
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Offer sent successfully')));
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('Offer sent successfully')));
                 }
               } catch (e) {
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to send offer: $e')));
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Failed to send offer: $e')));
                 }
               }
             },

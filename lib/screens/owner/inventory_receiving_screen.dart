@@ -25,11 +25,10 @@ class _ReceivedItem {
     this.barcode = '',
     required this.receivedQty,
     required this.unit,
-  })  : costPerUnit = 0.0,
-        isVerified = false;
+  }) : costPerUnit = 0.0,
+       isVerified = false;
 
-  bool get isValid =>
-      productName.isNotEmpty && receivedQty > 0;
+  bool get isValid => productName.isNotEmpty && receivedQty > 0;
 }
 
 // ─────────────── SCREEN ───────────────
@@ -38,8 +37,7 @@ class InventoryReceivingScreen extends StatefulWidget {
   const InventoryReceivingScreen({super.key});
 
   @override
-  State<InventoryReceivingScreen> createState() =>
-      _InventoryReceivingScreenState();
+  State<InventoryReceivingScreen> createState() => _InventoryReceivingScreenState();
 }
 
 class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
@@ -78,17 +76,16 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
     if (result != null && result.isNotEmpty) {
       setState(() {
         for (final item in result) {
-          _items.add(_ReceivedItem(
-            productName: item['name']?.toString() ?? '',
-            receivedQty: (item['quantity'] as num?)?.toDouble() ?? 1.0,
-            unit: item['unit']?.toString() ?? 'kg',
-          ));
+          _items.add(
+            _ReceivedItem(
+              productName: item['name']?.toString() ?? '',
+              receivedQty: (item['quantity'] as num?)?.toDouble() ?? 1.0,
+              unit: item['unit']?.toString() ?? 'kg',
+            ),
+          );
         }
       });
-      _showSnackBar(
-        '${result.length} items bill se auto-fill ho gaye!',
-        isSuccess: true,
-      );
+      _showSnackBar('${result.length} items bill se auto-fill ho gaye!', isSuccess: true);
     }
   }
 
@@ -104,20 +101,21 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
     // Pause scanner briefly to avoid duplicate reads
     _scannerController.stop();
 
-    final productProvider =
-        Provider.of<ProductProvider>(context, listen: false);
+    final productProvider = Provider.of<ProductProvider>(context, listen: false);
     final product = productProvider.getProductByBarcode(code);
 
     if (product != null) {
       setState(() {
         _scanFeedback = 'Mila: ${product.name}';
-        _items.add(_ReceivedItem(
-          productId: product.id,
-          productName: product.name,
-          barcode: code,
-          receivedQty: 1.0,
-          unit: product.unit,
-        ));
+        _items.add(
+          _ReceivedItem(
+            productId: product.id,
+            productName: product.name,
+            barcode: code,
+            receivedQty: 1.0,
+            unit: product.unit,
+          ),
+        );
         _isScannerActive = false;
       });
       _showSnackBar('${product.name} list mein add ho gaya!', isSuccess: true);
@@ -131,17 +129,17 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
             .get();
 
         if (snap.docs.isNotEmpty) {
-          final p = ProductModel.fromMap(
-            snap.docs.first.data(),
-          );
+          final p = ProductModel.fromMap(snap.docs.first.data());
           setState(() {
-            _items.add(_ReceivedItem(
-              productId: p.id,
-              productName: p.name,
-              barcode: code,
-              receivedQty: 1.0,
-              unit: p.unit,
-            ));
+            _items.add(
+              _ReceivedItem(
+                productId: p.id,
+                productName: p.name,
+                barcode: code,
+                receivedQty: 1.0,
+                unit: p.unit,
+              ),
+            );
             _isScannerActive = false;
             _scanFeedback = 'Mila: ${p.name}';
           });
@@ -149,12 +147,9 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
         } else {
           setState(() {
             _scanFeedback = 'Barcode $code - product nahi mila, manually add karein';
-            _items.add(_ReceivedItem(
-              barcode: code,
-              productName: '',
-              receivedQty: 1.0,
-              unit: 'piece',
-            ));
+            _items.add(
+              _ReceivedItem(barcode: code, productName: '', receivedQty: 1.0, unit: 'piece'),
+            );
           });
           // Resume scanner after a moment
           await Future.delayed(const Duration(seconds: 2));
@@ -186,10 +181,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
           'Kya aap sure hain?',
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(
@@ -207,8 +199,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
     setState(() => _isSubmitting = true);
 
     try {
-      final productProvider =
-          Provider.of<ProductProvider>(context, listen: false);
+      final productProvider = Provider.of<ProductProvider>(context, listen: false);
       final db = FirebaseFirestore.instance;
       final batch = db.batch();
       int updated = 0;
@@ -219,8 +210,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
           // Update existing product stock
           final product = productProvider.getProductById(item.productId);
           if (product != null) {
-            final newStock =
-                product.stockQuantity + item.receivedQty.round();
+            final newStock = product.stockQuantity + item.receivedQty.round();
             final ref = db.collection('products').doc(item.productId);
             batch.update(ref, {
               'stockQuantity': newStock,
@@ -232,17 +222,12 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
           // Try to find by name
           final nameLower = item.productName.toLowerCase();
           final product = productProvider.products.firstWhere(
-            (p) => p.name.toLowerCase() == nameLower ||
-                p.name.toLowerCase().contains(nameLower),
+            (p) => p.name.toLowerCase() == nameLower || p.name.toLowerCase().contains(nameLower),
             orElse: () => throw Exception('skip'),
           );
-          final newStock =
-              product.stockQuantity + item.receivedQty.round();
+          final newStock = product.stockQuantity + item.receivedQty.round();
           final ref = db.collection('products').doc(product.id);
-          batch.update(ref, {
-            'stockQuantity': newStock,
-            'updatedAt': FieldValue.serverTimestamp(),
-          });
+          batch.update(ref, {'stockQuantity': newStock, 'updatedAt': FieldValue.serverTimestamp()});
           updated++;
         }
       }
@@ -254,14 +239,16 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
         'supplierName': _supplierName,
         'invoiceNumber': _invoiceNumber,
         'items': validItems
-            .map((i) => {
-                  'productId': i.productId,
-                  'productName': i.productName,
-                  'barcode': i.barcode,
-                  'receivedQty': i.receivedQty,
-                  'unit': i.unit,
-                  'costPerUnit': i.costPerUnit,
-                })
+            .map(
+              (i) => {
+                'productId': i.productId,
+                'productName': i.productName,
+                'barcode': i.barcode,
+                'receivedQty': i.receivedQty,
+                'unit': i.unit,
+                'costPerUnit': i.costPerUnit,
+              },
+            )
             .toList(),
         'receivedAt': FieldValue.serverTimestamp(),
         'totalItems': validItems.length,
@@ -300,11 +287,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
 
   void _addEmptyItem() {
     setState(() {
-      _items.add(_ReceivedItem(
-        productName: '',
-        receivedQty: 1.0,
-        unit: 'kg',
-      ));
+      _items.add(_ReceivedItem(productName: '', receivedQty: 1.0, unit: 'kg'));
     });
   }
 
@@ -315,10 +298,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
     return Scaffold(
       backgroundColor: AppTheme.grey50,
       appBar: AppBar(
-        title: const Text(
-          'Maal Receive Karo',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: const Text('Maal Receive Karo', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: AppTheme.primary,
         foregroundColor: Colors.white,
         bottom: TabBar(
@@ -345,10 +325,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
             )
           : TabBarView(
               controller: _tabController,
-              children: [
-                _buildItemsTab(),
-                _buildScannerTab(),
-              ],
+              children: [_buildItemsTab(), _buildScannerTab()],
             ),
       bottomNavigationBar: _buildBottomBar(),
     );
@@ -396,8 +373,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: _openBillScanner,
-                      icon: const Icon(Icons.document_scanner_outlined,
-                          size: 18),
+                      icon: const Icon(Icons.document_scanner_outlined, size: 18),
                       label: const Text('Scan Bill'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppTheme.primary,
@@ -446,8 +422,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.inventory_2_outlined,
-                          size: 64, color: AppTheme.grey300),
+                      Icon(Icons.inventory_2_outlined, size: 64, color: AppTheme.grey300),
                       SizedBox(height: 16),
                       Text(
                         'Koi item nahi hai',
@@ -468,15 +443,13 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
               : ListView.builder(
                   padding: const EdgeInsets.all(12),
                   itemCount: _items.length,
-                  itemBuilder: (context, index) =>
-                      _ItemEntryCard(
-                        item: _items[index],
-                        index: index,
-                        productProvider:
-                            Provider.of<ProductProvider>(context, listen: false),
-                        onDelete: () => setState(() => _items.removeAt(index)),
-                        onChanged: () => setState(() {}),
-                      ),
+                  itemBuilder: (context, index) => _ItemEntryCard(
+                    item: _items[index],
+                    index: index,
+                    productProvider: Provider.of<ProductProvider>(context, listen: false),
+                    onDelete: () => setState(() => _items.removeAt(index)),
+                    onChanged: () => setState(() {}),
+                  ),
                 ),
         ),
       ],
@@ -491,10 +464,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
           flex: 3,
           child: Stack(
             children: [
-              MobileScanner(
-                controller: _scannerController,
-                onDetect: _onBarcodeDetected,
-              ),
+              MobileScanner(controller: _scannerController, onDetect: _onBarcodeDetected),
               // Viewfinder overlay
               Center(
                 child: Container(
@@ -513,8 +483,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
                 right: 0,
                 child: Center(
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.black54,
                       borderRadius: BorderRadius.circular(20),
@@ -538,14 +507,10 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
             color: AppTheme.success.withValues(alpha: 0.1),
             child: Row(
               children: [
-                const Icon(Icons.check_circle,
-                    color: AppTheme.success, size: 18),
+                const Icon(Icons.check_circle, color: AppTheme.success, size: 18),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                    _scanFeedback!,
-                    style: const TextStyle(color: AppTheme.success),
-                  ),
+                  child: Text(_scanFeedback!, style: const TextStyle(color: AppTheme.success)),
                 ),
               ],
             ),
@@ -612,37 +577,23 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
                       final item = _items[i];
                       return Container(
                         margin: const EdgeInsets.only(right: 8),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
                           color: AppTheme.primary.withValues(alpha: 0.1),
-                          borderRadius:
-                              BorderRadius.circular(AppTheme.radiusMd),
-                          border: Border.all(
-                            color: AppTheme.primary.withValues(alpha: 0.3),
-                          ),
+                          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                          border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3)),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              item.productName.isEmpty
-                                  ? '(Unknown)'
-                                  : item.productName,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                              ),
+                              item.productName.isEmpty ? '(Unknown)' : item.productName,
+                              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
                             ),
                             Text(
                               '${item.receivedQty} ${item.unit}',
-                              style: const TextStyle(
-                                fontSize: 11,
-                                color: AppTheme.grey600,
-                              ),
+                              style: const TextStyle(fontSize: 11, color: AppTheme.grey600),
                             ),
                           ],
                         ),
@@ -662,37 +613,25 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
 
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        boxShadow: AppTheme.cardShadows,
-      ),
+      decoration: const BoxDecoration(color: Colors.white, boxShadow: AppTheme.cardShadows),
       child: SafeArea(
         child: ElevatedButton(
-          onPressed:
-              validCount > 0 && !_isSubmitting ? _confirmAllReceived : null,
+          onPressed: validCount > 0 && !_isSubmitting ? _confirmAllReceived : null,
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.primary,
             foregroundColor: Colors.white,
             minimumSize: const Size.fromHeight(52),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusMd)),
           ),
           child: _isSubmitting
               ? const SizedBox(
                   width: 24,
                   height: 24,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2,
-                  ),
+                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                 )
               : Text(
                   'Confirm All Received ($validCount items)',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
         ),
       ),
@@ -732,11 +671,9 @@ class _ItemEntryCardState extends State<_ItemEntryCard> {
   void initState() {
     super.initState();
     _nameCtrl = TextEditingController(text: widget.item.productName);
-    _qtyCtrl =
-        TextEditingController(text: widget.item.receivedQty.toString());
+    _qtyCtrl = TextEditingController(text: widget.item.receivedQty.toString());
     _unitCtrl = TextEditingController(text: widget.item.unit);
-    _costCtrl =
-        TextEditingController(text: widget.item.costPerUnit.toString());
+    _costCtrl = TextEditingController(text: widget.item.costPerUnit.toString());
   }
 
   @override
@@ -780,9 +717,7 @@ class _ItemEntryCardState extends State<_ItemEntryCard> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppTheme.radiusMd),
         side: BorderSide(
-          color: isVerified
-              ? AppTheme.success.withValues(alpha: 0.4)
-              : AppTheme.grey200,
+          color: isVerified ? AppTheme.success.withValues(alpha: 0.4) : AppTheme.grey200,
         ),
       ),
       child: Padding(
@@ -797,15 +732,12 @@ class _ItemEntryCardState extends State<_ItemEntryCard> {
                   width: 28,
                   height: 28,
                   decoration: BoxDecoration(
-                    color: isVerified
-                        ? AppTheme.success.withValues(alpha: 0.15)
-                        : AppTheme.grey100,
+                    color: isVerified ? AppTheme.success.withValues(alpha: 0.15) : AppTheme.grey100,
                     shape: BoxShape.circle,
                   ),
                   child: Center(
                     child: isVerified
-                        ? const Icon(Icons.check,
-                            size: 16, color: AppTheme.success)
+                        ? const Icon(Icons.check, size: 16, color: AppTheme.success)
                         : Text(
                             '${widget.index + 1}',
                             style: const TextStyle(
@@ -826,20 +758,15 @@ class _ItemEntryCardState extends State<_ItemEntryCard> {
                       isDense: true,
                       border: InputBorder.none,
                       suffixIcon: widget.item.barcode.isNotEmpty
-                          ? const Icon(Icons.qr_code,
-                              size: 16, color: AppTheme.grey400)
+                          ? const Icon(Icons.qr_code, size: 16, color: AppTheme.grey400)
                           : null,
                     ),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                    ),
+                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
                   ),
                 ),
                 IconButton(
                   onPressed: widget.onDelete,
-                  icon: const Icon(Icons.delete_outline,
-                      color: AppTheme.grey400, size: 20),
+                  icon: const Icon(Icons.delete_outline, color: AppTheme.grey400, size: 20),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                 ),
@@ -862,25 +789,19 @@ class _ItemEntryCardState extends State<_ItemEntryCard> {
                         (p) => InkWell(
                           onTap: () => _selectProduct(p),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             child: Row(
                               children: [
-                                const Icon(Icons.inventory_2_outlined,
-                                    size: 16, color: AppTheme.grey500),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    p.name,
-                                    style: const TextStyle(fontSize: 13),
-                                  ),
+                                const Icon(
+                                  Icons.inventory_2_outlined,
+                                  size: 16,
+                                  color: AppTheme.grey500,
                                 ),
+                                const SizedBox(width: 8),
+                                Expanded(child: Text(p.name, style: const TextStyle(fontSize: 13))),
                                 Text(
                                   p.unit,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: AppTheme.grey500,
-                                  ),
+                                  style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
                                 ),
                               ],
                             ),
@@ -903,14 +824,10 @@ class _ItemEntryCardState extends State<_ItemEntryCard> {
                     controller: _qtyCtrl,
                     keyboardType: TextInputType.number,
                     onChanged: (v) {
-                      widget.item.receivedQty =
-                          double.tryParse(v) ?? 1.0;
+                      widget.item.receivedQty = double.tryParse(v) ?? 1.0;
                       widget.onChanged();
                     },
-                    decoration: const InputDecoration(
-                      labelText: 'Quantity',
-                      isDense: true,
-                    ),
+                    decoration: const InputDecoration(labelText: 'Quantity', isDense: true),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -919,10 +836,7 @@ class _ItemEntryCardState extends State<_ItemEntryCard> {
                   child: TextField(
                     controller: _unitCtrl,
                     onChanged: (v) => widget.item.unit = v,
-                    decoration: const InputDecoration(
-                      labelText: 'Unit',
-                      isDense: true,
-                    ),
+                    decoration: const InputDecoration(labelText: 'Unit', isDense: true),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -933,14 +847,10 @@ class _ItemEntryCardState extends State<_ItemEntryCard> {
                     controller: _costCtrl,
                     keyboardType: TextInputType.number,
                     onChanged: (v) {
-                      widget.item.costPerUnit =
-                          double.tryParse(v) ?? 0.0;
+                      widget.item.costPerUnit = double.tryParse(v) ?? 0.0;
                       widget.onChanged();
                     },
-                    decoration: const InputDecoration(
-                      labelText: 'Cost/Unit (Rs.)',
-                      isDense: true,
-                    ),
+                    decoration: const InputDecoration(labelText: 'Cost/Unit (Rs.)', isDense: true),
                   ),
                 ),
               ],
@@ -952,8 +862,7 @@ class _ItemEntryCardState extends State<_ItemEntryCard> {
                 padding: const EdgeInsets.only(top: 8),
                 child: Row(
                   children: [
-                    const Icon(Icons.qr_code,
-                        size: 14, color: AppTheme.grey500),
+                    const Icon(Icons.qr_code, size: 14, color: AppTheme.grey500),
                     const SizedBox(width: 4),
                     Text(
                       widget.item.barcode,

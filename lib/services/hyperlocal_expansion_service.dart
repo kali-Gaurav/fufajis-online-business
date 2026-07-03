@@ -74,9 +74,7 @@ class HyperlocalExpansionService {
           .limit(100)
           .get();
 
-      return snapshot.docs
-          .map((doc) => DemandHeatmapCell.fromMap(doc.data()))
-          .toList();
+      return snapshot.docs.map((doc) => DemandHeatmapCell.fromMap(doc.data())).toList();
     } catch (e) {
       debugPrint('Error getting demand heatmap: $e');
       return [];
@@ -122,20 +120,22 @@ class HyperlocalExpansionService {
             daysSinceFirstOrder: DateTime.now().difference(cell.firstOrderAt).inDays,
           );
 
-          if (cell.orderCount >= minOrdersForExpansion || 
+          if (cell.orderCount >= minOrdersForExpansion ||
               cell.totalRevenue >= minRevenueForExpansion) {
-            recommendations.add(ZoneExpansionRecommendation(
-              gridKey: cell.gridKey,
-              centerLat: cell.centerLat,
-              centerLng: cell.centerLng,
-              distanceFromShop: distance,
-              orderCount: cell.orderCount,
-              totalRevenue: cell.totalRevenue,
-              score: score,
-              suggestedDeliveryCharge: _suggestDeliveryCharge(distance),
-              suggestedMinOrder: _suggestMinOrder(distance),
-              pincodes: cell.pincodes,
-            ));
+            recommendations.add(
+              ZoneExpansionRecommendation(
+                gridKey: cell.gridKey,
+                centerLat: cell.centerLat,
+                centerLng: cell.centerLng,
+                distanceFromShop: distance,
+                orderCount: cell.orderCount,
+                totalRevenue: cell.totalRevenue,
+                score: score,
+                suggestedDeliveryCharge: _suggestDeliveryCharge(distance),
+                suggestedMinOrder: _suggestMinOrder(distance),
+                pincodes: cell.pincodes,
+              ),
+            );
           }
         }
       }
@@ -157,14 +157,18 @@ class HyperlocalExpansionService {
     required int daysSinceFirstOrder,
   }) {
     // Weighted factors
-    final orderScore = (orderCount / 50.0).clamp(0.0, 1.0) * 30.0;        // Max 30 points
-    final revenueScore = (totalRevenue / 50000.0).clamp(0.0, 1.0) * 25.0;  // Max 25 points
-    final distancePenalty = (1.0 - (distance / 15.0)).clamp(0.0, 1.0) * 20.0; // Max 20 (closer = better)
+    final orderScore = (orderCount / 50.0).clamp(0.0, 1.0) * 30.0; // Max 30 points
+    final revenueScore = (totalRevenue / 50000.0).clamp(0.0, 1.0) * 25.0; // Max 25 points
+    final distancePenalty =
+        (1.0 - (distance / 15.0)).clamp(0.0, 1.0) * 20.0; // Max 20 (closer = better)
     final velocityScore = daysSinceFirstOrder > 0
-        ? (orderCount / daysSinceFirstOrder * 7.0).clamp(0.0, 1.0) * 25.0     // Max 25 (weekly order rate)
+        ? (orderCount / daysSinceFirstOrder * 7.0).clamp(0.0, 1.0) *
+              25.0 // Max 25 (weekly order rate)
         : 0.0;
 
-    return (orderScore + revenueScore + distancePenalty + velocityScore).clamp(0.0, 100.0).toDouble();
+    return (orderScore + revenueScore + distancePenalty + velocityScore)
+        .clamp(0.0, 100.0)
+        .toDouble();
   }
 
   /// Suggest delivery charge based on distance
@@ -193,7 +197,9 @@ class HyperlocalExpansionService {
       final zoneId = 'zone_expanded_${DateTime.now().millisecondsSinceEpoch}';
       final newZone = DeliveryZone(
         id: zoneId,
-        label: customLabel ?? 'Expanded Zone (${recommendation.distanceFromShop.toStringAsFixed(1)} km)',
+        label:
+            customLabel ??
+            'Expanded Zone (${recommendation.distanceFromShop.toStringAsFixed(1)} km)',
         fromRadiusKm: recommendation.distanceFromShop - 1.0,
         toRadiusKm: recommendation.distanceFromShop + 1.0,
         deliveryCharge: recommendation.suggestedDeliveryCharge,
@@ -223,10 +229,7 @@ class HyperlocalExpansionService {
   // ===== SURGE PRICING =====
 
   /// Check if surge pricing should be applied
-  Future<SurgeInfo> checkSurgePricing({
-    required String zoneId,
-    required DateTime orderTime,
-  }) async {
+  Future<SurgeInfo> checkSurgePricing({required String zoneId, required DateTime orderTime}) async {
     try {
       final now = orderTime;
       final hourKey = '${now.toIso8601String().split('T')[0]}_${now.hour}';
@@ -338,17 +341,19 @@ class HyperlocalExpansionService {
         final avgOrderValue = orderCount > 0 ? totalRevenue / orderCount : 0.0;
         final cancellationRate = orderCount > 0 ? cancelledCount / orderCount : 0.0;
 
-        results.add(ZonePerformance(
-          zoneId: zone.id,
-          zoneLabel: zone.label,
-          orderCount: orderCount,
-          totalRevenue: totalRevenue,
-          avgOrderValue: avgOrderValue,
-          cancellationRate: cancellationRate,
-          deliveryCharge: zone.deliveryCharge,
-          isActive: zone.isActive,
-          isHealthy: orderCount >= 5 && cancellationRate < 0.2,
-        ));
+        results.add(
+          ZonePerformance(
+            zoneId: zone.id,
+            zoneLabel: zone.label,
+            orderCount: orderCount,
+            totalRevenue: totalRevenue,
+            avgOrderValue: avgOrderValue,
+            cancellationRate: cancellationRate,
+            deliveryCharge: zone.deliveryCharge,
+            isActive: zone.isActive,
+            isHealthy: orderCount >= 5 && cancellationRate < 0.2,
+          ),
+        );
       }
 
       return results;
@@ -400,7 +405,8 @@ class HyperlocalExpansionService {
 
   double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
     const p = 0.017453292519943295;
-    final a = 0.5 -
+    final a =
+        0.5 -
         cos((lat2 - lat1) * p) / 2 +
         cos(lat1 * p) * cos(lat2 * p) * (1 - cos((lon2 - lon1) * p)) / 2;
     return 12742 * asin(sqrt(a));

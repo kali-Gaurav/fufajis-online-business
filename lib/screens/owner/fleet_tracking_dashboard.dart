@@ -24,7 +24,8 @@ class _FleetTrackingDashboardState extends State<FleetTrackingDashboard> {
             .where('status', whereIn: ['accepted', 'picked_up', 'on_the_way'])
             .snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
+          if (!snapshot.hasData)
+            return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
 
           final deliveries = snapshot.data!.docs
               .map((doc) => DeliveryModel.fromMap(doc.data() as Map<String, dynamic>))

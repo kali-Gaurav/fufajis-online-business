@@ -25,11 +25,9 @@ class InvoiceProvider extends ChangeNotifier {
 
   // Statistics
   int get invoiceCount => _invoices.length;
-  double get totalTaxCollected =>
-      _invoices.fold(0.0, (sum, inv) => sum + inv.totalTax.toDouble());
+  double get totalTaxCollected => _invoices.fold(0.0, (sum, inv) => sum + inv.totalTax.toDouble());
   double get totalRevenue => _invoices.fold(0.0, (sum, inv) => sum + inv.grandTotal.toDouble());
-  int get paidInvoices =>
-      _invoices.where((inv) => inv.paymentStatus == PaymentStatus.paid).length;
+  int get paidInvoices => _invoices.where((inv) => inv.paymentStatus == PaymentStatus.paid).length;
   int get unpaidInvoices =>
       _invoices.where((inv) => inv.paymentStatus == PaymentStatus.unpaid).length;
 
@@ -93,24 +91,21 @@ class InvoiceProvider extends ChangeNotifier {
   // Filter invoices by date range
   void filterByDateRange(DateTime startDate, DateTime endDate) {
     _filteredInvoices = _invoices
-        .where((inv) =>
-            inv.issueDate.isAfter(startDate) && inv.issueDate.isBefore(endDate))
+        .where((inv) => inv.issueDate.isAfter(startDate) && inv.issueDate.isBefore(endDate))
         .toList();
     notifyListeners();
   }
 
   // Filter invoices by payment status
   void filterByPaymentStatus(PaymentStatus status) {
-    _filteredInvoices =
-        _invoices.where((inv) => inv.paymentStatus == status).toList();
+    _filteredInvoices = _invoices.where((inv) => inv.paymentStatus == status).toList();
     notifyListeners();
   }
 
   // Filter invoices by customer
   void filterByCustomer(String customerName) {
     _filteredInvoices = _invoices
-        .where((inv) =>
-            inv.customerName.toLowerCase().contains(customerName.toLowerCase()))
+        .where((inv) => inv.customerName.toLowerCase().contains(customerName.toLowerCase()))
         .toList();
     notifyListeners();
   }
@@ -122,10 +117,12 @@ class InvoiceProvider extends ChangeNotifier {
     } else {
       final lowerQuery = query.toLowerCase();
       _filteredInvoices = _invoices
-          .where((inv) =>
-              inv.invoiceNumber.toLowerCase().contains(lowerQuery) ||
-              inv.customerName.toLowerCase().contains(lowerQuery) ||
-              inv.orderId.toLowerCase().contains(lowerQuery))
+          .where(
+            (inv) =>
+                inv.invoiceNumber.toLowerCase().contains(lowerQuery) ||
+                inv.customerName.toLowerCase().contains(lowerQuery) ||
+                inv.orderId.toLowerCase().contains(lowerQuery),
+          )
           .toList();
     }
     notifyListeners();
@@ -157,11 +154,7 @@ class InvoiceProvider extends ChangeNotifier {
   }
 
   // Email invoice
-  Future<void> emailInvoice(
-    String invoiceId,
-    String email,
-    Uint8List pdfBytes,
-  ) async {
+  Future<void> emailInvoice(String invoiceId, String email, Uint8List pdfBytes) async {
     _setLoading(true);
     _clearError();
 
@@ -176,10 +169,7 @@ class InvoiceProvider extends ChangeNotifier {
   }
 
   // Update payment status
-  Future<void> updatePaymentStatus(
-    String invoiceId,
-    PaymentStatus status,
-  ) async {
+  Future<void> updatePaymentStatus(String invoiceId, PaymentStatus status) async {
     _setLoading(true);
     _clearError();
 
@@ -281,8 +271,7 @@ class InvoiceProvider extends ChangeNotifier {
       'paidInvoices': paidInvoices,
       'unpaidInvoices': unpaidInvoices,
       'partialInvoices': invoiceCount - paidInvoices - unpaidInvoices,
-      'averageInvoiceValue':
-          invoiceCount > 0 ? totalRevenue / invoiceCount : 0,
+      'averageInvoiceValue': invoiceCount > 0 ? totalRevenue / invoiceCount : 0,
     };
   }
 
@@ -301,8 +290,7 @@ class InvoiceProvider extends ChangeNotifier {
   // Export invoices as CSV (basic implementation)
   String exportAsCSV() {
     final buffer = StringBuffer();
-    buffer.writeln(
-        'Invoice #,Date,Customer,Email,Amount,Tax,Discount,Total,Payment Status');
+    buffer.writeln('Invoice #,Date,Customer,Email,Amount,Tax,Discount,Total,Payment Status');
 
     for (var invoice in _filteredInvoices) {
       buffer.writeln(

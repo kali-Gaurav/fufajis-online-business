@@ -20,7 +20,11 @@ class SalesAnalyticsSummary {
     int orders = 0;
     for (final row in rows) {
       revenue += _num(row['total_revenue'] ?? row['revenue'] ?? row['totalAmount']);
-      profit += _num(row['total_profit'] ?? row['profit'] ?? (row['totalAmount'] != null ? (row['totalAmount'] as num) * 0.15 : 0));
+      profit += _num(
+        row['total_profit'] ??
+            row['profit'] ??
+            (row['totalAmount'] != null ? (row['totalAmount'] as num) * 0.15 : 0),
+      );
       orders += 1;
     }
     return SalesAnalyticsSummary(
@@ -71,8 +75,7 @@ num _num(dynamic v) {
 }
 
 class PostgresAnalyticsRepository {
-  static final PostgresAnalyticsRepository _instance =
-      PostgresAnalyticsRepository._internal();
+  static final PostgresAnalyticsRepository _instance = PostgresAnalyticsRepository._internal();
   factory PostgresAnalyticsRepository() => _instance;
   PostgresAnalyticsRepository._internal();
 
@@ -89,7 +92,7 @@ class PostgresAnalyticsRepository {
     final sw = Stopwatch()..start();
     try {
       Query<Map<String, dynamic>> query = FirebaseFirestore.instance.collection('orders');
-      
+
       if (from != null) {
         query = query.where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(from));
       }
@@ -152,7 +155,7 @@ class PostgresAnalyticsRepository {
     final sw = Stopwatch()..start();
     try {
       Query<Map<String, dynamic>> query = FirebaseFirestore.instance.collection('delivery_tasks');
-      
+
       final snapshot = await query.get();
       final rows = snapshot.docs.map((doc) => doc.data()).toList();
 

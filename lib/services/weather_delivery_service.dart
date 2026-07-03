@@ -14,8 +14,7 @@ import 'weather_service.dart';
 /// It reads weather data, computes delay estimates, and writes delay alerts to
 /// Firestore so rider and customer notifications can be triggered.
 class WeatherDeliveryService {
-  static final WeatherDeliveryService _instance =
-      WeatherDeliveryService._internal();
+  static final WeatherDeliveryService _instance = WeatherDeliveryService._internal();
   factory WeatherDeliveryService() => _instance;
   WeatherDeliveryService._internal();
 
@@ -50,10 +49,7 @@ class WeatherDeliveryService {
   }) async {
     WeatherAlert weather;
     try {
-      weather = await WeatherService.getCurrentWeather(
-        latitude: latitude,
-        longitude: longitude,
-      );
+      weather = await WeatherService.getCurrentWeather(latitude: latitude, longitude: longitude);
     } catch (e) {
       debugPrint('[WeatherDelivery] Weather fetch failed: $e');
       return WeatherDeliveryEstimate.normal(baseDeliveryMinutes);
@@ -116,19 +112,15 @@ class WeatherDeliveryService {
   }) async {
     if (!estimate.hasDelay) return;
 
-    await _firestore
-        .collection('orders')
-        .doc(orderId)
-        .collection('delay_alerts')
-        .add({
-          'type': 'weather_delay',
-          'condition': estimate.condition,
-          'additionalMinutes': estimate.additionalMinutes,
-          'estimatedTotalMinutes': estimate.totalMinutes,
-          'alertMessage': estimate.alertMessage,
-          'priceSurcharge': 0.0, // Always zero — policy enforcement
-          'createdAt': FieldValue.serverTimestamp(),
-        });
+    await _firestore.collection('orders').doc(orderId).collection('delay_alerts').add({
+      'type': 'weather_delay',
+      'condition': estimate.condition,
+      'additionalMinutes': estimate.additionalMinutes,
+      'estimatedTotalMinutes': estimate.totalMinutes,
+      'alertMessage': estimate.alertMessage,
+      'priceSurcharge': 0.0, // Always zero — policy enforcement
+      'createdAt': FieldValue.serverTimestamp(),
+    });
 
     // Update order ETA in the main order document
     await _firestore.collection('orders').doc(orderId).update({
@@ -165,19 +157,14 @@ class WeatherDeliveryService {
     final snap = await _firestore
         .collection('orders')
         .where('shopId', isEqualTo: shopId)
-        .where(
-          'status',
-          whereIn: ['confirmed', 'preparing', 'out_for_delivery'],
-        )
+        .where('status', whereIn: ['confirmed', 'preparing', 'out_for_delivery'])
         .get();
 
     for (final doc in snap.docs) {
       await writeDelayAlert(orderId: doc.id, estimate: estimate);
     }
 
-    debugPrint(
-      '[WeatherDelivery] Processed ${snap.docs.length} active orders with delay alert.',
-    );
+    debugPrint('[WeatherDelivery] Processed ${snap.docs.length} active orders with delay alert.');
   }
 }
 
@@ -204,15 +191,14 @@ class WeatherDeliveryEstimate {
     required this.priceSurcharge,
   });
 
-  factory WeatherDeliveryEstimate.normal(int baseMinutes) =>
-      WeatherDeliveryEstimate(
-        baseMinutes: baseMinutes,
-        additionalMinutes: 0,
-        totalMinutes: baseMinutes,
-        condition: 'Clear',
-        description: 'clear sky',
-        hasDelay: false,
-        alertMessage: '',
-        priceSurcharge: 0.0,
-      );
+  factory WeatherDeliveryEstimate.normal(int baseMinutes) => WeatherDeliveryEstimate(
+    baseMinutes: baseMinutes,
+    additionalMinutes: 0,
+    totalMinutes: baseMinutes,
+    condition: 'Clear',
+    description: 'clear sky',
+    hasDelay: false,
+    alertMessage: '',
+    priceSurcharge: 0.0,
+  );
 }

@@ -15,16 +15,14 @@ import 'package:fufajis_online/services/sqlite_service.dart';
 
 import 'package:mockito/annotations.dart';
 
-@GenerateMocks([
-  Database,
-  FirebaseFirestore,
-  Connectivity,
-  SqliteService,
-], customMocks: [
-  MockSpec<CollectionReference<Map<String, dynamic>>>(as: #MockCollectionReference),
-  MockSpec<DocumentReference<Map<String, dynamic>>>(as: #MockDocumentReference),
-  MockSpec<DocumentSnapshot<Map<String, dynamic>>>(as: #MockDocumentSnapshot),
-])
+@GenerateMocks(
+  [Database, FirebaseFirestore, Connectivity, SqliteService],
+  customMocks: [
+    MockSpec<CollectionReference<Map<String, dynamic>>>(as: #MockCollectionReference),
+    MockSpec<DocumentReference<Map<String, dynamic>>>(as: #MockDocumentReference),
+    MockSpec<DocumentSnapshot<Map<String, dynamic>>>(as: #MockDocumentSnapshot),
+  ],
+)
 import 'offline_order_queue_service_test.mocks.dart';
 
 int _testOrderCounter = 0;
@@ -149,12 +147,7 @@ void main() {
 
     // Test 6: Queue stats structure
     test('getQueueStats() returns valid QueueStats', () async {
-      final stats = QueueStats(
-        queuedCount: 5,
-        failedCount: 2,
-        syncedCount: 10,
-        totalSize: 50000,
-      );
+      final stats = QueueStats(queuedCount: 5, failedCount: 2, syncedCount: 10, totalSize: 50000);
 
       expect(stats.queuedCount, equals(5));
       expect(stats.failedCount, equals(2));
@@ -165,12 +158,7 @@ void main() {
 
     // Test 7: Queue stats with no pending orders
     test('QueueStats.hasPendingOrders is false when zero pending', () async {
-      final stats = QueueStats(
-        queuedCount: 0,
-        failedCount: 0,
-        syncedCount: 10,
-        totalSize: 30000,
-      );
+      final stats = QueueStats(queuedCount: 0, failedCount: 0, syncedCount: 10, totalSize: 30000);
 
       expect(stats.hasPendingOrders, isFalse);
       expect(stats.totalCount, equals(10));
@@ -295,16 +283,13 @@ void main() {
         notes: 'Special handling needed: fragile items',
       );
 
-      expect(orderWithNotes.deliveryInstructions,
-          contains('ring bell 3 times'));
+      expect(orderWithNotes.deliveryInstructions, contains('ring bell 3 times'));
       expect(orderWithNotes.notes, contains('fragile'));
     });
 
     // Test 15: Payment method variations
     test('Queue handles different payment methods', () async {
-      final codOrder = _createTestOrder().copyWith(
-        paymentMethod: PaymentMethod.cod,
-      );
+      final codOrder = _createTestOrder().copyWith(paymentMethod: PaymentMethod.cod);
       final prepaidOrder = _createTestOrder().copyWith(
         paymentMethod: PaymentMethod.razorpay,
         paymentId: 'pay_123456',
@@ -334,10 +319,7 @@ void main() {
 
       expect(oldDate.isBefore(now), isTrue);
       expect(newDate.isAfter(oldDate), isTrue);
-      expect(
-        oldDate.isBefore(now.subtract(const Duration(days: 7))),
-        isTrue,
-      );
+      expect(oldDate.isBefore(now.subtract(const Duration(days: 7))), isTrue);
     });
 
     // Test 18: Sync error handling
@@ -348,12 +330,7 @@ void main() {
 
     // Test 19: Empty queue scenario
     test('Handles empty queue gracefully', () async {
-      final stats = QueueStats(
-        queuedCount: 0,
-        failedCount: 0,
-        syncedCount: 0,
-        totalSize: 0,
-      );
+      final stats = QueueStats(queuedCount: 0, failedCount: 0, syncedCount: 0, totalSize: 0);
 
       expect(stats.totalCount, equals(0));
       expect(stats.hasPendingOrders, isFalse);
@@ -398,10 +375,8 @@ void main() {
       final order = _createTestOrder();
       final now = DateTime.now();
 
-      expect(order.createdAt.isBefore(now.add(const Duration(seconds: 1))),
-          isTrue);
-      expect(order.updatedAt.isBefore(now.add(const Duration(seconds: 1))),
-          isTrue);
+      expect(order.createdAt.isBefore(now.add(const Duration(seconds: 1))), isTrue);
+      expect(order.updatedAt.isBefore(now.add(const Duration(seconds: 1))), isTrue);
     });
 
     // Test 24: Order amount calculations
@@ -426,12 +401,15 @@ void main() {
     test('Queue data is serializable to JSON', () async {
       final order = _createTestOrder();
       final map = order.toMap();
-      final json = jsonEncode(map, toEncodable: (nonEncodable) {
-        if (nonEncodable is DateTime) {
-          return nonEncodable.toIso8601String();
-        }
-        return nonEncodable.toString();
-      });
+      final json = jsonEncode(
+        map,
+        toEncodable: (nonEncodable) {
+          if (nonEncodable is DateTime) {
+            return nonEncodable.toIso8601String();
+          }
+          return nonEncodable.toString();
+        },
+      );
 
       expect(json, isNotEmpty);
       expect(json, isA<String>());

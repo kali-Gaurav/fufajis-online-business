@@ -116,7 +116,7 @@ class _BranchDashboardScreenState extends State<BranchDashboardScreen> {
                   _buildCustomerGrowthSection(metrics),
                 ] else ...[
                   const Center(child: Text('No data available')),
-                ]
+                ],
               ],
             ),
           );
@@ -142,10 +142,7 @@ class _BranchDashboardScreenState extends State<BranchDashboardScreen> {
               color: Colors.black87,
             ),
             items: _mockBranches.map((branch) {
-              return DropdownMenuItem<String>(
-                value: branch.id,
-                child: Text(branch.branchName),
-              );
+              return DropdownMenuItem<String>(value: branch.id, child: Text(branch.branchName));
             }).toList(),
             onChanged: (value) {
               if (value == 'global') {
@@ -203,7 +200,7 @@ class _BranchDashboardScreenState extends State<BranchDashboardScreen> {
 
   Widget _buildAlertsSection(OwnerAnalyticsProvider provider) {
     final alerts = provider.alerts;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -216,9 +213,7 @@ class _BranchDashboardScreenState extends State<BranchDashboardScreen> {
           const Card(
             child: Padding(
               padding: EdgeInsets.all(16),
-              child: Center(
-                child: Text('No active alerts. Everything is running smoothly!'),
-              ),
+              child: Center(child: Text('No active alerts. Everything is running smoothly!')),
             ),
           )
         else
@@ -232,12 +227,14 @@ class _BranchDashboardScreenState extends State<BranchDashboardScreen> {
                 margin: const EdgeInsets.only(bottom: 8),
                 child: ListTile(
                   leading: Icon(
-                    alert.severity == AlertSeverity.critical 
-                        ? Icons.error 
+                    alert.severity == AlertSeverity.critical
+                        ? Icons.error
                         : (alert.severity == AlertSeverity.warning ? Icons.warning : Icons.info),
-                    color: alert.severity == AlertSeverity.critical 
-                        ? AppTheme.error 
-                        : (alert.severity == AlertSeverity.warning ? AppTheme.warning : AppTheme.info),
+                    color: alert.severity == AlertSeverity.critical
+                        ? AppTheme.error
+                        : (alert.severity == AlertSeverity.warning
+                              ? AppTheme.warning
+                              : AppTheme.info),
                   ),
                   title: Text(alert.message),
                   trailing: TextButton(
@@ -269,9 +266,17 @@ class _BranchDashboardScreenState extends State<BranchDashboardScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildCircularMetric('Repeat Rate', '${metrics.repeatPurchaseRate.toStringAsFixed(0)}%', Colors.teal),
+                _buildCircularMetric(
+                  'Repeat Rate',
+                  '${metrics.repeatPurchaseRate.toStringAsFixed(0)}%',
+                  Colors.teal,
+                ),
                 _buildCircularMetric('New Users', '${metrics.newCustomers}', AppTheme.ownerAccent),
-                _buildCircularMetric('Avg LTV', '₹${metrics.avgCustomerLTV.toStringAsFixed(0)}', AppTheme.primary),
+                _buildCircularMetric(
+                  'Avg LTV',
+                  '₹${metrics.avgCustomerLTV.toStringAsFixed(0)}',
+                  AppTheme.primary,
+                ),
               ],
             ),
           ],
@@ -293,19 +298,12 @@ class _BranchDashboardScreenState extends State<BranchDashboardScreen> {
           child: Center(
             child: Text(
               value,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                color: color,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: color),
             ),
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12, color: Colors.grey),
-        ),
+        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
       ],
     );
   }
@@ -349,11 +347,7 @@ class _MetricCard extends StatelessWidget {
                   ),
                   child: Text(
                     trend,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                    ),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: color),
                   ),
                 ),
               ],
@@ -361,21 +355,11 @@ class _MetricCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 13,
-                color: Colors.grey,
-                fontWeight: FontWeight.w500,
-              ),
+              style: const TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.w500),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
           ],
         ),
       ),

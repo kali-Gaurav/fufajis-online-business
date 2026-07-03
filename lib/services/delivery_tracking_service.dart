@@ -88,14 +88,19 @@ class DeliveryTrackingService {
         );
 
         // Auto-mark "Arrived" if within 100 meters
-        final deliveryDoc = await FirebaseFirestore.instance.collection('deliveries').doc(deliveryId).get();
+        final deliveryDoc = await FirebaseFirestore.instance
+            .collection('deliveries')
+            .doc(deliveryId)
+            .get();
         if (deliveryDoc.exists) {
           final data = deliveryDoc.data()!;
           if (data['status'] == 'on_the_way') {
             final dest = data['destinationLocation'] as GeoPoint;
             final double distance = Geolocator.distanceBetween(
-              position.latitude, position.longitude,
-              dest.latitude, dest.longitude
+              position.latitude,
+              position.longitude,
+              dest.latitude,
+              dest.longitude,
             );
             if (distance < 100) {
               await fleetService.markArrived(deliveryId);

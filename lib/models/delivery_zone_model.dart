@@ -27,10 +27,9 @@ class DeliveryZoneModel {
       'id': id,
       'name': name,
       'branchId': branchId,
-      'polygonCoordinates': polygonCoordinates.map((latLng) => {
-        'latitude': latLng.latitude,
-        'longitude': latLng.longitude,
-      }).toList(),
+      'polygonCoordinates': polygonCoordinates
+          .map((latLng) => {'latitude': latLng.latitude, 'longitude': latLng.longitude})
+          .toList(),
       'baseFee': baseFee,
       'surgeMultiplier': surgeMultiplier,
       'isActive': isActive,

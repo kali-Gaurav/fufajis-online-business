@@ -42,9 +42,9 @@ void main() {
         },
         payload: {'test': true},
         config: const RetryConfig(
-          maxRetries: 3, 
+          maxRetries: 3,
           // Fast intervals for testing
-          backoffIntervals: [Duration(milliseconds: 10), Duration(milliseconds: 20)]
+          backoffIntervals: [Duration(milliseconds: 10), Duration(milliseconds: 20)],
         ),
       );
 
@@ -54,7 +54,7 @@ void main() {
 
     test('Exhausted retries writes to Dead Letter Queue', () async {
       int attempt = 0;
-      
+
       expect(
         () => engine.executeWithRetry<String>(
           operationName: 'Test Exhaustion',
@@ -64,8 +64,8 @@ void main() {
           },
           payload: {'orderId': '123'},
           config: const RetryConfig(
-            maxRetries: 2, 
-            backoffIntervals: [Duration(milliseconds: 10), Duration(milliseconds: 20)]
+            maxRetries: 2,
+            backoffIntervals: [Duration(milliseconds: 10), Duration(milliseconds: 20)],
           ),
         ),
         throwsA(isA<AppException>()),

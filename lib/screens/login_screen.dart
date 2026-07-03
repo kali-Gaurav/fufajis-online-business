@@ -33,8 +33,7 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen>
-    with TickerProviderStateMixin {
+class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin {
   final _phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final _phoneFocus = FocusNode();
@@ -60,38 +59,33 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   void _initAnimations() {
-    _heroCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 650),
-    );
-    _formCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 550),
-    );
-    _blobCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 6),
-    )..repeat(reverse: true);
+    _heroCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 650));
+    _formCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 550));
+    _blobCtrl = AnimationController(vsync: this, duration: const Duration(seconds: 6))
+      ..repeat(reverse: true);
 
-    _heroFade = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _heroCtrl, curve: Curves.easeOut),
-    );
+    _heroFade = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _heroCtrl, curve: Curves.easeOut));
     _heroSlide = Tween<Offset>(
       begin: const Offset(0, -0.15),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _heroCtrl, curve: Curves.easeOutCubic));
 
-    _formFade = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _formCtrl, curve: Curves.easeOut),
-    );
+    _formFade = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _formCtrl, curve: Curves.easeOut));
     _formSlide = Tween<Offset>(
       begin: const Offset(0, 0.15),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _formCtrl, curve: Curves.easeOutCubic));
 
-    _blobDrift = Tween<double>(begin: -18.0, end: 18.0).animate(
-      CurvedAnimation(parent: _blobCtrl, curve: Curves.easeInOut),
-    );
+    _blobDrift = Tween<double>(
+      begin: -18.0,
+      end: 18.0,
+    ).animate(CurvedAnimation(parent: _blobCtrl, curve: Curves.easeInOut));
 
     // Stagger hero before form
     _heroCtrl.forward().then((_) {
@@ -112,21 +106,21 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Future<void> _checkDeviceIntegrity() async {
-    final isCompromised =
-        await DeviceSecurityService.isDeviceRootedOrJailbroken();
+    final isCompromised = await DeviceSecurityService.isDeviceRootedOrJailbroken();
     if (!mounted || !isCompromised) return;
-    await SecurityEventService()
-        .logEvent(event: SecurityEventType.rootDetected);
+    await SecurityEventService().logEvent(event: SecurityEventType.rootDetected);
     if (!mounted) return;
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        title: const Row(children: [
-          Icon(Icons.warning_amber_rounded, color: AppTheme.error, size: 28),
-          SizedBox(width: 8),
-          Text('Security Warning'),
-        ]),
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: AppTheme.error, size: 28),
+            SizedBox(width: 8),
+            Text('Security Warning'),
+          ],
+        ),
         content: const Text(
           'This device appears to be rooted or jailbroken.\n\n'
           'Running Fufaji on a compromised device disables critical security controls.',
@@ -179,10 +173,8 @@ class _LoginScreenState extends State<LoginScreen>
     if (!mounted) return;
     setState(() => _isLoading = false);
     if (auth.errorMessage == null) {
-      final returnPath =
-          GoRouterState.of(context).uri.queryParameters['returnPath'];
-      String route =
-          '/otp/${Uri.encodeComponent(contact)}?role=${_selectedRole.name}';
+      final returnPath = GoRouterState.of(context).uri.queryParameters['returnPath'];
+      String route = '/otp/${Uri.encodeComponent(contact)}?role=${_selectedRole.name}';
       if (returnPath != null && returnPath.isNotEmpty) {
         route += '&returnPath=${Uri.encodeComponent(returnPath)}';
       }
@@ -201,12 +193,34 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   void _showError(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.error_outline_rounded, color: AppTheme.error, size: 28),
+            SizedBox(width: 12),
+            Text('Sign In Failed'),
+          ],
+        ),
         content: Text(msg),
-        backgroundColor: AppTheme.error,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Dismiss'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _handleGoogleLogin();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primary,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Try Again'),
+          ),
+        ],
       ),
     );
   }
@@ -215,24 +229,23 @@ class _LoginScreenState extends State<LoginScreen>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final size = MediaQuery.of(context).size;
-    final heroH = size.height * 0.36;
+    final heroH = math.max(260.0, size.height * 0.36);
 
     return Scaffold(
-      backgroundColor:
-          isDark ? const Color(0xFF121212) : AppTheme.white,
+      backgroundColor: isDark ? const Color(0xFF121212) : AppTheme.white,
       body: Stack(
         children: [
           // ── Hero orange section ─────────────────────────────
-          AnimatedBuilder(
-            animation: Listenable.merge([_heroCtrl, _blobCtrl]),
-            builder: (_, __) => Stack(
-              children: [
-                // Gradient bg
-                Opacity(
-                  opacity: _heroFade.value,
-                  child: FractionalTranslation(
-                    translation: _heroSlide.value,
-                    child: Container(
+          FadeTransition(
+            opacity: _heroFade,
+            child: SlideTransition(
+              position: _heroSlide,
+              child: AnimatedBuilder(
+                animation: _blobCtrl,
+                builder: (_, __) => Stack(
+                  children: [
+                    // Gradient bg
+                    Container(
                       height: heroH + 60,
                       decoration: BoxDecoration(
                         gradient: isDark
@@ -244,11 +257,7 @@ class _LoginScreenState extends State<LoginScreen>
                             : const LinearGradient(
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
-                                colors: [
-                                  Color(0xFFFF6B00),
-                                  Color(0xFFFF8C42),
-                                  Color(0xFFE55B00),
-                                ],
+                                colors: [Color(0xFFFF6B00), Color(0xFFFF8C42), Color(0xFFE55B00)],
                                 stops: [0.0, 0.55, 1.0],
                               ),
                         borderRadius: const BorderRadius.only(
@@ -257,51 +266,45 @@ class _LoginScreenState extends State<LoginScreen>
                         ),
                       ),
                     ),
-                  ),
-                ),
 
-                // Blob top-right
-                if (!isDark)
-                  Positioned(
-                    top: -60 + _blobDrift.value,
-                    right: -60,
-                    child: Opacity(
-                      opacity: _heroFade.value * 0.28,
-                      child: Container(
-                        width: 200,
-                        height: 200,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withValues(alpha: 0.22),
+                    // Blob top-right
+                    if (!isDark)
+                      Positioned(
+                        top: -60 + _blobDrift.value,
+                        right: -60,
+                        child: Opacity(
+                          opacity: 0.28,
+                          child: Container(
+                            width: 200,
+                            height: 200,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white.withValues(alpha: 0.22),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
 
-                // Blob bottom-left
-                if (!isDark)
-                  Positioned(
-                    top: heroH - 80 - _blobDrift.value,
-                    left: -50,
-                    child: Opacity(
-                      opacity: _heroFade.value * 0.20,
-                      child: Container(
-                        width: 160,
-                        height: 160,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withValues(alpha: 0.15),
+                    // Blob bottom-left
+                    if (!isDark)
+                      Positioned(
+                        top: heroH - 80 - _blobDrift.value,
+                        left: -50,
+                        child: Opacity(
+                          opacity: 0.20,
+                          child: Container(
+                            width: 160,
+                            height: 160,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white.withValues(alpha: 0.15),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
 
-                // Hero content: logo + brand name
-                Opacity(
-                  opacity: _heroFade.value,
-                  child: FractionalTranslation(
-                    translation: _heroSlide.value,
-                    child: SizedBox(
+                    // Hero content: logo + brand name
+                    SizedBox(
                       height: heroH,
                       child: SafeArea(
                         bottom: false,
@@ -317,9 +320,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 style: TextStyle(
                                   fontSize: 26,
                                   fontWeight: FontWeight.w800,
-                                  color: isDark
-                                      ? AppTheme.primary
-                                      : Colors.white,
+                                  color: isDark ? AppTheme.primary : Colors.white,
                                   letterSpacing: 0.3,
                                   shadows: isDark
                                       ? null
@@ -334,30 +335,23 @@ class _LoginScreenState extends State<LoginScreen>
                               ),
                               const SizedBox(height: 5),
                               Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 4,
-                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                                 decoration: BoxDecoration(
                                   color: isDark
-                                      ? AppTheme.primaryLight
-                                          .withValues(alpha: 0.15)
+                                      ? AppTheme.primaryLight.withValues(alpha: 0.15)
                                       : Colors.white.withValues(alpha: 0.18),
                                   borderRadius: BorderRadius.circular(20),
                                   border: Border.all(
                                     color: isDark
-                                        ? AppTheme.primary
-                                            .withValues(alpha: 0.30)
+                                        ? AppTheme.primary.withValues(alpha: 0.30)
                                         : Colors.white.withValues(alpha: 0.30),
                                   ),
                                 ),
-                                child: Text(
+                                child: const Text(
                                   'आपकी अपनी दुकान',
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: isDark
-                                        ? AppTheme.grey400
-                                        : Colors.white,
+                                    color: Colors.white,
                                     fontWeight: FontWeight.w500,
                                     letterSpacing: 0.8,
                                   ),
@@ -368,9 +362,9 @@ class _LoginScreenState extends State<LoginScreen>
                         ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
 
@@ -380,120 +374,156 @@ class _LoginScreenState extends State<LoginScreen>
             left: 0,
             right: 0,
             bottom: 0,
-            child: AnimatedBuilder(
-              animation: _formCtrl,
-              builder: (_, child) => Opacity(
-                opacity: _formFade.value,
-                child: FractionalTranslation(
-                  translation: _formSlide.value,
-                  child: child,
-                ),
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(32),
-                    topRight: Radius.circular(32),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.10),
-                      blurRadius: 24,
-                      offset: const Offset(0, -4),
+            child: FadeTransition(
+              opacity: _formFade,
+              child: SlideTransition(
+                position: _formSlide,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(32),
+                      topRight: Radius.circular(32),
                     ),
-                  ],
-                ),
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Role selector
-                    _RoleSectionHeader(isDark: isDark),
-                    const SizedBox(height: 12),
-                    _RoleSelector(
-                      selected: _selectedRole,
-                      onChanged: (r) => setState(() => _selectedRole = r),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Google sign-in
-                    ScaleBounce(
-                      onTap: _isLoading ? null : _handleGoogleLogin,
-                      child: _GoogleButton(isDark: isDark),
-                    ),
-
-                    // Apple sign-in (iOS only, per Apple guidelines)
-                    if (Platform.isIOS) ...[
-                      const SizedBox(height: 12),
-                      ScaleBounce(
-                        onTap: _isLoading ? null : _handleAppleLogin,
-                        child: _AppleButton(isDark: isDark),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.10),
+                        blurRadius: 24,
+                        offset: const Offset(0, -4),
                       ),
                     ],
-
-                    const SizedBox(height: 12),
-                    ScaleBounce(
-                      onTap: _isLoading
-                          ? null
-                          : () => context.push(
-                                '/auth/phone-login?role=${_selectedRole.name}',
-                              ),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: AppTheme.primary.withValues(alpha: 0.5),
-                            width: 1.5,
-                          ),
+                  ),
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Role selector
+                        _RoleSectionHeader(isDark: isDark),
+                        const SizedBox(height: 12),
+                        _RoleSelector(
+                          selected: _selectedRole,
+                          onChanged: (r) => setState(() => _selectedRole = r),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.phone_android_rounded, color: AppTheme.primary, size: 22),
-                            const SizedBox(width: 12),
-                            Text(
-                              'Sign in with Phone',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: isDark ? Colors.white : AppTheme.grey900,
+                        const SizedBox(height: 24),
+
+                        // Google sign-in
+                        ScaleBounce(
+                          onTap: _isLoading ? null : _handleGoogleLogin,
+                          child: _GoogleButton(isDark: isDark, isLoading: _isLoading),
+                        ),
+
+                        // Apple sign-in (iOS only, per Apple guidelines)
+                        if (Platform.isIOS) ...[
+                          const SizedBox(height: 12),
+                          ScaleBounce(
+                            onTap: _isLoading ? null : _handleAppleLogin,
+                            child: _AppleButton(isDark: isDark, isLoading: _isLoading),
+                          ),
+                        ],
+
+                        const SizedBox(height: 12),
+                        ScaleBounce(
+                          onTap: _isLoading
+                              ? null
+                              : () => context.push('/auth/phone-login?role=${_selectedRole.name}'),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: AppTheme.primary.withValues(alpha: 0.5),
+                                width: 1.5,
                               ),
                             ),
-                          ],
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.phone_android_rounded,
+                                  color: AppTheme.primary,
+                                  size: 22,
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Sign in with Phone',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: isDark ? Colors.white : AppTheme.grey900,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
+
+                        const SizedBox(height: 12),
+                        ScaleBounce(
+                          onTap: _isLoading
+                              ? null
+                              : () => context.push('/auth/email-login?role=${_selectedRole.name}'),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: AppTheme.primary.withValues(alpha: 0.5),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.email_outlined,
+                                  color: AppTheme.primary,
+                                  size: 22,
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Sign in with Email',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: isDark ? Colors.white : AppTheme.grey900,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // Phone section (customer only)
+                        if (_selectedRole == UserRole.customer) ...[
+                          const SizedBox(height: 20),
+                          _OrDivider(isDark: isDark),
+                          const SizedBox(height: 20),
+                          _PhoneSection(
+                            controller: _phoneController,
+                            formKey: _formKey,
+                            focusNode: _phoneFocus,
+                            isDark: isDark,
+                            isLoading: _isLoading,
+                            onSubmit: _handlePhoneLogin,
+                          ),
+                          const SizedBox(height: 16),
+                          _GuestButton(
+                            isDark: isDark,
+                            isLoading: _isLoading,
+                            onTap: _continueAsGuest,
+                          ),
+                        ],
+
+                        const SizedBox(height: 28),
+                        _SecurityBadge(isDark: isDark),
+                      ],
                     ),
-
-                    // Phone section (customer only)
-                    if (_selectedRole == UserRole.customer) ...[
-                      const SizedBox(height: 20),
-                      _OrDivider(isDark: isDark),
-                      const SizedBox(height: 20),
-                      _PhoneSection(
-                        controller: _phoneController,
-                        formKey: _formKey,
-                        focusNode: _phoneFocus,
-                        isDark: isDark,
-                        isLoading: _isLoading,
-                        onSubmit: _handlePhoneLogin,
-                      ),
-                      const SizedBox(height: 16),
-                      _GuestButton(
-                        isDark: isDark,
-                        isLoading: _isLoading,
-                        onTap: _continueAsGuest,
-                      ),
-                    ],
-
-                    const SizedBox(height: 28),
-                    _SecurityBadge(isDark: isDark),
-                  ],
+                  ),
                 ),
-              ),
               ),
             ),
           ),
@@ -531,41 +561,60 @@ class _RoleSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
+    return Column(
       children: [
-        _RoleChip(
-          label: 'Customer',
-          labelHi: 'ग्राहक',
-          icon: Icons.person_rounded,
-          accentColor: AppTheme.primary,
-          selected: selected == UserRole.customer,
-          onTap: () => onChanged(UserRole.customer),
+        // Row 1: Customer & Rider
+        Row(
+          children: [
+            Expanded(
+              child: _RoleChip(
+                label: 'Customer',
+                labelHi: 'ग्राहक',
+                icon: Icons.person_rounded,
+                accentColor: AppTheme.primary,
+                selected: selected == UserRole.customer,
+                onTap: () => onChanged(UserRole.customer),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _RoleChip(
+                label: 'Rider',
+                labelHi: 'डिलीवरी',
+                icon: Icons.delivery_dining_rounded,
+                accentColor: AppTheme.deliveryAccent,
+                selected: selected == UserRole.rider,
+                onTap: () => onChanged(UserRole.rider),
+              ),
+            ),
+          ],
         ),
-        _RoleChip(
-          label: 'Rider',
-          labelHi: 'डिलीवरी',
-          icon: Icons.delivery_dining_rounded,
-          accentColor: AppTheme.deliveryAccent,
-          selected: selected == UserRole.rider,
-          onTap: () => onChanged(UserRole.rider),
-        ),
-        _RoleChip(
-          label: 'Employee',
-          labelHi: 'कर्मचारी',
-          icon: Icons.badge_rounded,
-          accentColor: AppTheme.employeeAccent,
-          selected: selected == UserRole.employee,
-          onTap: () => onChanged(UserRole.employee),
-        ),
-        _RoleChip(
-          label: 'Owner',
-          labelHi: 'मालिक',
-          icon: Icons.admin_panel_settings_rounded,
-          accentColor: AppTheme.ownerAccent,
-          selected: selected == UserRole.owner,
-          onTap: () => onChanged(UserRole.owner),
+        const SizedBox(height: 8),
+        // Row 2: Employee & Owner
+        Row(
+          children: [
+            Expanded(
+              child: _RoleChip(
+                label: 'Employee',
+                labelHi: 'कर्मचारी',
+                icon: Icons.badge_rounded,
+                accentColor: AppTheme.employeeAccent,
+                selected: selected == UserRole.employee,
+                onTap: () => onChanged(UserRole.employee),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _RoleChip(
+                label: 'Owner',
+                labelHi: 'मालिक',
+                icon: Icons.admin_panel_settings_rounded,
+                accentColor: AppTheme.ownerAccent,
+                selected: selected == UserRole.owner,
+                onTap: () => onChanged(UserRole.owner),
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -592,38 +641,27 @@ class _RoleChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final screenWidth = MediaQuery.of(context).size.width;
-    // 2 chips per row with spacing: (width - padding*2 - gap) / 2
-    final chipWidth = (screenWidth - 48 - 8) / 2;
 
     return ScaleBounce(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOut,
-        width: chipWidth,
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
         decoration: BoxDecoration(
           gradient: selected
               ? LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
-                    accentColor,
-                    Color.lerp(accentColor, Colors.black, 0.18) ?? accentColor,
-                  ],
+                  colors: [accentColor, Color.lerp(accentColor, Colors.black, 0.18) ?? accentColor],
                 )
               : null,
-          color: selected
-              ? null
-              : (isDark ? const Color(0xFF2C2C2E) : AppTheme.grey50),
+          color: selected ? null : (isDark ? const Color(0xFF2C2C2E) : AppTheme.grey50),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: selected
                 ? accentColor
-                : (isDark
-                    ? accentColor.withValues(alpha: 0.25)
-                    : AppTheme.grey200),
+                : (isDark ? accentColor.withValues(alpha: 0.25) : AppTheme.grey200),
             width: selected ? 1.5 : 1.0,
           ),
           boxShadow: selected
@@ -632,7 +670,7 @@ class _RoleChip extends StatelessWidget {
                     color: accentColor.withValues(alpha: 0.32),
                     blurRadius: 14,
                     offset: const Offset(0, 5),
-                  )
+                  ),
                 ]
               : [],
         ),
@@ -655,9 +693,7 @@ class _RoleChip extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: selected
-                        ? Colors.white
-                        : (isDark ? Colors.white : AppTheme.grey900),
+                    color: selected ? Colors.white : (isDark ? Colors.white : AppTheme.grey900),
                   ),
                 ),
                 Text(
@@ -666,9 +702,7 @@ class _RoleChip extends StatelessWidget {
                     fontSize: 10,
                     color: selected
                         ? Colors.white.withValues(alpha: 0.80)
-                        : (isDark
-                            ? accentColor.withValues(alpha: 0.70)
-                            : AppTheme.grey500),
+                        : (isDark ? accentColor.withValues(alpha: 0.70) : AppTheme.grey500),
                   ),
                 ),
               ],
@@ -683,7 +717,8 @@ class _RoleChip extends StatelessWidget {
 // ── Google sign-in button ─────────────────────────────────────────────────────
 class _GoogleButton extends StatelessWidget {
   final bool isDark;
-  const _GoogleButton({required this.isDark});
+  final bool isLoading;
+  const _GoogleButton({required this.isDark, this.isLoading = false});
 
   @override
   Widget build(BuildContext context) {
@@ -692,10 +727,7 @@ class _GoogleButton extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark ? const Color(0xFF333333) : AppTheme.grey200,
-          width: 1.5,
-        ),
+        border: Border.all(color: isDark ? const Color(0xFF333333) : AppTheme.grey200, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: isDark ? 0.06 : 0.04),
@@ -704,25 +736,47 @@ class _GoogleButton extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Coloured Google G icon drawn with CustomPaint
-          const CustomPaint(
-            size: Size(22, 22),
-            painter: _GoogleGPainter(),
-          ),
-          const SizedBox(width: 12),
-          Text(
-            'Continue with Google',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white : AppTheme.grey900,
+      child: isLoading
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      isDark ? Colors.white : AppTheme.grey900,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Signing in...',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : AppTheme.grey900,
+                  ),
+                ),
+              ],
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Coloured Google G icon drawn with CustomPaint
+                const CustomPaint(size: Size(22, 22), painter: _GoogleGPainter()),
+                const SizedBox(width: 12),
+                Text(
+                  'Continue with Google',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : AppTheme.grey900,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -746,19 +800,13 @@ class _GoogleGPainter extends CustomPainter {
 
     void drawQuadrant(Color c, double startAngle, double sweepAngle) {
       final p = Paint()..color = c;
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: r),
-        startAngle,
-        sweepAngle,
-        true,
-        p,
-      );
+      canvas.drawArc(Rect.fromCircle(center: center, radius: r), startAngle, sweepAngle, true, p);
     }
 
-    drawQuadrant(blue, -math.pi / 2, math.pi / 2);      // top
-    drawQuadrant(red, -math.pi, math.pi / 2);            // left
-    drawQuadrant(yellow, math.pi / 2, math.pi / 2);     // bottom
-    drawQuadrant(green, 0, math.pi / 2);                 // right
+    drawQuadrant(blue, -math.pi / 2, math.pi / 2); // top
+    drawQuadrant(red, -math.pi, math.pi / 2); // left
+    drawQuadrant(yellow, math.pi / 2, math.pi / 2); // bottom
+    drawQuadrant(green, 0, math.pi / 2); // right
 
     // White centre circle
     canvas.drawCircle(center, r * 0.62, Paint()..color = Colors.white);
@@ -777,11 +825,7 @@ class _GoogleGPainter extends CustomPainter {
       gPaint,
     );
     // Horizontal bar of G
-    canvas.drawLine(
-      Offset(r, r),
-      Offset(r + r * 0.38, r),
-      gPaint..strokeWidth = r * 0.24,
-    );
+    canvas.drawLine(Offset(r, r), Offset(r + r * 0.38, r), gPaint..strokeWidth = r * 0.24);
   }
 
   @override
@@ -791,7 +835,8 @@ class _GoogleGPainter extends CustomPainter {
 // ── Apple sign-in button ──────────────────────────────────────────────────────
 class _AppleButton extends StatelessWidget {
   final bool isDark;
-  const _AppleButton({required this.isDark});
+  final bool isLoading;
+  const _AppleButton({required this.isDark, this.isLoading = false});
 
   @override
   Widget build(BuildContext context) {
@@ -808,25 +853,46 @@ class _AppleButton extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.apple,
-            size: 22,
-            color: isDark ? Colors.black : Colors.white,
-          ),
-          const SizedBox(width: 12),
-          Text(
-            'Continue with Apple',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: isDark ? Colors.black : Colors.white,
+      child: isLoading
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      isDark ? Colors.black : Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Signing in...',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.black : Colors.white,
+                  ),
+                ),
+              ],
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.apple, size: 22, color: isDark ? Colors.black : Colors.white),
+                const SizedBox(width: 12),
+                Text(
+                  'Continue with Apple',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.black : Colors.white,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -912,10 +978,7 @@ class _PhoneSection extends StatelessWidget {
             ),
             decoration: InputDecoration(
               prefixIcon: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 13,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -946,8 +1009,7 @@ class _PhoneSection extends StatelessWidget {
                 fontSize: 18,
               ),
             ),
-            validator: (v) =>
-                (v == null || v.length != 10) ? 'Enter valid 10-digit number' : null,
+            validator: (v) => (v == null || v.length != 10) ? 'Enter valid 10-digit number' : null,
           ),
           const SizedBox(height: 18),
           // Get OTP button
@@ -975,10 +1037,7 @@ class _PhoneSection extends StatelessWidget {
                   ? const SizedBox(
                       width: 24,
                       height: 24,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2.5,
-                      ),
+                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
                     )
                   : const Text(
                       'Get OTP',
@@ -1003,11 +1062,7 @@ class _GuestButton extends StatelessWidget {
   final bool isLoading;
   final VoidCallback onTap;
 
-  const _GuestButton({
-    required this.isDark,
-    required this.isLoading,
-    required this.onTap,
-  });
+  const _GuestButton({required this.isDark, required this.isLoading, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -1020,9 +1075,7 @@ class _GuestButton extends StatelessWidget {
               ? Colors.white.withValues(alpha: 0.04)
               : AppTheme.primaryLight.withValues(alpha: 0.18),
           border: Border.all(
-            color: isDark
-                ? AppTheme.grey800
-                : AppTheme.primary.withValues(alpha: 0.25),
+            color: isDark ? AppTheme.grey800 : AppTheme.primary.withValues(alpha: 0.25),
             width: 1.2,
           ),
           borderRadius: BorderRadius.circular(16),
@@ -1033,16 +1086,10 @@ class _GuestButton extends StatelessWidget {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: isDark
-                    ? AppTheme.primary.withValues(alpha: 0.15)
-                    : AppTheme.primaryLight,
+                color: isDark ? AppTheme.primary.withValues(alpha: 0.15) : AppTheme.primaryLight,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.explore_rounded,
-                color: AppTheme.primary,
-                size: 22,
-              ),
+              child: const Icon(Icons.explore_rounded, color: AppTheme.primary, size: 22),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -1068,10 +1115,7 @@ class _GuestButton extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: isDark ? AppTheme.grey600 : AppTheme.grey400,
-            ),
+            Icon(Icons.chevron_right_rounded, color: isDark ? AppTheme.grey600 : AppTheme.grey400),
           ],
         ),
       ),

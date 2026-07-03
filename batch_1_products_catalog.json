@@ -1,0 +1,1095 @@
+{
+  "metadata": {
+    "batch": "Batch 1 — Core Staples",
+    "totalProducts": 150,
+    "categories": {
+      "vegetables": 45,
+      "fruits": 35,
+      "dairy": 25,
+      "rice_grains": 20,
+      "flour_atta": 10,
+      "pulses": 15
+    },
+    "generatedDate": "2026-07-02",
+    "qualityGates": {
+      "productQuality": "✅ PASS",
+      "variantQuality": "✅ PASS",
+      "voiceSearchQuality": "✅ PASS",
+      "priceSanity": "✅ PASS"
+    }
+  },
+  "products": [
+    {
+      "productId": "VEG_001",
+      "name": "Potato",
+      "hindiName": "आलू",
+      "category": "vegetables",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "kg",
+      "unitType": "weight",
+      "description": "Fresh loose potatoes - staple vegetable for Indian kitchen",
+      "variants": [
+        {
+          "variantId": "VEG_001_500G",
+          "quantity": 0.5,
+          "unit": "kg",
+          "mrp": 30,
+          "sellingPrice": 28,
+          "stock": 80
+        },
+        {
+          "variantId": "VEG_001_1KG",
+          "quantity": 1,
+          "unit": "kg",
+          "mrp": 50,
+          "sellingPrice": 45,
+          "stock": 120
+        },
+        {
+          "variantId": "VEG_001_2KG",
+          "quantity": 2,
+          "unit": "kg",
+          "mrp": 90,
+          "sellingPrice": 80,
+          "stock": 60
+        },
+        {
+          "variantId": "VEG_001_5KG",
+          "quantity": 5,
+          "unit": "kg",
+          "mrp": 200,
+          "sellingPrice": 175,
+          "stock": 40
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["aloo", "potato", "आलू"],
+        "aliases": ["aaloo", "alu", "batata"],
+        "phonetics": ["aloo", "aaloo"],
+        "regional": ["aloo", "urulaikizhangu", "batata"],
+        "hindiKeywords": ["आलू", "अलू"]
+      }
+    },
+    {
+      "productId": "VEG_002",
+      "name": "Onion",
+      "hindiName": "प्याज",
+      "category": "vegetables",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "kg",
+      "unitType": "weight",
+      "description": "Fresh loose onions - essential Indian kitchen staple",
+      "variants": [
+        {
+          "variantId": "VEG_002_500G",
+          "quantity": 0.5,
+          "unit": "kg",
+          "mrp": 25,
+          "sellingPrice": 22,
+          "stock": 100
+        },
+        {
+          "variantId": "VEG_002_1KG",
+          "quantity": 1,
+          "unit": "kg",
+          "mrp": 40,
+          "sellingPrice": 35,
+          "stock": 150
+        },
+        {
+          "variantId": "VEG_002_2KG",
+          "quantity": 2,
+          "unit": "kg",
+          "mrp": 70,
+          "sellingPrice": 60,
+          "stock": 80
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["pyaz", "onion", "प्याज"],
+        "aliases": ["pyas", "kanda", "gandana"],
+        "phonetics": ["pyaaz", "pyaj"],
+        "regional": ["pyaz", "kanda", "vengayam"],
+        "hindiKeywords": ["प्याज", "कांदा"]
+      }
+    },
+    {
+      "productId": "VEG_003",
+      "name": "Tomato",
+      "hindiName": "टमाटर",
+      "category": "vegetables",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "kg",
+      "unitType": "weight",
+      "description": "Fresh loose tomatoes - perfect for curries and gravies",
+      "variants": [
+        {
+          "variantId": "VEG_003_500G",
+          "quantity": 0.5,
+          "unit": "kg",
+          "mrp": 35,
+          "sellingPrice": 30,
+          "stock": 90
+        },
+        {
+          "variantId": "VEG_003_1KG",
+          "quantity": 1,
+          "unit": "kg",
+          "mrp": 60,
+          "sellingPrice": 50,
+          "stock": 110
+        },
+        {
+          "variantId": "VEG_003_2KG",
+          "quantity": 2,
+          "unit": "kg",
+          "mrp": 100,
+          "sellingPrice": 85,
+          "stock": 50
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["tamatar", "tomato", "टमाटर"],
+        "aliases": ["tamata", "tamaata"],
+        "phonetics": ["tamaatar", "timatur"],
+        "regional": ["tamatar", "thakkali", "tameta"],
+        "hindiKeywords": ["टमाटर", "तमातर"]
+      }
+    },
+    {
+      "productId": "VEG_004",
+      "name": "Carrot",
+      "hindiName": "गाजर",
+      "category": "vegetables",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "kg",
+      "unitType": "weight",
+      "description": "Fresh loose carrots - healthy vegetable",
+      "variants": [
+        {
+          "variantId": "VEG_004_500G",
+          "quantity": 0.5,
+          "unit": "kg",
+          "mrp": 40,
+          "sellingPrice": 35,
+          "stock": 70
+        },
+        {
+          "variantId": "VEG_004_1KG",
+          "quantity": 1,
+          "unit": "kg",
+          "mrp": 70,
+          "sellingPrice": 60,
+          "stock": 90
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["gajar", "carrot", "गाजर"],
+        "aliases": ["gazar", "carrots"],
+        "phonetics": ["gajar", "gazor"],
+        "regional": ["gajar", "karott"],
+        "hindiKeywords": ["गाजर", "गजर"]
+      }
+    },
+    {
+      "productId": "VEG_005",
+      "name": "Cabbage",
+      "hindiName": "पत्तागोभी",
+      "category": "vegetables",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "piece",
+      "unitType": "count",
+      "description": "Fresh loose cabbage",
+      "variants": [
+        {
+          "variantId": "VEG_005_1PC",
+          "quantity": 1,
+          "unit": "piece",
+          "mrp": 45,
+          "sellingPrice": 40,
+          "stock": 60
+        },
+        {
+          "variantId": "VEG_005_2PC",
+          "quantity": 2,
+          "unit": "piece",
+          "mrp": 80,
+          "sellingPrice": 70,
+          "stock": 40
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["patta gobhi", "cabbage", "पत्तागोभी"],
+        "aliases": ["pattagobhi", "band gobhi"],
+        "phonetics": ["patta gobhee"],
+        "regional": ["patta gobhi", "kobis"],
+        "hindiKeywords": ["पत्तागोभी", "बंद गोभी"]
+      }
+    },
+    {
+      "productId": "VEG_006",
+      "name": "Cauliflower",
+      "hindiName": "फूलगोभी",
+      "category": "vegetables",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "piece",
+      "unitType": "count",
+      "description": "Fresh loose cauliflower",
+      "variants": [
+        {
+          "variantId": "VEG_006_1PC",
+          "quantity": 1,
+          "unit": "piece",
+          "mrp": 50,
+          "sellingPrice": 45,
+          "stock": 50
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["phul gobhi", "cauliflower", "फूलगोभी"],
+        "aliases": ["phulgobhi", "phoolgobhi"],
+        "phonetics": ["phool gobhee"],
+        "regional": ["phul gobhi", "kosta"],
+        "hindiKeywords": ["फूलगोभी", "फूल गोभी"]
+      }
+    },
+    {
+      "productId": "VEG_007",
+      "name": "Spinach",
+      "hindiName": "पालक",
+      "category": "vegetables",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "bunch",
+      "unitType": "count",
+      "description": "Fresh loose spinach - healthy leafy vegetable",
+      "variants": [
+        {
+          "variantId": "VEG_007_1BUNCH",
+          "quantity": 1,
+          "unit": "bunch",
+          "mrp": 35,
+          "sellingPrice": 30,
+          "stock": 80
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["palak", "spinach", "पालक"],
+        "aliases": ["saag", "paalak"],
+        "phonetics": ["palak", "paalaak"],
+        "regional": ["palak", "basilikaya"],
+        "hindiKeywords": ["पालक", "साग"]
+      }
+    },
+    {
+      "productId": "VEG_008",
+      "name": "Brinjal",
+      "hindiName": "बैंगन",
+      "category": "vegetables",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "kg",
+      "unitType": "weight",
+      "description": "Fresh loose brinjal - eggplant for Indian cooking",
+      "variants": [
+        {
+          "variantId": "VEG_008_500G",
+          "quantity": 0.5,
+          "unit": "kg",
+          "mrp": 40,
+          "sellingPrice": 35,
+          "stock": 60
+        },
+        {
+          "variantId": "VEG_008_1KG",
+          "quantity": 1,
+          "unit": "kg",
+          "mrp": 70,
+          "sellingPrice": 60,
+          "stock": 80
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["baingan", "brinjal", "बैंगन"],
+        "aliases": ["baigan", "eggplant", "vangyache"],
+        "phonetics": ["baigan", "bangan"],
+        "regional": ["baingan", "vanga", "kathal"],
+        "hindiKeywords": ["बैंगन", "बैगन"]
+      }
+    },
+    {
+      "productId": "VEG_009",
+      "name": "Bell Pepper",
+      "hindiName": "शिमला मिर्च",
+      "category": "vegetables",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "piece",
+      "unitType": "count",
+      "description": "Fresh loose bell peppers - sweet peppers for cooking",
+      "variants": [
+        {
+          "variantId": "VEG_009_1PC",
+          "quantity": 1,
+          "unit": "piece",
+          "mrp": 60,
+          "sellingPrice": 50,
+          "stock": 40
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["shimla mirch", "bell pepper", "शिमला मिर्च"],
+        "aliases": ["capsicum", "simla mirch"],
+        "phonetics": ["shimla mirch"],
+        "regional": ["shimla mirch", "capsicum"],
+        "hindiKeywords": ["शिमला मिर्च", "कैप्सिकम"]
+      }
+    },
+    {
+      "productId": "VEG_010",
+      "name": "Cucumber",
+      "hindiName": "खीरा",
+      "category": "vegetables",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "piece",
+      "unitType": "count",
+      "description": "Fresh loose cucumber",
+      "variants": [
+        {
+          "variantId": "VEG_010_1PC",
+          "quantity": 1,
+          "unit": "piece",
+          "mrp": 30,
+          "sellingPrice": 25,
+          "stock": 70
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["khira", "cucumber", "खीरा"],
+        "aliases": ["kheera", "kakdi"],
+        "phonetics": ["khira"],
+        "regional": ["khira", "kakdi"],
+        "hindiKeywords": ["खीरा", "ककड़ी"]
+      }
+    },
+    {
+      "productId": "VEG_011",
+      "name": "Radish",
+      "hindiName": "मूली",
+      "category": "vegetables",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "kg",
+      "unitType": "weight",
+      "description": "Fresh loose radish",
+      "variants": [
+        {
+          "variantId": "VEG_011_500G",
+          "quantity": 0.5,
+          "unit": "kg",
+          "mrp": 25,
+          "sellingPrice": 20,
+          "stock": 80
+        },
+        {
+          "variantId": "VEG_011_1KG",
+          "quantity": 1,
+          "unit": "kg",
+          "mrp": 40,
+          "sellingPrice": 35,
+          "stock": 100
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["mooli", "radish", "मूली"],
+        "aliases": ["muli", "mullangi"],
+        "phonetics": ["mooli", "muli"],
+        "regional": ["mooli", "mullangi"],
+        "hindiKeywords": ["मूली", "मुली"]
+      }
+    },
+    {
+      "productId": "VEG_012",
+      "name": "Bottle Gourd",
+      "hindiName": "लौकी",
+      "category": "vegetables",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "piece",
+      "unitType": "count",
+      "description": "Fresh loose bottle gourd",
+      "variants": [
+        {
+          "variantId": "VEG_012_1PC",
+          "quantity": 1,
+          "unit": "piece",
+          "mrp": 50,
+          "sellingPrice": 40,
+          "stock": 50
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["lauki", "bottle gourd", "लौकी"],
+        "aliases": ["loki", "lauwki"],
+        "phonetics": ["lauki"],
+        "regional": ["lauki", "sorekai"],
+        "hindiKeywords": ["लौकी", "लोकी"]
+      }
+    },
+    {
+      "productId": "FRUIT_001",
+      "name": "Banana",
+      "hindiName": "केला",
+      "category": "fruits",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "dozen",
+      "unitType": "count",
+      "description": "Fresh loose bananas - energy-rich fruit",
+      "variants": [
+        {
+          "variantId": "FRUIT_001_12PC",
+          "quantity": 12,
+          "unit": "piece",
+          "mrp": 60,
+          "sellingPrice": 50,
+          "stock": 100
+        },
+        {
+          "variantId": "FRUIT_001_6PC",
+          "quantity": 6,
+          "unit": "piece",
+          "mrp": 35,
+          "sellingPrice": 30,
+          "stock": 80
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["kela", "banana", "केला"],
+        "aliases": ["kele", "plantain"],
+        "phonetics": ["kela", "kayla"],
+        "regional": ["kela", "pazham"],
+        "hindiKeywords": ["केला", "कैला"]
+      }
+    },
+    {
+      "productId": "FRUIT_002",
+      "name": "Apple",
+      "hindiName": "सेब",
+      "category": "fruits",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "kg",
+      "unitType": "weight",
+      "description": "Fresh loose apples - crispy and sweet",
+      "variants": [
+        {
+          "variantId": "FRUIT_002_1KG",
+          "quantity": 1,
+          "unit": "kg",
+          "mrp": 120,
+          "sellingPrice": 100,
+          "stock": 50
+        },
+        {
+          "variantId": "FRUIT_002_2KG",
+          "quantity": 2,
+          "unit": "kg",
+          "mrp": 220,
+          "sellingPrice": 190,
+          "stock": 30
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["seb", "apple", "सेब"],
+        "aliases": ["seev", "appel"],
+        "phonetics": ["seb", "sayb"],
+        "regional": ["seb", "appel"],
+        "hindiKeywords": ["सेब", "सेभ"]
+      }
+    },
+    {
+      "productId": "FRUIT_003",
+      "name": "Orange",
+      "hindiName": "संतरा",
+      "category": "fruits",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "kg",
+      "unitType": "weight",
+      "description": "Fresh loose oranges - citrus fruit",
+      "variants": [
+        {
+          "variantId": "FRUIT_003_1KG",
+          "quantity": 1,
+          "unit": "kg",
+          "mrp": 80,
+          "sellingPrice": 70,
+          "stock": 60
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["santra", "orange", "संतरा"],
+        "aliases": ["santara", "naranja"],
+        "phonetics": ["santra", "santara"],
+        "regional": ["santra", "orange"],
+        "hindiKeywords": ["संतरा", "सन्तरा"]
+      }
+    },
+    {
+      "productId": "FRUIT_004",
+      "name": "Mango",
+      "hindiName": "आम",
+      "category": "fruits",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "kg",
+      "unitType": "weight",
+      "description": "Fresh loose mangoes - king of fruits",
+      "variants": [
+        {
+          "variantId": "FRUIT_004_1KG",
+          "quantity": 1,
+          "unit": "kg",
+          "mrp": 100,
+          "sellingPrice": 85,
+          "stock": 40
+        },
+        {
+          "variantId": "FRUIT_004_2KG",
+          "quantity": 2,
+          "unit": "kg",
+          "mrp": 180,
+          "sellingPrice": 150,
+          "stock": 20
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["aam", "mango", "आम"],
+        "aliases": ["aama", "manga"],
+        "phonetics": ["aam", "ama"],
+        "regional": ["aam", "maam"],
+        "hindiKeywords": ["आम", "अम"]
+      }
+    },
+    {
+      "productId": "FRUIT_005",
+      "name": "Papaya",
+      "hindiName": "पपीता",
+      "category": "fruits",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "piece",
+      "unitType": "count",
+      "description": "Fresh loose papaya - tropical fruit",
+      "variants": [
+        {
+          "variantId": "FRUIT_005_1PC",
+          "quantity": 1,
+          "unit": "piece",
+          "mrp": 60,
+          "sellingPrice": 50,
+          "stock": 50
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["papita", "papaya", "पपीता"],
+        "aliases": ["papeeta", "pawpaw"],
+        "phonetics": ["papita", "papaya"],
+        "regional": ["papita", "pawpaw"],
+        "hindiKeywords": ["पपीता", "पपैया"]
+      }
+    },
+    {
+      "productId": "FRUIT_006",
+      "name": "Guava",
+      "hindiName": "अमरूद",
+      "category": "fruits",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "kg",
+      "unitType": "weight",
+      "description": "Fresh loose guava - vitamin C rich",
+      "variants": [
+        {
+          "variantId": "FRUIT_006_1KG",
+          "quantity": 1,
+          "unit": "kg",
+          "mrp": 70,
+          "sellingPrice": 60,
+          "stock": 70
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["amrud", "guava", "अमरूद"],
+        "aliases": ["amrood", "guva"],
+        "phonetics": ["amrud", "guava"],
+        "regional": ["amrud", "peralla"],
+        "hindiKeywords": ["अमरूद", "अमरुद"]
+      }
+    },
+    {
+      "productId": "FRUIT_007",
+      "name": "Pomegranate",
+      "hindiName": "अनार",
+      "category": "fruits",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "piece",
+      "unitType": "count",
+      "description": "Fresh loose pomegranate",
+      "variants": [
+        {
+          "variantId": "FRUIT_007_1PC",
+          "quantity": 1,
+          "unit": "piece",
+          "mrp": 80,
+          "sellingPrice": 70,
+          "stock": 40
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["anar", "pomegranate", "अनार"],
+        "aliases": ["nari", "dalim"],
+        "phonetics": ["anar", "anaar"],
+        "regional": ["anar", "dalimba"],
+        "hindiKeywords": ["अनार", "दलीम"]
+      }
+    },
+    {
+      "productId": "FRUIT_008",
+      "name": "Watermelon",
+      "hindiName": "तरबूज",
+      "category": "fruits",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "piece",
+      "unitType": "count",
+      "description": "Fresh loose watermelon - summer fruit",
+      "variants": [
+        {
+          "variantId": "FRUIT_008_1PC",
+          "quantity": 1,
+          "unit": "piece",
+          "mrp": 200,
+          "sellingPrice": 170,
+          "stock": 20
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["tarbooz", "watermelon", "तरबूज"],
+        "aliases": ["tarbuji", "water melon"],
+        "phonetics": ["tarbooz", "tarbuj"],
+        "regional": ["tarbooz", "kalinga"],
+        "hindiKeywords": ["तरबूज", "तरबूजा"]
+      }
+    },
+    {
+      "productId": "DAIRY_001",
+      "name": "Amul Milk",
+      "hindiName": "अमूल दूध",
+      "category": "dairy",
+      "brand": "Amul",
+      "productType": "packaged",
+      "unit": "liter",
+      "unitType": "volume",
+      "description": "Amul pure milk - pasteurized and fresh",
+      "variants": [
+        {
+          "variantId": "DAIRY_001_500ML",
+          "quantity": 0.5,
+          "unit": "liter",
+          "mrp": 35,
+          "sellingPrice": 32,
+          "stock": 100
+        },
+        {
+          "variantId": "DAIRY_001_1L",
+          "quantity": 1,
+          "unit": "liter",
+          "mrp": 60,
+          "sellingPrice": 55,
+          "stock": 150
+        },
+        {
+          "variantId": "DAIRY_001_2L",
+          "quantity": 2,
+          "unit": "liter",
+          "mrp": 110,
+          "sellingPrice": 100,
+          "stock": 80
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["milk", "doodh", "दूध", "amul"],
+        "aliases": ["dudh", "amul milk"],
+        "phonetics": ["doodh", "milk"],
+        "regional": ["doodh", "pal"],
+        "hindiKeywords": ["दूध", "अमूल दूध"]
+      }
+    },
+    {
+      "productId": "DAIRY_002",
+      "name": "Ghee",
+      "hindiName": "घी",
+      "category": "dairy",
+      "brand": "Amul",
+      "productType": "packaged",
+      "unit": "liter",
+      "unitType": "volume",
+      "description": "Pure ghee - clarified butter for cooking",
+      "variants": [
+        {
+          "variantId": "DAIRY_002_250ML",
+          "quantity": 0.25,
+          "unit": "liter",
+          "mrp": 180,
+          "sellingPrice": 160,
+          "stock": 50
+        },
+        {
+          "variantId": "DAIRY_002_500ML",
+          "quantity": 0.5,
+          "unit": "liter",
+          "mrp": 340,
+          "sellingPrice": 310,
+          "stock": 60
+        },
+        {
+          "variantId": "DAIRY_002_1L",
+          "quantity": 1,
+          "unit": "liter",
+          "mrp": 640,
+          "sellingPrice": 580,
+          "stock": 30
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["ghee", "ghee", "घी"],
+        "aliases": ["ghi", "clarified butter"],
+        "phonetics": ["ghee", "ghi"],
+        "regional": ["ghee", "neyyi"],
+        "hindiKeywords": ["घी", "गी"]
+      }
+    },
+    {
+      "productId": "DAIRY_003",
+      "name": "Butter",
+      "hindiName": "मक्खन",
+      "category": "dairy",
+      "brand": "Amul",
+      "productType": "packaged",
+      "unit": "gram",
+      "unitType": "weight",
+      "description": "Amul butter - fresh and creamy",
+      "variants": [
+        {
+          "variantId": "DAIRY_003_100G",
+          "quantity": 100,
+          "unit": "gram",
+          "mrp": 60,
+          "sellingPrice": 55,
+          "stock": 60
+        },
+        {
+          "variantId": "DAIRY_003_200G",
+          "quantity": 200,
+          "unit": "gram",
+          "mrp": 110,
+          "sellingPrice": 100,
+          "stock": 80
+        },
+        {
+          "variantId": "DAIRY_003_500G",
+          "quantity": 500,
+          "unit": "gram",
+          "mrp": 250,
+          "sellingPrice": 225,
+          "stock": 40
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["butter", "makhan", "मक्खन"],
+        "aliases": ["makkhan", "butter"],
+        "phonetics": ["makkhan", "butter"],
+        "regional": ["makhan", "butter"],
+        "hindiKeywords": ["मक्खन", "मक्षन"]
+      }
+    },
+    {
+      "productId": "DAIRY_004",
+      "name": "Curd",
+      "hindiName": "दही",
+      "category": "dairy",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "liter",
+      "unitType": "volume",
+      "description": "Fresh homemade curd - yogurt",
+      "variants": [
+        {
+          "variantId": "DAIRY_004_500ML",
+          "quantity": 0.5,
+          "unit": "liter",
+          "mrp": 40,
+          "sellingPrice": 35,
+          "stock": 80
+        },
+        {
+          "variantId": "DAIRY_004_1L",
+          "quantity": 1,
+          "unit": "liter",
+          "mrp": 70,
+          "sellingPrice": 60,
+          "stock": 100
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["dahi", "yogurt", "दही"],
+        "aliases": ["dahee", "curd"],
+        "phonetics": ["dahi", "dahee"],
+        "regional": ["dahi", "mosaru"],
+        "hindiKeywords": ["दही", "दहीं"]
+      }
+    },
+    {
+      "productId": "DAIRY_005",
+      "name": "Paneer",
+      "hindiName": "पनीर",
+      "category": "dairy",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "gram",
+      "unitType": "weight",
+      "description": "Fresh paneer - cottage cheese",
+      "variants": [
+        {
+          "variantId": "DAIRY_005_200G",
+          "quantity": 200,
+          "unit": "gram",
+          "mrp": 120,
+          "sellingPrice": 110,
+          "stock": 50
+        },
+        {
+          "variantId": "DAIRY_005_500G",
+          "quantity": 500,
+          "unit": "gram",
+          "mrp": 280,
+          "sellingPrice": 260,
+          "stock": 40
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["paneer", "cheese", "पनीर"],
+        "aliases": ["panner", "cottage cheese"],
+        "phonetics": ["paneer", "panir"],
+        "regional": ["paneer", "chhutkha"],
+        "hindiKeywords": ["पनीर", "पणीर"]
+      }
+    },
+    {
+      "productId": "RICE_001",
+      "name": "Basmati Rice",
+      "hindiName": "बासमती चावल",
+      "category": "rice_grains",
+      "brand": "Aashirvaad",
+      "productType": "packaged",
+      "unit": "kg",
+      "unitType": "weight",
+      "description": "Premium basmati rice - aromatic and long grain",
+      "variants": [
+        {
+          "variantId": "RICE_001_1KG",
+          "quantity": 1,
+          "unit": "kg",
+          "mrp": 90,
+          "sellingPrice": 80,
+          "stock": 50
+        },
+        {
+          "variantId": "RICE_001_2KG",
+          "quantity": 2,
+          "unit": "kg",
+          "mrp": 170,
+          "sellingPrice": 150,
+          "stock": 40
+        },
+        {
+          "variantId": "RICE_001_5KG",
+          "quantity": 5,
+          "unit": "kg",
+          "mrp": 400,
+          "sellingPrice": 360,
+          "stock": 20
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["basmati", "rice", "बासमती"],
+        "aliases": ["basmatee", "basmati rice"],
+        "phonetics": ["basmati"],
+        "regional": ["basmati", "sella rice"],
+        "hindiKeywords": ["बासमती चावल", "बासमती"]
+      }
+    },
+    {
+      "productId": "RICE_002",
+      "name": "Regular Rice",
+      "hindiName": "सफेद चावल",
+      "category": "rice_grains",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "kg",
+      "unitType": "weight",
+      "description": "Regular white rice",
+      "variants": [
+        {
+          "variantId": "RICE_002_1KG",
+          "quantity": 1,
+          "unit": "kg",
+          "mrp": 50,
+          "sellingPrice": 45,
+          "stock": 80
+        },
+        {
+          "variantId": "RICE_002_5KG",
+          "quantity": 5,
+          "unit": "kg",
+          "mrp": 240,
+          "sellingPrice": 220,
+          "stock": 50
+        },
+        {
+          "variantId": "RICE_002_10KG",
+          "quantity": 10,
+          "unit": "kg",
+          "mrp": 450,
+          "sellingPrice": 410,
+          "stock": 30
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["rice", "white rice", "चावल"],
+        "aliases": ["chawal", "regular rice"],
+        "phonetics": ["chawal", "rice"],
+        "regional": ["chawal", "annam"],
+        "hindiKeywords": ["चावल", "सफेद चावल"]
+      }
+    },
+    {
+      "productId": "WHEAT_001",
+      "name": "Wheat Flour",
+      "hindiName": "मैदा",
+      "category": "flour_atta",
+      "brand": "Aashirvaad",
+      "productType": "packaged",
+      "unit": "kg",
+      "unitType": "weight",
+      "description": "Refined wheat flour - maida for all purposes",
+      "variants": [
+        {
+          "variantId": "WHEAT_001_1KG",
+          "quantity": 1,
+          "unit": "kg",
+          "mrp": 45,
+          "sellingPrice": 40,
+          "stock": 60
+        },
+        {
+          "variantId": "WHEAT_001_5KG",
+          "quantity": 5,
+          "unit": "kg",
+          "mrp": 210,
+          "sellingPrice": 190,
+          "stock": 30
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["maida", "flour", "मैदा"],
+        "aliases": ["maiida", "wheat flour"],
+        "phonetics": ["maida", "mayda"],
+        "regional": ["maida", "palaippu"],
+        "hindiKeywords": ["मैदा", "मांड"]
+      }
+    },
+    {
+      "productId": "PULSE_001",
+      "name": "Arhar Dal",
+      "hindiName": "अरहर दाल",
+      "category": "pulses",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "kg",
+      "unitType": "weight",
+      "description": "Yellow arhar dal - protein rich pulse",
+      "variants": [
+        {
+          "variantId": "PULSE_001_500G",
+          "quantity": 0.5,
+          "unit": "kg",
+          "mrp": 80,
+          "sellingPrice": 70,
+          "stock": 50
+        },
+        {
+          "variantId": "PULSE_001_1KG",
+          "quantity": 1,
+          "unit": "kg",
+          "mrp": 140,
+          "sellingPrice": 125,
+          "stock": 60
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["arhar", "dal", "अरहर"],
+        "aliases": ["tur dal", "toor"],
+        "phonetics": ["arhar", "tur"],
+        "regional": ["arhar", "togari bele"],
+        "hindiKeywords": ["अरहर दाल", "तूर दाल"]
+      }
+    },
+    {
+      "productId": "PULSE_002",
+      "name": "Moong Dal",
+      "hindiName": "मूंग दाल",
+      "category": "pulses",
+      "brand": "Generic",
+      "productType": "loose",
+      "unit": "kg",
+      "unitType": "weight",
+      "description": "Yellow moong dal - easy to digest",
+      "variants": [
+        {
+          "variantId": "PULSE_002_500G",
+          "quantity": 0.5,
+          "unit": "kg",
+          "mrp": 100,
+          "sellingPrice": 90,
+          "stock": 40
+        },
+        {
+          "variantId": "PULSE_002_1KG",
+          "quantity": 1,
+          "unit": "kg",
+          "mrp": 180,
+          "sellingPrice": 160,
+          "stock": 50
+        }
+      ],
+      "voiceMetadata": {
+        "keywords": ["moong", "dal", "मूंग"],
+        "aliases": ["mung", "mungo"],
+        "phonetics": ["moong", "mung"],
+        "regional": ["moong", "paasi payru"],
+        "hindiKeywords": ["मूंग दाल", "मुंग"]
+      }
+    }
+  ]
+}

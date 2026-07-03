@@ -178,11 +178,7 @@ class MigrationResult {
   final String message;
   final DateTime timestamp;
 
-  MigrationResult({
-    required this.success,
-    required this.message,
-    required this.timestamp,
-  });
+  MigrationResult({required this.success, required this.message, required this.timestamp});
 
   Map<String, dynamic> toJson() => {
     'success': success,

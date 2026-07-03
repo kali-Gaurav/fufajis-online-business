@@ -30,16 +30,19 @@ class ReportProvider with ChangeNotifier {
         .orderBy('generatedAt', descending: true)
         .limit(30)
         .snapshots()
-        .listen((snap) {
-      _reports = snap.docs.map(ReportModel.fromFirestore).toList();
-      _isLoading = false;
-      _errorMessage = null;
-      notifyListeners();
-    }, onError: (err) {
-      _errorMessage = err.toString();
-      _isLoading = false;
-      notifyListeners();
-    });
+        .listen(
+          (snap) {
+            _reports = snap.docs.map(ReportModel.fromFirestore).toList();
+            _isLoading = false;
+            _errorMessage = null;
+            notifyListeners();
+          },
+          onError: (err) {
+            _errorMessage = err.toString();
+            _isLoading = false;
+            notifyListeners();
+          },
+        );
   }
 
   @override

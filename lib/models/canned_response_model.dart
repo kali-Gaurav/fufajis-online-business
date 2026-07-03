@@ -36,19 +36,14 @@ class CannedResponseModel {
   }
 
   Map<String, dynamic> toMap() => {
-        'title': title,
-        'text': text,
-        'category': category,
-        'sortOrder': sortOrder,
-        'createdAt': Timestamp.fromDate(createdAt),
-      };
+    'title': title,
+    'text': text,
+    'category': category,
+    'sortOrder': sortOrder,
+    'createdAt': Timestamp.fromDate(createdAt),
+  };
 
-  CannedResponseModel copyWith({
-    String? title,
-    String? text,
-    String? category,
-    int? sortOrder,
-  }) {
+  CannedResponseModel copyWith({String? title, String? text, String? category, int? sortOrder}) {
     return CannedResponseModel(
       id: id,
       title: title ?? this.title,

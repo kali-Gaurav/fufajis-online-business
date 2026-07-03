@@ -7,22 +7,15 @@ class OfflineRoutingService {
 
   /// Calculates the geographical distance between two points using the Haversine formula.
   /// Returns distance in kilometers.
-  double calculateHaversineDistance(
-    double lat1,
-    double lon1,
-    double lat2,
-    double lon2,
-  ) {
+  double calculateHaversineDistance(double lat1, double lon1, double lat2, double lon2) {
     const double earthRadiusKm = 6371.0;
 
     final double dLat = _degreesToRadians(lat2 - lat1);
     final double dLon = _degreesToRadians(lon2 - lon1);
 
-    final double a = sin(dLat / 2) * sin(dLat / 2) +
-        cos(_degreesToRadians(lat1)) *
-            cos(_degreesToRadians(lat2)) *
-            sin(dLon / 2) *
-            sin(dLon / 2);
+    final double a =
+        sin(dLat / 2) * sin(dLat / 2) +
+        cos(_degreesToRadians(lat1)) * cos(_degreesToRadians(lat2)) * sin(dLon / 2) * sin(dLon / 2);
 
     final double c = 2 * atan2(sqrt(a), sqrt(1 - a));
     return earthRadiusKm * c;
@@ -33,11 +26,7 @@ class OfflineRoutingService {
   }
 
   /// Solves the Traveling Salesperson Problem (TSP) using a greedy nearest-neighbor heuristic.
-  List<OrderModel> optimizeRouteGreedy(
-    List<OrderModel> orders,
-    double startLat,
-    double startLon,
-  ) {
+  List<OrderModel> optimizeRouteGreedy(List<OrderModel> orders, double startLat, double startLon) {
     if (orders.isEmpty) return [];
 
     final List<OrderModel> unvisited = List.from(orders);
@@ -90,7 +79,7 @@ class OfflineRoutingService {
 
     // 1. Build distance matrix
     final List<List<double>> dist = List.generate(numNodes, (_) => List.filled(numNodes, 0.0));
-    
+
     // Distance to depot
     for (int i = 0; i < n; i++) {
       final double d = calculateHaversineDistance(
@@ -187,11 +176,7 @@ class OfflineRoutingService {
 
   /// Solves the Traveling Salesperson Problem (TSP) using Held-Karp exact DP
   /// for small sets (N <= 15) and a greedy heuristic for larger sets.
-  List<OrderModel> optimizeRoute(
-    List<OrderModel> orders,
-    double startLat,
-    double startLon,
-  ) {
+  List<OrderModel> optimizeRoute(List<OrderModel> orders, double startLat, double startLon) {
     if (orders.isEmpty) return [];
     if (orders.length <= 15) {
       return _optimizeRouteHeldKarp(orders, startLat, startLon);
@@ -222,11 +207,7 @@ class OfflineRoutingService {
   }
 
   /// Generates human-readable, step-by-step direction list for the optimized route.
-  List<String> generateDirections(
-    List<OrderModel> route,
-    double startLat,
-    double startLon,
-  ) {
+  List<String> generateDirections(List<OrderModel> route, double startLat, double startLon) {
     final List<String> directions = [];
     if (route.isEmpty) return ['No active deliveries in the route.'];
 
@@ -268,15 +249,15 @@ class OfflineRoutingService {
   /// Generates a Google Maps URL with multiple waypoints
   String getMapsMultiStopUrl(List<OrderModel> route, double startLat, double startLon) {
     if (route.isEmpty) return '';
-    
+
     // Format: https://www.google.com/maps/dir/StartLat,StartLon/Stop1Lat,Stop1Lon/Stop2Lat,Stop2Lon/...
     final StringBuffer url = StringBuffer('https://www.google.com/maps/dir/');
     url.write('$startLat,$startLon/');
-    
+
     for (var order in route) {
       url.write('${order.deliveryAddress.latitude},${order.deliveryAddress.longitude}/');
     }
-    
+
     return url.toString();
   }
 }

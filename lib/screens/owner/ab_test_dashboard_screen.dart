@@ -31,7 +31,7 @@ class _ABTestDashboardScreenState extends State<ABTestDashboardScreen> {
           'rate': 4.22,
           'aov': 358.20,
           'ci': '3.87% - 4.57%',
-        }
+        },
       ],
       'pValue': 0.018,
       'isSignificant': true,
@@ -59,7 +59,7 @@ class _ABTestDashboardScreenState extends State<ABTestDashboardScreen> {
           'rate': 3.80,
           'aov': 387.50,
           'ci': '3.39% - 4.21%',
-        }
+        },
       ],
       'pValue': 0.420,
       'isSignificant': false,
@@ -87,13 +87,13 @@ class _ABTestDashboardScreenState extends State<ABTestDashboardScreen> {
           'rate': 4.25,
           'aov': 315.00,
           'ci': '4.00% - 4.50%',
-        }
+        },
       ],
       'pValue': 0.0003,
       'isSignificant': true,
       'improvement': 18.1,
       'confidenceInterval': '99%',
-    }
+    },
   ];
 
   Map<String, dynamic>? _selectedExperiment;
@@ -129,7 +129,7 @@ class _ABTestDashboardScreenState extends State<ABTestDashboardScreen> {
                 _buildVariantsGrid(),
                 const SizedBox(height: 16),
                 _buildVisualComparisonChart(),
-              ]
+              ],
             ],
           ),
         ),
@@ -207,7 +207,11 @@ class _ABTestDashboardScreenState extends State<ABTestDashboardScreen> {
                 children: [
                   Text(
                     exp['title'] as String,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.primary),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.primary,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -301,10 +305,7 @@ class _ABTestDashboardScreenState extends State<ABTestDashboardScreen> {
       child: Container(
         decoration: BoxDecoration(
           border: Border(
-            top: BorderSide(
-              color: isControl ? AppTheme.grey400 : AppTheme.primary,
-              width: 4,
-            ),
+            top: BorderSide(color: isControl ? AppTheme.grey400 : AppTheme.primary, width: 4),
           ),
         ),
         padding: const EdgeInsets.all(16.0),
@@ -313,7 +314,11 @@ class _ABTestDashboardScreenState extends State<ABTestDashboardScreen> {
           children: [
             Text(
               variant['name'] as String,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey800),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: AppTheme.grey800,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -329,7 +334,11 @@ class _ABTestDashboardScreenState extends State<ABTestDashboardScreen> {
             ),
             Text(
               variant['ci'] as String,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppTheme.primary),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+                color: AppTheme.primary,
+              ),
             ),
           ],
         ),
@@ -388,7 +397,10 @@ class _ABTestDashboardScreenState extends State<ABTestDashboardScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(name, style: const TextStyle(fontSize: 12, color: AppTheme.grey700)),
-            Text('${rate.toStringAsFixed(2)}%', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            Text(
+              '${rate.toStringAsFixed(2)}%',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            ),
           ],
         ),
         const SizedBox(height: 6),

@@ -24,13 +24,19 @@ class _QuoteComparisonScreenState extends State<QuoteComparisonScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Compare Quotes')),
       body: StreamBuilder<DocumentSnapshot>(
-        stream: _firestore.collection('purchase_requests').doc(widget.purchaseRequestId).snapshots(),
+        stream: _firestore
+            .collection('purchase_requests')
+            .doc(widget.purchaseRequestId)
+            .snapshots(),
         builder: (context, prSnapshot) {
           if (!prSnapshot.hasData || !prSnapshot.data!.exists) {
             return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
           }
 
-          final pr = PurchaseRequestModel.fromMap(prSnapshot.data!.data() as Map<String, dynamic>, prSnapshot.data!.id);
+          final pr = PurchaseRequestModel.fromMap(
+            prSnapshot.data!.data() as Map<String, dynamic>,
+            prSnapshot.data!.id,
+          );
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,12 +50,22 @@ class _QuoteComparisonScreenState extends State<QuoteComparisonScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Purchase Request: ${pr.id}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                        Text(
+                          'Purchase Request: ${pr.id}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         const SizedBox(height: 8),
                         Text('Product ID: ${pr.productId}'),
                         Text('Requested Quantity: ${pr.suggestedPurchaseQty}'),
                         Text('AI Expected Cost: ₹${pr.expectedCost}/unit'),
-                        Text('Status: ${pr.status.name.toUpperCase()}', style: TextStyle(color: pr.status == PurchaseRequestStatus.ordered ? AppTheme.success : AppTheme.warning)),
+                        Text(
+                          'Status: ${pr.status.name.toUpperCase()}',
+                          style: TextStyle(
+                            color: pr.status == PurchaseRequestStatus.ordered
+                                ? AppTheme.success
+                                : AppTheme.warning,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -57,20 +73,34 @@ class _QuoteComparisonScreenState extends State<QuoteComparisonScreen> {
               ),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text('Supplier Quotes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                child: Text(
+                  'Supplier Quotes',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
               ),
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
-                  stream: _firestore.collection('supplier_quotes')
-                    .where('purchaseRequestId', isEqualTo: widget.purchaseRequestId)
-                    .snapshots(),
+                  stream: _firestore
+                      .collection('supplier_quotes')
+                      .where('purchaseRequestId', isEqualTo: widget.purchaseRequestId)
+                      .snapshots(),
                   builder: (context, quoteSnapshot) {
-                    if (quoteSnapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
+                    if (quoteSnapshot.connectionState == ConnectionState.waiting)
+                      return const Center(
+                        child: CircularProgressIndicator(color: AppTheme.ownerAccent),
+                      );
                     if (!quoteSnapshot.hasData || quoteSnapshot.data!.docs.isEmpty) {
                       return const Center(child: Text('No quotes received yet.'));
                     }
 
-                    final quotes = quoteSnapshot.data!.docs.map((doc) => SupplierQuoteModel.fromMap(doc.data() as Map<String, dynamic>, doc.id)).toList();
+                    final quotes = quoteSnapshot.data!.docs
+                        .map(
+                          (doc) => SupplierQuoteModel.fromMap(
+                            doc.data() as Map<String, dynamic>,
+                            doc.id,
+                          ),
+                        )
+                        .toList();
                     // Sort by price ascending
                     quotes.sort((a, b) => a.quotedPricePerUnit.compareTo(b.quotedPricePerUnit));
 
@@ -81,30 +111,56 @@ class _QuoteComparisonScreenState extends State<QuoteComparisonScreen> {
                         final quote = quotes[index];
                         final isAccepted = quote.status == SupplierQuoteStatus.accepted;
                         final isRejected = quote.status == SupplierQuoteStatus.rejected;
-                        
+
                         return Card(
-                          color: isAccepted ? AppTheme.success.withValues(alpha: 0.1) : (isRejected ? AppTheme.error.withValues(alpha: 0.1) : null),
+                          color: isAccepted
+                              ? AppTheme.success.withValues(alpha: 0.1)
+                              : (isRejected ? AppTheme.error.withValues(alpha: 0.1) : null),
                           child: ListTile(
                             title: Text('Supplier ID: ${quote.supplierId}'),
-                            subtitle: Text('Price: ₹${quote.quotedPricePerUnit}/unit\nDelivery: ${quote.estimatedDeliveryDate.toString().substring(0, 10)}\nNotes: ${quote.notes ?? "None"}'),
-                            trailing: isAccepted 
-                              ? const Chip(label: Text('Accepted', style: TextStyle(color: AppTheme.success)))
-                              : isRejected
-                                ? const Chip(label: Text('Rejected', style: TextStyle(color: AppTheme.error)))
+                            subtitle: Text(
+                              'Price: ₹${quote.quotedPricePerUnit}/unit\nDelivery: ${quote.estimatedDeliveryDate.toString().substring(0, 10)}\nNotes: ${quote.notes ?? "None"}',
+                            ),
+                            trailing: isAccepted
+                                ? const Chip(
+                                    label: Text(
+                                      'Accepted',
+                                      style: TextStyle(color: AppTheme.success),
+                                    ),
+                                  )
+                                : isRejected
+                                ? const Chip(
+                                    label: Text(
+                                      'Rejected',
+                                      style: TextStyle(color: AppTheme.error),
+                                    ),
+                                  )
                                 : ElevatedButton(
-                                    onPressed: pr.status == PurchaseRequestStatus.ordered ? null : () async {
-                                      try {
-                                        final ownerId = FirebaseAuth.instance.currentUser?.uid ?? 'sys';
-                                        await _portalService.acceptQuoteAndCreatePO(quote.id, ownerId);
-                                        if (context.mounted) {
-                                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Quote accepted! PO generated.')));
-                                        }
-                                      } catch (e) {
-                                        if (context.mounted) {
-                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-                                        }
-                                      }
-                                    },
+                                    onPressed: pr.status == PurchaseRequestStatus.ordered
+                                        ? null
+                                        : () async {
+                                            try {
+                                              final ownerId =
+                                                  FirebaseAuth.instance.currentUser?.uid ?? 'sys';
+                                              await _portalService.acceptQuoteAndCreatePO(
+                                                quote.id,
+                                                ownerId,
+                                              );
+                                              if (context.mounted) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text('Quote accepted! PO generated.'),
+                                                  ),
+                                                );
+                                              }
+                                            } catch (e) {
+                                              if (context.mounted) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(content: Text('Error: $e')),
+                                                );
+                                              }
+                                            }
+                                          },
                                     child: const Text('Accept'),
                                   ),
                           ),

@@ -10,11 +10,7 @@ class ReviewSection extends StatefulWidget {
   final String productId;
   final String productName;
 
-  const ReviewSection({
-    super.key,
-    required this.productId,
-    required this.productName,
-  });
+  const ReviewSection({super.key, required this.productId, required this.productName});
 
   @override
   State<ReviewSection> createState() => _ReviewSectionState();
@@ -33,11 +29,7 @@ class _ReviewSectionState extends State<ReviewSection> {
 
   void _loadReviews() {
     final reviewProvider = Provider.of<ReviewProvider>(context, listen: false);
-    reviewProvider.fetchProductReviews(
-      widget.productId,
-      limit: _reviewsPerPage,
-      sortBy: _sortBy,
-    );
+    reviewProvider.fetchProductReviews(widget.productId, limit: _reviewsPerPage, sortBy: _sortBy);
   }
 
   @override
@@ -71,10 +63,7 @@ class _ReviewSectionState extends State<ReviewSection> {
   Widget _buildRatingSummary(ReviewProvider reviewProvider) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(12)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -97,10 +86,7 @@ class _ReviewSectionState extends State<ReviewSection> {
                       const SizedBox(width: 8),
                       Text(
                         '${reviewProvider.reviews.length} reviews',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ],
                   ),
@@ -141,10 +127,7 @@ class _ReviewSectionState extends State<ReviewSection> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                '$ratingâ˜…',
-                style: const TextStyle(fontSize: 12),
-              ),
+              Text('$ratingâ˜…', style: const TextStyle(fontSize: 12)),
               const SizedBox(width: 8),
               SizedBox(
                 width: 60,
@@ -154,17 +137,12 @@ class _ReviewSectionState extends State<ReviewSection> {
                   child: LinearProgressIndicator(
                     value: percentage / 100,
                     backgroundColor: Colors.grey[300],
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      _getRatingColor(rating),
-                    ),
+                    valueColor: AlwaysStoppedAnimation<Color>(_getRatingColor(rating)),
                   ),
                 ),
               ),
               const SizedBox(width: 8),
-              Text(
-                '$count',
-                style: const TextStyle(fontSize: 12),
-              ),
+              Text('$count', style: const TextStyle(fontSize: 12)),
             ],
           ),
         );
@@ -181,10 +159,7 @@ class _ReviewSectionState extends State<ReviewSection> {
   Widget _buildSortOptions(ReviewProvider reviewProvider) {
     return Row(
       children: [
-        const Text(
-          'Sort by:',
-          style: TextStyle(fontWeight: FontWeight.w500),
-        ),
+        const Text('Sort by:', style: TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(width: 12),
         Expanded(
           child: SingleChildScrollView(
@@ -206,22 +181,14 @@ class _ReviewSectionState extends State<ReviewSection> {
     );
   }
 
-  Widget _buildSortChip(
-    String label,
-    String value,
-    ReviewProvider reviewProvider,
-  ) {
+  Widget _buildSortChip(String label, String value, ReviewProvider reviewProvider) {
     final isSelected = _sortBy == value;
     return FilterChip(
       label: Text(label),
       selected: isSelected,
       onSelected: (selected) {
         setState(() => _sortBy = value);
-        reviewProvider.fetchProductReviews(
-          widget.productId,
-          limit: _reviewsPerPage,
-          sortBy: value,
-        );
+        reviewProvider.fetchProductReviews(widget.productId, limit: _reviewsPerPage, sortBy: value);
       },
       backgroundColor: AppTheme.cream,
       selectedColor: AppTheme.primary.withValues(alpha: 0.2),
@@ -229,9 +196,7 @@ class _ReviewSectionState extends State<ReviewSection> {
         color: isSelected ? AppTheme.primary : Colors.grey[700],
         fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
       ),
-      side: BorderSide(
-        color: isSelected ? AppTheme.primary : Colors.grey[300]!,
-      ),
+      side: BorderSide(color: isSelected ? AppTheme.primary : Colors.grey[300]!),
     );
   }
 
@@ -256,10 +221,7 @@ class _ReviewSectionState extends State<ReviewSection> {
     );
   }
 
-  Widget _buildReviewCard(
-    ProductReviewModel review,
-    ReviewProvider reviewProvider,
-  ) {
+  Widget _buildReviewCard(ProductReviewModel review, ReviewProvider reviewProvider) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
@@ -277,9 +239,7 @@ class _ReviewSectionState extends State<ReviewSection> {
                   backgroundImage: review.userImage != null
                       ? NetworkImage(review.userImage!)
                       : null,
-                  child: review.userImage == null
-                      ? const Icon(Icons.person)
-                      : null,
+                  child: review.userImage == null ? const Icon(Icons.person) : null,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -292,19 +252,13 @@ class _ReviewSectionState extends State<ReviewSection> {
                           Expanded(
                             child: Text(
                               review.userName,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                              ),
+                              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           if (review.isVerifiedPurchase)
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
                                 color: AppTheme.success,
                                 border: Border.all(color: AppTheme.success),
@@ -328,10 +282,7 @@ class _ReviewSectionState extends State<ReviewSection> {
                           const SizedBox(width: 8),
                           Text(
                             _formatDate(review.createdAt),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
+                            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                           ),
                         ],
                       ),
@@ -402,18 +353,12 @@ class _ReviewSectionState extends State<ReviewSection> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      review.ownerReply!,
-                      style: const TextStyle(fontSize: 12),
-                    ),
+                    Text(review.ownerReply!, style: const TextStyle(fontSize: 12)),
                     if (review.ownerReplyDate != null) ...[
                       const SizedBox(height: 4),
                       Text(
                         _formatDate(review.ownerReplyDate!),
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                       ),
                     ],
                   ],
@@ -427,10 +372,7 @@ class _ReviewSectionState extends State<ReviewSection> {
               children: [
                 TextButton.icon(
                   onPressed: () {
-                    reviewProvider.markAsHelpful(
-                      widget.productId,
-                      review.id,
-                    );
+                    reviewProvider.markAsHelpful(widget.productId, review.id);
                   },
                   icon: const Icon(Icons.thumb_up_outlined, size: 16),
                   label: Text('Helpful (${review.helpfulCount})'),
@@ -522,24 +464,15 @@ class _ReviewSectionState extends State<ReviewSection> {
                 ],
               ),
               actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
-                ),
+                TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
                 ElevatedButton(
                   onPressed: selectedReasons.isEmpty
                       ? null
                       : () {
-                          reviewProvider.flagReview(
-                            widget.productId,
-                            review.id,
-                            selectedReasons,
-                          );
+                          reviewProvider.flagReview(widget.productId, review.id, selectedReasons);
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Review reported successfully'),
-                            ),
+                            const SnackBar(content: Text('Review reported successfully')),
                           );
                         },
                   child: const Text('Report'),
@@ -562,19 +495,12 @@ class _ReviewSectionState extends State<ReviewSection> {
             const SizedBox(height: 16),
             Text(
               'No reviews yet',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey[600]),
             ),
             const SizedBox(height: 8),
             Text(
               'Be the first to review this product',
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey[500],
-              ),
+              style: TextStyle(fontSize: 13, color: Colors.grey[500]),
             ),
           ],
         ),
@@ -611,10 +537,7 @@ class _ReviewSectionState extends State<ReviewSection> {
         child: Container(
           width: 100,
           height: 100,
-          decoration: BoxDecoration(
-            color: Colors.black,
-            borderRadius: BorderRadius.circular(8),
-          ),
+          decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(8)),
           child: const Stack(
             alignment: Alignment.center,
             children: [
@@ -624,10 +547,7 @@ class _ReviewSectionState extends State<ReviewSection> {
                 right: 4,
                 child: Text(
                   'VIDEO',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 8,
-                      fontWeight: FontWeight.bold),
+                  style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -682,10 +602,7 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
         alignment: Alignment.center,
         children: [
           if (_initialized)
-            AspectRatio(
-              aspectRatio: _controller.value.aspectRatio,
-              child: VideoPlayer(_controller),
-            )
+            AspectRatio(aspectRatio: _controller.value.aspectRatio, child: VideoPlayer(_controller))
           else
             const CircularProgressIndicator(color: AppTheme.primary),
           Positioned(
@@ -704,9 +621,7 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
                 backgroundColor: Colors.white24,
                 onPressed: () {
                   setState(() {
-                    _controller.value.isPlaying
-                        ? _controller.pause()
-                        : _controller.play();
+                    _controller.value.isPlaying ? _controller.pause() : _controller.play();
                   });
                 },
                 child: Icon(
@@ -720,4 +635,3 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
     );
   }
 }
-

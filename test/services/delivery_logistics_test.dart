@@ -14,7 +14,7 @@ void main() {
       // Free Standard Delivery Threshold is 500
       // Under 200 standard delivery is 40
       // 200 - 500 standard delivery is 20
-      
+
       final double charge1 = DeliveryChargeCalculator.calculateDeliveryCharge(
         DeliveryType.standard,
         150.0, // Subtotal 150 < 200

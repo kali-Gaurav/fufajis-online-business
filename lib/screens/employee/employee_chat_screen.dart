@@ -31,8 +31,7 @@ class _EmployeeChatScreenState extends State<EmployeeChatScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final chatProvider =
-          Provider.of<ChatProvider>(context, listen: false);
+      final chatProvider = Provider.of<ChatProvider>(context, listen: false);
       // Employee sees customer messages + internal notes but cannot send to customer directly
       chatProvider.listenToMessages(widget.chatId, customerView: false);
       chatProvider.listenToConversationMeta(widget.chatId);
@@ -53,8 +52,7 @@ class _EmployeeChatScreenState extends State<EmployeeChatScreen> {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
 
-    final user =
-        Provider.of<AuthProvider>(context, listen: false).currentUser;
+    final user = Provider.of<AuthProvider>(context, listen: false).currentUser;
     if (user == null) return;
 
     _controller.clear();
@@ -87,8 +85,7 @@ class _EmployeeChatScreenState extends State<EmployeeChatScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? AppTheme.grey900 : const Color(0xFFF5F0FF),
+      backgroundColor: isDark ? AppTheme.grey900 : const Color(0xFFF5F0FF),
       body: Column(
         children: [
           _buildHeader(isDark),
@@ -102,158 +99,148 @@ class _EmployeeChatScreenState extends State<EmployeeChatScreen> {
   }
 
   Widget _buildHeader(bool isDark) {
-    return Consumer<ChatProvider>(builder: (ctx, chatProvider, _) {
-      final conv = chatProvider.activeConversation;
-      return Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF6A1B9A), Color(0xFF4A148C)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+    return Consumer<ChatProvider>(
+      builder: (ctx, chatProvider, _) {
+        final conv = chatProvider.activeConversation;
+        return Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF6A1B9A), Color(0xFF4A148C)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
           ),
-        ),
-        child: SafeArea(
-          bottom: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(4, 8, 16, 14),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new,
-                      color: Colors.white, size: 20),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    shape: BoxShape.circle,
+          child: SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(4, 8, 16, 14),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+                    onPressed: () => Navigator.of(context).pop(),
                   ),
-                  child: Center(
-                    child: Text(
-                      (conv?.customerName.isNotEmpty == true)
-                          ? conv!.customerName[0].toUpperCase()
-                          : 'C',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 18,
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        (conv?.customerName.isNotEmpty == true)
+                            ? conv!.customerName[0].toUpperCase()
+                            : 'C',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 18,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        conv?.customerName ?? 'Customer',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      if (conv?.orderNumber != null)
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Text(
-                          'Order #${conv!.orderNumber}',
+                          conv?.customerName ?? 'Customer',
                           style: const TextStyle(
-                              color: Colors.white70, fontSize: 11),
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
-                    ],
+                        if (conv?.orderNumber != null)
+                          Text(
+                            'Order #${conv!.orderNumber}',
+                            style: const TextStyle(color: Colors.white70, fontSize: 11),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-                // Assigned badge
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(20),
+                  // Assigned badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.badge_outlined, color: Colors.white70, size: 12),
+                        SizedBox(width: 4),
+                        Text('Assigned', style: TextStyle(color: Colors.white70, fontSize: 11)),
+                      ],
+                    ),
                   ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.badge_outlined,
-                          color: Colors.white70, size: 12),
-                      SizedBox(width: 4),
-                      Text(
-                        'Assigned',
-                        style: TextStyle(
-                            color: Colors.white70, fontSize: 11),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 
   Widget _buildCustomerBanner(bool isDark) {
-    return Consumer<ChatProvider>(builder: (ctx, chatProvider, _) {
-      final conv = chatProvider.activeConversation;
-      if (conv == null) return const SizedBox.shrink();
-      return Container(
-        color: isDark ? AppTheme.grey800 : Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(
-          children: [
-            const Icon(Icons.info_outline,
-                size: 14, color: AppTheme.grey400),
-            const SizedBox(width: 6),
-            Text(
-              'Customer: ${conv.customerPhone}',
-              style: const TextStyle(
-                  fontSize: 12, color: AppTheme.grey500),
-            ),
-            const Spacer(),
-            if (conv.isTypingCustomer) ...[
-              const Icon(Icons.edit, size: 13, color: AppTheme.info),
-              const SizedBox(width: 4),
-              const Text(
-                'typing...',
-                style: TextStyle(
-                    fontSize: 11, color: AppTheme.info),
+    return Consumer<ChatProvider>(
+      builder: (ctx, chatProvider, _) {
+        final conv = chatProvider.activeConversation;
+        if (conv == null) return const SizedBox.shrink();
+        return Container(
+          color: isDark ? AppTheme.grey800 : Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            children: [
+              const Icon(Icons.info_outline, size: 14, color: AppTheme.grey400),
+              const SizedBox(width: 6),
+              Text(
+                'Customer: ${conv.customerPhone}',
+                style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
               ),
+              const Spacer(),
+              if (conv.isTypingCustomer) ...[
+                const Icon(Icons.edit, size: 13, color: AppTheme.info),
+                const SizedBox(width: 4),
+                const Text('typing...', style: TextStyle(fontSize: 11, color: AppTheme.info)),
+              ],
             ],
-          ],
-        ),
-      );
-    });
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildMessages(bool isDark) {
-    return Consumer<ChatProvider>(builder: (ctx, chatProvider, _) {
-      if (chatProvider.isLoading) {
-        return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
-      }
+    return Consumer<ChatProvider>(
+      builder: (ctx, chatProvider, _) {
+        if (chatProvider.isLoading) {
+          return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
+        }
 
-      final msgs = chatProvider.messages;
-      if (msgs.isEmpty) {
-        return const Center(
-          child: Text('No messages yet',
-              style: TextStyle(color: AppTheme.grey400)),
+        final msgs = chatProvider.messages;
+        if (msgs.isEmpty) {
+          return const Center(
+            child: Text('No messages yet', style: TextStyle(color: AppTheme.grey400)),
+          );
+        }
+
+        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+
+        return ListView.builder(
+          controller: _scrollController,
+          padding: const EdgeInsets.all(16),
+          itemCount: msgs.length,
+          itemBuilder: (context, index) {
+            final msg = msgs[index];
+            return _buildMsgItem(msg, isDark);
+          },
         );
-      }
-
-      WidgetsBinding.instance
-          .addPostFrameCallback((_) => _scrollToBottom());
-
-      return ListView.builder(
-        controller: _scrollController,
-        padding: const EdgeInsets.all(16),
-        itemCount: msgs.length,
-        itemBuilder: (context, index) {
-          final msg = msgs[index];
-          return _buildMsgItem(msg, isDark);
-        },
-      );
-    });
+      },
+    );
   }
 
   Widget _buildMsgItem(ChatMessage msg, bool isDark) {
@@ -262,25 +249,20 @@ class _EmployeeChatScreenState extends State<EmployeeChatScreen> {
         margin: const EdgeInsets.symmetric(vertical: 8),
         child: Center(
           child: Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 14, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: isDark
-                  ? AppTheme.grey800
-                  : const Color(0xFFEDF4FF),
+              color: isDark ? AppTheme.grey800 : const Color(0xFFEDF4FF),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                  color: AppTheme.info.withValues(alpha: 0.3)),
+              border: Border.all(color: AppTheme.info.withValues(alpha: 0.3)),
             ),
             child: Text(
               msg.text,
               textAlign: TextAlign.center,
               style: TextStyle(
-                  fontSize: 12,
-                  color: isDark
-                      ? AppTheme.grey300
-                      : AppTheme.grey700,
-                  height: 1.4),
+                fontSize: 12,
+                color: isDark ? AppTheme.grey300 : AppTheme.grey700,
+                height: 1.4,
+              ),
             ),
           ),
         ),
@@ -299,8 +281,7 @@ class _EmployeeChatScreenState extends State<EmployeeChatScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.lock_outline,
-                size: 14, color: Color(0xFFF57F17)),
+            const Icon(Icons.lock_outline, size: 14, color: Color(0xFFF57F17)),
             const SizedBox(width: 6),
             Expanded(
               child: Column(
@@ -315,18 +296,13 @@ class _EmployeeChatScreenState extends State<EmployeeChatScreen> {
                     ),
                   ),
                   const SizedBox(height: 3),
-                  Text(
-                    msg.text,
-                    style: const TextStyle(
-                        fontSize: 13, color: Color(0xFF5D4037)),
-                  ),
+                  Text(msg.text, style: const TextStyle(fontSize: 13, color: Color(0xFF5D4037))),
                 ],
               ),
             ),
             Text(
               DateFormat('hh:mm a').format(msg.timestamp),
-              style: const TextStyle(
-                  fontSize: 10, color: AppTheme.grey500),
+              style: const TextStyle(fontSize: 10, color: AppTheme.grey500),
             ),
           ],
         ),
@@ -335,8 +311,7 @@ class _EmployeeChatScreenState extends State<EmployeeChatScreen> {
 
     final isCustomer = msg.senderRole == SenderRole.customer;
     return Align(
-      alignment:
-          isCustomer ? Alignment.centerLeft : Alignment.centerRight,
+      alignment: isCustomer ? Alignment.centerLeft : Alignment.centerRight,
       child: Container(
         margin: EdgeInsets.only(
           top: 3,
@@ -345,8 +320,7 @@ class _EmployeeChatScreenState extends State<EmployeeChatScreen> {
           right: isCustomer ? 60 : 0,
         ),
         child: Container(
-          padding: const EdgeInsets.symmetric(
-              horizontal: 14, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
             color: isCustomer
                 ? (isDark ? AppTheme.grey800 : Colors.white)
@@ -359,16 +333,12 @@ class _EmployeeChatScreenState extends State<EmployeeChatScreen> {
             ),
           ),
           child: Column(
-            crossAxisAlignment: isCustomer
-                ? CrossAxisAlignment.start
-                : CrossAxisAlignment.end,
+            crossAxisAlignment: isCustomer ? CrossAxisAlignment.start : CrossAxisAlignment.end,
             children: [
               Text(
                 msg.text,
                 style: TextStyle(
-                  color: isCustomer
-                      ? (isDark ? Colors.white : AppTheme.grey900)
-                      : Colors.white,
+                  color: isCustomer ? (isDark ? Colors.white : AppTheme.grey900) : Colors.white,
                   fontSize: 14,
                   height: 1.4,
                 ),
@@ -405,38 +375,35 @@ class _EmployeeChatScreenState extends State<EmployeeChatScreen> {
               Expanded(
                 child: ListView(
                   scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   children: previews
-                      .map((r) => GestureDetector(
-                            onTap: () {
-                              _controller.text = r.text;
-                              _focusNode.requestFocus();
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.only(right: 8),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: AppTheme.employeeAccent
-                                    .withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(
-                                    color: AppTheme.employeeAccent
-                                        .withValues(alpha: 0.3)),
-                              ),
-                              child: Text(
-                                r.title,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: isDark
-                                      ? AppTheme.grey200
-                                      : AppTheme.employeeAccent,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                      .map(
+                        (r) => GestureDetector(
+                          onTap: () {
+                            _controller.text = r.text;
+                            _focusNode.requestFocus();
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(right: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppTheme.employeeAccent.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: AppTheme.employeeAccent.withValues(alpha: 0.3),
                               ),
                             ),
-                          ))
+                            child: Text(
+                              r.title,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: isDark ? AppTheme.grey200 : AppTheme.employeeAccent,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
                       .toList(),
                 ),
               ),
@@ -493,9 +460,7 @@ class _EmployeeChatScreenState extends State<EmployeeChatScreen> {
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? AppTheme.grey800
-                        : AppTheme.grey100,
+                    color: isDark ? AppTheme.grey800 : AppTheme.grey100,
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: TextField(
@@ -503,19 +468,13 @@ class _EmployeeChatScreenState extends State<EmployeeChatScreen> {
                     focusNode: _focusNode,
                     maxLines: 5,
                     minLines: 1,
-                    textCapitalization:
-                        TextCapitalization.sentences,
-                    style: TextStyle(
-                      color:
-                          isDark ? Colors.white : AppTheme.grey900,
-                      fontSize: 14,
-                    ),
+                    textCapitalization: TextCapitalization.sentences,
+                    style: TextStyle(color: isDark ? Colors.white : AppTheme.grey900, fontSize: 14),
                     decoration: const InputDecoration(
                       hintText: 'Reply to customer...',
                       hintStyle: TextStyle(color: AppTheme.grey400),
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     ),
                   ),
                 ),
@@ -524,8 +483,7 @@ class _EmployeeChatScreenState extends State<EmployeeChatScreen> {
               Consumer<ChatProvider>(
                 builder: (ctx, chatProvider, _) {
                   return GestureDetector(
-                    onTap:
-                        chatProvider.isSending ? null : _sendReply,
+                    onTap: chatProvider.isSending ? null : _sendReply,
                     child: Container(
                       width: 44,
                       height: 44,
@@ -536,16 +494,9 @@ class _EmployeeChatScreenState extends State<EmployeeChatScreen> {
                       child: chatProvider.isSending
                           ? const Padding(
                               padding: EdgeInsets.all(12),
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                             )
-                          : const Icon(
-                              Icons.send_rounded,
-                              color: Colors.white,
-                              size: 20,
-                            ),
+                          : const Icon(Icons.send_rounded, color: Colors.white, size: 20),
                     ),
                   );
                 },

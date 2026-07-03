@@ -18,8 +18,7 @@ class ShopDetailsScreen extends StatefulWidget {
   State<ShopDetailsScreen> createState() => _ShopDetailsScreenState();
 }
 
-class _ShopDetailsScreenState extends State<ShopDetailsScreen>
-    with TickerProviderStateMixin {
+class _ShopDetailsScreenState extends State<ShopDetailsScreen> with TickerProviderStateMixin {
   late final AnimationController _fadeCtrl;
   late final Animation<double> _fadeAnim;
 
@@ -37,14 +36,12 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen>
   }
 
   void _initAnimations() {
-    _fadeCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    );
+    _fadeCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1000));
 
-    _fadeAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut),
-    );
+    _fadeAnim = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut));
   }
 
   Future<void> _runAnimations() async {
@@ -54,12 +51,10 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen>
   }
 
   void _saveShopDetails() async {
-    if (_shopNameCtrl.text.isEmpty ||
-        _phoneCtrl.text.isEmpty ||
-        _addressCtrl.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields')),
-      );
+    if (_shopNameCtrl.text.isEmpty || _phoneCtrl.text.isEmpty || _addressCtrl.text.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
       return;
     }
 
@@ -119,22 +114,18 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen>
                     // ── Title ────────────────────────────────────
                     Text(
                       'Tell us about your shop',
-                      style:
-                          Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                fontWeight: FontWeight.w800,
-                                fontSize: 28,
-                                color: isDark
-                                    ? Colors.white
-                                    : const Color(0xFF1A1A1A),
-                              ),
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 28,
+                        color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'Basic information to get your shop started',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color:
-                                isDark ? Colors.grey[400] : Colors.grey[600],
-                          ),
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      ),
                     ),
 
                     const SizedBox(height: 32),
@@ -143,46 +134,36 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen>
                     Text(
                       'Shop Name',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-                          ),
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                      ),
                     ),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _shopNameCtrl,
                       decoration: InputDecoration(
                         hintText: 'e.g., Fresh Foods Store',
-                        hintStyle: TextStyle(
-                          color: isDark ? Colors.grey[600] : Colors.grey[400],
-                        ),
+                        hintStyle: TextStyle(color: isDark ? Colors.grey[600] : Colors.grey[400]),
                         filled: true,
-                        fillColor:
-                            isDark ? const Color(0xFF1F1F1F) : const Color(0xFFF5F5F5),
+                        fillColor: isDark ? const Color(0xFF1F1F1F) : const Color(0xFFF5F5F5),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFE0E0E0),
-                          ),
+                          borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
-                            color: isDark
-                                ? const Color(0xFF2A2A2A)
-                                : const Color(0xFFE0E0E0),
+                            color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE0E0E0),
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFFF6B00),
-                            width: 2,
-                          ),
+                          borderSide: const BorderSide(color: Color(0xFFFF6B00), width: 2),
                         ),
                       ),
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-                          ),
+                        color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                      ),
                     ),
 
                     const SizedBox(height: 24),
@@ -191,9 +172,9 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen>
                     Text(
                       'Phone Number',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-                          ),
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                      ),
                     ),
                     const SizedBox(height: 8),
                     TextFormField(
@@ -203,38 +184,28 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen>
                       decoration: InputDecoration(
                         prefixText: '+91 ',
                         hintText: '98765 43210',
-                        hintStyle: TextStyle(
-                          color: isDark ? Colors.grey[600] : Colors.grey[400],
-                        ),
+                        hintStyle: TextStyle(color: isDark ? Colors.grey[600] : Colors.grey[400]),
                         counterText: '',
                         filled: true,
-                        fillColor:
-                            isDark ? const Color(0xFF1F1F1F) : const Color(0xFFF5F5F5),
+                        fillColor: isDark ? const Color(0xFF1F1F1F) : const Color(0xFFF5F5F5),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFE0E0E0),
-                          ),
+                          borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
-                            color: isDark
-                                ? const Color(0xFF2A2A2A)
-                                : const Color(0xFFE0E0E0),
+                            color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE0E0E0),
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFFF6B00),
-                            width: 2,
-                          ),
+                          borderSide: const BorderSide(color: Color(0xFFFF6B00), width: 2),
                         ),
                       ),
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-                          ),
+                        color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                      ),
                     ),
 
                     const SizedBox(height: 24),
@@ -243,9 +214,9 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen>
                     Text(
                       'Shop Address',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-                          ),
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                      ),
                     ),
                     const SizedBox(height: 8),
                     TextFormField(
@@ -253,37 +224,27 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen>
                       maxLines: 2,
                       decoration: InputDecoration(
                         hintText: 'Street, Area, Landmark',
-                        hintStyle: TextStyle(
-                          color: isDark ? Colors.grey[600] : Colors.grey[400],
-                        ),
+                        hintStyle: TextStyle(color: isDark ? Colors.grey[600] : Colors.grey[400]),
                         filled: true,
-                        fillColor:
-                            isDark ? const Color(0xFF1F1F1F) : const Color(0xFFF5F5F5),
+                        fillColor: isDark ? const Color(0xFF1F1F1F) : const Color(0xFFF5F5F5),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFE0E0E0),
-                          ),
+                          borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
-                            color: isDark
-                                ? const Color(0xFF2A2A2A)
-                                : const Color(0xFFE0E0E0),
+                            color: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE0E0E0),
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFFF6B00),
-                            width: 2,
-                          ),
+                          borderSide: const BorderSide(color: Color(0xFFFF6B00), width: 2),
                         ),
                       ),
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-                          ),
+                        color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                      ),
                     ),
 
                     const SizedBox(height: 24),
@@ -294,9 +255,7 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen>
                       decoration: BoxDecoration(
                         color: isDark ? const Color(0xFF1F1F1F) : const Color(0xFFF5F5F5),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: const Color(0xFFE0E0E0),
-                        ),
+                        border: Border.all(color: const Color(0xFFE0E0E0)),
                       ),
                       child: Stack(
                         alignment: Alignment.center,
@@ -312,10 +271,8 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen>
                             child: Text(
                               'Tap to set location',
                               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: isDark
-                                        ? Colors.grey[400]
-                                        : Colors.grey[600],
-                                  ),
+                                color: isDark ? Colors.grey[400] : Colors.grey[600],
+                              ),
                             ),
                           ),
                         ],
@@ -333,9 +290,7 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen>
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFFF6B00),
                           foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           elevation: 0,
                         ),
                         child: _isLoading
@@ -344,21 +299,16 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen>
                                 height: 24,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2.5,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white,
-                                  ),
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                 ),
                               )
                             : Text(
                                 'Continue',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 16,
-                                    ),
+                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                ),
                               ),
                       ),
                     ),
@@ -379,10 +329,7 @@ class _ProgressIndicator extends StatelessWidget {
   final int currentStep;
   final int totalSteps;
 
-  const _ProgressIndicator({
-    required this.currentStep,
-    required this.totalSteps,
-  });
+  const _ProgressIndicator({required this.currentStep, required this.totalSteps});
 
   @override
   Widget build(BuildContext context) {
@@ -392,13 +339,9 @@ class _ProgressIndicator extends StatelessWidget {
         (index) => Expanded(
           child: Container(
             height: 4,
-            margin: EdgeInsets.only(
-              right: index < totalSteps - 1 ? 8 : 0,
-            ),
+            margin: EdgeInsets.only(right: index < totalSteps - 1 ? 8 : 0),
             decoration: BoxDecoration(
-              color: index < currentStep
-                  ? const Color(0xFFFF6B00)
-                  : const Color(0xFFE0E0E0),
+              color: index < currentStep ? const Color(0xFFFF6B00) : const Color(0xFFE0E0E0),
               borderRadius: BorderRadius.circular(2),
             ),
           ),

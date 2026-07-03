@@ -16,8 +16,7 @@ class S3Paths {
   S3Paths._();
 
   /// users/{uid}/avatar/{fileName}
-  static String userAvatar(String uid, String fileName) =>
-      'users/$uid/avatar/$fileName';
+  static String userAvatar(String uid, String fileName) => 'users/$uid/avatar/$fileName';
 
   /// products/{productId}/images/{fileName}
   static String productImage(String productId, String fileName) =>
@@ -28,20 +27,17 @@ class S3Paths {
       'vendors/$vendorId/banners/$fileName';
 
   /// vendors/{vendorId}/logo/{fileName}
-  static String vendorLogo(String vendorId, String fileName) =>
-      'vendors/$vendorId/logo/$fileName';
+  static String vendorLogo(String vendorId, String fileName) => 'vendors/$vendorId/logo/$fileName';
 
   /// orders/{orderId}/delivery-proof/{fileName}
   static String deliveryProof(String orderId, String fileName) =>
       'orders/$orderId/delivery-proof/$fileName';
 
   /// orders/{orderId}/bills/{fileName}
-  static String bill(String orderId, String fileName) =>
-      'orders/$orderId/bills/$fileName';
+  static String bill(String orderId, String fileName) => 'orders/$orderId/bills/$fileName';
 
   /// orders/{orderId}/invoices/{fileName}
-  static String invoice(String orderId, String fileName) =>
-      'orders/$orderId/invoices/$fileName';
+  static String invoice(String orderId, String fileName) => 'orders/$orderId/invoices/$fileName';
 
   /// marketing/{campaignId}/{fileName}
   static String marketingAsset(String campaignId, String fileName) =>
@@ -52,8 +48,7 @@ class S3Paths {
       'users/$uid/kyc/$docType/$fileName';
 
   /// backups/{date}/{fileName} — e.g. backups/2026-06-12/export.json
-  static String backup(String date, String fileName) =>
-      'backups/$date/$fileName';
+  static String backup(String date, String fileName) => 'backups/$date/$fileName';
 }
 
 /// Service to manage AWS S3 Object Storage via presigned URLs.
@@ -86,7 +81,11 @@ class S3StorageService {
 
   /// Uploads a local file to S3. [s3Key] should typically be produced via
   /// [scopedKey] unless the caller is an admin.
-  Future<String?> uploadFile(String filePath, String s3Key, {String contentType = 'application/octet-stream'}) async {
+  Future<String?> uploadFile(
+    String filePath,
+    String s3Key, {
+    String contentType = 'application/octet-stream',
+  }) async {
     try {
       final file = File(filePath);
       final bytes = await file.readAsBytes();
@@ -98,7 +97,11 @@ class S3StorageService {
   }
 
   /// Uploads raw bytes to S3 via a presigned PUT URL.
-  Future<String?> uploadBytes(Uint8List bytes, String s3Key, {String contentType = 'application/octet-stream'}) async {
+  Future<String?> uploadBytes(
+    Uint8List bytes,
+    String s3Key, {
+    String contentType = 'application/octet-stream',
+  }) async {
     try {
       final result = await ApiClient().post('/storage/upload-url', <String, dynamic>{
         'key': s3Key,

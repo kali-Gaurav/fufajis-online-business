@@ -47,26 +47,34 @@ class _SystemHealthDashboardState extends State<SystemHealthDashboard> {
 
   Color _getStatusColor(ServiceStatus status) {
     switch (status) {
-      case ServiceStatus.healthy: return AppTheme.success;
-      case ServiceStatus.degraded: return AppTheme.warning;
-      case ServiceStatus.down: return AppTheme.error;
-      case ServiceStatus.unknown: return Colors.grey;
+      case ServiceStatus.healthy:
+        return AppTheme.success;
+      case ServiceStatus.degraded:
+        return AppTheme.warning;
+      case ServiceStatus.down:
+        return AppTheme.error;
+      case ServiceStatus.unknown:
+        return Colors.grey;
     }
   }
 
   IconData _getStatusIcon(ServiceStatus status) {
     switch (status) {
-      case ServiceStatus.healthy: return Icons.check_circle;
-      case ServiceStatus.degraded: return Icons.warning;
-      case ServiceStatus.down: return Icons.error;
-      case ServiceStatus.unknown: return Icons.help;
+      case ServiceStatus.healthy:
+        return Icons.check_circle;
+      case ServiceStatus.degraded:
+        return Icons.warning;
+      case ServiceStatus.down:
+        return Icons.error;
+      case ServiceStatus.unknown:
+        return Icons.help;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final healthStates = _healthService.healthStates.values.toList();
-    
+
     int healthyCount = healthStates.where((s) => s.status == ServiceStatus.healthy).length;
     int degradedCount = healthStates.where((s) => s.status == ServiceStatus.degraded).length;
     int downCount = healthStates.where((s) => s.status == ServiceStatus.down).length;
@@ -105,20 +113,28 @@ class _SystemHealthDashboardState extends State<SystemHealthDashboard> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: systemHealthy 
+                color: systemHealthy
                     ? AppTheme.success.withAlpha((255 * 0.1).toInt())
-                    : (downCount > 0 ? AppTheme.error.withAlpha((255 * 0.1).toInt()) : AppTheme.warning.withAlpha((255 * 0.1).toInt())),
+                    : (downCount > 0
+                          ? AppTheme.error.withAlpha((255 * 0.1).toInt())
+                          : AppTheme.warning.withAlpha((255 * 0.1).toInt())),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: systemHealthy ? AppTheme.success : (downCount > 0 ? AppTheme.error : AppTheme.warning),
+                  color: systemHealthy
+                      ? AppTheme.success
+                      : (downCount > 0 ? AppTheme.error : AppTheme.warning),
                   width: 1,
                 ),
               ),
               child: Row(
                 children: [
                   Icon(
-                    systemHealthy ? Icons.verified_user : (downCount > 0 ? Icons.error : Icons.warning),
-                    color: systemHealthy ? AppTheme.success : (downCount > 0 ? AppTheme.error : AppTheme.warning),
+                    systemHealthy
+                        ? Icons.verified_user
+                        : (downCount > 0 ? Icons.error : Icons.warning),
+                    color: systemHealthy
+                        ? AppTheme.success
+                        : (downCount > 0 ? AppTheme.error : AppTheme.warning),
                     size: 40,
                   ),
                   const SizedBox(width: 16),
@@ -127,20 +143,15 @@ class _SystemHealthDashboardState extends State<SystemHealthDashboard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          systemHealthy 
-                              ? 'All Systems Operational' 
+                          systemHealthy
+                              ? 'All Systems Operational'
                               : (downCount > 0 ? 'System Outage Detected' : 'System Degraded'),
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           '$healthyCount healthy, $degradedCount degraded, $downCount down',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                          ),
+                          style: TextStyle(color: Colors.grey[600]),
                         ),
                       ],
                     ),
@@ -148,17 +159,14 @@ class _SystemHealthDashboardState extends State<SystemHealthDashboard> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 24),
             const Text(
               'External Services',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            
+
             // Service List
             ListView.separated(
               shrinkWrap: true,
@@ -186,16 +194,15 @@ class _SystemHealthDashboardState extends State<SystemHealthDashboard> {
                         Text(
                           '${status.latency!.inMilliseconds} ms',
                           style: TextStyle(
-                            color: status.latency!.inMilliseconds > 500 ? AppTheme.warning : AppTheme.success,
+                            color: status.latency!.inMilliseconds > 500
+                                ? AppTheme.warning
+                                : AppTheme.success,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                       Text(
                         'Last checked: ${status.lastChecked.hour.toString().padLeft(2, '0')}:${status.lastChecked.minute.toString().padLeft(2, '0')}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[500],
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                       ),
                     ],
                   ),

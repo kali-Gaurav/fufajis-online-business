@@ -7,8 +7,7 @@ import 'dart:async' as _i3;
 import 'dart:typed_data' as _i9;
 
 import 'package:cloud_firestore/cloud_firestore.dart' as _i6;
-import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart'
-    as _i5;
+import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart' as _i5;
 import 'package:connectivity_plus/connectivity_plus.dart' as _i10;
 import 'package:connectivity_plus_platform_interface/connectivity_plus_platform_interface.dart'
     as _i11;
@@ -35,183 +34,84 @@ import 'package:sqflite_common/sql.dart' as _i8;
 // ignore_for_file: invalid_use_of_internal_member
 
 class _FakeDatabase_0 extends _i1.SmartFake implements _i2.Database {
-  _FakeDatabase_0(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeDatabase_0(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
 class _FakeFuture_1<T1> extends _i1.SmartFake implements _i3.Future<T1> {
-  _FakeFuture_1(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeFuture_1(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
 class _FakeQueryCursor_2 extends _i1.SmartFake implements _i2.QueryCursor {
-  _FakeQueryCursor_2(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeQueryCursor_2(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
 class _FakeBatch_3 extends _i1.SmartFake implements _i2.Batch {
-  _FakeBatch_3(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeBatch_3(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
 class _FakeFirebaseApp_4 extends _i1.SmartFake implements _i4.FirebaseApp {
-  _FakeFirebaseApp_4(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeFirebaseApp_4(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
 class _FakeSettings_5 extends _i1.SmartFake implements _i5.Settings {
-  _FakeSettings_5(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeSettings_5(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
 class _FakeCollectionReference_6<T extends Object?> extends _i1.SmartFake
     implements _i6.CollectionReference<T> {
-  _FakeCollectionReference_6(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeCollectionReference_6(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 class _FakeWriteBatch_7 extends _i1.SmartFake implements _i6.WriteBatch {
-  _FakeWriteBatch_7(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeWriteBatch_7(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
-class _FakeLoadBundleTask_8 extends _i1.SmartFake
-    implements _i6.LoadBundleTask {
-  _FakeLoadBundleTask_8(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+class _FakeLoadBundleTask_8 extends _i1.SmartFake implements _i6.LoadBundleTask {
+  _FakeLoadBundleTask_8(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 class _FakeQuerySnapshot_9<T1 extends Object?> extends _i1.SmartFake
     implements _i6.QuerySnapshot<T1> {
-  _FakeQuerySnapshot_9(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeQuerySnapshot_9(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
-class _FakeQuery_10<T extends Object?> extends _i1.SmartFake
-    implements _i6.Query<T> {
-  _FakeQuery_10(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+class _FakeQuery_10<T extends Object?> extends _i1.SmartFake implements _i6.Query<T> {
+  _FakeQuery_10(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
 class _FakeDocumentReference_11<T extends Object?> extends _i1.SmartFake
     implements _i6.DocumentReference<T> {
-  _FakeDocumentReference_11(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeDocumentReference_11(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
-class _FakePipelineSource_12 extends _i1.SmartFake
-    implements _i6.PipelineSource {
-  _FakePipelineSource_12(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+class _FakePipelineSource_12 extends _i1.SmartFake implements _i6.PipelineSource {
+  _FakePipelineSource_12(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
-class _FakeFirebaseFirestore_13 extends _i1.SmartFake
-    implements _i6.FirebaseFirestore {
-  _FakeFirebaseFirestore_13(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+class _FakeFirebaseFirestore_13 extends _i1.SmartFake implements _i6.FirebaseFirestore {
+  _FakeFirebaseFirestore_13(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
-class _FakeAggregateQuery_14 extends _i1.SmartFake
-    implements _i6.AggregateQuery {
-  _FakeAggregateQuery_14(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+class _FakeAggregateQuery_14 extends _i1.SmartFake implements _i6.AggregateQuery {
+  _FakeAggregateQuery_14(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 class _FakeDocumentSnapshot_15<T extends Object?> extends _i1.SmartFake
     implements _i6.DocumentSnapshot<T> {
-  _FakeDocumentSnapshot_15(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  _FakeDocumentSnapshot_15(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
-class _FakeSnapshotMetadata_16 extends _i1.SmartFake
-    implements _i6.SnapshotMetadata {
-  _FakeSnapshotMetadata_16(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+class _FakeSnapshotMetadata_16 extends _i1.SmartFake implements _i6.SnapshotMetadata {
+  _FakeSnapshotMetadata_16(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 /// A class which mocks [Database].
@@ -224,209 +124,96 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
 
   @override
   String get path => (super.noSuchMethod(
-        Invocation.getter(#path),
-        returnValue: _i7.dummyValue<String>(
-          this,
-          Invocation.getter(#path),
-        ),
-      ) as String);
+    Invocation.getter(#path),
+    returnValue: _i7.dummyValue<String>(this, Invocation.getter(#path)),
+  ) as String);
 
   @override
-  bool get isOpen => (super.noSuchMethod(
-        Invocation.getter(#isOpen),
-        returnValue: false,
-      ) as bool);
+  bool get isOpen => (super.noSuchMethod(Invocation.getter(#isOpen), returnValue: false) as bool);
 
   @override
   _i2.Database get database => (super.noSuchMethod(
-        Invocation.getter(#database),
-        returnValue: _FakeDatabase_0(
-          this,
-          Invocation.getter(#database),
-        ),
-      ) as _i2.Database);
+    Invocation.getter(#database),
+    returnValue: _FakeDatabase_0(this, Invocation.getter(#database)),
+  ) as _i2.Database);
 
   @override
   _i3.Future<void> close() => (super.noSuchMethod(
-        Invocation.method(
-          #close,
-          [],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+    Invocation.method(#close, []),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
   _i3.Future<T> transaction<T>(
     _i3.Future<T> Function(_i2.Transaction)? action, {
     bool? exclusive,
-  }) =>
+  }) => (super.noSuchMethod(
+    Invocation.method(#transaction, [action], {#exclusive: exclusive}),
+    returnValue:
+        _i7.ifNotNull(
+          _i7.dummyValueOrNull<T>(
+            this,
+            Invocation.method(#transaction, [action], {#exclusive: exclusive}),
+          ),
+          (T v) => _i3.Future<T>.value(v),
+        ) ??
+        _FakeFuture_1<T>(this, Invocation.method(#transaction, [action], {#exclusive: exclusive})),
+  ) as _i3.Future<T>);
+
+  @override
+  _i3.Future<T> readTransaction<T>(_i3.Future<T> Function(_i2.Transaction)? action) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #transaction,
-          [action],
-          {#exclusive: exclusive},
-        ),
-        returnValue: _i7.ifNotNull(
+        Invocation.method(#readTransaction, [action]),
+        returnValue:
+            _i7.ifNotNull(
+              _i7.dummyValueOrNull<T>(this, Invocation.method(#readTransaction, [action])),
+              (T v) => _i3.Future<T>.value(v),
+            ) ??
+            _FakeFuture_1<T>(this, Invocation.method(#readTransaction, [action])),
+      ) as _i3.Future<T>);
+
+  @override
+  _i3.Future<T> devInvokeMethod<T>(String? method, [Object? arguments]) => (super.noSuchMethod(
+    Invocation.method(#devInvokeMethod, [method, arguments]),
+    returnValue:
+        _i7.ifNotNull(
+          _i7.dummyValueOrNull<T>(this, Invocation.method(#devInvokeMethod, [method, arguments])),
+          (T v) => _i3.Future<T>.value(v),
+        ) ??
+        _FakeFuture_1<T>(this, Invocation.method(#devInvokeMethod, [method, arguments])),
+  ) as _i3.Future<T>);
+
+  @override
+  _i3.Future<T> devInvokeSqlMethod<T>(String? method, String? sql, [List<Object?>? arguments]) =>
+      (super.noSuchMethod(
+        Invocation.method(#devInvokeSqlMethod, [method, sql, arguments]),
+        returnValue:
+            _i7.ifNotNull(
               _i7.dummyValueOrNull<T>(
                 this,
-                Invocation.method(
-                  #transaction,
-                  [action],
-                  {#exclusive: exclusive},
-                ),
+                Invocation.method(#devInvokeSqlMethod, [method, sql, arguments]),
               ),
               (T v) => _i3.Future<T>.value(v),
             ) ??
             _FakeFuture_1<T>(
               this,
-              Invocation.method(
-                #transaction,
-                [action],
-                {#exclusive: exclusive},
-              ),
+              Invocation.method(#devInvokeSqlMethod, [method, sql, arguments]),
             ),
       ) as _i3.Future<T>);
 
   @override
-  _i3.Future<T> readTransaction<T>(
-          _i3.Future<T> Function(_i2.Transaction)? action) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #readTransaction,
-          [action],
-        ),
-        returnValue: _i7.ifNotNull(
-              _i7.dummyValueOrNull<T>(
-                this,
-                Invocation.method(
-                  #readTransaction,
-                  [action],
-                ),
-              ),
-              (T v) => _i3.Future<T>.value(v),
-            ) ??
-            _FakeFuture_1<T>(
-              this,
-              Invocation.method(
-                #readTransaction,
-                [action],
-              ),
-            ),
-      ) as _i3.Future<T>);
+  _i3.Future<void> execute(String? sql, [List<Object?>? arguments]) => (super.noSuchMethod(
+    Invocation.method(#execute, [sql, arguments]),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
-  _i3.Future<T> devInvokeMethod<T>(
-    String? method, [
-    Object? arguments,
-  ]) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #devInvokeMethod,
-          [
-            method,
-            arguments,
-          ],
-        ),
-        returnValue: _i7.ifNotNull(
-              _i7.dummyValueOrNull<T>(
-                this,
-                Invocation.method(
-                  #devInvokeMethod,
-                  [
-                    method,
-                    arguments,
-                  ],
-                ),
-              ),
-              (T v) => _i3.Future<T>.value(v),
-            ) ??
-            _FakeFuture_1<T>(
-              this,
-              Invocation.method(
-                #devInvokeMethod,
-                [
-                  method,
-                  arguments,
-                ],
-              ),
-            ),
-      ) as _i3.Future<T>);
-
-  @override
-  _i3.Future<T> devInvokeSqlMethod<T>(
-    String? method,
-    String? sql, [
-    List<Object?>? arguments,
-  ]) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #devInvokeSqlMethod,
-          [
-            method,
-            sql,
-            arguments,
-          ],
-        ),
-        returnValue: _i7.ifNotNull(
-              _i7.dummyValueOrNull<T>(
-                this,
-                Invocation.method(
-                  #devInvokeSqlMethod,
-                  [
-                    method,
-                    sql,
-                    arguments,
-                  ],
-                ),
-              ),
-              (T v) => _i3.Future<T>.value(v),
-            ) ??
-            _FakeFuture_1<T>(
-              this,
-              Invocation.method(
-                #devInvokeSqlMethod,
-                [
-                  method,
-                  sql,
-                  arguments,
-                ],
-              ),
-            ),
-      ) as _i3.Future<T>);
-
-  @override
-  _i3.Future<void> execute(
-    String? sql, [
-    List<Object?>? arguments,
-  ]) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #execute,
-          [
-            sql,
-            arguments,
-          ],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
-
-  @override
-  _i3.Future<int> rawInsert(
-    String? sql, [
-    List<Object?>? arguments,
-  ]) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #rawInsert,
-          [
-            sql,
-            arguments,
-          ],
-        ),
-        returnValue: _i3.Future<int>.value(0),
-      ) as _i3.Future<int>);
+  _i3.Future<int> rawInsert(String? sql, [List<Object?>? arguments]) => (super.noSuchMethod(
+    Invocation.method(#rawInsert, [sql, arguments]),
+    returnValue: _i3.Future<int>.value(0),
+  ) as _i3.Future<int>);
 
   @override
   _i3.Future<int> insert(
@@ -434,21 +221,14 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
     Map<String, Object?>? values, {
     String? nullColumnHack,
     _i8.ConflictAlgorithm? conflictAlgorithm,
-  }) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #insert,
-          [
-            table,
-            values,
-          ],
-          {
-            #nullColumnHack: nullColumnHack,
-            #conflictAlgorithm: conflictAlgorithm,
-          },
-        ),
-        returnValue: _i3.Future<int>.value(0),
-      ) as _i3.Future<int>);
+  }) => (super.noSuchMethod(
+    Invocation.method(
+      #insert,
+      [table, values],
+      {#nullColumnHack: nullColumnHack, #conflictAlgorithm: conflictAlgorithm},
+    ),
+    returnValue: _i3.Future<int>.value(0),
+  ) as _i3.Future<int>);
 
   @override
   _i3.Future<List<Map<String, Object?>>> query(
@@ -462,42 +242,30 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
     String? orderBy,
     int? limit,
     int? offset,
-  }) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #query,
-          [table],
-          {
-            #distinct: distinct,
-            #columns: columns,
-            #where: where,
-            #whereArgs: whereArgs,
-            #groupBy: groupBy,
-            #having: having,
-            #orderBy: orderBy,
-            #limit: limit,
-            #offset: offset,
-          },
-        ),
-        returnValue: _i3.Future<List<Map<String, Object?>>>.value(
-            <Map<String, Object?>>[]),
-      ) as _i3.Future<List<Map<String, Object?>>>);
+  }) => (super.noSuchMethod(
+    Invocation.method(
+      #query,
+      [table],
+      {
+        #distinct: distinct,
+        #columns: columns,
+        #where: where,
+        #whereArgs: whereArgs,
+        #groupBy: groupBy,
+        #having: having,
+        #orderBy: orderBy,
+        #limit: limit,
+        #offset: offset,
+      },
+    ),
+    returnValue: _i3.Future<List<Map<String, Object?>>>.value(<Map<String, Object?>>[]),
+  ) as _i3.Future<List<Map<String, Object?>>>);
 
   @override
-  _i3.Future<List<Map<String, Object?>>> rawQuery(
-    String? sql, [
-    List<Object?>? arguments,
-  ]) =>
+  _i3.Future<List<Map<String, Object?>>> rawQuery(String? sql, [List<Object?>? arguments]) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #rawQuery,
-          [
-            sql,
-            arguments,
-          ],
-        ),
-        returnValue: _i3.Future<List<Map<String, Object?>>>.value(
-            <Map<String, Object?>>[]),
+        Invocation.method(#rawQuery, [sql, arguments]),
+        returnValue: _i3.Future<List<Map<String, Object?>>>.value(<Map<String, Object?>>[]),
       ) as _i3.Future<List<Map<String, Object?>>>);
 
   @override
@@ -505,28 +273,15 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
     String? sql,
     List<Object?>? arguments, {
     int? bufferSize,
-  }) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #rawQueryCursor,
-          [
-            sql,
-            arguments,
-          ],
-          {#bufferSize: bufferSize},
-        ),
-        returnValue: _i3.Future<_i2.QueryCursor>.value(_FakeQueryCursor_2(
-          this,
-          Invocation.method(
-            #rawQueryCursor,
-            [
-              sql,
-              arguments,
-            ],
-            {#bufferSize: bufferSize},
-          ),
-        )),
-      ) as _i3.Future<_i2.QueryCursor>);
+  }) => (super.noSuchMethod(
+    Invocation.method(#rawQueryCursor, [sql, arguments], {#bufferSize: bufferSize}),
+    returnValue: _i3.Future<_i2.QueryCursor>.value(
+      _FakeQueryCursor_2(
+        this,
+        Invocation.method(#rawQueryCursor, [sql, arguments], {#bufferSize: bufferSize}),
+      ),
+    ),
+  ) as _i3.Future<_i2.QueryCursor>);
 
   @override
   _i3.Future<_i2.QueryCursor> queryCursor(
@@ -541,8 +296,26 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
     int? limit,
     int? offset,
     int? bufferSize,
-  }) =>
-      (super.noSuchMethod(
+  }) => (super.noSuchMethod(
+    Invocation.method(
+      #queryCursor,
+      [table],
+      {
+        #distinct: distinct,
+        #columns: columns,
+        #where: where,
+        #whereArgs: whereArgs,
+        #groupBy: groupBy,
+        #having: having,
+        #orderBy: orderBy,
+        #limit: limit,
+        #offset: offset,
+        #bufferSize: bufferSize,
+      },
+    ),
+    returnValue: _i3.Future<_i2.QueryCursor>.value(
+      _FakeQueryCursor_2(
+        this,
         Invocation.method(
           #queryCursor,
           [table],
@@ -559,42 +332,15 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
             #bufferSize: bufferSize,
           },
         ),
-        returnValue: _i3.Future<_i2.QueryCursor>.value(_FakeQueryCursor_2(
-          this,
-          Invocation.method(
-            #queryCursor,
-            [table],
-            {
-              #distinct: distinct,
-              #columns: columns,
-              #where: where,
-              #whereArgs: whereArgs,
-              #groupBy: groupBy,
-              #having: having,
-              #orderBy: orderBy,
-              #limit: limit,
-              #offset: offset,
-              #bufferSize: bufferSize,
-            },
-          ),
-        )),
-      ) as _i3.Future<_i2.QueryCursor>);
+      ),
+    ),
+  ) as _i3.Future<_i2.QueryCursor>);
 
   @override
-  _i3.Future<int> rawUpdate(
-    String? sql, [
-    List<Object?>? arguments,
-  ]) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #rawUpdate,
-          [
-            sql,
-            arguments,
-          ],
-        ),
-        returnValue: _i3.Future<int>.value(0),
-      ) as _i3.Future<int>);
+  _i3.Future<int> rawUpdate(String? sql, [List<Object?>? arguments]) => (super.noSuchMethod(
+    Invocation.method(#rawUpdate, [sql, arguments]),
+    returnValue: _i3.Future<int>.value(0),
+  ) as _i3.Future<int>);
 
   @override
   _i3.Future<int> update(
@@ -603,71 +349,33 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
     String? where,
     List<Object?>? whereArgs,
     _i8.ConflictAlgorithm? conflictAlgorithm,
-  }) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #update,
-          [
-            table,
-            values,
-          ],
-          {
-            #where: where,
-            #whereArgs: whereArgs,
-            #conflictAlgorithm: conflictAlgorithm,
-          },
-        ),
-        returnValue: _i3.Future<int>.value(0),
-      ) as _i3.Future<int>);
+  }) => (super.noSuchMethod(
+    Invocation.method(
+      #update,
+      [table, values],
+      {#where: where, #whereArgs: whereArgs, #conflictAlgorithm: conflictAlgorithm},
+    ),
+    returnValue: _i3.Future<int>.value(0),
+  ) as _i3.Future<int>);
 
   @override
-  _i3.Future<int> rawDelete(
-    String? sql, [
-    List<Object?>? arguments,
-  ]) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #rawDelete,
-          [
-            sql,
-            arguments,
-          ],
-        ),
-        returnValue: _i3.Future<int>.value(0),
-      ) as _i3.Future<int>);
+  _i3.Future<int> rawDelete(String? sql, [List<Object?>? arguments]) => (super.noSuchMethod(
+    Invocation.method(#rawDelete, [sql, arguments]),
+    returnValue: _i3.Future<int>.value(0),
+  ) as _i3.Future<int>);
 
   @override
-  _i3.Future<int> delete(
-    String? table, {
-    String? where,
-    List<Object?>? whereArgs,
-  }) =>
+  _i3.Future<int> delete(String? table, {String? where, List<Object?>? whereArgs}) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #delete,
-          [table],
-          {
-            #where: where,
-            #whereArgs: whereArgs,
-          },
-        ),
+        Invocation.method(#delete, [table], {#where: where, #whereArgs: whereArgs}),
         returnValue: _i3.Future<int>.value(0),
       ) as _i3.Future<int>);
 
   @override
   _i2.Batch batch() => (super.noSuchMethod(
-        Invocation.method(
-          #batch,
-          [],
-        ),
-        returnValue: _FakeBatch_3(
-          this,
-          Invocation.method(
-            #batch,
-            [],
-          ),
-        ),
-      ) as _i2.Batch);
+    Invocation.method(#batch, []),
+    returnValue: _FakeBatch_3(this, Invocation.method(#batch, [])),
+  ) as _i2.Batch);
 }
 
 /// A class which mocks [FirebaseFirestore].
@@ -680,120 +388,67 @@ class MockFirebaseFirestore extends _i1.Mock implements _i6.FirebaseFirestore {
 
   @override
   _i4.FirebaseApp get app => (super.noSuchMethod(
-        Invocation.getter(#app),
-        returnValue: _FakeFirebaseApp_4(
-          this,
-          Invocation.getter(#app),
-        ),
-      ) as _i4.FirebaseApp);
+    Invocation.getter(#app),
+    returnValue: _FakeFirebaseApp_4(this, Invocation.getter(#app)),
+  ) as _i4.FirebaseApp);
 
   @override
   String get databaseId => (super.noSuchMethod(
-        Invocation.getter(#databaseId),
-        returnValue: _i7.dummyValue<String>(
-          this,
-          Invocation.getter(#databaseId),
-        ),
-      ) as String);
+    Invocation.getter(#databaseId),
+    returnValue: _i7.dummyValue<String>(this, Invocation.getter(#databaseId)),
+  ) as String);
 
   @override
   _i5.Settings get settings => (super.noSuchMethod(
-        Invocation.getter(#settings),
-        returnValue: _FakeSettings_5(
-          this,
-          Invocation.getter(#settings),
-        ),
-      ) as _i5.Settings);
+    Invocation.getter(#settings),
+    returnValue: _FakeSettings_5(this, Invocation.getter(#settings)),
+  ) as _i5.Settings);
 
   @override
-  set app(_i4.FirebaseApp? value) => super.noSuchMethod(
-        Invocation.setter(
-          #app,
-          value,
-        ),
-        returnValueForMissingStub: null,
-      );
+  set app(_i4.FirebaseApp? value) =>
+      super.noSuchMethod(Invocation.setter(#app, value), returnValueForMissingStub: null);
 
   @override
-  set databaseId(String? value) => super.noSuchMethod(
-        Invocation.setter(
-          #databaseId,
-          value,
-        ),
-        returnValueForMissingStub: null,
-      );
+  set databaseId(String? value) =>
+      super.noSuchMethod(Invocation.setter(#databaseId, value), returnValueForMissingStub: null);
 
   @override
-  set settings(_i5.Settings? settings) => super.noSuchMethod(
-        Invocation.setter(
-          #settings,
-          settings,
-        ),
-        returnValueForMissingStub: null,
-      );
+  set settings(_i5.Settings? settings) =>
+      super.noSuchMethod(Invocation.setter(#settings, settings), returnValueForMissingStub: null);
 
   @override
-  Map<dynamic, dynamic> get pluginConstants => (super.noSuchMethod(
-        Invocation.getter(#pluginConstants),
-        returnValue: <dynamic, dynamic>{},
-      ) as Map<dynamic, dynamic>);
+  Map<dynamic, dynamic> get pluginConstants =>
+      (super.noSuchMethod(Invocation.getter(#pluginConstants), returnValue: <dynamic, dynamic>{})
+          as Map<dynamic, dynamic>);
 
   @override
-  _i6.CollectionReference<Map<String, dynamic>> collection(
-          String? collectionPath) =>
+  _i6.CollectionReference<Map<String, dynamic>> collection(String? collectionPath) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #collection,
-          [collectionPath],
-        ),
+        Invocation.method(#collection, [collectionPath]),
         returnValue: _FakeCollectionReference_6<Map<String, dynamic>>(
           this,
-          Invocation.method(
-            #collection,
-            [collectionPath],
-          ),
+          Invocation.method(#collection, [collectionPath]),
         ),
       ) as _i6.CollectionReference<Map<String, dynamic>>);
 
   @override
   _i6.WriteBatch batch() => (super.noSuchMethod(
-        Invocation.method(
-          #batch,
-          [],
-        ),
-        returnValue: _FakeWriteBatch_7(
-          this,
-          Invocation.method(
-            #batch,
-            [],
-          ),
-        ),
-      ) as _i6.WriteBatch);
+    Invocation.method(#batch, []),
+    returnValue: _FakeWriteBatch_7(this, Invocation.method(#batch, [])),
+  ) as _i6.WriteBatch);
 
   @override
   _i3.Future<void> clearPersistence() => (super.noSuchMethod(
-        Invocation.method(
-          #clearPersistence,
-          [],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+    Invocation.method(#clearPersistence, []),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
   _i6.LoadBundleTask loadBundle(_i9.Uint8List? bundle) => (super.noSuchMethod(
-        Invocation.method(
-          #loadBundle,
-          [bundle],
-        ),
-        returnValue: _FakeLoadBundleTask_8(
-          this,
-          Invocation.method(
-            #loadBundle,
-            [bundle],
-          ),
-        ),
-      ) as _i6.LoadBundleTask);
+    Invocation.method(#loadBundle, [bundle]),
+    returnValue: _FakeLoadBundleTask_8(this, Invocation.method(#loadBundle, [bundle])),
+  ) as _i6.LoadBundleTask);
 
   @override
   void useFirestoreEmulator(
@@ -801,21 +456,14 @@ class MockFirebaseFirestore extends _i1.Mock implements _i6.FirebaseFirestore {
     int? port, {
     bool? sslEnabled = false,
     bool? automaticHostMapping = true,
-  }) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #useFirestoreEmulator,
-          [
-            host,
-            port,
-          ],
-          {
-            #sslEnabled: sslEnabled,
-            #automaticHostMapping: automaticHostMapping,
-          },
-        ),
-        returnValueForMissingStub: null,
-      );
+  }) => super.noSuchMethod(
+    Invocation.method(
+      #useFirestoreEmulator,
+      [host, port],
+      {#sslEnabled: sslEnabled, #automaticHostMapping: automaticHostMapping},
+    ),
+    returnValueForMissingStub: null,
+  );
 
   @override
   _i3.Future<_i6.QuerySnapshot<T>> namedQueryWithConverterGet<T>(
@@ -823,202 +471,135 @@ class MockFirebaseFirestore extends _i1.Mock implements _i6.FirebaseFirestore {
     _i5.GetOptions? options = const _i5.GetOptions(),
     required _i6.FromFirestore<T>? fromFirestore,
     required _i6.ToFirestore<T>? toFirestore,
-  }) =>
-      (super.noSuchMethod(
+  }) => (super.noSuchMethod(
+    Invocation.method(
+      #namedQueryWithConverterGet,
+      [name],
+      {#options: options, #fromFirestore: fromFirestore, #toFirestore: toFirestore},
+    ),
+    returnValue: _i3.Future<_i6.QuerySnapshot<T>>.value(
+      _FakeQuerySnapshot_9<T>(
+        this,
         Invocation.method(
           #namedQueryWithConverterGet,
           [name],
-          {
-            #options: options,
-            #fromFirestore: fromFirestore,
-            #toFirestore: toFirestore,
-          },
+          {#options: options, #fromFirestore: fromFirestore, #toFirestore: toFirestore},
         ),
-        returnValue:
-            _i3.Future<_i6.QuerySnapshot<T>>.value(_FakeQuerySnapshot_9<T>(
-          this,
-          Invocation.method(
-            #namedQueryWithConverterGet,
-            [name],
-            {
-              #options: options,
-              #fromFirestore: fromFirestore,
-              #toFirestore: toFirestore,
-            },
-          ),
-        )),
-      ) as _i3.Future<_i6.QuerySnapshot<T>>);
+      ),
+    ),
+  ) as _i3.Future<_i6.QuerySnapshot<T>>);
 
   @override
   _i3.Future<_i6.QuerySnapshot<Map<String, dynamic>>> namedQueryGet(
     String? name, {
     _i5.GetOptions? options = const _i5.GetOptions(),
-  }) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #namedQueryGet,
-          [name],
-          {#options: options},
-        ),
-        returnValue: _i3.Future<_i6.QuerySnapshot<Map<String, dynamic>>>.value(
-            _FakeQuerySnapshot_9<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #namedQueryGet,
-            [name],
-            {#options: options},
-          ),
-        )),
-      ) as _i3.Future<_i6.QuerySnapshot<Map<String, dynamic>>>);
+  }) => (super.noSuchMethod(
+    Invocation.method(#namedQueryGet, [name], {#options: options}),
+    returnValue: _i3.Future<_i6.QuerySnapshot<Map<String, dynamic>>>.value(
+      _FakeQuerySnapshot_9<Map<String, dynamic>>(
+        this,
+        Invocation.method(#namedQueryGet, [name], {#options: options}),
+      ),
+    ),
+  ) as _i3.Future<_i6.QuerySnapshot<Map<String, dynamic>>>);
 
   @override
-  _i6.Query<Map<String, dynamic>> collectionGroup(String? collectionPath) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #collectionGroup,
-          [collectionPath],
-        ),
-        returnValue: _FakeQuery_10<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #collectionGroup,
-            [collectionPath],
-          ),
-        ),
-      ) as _i6.Query<Map<String, dynamic>>);
+  _i6.Query<Map<String, dynamic>> collectionGroup(String? collectionPath) => (super.noSuchMethod(
+    Invocation.method(#collectionGroup, [collectionPath]),
+    returnValue: _FakeQuery_10<Map<String, dynamic>>(
+      this,
+      Invocation.method(#collectionGroup, [collectionPath]),
+    ),
+  ) as _i6.Query<Map<String, dynamic>>);
 
   @override
   _i3.Future<void> disableNetwork() => (super.noSuchMethod(
-        Invocation.method(
-          #disableNetwork,
-          [],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+    Invocation.method(#disableNetwork, []),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
-  _i6.DocumentReference<Map<String, dynamic>> doc(String? documentPath) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #doc,
-          [documentPath],
-        ),
-        returnValue: _FakeDocumentReference_11<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #doc,
-            [documentPath],
-          ),
-        ),
-      ) as _i6.DocumentReference<Map<String, dynamic>>);
+  _i6.DocumentReference<Map<String, dynamic>> doc(String? documentPath) => (super.noSuchMethod(
+    Invocation.method(#doc, [documentPath]),
+    returnValue: _FakeDocumentReference_11<Map<String, dynamic>>(
+      this,
+      Invocation.method(#doc, [documentPath]),
+    ),
+  ) as _i6.DocumentReference<Map<String, dynamic>>);
 
   @override
   _i3.Future<void> enableNetwork() => (super.noSuchMethod(
-        Invocation.method(
-          #enableNetwork,
-          [],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+    Invocation.method(#enableNetwork, []),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
   _i3.Stream<void> snapshotsInSync() => (super.noSuchMethod(
-        Invocation.method(
-          #snapshotsInSync,
-          [],
-        ),
-        returnValue: _i3.Stream<void>.empty(),
-      ) as _i3.Stream<void>);
+    Invocation.method(#snapshotsInSync, []),
+    returnValue: _i3.Stream<void>.empty(),
+  ) as _i3.Stream<void>);
 
   @override
   _i3.Future<T> runTransaction<T>(
     _i6.TransactionHandler<T>? transactionHandler, {
     Duration? timeout = const Duration(seconds: 30),
     int? maxAttempts = 5,
-  }) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #runTransaction,
-          [transactionHandler],
-          {
-            #timeout: timeout,
-            #maxAttempts: maxAttempts,
-          },
-        ),
-        returnValue: _i7.ifNotNull(
-              _i7.dummyValueOrNull<T>(
-                this,
-                Invocation.method(
-                  #runTransaction,
-                  [transactionHandler],
-                  {
-                    #timeout: timeout,
-                    #maxAttempts: maxAttempts,
-                  },
-                ),
-              ),
-              (T v) => _i3.Future<T>.value(v),
-            ) ??
-            _FakeFuture_1<T>(
-              this,
-              Invocation.method(
-                #runTransaction,
-                [transactionHandler],
-                {
-                  #timeout: timeout,
-                  #maxAttempts: maxAttempts,
-                },
-              ),
+  }) => (super.noSuchMethod(
+    Invocation.method(
+      #runTransaction,
+      [transactionHandler],
+      {#timeout: timeout, #maxAttempts: maxAttempts},
+    ),
+    returnValue:
+        _i7.ifNotNull(
+          _i7.dummyValueOrNull<T>(
+            this,
+            Invocation.method(
+              #runTransaction,
+              [transactionHandler],
+              {#timeout: timeout, #maxAttempts: maxAttempts},
             ),
-      ) as _i3.Future<T>);
+          ),
+          (T v) => _i3.Future<T>.value(v),
+        ) ??
+        _FakeFuture_1<T>(
+          this,
+          Invocation.method(
+            #runTransaction,
+            [transactionHandler],
+            {#timeout: timeout, #maxAttempts: maxAttempts},
+          ),
+        ),
+  ) as _i3.Future<T>);
 
   @override
   _i3.Future<void> terminate() => (super.noSuchMethod(
-        Invocation.method(
-          #terminate,
-          [],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+    Invocation.method(#terminate, []),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
   _i3.Future<void> waitForPendingWrites() => (super.noSuchMethod(
-        Invocation.method(
-          #waitForPendingWrites,
-          [],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+    Invocation.method(#waitForPendingWrites, []),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
   _i6.PipelineSource pipeline() => (super.noSuchMethod(
-        Invocation.method(
-          #pipeline,
-          [],
-        ),
-        returnValue: _FakePipelineSource_12(
-          this,
-          Invocation.method(
-            #pipeline,
-            [],
-          ),
-        ),
-      ) as _i6.PipelineSource);
+    Invocation.method(#pipeline, []),
+    returnValue: _FakePipelineSource_12(this, Invocation.method(#pipeline, [])),
+  ) as _i6.PipelineSource);
 
   @override
-  _i3.Future<void> setIndexConfigurationFromJSON(String? json) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #setIndexConfigurationFromJSON,
-          [json],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+  _i3.Future<void> setIndexConfigurationFromJSON(String? json) => (super.noSuchMethod(
+    Invocation.method(#setIndexConfigurationFromJSON, [json]),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 }
 
 /// A class which mocks [Connectivity].
@@ -1030,22 +611,16 @@ class MockConnectivity extends _i1.Mock implements _i10.Connectivity {
   }
 
   @override
-  _i3.Stream<List<_i11.ConnectivityResult>> get onConnectivityChanged =>
-      (super.noSuchMethod(
-        Invocation.getter(#onConnectivityChanged),
-        returnValue: _i3.Stream<List<_i11.ConnectivityResult>>.empty(),
-      ) as _i3.Stream<List<_i11.ConnectivityResult>>);
+  _i3.Stream<List<_i11.ConnectivityResult>> get onConnectivityChanged => (super.noSuchMethod(
+    Invocation.getter(#onConnectivityChanged),
+    returnValue: _i3.Stream<List<_i11.ConnectivityResult>>.empty(),
+  ) as _i3.Stream<List<_i11.ConnectivityResult>>);
 
   @override
-  _i3.Future<List<_i11.ConnectivityResult>> checkConnectivity() =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #checkConnectivity,
-          [],
-        ),
-        returnValue: _i3.Future<List<_i11.ConnectivityResult>>.value(
-            <_i11.ConnectivityResult>[]),
-      ) as _i3.Future<List<_i11.ConnectivityResult>>);
+  _i3.Future<List<_i11.ConnectivityResult>> checkConnectivity() => (super.noSuchMethod(
+    Invocation.method(#checkConnectivity, []),
+    returnValue: _i3.Future<List<_i11.ConnectivityResult>>.value(<_i11.ConnectivityResult>[]),
+  ) as _i3.Future<List<_i11.ConnectivityResult>>);
 }
 
 /// A class which mocks [SqliteService].
@@ -1058,188 +633,119 @@ class MockSqliteService extends _i1.Mock implements _i12.SqliteService {
 
   @override
   _i3.Future<_i2.Database> get database => (super.noSuchMethod(
-        Invocation.getter(#database),
-        returnValue: _i3.Future<_i2.Database>.value(_FakeDatabase_0(
-          this,
-          Invocation.getter(#database),
-        )),
-      ) as _i3.Future<_i2.Database>);
+    Invocation.getter(#database),
+    returnValue: _i3.Future<_i2.Database>.value(
+      _FakeDatabase_0(this, Invocation.getter(#database)),
+    ),
+  ) as _i3.Future<_i2.Database>);
 
   @override
-  _i3.Future<void> upsertProduct(Map<String, dynamic>? product) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #upsertProduct,
-          [product],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+  _i3.Future<void> upsertProduct(Map<String, dynamic>? product) => (super.noSuchMethod(
+    Invocation.method(#upsertProduct, [product]),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
-  _i3.Future<void> cacheProducts(List<Map<String, dynamic>>? products) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #cacheProducts,
-          [products],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+  _i3.Future<void> cacheProducts(List<Map<String, dynamic>>? products) => (super.noSuchMethod(
+    Invocation.method(#cacheProducts, [products]),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
-  _i3.Future<List<Map<String, dynamic>>> getCachedProducts() =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #getCachedProducts,
-          [],
-        ),
-        returnValue: _i3.Future<List<Map<String, dynamic>>>.value(
-            <Map<String, dynamic>>[]),
-      ) as _i3.Future<List<Map<String, dynamic>>>);
+  _i3.Future<List<Map<String, dynamic>>> getCachedProducts() => (super.noSuchMethod(
+    Invocation.method(#getCachedProducts, []),
+    returnValue: _i3.Future<List<Map<String, dynamic>>>.value(<Map<String, dynamic>>[]),
+  ) as _i3.Future<List<Map<String, dynamic>>>);
 
   @override
   _i3.Future<void> clearProductCache() => (super.noSuchMethod(
-        Invocation.method(
-          #clearProductCache,
-          [],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+    Invocation.method(#clearProductCache, []),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
-  _i3.Future<void> saveOrder(Map<String, dynamic>? order) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #saveOrder,
-          [order],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+  _i3.Future<void> saveOrder(Map<String, dynamic>? order) => (super.noSuchMethod(
+    Invocation.method(#saveOrder, [order]),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
-  _i3.Future<List<Map<String, dynamic>>> getUnsyncedOrders() =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #getUnsyncedOrders,
-          [],
-        ),
-        returnValue: _i3.Future<List<Map<String, dynamic>>>.value(
-            <Map<String, dynamic>>[]),
-      ) as _i3.Future<List<Map<String, dynamic>>>);
+  _i3.Future<List<Map<String, dynamic>>> getUnsyncedOrders() => (super.noSuchMethod(
+    Invocation.method(#getUnsyncedOrders, []),
+    returnValue: _i3.Future<List<Map<String, dynamic>>>.value(<Map<String, dynamic>>[]),
+  ) as _i3.Future<List<Map<String, dynamic>>>);
 
   @override
   _i3.Future<void> markOrderSynced(String? orderId) => (super.noSuchMethod(
-        Invocation.method(
-          #markOrderSynced,
-          [orderId],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+    Invocation.method(#markOrderSynced, [orderId]),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
   _i3.Future<void> deleteOrder(String? orderId) => (super.noSuchMethod(
-        Invocation.method(
-          #deleteOrder,
-          [orderId],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+    Invocation.method(#deleteOrder, [orderId]),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
-  _i3.Future<void> saveCartItem(Map<String, dynamic>? item) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #saveCartItem,
-          [item],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+  _i3.Future<void> saveCartItem(Map<String, dynamic>? item) => (super.noSuchMethod(
+    Invocation.method(#saveCartItem, [item]),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
   _i3.Future<List<Map<String, dynamic>>> getCartItems() => (super.noSuchMethod(
-        Invocation.method(
-          #getCartItems,
-          [],
-        ),
-        returnValue: _i3.Future<List<Map<String, dynamic>>>.value(
-            <Map<String, dynamic>>[]),
-      ) as _i3.Future<List<Map<String, dynamic>>>);
+    Invocation.method(#getCartItems, []),
+    returnValue: _i3.Future<List<Map<String, dynamic>>>.value(<Map<String, dynamic>>[]),
+  ) as _i3.Future<List<Map<String, dynamic>>>);
 
   @override
-  _i3.Future<void> updateCartItemQuantity(
-    String? itemId,
-    int? quantity,
-  ) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #updateCartItemQuantity,
-          [
-            itemId,
-            quantity,
-          ],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+  _i3.Future<void> updateCartItemQuantity(String? itemId, int? quantity) => (super.noSuchMethod(
+    Invocation.method(#updateCartItemQuantity, [itemId, quantity]),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
   _i3.Future<void> removeCartItem(String? itemId) => (super.noSuchMethod(
-        Invocation.method(
-          #removeCartItem,
-          [itemId],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+    Invocation.method(#removeCartItem, [itemId]),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
   _i3.Future<void> clearCart() => (super.noSuchMethod(
-        Invocation.method(
-          #clearCart,
-          [],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+    Invocation.method(#clearCart, []),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
-  _i3.Future<void> saveInventoryAction(Map<String, dynamic>? action) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #saveInventoryAction,
-          [action],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+  _i3.Future<void> saveInventoryAction(Map<String, dynamic>? action) => (super.noSuchMethod(
+    Invocation.method(#saveInventoryAction, [action]),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
-  _i3.Future<List<Map<String, dynamic>>> getUnsyncedInventoryActions() =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #getUnsyncedInventoryActions,
-          [],
-        ),
-        returnValue: _i3.Future<List<Map<String, dynamic>>>.value(
-            <Map<String, dynamic>>[]),
-      ) as _i3.Future<List<Map<String, dynamic>>>);
+  _i3.Future<List<Map<String, dynamic>>> getUnsyncedInventoryActions() => (super.noSuchMethod(
+    Invocation.method(#getUnsyncedInventoryActions, []),
+    returnValue: _i3.Future<List<Map<String, dynamic>>>.value(<Map<String, dynamic>>[]),
+  ) as _i3.Future<List<Map<String, dynamic>>>);
 
   @override
-  _i3.Future<void> markInventoryActionSynced(String? actionId) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #markInventoryActionSynced,
-          [actionId],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+  _i3.Future<void> markInventoryActionSynced(String? actionId) => (super.noSuchMethod(
+    Invocation.method(#markInventoryActionSynced, [actionId]),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
   _i3.Future<void> enqueuePendingSync({
@@ -1248,77 +754,50 @@ class MockSqliteService extends _i1.Mock implements _i12.SqliteService {
     required String? collection,
     required String? documentId,
     required Map<String, dynamic>? data,
-  }) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #enqueuePendingSync,
-          [],
-          {
-            #id: id,
-            #actionType: actionType,
-            #collection: collection,
-            #documentId: documentId,
-            #data: data,
-          },
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+  }) => (super.noSuchMethod(
+    Invocation.method(#enqueuePendingSync, [], {
+      #id: id,
+      #actionType: actionType,
+      #collection: collection,
+      #documentId: documentId,
+      #data: data,
+    }),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
-  _i3.Future<List<Map<String, dynamic>>> getPendingSyncItems() =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #getPendingSyncItems,
-          [],
-        ),
-        returnValue: _i3.Future<List<Map<String, dynamic>>>.value(
-            <Map<String, dynamic>>[]),
-      ) as _i3.Future<List<Map<String, dynamic>>>);
+  _i3.Future<List<Map<String, dynamic>>> getPendingSyncItems() => (super.noSuchMethod(
+    Invocation.method(#getPendingSyncItems, []),
+    returnValue: _i3.Future<List<Map<String, dynamic>>>.value(<Map<String, dynamic>>[]),
+  ) as _i3.Future<List<Map<String, dynamic>>>);
 
   @override
   _i3.Future<void> markSyncDone(String? syncId) => (super.noSuchMethod(
-        Invocation.method(
-          #markSyncDone,
-          [syncId],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+    Invocation.method(#markSyncDone, [syncId]),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
-  _i3.Future<void> markSyncFailed(
-    String? syncId, {
-    int? maxRetries = 5,
-  }) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #markSyncFailed,
-          [syncId],
-          {#maxRetries: maxRetries},
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+  _i3.Future<void> markSyncFailed(String? syncId, {int? maxRetries = 5}) => (super.noSuchMethod(
+    Invocation.method(#markSyncFailed, [syncId], {#maxRetries: maxRetries}),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
   _i3.Future<void> clearCompletedSyncItems() => (super.noSuchMethod(
-        Invocation.method(
-          #clearCompletedSyncItems,
-          [],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+    Invocation.method(#clearCompletedSyncItems, []),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
   _i3.Future<int> getPendingSyncCount() => (super.noSuchMethod(
-        Invocation.method(
-          #getPendingSyncCount,
-          [],
-        ),
-        returnValue: _i3.Future<int>.value(0),
-      ) as _i3.Future<int>);
+    Invocation.method(#getPendingSyncCount, []),
+    returnValue: _i3.Future<int>.value(0),
+  ) as _i3.Future<int>);
 
   @override
   _i3.Future<void> writeAuditLog({
@@ -1328,67 +807,45 @@ class MockSqliteService extends _i1.Mock implements _i12.SqliteService {
     String? entityId,
     String? userId,
     String? details,
-  }) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #writeAuditLog,
-          [],
-          {
-            #id: id,
-            #action: action,
-            #entityType: entityType,
-            #entityId: entityId,
-            #userId: userId,
-            #details: details,
-          },
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+  }) => (super.noSuchMethod(
+    Invocation.method(#writeAuditLog, [], {
+      #id: id,
+      #action: action,
+      #entityType: entityType,
+      #entityId: entityId,
+      #userId: userId,
+      #details: details,
+    }),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
-  _i3.Future<List<Map<String, dynamic>>> getAuditLogs({int? limit = 100}) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #getAuditLogs,
-          [],
-          {#limit: limit},
-        ),
-        returnValue: _i3.Future<List<Map<String, dynamic>>>.value(
-            <Map<String, dynamic>>[]),
-      ) as _i3.Future<List<Map<String, dynamic>>>);
+  _i3.Future<List<Map<String, dynamic>>> getAuditLogs({int? limit = 100}) => (super.noSuchMethod(
+    Invocation.method(#getAuditLogs, [], {#limit: limit}),
+    returnValue: _i3.Future<List<Map<String, dynamic>>>.value(<Map<String, dynamic>>[]),
+  ) as _i3.Future<List<Map<String, dynamic>>>);
 
   @override
-  _i3.Future<void> clearOldAuditLogs({int? keepDays = 30}) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #clearOldAuditLogs,
-          [],
-          {#keepDays: keepDays},
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+  _i3.Future<void> clearOldAuditLogs({int? keepDays = 30}) => (super.noSuchMethod(
+    Invocation.method(#clearOldAuditLogs, [], {#keepDays: keepDays}),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
   _i3.Future<void> close() => (super.noSuchMethod(
-        Invocation.method(
-          #close,
-          [],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+    Invocation.method(#close, []),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
   _i3.Future<void> clearAllData() => (super.noSuchMethod(
-        Invocation.method(
-          #clearAllData,
-          [],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+    Invocation.method(#clearAllData, []),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 }
 
 /// A class which mocks [CollectionReference].
@@ -1403,318 +860,178 @@ class MockCollectionReference extends _i1.Mock
 
   @override
   String get id => (super.noSuchMethod(
-        Invocation.getter(#id),
-        returnValue: _i7.dummyValue<String>(
-          this,
-          Invocation.getter(#id),
-        ),
-      ) as String);
+    Invocation.getter(#id),
+    returnValue: _i7.dummyValue<String>(this, Invocation.getter(#id)),
+  ) as String);
 
   @override
   String get path => (super.noSuchMethod(
-        Invocation.getter(#path),
-        returnValue: _i7.dummyValue<String>(
-          this,
-          Invocation.getter(#path),
-        ),
-      ) as String);
+    Invocation.getter(#path),
+    returnValue: _i7.dummyValue<String>(this, Invocation.getter(#path)),
+  ) as String);
 
   @override
   _i6.FirebaseFirestore get firestore => (super.noSuchMethod(
-        Invocation.getter(#firestore),
-        returnValue: _FakeFirebaseFirestore_13(
-          this,
-          Invocation.getter(#firestore),
-        ),
-      ) as _i6.FirebaseFirestore);
+    Invocation.getter(#firestore),
+    returnValue: _FakeFirebaseFirestore_13(this, Invocation.getter(#firestore)),
+  ) as _i6.FirebaseFirestore);
 
   @override
-  Map<String, dynamic> get parameters => (super.noSuchMethod(
-        Invocation.getter(#parameters),
-        returnValue: <String, dynamic>{},
-      ) as Map<String, dynamic>);
+  Map<String, dynamic> get parameters =>
+      (super.noSuchMethod(Invocation.getter(#parameters), returnValue: <String, dynamic>{})
+          as Map<String, dynamic>);
 
   @override
-  _i3.Future<_i6.DocumentReference<Map<String, dynamic>>> add(
-          Map<String, dynamic>? data) =>
+  _i3.Future<_i6.DocumentReference<Map<String, dynamic>>> add(Map<String, dynamic>? data) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #add,
-          [data],
+        Invocation.method(#add, [data]),
+        returnValue: _i3.Future<_i6.DocumentReference<Map<String, dynamic>>>.value(
+          _FakeDocumentReference_11<Map<String, dynamic>>(this, Invocation.method(#add, [data])),
         ),
-        returnValue:
-            _i3.Future<_i6.DocumentReference<Map<String, dynamic>>>.value(
-                _FakeDocumentReference_11<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #add,
-            [data],
-          ),
-        )),
       ) as _i3.Future<_i6.DocumentReference<Map<String, dynamic>>>);
 
   @override
-  _i6.DocumentReference<Map<String, dynamic>> doc([String? path]) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #doc,
-          [path],
-        ),
-        returnValue: _FakeDocumentReference_11<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #doc,
-            [path],
-          ),
-        ),
-      ) as _i6.DocumentReference<Map<String, dynamic>>);
+  _i6.DocumentReference<Map<String, dynamic>> doc([String? path]) => (super.noSuchMethod(
+    Invocation.method(#doc, [path]),
+    returnValue: _FakeDocumentReference_11<Map<String, dynamic>>(
+      this,
+      Invocation.method(#doc, [path]),
+    ),
+  ) as _i6.DocumentReference<Map<String, dynamic>>);
 
   @override
   _i6.CollectionReference<R> withConverter<R extends Object?>({
     required _i6.FromFirestore<R>? fromFirestore,
     required _i6.ToFirestore<R>? toFirestore,
-  }) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #withConverter,
-          [],
-          {
-            #fromFirestore: fromFirestore,
-            #toFirestore: toFirestore,
-          },
-        ),
-        returnValue: _FakeCollectionReference_6<R>(
-          this,
-          Invocation.method(
-            #withConverter,
-            [],
-            {
-              #fromFirestore: fromFirestore,
-              #toFirestore: toFirestore,
-            },
-          ),
-        ),
-      ) as _i6.CollectionReference<R>);
+  }) => (super.noSuchMethod(
+    Invocation.method(#withConverter, [], {
+      #fromFirestore: fromFirestore,
+      #toFirestore: toFirestore,
+    }),
+    returnValue: _FakeCollectionReference_6<R>(
+      this,
+      Invocation.method(#withConverter, [], {
+        #fromFirestore: fromFirestore,
+        #toFirestore: toFirestore,
+      }),
+    ),
+  ) as _i6.CollectionReference<R>);
 
   @override
-  _i6.Query<Map<String, dynamic>> endAtDocument(
-          _i6.DocumentSnapshot<Object?>? documentSnapshot) =>
+  _i6.Query<Map<String, dynamic>> endAtDocument(_i6.DocumentSnapshot<Object?>? documentSnapshot) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #endAtDocument,
-          [documentSnapshot],
-        ),
+        Invocation.method(#endAtDocument, [documentSnapshot]),
         returnValue: _FakeQuery_10<Map<String, dynamic>>(
           this,
-          Invocation.method(
-            #endAtDocument,
-            [documentSnapshot],
-          ),
+          Invocation.method(#endAtDocument, [documentSnapshot]),
         ),
       ) as _i6.Query<Map<String, dynamic>>);
 
   @override
-  _i6.Query<Map<String, dynamic>> endAt(Iterable<Object?>? values) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #endAt,
-          [values],
-        ),
-        returnValue: _FakeQuery_10<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #endAt,
-            [values],
-          ),
-        ),
-      ) as _i6.Query<Map<String, dynamic>>);
+  _i6.Query<Map<String, dynamic>> endAt(Iterable<Object?>? values) => (super.noSuchMethod(
+    Invocation.method(#endAt, [values]),
+    returnValue: _FakeQuery_10<Map<String, dynamic>>(this, Invocation.method(#endAt, [values])),
+  ) as _i6.Query<Map<String, dynamic>>);
 
   @override
   _i6.Query<Map<String, dynamic>> endBeforeDocument(
-          _i6.DocumentSnapshot<Object?>? documentSnapshot) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #endBeforeDocument,
-          [documentSnapshot],
-        ),
-        returnValue: _FakeQuery_10<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #endBeforeDocument,
-            [documentSnapshot],
-          ),
-        ),
-      ) as _i6.Query<Map<String, dynamic>>);
+    _i6.DocumentSnapshot<Object?>? documentSnapshot,
+  ) => (super.noSuchMethod(
+    Invocation.method(#endBeforeDocument, [documentSnapshot]),
+    returnValue: _FakeQuery_10<Map<String, dynamic>>(
+      this,
+      Invocation.method(#endBeforeDocument, [documentSnapshot]),
+    ),
+  ) as _i6.Query<Map<String, dynamic>>);
 
   @override
-  _i6.Query<Map<String, dynamic>> endBefore(Iterable<Object?>? values) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #endBefore,
-          [values],
-        ),
-        returnValue: _FakeQuery_10<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #endBefore,
-            [values],
-          ),
-        ),
-      ) as _i6.Query<Map<String, dynamic>>);
+  _i6.Query<Map<String, dynamic>> endBefore(Iterable<Object?>? values) => (super.noSuchMethod(
+    Invocation.method(#endBefore, [values]),
+    returnValue: _FakeQuery_10<Map<String, dynamic>>(this, Invocation.method(#endBefore, [values])),
+  ) as _i6.Query<Map<String, dynamic>>);
 
   @override
-  _i3.Future<_i6.QuerySnapshot<Map<String, dynamic>>> get(
-          [_i5.GetOptions? options]) =>
+  _i3.Future<_i6.QuerySnapshot<Map<String, dynamic>>> get([_i5.GetOptions? options]) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #get,
-          [options],
-        ),
+        Invocation.method(#get, [options]),
         returnValue: _i3.Future<_i6.QuerySnapshot<Map<String, dynamic>>>.value(
-            _FakeQuerySnapshot_9<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #get,
-            [options],
-          ),
-        )),
+          _FakeQuerySnapshot_9<Map<String, dynamic>>(this, Invocation.method(#get, [options])),
+        ),
       ) as _i3.Future<_i6.QuerySnapshot<Map<String, dynamic>>>);
 
   @override
   _i6.Query<Map<String, dynamic>> limit(int? limit) => (super.noSuchMethod(
-        Invocation.method(
-          #limit,
-          [limit],
-        ),
-        returnValue: _FakeQuery_10<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #limit,
-            [limit],
-          ),
-        ),
-      ) as _i6.Query<Map<String, dynamic>>);
+    Invocation.method(#limit, [limit]),
+    returnValue: _FakeQuery_10<Map<String, dynamic>>(this, Invocation.method(#limit, [limit])),
+  ) as _i6.Query<Map<String, dynamic>>);
 
   @override
-  _i6.Query<Map<String, dynamic>> limitToLast(int? limit) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #limitToLast,
-          [limit],
-        ),
-        returnValue: _FakeQuery_10<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #limitToLast,
-            [limit],
-          ),
-        ),
-      ) as _i6.Query<Map<String, dynamic>>);
+  _i6.Query<Map<String, dynamic>> limitToLast(int? limit) => (super.noSuchMethod(
+    Invocation.method(#limitToLast, [limit]),
+    returnValue: _FakeQuery_10<Map<String, dynamic>>(
+      this,
+      Invocation.method(#limitToLast, [limit]),
+    ),
+  ) as _i6.Query<Map<String, dynamic>>);
 
   @override
   _i3.Stream<_i6.QuerySnapshot<Map<String, dynamic>>> snapshots({
     bool? includeMetadataChanges = false,
     _i5.ListenSource? source = _i5.ListenSource.defaultSource,
-  }) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #snapshots,
-          [],
-          {
-            #includeMetadataChanges: includeMetadataChanges,
-            #source: source,
-          },
-        ),
-        returnValue:
-            _i3.Stream<_i6.QuerySnapshot<Map<String, dynamic>>>.empty(),
-      ) as _i3.Stream<_i6.QuerySnapshot<Map<String, dynamic>>>);
+  }) => (super.noSuchMethod(
+    Invocation.method(#snapshots, [], {
+      #includeMetadataChanges: includeMetadataChanges,
+      #source: source,
+    }),
+    returnValue: _i3.Stream<_i6.QuerySnapshot<Map<String, dynamic>>>.empty(),
+  ) as _i3.Stream<_i6.QuerySnapshot<Map<String, dynamic>>>);
 
   @override
-  _i6.Query<Map<String, dynamic>> orderBy(
-    Object? field, {
-    bool? descending = false,
-  }) =>
+  _i6.Query<Map<String, dynamic>> orderBy(Object? field, {bool? descending = false}) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #orderBy,
-          [field],
-          {#descending: descending},
-        ),
+        Invocation.method(#orderBy, [field], {#descending: descending}),
         returnValue: _FakeQuery_10<Map<String, dynamic>>(
           this,
-          Invocation.method(
-            #orderBy,
-            [field],
-            {#descending: descending},
-          ),
+          Invocation.method(#orderBy, [field], {#descending: descending}),
         ),
       ) as _i6.Query<Map<String, dynamic>>);
 
   @override
   _i6.Query<Map<String, dynamic>> startAfterDocument(
-          _i6.DocumentSnapshot<Object?>? documentSnapshot) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #startAfterDocument,
-          [documentSnapshot],
-        ),
-        returnValue: _FakeQuery_10<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #startAfterDocument,
-            [documentSnapshot],
-          ),
-        ),
-      ) as _i6.Query<Map<String, dynamic>>);
+    _i6.DocumentSnapshot<Object?>? documentSnapshot,
+  ) => (super.noSuchMethod(
+    Invocation.method(#startAfterDocument, [documentSnapshot]),
+    returnValue: _FakeQuery_10<Map<String, dynamic>>(
+      this,
+      Invocation.method(#startAfterDocument, [documentSnapshot]),
+    ),
+  ) as _i6.Query<Map<String, dynamic>>);
 
   @override
-  _i6.Query<Map<String, dynamic>> startAfter(Iterable<Object?>? values) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #startAfter,
-          [values],
-        ),
-        returnValue: _FakeQuery_10<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #startAfter,
-            [values],
-          ),
-        ),
-      ) as _i6.Query<Map<String, dynamic>>);
+  _i6.Query<Map<String, dynamic>> startAfter(Iterable<Object?>? values) => (super.noSuchMethod(
+    Invocation.method(#startAfter, [values]),
+    returnValue: _FakeQuery_10<Map<String, dynamic>>(
+      this,
+      Invocation.method(#startAfter, [values]),
+    ),
+  ) as _i6.Query<Map<String, dynamic>>);
 
   @override
   _i6.Query<Map<String, dynamic>> startAtDocument(
-          _i6.DocumentSnapshot<Object?>? documentSnapshot) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #startAtDocument,
-          [documentSnapshot],
-        ),
-        returnValue: _FakeQuery_10<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #startAtDocument,
-            [documentSnapshot],
-          ),
-        ),
-      ) as _i6.Query<Map<String, dynamic>>);
+    _i6.DocumentSnapshot<Object?>? documentSnapshot,
+  ) => (super.noSuchMethod(
+    Invocation.method(#startAtDocument, [documentSnapshot]),
+    returnValue: _FakeQuery_10<Map<String, dynamic>>(
+      this,
+      Invocation.method(#startAtDocument, [documentSnapshot]),
+    ),
+  ) as _i6.Query<Map<String, dynamic>>);
 
   @override
-  _i6.Query<Map<String, dynamic>> startAt(Iterable<Object?>? values) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #startAt,
-          [values],
-        ),
-        returnValue: _FakeQuery_10<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #startAt,
-            [values],
-          ),
-        ),
-      ) as _i6.Query<Map<String, dynamic>>);
+  _i6.Query<Map<String, dynamic>> startAt(Iterable<Object?>? values) => (super.noSuchMethod(
+    Invocation.method(#startAt, [values]),
+    returnValue: _FakeQuery_10<Map<String, dynamic>>(this, Invocation.method(#startAt, [values])),
+  ) as _i6.Query<Map<String, dynamic>>);
 
   @override
   _i6.Query<Map<String, dynamic>> where(
@@ -1730,61 +1047,51 @@ class MockCollectionReference extends _i1.Mock
     Iterable<Object?>? whereIn,
     Iterable<Object?>? whereNotIn,
     bool? isNull,
-  }) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #where,
-          [field],
-          {
-            #isEqualTo: isEqualTo,
-            #isNotEqualTo: isNotEqualTo,
-            #isLessThan: isLessThan,
-            #isLessThanOrEqualTo: isLessThanOrEqualTo,
-            #isGreaterThan: isGreaterThan,
-            #isGreaterThanOrEqualTo: isGreaterThanOrEqualTo,
-            #arrayContains: arrayContains,
-            #arrayContainsAny: arrayContainsAny,
-            #whereIn: whereIn,
-            #whereNotIn: whereNotIn,
-            #isNull: isNull,
-          },
-        ),
-        returnValue: _FakeQuery_10<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #where,
-            [field],
-            {
-              #isEqualTo: isEqualTo,
-              #isNotEqualTo: isNotEqualTo,
-              #isLessThan: isLessThan,
-              #isLessThanOrEqualTo: isLessThanOrEqualTo,
-              #isGreaterThan: isGreaterThan,
-              #isGreaterThanOrEqualTo: isGreaterThanOrEqualTo,
-              #arrayContains: arrayContains,
-              #arrayContainsAny: arrayContainsAny,
-              #whereIn: whereIn,
-              #whereNotIn: whereNotIn,
-              #isNull: isNull,
-            },
-          ),
-        ),
-      ) as _i6.Query<Map<String, dynamic>>);
+  }) => (super.noSuchMethod(
+    Invocation.method(
+      #where,
+      [field],
+      {
+        #isEqualTo: isEqualTo,
+        #isNotEqualTo: isNotEqualTo,
+        #isLessThan: isLessThan,
+        #isLessThanOrEqualTo: isLessThanOrEqualTo,
+        #isGreaterThan: isGreaterThan,
+        #isGreaterThanOrEqualTo: isGreaterThanOrEqualTo,
+        #arrayContains: arrayContains,
+        #arrayContainsAny: arrayContainsAny,
+        #whereIn: whereIn,
+        #whereNotIn: whereNotIn,
+        #isNull: isNull,
+      },
+    ),
+    returnValue: _FakeQuery_10<Map<String, dynamic>>(
+      this,
+      Invocation.method(
+        #where,
+        [field],
+        {
+          #isEqualTo: isEqualTo,
+          #isNotEqualTo: isNotEqualTo,
+          #isLessThan: isLessThan,
+          #isLessThanOrEqualTo: isLessThanOrEqualTo,
+          #isGreaterThan: isGreaterThan,
+          #isGreaterThanOrEqualTo: isGreaterThanOrEqualTo,
+          #arrayContains: arrayContains,
+          #arrayContainsAny: arrayContainsAny,
+          #whereIn: whereIn,
+          #whereNotIn: whereNotIn,
+          #isNull: isNull,
+        },
+      ),
+    ),
+  ) as _i6.Query<Map<String, dynamic>>);
 
   @override
   _i6.AggregateQuery count() => (super.noSuchMethod(
-        Invocation.method(
-          #count,
-          [],
-        ),
-        returnValue: _FakeAggregateQuery_14(
-          this,
-          Invocation.method(
-            #count,
-            [],
-          ),
-        ),
-      ) as _i6.AggregateQuery);
+    Invocation.method(#count, []),
+    returnValue: _FakeAggregateQuery_14(this, Invocation.method(#count, [])),
+  ) as _i6.AggregateQuery);
 
   @override
   _i6.AggregateQuery aggregate(
@@ -1818,82 +1125,75 @@ class MockCollectionReference extends _i1.Mock
     _i5.AggregateField? aggregateField28,
     _i5.AggregateField? aggregateField29,
     _i5.AggregateField? aggregateField30,
-  ]) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #aggregate,
-          [
-            aggregateField1,
-            aggregateField2,
-            aggregateField3,
-            aggregateField4,
-            aggregateField5,
-            aggregateField6,
-            aggregateField7,
-            aggregateField8,
-            aggregateField9,
-            aggregateField10,
-            aggregateField11,
-            aggregateField12,
-            aggregateField13,
-            aggregateField14,
-            aggregateField15,
-            aggregateField16,
-            aggregateField17,
-            aggregateField18,
-            aggregateField19,
-            aggregateField20,
-            aggregateField21,
-            aggregateField22,
-            aggregateField23,
-            aggregateField24,
-            aggregateField25,
-            aggregateField26,
-            aggregateField27,
-            aggregateField28,
-            aggregateField29,
-            aggregateField30,
-          ],
-        ),
-        returnValue: _FakeAggregateQuery_14(
-          this,
-          Invocation.method(
-            #aggregate,
-            [
-              aggregateField1,
-              aggregateField2,
-              aggregateField3,
-              aggregateField4,
-              aggregateField5,
-              aggregateField6,
-              aggregateField7,
-              aggregateField8,
-              aggregateField9,
-              aggregateField10,
-              aggregateField11,
-              aggregateField12,
-              aggregateField13,
-              aggregateField14,
-              aggregateField15,
-              aggregateField16,
-              aggregateField17,
-              aggregateField18,
-              aggregateField19,
-              aggregateField20,
-              aggregateField21,
-              aggregateField22,
-              aggregateField23,
-              aggregateField24,
-              aggregateField25,
-              aggregateField26,
-              aggregateField27,
-              aggregateField28,
-              aggregateField29,
-              aggregateField30,
-            ],
-          ),
-        ),
-      ) as _i6.AggregateQuery);
+  ]) => (super.noSuchMethod(
+    Invocation.method(#aggregate, [
+      aggregateField1,
+      aggregateField2,
+      aggregateField3,
+      aggregateField4,
+      aggregateField5,
+      aggregateField6,
+      aggregateField7,
+      aggregateField8,
+      aggregateField9,
+      aggregateField10,
+      aggregateField11,
+      aggregateField12,
+      aggregateField13,
+      aggregateField14,
+      aggregateField15,
+      aggregateField16,
+      aggregateField17,
+      aggregateField18,
+      aggregateField19,
+      aggregateField20,
+      aggregateField21,
+      aggregateField22,
+      aggregateField23,
+      aggregateField24,
+      aggregateField25,
+      aggregateField26,
+      aggregateField27,
+      aggregateField28,
+      aggregateField29,
+      aggregateField30,
+    ]),
+    returnValue: _FakeAggregateQuery_14(
+      this,
+      Invocation.method(#aggregate, [
+        aggregateField1,
+        aggregateField2,
+        aggregateField3,
+        aggregateField4,
+        aggregateField5,
+        aggregateField6,
+        aggregateField7,
+        aggregateField8,
+        aggregateField9,
+        aggregateField10,
+        aggregateField11,
+        aggregateField12,
+        aggregateField13,
+        aggregateField14,
+        aggregateField15,
+        aggregateField16,
+        aggregateField17,
+        aggregateField18,
+        aggregateField19,
+        aggregateField20,
+        aggregateField21,
+        aggregateField22,
+        aggregateField23,
+        aggregateField24,
+        aggregateField25,
+        aggregateField26,
+        aggregateField27,
+        aggregateField28,
+        aggregateField29,
+        aggregateField30,
+      ]),
+    ),
+  ) as _i6.AggregateQuery);
 }
 
 /// A class which mocks [DocumentReference].
@@ -1908,128 +1208,77 @@ class MockDocumentReference extends _i1.Mock
 
   @override
   _i6.FirebaseFirestore get firestore => (super.noSuchMethod(
-        Invocation.getter(#firestore),
-        returnValue: _FakeFirebaseFirestore_13(
-          this,
-          Invocation.getter(#firestore),
-        ),
-      ) as _i6.FirebaseFirestore);
+    Invocation.getter(#firestore),
+    returnValue: _FakeFirebaseFirestore_13(this, Invocation.getter(#firestore)),
+  ) as _i6.FirebaseFirestore);
 
   @override
   String get id => (super.noSuchMethod(
-        Invocation.getter(#id),
-        returnValue: _i7.dummyValue<String>(
-          this,
-          Invocation.getter(#id),
-        ),
-      ) as String);
+    Invocation.getter(#id),
+    returnValue: _i7.dummyValue<String>(this, Invocation.getter(#id)),
+  ) as String);
 
   @override
-  _i6.CollectionReference<Map<String, dynamic>> get parent =>
-      (super.noSuchMethod(
-        Invocation.getter(#parent),
-        returnValue: _FakeCollectionReference_6<Map<String, dynamic>>(
-          this,
-          Invocation.getter(#parent),
-        ),
-      ) as _i6.CollectionReference<Map<String, dynamic>>);
+  _i6.CollectionReference<Map<String, dynamic>> get parent => (super.noSuchMethod(
+    Invocation.getter(#parent),
+    returnValue: _FakeCollectionReference_6<Map<String, dynamic>>(this, Invocation.getter(#parent)),
+  ) as _i6.CollectionReference<Map<String, dynamic>>);
 
   @override
   String get path => (super.noSuchMethod(
-        Invocation.getter(#path),
-        returnValue: _i7.dummyValue<String>(
-          this,
-          Invocation.getter(#path),
-        ),
-      ) as String);
+    Invocation.getter(#path),
+    returnValue: _i7.dummyValue<String>(this, Invocation.getter(#path)),
+  ) as String);
 
   @override
-  _i6.CollectionReference<Map<String, dynamic>> collection(
-          String? collectionPath) =>
+  _i6.CollectionReference<Map<String, dynamic>> collection(String? collectionPath) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #collection,
-          [collectionPath],
-        ),
+        Invocation.method(#collection, [collectionPath]),
         returnValue: _FakeCollectionReference_6<Map<String, dynamic>>(
           this,
-          Invocation.method(
-            #collection,
-            [collectionPath],
-          ),
+          Invocation.method(#collection, [collectionPath]),
         ),
       ) as _i6.CollectionReference<Map<String, dynamic>>);
 
   @override
   _i3.Future<void> delete() => (super.noSuchMethod(
-        Invocation.method(
-          #delete,
-          [],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+    Invocation.method(#delete, []),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
   _i3.Future<void> update(Map<Object, Object?>? data) => (super.noSuchMethod(
-        Invocation.method(
-          #update,
-          [data],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+    Invocation.method(#update, [data]),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
-  _i3.Future<_i6.DocumentSnapshot<Map<String, dynamic>>> get(
-          [_i5.GetOptions? options]) =>
+  _i3.Future<_i6.DocumentSnapshot<Map<String, dynamic>>> get([_i5.GetOptions? options]) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #get,
-          [options],
+        Invocation.method(#get, [options]),
+        returnValue: _i3.Future<_i6.DocumentSnapshot<Map<String, dynamic>>>.value(
+          _FakeDocumentSnapshot_15<Map<String, dynamic>>(this, Invocation.method(#get, [options])),
         ),
-        returnValue:
-            _i3.Future<_i6.DocumentSnapshot<Map<String, dynamic>>>.value(
-                _FakeDocumentSnapshot_15<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #get,
-            [options],
-          ),
-        )),
       ) as _i3.Future<_i6.DocumentSnapshot<Map<String, dynamic>>>);
 
   @override
   _i3.Stream<_i6.DocumentSnapshot<Map<String, dynamic>>> snapshots({
     bool? includeMetadataChanges = false,
     _i5.ListenSource? source = _i5.ListenSource.defaultSource,
-  }) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #snapshots,
-          [],
-          {
-            #includeMetadataChanges: includeMetadataChanges,
-            #source: source,
-          },
-        ),
-        returnValue:
-            _i3.Stream<_i6.DocumentSnapshot<Map<String, dynamic>>>.empty(),
-      ) as _i3.Stream<_i6.DocumentSnapshot<Map<String, dynamic>>>);
+  }) => (super.noSuchMethod(
+    Invocation.method(#snapshots, [], {
+      #includeMetadataChanges: includeMetadataChanges,
+      #source: source,
+    }),
+    returnValue: _i3.Stream<_i6.DocumentSnapshot<Map<String, dynamic>>>.empty(),
+  ) as _i3.Stream<_i6.DocumentSnapshot<Map<String, dynamic>>>);
 
   @override
-  _i3.Future<void> set(
-    Map<String, dynamic>? data, [
-    _i5.SetOptions? options,
-  ]) =>
+  _i3.Future<void> set(Map<String, dynamic>? data, [_i5.SetOptions? options]) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #set,
-          [
-            data,
-            options,
-          ],
-        ),
+        Invocation.method(#set, [data, options]),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
@@ -2038,82 +1287,56 @@ class MockDocumentReference extends _i1.Mock
   _i6.DocumentReference<R> withConverter<R>({
     required _i6.FromFirestore<R>? fromFirestore,
     required _i6.ToFirestore<R>? toFirestore,
-  }) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #withConverter,
-          [],
-          {
-            #fromFirestore: fromFirestore,
-            #toFirestore: toFirestore,
-          },
-        ),
-        returnValue: _FakeDocumentReference_11<R>(
-          this,
-          Invocation.method(
-            #withConverter,
-            [],
-            {
-              #fromFirestore: fromFirestore,
-              #toFirestore: toFirestore,
-            },
-          ),
-        ),
-      ) as _i6.DocumentReference<R>);
+  }) => (super.noSuchMethod(
+    Invocation.method(#withConverter, [], {
+      #fromFirestore: fromFirestore,
+      #toFirestore: toFirestore,
+    }),
+    returnValue: _FakeDocumentReference_11<R>(
+      this,
+      Invocation.method(#withConverter, [], {
+        #fromFirestore: fromFirestore,
+        #toFirestore: toFirestore,
+      }),
+    ),
+  ) as _i6.DocumentReference<R>);
 }
 
 /// A class which mocks [DocumentSnapshot].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockDocumentSnapshot extends _i1.Mock
-    implements _i6.DocumentSnapshot<Map<String, dynamic>> {
+class MockDocumentSnapshot extends _i1.Mock implements _i6.DocumentSnapshot<Map<String, dynamic>> {
   MockDocumentSnapshot() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
   String get id => (super.noSuchMethod(
-        Invocation.getter(#id),
-        returnValue: _i7.dummyValue<String>(
-          this,
-          Invocation.getter(#id),
-        ),
-      ) as String);
+    Invocation.getter(#id),
+    returnValue: _i7.dummyValue<String>(this, Invocation.getter(#id)),
+  ) as String);
 
   @override
-  _i6.DocumentReference<Map<String, dynamic>> get reference =>
-      (super.noSuchMethod(
-        Invocation.getter(#reference),
-        returnValue: _FakeDocumentReference_11<Map<String, dynamic>>(
-          this,
-          Invocation.getter(#reference),
-        ),
-      ) as _i6.DocumentReference<Map<String, dynamic>>);
+  _i6.DocumentReference<Map<String, dynamic>> get reference => (super.noSuchMethod(
+    Invocation.getter(#reference),
+    returnValue: _FakeDocumentReference_11<Map<String, dynamic>>(
+      this,
+      Invocation.getter(#reference),
+    ),
+  ) as _i6.DocumentReference<Map<String, dynamic>>);
 
   @override
   _i6.SnapshotMetadata get metadata => (super.noSuchMethod(
-        Invocation.getter(#metadata),
-        returnValue: _FakeSnapshotMetadata_16(
-          this,
-          Invocation.getter(#metadata),
-        ),
-      ) as _i6.SnapshotMetadata);
+    Invocation.getter(#metadata),
+    returnValue: _FakeSnapshotMetadata_16(this, Invocation.getter(#metadata)),
+  ) as _i6.SnapshotMetadata);
 
   @override
-  bool get exists => (super.noSuchMethod(
-        Invocation.getter(#exists),
-        returnValue: false,
-      ) as bool);
+  bool get exists => (super.noSuchMethod(Invocation.getter(#exists), returnValue: false) as bool);
 
   @override
-  dynamic get(Object? field) => super.noSuchMethod(Invocation.method(
-        #get,
-        [field],
-      ));
+  dynamic get(Object? field) => super.noSuchMethod(Invocation.method(#get, [field]));
 
   @override
-  dynamic operator [](Object? field) => super.noSuchMethod(Invocation.method(
-        #[],
-        [field],
-      ));
+  dynamic operator [](Object? field) => super.noSuchMethod(Invocation.method(#[], [field]));
 }

@@ -22,10 +22,7 @@ void main() {
       });
 
       test('✅ UPI payment webhook marks order as confirmed', () {
-        final payload = {
-          'upi_transaction_id': 'upi_XYZ789',
-          'order_id': 'order_789',
-        };
+        final payload = {'upi_transaction_id': 'upi_XYZ789', 'order_id': 'order_789'};
 
         expect(payload['upi_transaction_id'], isNotEmpty);
       });

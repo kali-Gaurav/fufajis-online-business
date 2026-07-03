@@ -13,9 +13,7 @@ class GuestProfileScreen extends StatelessWidget {
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            gradient: AppTheme.primaryGradient,
-          ),
+          decoration: BoxDecoration(gradient: AppTheme.primaryGradient),
           child: Column(
             children: [
               const SizedBox(height: 40),
@@ -27,35 +25,24 @@ class GuestProfileScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(40),
                   border: Border.all(color: Colors.white, width: 3),
                 ),
-                child: const Icon(
-                  Icons.person_outline,
-                  size: 40,
-                  color: Color(0xFFFF5722),
-                ),
+                child: const Icon(Icons.person_outline, size: 40, color: Color(0xFFFF5722)),
               ),
               const SizedBox(height: 16),
               const Text(
                 'Welcome, Guest',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
               ),
               const SizedBox(height: 8),
               const Text(
                 'Login to manage your orders, wallet, and get rewards.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.white70,
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.white70),
               ),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () {
-                  // Navigate to checkout where auth will be asked, or show auth sheet directly. 
-                  // Since there's no auth sheet globally yet, let's just go to login for now from profile, 
+                  // Navigate to checkout where auth will be asked, or show auth sheet directly.
+                  // Since there's no auth sheet globally yet, let's just go to login for now from profile,
                   // or show OTP screen directly. We can go to /login.
                   context.push('/login');
                 },
@@ -63,9 +50,7 @@ class GuestProfileScreen extends StatelessWidget {
                   backgroundColor: AppTheme.cream,
                   foregroundColor: const Color(0xFFFF5722),
                   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                 ),
                 child: const Text('Login / Sign Up', style: TextStyle(fontWeight: FontWeight.bold)),
               ),
@@ -114,7 +99,9 @@ class GuestProfileScreen extends StatelessWidget {
                 icon: Icons.info_outline,
                 title: 'About App',
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Viewing Policy...')));
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('Viewing Policy...')));
                 },
               ),
             ],
@@ -124,7 +111,12 @@ class GuestProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildGuestMenuItem(BuildContext context, {required IconData icon, required String title, required VoidCallback onTap}) {
+  Widget _buildGuestMenuItem(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
     return ListTile(
       onTap: onTap,
       shape: RoundedRectangleBorder(
@@ -133,19 +125,12 @@ class GuestProfileScreen extends StatelessWidget {
       ),
       leading: Container(
         padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: AppTheme.grey100,
-          borderRadius: BorderRadius.circular(8),
-        ),
+        decoration: BoxDecoration(color: AppTheme.grey100, borderRadius: BorderRadius.circular(8)),
         child: Icon(icon, color: AppTheme.grey600, size: 22),
       ),
       title: Text(
         title,
-        style: const TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.w500,
-          color: AppTheme.grey900,
-        ),
+        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.grey900),
       ),
       trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.grey400),
     );

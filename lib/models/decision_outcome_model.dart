@@ -3,11 +3,11 @@ class DecisionOutcomeModel {
   final String recommendationId; // Link to AiRecommendation
   final String decisionRole; // Who made the decision
   final DateTime decidedAt;
-  
+
   // Execution
   final String executionStatus; // pending, executed, failed
   final DateTime? executedAt;
-  
+
   // Outcome
   final String measuredOutcome; // e.g., 'Stockout Avoided'
   final double businessValueImpact; // e.g., Revenue saved

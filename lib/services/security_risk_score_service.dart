@@ -17,7 +17,7 @@ class SecurityRiskScoreService {
   /// 100 is perfectly secure. Lower score means higher risk.
   Future<int> calculateSystemRiskScore({int hours = 24}) async {
     final since = DateTime.now().subtract(Duration(hours: hours));
-    
+
     try {
       final snap = await _db
           .collection('security_events')
@@ -29,14 +29,15 @@ class SecurityRiskScoreService {
       for (var doc in snap.docs) {
         final data = doc.data();
         final eventName = data['event'] as String?;
-        
+
         if (eventName == SecurityEventType.failedLogin.name) penalty += PENALTY_FAILED_LOGIN;
         if (eventName == SecurityEventType.failedPin.name) penalty += PENALTY_FAILED_PIN;
         if (eventName == SecurityEventType.pinLockout.name) penalty += PENALTY_PIN_LOCKOUT;
         if (eventName == SecurityEventType.newDevice.name) penalty += PENALTY_NEW_DEVICE;
         if (eventName == SecurityEventType.rootDetected.name) penalty += PENALTY_ROOT_DETECTED;
         if (eventName == SecurityEventType.sessionRevoked.name) penalty += PENALTY_SESSION_REVOKED;
-        if (eventName == SecurityEventType.reauthenticationFailed.name) penalty += PENALTY_REAUTH_FAILED;
+        if (eventName == SecurityEventType.reauthenticationFailed.name)
+          penalty += PENALTY_REAUTH_FAILED;
         if (eventName == SecurityEventType.otpFailure.name) penalty += PENALTY_FAILED_LOGIN;
         if (eventName == SecurityEventType.otpLockout.name) penalty += PENALTY_PIN_LOCKOUT;
       }
@@ -45,14 +46,14 @@ class SecurityRiskScoreService {
       return score < 0 ? 0 : score;
     } catch (e) {
       // Fallback
-      return 100; 
+      return 100;
     }
   }
 
   /// Calculates a user-specific risk score
   Future<int> calculateUserRiskScore(String userId, {int hours = 24}) async {
     final since = DateTime.now().subtract(Duration(hours: hours));
-    
+
     try {
       final snap = await _db
           .collection('security_events')
@@ -65,14 +66,15 @@ class SecurityRiskScoreService {
       for (var doc in snap.docs) {
         final data = doc.data();
         final eventName = data['event'] as String?;
-        
+
         if (eventName == SecurityEventType.failedLogin.name) penalty += PENALTY_FAILED_LOGIN;
         if (eventName == SecurityEventType.failedPin.name) penalty += PENALTY_FAILED_PIN;
         if (eventName == SecurityEventType.pinLockout.name) penalty += PENALTY_PIN_LOCKOUT;
         if (eventName == SecurityEventType.newDevice.name) penalty += PENALTY_NEW_DEVICE;
         if (eventName == SecurityEventType.rootDetected.name) penalty += PENALTY_ROOT_DETECTED;
         if (eventName == SecurityEventType.sessionRevoked.name) penalty += PENALTY_SESSION_REVOKED;
-        if (eventName == SecurityEventType.reauthenticationFailed.name) penalty += PENALTY_REAUTH_FAILED;
+        if (eventName == SecurityEventType.reauthenticationFailed.name)
+          penalty += PENALTY_REAUTH_FAILED;
       }
 
       int score = BASE_SCORE - penalty;

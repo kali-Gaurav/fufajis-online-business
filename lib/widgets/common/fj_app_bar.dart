@@ -41,9 +41,7 @@ class FjAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: leading,
       actions: actions,
       bottom: bottom,
-      iconTheme: IconThemeData(
-        color: foregroundColor ?? AppTheme.textPrimary,
-      ),
+      iconTheme: IconThemeData(color: foregroundColor ?? AppTheme.textPrimary),
     );
   }
 

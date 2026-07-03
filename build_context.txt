@@ -1,0 +1,180 @@
+﻿INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\backend\\src\\services\\notification_preferences_screen.dart|108|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\backend\\src\\services\\notification_preferences_screen.dart|108|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\backend\\src\\services\\notification_preferences_screen.dart|112|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\backend\\src\\services\\notification_preferences_screen.dart|112|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\examples\\offline_queue_integration_example.dart|116|9|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\examples\\offline_queue_integration_example.dart|118|21|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\examples\\offline_queue_integration_example.dart|176|26|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\examples\\offline_queue_integration_example.dart|266|26|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\examples\\offline_queue_integration_example.dart|297|16|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\examples\\offline_queue_integration_example.dart|327|29|1|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\examples\\offline_queue_integration_example.dart|329|17|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\examples\\offline_queue_integration_example.dart|342|26|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\examples\\search_integration_example.dart|73|9|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\examples\\search_integration_example.dart|80|26|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\examples\\search_integration_example.dart|398|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\admin\\admin_dashboard.dart|114|42|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\admin\\admin_dashboard.dart|116|38|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\auth\\owner_first_login_screen.dart|61|18|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\customer\\address_screen.dart|464|54|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\customer\\checkout_auth_sheet.dart|50|44|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\customer\\checkout_auth_sheet.dart|174|39|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\customer\\dispute_screen.dart|69|29|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\customer\\family_management_screen.dart|1048|23|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\customer\\family_management_screen.dart|1139|23|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\customer\\identity_contacts_screen.dart|90|31|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\customer\\identity_contacts_screen.dart|93|21|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\customer\\membership_dashboard_screen.dart|678|38|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\customer\\my_devices_screen.dart|163|11|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\customer\\settings_screen.dart|246|42|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\customer\\settings_screen.dart|273|46|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\customer\\snap_to_shop_screen.dart|54|9|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\customer\\support_chat_screen.dart|55|48|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\customer\\support_chat_screen.dart|75|15|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\customer\\user_profile_screen.dart|463|21|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\customer\\user_profile_screen.dart|468|40|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\customer\\user_profile_screen.dart|684|31|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\customer\\user_profile_screen.dart|686|19|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\customer\\user_profile_screen.dart|691|38|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\customer\\user_profile_screen.dart|832|31|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\customer\\user_profile_screen.dart|834|19|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\customer\\user_profile_screen.dart|839|38|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\delivery\\delivery_detail_screen.dart|242|29|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\delivery\\delivery_detail_screen.dart|244|27|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\delivery\\delivery_detail_screen.dart|246|48|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\delivery\\delivery_detail_screen.dart|258|48|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\delivery\\delivery_earnings_screen.dart|352|42|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\delivery\\delivery_earnings_screen.dart|361|42|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\delivery\\delivery_orders_screen.dart|420|46|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\delivery\\delivery_orders_screen.dart|664|42|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\delivery\\delivery_orders_screen.dart|669|23|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\delivery\\rider_chat.dart|72|9|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\delivery\\trip_route_sheet.dart|133|26|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\delivery\\trip_route_sheet.dart|210|26|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\delivery\\trip_route_sheet.dart|225|26|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\delivery_feedback_screen.dart|185|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\delivery_feedback_screen.dart|194|22|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\damage_reporting_screen.dart|59|29|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\delivery_pod_scanner_screen.dart|239|20|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\inventory_audit_screen.dart|60|29|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\order_packing_screen.dart|150|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\order_packing_screen.dart|259|18|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\order_queue_screen.dart|178|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\order_queue_screen.dart|189|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\packing_screen.dart|90|36|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\packing_screen.dart|101|17|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\packing_screen.dart|154|33|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\packing_screen.dart|155|40|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\packing_screen.dart|164|48|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\packing_screen.dart|169|40|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\quality_check_screen.dart|149|40|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\quality_check_screen.dart|157|48|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\quality_check_screen.dart|162|40|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\returns_screen.dart|63|29|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\rider_route_screen.dart|64|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\rider_route_screen.dart|89|30|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\rider_route_screen.dart|104|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\employee\\shelf_refill_screen.dart|55|29|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\add_product_screen.dart|164|54|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\add_product_screen.dart|210|44|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\add_product_screen.dart|215|30|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\add_product_screen.dart|223|22|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\bill_scanner_screen.dart|99|60|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\branch_management_screen.dart|133|20|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\branch_management_screen.dart|134|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\branch_management_screen.dart|138|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\branch_management_screen.dart|164|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\branch_management_screen.dart|168|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\branch_management_screen.dart|180|9|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\branch_management_screen.dart|195|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\branch_management_screen.dart|203|9|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\delivery_zones_screen.dart|275|20|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\delivery_zones_screen.dart|276|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\delivery_zones_screen.dart|283|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\delivery_zones_screen.dart|311|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\delivery_zones_screen.dart|316|9|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\delivery_zones_screen.dart|335|9|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\device_management_screen.dart|58|44|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\device_management_screen.dart|88|44|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\dispatch_control_tower_screen.dart|43|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\dispatch_control_tower_screen.dart|111|30|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\dispatch_control_tower_screen.dart|124|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\employee_management_screen.dart|98|7|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\executive_assistant_chat.dart|63|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\expiry_tracking_screen.dart|141|26|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\goods_receipt_screen.dart|216|31|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\inventory_alerts_screen.dart|67|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\inventory_alerts_screen.dart|75|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\inventory_alerts_screen.dart|117|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\inventory_alerts_screen.dart|120|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\inventory_bulk_query_screen.dart|331|46|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\inventory_receiving_screen.dart|202|60|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\operating_hours_screen.dart|90|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\operating_hours_screen.dart|99|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\owner_ai_dashboard.dart|390|28|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\owner_ai_dashboard.dart|401|9|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\owner_ai_dashboard.dart|480|27|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\packing_terminal_screen.dart|1121|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\packing_terminal_screen.dart|1133|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\packing_terminal_screen.dart|1148|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\packing_terminal_screen.dart|1160|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\pending_price_changes_screen.dart|40|11|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\pending_price_changes_screen.dart|112|11|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\pending_price_changes_screen.dart|129|11|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\pending_price_changes_screen.dart|137|11|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\pending_price_changes_screen.dart|154|11|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\pending_price_changes_screen.dart|162|11|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\pricing_rules_screen.dart|67|11|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\pricing_rules_screen.dart|92|11|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\pricing_rules_screen.dart|100|11|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\products_management.dart|79|50|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\products_management.dart|86|31|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\refund_processing_screen.dart|322|44|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\refund_processing_screen.dart|396|44|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\refund_processing_screen.dart|573|16|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\release_management_screen.dart|268|42|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\rider_management_screen.dart|67|33|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\rider_management_screen.dart|71|21|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\rider_support_console.dart|73|9|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\shop_location_picker_screen.dart|127|18|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\shop_settings_screen.dart|95|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\shop_settings_screen.dart|102|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\supplier_bill_scanner_screen.dart|183|64|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\voice_dashboard_screen.dart|90|66|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\whatsapp_sync_config_screen.dart|54|9|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\whatsapp_sync_config_screen.dart|67|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\whatsapp_sync_config_screen.dart|75|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\whatsapp_sync_config_screen.dart|89|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\owner\\whatsapp_sync_config_screen.dart|96|9|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\rider\\rider_shell.dart|80|27|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\security_pin_screen.dart|158|46|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\security_pin_screen.dart|478|48|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\security_pin_screen.dart|497|60|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\security_pin_screen.dart|616|45|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\security_pin_screen.dart|677|60|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\splash_screen.dart|180|46|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\splash_screen.dart|209|11|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\splash_screen.dart|213|11|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\splash_screen.dart|224|7|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\supplier\\supplier_dashboard.dart|80|21|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\user_settings_screen.dart|78|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\user_settings_screen.dart|126|33|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\user_settings_screen.dart|127|40|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\user_settings_screen.dart|130|19|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\user_settings_screen.dart|131|19|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\user_settings_screen.dart|135|33|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\user_settings_screen.dart|136|40|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\user_settings_screen.dart|169|19|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\user_settings_screen.dart|174|21|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\screens\\user_settings_screen.dart|278|27|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\services\\update_service.dart|54|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\services\\voice_assistant_service.dart|115|68|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\services\\voice_command_executor.dart|258|9|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\services\\voice_command_executor.dart|260|9|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\widgets\\qna_section.dart|763|9|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\widgets\\qna_section.dart|764|30|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\widgets\\qna_section.dart|770|30|7|Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\widgets\\qna_section.dart|827|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\widgets\\qna_section.dart|844|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\widgets\\qna_section.dart|862|28|7|Don't use 'BuildContext's across async gaps.
+INFO|LINT|USE_BUILD_CONTEXT_SYNCHRONOUSLY|C:\\Projects\\fufaji-online-business\\lib\\widgets\\qna_section.dart|869|28|7|Don't use 'BuildContext's across async gaps.

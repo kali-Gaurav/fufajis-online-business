@@ -36,12 +36,12 @@ class NotificationRetryService {
 
       // Exponential backoff: 2, 4, 8 minutes
       final backoffMinutes = isDlq ? 0 : (1 << nextRetryCount);
-      final nextRetryAt = isDlq
-          ? null
-          : DateTime.now().add(Duration(minutes: backoffMinutes));
+      final nextRetryAt = isDlq ? null : DateTime.now().add(Duration(minutes: backoffMinutes));
 
       final existingData = doc.exists ? doc.data() : null;
-      final createdAt = existingData != null ? existingData['createdAt'] : FieldValue.serverTimestamp();
+      final createdAt = existingData != null
+          ? existingData['createdAt']
+          : FieldValue.serverTimestamp();
 
       final failureData = {
         'id': notificationId,
@@ -96,10 +96,13 @@ class NotificationRetryService {
           type: 'delivery_failure',
           severity: 'high',
           title: 'Notification Delivery Failed (DLQ)',
-          description: 'Failed to deliver notification $notificationId to $recipientId via $channel after 3 retries. Error: $errorMessage',
+          description:
+              'Failed to deliver notification $notificationId to $recipientId via $channel after 3 retries. Error: $errorMessage',
         );
       } else {
-        debugPrint('[NotificationRetryService] Scheduled retry #$nextRetryCount in $backoffMinutes min for notification $notificationId');
+        debugPrint(
+          '[NotificationRetryService] Scheduled retry #$nextRetryCount in $backoffMinutes min for notification $notificationId',
+        );
 
         // Schedule local retry timer in Flutter client (accelerated for verification: 5 seconds per backoff minute)
         Timer(Duration(seconds: backoffMinutes * 5), () async {

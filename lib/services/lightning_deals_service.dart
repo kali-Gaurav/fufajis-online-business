@@ -11,8 +11,7 @@ import 'package:flutter/foundation.dart';
 /// - Sold-out detection (qty_remaining == 0)
 /// - Owner tools: create / schedule / cancel deals
 class LightningDealsService {
-  static final LightningDealsService _instance =
-      LightningDealsService._internal();
+  static final LightningDealsService _instance = LightningDealsService._internal();
   factory LightningDealsService() => _instance;
   LightningDealsService._internal();
 
@@ -37,17 +36,20 @@ class LightningDealsService {
         .where('isActive', isEqualTo: true)
         .orderBy('endTime')
         .snapshots()
-        .listen((snap) {
-      final now = DateTime.now();
-      _cache = snap.docs
-          .map((d) => LightningDeal.fromMap(d.data(), d.id))
-          .where((deal) => deal.endTime.isAfter(now) && !deal.isSoldOut)
-          .toList();
-      _controller.add(_cache);
-      debugPrint('[LightningDeals] ${_cache.length} active deals streamed.');
-    }, onError: (e) {
-      debugPrint('[LightningDeals] Stream error: $e');
-    });
+        .listen(
+          (snap) {
+            final now = DateTime.now();
+            _cache = snap.docs
+                .map((d) => LightningDeal.fromMap(d.data(), d.id))
+                .where((deal) => deal.endTime.isAfter(now) && !deal.isSoldOut)
+                .toList();
+            _controller.add(_cache);
+            debugPrint('[LightningDeals] ${_cache.length} active deals streamed.');
+          },
+          onError: (e) {
+            debugPrint('[LightningDeals] Stream error: $e');
+          },
+        );
   }
 
   void stopListening() {
@@ -99,8 +101,7 @@ class LightningDealsService {
       'imageUrl': imageUrl,
       'originalPrice': originalPrice,
       'dealPrice': dealPrice,
-      'discountPct':
-          ((originalPrice - dealPrice) / originalPrice * 100).round(),
+      'discountPct': ((originalPrice - dealPrice) / originalPrice * 100).round(),
       'totalQty': totalQty,
       'qtyRemaining': totalQty,
       'startTime': Timestamp.fromDate(startTime),
@@ -139,23 +140,15 @@ class LightningDealsService {
           return;
         }
 
-        tx.update(dealRef, {
-          'qtyRemaining': FieldValue.increment(-qty),
-        });
+        tx.update(dealRef, {'qtyRemaining': FieldValue.increment(-qty)});
 
         // Record claim
-        tx.set(
-          _db
-              .collection('lightning_deal_claims')
-              .doc('${dealId}_$customerId'),
-          {
-            'dealId': dealId,
-            'customerId': customerId,
-            'qty': qty,
-            'claimedAt': FieldValue.serverTimestamp(),
-          },
-          SetOptions(merge: true),
-        );
+        tx.set(_db.collection('lightning_deal_claims').doc('${dealId}_$customerId'), {
+          'dealId': dealId,
+          'customerId': customerId,
+          'qty': qty,
+          'claimedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
 
         result = DealClaimResult.success;
       });
@@ -222,9 +215,7 @@ class LightningDeal {
 
   bool get isSoldOut => qtyRemaining <= 0;
   bool get isExpired => endTime.isBefore(DateTime.now());
-  double get claimedPct => totalQty > 0
-      ? (totalQty - qtyRemaining) / totalQty
-      : 1.0;
+  double get claimedPct => totalQty > 0 ? (totalQty - qtyRemaining) / totalQty : 1.0;
 
   factory LightningDeal.fromMap(Map<String, dynamic> m, String id) {
     return LightningDeal(
@@ -240,9 +231,7 @@ class LightningDeal {
       startTime: m['startTime'] is Timestamp
           ? (m['startTime'] as Timestamp).toDate()
           : DateTime.now(),
-      endTime: m['endTime'] is Timestamp
-          ? (m['endTime'] as Timestamp).toDate()
-          : DateTime.now(),
+      endTime: m['endTime'] is Timestamp ? (m['endTime'] as Timestamp).toDate() : DateTime.now(),
       isActive: m['isActive'] as bool? ?? false,
     );
   }

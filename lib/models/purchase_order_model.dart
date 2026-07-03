@@ -12,7 +12,7 @@ enum PurchaseOrderStatus {
   partially_received,
   fully_received,
   closed,
-  cancelled
+  cancelled,
 }
 
 class PurchaseOrderModel {

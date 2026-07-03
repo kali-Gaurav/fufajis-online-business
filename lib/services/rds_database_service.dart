@@ -21,10 +21,7 @@ class RDSDatabaseService {
     return [];
   }
 
-  Future<List<Map<String, dynamic>>> rows(
-    String sql, {
-    List<dynamic>? params,
-  }) async {
+  Future<List<Map<String, dynamic>>> rows(String sql, {List<dynamic>? params}) async {
     debugPrint('[RDSDatabaseService] Stub Rows Query: $sql');
     return [];
   }

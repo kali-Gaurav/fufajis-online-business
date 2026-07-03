@@ -66,9 +66,7 @@ class ProductRatingCalculator {
         'lastRatingUpdate': FieldValue.serverTimestamp(),
       });
 
-      print(
-        'Updated product $productId: rating=$averageRating, count=$reviewCount',
-      );
+      print('Updated product $productId: rating=$averageRating, count=$reviewCount');
     } catch (e) {
       print('Error updating product rating: $e');
       rethrow;

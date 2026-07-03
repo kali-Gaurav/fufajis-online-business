@@ -1,12 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-enum BatchStatus {
-  created,
-  assigned,
-  in_progress,
-  completed,
-  failed,
-}
+enum BatchStatus { created, assigned, in_progress, completed, failed }
 
 class DeliveryBatchModel {
   final String id;

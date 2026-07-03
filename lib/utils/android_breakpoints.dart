@@ -54,27 +54,27 @@ class AndroidBreakpoints {
   /// Get optimal grid column count based on screen width
   /// Returns 2 for phones, 3 for tablets, 4+ for desktop
   static int getGridColumns(double width) {
-    if (width < 600) return 2;      // Phone: 2 columns
-    if (width < 960) return 3;      // Tablet: 3 columns
-    if (width < 1440) return 4;     // Desktop: 4 columns
-    return 5;                        // Large desktop: 5 columns
+    if (width < 600) return 2; // Phone: 2 columns
+    if (width < 960) return 3; // Tablet: 3 columns
+    if (width < 1440) return 4; // Desktop: 4 columns
+    return 5; // Large desktop: 5 columns
   }
 
   /// Get optimal grid columns for product display
   /// Returns 2 for phones, 3 for tablets, 4-5 for desktop
   static int getProductGridColumns(double width) {
-    if (width < 600) return 2;      // Phone
-    if (width < 960) return 3;      // Tablet
-    if (width < 1440) return 4;     // Desktop
-    return 5;                        // Large desktop
+    if (width < 600) return 2; // Phone
+    if (width < 960) return 3; // Tablet
+    if (width < 1440) return 4; // Desktop
+    return 5; // Large desktop
   }
 
   /// Get responsive padding based on screen width
   /// Tighter on mobile, more breathing room on tablet/desktop
   static double getResponsivePadding(double width) {
-    if (width < 600) return 12.0;   // Phone: 12dp
-    if (width < 960) return 16.0;   // Tablet: 16dp
-    return 24.0;                    // Desktop: 24dp
+    if (width < 600) return 12.0; // Phone: 12dp
+    if (width < 960) return 16.0; // Tablet: 16dp
+    return 24.0; // Desktop: 24dp
   }
 
   /// Get responsive padding for cards
@@ -86,22 +86,22 @@ class AndroidBreakpoints {
 
   /// Get responsive spacing between elements
   static double getResponsiveSpacing(double width) {
-    if (width < 600) return 8.0;    // Phone: 8dp
-    if (width < 960) return 12.0;   // Tablet: 12dp
-    return 16.0;                    // Desktop: 16dp
+    if (width < 600) return 8.0; // Phone: 8dp
+    if (width < 960) return 12.0; // Tablet: 12dp
+    return 16.0; // Desktop: 16dp
   }
 
   /// Get responsive font size for body text
   static double getResponsiveBodySize(double width) {
-    if (width < 600) return 14.0;   // Phone: 14pt
-    if (width < 960) return 14.0;   // Tablet: 14pt
-    return 16.0;                    // Desktop: 16pt
+    if (width < 600) return 14.0; // Phone: 14pt
+    if (width < 960) return 14.0; // Tablet: 14pt
+    return 16.0; // Desktop: 16pt
   }
 
   /// Get responsive font size for headings
   static double getResponsiveHeadingSize(double width) {
-    if (width < 600) return 18.0;   // Phone: 18pt
-    if (width < 960) return 20.0;   // Tablet: 20pt
-    return 24.0;                    // Desktop: 24pt
+    if (width < 600) return 18.0; // Phone: 18pt
+    if (width < 960) return 20.0; // Tablet: 20pt
+    return 24.0; // Desktop: 24pt
   }
 }

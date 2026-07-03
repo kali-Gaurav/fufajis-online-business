@@ -7,8 +7,7 @@ import 'analytics_service.dart';
 /// Centralizes error handling, logging, and reporting to Sentry
 /// Wraps exceptions with context (user ID, order ID, etc.)
 class ErrorHandlingService {
-  static final ErrorHandlingService _instance =
-      ErrorHandlingService._internal();
+  static final ErrorHandlingService _instance = ErrorHandlingService._internal();
   factory ErrorHandlingService() => _instance;
   ErrorHandlingService._internal();
 
@@ -23,9 +22,7 @@ class ErrorHandlingService {
   /// Set current user context (called on login)
   void setUserContext(String userId) {
     _currentUserId = userId;
-    Sentry.configureScope(
-      (scope) => scope.setUser(SentryUser(id: userId)),
-    );
+    Sentry.configureScope((scope) => scope.setUser(SentryUser(id: userId)));
     debugPrint('[ErrorHandler] User context set: $userId');
   }
 
@@ -99,12 +96,7 @@ class ErrorHandlingService {
 
       return result;
     } catch (e, stack) {
-      _logger.error(
-        'Order creation failed',
-        e,
-        stack,
-        {'order_id': orderId, 'user_id': userId},
-      );
+      _logger.error('Order creation failed', e, stack, {'order_id': orderId, 'user_id': userId});
 
       Sentry.captureException(
         e,
@@ -142,30 +134,22 @@ class ErrorHandlingService {
     setPaymentContext(orderId, method: paymentMethod);
 
     try {
-      _logger.info('Starting payment processing', data: {
-        'order_id': orderId,
-        'amount': amount,
-        'payment_method': paymentMethod,
-      });
+      _logger.info(
+        'Starting payment processing',
+        data: {'order_id': orderId, 'amount': amount, 'payment_method': paymentMethod},
+      );
 
       Sentry.addBreadcrumb(
         Breadcrumb(
           message: 'Payment processing started',
-          data: {
-            'order_id': orderId,
-            'amount': amount,
-            'method': paymentMethod,
-          },
+          data: {'order_id': orderId, 'amount': amount, 'method': paymentMethod},
           level: SentryLevel.info,
         ),
       );
 
       final result = await operation();
 
-      _logger.info('Payment processing succeeded', data: {
-        'order_id': orderId,
-        'amount': amount,
-      });
+      _logger.info('Payment processing succeeded', data: {'order_id': orderId, 'amount': amount});
 
       Sentry.addBreadcrumb(
         Breadcrumb(
@@ -177,17 +161,12 @@ class ErrorHandlingService {
 
       return result;
     } catch (e, stack) {
-      _logger.error(
-        'Payment processing failed',
-        e,
-        stack,
-        {
-          'order_id': orderId,
-          'user_id': userId,
-          'amount': amount,
-          'payment_method': paymentMethod,
-        },
-      );
+      _logger.error('Payment processing failed', e, stack, {
+        'order_id': orderId,
+        'user_id': userId,
+        'amount': amount,
+        'payment_method': paymentMethod,
+      });
 
       Sentry.captureException(
         e,
@@ -222,10 +201,10 @@ class ErrorHandlingService {
     required String riderId,
   }) async {
     try {
-      _logger.info('Starting delivery assignment', data: {
-        'order_id': orderId,
-        'rider_id': riderId,
-      });
+      _logger.info(
+        'Starting delivery assignment',
+        data: {'order_id': orderId, 'rider_id': riderId},
+      );
 
       Sentry.addBreadcrumb(
         Breadcrumb(
@@ -237,10 +216,10 @@ class ErrorHandlingService {
 
       final result = await operation();
 
-      _logger.info('Delivery assignment succeeded', data: {
-        'order_id': orderId,
-        'rider_id': riderId,
-      });
+      _logger.info(
+        'Delivery assignment succeeded',
+        data: {'order_id': orderId, 'rider_id': riderId},
+      );
 
       Sentry.addBreadcrumb(
         Breadcrumb(
@@ -252,12 +231,10 @@ class ErrorHandlingService {
 
       return result;
     } catch (e, stack) {
-      _logger.error(
-        'Delivery assignment failed',
-        e,
-        stack,
-        {'order_id': orderId, 'rider_id': riderId},
-      );
+      _logger.error('Delivery assignment failed', e, stack, {
+        'order_id': orderId,
+        'rider_id': riderId,
+      });
 
       Sentry.captureException(
         e,
@@ -283,31 +260,25 @@ class ErrorHandlingService {
     String? operationType,
   }) async {
     try {
-      _logger.info('Starting inventory operation', data: {
+      _logger.info(
+        'Starting inventory operation',
+        data: {'product_id': productId, 'quantity': quantity, 'operation': operationType},
+      );
+
+      final result = await operation();
+
+      _logger.info(
+        'Inventory operation succeeded',
+        data: {'product_id': productId, 'quantity': quantity},
+      );
+
+      return result;
+    } catch (e, stack) {
+      _logger.error('Inventory operation failed', e, stack, {
         'product_id': productId,
         'quantity': quantity,
         'operation': operationType,
       });
-
-      final result = await operation();
-
-      _logger.info('Inventory operation succeeded', data: {
-        'product_id': productId,
-        'quantity': quantity,
-      });
-
-      return result;
-    } catch (e, stack) {
-      _logger.error(
-        'Inventory operation failed',
-        e,
-        stack,
-        {
-          'product_id': productId,
-          'quantity': quantity,
-          'operation': operationType,
-        },
-      );
 
       Sentry.captureException(
         e,
@@ -336,27 +307,22 @@ class ErrorHandlingService {
     setUserContext(userId);
 
     try {
-      _logger.info('Starting wallet operation', data: {
+      _logger.info(
+        'Starting wallet operation',
+        data: {'user_id': userId, 'amount': amount, 'operation': operationType},
+      );
+
+      final result = await operation();
+
+      _logger.info('Wallet operation succeeded', data: {'user_id': userId, 'amount': amount});
+
+      return result;
+    } catch (e, stack) {
+      _logger.error('Wallet operation failed', e, stack, {
         'user_id': userId,
         'amount': amount,
         'operation': operationType,
       });
-
-      final result = await operation();
-
-      _logger.info('Wallet operation succeeded', data: {
-        'user_id': userId,
-        'amount': amount,
-      });
-
-      return result;
-    } catch (e, stack) {
-      _logger.error(
-        'Wallet operation failed',
-        e,
-        stack,
-        {'user_id': userId, 'amount': amount, 'operation': operationType},
-      );
 
       Sentry.captureException(
         e,
@@ -394,11 +360,10 @@ class ErrorHandlingService {
     }
 
     try {
-      _logger.info('Starting refund operation', data: {
-        'order_id': orderId,
-        'refund_amount': refundAmount,
-        'reason': reason,
-      });
+      _logger.info(
+        'Starting refund operation',
+        data: {'order_id': orderId, 'refund_amount': refundAmount, 'reason': reason},
+      );
 
       Sentry.addBreadcrumb(
         Breadcrumb(
@@ -410,10 +375,10 @@ class ErrorHandlingService {
 
       final result = await operation();
 
-      _logger.info('Refund operation succeeded', data: {
-        'order_id': orderId,
-        'refund_amount': refundAmount,
-      });
+      _logger.info(
+        'Refund operation succeeded',
+        data: {'order_id': orderId, 'refund_amount': refundAmount},
+      );
 
       Sentry.addBreadcrumb(
         Breadcrumb(
@@ -425,16 +390,11 @@ class ErrorHandlingService {
 
       return result;
     } catch (e, stack) {
-      _logger.error(
-        'Refund operation failed',
-        e,
-        stack,
-        {
-          'order_id': orderId,
-          'refund_amount': refundAmount,
-          'reason': reason,
-        },
-      );
+      _logger.error('Refund operation failed', e, stack, {
+        'order_id': orderId,
+        'refund_amount': refundAmount,
+        'reason': reason,
+      });
 
       Sentry.captureException(
         e,
@@ -488,10 +448,7 @@ class ErrorHandlingService {
   }
 
   /// Capture a warning message
-  Future<void> captureWarning(
-    String message, {
-    Map<String, dynamic>? context,
-  }) async {
+  Future<void> captureWarning(String message, {Map<String, dynamic>? context}) async {
     _logger.warning(message, data: context);
 
     Sentry.captureMessage(
@@ -504,18 +461,9 @@ class ErrorHandlingService {
   }
 
   /// Capture an info message (breadcrumb only)
-  Future<void> captureInfo(
-    String message, {
-    Map<String, dynamic>? data,
-  }) async {
+  Future<void> captureInfo(String message, {Map<String, dynamic>? data}) async {
     _logger.info(message, data: data);
 
-    Sentry.addBreadcrumb(
-      Breadcrumb(
-        message: message,
-        data: data,
-        level: SentryLevel.info,
-      ),
-    );
+    Sentry.addBreadcrumb(Breadcrumb(message: message, data: data, level: SentryLevel.info));
   }
 }

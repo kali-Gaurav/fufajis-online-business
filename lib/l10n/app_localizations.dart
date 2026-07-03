@@ -82,337 +82,653 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[
-    Locale('en'),
-    Locale('hi')
-  ];
+  static const List<Locale> supportedLocales = <Locale>[Locale('en'), Locale('hi')];
 
   /// Generic translation method for dynamic keys
   String translate(String key, {Map<String, dynamic>? arguments}) {
     switch (key) {
-      case 'appTitle': return appTitle;
-      case 'home': return home;
-      case 'cart': return cart;
-      case 'profile': return profile;
-      case 'orders': return orders;
-      case 'wallet': return wallet;
-      case 'language': return language;
-      case 'selectLanguage': return selectLanguage;
-      case 'searchProducts': return searchProducts;
-      case 'category': return category;
-      case 'addToCart': return addToCart;
-      case 'checkout': return checkout;
-      case 'total': return total;
-      case 'subtotal': return subtotal;
-      case 'tax': return tax;
-      case 'discount': return discount;
-      case 'deliveryFee': return deliveryFee;
-      case 'payNow': return payNow;
-      case 'placeOrder': return placeOrder;
-      case 'orderStatus': return orderStatus;
-      case 'settings': return settings;
-      case 'offlineMode': return offlineMode;
-      case 'retry': return retry;
-      case 'rewards': return rewards;
-      case 'balance': return balance;
-      case 'cashback': return cashback;
-      case 'points': return points;
-      case 'noInternet': return noInternet;
-      case 'delivery': return delivery;
-      case 'employee': return employee;
-      case 'owner': return owner;
-      case 'dashboard': return dashboard;
-      case 'inventory': return inventory;
-      case 'products': return products;
-      case 'sales': return sales;
-      case 'analytics': return analytics;
-      case 'packOrders': return packOrders;
-      case 'startDelivery': return startDelivery;
-      case 'markDelivered': return markDelivered;
-      case 'lowStock': return lowStock;
-      case 'outOfStock': return outOfStock;
-      case 'confirmed': return confirmed;
-      case 'processing': return processing;
-      case 'packed': return packed;
-      case 'outForDelivery': return outForDelivery;
-      case 'delivered': return delivered;
-      case 'cancelled': return cancelled;
-      case 'returns': return returns;
-      case 'attendance': return attendance;
-      case 'scan': return scan;
-      case 'voice': return voice;
-      case 'help': return help;
-      case 'logout': return logout;
-      case 'cash': return cash;
-      case 'upi': return upi;
-      case 'split': return split;
-      case 'card': return card;
-      case 'change': return change;
-      case 'insufficient': return insufficient;
-      case 'confirm': return confirm;
-      case 'cancel': return cancel;
-      case 'apply': return apply;
-      case 'managerPin': return managerPin;
-      case 'invalidPin': return invalidPin;
-      case 'linkCustomer': return linkCustomer;
-      case 'riderCashLimit': return riderCashLimit;
-      case 'settleCash': return settleCash;
-      case 'pendingSettlement': return pendingSettlement;
-      case 'approved': return approved;
-      case 'rejected': return rejected;
-      case 'reason': return reason;
-      case 'inStock': return inStock;
-      case 'onlyLeft': return onlyLeft(arguments?['count'] as Object? ?? '');
-      case 'weight': return weight;
-      case 'quantity': return quantity;
-      case 'price': return price;
-      case 'mrp': return mrp;
-      case 'aisle': return aisle;
-      case 'shelf': return shelf;
-      case 'batch': return batch;
-      case 'expiry': return expiry;
-      case 'revenue': return revenue;
-      case 'profit': return profit;
-      case 'growth': return growth;
-      case 'topSelling': return topSelling;
-      case 'recentActivity': return recentActivity;
-      case 'stepPhone': return stepPhone;
-      case 'stepCart': return stepCart;
-      case 'stepAddress': return stepAddress;
-      case 'stepPayment': return stepPayment;
-      case 'stepDone': return stepDone;
-      case 'verifyPhone': return verifyPhone;
-      case 'confirmDeliveryInfo': return confirmDeliveryInfo;
-      case 'phoneNumber': return phoneNumber;
-      case 'enterPhoneHint': return enterPhoneHint;
-      case 'sendOtp': return sendOtp;
-      case 'enterOtp': return enterOtp;
-      case 'enterOtpSentTo': return enterOtpSentTo(arguments?['phone'] as Object? ?? '');
-      case 'otpHint': return otpHint;
-      case 'verifyOtp': return verifyOtp;
-      case 'verifyContinue': return verifyContinue;
-      case 'resendOtp': return resendOtp;
-      case 'invalidPhoneError': return invalidPhoneError;
-      case 'tooManyAttempts': return tooManyAttempts(arguments?['minutes'] as Object? ?? '');
-      case 'invalidOtpError': return invalidOtpError;
-      case 'invalidOtp': return invalidOtp;
-      case 'reviewOrder': return reviewOrder;
-      case 'items': return items;
-      case 'enterPromoCode': return enterPromoCode;
-      case 'promoApplied': return promoApplied;
-      case 'promoInvalid': return promoInvalid;
-      case 'deliveryFree': return deliveryFree;
-      case 'continueToAddress': return continueToAddress;
-      case 'deliveryAddress': return deliveryAddress;
-      case 'deliveryInstructionsHint': return deliveryInstructionsHint;
-      case 'deliveryType': return deliveryType;
-      case 'continueToPayment': return continueToPayment;
-      case 'selectDeliveryDateTime': return selectDeliveryDateTime;
-      case 'pleaseSelectAddress': return pleaseSelectAddress;
-      case 'choosePaymentMethod': return choosePaymentMethod;
-      case 'cod': return cod;
-      case 'codSubtitle': return codSubtitle;
-      case 'upiSubtitle': return upiSubtitle;
-      case 'myWallet': return myWallet;
-      case 'walletAvailable': return walletAvailable(arguments?['amount'] as Object? ?? '');
-      case 'walletBalanceRemaining': return walletBalanceRemaining(arguments?['amount'] as Object? ?? '');
-      case 'walletBalanceHeader': return walletBalanceHeader(arguments?['balance'] as Object? ?? '', arguments?['total'] as Object? ?? '');
-      case 'processingPayment': return processingPayment;
-      case 'cancelOrder': return cancelOrder;
-      case 'orderConfirmed': return orderConfirmed;
-      case 'orderNumberLabel': return orderNumberLabel(arguments?['number'] as Object? ?? '');
-      case 'estimatedDelivery': return estimatedDelivery;
-      case 'trackOrder': return trackOrder;
-      case 'continueShopping': return continueShopping;
-      case 'paymentFailed': return paymentFailed;
-      case 'paymentFailedMessage': return paymentFailedMessage;
-      case 'retryPayment': return retryPayment;
-      case 'severeWeatherAlert': return severeWeatherAlert;
-      case 'weatherAdvisory': return weatherAdvisory;
-      case 'fastest': return fastest;
-      case 'quickBook': return quickBook;
-      case 'sourcingLocation': return sourcingLocation;
-      case 'farmerPartner': return farmerPartner;
-      case 'localSource': return localSource;
-      case 'certifiedOrganic': return certifiedOrganic;
-      case 'harvestedOn': return harvestedOn(arguments?['date'] as Object? ?? '');
-      case 'freshnessVerified': return freshnessVerified;
-      case 'sourcingTransparency': return sourcingTransparency(arguments?['source'] as Object? ?? '');
-      case 'getDirections': return getDirections;
-      case 'off': return off;
-      case 'fixedPrice': return fixedPrice;
-      case 'add': return add;
-      case 'expiringSoon': return expiringSoon;
-      case 'only': return only;
-      case 'left': return left;
-      case 'myOrders': return myOrders;
-      case 'tabAll': return tabAll;
-      case 'tabActive': return tabActive;
-      case 'tabCompleted': return tabCompleted;
-      case 'tabCancelled': return tabCancelled;
-      case 'noOrdersYet': return noOrdersYet;
-      case 'startShoppingSubtitle': return startShoppingSubtitle;
-      case 'startShopping': return startShopping;
-      case 'order': return order;
-      case 'moreItems': return moreItems;
-      case 'totalAmount': return totalAmount;
-      case 'reorder': return reorder;
-      case 'claim': return claim;
-      case 'track': return track;
-      case 'details': return details;
-      case 'todayAt': return todayAt(arguments?['time'] as Object? ?? '');
-      case 'yesterday': return yesterday;
-      case 'daysAgo': return daysAgo(arguments?['count'] as Object? ?? '');
-      case 'rewardWon': return rewardWon;
-      case 'creditedToWallet': return creditedToWallet;
-      case 'congratsCashback': return congratsCashback(arguments?['amount'] as Object? ?? '');
-      case 'viewCart': return viewCart;
-      case 'unavailableItems': return unavailableItems(arguments?['items'] as Object? ?? '');
-      case 'pricesUpdated': return pricesUpdated(arguments?['count'] as Object? ?? '');
-      case 'statusPending': return statusPending;
-      case 'statusConfirmed': return statusConfirmed;
-      case 'statusProcessing': return statusProcessing;
-      case 'statusPacked': return statusPacked;
-      case 'statusOutForDelivery': return statusOutForDelivery;
-      case 'statusDelivered': return statusDelivered;
-      case 'statusCancelled': return statusCancelled;
-      case 'statusReturned': return statusReturned;
-      case 'statusRefunded': return statusRefunded;
-      case 'orderNotFound': return orderNotFound;
-      case 'downloadInvoice': return downloadInvoice;
-      case 'switchCodToOnline': return switchCodToOnline;
-      case 'openingPaymentGateway': return openingPaymentGateway;
-      case 'shop': return shop;
-      case 'returnOrder': return returnOrder;
-      case 'contactSupport': return contactSupport;
-      case 'cancelConfirmMessage': return cancelConfirmMessage;
-      case 'no': return no;
-      case 'yesCancel': return yesCancel;
-      case 'enterReturnReason': return enterReturnReason;
-      case 'orderCancelled': return orderCancelled;
-      case 'returnRequested': return returnRequested;
-      case 'trustQualityProofs': return trustQualityProofs;
-      case 'ourTeam': return ourTeam;
-      case 'time': return time;
-      case 'packedBy': return packedBy(arguments?['name'] as Object? ?? '');
-      case 'viewPhotoProof': return viewPhotoProof;
-      case 'realWeightGuarantee': return realWeightGuarantee;
-      case 'perfectWeight': return perfectWeight;
-      case 'overPackedMsg': return overPackedMsg(arguments?['diff'] as Object? ?? '');
-      case 'underWeightMsg': return underWeightMsg(arguments?['refund'] as Object? ?? '');
-      case 'ordered': return ordered;
-      case 'weightProof': return weightProof;
-      case 'viewPhoto': return viewPhoto;
-      case 'labelHome': return labelHome;
-      case 'labelWork': return labelWork;
-      case 'labelVillageHome': return labelVillageHome;
-      case 'labelFarm': return labelFarm;
-      case 'labelOther': return labelOther;
-      case 'typeHouse': return typeHouse;
-      case 'typeApartment': return typeApartment;
-      case 'typeShop': return typeShop;
-      case 'propertyType': return propertyType;
-      case 'addressType': return addressType;
-      case 'landmarkLabel': return landmarkLabel;
-      case 'villageColony': return villageColony;
-      case 'pinCode': return pinCode;
-      case 'voiceInstructions': return voiceInstructions;
-      case 'setAsDefault': return setAsDefault;
-      case 'savedAddresses': return savedAddresses;
-      case 'addNew': return addNew;
-      case 'noSavedAddresses': return noSavedAddresses;
-      case 'noSavedAddressesSubtitle': return noSavedAddressesSubtitle;
-      case 'addShippingAddress': return addShippingAddress;
-      case 'editAddress': return editAddress;
-      case 'addNewAddress': return addNewAddress;
-      case 'saveAddress': return saveAddress;
-      case 'updateAddress': return updateAddress;
-      case 'invalidLabel': return invalidLabel;
-      case 'invalidAddress': return invalidAddress;
-      case 'invalidVillage': return invalidVillage;
-      case 'invalidLandmark': return invalidLandmark;
-      case 'invalidPinCode': return invalidPinCode;
-      case 'fullAddress': return fullAddress;
-      case 'recordingStop': return recordingStop;
-      case 'voiceTagAttached': return voiceTagAttached;
-      case 'recordDirectionHints': return recordDirectionHints;
-      case 'deliveryInstructions': return deliveryInstructions;
-      case 'fulfillment': return fulfillment;
-      case 'packingDashboard': return packingDashboard;
-      case 'todaysOrders': return todaysOrders;
-      case 'statusNew': return statusNew;
-      case 'packing': return packing;
-      case 'ready': return ready;
-      case 'qualityCheck': return qualityCheck;
-      case 'quickStats': return quickStats;
-      case 'efficiency': return efficiency;
-      case 'qualityScore': return qualityScore;
-      case 'itemsPacked': return itemsPacked;
-      case 'quickActions': return quickActions;
-      case 'acceptNewOrder': return acceptNewOrder;
-      case 'viewPackingQueue': return viewPackingQueue;
-      case 'printLabels': return printLabels;
-      case 'orderQueue': return orderQueue;
-      case 'searchOrderOrCustomer': return searchOrderOrCustomer;
-      case 'sortBy': return sortBy;
-      case 'oldestFirst': return oldestFirst;
-      case 'byPriority': return byPriority;
-      case 'highestValue': return highestValue;
-      case 'customerName': return customerName;
-      case 'noOrdersAvailable': return noOrdersAvailable;
-      case 'packOrder': return packOrder;
-      case 'customer': return customer;
-      case 'phone': return phone;
-      case 'address': return address;
-      case 'itemsToPack': return itemsToPack;
-      case 'startPacking': return startPacking;
-      case 'completePacking': return completePacking;
-      case 'addSpecialNotes': return addSpecialNotes;
-      case 'fragileItemsExample': return fragileItemsExample;
-      case 'packingStarted': return packingStarted;
-      case 'allItemsPacked': return allItemsPacked;
-      case 'packingCompleted': return packingCompleted;
-      case 'quantityPacked': return quantityPacked;
-      case 'enterQuantity': return enterQuantity;
-      case 'required': return required;
-      case 'verifyItems': return verifyItems;
-      case 'rejectionReason': return rejectionReason;
-      case 'damageExample': return damageExample;
-      case 'approveOrder': return approveOrder;
-      case 'rejectOrder': return rejectOrder;
-      case 'confirmRejection': return confirmRejection;
-      case 'areYouSureReject': return areYouSureReject;
-      case 'orderRejected': return orderRejected;
-      case 'orderApproved': return orderApproved;
-      case 'noOrdersReadyQC': return noOrdersReadyQC;
-      case 'itemsPerMin': return itemsPerMin;
-      case 'verifyBarcode': return verifyBarcode;
-      case 'scanBarcode': return scanBarcode;
-      case 'printLabel': return printLabel;
-      case 'labelPrintedSuccess': return labelPrintedSuccess;
-      case 'printFailed': return printFailed;
-      case 'orderAssigned': return orderAssigned(arguments?['id'] as Object? ?? '');
-      case 'created': return created;
-      case 'minutesAgo': return minutesAgo(arguments?['count'] as Object? ?? '');
-      case 'highPriority': return highPriority;
-      case 'viewAndAccept': return viewAndAccept;
-      case 'continueWithOrders': return continueWithOrders;
-      case 'reviewPackedOrders': return reviewPackedOrders;
-      case 'noOrdersAssigned': return noOrdersAssigned;
-      case 'taskNotFound': return taskNotFound;
-      case 'loadingTask': return loadingTask;
-      case 'errorLoadingTask': return errorLoadingTask;
-      case 'errorAcceptingOrder': return errorAcceptingOrder;
-      case 'errorLoadingOrders': return errorLoadingOrders;
-      default: return key;
+      case 'appTitle':
+        return appTitle;
+      case 'home':
+        return home;
+      case 'cart':
+        return cart;
+      case 'profile':
+        return profile;
+      case 'orders':
+        return orders;
+      case 'wallet':
+        return wallet;
+      case 'language':
+        return language;
+      case 'selectLanguage':
+        return selectLanguage;
+      case 'searchProducts':
+        return searchProducts;
+      case 'category':
+        return category;
+      case 'addToCart':
+        return addToCart;
+      case 'checkout':
+        return checkout;
+      case 'total':
+        return total;
+      case 'subtotal':
+        return subtotal;
+      case 'tax':
+        return tax;
+      case 'discount':
+        return discount;
+      case 'deliveryFee':
+        return deliveryFee;
+      case 'payNow':
+        return payNow;
+      case 'placeOrder':
+        return placeOrder;
+      case 'orderStatus':
+        return orderStatus;
+      case 'settings':
+        return settings;
+      case 'offlineMode':
+        return offlineMode;
+      case 'retry':
+        return retry;
+      case 'rewards':
+        return rewards;
+      case 'balance':
+        return balance;
+      case 'cashback':
+        return cashback;
+      case 'points':
+        return points;
+      case 'noInternet':
+        return noInternet;
+      case 'delivery':
+        return delivery;
+      case 'employee':
+        return employee;
+      case 'owner':
+        return owner;
+      case 'dashboard':
+        return dashboard;
+      case 'inventory':
+        return inventory;
+      case 'products':
+        return products;
+      case 'sales':
+        return sales;
+      case 'analytics':
+        return analytics;
+      case 'packOrders':
+        return packOrders;
+      case 'startDelivery':
+        return startDelivery;
+      case 'markDelivered':
+        return markDelivered;
+      case 'lowStock':
+        return lowStock;
+      case 'outOfStock':
+        return outOfStock;
+      case 'confirmed':
+        return confirmed;
+      case 'processing':
+        return processing;
+      case 'packed':
+        return packed;
+      case 'outForDelivery':
+        return outForDelivery;
+      case 'delivered':
+        return delivered;
+      case 'cancelled':
+        return cancelled;
+      case 'returns':
+        return returns;
+      case 'attendance':
+        return attendance;
+      case 'scan':
+        return scan;
+      case 'voice':
+        return voice;
+      case 'help':
+        return help;
+      case 'logout':
+        return logout;
+      case 'cash':
+        return cash;
+      case 'upi':
+        return upi;
+      case 'split':
+        return split;
+      case 'card':
+        return card;
+      case 'change':
+        return change;
+      case 'insufficient':
+        return insufficient;
+      case 'confirm':
+        return confirm;
+      case 'cancel':
+        return cancel;
+      case 'apply':
+        return apply;
+      case 'managerPin':
+        return managerPin;
+      case 'invalidPin':
+        return invalidPin;
+      case 'linkCustomer':
+        return linkCustomer;
+      case 'riderCashLimit':
+        return riderCashLimit;
+      case 'settleCash':
+        return settleCash;
+      case 'pendingSettlement':
+        return pendingSettlement;
+      case 'approved':
+        return approved;
+      case 'rejected':
+        return rejected;
+      case 'reason':
+        return reason;
+      case 'inStock':
+        return inStock;
+      case 'onlyLeft':
+        return onlyLeft(arguments?['count'] as Object? ?? '');
+      case 'weight':
+        return weight;
+      case 'quantity':
+        return quantity;
+      case 'price':
+        return price;
+      case 'mrp':
+        return mrp;
+      case 'aisle':
+        return aisle;
+      case 'shelf':
+        return shelf;
+      case 'batch':
+        return batch;
+      case 'expiry':
+        return expiry;
+      case 'revenue':
+        return revenue;
+      case 'profit':
+        return profit;
+      case 'growth':
+        return growth;
+      case 'topSelling':
+        return topSelling;
+      case 'recentActivity':
+        return recentActivity;
+      case 'stepPhone':
+        return stepPhone;
+      case 'stepCart':
+        return stepCart;
+      case 'stepAddress':
+        return stepAddress;
+      case 'stepPayment':
+        return stepPayment;
+      case 'stepDone':
+        return stepDone;
+      case 'verifyPhone':
+        return verifyPhone;
+      case 'confirmDeliveryInfo':
+        return confirmDeliveryInfo;
+      case 'phoneNumber':
+        return phoneNumber;
+      case 'enterPhoneHint':
+        return enterPhoneHint;
+      case 'sendOtp':
+        return sendOtp;
+      case 'enterOtp':
+        return enterOtp;
+      case 'enterOtpSentTo':
+        return enterOtpSentTo(arguments?['phone'] as Object? ?? '');
+      case 'otpHint':
+        return otpHint;
+      case 'verifyOtp':
+        return verifyOtp;
+      case 'verifyContinue':
+        return verifyContinue;
+      case 'resendOtp':
+        return resendOtp;
+      case 'invalidPhoneError':
+        return invalidPhoneError;
+      case 'tooManyAttempts':
+        return tooManyAttempts(arguments?['minutes'] as Object? ?? '');
+      case 'invalidOtpError':
+        return invalidOtpError;
+      case 'invalidOtp':
+        return invalidOtp;
+      case 'reviewOrder':
+        return reviewOrder;
+      case 'items':
+        return items;
+      case 'enterPromoCode':
+        return enterPromoCode;
+      case 'promoApplied':
+        return promoApplied;
+      case 'promoInvalid':
+        return promoInvalid;
+      case 'deliveryFree':
+        return deliveryFree;
+      case 'continueToAddress':
+        return continueToAddress;
+      case 'deliveryAddress':
+        return deliveryAddress;
+      case 'deliveryInstructionsHint':
+        return deliveryInstructionsHint;
+      case 'deliveryType':
+        return deliveryType;
+      case 'continueToPayment':
+        return continueToPayment;
+      case 'selectDeliveryDateTime':
+        return selectDeliveryDateTime;
+      case 'pleaseSelectAddress':
+        return pleaseSelectAddress;
+      case 'choosePaymentMethod':
+        return choosePaymentMethod;
+      case 'cod':
+        return cod;
+      case 'codSubtitle':
+        return codSubtitle;
+      case 'upiSubtitle':
+        return upiSubtitle;
+      case 'myWallet':
+        return myWallet;
+      case 'walletAvailable':
+        return walletAvailable(arguments?['amount'] as Object? ?? '');
+      case 'walletBalanceRemaining':
+        return walletBalanceRemaining(arguments?['amount'] as Object? ?? '');
+      case 'walletBalanceHeader':
+        return walletBalanceHeader(
+          arguments?['balance'] as Object? ?? '',
+          arguments?['total'] as Object? ?? '',
+        );
+      case 'processingPayment':
+        return processingPayment;
+      case 'cancelOrder':
+        return cancelOrder;
+      case 'orderConfirmed':
+        return orderConfirmed;
+      case 'orderNumberLabel':
+        return orderNumberLabel(arguments?['number'] as Object? ?? '');
+      case 'estimatedDelivery':
+        return estimatedDelivery;
+      case 'trackOrder':
+        return trackOrder;
+      case 'continueShopping':
+        return continueShopping;
+      case 'paymentFailed':
+        return paymentFailed;
+      case 'paymentFailedMessage':
+        return paymentFailedMessage;
+      case 'retryPayment':
+        return retryPayment;
+      case 'severeWeatherAlert':
+        return severeWeatherAlert;
+      case 'weatherAdvisory':
+        return weatherAdvisory;
+      case 'fastest':
+        return fastest;
+      case 'quickBook':
+        return quickBook;
+      case 'sourcingLocation':
+        return sourcingLocation;
+      case 'farmerPartner':
+        return farmerPartner;
+      case 'localSource':
+        return localSource;
+      case 'certifiedOrganic':
+        return certifiedOrganic;
+      case 'harvestedOn':
+        return harvestedOn(arguments?['date'] as Object? ?? '');
+      case 'freshnessVerified':
+        return freshnessVerified;
+      case 'sourcingTransparency':
+        return sourcingTransparency(arguments?['source'] as Object? ?? '');
+      case 'getDirections':
+        return getDirections;
+      case 'off':
+        return off;
+      case 'fixedPrice':
+        return fixedPrice;
+      case 'add':
+        return add;
+      case 'expiringSoon':
+        return expiringSoon;
+      case 'only':
+        return only;
+      case 'left':
+        return left;
+      case 'myOrders':
+        return myOrders;
+      case 'tabAll':
+        return tabAll;
+      case 'tabActive':
+        return tabActive;
+      case 'tabCompleted':
+        return tabCompleted;
+      case 'tabCancelled':
+        return tabCancelled;
+      case 'noOrdersYet':
+        return noOrdersYet;
+      case 'startShoppingSubtitle':
+        return startShoppingSubtitle;
+      case 'startShopping':
+        return startShopping;
+      case 'order':
+        return order;
+      case 'moreItems':
+        return moreItems;
+      case 'totalAmount':
+        return totalAmount;
+      case 'reorder':
+        return reorder;
+      case 'claim':
+        return claim;
+      case 'track':
+        return track;
+      case 'details':
+        return details;
+      case 'todayAt':
+        return todayAt(arguments?['time'] as Object? ?? '');
+      case 'yesterday':
+        return yesterday;
+      case 'daysAgo':
+        return daysAgo(arguments?['count'] as Object? ?? '');
+      case 'rewardWon':
+        return rewardWon;
+      case 'creditedToWallet':
+        return creditedToWallet;
+      case 'congratsCashback':
+        return congratsCashback(arguments?['amount'] as Object? ?? '');
+      case 'viewCart':
+        return viewCart;
+      case 'unavailableItems':
+        return unavailableItems(arguments?['items'] as Object? ?? '');
+      case 'pricesUpdated':
+        return pricesUpdated(arguments?['count'] as Object? ?? '');
+      case 'statusPending':
+        return statusPending;
+      case 'statusConfirmed':
+        return statusConfirmed;
+      case 'statusProcessing':
+        return statusProcessing;
+      case 'statusPacked':
+        return statusPacked;
+      case 'statusOutForDelivery':
+        return statusOutForDelivery;
+      case 'statusDelivered':
+        return statusDelivered;
+      case 'statusCancelled':
+        return statusCancelled;
+      case 'statusReturned':
+        return statusReturned;
+      case 'statusRefunded':
+        return statusRefunded;
+      case 'orderNotFound':
+        return orderNotFound;
+      case 'downloadInvoice':
+        return downloadInvoice;
+      case 'switchCodToOnline':
+        return switchCodToOnline;
+      case 'openingPaymentGateway':
+        return openingPaymentGateway;
+      case 'shop':
+        return shop;
+      case 'returnOrder':
+        return returnOrder;
+      case 'contactSupport':
+        return contactSupport;
+      case 'cancelConfirmMessage':
+        return cancelConfirmMessage;
+      case 'no':
+        return no;
+      case 'yesCancel':
+        return yesCancel;
+      case 'enterReturnReason':
+        return enterReturnReason;
+      case 'orderCancelled':
+        return orderCancelled;
+      case 'returnRequested':
+        return returnRequested;
+      case 'trustQualityProofs':
+        return trustQualityProofs;
+      case 'ourTeam':
+        return ourTeam;
+      case 'time':
+        return time;
+      case 'packedBy':
+        return packedBy(arguments?['name'] as Object? ?? '');
+      case 'viewPhotoProof':
+        return viewPhotoProof;
+      case 'realWeightGuarantee':
+        return realWeightGuarantee;
+      case 'perfectWeight':
+        return perfectWeight;
+      case 'overPackedMsg':
+        return overPackedMsg(arguments?['diff'] as Object? ?? '');
+      case 'underWeightMsg':
+        return underWeightMsg(arguments?['refund'] as Object? ?? '');
+      case 'ordered':
+        return ordered;
+      case 'weightProof':
+        return weightProof;
+      case 'viewPhoto':
+        return viewPhoto;
+      case 'labelHome':
+        return labelHome;
+      case 'labelWork':
+        return labelWork;
+      case 'labelVillageHome':
+        return labelVillageHome;
+      case 'labelFarm':
+        return labelFarm;
+      case 'labelOther':
+        return labelOther;
+      case 'typeHouse':
+        return typeHouse;
+      case 'typeApartment':
+        return typeApartment;
+      case 'typeShop':
+        return typeShop;
+      case 'propertyType':
+        return propertyType;
+      case 'addressType':
+        return addressType;
+      case 'landmarkLabel':
+        return landmarkLabel;
+      case 'villageColony':
+        return villageColony;
+      case 'pinCode':
+        return pinCode;
+      case 'voiceInstructions':
+        return voiceInstructions;
+      case 'setAsDefault':
+        return setAsDefault;
+      case 'savedAddresses':
+        return savedAddresses;
+      case 'addNew':
+        return addNew;
+      case 'noSavedAddresses':
+        return noSavedAddresses;
+      case 'noSavedAddressesSubtitle':
+        return noSavedAddressesSubtitle;
+      case 'addShippingAddress':
+        return addShippingAddress;
+      case 'editAddress':
+        return editAddress;
+      case 'addNewAddress':
+        return addNewAddress;
+      case 'saveAddress':
+        return saveAddress;
+      case 'updateAddress':
+        return updateAddress;
+      case 'invalidLabel':
+        return invalidLabel;
+      case 'invalidAddress':
+        return invalidAddress;
+      case 'invalidVillage':
+        return invalidVillage;
+      case 'invalidLandmark':
+        return invalidLandmark;
+      case 'invalidPinCode':
+        return invalidPinCode;
+      case 'fullAddress':
+        return fullAddress;
+      case 'recordingStop':
+        return recordingStop;
+      case 'voiceTagAttached':
+        return voiceTagAttached;
+      case 'recordDirectionHints':
+        return recordDirectionHints;
+      case 'deliveryInstructions':
+        return deliveryInstructions;
+      case 'fulfillment':
+        return fulfillment;
+      case 'packingDashboard':
+        return packingDashboard;
+      case 'todaysOrders':
+        return todaysOrders;
+      case 'statusNew':
+        return statusNew;
+      case 'packing':
+        return packing;
+      case 'ready':
+        return ready;
+      case 'qualityCheck':
+        return qualityCheck;
+      case 'quickStats':
+        return quickStats;
+      case 'efficiency':
+        return efficiency;
+      case 'qualityScore':
+        return qualityScore;
+      case 'itemsPacked':
+        return itemsPacked;
+      case 'quickActions':
+        return quickActions;
+      case 'acceptNewOrder':
+        return acceptNewOrder;
+      case 'viewPackingQueue':
+        return viewPackingQueue;
+      case 'printLabels':
+        return printLabels;
+      case 'orderQueue':
+        return orderQueue;
+      case 'searchOrderOrCustomer':
+        return searchOrderOrCustomer;
+      case 'sortBy':
+        return sortBy;
+      case 'oldestFirst':
+        return oldestFirst;
+      case 'byPriority':
+        return byPriority;
+      case 'highestValue':
+        return highestValue;
+      case 'customerName':
+        return customerName;
+      case 'noOrdersAvailable':
+        return noOrdersAvailable;
+      case 'packOrder':
+        return packOrder;
+      case 'customer':
+        return customer;
+      case 'phone':
+        return phone;
+      case 'address':
+        return address;
+      case 'itemsToPack':
+        return itemsToPack;
+      case 'startPacking':
+        return startPacking;
+      case 'completePacking':
+        return completePacking;
+      case 'addSpecialNotes':
+        return addSpecialNotes;
+      case 'fragileItemsExample':
+        return fragileItemsExample;
+      case 'packingStarted':
+        return packingStarted;
+      case 'allItemsPacked':
+        return allItemsPacked;
+      case 'packingCompleted':
+        return packingCompleted;
+      case 'quantityPacked':
+        return quantityPacked;
+      case 'enterQuantity':
+        return enterQuantity;
+      case 'required':
+        return required;
+      case 'verifyItems':
+        return verifyItems;
+      case 'rejectionReason':
+        return rejectionReason;
+      case 'damageExample':
+        return damageExample;
+      case 'approveOrder':
+        return approveOrder;
+      case 'rejectOrder':
+        return rejectOrder;
+      case 'confirmRejection':
+        return confirmRejection;
+      case 'areYouSureReject':
+        return areYouSureReject;
+      case 'orderRejected':
+        return orderRejected;
+      case 'orderApproved':
+        return orderApproved;
+      case 'noOrdersReadyQC':
+        return noOrdersReadyQC;
+      case 'itemsPerMin':
+        return itemsPerMin;
+      case 'verifyBarcode':
+        return verifyBarcode;
+      case 'scanBarcode':
+        return scanBarcode;
+      case 'printLabel':
+        return printLabel;
+      case 'labelPrintedSuccess':
+        return labelPrintedSuccess;
+      case 'printFailed':
+        return printFailed;
+      case 'orderAssigned':
+        return orderAssigned(arguments?['id'] as Object? ?? '');
+      case 'created':
+        return created;
+      case 'minutesAgo':
+        return minutesAgo(arguments?['count'] as Object? ?? '');
+      case 'highPriority':
+        return highPriority;
+      case 'viewAndAccept':
+        return viewAndAccept;
+      case 'continueWithOrders':
+        return continueWithOrders;
+      case 'reviewPackedOrders':
+        return reviewPackedOrders;
+      case 'noOrdersAssigned':
+        return noOrdersAssigned;
+      case 'taskNotFound':
+        return taskNotFound;
+      case 'loadingTask':
+        return loadingTask;
+      case 'errorLoadingTask':
+        return errorLoadingTask;
+      case 'errorAcceptingOrder':
+        return errorAcceptingOrder;
+      case 'errorLoadingOrders':
+        return errorLoadingOrders;
+      default:
+        return key;
     }
   }
 
@@ -2317,18 +2633,18 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-
-
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en': return AppLocalizationsEn();
-    case 'hi': return AppLocalizationsHi();
+    case 'en':
+      return AppLocalizationsEn();
+    case 'hi':
+      return AppLocalizationsHi();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.'
+    'that was used.',
   );
 }

@@ -8,14 +8,10 @@ enum ExceptionType {
   item_missing,
   payment_failure,
   customer_rejected_order,
-  other
+  other,
 }
 
-enum ExceptionStatus {
-  open,
-  under_review,
-  resolved,
-}
+enum ExceptionStatus { open, under_review, resolved }
 
 class DeliveryExceptionModel {
   final String id;

@@ -17,23 +17,20 @@ class SnapToShopScreen extends StatefulWidget {
 class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerProviderStateMixin {
   final ImagePicker _picker = ImagePicker();
   final AISearchService _aiService = AISearchService();
-  
+
   XFile? _selectedImage;
   bool _isAnalyzing = false;
   List<String> _analysisLogs = [];
   List<AISearchResult> _matchedResults = [];
   late AnimationController _laserController;
-  
+
   // Debug mode simulation label selection
   String? _selectedSimulationLabel;
 
   @override
   void initState() {
     super.initState();
-    _laserController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    );
+    _laserController = AnimationController(vsync: this, duration: const Duration(seconds: 2));
   }
 
   @override
@@ -53,9 +50,9 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
         _runImageAnalysis();
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error choosing image: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error choosing image: $e')));
     }
   }
 
@@ -64,9 +61,7 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
 
     setState(() {
       _isAnalyzing = true;
-      _analysisLogs = [
-        '[AI] Starting vision model...',
-      ];
+      _analysisLogs = ['[AI] Starting vision model...'];
     });
     _laserController.repeat(reverse: true);
 
@@ -101,9 +96,11 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
       _isAnalyzing = false;
       _matchedResults = results;
       _laserController.stop();
-      _analysisLogs.add(results.isNotEmpty 
-          ? '[AI] Successfully matched ${results.length} item(s)!' 
-          : '[AI] No direct matches found in local store.');
+      _analysisLogs.add(
+        results.isNotEmpty
+            ? '[AI] Successfully matched ${results.length} item(s)!'
+            : '[AI] No direct matches found in local store.',
+      );
     });
   }
 
@@ -130,22 +127,18 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
         centerTitle: true,
         actions: [
           if (_selectedImage != null)
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: _resetPicker,
-            )
+            IconButton(icon: const Icon(Icons.refresh), onPressed: _resetPicker),
         ],
       ),
       body: SafeArea(
         child: Column(
           children: [
             Expanded(
-              child: _selectedImage == null 
-                  ? _buildImageSelectionView() 
+              child: _selectedImage == null
+                  ? _buildImageSelectionView()
                   : _buildAnalysisViewport(size),
             ),
-            if (_selectedImage != null && !_isAnalyzing)
-              _buildResultsContainer(),
+            if (_selectedImage != null && !_isAnalyzing) _buildResultsContainer(),
           ],
         ),
       ),
@@ -154,7 +147,7 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
 
   Widget _buildImageSelectionView() {
     final mockKeywords = ['Potato', 'Tomato', 'Onion', 'Paneer', 'Milk', 'Bread', 'Apple'];
-    
+
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -168,20 +161,12 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
                 color: AppTheme.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.camera_alt_outlined,
-                size: 64,
-                color: AppTheme.primary,
-              ),
+              child: const Icon(Icons.camera_alt_outlined, size: 64, color: AppTheme.primary),
             ),
             const SizedBox(height: 24),
             const Text(
               'Identify Products instantly',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             const Text(
@@ -190,7 +175,7 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 40),
-            
+
             // Camera Button
             ElevatedButton.icon(
               onPressed: () => _pickImage(ImageSource.camera),
@@ -203,12 +188,15 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // Gallery Button
             OutlinedButton.icon(
               onPressed: () => _pickImage(ImageSource.gallery),
               icon: const Icon(Icons.photo_library, color: AppTheme.primary),
-              label: const Text('Upload from Gallery', style: TextStyle(fontWeight: FontWeight.bold)),
+              label: const Text(
+                'Upload from Gallery',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppTheme.primary,
                 minimumSize: const Size(double.infinity, 54),
@@ -288,10 +276,7 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
             child: SizedBox(
               width: analysisAreaSize,
               height: analysisAreaSize,
-              child: Image.file(
-                File(_selectedImage!.path),
-                fit: BoxFit.cover,
-              ),
+              child: Image.file(File(_selectedImage!.path), fit: BoxFit.cover),
             ),
           ),
         ),
@@ -365,25 +350,24 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
                       const SizedBox(
                         width: 12,
                         height: 12,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: AppTheme.primary,
-                        ),
+                        child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primary),
                       ),
                   ],
                 ),
                 const SizedBox(height: 8),
-                ..._analysisLogs.map((log) => Padding(
-                  padding: const EdgeInsets.only(bottom: 2.0),
-                  child: Text(
-                    log,
-                    style: const TextStyle(
-                      color: AppTheme.success,
-                      fontFamily: 'monospace',
-                      fontSize: 11,
+                ..._analysisLogs.map(
+                  (log) => Padding(
+                    padding: const EdgeInsets.only(bottom: 2.0),
+                    child: Text(
+                      log,
+                      style: const TextStyle(
+                        color: AppTheme.success,
+                        fontFamily: 'monospace',
+                        fontSize: 11,
+                      ),
                     ),
                   ),
-                )),
+                ),
               ],
             ),
           ),
@@ -483,7 +467,10 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
                         children: [
                           Text(
                             product.name,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           Text(
                             '₹${product.price.toStringAsFixed(0)} / ${product.unit} • ${(result.confidence * 100).toInt()}% match',
@@ -513,4 +500,3 @@ class _SnapToShopScreenState extends State<SnapToShopScreen> with SingleTickerPr
     );
   }
 }
-

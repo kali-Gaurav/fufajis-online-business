@@ -156,8 +156,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _statusMessage =
-              'Failed to parse: $e. Please enter details manually.';
+          _statusMessage = 'Failed to parse: $e. Please enter details manually.';
         });
       }
     } finally {
@@ -202,10 +201,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
     setState(() => _isProcessing = true);
 
     try {
-      final productProvider = Provider.of<ProductProvider>(
-        context,
-        listen: false,
-      );
+      final productProvider = Provider.of<ProductProvider>(context, listen: false);
 
       // Create product model
       final product = ProductModel(
@@ -214,9 +210,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
         description: _descriptionController.text.trim(),
         price: MonetaryValue(price),
         originalPrice: MonetaryValue(price),
-        unit: _unitController.text.trim().isNotEmpty
-            ? _unitController.text.trim()
-            : 'piece',
+        unit: _unitController.text.trim().isNotEmpty ? _unitController.text.trim() : 'piece',
         categoryId: _selectedCategory,
         category: _selectedCategory,
         shopId: currentUser.id,
@@ -251,9 +245,9 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: AppTheme.error));
   }
 
   @override
@@ -264,10 +258,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
         backgroundColor: AppTheme.primary,
         foregroundColor: Colors.white,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.help_outline),
-            onPressed: () => _showHelpDialog(),
-          ),
+          IconButton(icon: const Icon(Icons.help_outline), onPressed: () => _showHelpDialog()),
         ],
       ),
       body: SingleChildScrollView(
@@ -333,18 +324,15 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: (_isListening ? AppTheme.error : AppTheme.primary)
-                        .withValues(alpha: 0.4),
+                    color: (_isListening ? AppTheme.error : AppTheme.primary).withValues(
+                      alpha: 0.4,
+                    ),
                     blurRadius: 20,
                     spreadRadius: 5,
                   ),
                 ],
               ),
-              child: Icon(
-                _isListening ? Icons.stop : Icons.mic,
-                size: 48,
-                color: Colors.white,
-              ),
+              child: Icon(_isListening ? Icons.stop : Icons.mic, size: 48, color: Colors.white),
             ),
           ),
 
@@ -376,28 +364,15 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
               children: [
                 const Row(
                   children: [
-                    Icon(
-                      Icons.lightbulb_outline,
-                      size: 16,
-                      color: AppTheme.warning,
-                    ),
+                    Icon(Icons.lightbulb_outline, size: 16, color: AppTheme.warning),
                     SizedBox(width: 8),
-                    Text(
-                      'Try saying:',
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
+                    Text('Try saying:', style: TextStyle(fontWeight: FontWeight.w600)),
                   ],
                 ),
                 const SizedBox(height: 8),
-                _buildExamplePhrase(
-                  '"Add 20 kg organic apples priced at 150 rupees"',
-                ),
-                _buildExamplePhrase(
-                  '"Add 1 liter Amul milk, 50 rupees, 10 in stock"',
-                ),
-                _buildExamplePhrase(
-                  '"Add 500g Tata salt, 25 rupees, 50 packets"',
-                ),
+                _buildExamplePhrase('"Add 20 kg organic apples priced at 150 rupees"'),
+                _buildExamplePhrase('"Add 1 liter Amul milk, 50 rupees, 10 in stock"'),
+                _buildExamplePhrase('"Add 500g Tata salt, 25 rupees, 50 packets"'),
               ],
             ),
           ),
@@ -411,11 +386,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
       padding: const EdgeInsets.only(left: 24, bottom: 4),
       child: Text(
         phrase,
-        style: const TextStyle(
-          fontSize: 12,
-          color: AppTheme.grey600,
-          fontStyle: FontStyle.italic,
-        ),
+        style: const TextStyle(fontSize: 12, color: AppTheme.grey600, fontStyle: FontStyle.italic),
       ),
     );
   }
@@ -437,10 +408,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
               SizedBox(width: 8),
               Text(
                 'Transcribed Text',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.success,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.success),
               ),
             ],
           ),
@@ -460,11 +428,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
       children: [
         const Text(
           'Product Details',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: AppTheme.grey900,
-          ),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey900),
         ),
         const SizedBox(height: 16),
 
@@ -599,11 +563,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
       children: [
         const Text(
           'Product Image',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.grey800,
-          ),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.grey800),
         ),
         const SizedBox(height: 8),
         GestureDetector(
@@ -626,10 +586,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
                     children: [
                       Icon(Icons.camera_alt, size: 40, color: AppTheme.grey400),
                       SizedBox(height: 8),
-                      Text(
-                        'Tap to add photo',
-                        style: TextStyle(color: AppTheme.grey500),
-                      ),
+                      Text('Tap to add photo', style: TextStyle(color: AppTheme.grey500)),
                     ],
                   ),
           ),
@@ -651,15 +608,9 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
           ? const SizedBox(
               height: 24,
               width: 24,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Colors.white,
-              ),
+              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
             )
-          : const Text(
-              'Add Product',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+          : const Text('Add Product', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
     );
   }
 
@@ -681,19 +632,11 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
               const SizedBox(height: 16),
               const Text(
                 'Tip: Speak in Hindi or English. Example: "Add 1 kg potatoes at 40 rupees"',
-                style: TextStyle(
-                  fontStyle: FontStyle.italic,
-                  color: AppTheme.grey600,
-                ),
+                style: TextStyle(fontStyle: FontStyle.italic, color: AppTheme.grey600),
               ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => context.pop(),
-              child: const Text('Got it'),
-            ),
-          ],
+          actions: [TextButton(onPressed: () => context.pop(), child: const Text('Got it'))],
         );
       },
     );
@@ -707,10 +650,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
           Container(
             width: 24,
             height: 24,
-            decoration: const BoxDecoration(
-              color: AppTheme.primary,
-              shape: BoxShape.circle,
-            ),
+            decoration: const BoxDecoration(color: AppTheme.primary, shape: BoxShape.circle),
             child: Center(
               child: Text(
                 number,

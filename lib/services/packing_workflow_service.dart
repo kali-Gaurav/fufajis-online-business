@@ -22,13 +22,13 @@ import 'audit_service.dart';
 /// - completed: update order to 'packed'
 
 enum PackingWorkflowStatus {
-  new_task,     // Just created, awaiting assignment
-  assigned,     // Employee assigned
-  picking,      // Employee picking items
-  quality_check,// Awaiting QC verification
-  verified,     // QC passed, ready for delivery
-  completed,    // Fulfillment done
-  rejected,     // QC failed, needs rework
+  new_task, // Just created, awaiting assignment
+  assigned, // Employee assigned
+  picking, // Employee picking items
+  quality_check, // Awaiting QC verification
+  verified, // QC passed, ready for delivery
+  completed, // Fulfillment done
+  rejected, // QC failed, needs rework
 }
 
 class PackingWorkflowService {
@@ -89,7 +89,7 @@ class PackingWorkflowService {
             'timestamp': Timestamp.fromDate(now),
             'changedBy': 'system',
             'reason': 'task_created',
-          }
+          },
         ],
         'assignedTo': null,
         'pickedItems': [],
@@ -151,25 +151,18 @@ class PackingWorkflowService {
             'timestamp': Timestamp.fromDate(now),
             'changedBy': 'manager',
             'reason': 'assigned_to_employee',
-          }
-        ])
+          },
+        ]),
       });
 
       // Notify employee
-      await _notifications.notifyEmployee(
-        employeeId,
-        'New packing task assigned to you',
-        {
-          'taskId': taskId,
-          'itemCount': taskData['itemCount'],
-          'action': 'start_packing',
-        },
-      );
-
-      await _audit.log('fulfillment_assigned', {
+      await _notifications.notifyEmployee(employeeId, 'New packing task assigned to you', {
         'taskId': taskId,
-        'employeeId': employeeId,
+        'itemCount': taskData['itemCount'],
+        'action': 'start_packing',
       });
+
+      await _audit.log('fulfillment_assigned', {'taskId': taskId, 'employeeId': employeeId});
 
       debugPrint('[PackingWorkflowService] Assigned task $taskId to employee $employeeId');
     } catch (e) {
@@ -215,11 +208,7 @@ class PackingWorkflowService {
 
       // Add to picked list if not already there
       if (!pickedItems.any((p) => p is Map && p['itemId'] == itemId)) {
-        pickedItems.add({
-          'itemId': itemId,
-          'pickedAt': Timestamp.fromDate(now),
-          'notes': notes,
-        });
+        pickedItems.add({'itemId': itemId, 'pickedAt': Timestamp.fromDate(now), 'notes': notes});
       }
 
       // Check if all items are picked
@@ -240,15 +229,11 @@ class PackingWorkflowService {
               'timestamp': Timestamp.fromDate(now),
               'changedBy': 'employee',
               'reason': 'all_items_picked',
-            }
-        ])
+            },
+        ]),
       });
 
-      await _audit.log('item_picked', {
-        'taskId': taskId,
-        'itemId': itemId,
-        'notes': notes,
-      });
+      await _audit.log('item_picked', {'taskId': taskId, 'itemId': itemId, 'notes': notes});
 
       debugPrint('[PackingWorkflowService] Marked item $itemId as picked in task $taskId');
     } catch (e) {
@@ -273,14 +258,11 @@ class PackingWorkflowService {
       await _transitionTask(taskId, 'quality_check', 'requesting_quality_check');
 
       // Notify QC team
-      await _notifications.notifyQCTeam(
-        'Quality check needed for task: $taskId',
-        {
-          'taskId': taskId,
-          'orderId': taskData['orderId'],
-          'action': 'verify_packing',
-        },
-      );
+      await _notifications.notifyQCTeam('Quality check needed for task: $taskId', {
+        'taskId': taskId,
+        'orderId': taskData['orderId'],
+        'action': 'verify_packing',
+      });
 
       debugPrint('[PackingWorkflowService] Requested QC for task $taskId');
     } catch (e) {
@@ -290,11 +272,7 @@ class PackingWorkflowService {
   }
 
   /// Verify items passed QC
-  Future<void> verifyItems({
-    required String taskId,
-    String? verifiedBy,
-    String? notes,
-  }) async {
+  Future<void> verifyItems({required String taskId, String? verifiedBy, String? notes}) async {
     try {
       final taskSnap = await _db.collection('fulfillment_tasks').doc(taskId).get();
       final taskData = taskSnap.data();
@@ -333,8 +311,8 @@ class PackingWorkflowService {
             'timestamp': Timestamp.fromDate(now),
             'changedBy': verifiedBy ?? 'qc',
             'reason': 'quality_check_passed',
-          }
-        ])
+          },
+        ]),
       });
 
       // Notify employee that packing is done
@@ -393,7 +371,7 @@ class PackingWorkflowService {
             'reason': rejectionReason,
             'rejectedBy': rejectedBy,
             'rejectedAt': Timestamp.fromDate(now),
-          }
+          },
         ]),
         'items': (taskData['items'] as List?)?.map((item) {
           return {...item, 'picked': false, 'verified': false};
@@ -407,8 +385,8 @@ class PackingWorkflowService {
             'timestamp': Timestamp.fromDate(now),
             'changedBy': rejectedBy ?? 'qc',
             'reason': 'quality_check_failed',
-          }
-        ])
+          },
+        ]),
       });
 
       // Notify employee to redo
@@ -416,11 +394,7 @@ class PackingWorkflowService {
         await _notifications.notifyEmployee(
           assignedTo,
           'Packing rejected: $rejectionReason. Please redo.',
-          {
-            'taskId': taskId,
-            'rejectionReason': rejectionReason,
-            'action': 'restart_packing',
-          },
+          {'taskId': taskId, 'rejectionReason': rejectionReason, 'action': 'restart_packing'},
         );
       }
 
@@ -465,8 +439,8 @@ class PackingWorkflowService {
             'timestamp': Timestamp.fromDate(now),
             'changedBy': 'system',
             'reason': 'handed_off_to_delivery',
-          }
-        ])
+          },
+        ]),
       });
 
       // Update order status to packed (ready for delivery)
@@ -476,10 +450,7 @@ class PackingWorkflowService {
         'updatedAt': Timestamp.fromDate(now),
       });
 
-      await _audit.log('fulfillment_completed', {
-        'taskId': taskId,
-        'orderId': orderId,
-      });
+      await _audit.log('fulfillment_completed', {'taskId': taskId, 'orderId': orderId});
 
       debugPrint('[PackingWorkflowService] Completed fulfillment task $taskId');
     } catch (e) {
@@ -489,11 +460,7 @@ class PackingWorkflowService {
   }
 
   /// Internal: generic state transition
-  Future<void> _transitionTask(
-    String taskId,
-    String toStatus,
-    String reason,
-  ) async {
+  Future<void> _transitionTask(String taskId, String toStatus, String reason) async {
     try {
       final taskSnap = await _db.collection('fulfillment_tasks').doc(taskId).get();
       final taskData = taskSnap.data();
@@ -516,8 +483,8 @@ class PackingWorkflowService {
             'timestamp': Timestamp.fromDate(now),
             'changedBy': 'system',
             'reason': reason,
-          }
-        ])
+          },
+        ]),
       });
 
       await _audit.log('task_status_changed', {

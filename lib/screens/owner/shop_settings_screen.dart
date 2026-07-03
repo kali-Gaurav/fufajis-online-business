@@ -17,15 +17,15 @@ class ShopSettingsScreen extends StatefulWidget {
 
 class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
   final _formKey = GlobalKey<FormState>();
-  
+
   late TextEditingController _nameController;
   late TextEditingController _addressController;
   late TextEditingController _phoneController;
   late TextEditingController _emailController;
-  
+
   late TextEditingController _minOrderController;
   late TextEditingController _flatFeeController;
-  
+
   late TextEditingController _codLimitController;
   late TextEditingController _creditLimitController;
   late TextEditingController _cashbackPctController;
@@ -42,14 +42,14 @@ class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
         _addressController = TextEditingController(text: config.shopAddress);
         _phoneController = TextEditingController(text: config.shopPhone);
         _emailController = TextEditingController(text: config.shopEmail);
-        
+
         _minOrderController = TextEditingController(text: config.minOrderAmount.toString());
         _flatFeeController = TextEditingController(text: config.flatDeliveryFee.toString());
-        
+
         _codLimitController = TextEditingController(text: config.maxCodLimit.toString());
         _creditLimitController = TextEditingController(text: config.maxCreditLimit.toString());
         _cashbackPctController = TextEditingController(text: config.cashbackPercentage.toString());
-        
+
         _initialized = true;
       }
     }
@@ -73,7 +73,7 @@ class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
 
   Future<void> _saveSettings() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     final provider = Provider.of<ShopConfigProvider>(context, listen: false);
     final config = provider.shopConfig;
     if (config == null) return;
@@ -93,7 +93,10 @@ class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
     try {
       await provider.updateShopConfig(updatedConfig);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Settings saved successfully!'), backgroundColor: AppTheme.success),
+        const SnackBar(
+          content: Text('Settings saved successfully!'),
+          backgroundColor: AppTheme.success,
+        ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -115,7 +118,10 @@ class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Shop Settings & Configurations', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Shop Settings & Configurations',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.save, color: AppTheme.primary),
@@ -135,8 +141,14 @@ class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
                 elevation: 4,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 child: SwitchListTile(
-                  title: const Text('Shop Open for Orders', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  subtitle: const Text('Toggle whether customers can place orders right now.', style: TextStyle(fontWeight: FontWeight.w700)),
+                  title: const Text(
+                    'Shop Open for Orders',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  subtitle: const Text(
+                    'Toggle whether customers can place orders right now.',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
                   value: config.isOpen,
                   activeThumbColor: AppTheme.success,
                   inactiveThumbColor: AppTheme.error,
@@ -157,7 +169,11 @@ class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
                 child: SwitchListTile(
                   title: const Text(
                     '⚠️ EMERGENCY OPERATIONS MODE',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.error),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: AppTheme.error,
+                    ),
                   ),
                   subtitle: const Text(
                     'Activates emergency protocols (limits capacities, disables express orders, prioritizes pickup-first).',
@@ -180,13 +196,15 @@ class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
                       TextFormField(
                         controller: _nameController,
                         decoration: const InputDecoration(labelText: 'Shop Name'),
-                        validator: (v) => v == null || v.trim().isEmpty ? 'Please enter name' : null,
+                        validator: (v) =>
+                            v == null || v.trim().isEmpty ? 'Please enter name' : null,
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: _addressController,
                         decoration: const InputDecoration(labelText: 'Shop Address'),
-                        validator: (v) => v == null || v.trim().isEmpty ? 'Please enter address' : null,
+                        validator: (v) =>
+                            v == null || v.trim().isEmpty ? 'Please enter address' : null,
                       ),
                       const SizedBox(height: 12),
                       Row(
@@ -222,8 +240,13 @@ class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
                   children: [
                     ListTile(
                       leading: const Icon(Icons.map, color: AppTheme.primary),
-                      title: const Text('Location Picker & Delivery Radius', style: TextStyle(fontWeight: FontWeight.w700)),
-                      subtitle: Text('${config.shopLatitude.toStringAsFixed(4)}, ${config.shopLongitude.toStringAsFixed(4)} (Radius: ${config.maxDeliveryRadiusKm}km)'),
+                      title: const Text(
+                        'Location Picker & Delivery Radius',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      subtitle: Text(
+                        '${config.shopLatitude.toStringAsFixed(4)}, ${config.shopLongitude.toStringAsFixed(4)} (Radius: ${config.maxDeliveryRadiusKm}km)',
+                      ),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () => Navigator.of(context).push(
                         MaterialPageRoute(builder: (context) => const ShopLocationPickerScreen()),
@@ -232,17 +255,23 @@ class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
                     const Divider(height: 1),
                     ListTile(
                       leading: const Icon(Icons.delivery_dining, color: AppTheme.warning),
-                      title: const Text('Concentric Delivery Slabs (Zones)', style: TextStyle(fontWeight: FontWeight.w700)),
+                      title: const Text(
+                        'Concentric Delivery Slabs (Zones)',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
                       subtitle: Text('${config.deliveryZones.length} Zones defined'),
                       trailing: const Icon(Icons.chevron_right),
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => const DeliveryZonesScreen()),
-                      ),
+                      onTap: () => Navigator.of(
+                        context,
+                      ).push(MaterialPageRoute(builder: (context) => const DeliveryZonesScreen())),
                     ),
                     const Divider(height: 1),
                     ListTile(
                       leading: const Icon(Icons.store, color: AppTheme.info),
-                      title: const Text('Multi-Branch Management', style: TextStyle(fontWeight: FontWeight.w700)),
+                      title: const Text(
+                        'Multi-Branch Management',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
                       subtitle: Text('${provider.branches.length} Branches added'),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () => Navigator.of(context).push(
@@ -252,12 +281,18 @@ class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
                     const Divider(height: 1),
                     ListTile(
                       leading: const Icon(Icons.timer, color: Colors.teal),
-                      title: const Text('Operating Hours Schedule', style: TextStyle(fontWeight: FontWeight.w700)),
-                      subtitle: const Text('Configure shop opening/closing hours per day', style: TextStyle(fontWeight: FontWeight.w700)),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => const OperatingHoursScreen()),
+                      title: const Text(
+                        'Operating Hours Schedule',
+                        style: TextStyle(fontWeight: FontWeight.w700),
                       ),
+                      subtitle: const Text(
+                        'Configure shop opening/closing hours per day',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => Navigator.of(
+                        context,
+                      ).push(MaterialPageRoute(builder: (context) => const OperatingHoursScreen())),
                     ),
                   ],
                 ),
@@ -285,7 +320,9 @@ class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
                           Expanded(
                             child: TextFormField(
                               controller: _flatFeeController,
-                              decoration: const InputDecoration(labelText: 'Fallback Flat Delivery (₹)'),
+                              decoration: const InputDecoration(
+                                labelText: 'Fallback Flat Delivery (₹)',
+                              ),
                               keyboardType: TextInputType.number,
                             ),
                           ),
@@ -305,7 +342,9 @@ class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
                           Expanded(
                             child: TextFormField(
                               controller: _creditLimitController,
-                              decoration: const InputDecoration(labelText: 'Max Khata/Credit Limit (₹)'),
+                              decoration: const InputDecoration(
+                                labelText: 'Max Khata/Credit Limit (₹)',
+                              ),
                               keyboardType: TextInputType.number,
                             ),
                           ),
@@ -324,8 +363,14 @@ class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
                 child: Column(
                   children: [
                     SwitchListTile(
-                      title: const Text('Autopilot Dynamic Pricing', style: TextStyle(fontWeight: FontWeight.w700)),
-                      subtitle: const Text('Automatically updates product rates matching wholesale Mandi prices.', style: TextStyle(fontWeight: FontWeight.w700)),
+                      title: const Text(
+                        'Autopilot Dynamic Pricing',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      subtitle: const Text(
+                        'Automatically updates product rates matching wholesale Mandi prices.',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
                       value: config.isAutoPilotEnabled,
                       activeThumbColor: AppTheme.primary,
                       onChanged: (val) async {
@@ -334,8 +379,14 @@ class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
                     ),
                     const Divider(height: 1),
                     SwitchListTile(
-                      title: const Text('Enable Cashback rewards', style: TextStyle(fontWeight: FontWeight.w700)),
-                      subtitle: const Text('Give rewards to customers on successful order completions.', style: TextStyle(fontWeight: FontWeight.w700)),
+                      title: const Text(
+                        'Enable Cashback rewards',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      subtitle: const Text(
+                        'Give rewards to customers on successful order completions.',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
                       value: config.enableCashback,
                       activeThumbColor: AppTheme.primary,
                       onChanged: (val) async {
@@ -347,7 +398,10 @@ class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
                         child: TextFormField(
                           controller: _cashbackPctController,
-                          decoration: const InputDecoration(labelText: 'Cashback Percentage (%)', hintText: 'e.g. 5.0'),
+                          decoration: const InputDecoration(
+                            labelText: 'Cashback Percentage (%)',
+                            hintText: 'e.g. 5.0',
+                          ),
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         ),
                       ),
@@ -360,7 +414,7 @@ class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
               _buildSectionHeader('📊 Daily WhatsApp Report (10 PM Auto)'),
               const _DailyReportSection(),
               const SizedBox(height: 32),
-              
+
               ElevatedButton(
                 onPressed: _saveSettings,
                 style: ElevatedButton.styleFrom(
@@ -421,10 +475,7 @@ class _DailyReportSectionState extends State<_DailyReportSection> {
 
   Future<void> _loadConfig() async {
     try {
-      final doc = await FirebaseFirestore.instance
-          .collection('settings')
-          .doc('shop_config')
-          .get();
+      final doc = await FirebaseFirestore.instance.collection('settings').doc('shop_config').get();
       if (doc.exists && mounted) {
         final data = doc.data() ?? {};
         setState(() {
@@ -450,10 +501,7 @@ class _DailyReportSectionState extends State<_DailyReportSection> {
     }
     setState(() => _isSaving = true);
     try {
-      await FirebaseFirestore.instance
-          .collection('settings')
-          .doc('shop_config')
-          .set({
+      await FirebaseFirestore.instance.collection('settings').doc('shop_config').set({
         'ownerPhone': phone,
         'dailyReportEnabled': _enabled,
         'updatedAt': FieldValue.serverTimestamp(),
@@ -469,9 +517,9 @@ class _DailyReportSectionState extends State<_DailyReportSection> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Save failed: $e'), backgroundColor: AppTheme.error),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Save failed: $e'), backgroundColor: AppTheme.error));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -487,9 +535,7 @@ class _DailyReportSectionState extends State<_DailyReportSection> {
     try {
       // Call the triggerDailyOwnerReport Cloud Function via Firestore queue
       // (avoids needing functions package dependency)
-      await FirebaseFirestore.instance
-          .collection('report_trigger_queue')
-          .add({
+      await FirebaseFirestore.instance.collection('report_trigger_queue').add({
         'requestedAt': FieldValue.serverTimestamp(),
         'type': 'daily_owner_report',
         'status': 'pending',
@@ -537,9 +583,7 @@ class _DailyReportSectionState extends State<_DailyReportSection> {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF7B1FA2), Color(0xFF9C27B0)],
-                ),
+                gradient: const LinearGradient(colors: [Color(0xFF7B1FA2), Color(0xFF9C27B0)]),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Row(
@@ -565,7 +609,10 @@ class _DailyReportSectionState extends State<_DailyReportSection> {
                       ],
                     ),
                   ),
-                  Text('10 PM 🕙', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  Text(
+                    '10 PM 🕙',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
                 ],
               ),
             ),
@@ -578,7 +625,10 @@ class _DailyReportSectionState extends State<_DailyReportSection> {
                 'Enable Daily Report',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
-              subtitle: const Text('Receive WhatsApp summary every night at 10 PM IST', style: TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: const Text(
+                'Receive WhatsApp summary every night at 10 PM IST',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
               value: _enabled,
               activeThumbColor: const Color(0xFF7B1FA2),
               onChanged: (val) => setState(() => _enabled = val),
@@ -630,10 +680,7 @@ class _DailyReportSectionState extends State<_DailyReportSection> {
                         ? const SizedBox(
                             width: 16,
                             height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                           )
                         : const Icon(Icons.send),
                     label: Text(_isTesting ? 'Sending...' : 'Send Test Report Now'),

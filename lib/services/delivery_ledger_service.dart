@@ -20,7 +20,7 @@ class DeliveryLedgerService {
           .collection('delivery_tasks')
           .where('status', whereNotIn: ['failed', 'cancelled', 'delivered'])
           .get();
-      
+
       final activeOrderIds = activeTasksSnapshot.docs
           .map((doc) => doc.data()['order_id'] as String?)
           .where((id) => id != null)
@@ -70,7 +70,7 @@ class DeliveryLedgerService {
           .collection('users')
           .where('role', isEqualTo: 'UserRole.deliveryAgent')
           .get();
-      
+
       return snapshot.docs.map((doc) {
         final data = doc.data();
         return {
@@ -191,7 +191,7 @@ class DeliveryLedgerService {
   }) async {
     try {
       final db = FirebaseFirestore.instance;
-      
+
       // 1. Update the task
       await db.collection('delivery_tasks').doc(taskId).update({
         'status': toStatus,

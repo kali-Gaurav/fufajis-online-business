@@ -16,11 +16,7 @@ class PriceHistoryWidget extends StatelessWidget {
   final String productId;
   final double currentPrice;
 
-  const PriceHistoryWidget({
-    super.key,
-    required this.productId,
-    required this.currentPrice,
-  });
+  const PriceHistoryWidget({super.key, required this.productId, required this.currentPrice});
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +64,11 @@ class PriceHistoryWidget extends StatelessWidget {
                   const SizedBox(width: 6),
                   const Text(
                     'Price History',
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppTheme.grey800),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                      color: AppTheme.grey800,
+                    ),
                   ),
                   const Spacer(),
                   if (isStable)
@@ -122,7 +122,11 @@ class _StableBadge extends StatelessWidget {
           const SizedBox(width: 3),
           Text(
             days >= 9999 ? 'No changes yet' : 'Stable for $days days',
-            style: const TextStyle(color: Color(0xFF2E7D32), fontSize: 10, fontWeight: FontWeight.w600),
+            style: const TextStyle(
+              color: Color(0xFF2E7D32),
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
@@ -157,29 +161,33 @@ class _PriceChangeRow extends StatelessWidget {
               color: isIncrease
                   ? AppTheme.error
                   : isDecrease
-                      ? AppTheme.success
-                      : AppTheme.grey100,
+                  ? AppTheme.success
+                  : AppTheme.grey100,
               shape: BoxShape.circle,
             ),
             child: Icon(
               isIncrease
                   ? Icons.arrow_upward
                   : isDecrease
-                      ? Icons.arrow_downward
-                      : Icons.remove,
+                  ? Icons.arrow_downward
+                  : Icons.remove,
               size: 11,
               color: isIncrease
                   ? AppTheme.error
                   : isDecrease
-                      ? AppTheme.success
-                      : AppTheme.grey500,
+                  ? AppTheme.success
+                  : AppTheme.grey500,
             ),
           ),
           const SizedBox(width: 8),
           // Old → New
           Text(
             '₹${oldPrice.round()} → ₹${newPrice.round()}',
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.grey800),
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: AppTheme.grey800,
+            ),
           ),
           const SizedBox(width: 4),
           Text(
@@ -214,10 +222,10 @@ class _PriceChangeRow extends StatelessWidget {
 ///
 /// All badge visibility is derived from product fields — no hardcoding.
 class HonestPriceBadges extends StatelessWidget {
-  final bool hasNoDiscount;      // price == originalPrice (i.e., no fake MRP inflation)
-  final bool isLocallySourced;   // product.isLocal == true
+  final bool hasNoDiscount; // price == originalPrice (i.e., no fake MRP inflation)
+  final bool isLocallySourced; // product.isLocal == true
   final bool priceStableFor60Days; // from price history
-  final bool compact;            // compact mode for product cards
+  final bool compact; // compact mode for product cards
 
   const HonestPriceBadges({
     super.key,
@@ -232,28 +240,34 @@ class HonestPriceBadges extends StatelessWidget {
     final badges = <_BadgeData>[];
 
     if (priceStableFor60Days) {
-      badges.add(const _BadgeData(
-        icon: Icons.lock_outline,
-        label: 'Fixed Price',
-        color: Color(0xFF1565C0),
-        bg: Color(0xFFE3F2FD),
-      ));
+      badges.add(
+        const _BadgeData(
+          icon: Icons.lock_outline,
+          label: 'Fixed Price',
+          color: Color(0xFF1565C0),
+          bg: Color(0xFFE3F2FD),
+        ),
+      );
     }
 
-    badges.add(const _BadgeData(
-      icon: Icons.no_meals_outlined,
-      label: 'No Hidden Charges',
-      color: Color(0xFF2E7D32),
-      bg: Color(0xFFE8F5E9),
-    ));
+    badges.add(
+      const _BadgeData(
+        icon: Icons.no_meals_outlined,
+        label: 'No Hidden Charges',
+        color: Color(0xFF2E7D32),
+        bg: Color(0xFFE8F5E9),
+      ),
+    );
 
     if (isLocallySourced) {
-      badges.add(const _BadgeData(
-        icon: Icons.store_outlined,
-        label: 'Trusted Local Price',
-        color: Color(0xFFE65100),
-        bg: Color(0xFFFFF3E0),
-      ));
+      badges.add(
+        const _BadgeData(
+          icon: Icons.store_outlined,
+          label: 'Trusted Local Price',
+          color: Color(0xFFE65100),
+          bg: Color(0xFFFFF3E0),
+        ),
+      );
     }
 
     if (badges.isEmpty) return const SizedBox.shrink();
@@ -271,7 +285,12 @@ class _BadgeData {
   final String label;
   final Color color;
   final Color bg;
-  const _BadgeData({required this.icon, required this.label, required this.color, required this.bg});
+  const _BadgeData({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.bg,
+  });
 }
 
 class _Badge extends StatelessWidget {
@@ -282,10 +301,7 @@ class _Badge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: compact ? 6 : 8,
-        vertical: compact ? 2 : 4,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: compact ? 6 : 8, vertical: compact ? 2 : 4),
       decoration: BoxDecoration(
         color: data.bg,
         borderRadius: BorderRadius.circular(20),

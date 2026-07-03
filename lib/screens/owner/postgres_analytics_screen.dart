@@ -20,8 +20,7 @@ class PostgresAnalyticsScreen extends StatefulWidget {
   const PostgresAnalyticsScreen({super.key});
 
   @override
-  State<PostgresAnalyticsScreen> createState() =>
-      _PostgresAnalyticsScreenState();
+  State<PostgresAnalyticsScreen> createState() => _PostgresAnalyticsScreenState();
 }
 
 class _PostgresAnalyticsScreenState extends State<PostgresAnalyticsScreen> {
@@ -58,17 +57,14 @@ class _PostgresAnalyticsScreenState extends State<PostgresAnalyticsScreen> {
     try {
       final canSales = role != null && rbac.hasPermission(role, Permission.viewSalesAnalytics);
       final canVendor = role != null && rbac.hasPermission(role, Permission.viewVendorAnalytics);
-      final canDelivery = role != null && rbac.hasPermission(role, Permission.viewDeliveryAnalytics);
+      final canDelivery =
+          role != null && rbac.hasPermission(role, Permission.viewDeliveryAnalytics);
 
-      final sales = canSales
-          ? await _repo.getSalesAnalytics(from: _from, to: _to)
-          : null;
+      final sales = canSales ? await _repo.getSalesAnalytics(from: _from, to: _to) : null;
       final vendor = (canVendor && role == UserRole.supplier && user?.uid != null)
           ? await _repo.getVendorAnalytics(user!.uid)
           : null;
-      final delivery = canDelivery
-          ? await _repo.getDeliveryAnalytics(from: _from, to: _to)
-          : null;
+      final delivery = canDelivery ? await _repo.getDeliveryAnalytics(from: _from, to: _to) : null;
 
       if (!mounted) return;
       setState(() {
@@ -108,7 +104,8 @@ class _PostgresAnalyticsScreenState extends State<PostgresAnalyticsScreen> {
     final role = authProvider.currentUser?.role;
     final rbac = RBACService();
 
-    final hasAnyAccess = role != null &&
+    final hasAnyAccess =
+        role != null &&
         rbac.hasAnyPermission(role, [
           Permission.viewSalesAnalytics,
           Permission.viewVendorAnalytics,
@@ -142,40 +139,35 @@ class _PostgresAnalyticsScreenState extends State<PostgresAnalyticsScreen> {
             onPressed: _pickRange,
             tooltip: 'Change date range',
           ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _load,
-          ),
+          IconButton(icon: const Icon(Icons.refresh), onPressed: _load),
         ],
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent))
           : _error != null
-              ? Center(child: Text(_error!))
-              : RefreshIndicator(
-                  onRefresh: _load,
-                  child: ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      Text(
-                        '${DateFormat('d MMM').format(_from)} – ${DateFormat('d MMM yyyy').format(_to)}',
-                        style: const TextStyle(color: AppTheme.grey600, fontSize: 12),
-                      ),
-                      const SizedBox(height: 16),
-                      if (_sales != null) ..._buildSalesSection(role),
-                      if (_vendor != null) ..._buildVendorSection(),
-                      if (_delivery != null) ..._buildDeliverySection(role),
-                      _buildQueryPerformancePanel(),
-                      if (_sales == null && _vendor == null && _delivery == null)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 40),
-                          child: Center(
-                            child: Text('No analytics data available for your role yet.'),
-                          ),
-                        ),
-                    ],
+          ? Center(child: Text(_error!))
+          : RefreshIndicator(
+              onRefresh: _load,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  Text(
+                    '${DateFormat('d MMM').format(_from)} – ${DateFormat('d MMM yyyy').format(_to)}',
+                    style: const TextStyle(color: AppTheme.grey600, fontSize: 12),
                   ),
-                ),
+                  const SizedBox(height: 16),
+                  if (_sales != null) ..._buildSalesSection(role),
+                  if (_vendor != null) ..._buildVendorSection(),
+                  if (_delivery != null) ..._buildDeliverySection(role),
+                  _buildQueryPerformancePanel(),
+                  if (_sales == null && _vendor == null && _delivery == null)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 40),
+                      child: Center(child: Text('No analytics data available for your role yet.')),
+                    ),
+                ],
+              ),
+            ),
     );
   }
 
@@ -192,7 +184,12 @@ class _PostgresAnalyticsScreenState extends State<PostgresAnalyticsScreen> {
         crossAxisSpacing: 12,
         childAspectRatio: 1.6,
         children: [
-          _kpiCard('Total Revenue', _inr.format(s.totalRevenue), Icons.payments_outlined, AppTheme.primary),
+          _kpiCard(
+            'Total Revenue',
+            _inr.format(s.totalRevenue),
+            Icons.payments_outlined,
+            AppTheme.primary,
+          ),
           _kpiCard('Total Profit', _inr.format(s.totalProfit), Icons.trending_up, AppTheme.success),
           _kpiCard('Orders', '${s.totalOrders}', Icons.receipt_long_outlined, AppTheme.info),
           _kpiCard('Data Rows', '${s.rows.length}', Icons.table_chart_outlined, AppTheme.warning),
@@ -228,9 +225,7 @@ class _PostgresAnalyticsScreenState extends State<PostgresAnalyticsScreen> {
                   decoration: BoxDecoration(
                     border: isLast
                         ? null
-                        : const Border(
-                            bottom: BorderSide(color: AppTheme.grey100, width: 1),
-                          ),
+                        : const Border(bottom: BorderSide(color: AppTheme.grey100, width: 1)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -276,8 +271,18 @@ class _PostgresAnalyticsScreenState extends State<PostgresAnalyticsScreen> {
         crossAxisSpacing: 12,
         childAspectRatio: 1.6,
         children: [
-          _kpiCard('Total Deliveries', '${d.totalDeliveries}', Icons.local_shipping_outlined, AppTheme.primary),
-          _kpiCard('Avg Delivery Time', '${d.avgDeliveryMinutes.toStringAsFixed(1)} min', Icons.timer_outlined, AppTheme.info),
+          _kpiCard(
+            'Total Deliveries',
+            '${d.totalDeliveries}',
+            Icons.local_shipping_outlined,
+            AppTheme.primary,
+          ),
+          _kpiCard(
+            'Avg Delivery Time',
+            '${d.avgDeliveryMinutes.toStringAsFixed(1)} min',
+            Icons.timer_outlined,
+            AppTheme.info,
+          ),
         ],
       ),
       const SizedBox(height: 24),
@@ -406,12 +411,24 @@ class _PostgresAnalyticsScreenState extends State<PostgresAnalyticsScreen> {
                             children: [
                               const Icon(Icons.speed_outlined, size: 20, color: AppTheme.grey500),
                               const SizedBox(width: 8),
-                              Text(entry.key, style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.grey800)),
+                              Text(
+                                entry.key,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.grey800,
+                                ),
+                              ),
                             ],
                           ),
                           Row(
                             children: [
-                              Text('${latency.toStringAsFixed(0)} ms', style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.grey900)),
+                              Text(
+                                '${latency.toStringAsFixed(0)} ms',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.grey900,
+                                ),
+                              ),
                               const SizedBox(width: 12),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -421,7 +438,11 @@ class _PostgresAnalyticsScreenState extends State<PostgresAnalyticsScreen> {
                                 ),
                                 child: Text(
                                   status,
-                                  style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold),
+                                  style: TextStyle(
+                                    color: color,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ],

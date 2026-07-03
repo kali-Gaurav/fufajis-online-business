@@ -161,51 +161,30 @@ class LocationProvider with ChangeNotifier {
     return Geolocator.distanceBetween(lat1, lon1, lat2, lon2);
   }
 
-  double distanceFromShopInMeters({
-    required double latitude,
-    required double longitude,
-  }) {
+  double distanceFromShopInMeters({required double latitude, required double longitude}) {
     final config = ShopConfigService().cachedConfig;
     final shopLat = config?.shopLatitude ?? AppConfig.shopLatitude;
     final shopLng = config?.shopLongitude ?? AppConfig.shopLongitude;
     return calculateDistance(shopLat, shopLng, latitude, longitude);
   }
 
-  bool isWithinDeliveryRadius({
-    required double latitude,
-    required double longitude,
-  }) {
+  bool isWithinDeliveryRadius({required double latitude, required double longitude}) {
     final service = ShopConfigService();
     final config = service.cachedConfig;
     if (config == null) {
-      return distanceFromShopInMeters(
-            latitude: latitude,
-            longitude: longitude,
-          ) <=
+      return distanceFromShopInMeters(latitude: latitude, longitude: longitude) <=
           AppConfig.deliveryRadiusMeters;
     }
-    return service.isWithinDeliveryArea(
-      latitude,
-      longitude,
-      config,
-      service.cachedBranches,
-    );
+    return service.isWithinDeliveryArea(latitude, longitude, config, service.cachedBranches);
   }
 
   bool isAddressWithinDeliveryRadius(Address address) {
-    return isWithinDeliveryRadius(
-      latitude: address.latitude,
-      longitude: address.longitude,
-    );
+    return isWithinDeliveryRadius(latitude: address.latitude, longitude: address.longitude);
   }
 
   String deliveryZoneMessageFor(Address address) {
     final distanceKm =
-        distanceFromShopInMeters(
-          latitude: address.latitude,
-          longitude: address.longitude,
-        ) /
-        1000;
+        distanceFromShopInMeters(latitude: address.latitude, longitude: address.longitude) / 1000;
     final limit = deliveryRadiusKm;
 
     if (isAddressWithinDeliveryRadius(address)) {
@@ -232,6 +211,7 @@ class LocationProvider with ChangeNotifier {
   bool isDeliveryAvailable(String area) {
     // Add your district/village list here
     final availableAreas = [
+      'Baran',
       'Jaipur',
       'Jodhpur',
       'Udaipur',

@@ -71,20 +71,15 @@ class ShopBranchModel {
       deliveryRadiusKm: (map['deliveryRadiusKm'] as num? ?? 8.0).toDouble(),
       deliveryZones:
           (map['deliveryZones'] as List?)
-              ?.map(
-                (z) =>
-                    DeliveryZone.fromMap(Map<String, dynamic>.from(z as Map)),
-              )
+              ?.map((z) => DeliveryZone.fromMap(Map<String, dynamic>.from(z as Map)))
               .toList() ??
           [],
       isPrimary: map['isPrimary'] as bool? ?? false,
       isActive: map['isActive'] as bool? ?? true,
       operatingHours:
           (map['operatingHours'] as Map?)?.map(
-            (k, v) => MapEntry(
-              k.toString(),
-              OperatingHours.fromMap(Map<String, dynamic>.from(v as Map)),
-            ),
+            (k, v) =>
+                MapEntry(k.toString(), OperatingHours.fromMap(Map<String, dynamic>.from(v as Map))),
           ) ??
           {},
       contactPhone: map['contactPhone'] as String?,

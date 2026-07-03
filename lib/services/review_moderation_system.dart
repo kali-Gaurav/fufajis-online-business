@@ -47,9 +47,7 @@ class ReviewModerationSystem {
   }
 
   /// Get reviews pending approval
-  Future<List<Map<String, dynamic>>> getPendingReviews({
-    int limit = 20,
-  }) async {
+  Future<List<Map<String, dynamic>>> getPendingReviews({int limit = 20}) async {
     try {
       final snapshot = await _db
           .collectionGroup('reviews')
@@ -83,16 +81,11 @@ class ReviewModerationSystem {
   /// Approve a flagged review
   Future<void> approveReview(String productId, String reviewId) async {
     try {
-      await _db
-          .collection('products')
-          .doc(productId)
-          .collection('reviews')
-          .doc(reviewId)
-          .update({
-            'isFlagged': false,
-            'isApproved': true,
-            'approvedAt': FieldValue.serverTimestamp(),
-          });
+      await _db.collection('products').doc(productId).collection('reviews').doc(reviewId).update({
+        'isFlagged': false,
+        'isApproved': true,
+        'approvedAt': FieldValue.serverTimestamp(),
+      });
 
       print('Review $reviewId approved');
     } catch (e) {
@@ -102,23 +95,14 @@ class ReviewModerationSystem {
   }
 
   /// Hide/reject a review
-  Future<void> hideReview(
-    String productId,
-    String reviewId, {
-    String? reason,
-  }) async {
+  Future<void> hideReview(String productId, String reviewId, {String? reason}) async {
     try {
-      await _db
-          .collection('products')
-          .doc(productId)
-          .collection('reviews')
-          .doc(reviewId)
-          .update({
-            'isApproved': false,
-            'isFlagged': false,
-            'hiddenAt': FieldValue.serverTimestamp(),
-            'hiddenReason': reason,
-          });
+      await _db.collection('products').doc(productId).collection('reviews').doc(reviewId).update({
+        'isApproved': false,
+        'isFlagged': false,
+        'hiddenAt': FieldValue.serverTimestamp(),
+        'hiddenReason': reason,
+      });
 
       print('Review $reviewId hidden');
     } catch (e) {
@@ -130,12 +114,7 @@ class ReviewModerationSystem {
   /// Delete a review completely
   Future<void> deleteReview(String productId, String reviewId) async {
     try {
-      await _db
-          .collection('products')
-          .doc(productId)
-          .collection('reviews')
-          .doc(reviewId)
-          .delete();
+      await _db.collection('products').doc(productId).collection('reviews').doc(reviewId).delete();
 
       print('Review $reviewId deleted');
     } catch (e) {
@@ -210,9 +189,7 @@ class ReviewModerationSystem {
           .orderBy('createdAt', descending: true)
           .get();
 
-      return snapshot.docs
-          .map((doc) => ProductReviewModel.fromMap(doc.data()))
-          .toList();
+      return snapshot.docs.map((doc) => ProductReviewModel.fromMap(doc.data())).toList();
     } catch (e) {
       print('Error getting user reviews: $e');
       return [];

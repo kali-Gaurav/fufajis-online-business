@@ -44,14 +44,11 @@ class _BroadcastNotificationScreenState extends State<BroadcastNotificationScree
 
     try {
       final notificationService = NotificationService();
-      
+
       await notificationService.sendBroadcastNotification(
         title: _titleController.text,
         body: _bodyController.text,
-        data: {
-          'type': _selectedType,
-          'productId': _selectedProduct?.id,
-        },
+        data: {'type': _selectedType, 'productId': _selectedProduct?.id},
       );
 
       if (mounted) {
@@ -65,9 +62,9 @@ class _BroadcastNotificationScreenState extends State<BroadcastNotificationScree
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error));
       }
     } finally {
       if (mounted) setState(() => _isSending = false);
@@ -151,7 +148,10 @@ class _BroadcastNotificationScreenState extends State<BroadcastNotificationScree
               const SizedBox(height: 24),
 
               // Link to Product (Optional)
-              const Text('Link to Product (Optional)', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text(
+                'Link to Product (Optional)',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 12),
               FjCard(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -161,10 +161,7 @@ class _BroadcastNotificationScreenState extends State<BroadcastNotificationScree
                     hint: const Text('Select a product to link'),
                     value: _selectedProduct,
                     items: productProvider.products.map((p) {
-                      return DropdownMenuItem(
-                        value: p,
-                        child: Text(p.name),
-                      );
+                      return DropdownMenuItem(value: p, child: Text(p.name));
                     }).toList(),
                     onChanged: (p) => setState(() => _selectedProduct = p),
                   ),
@@ -177,11 +174,17 @@ class _BroadcastNotificationScreenState extends State<BroadcastNotificationScree
                     children: [
                       const Icon(Icons.link, size: 16, color: AppTheme.primary),
                       const SizedBox(width: 4),
-                      Text('Linked: ${_selectedProduct!.name}', style: const TextStyle(fontSize: 12, color: AppTheme.primary)),
+                      Text(
+                        'Linked: ${_selectedProduct!.name}',
+                        style: const TextStyle(fontSize: 12, color: AppTheme.primary),
+                      ),
                       const Spacer(),
                       TextButton(
                         onPressed: () => setState(() => _selectedProduct = null),
-                        child: const Text('Clear', style: TextStyle(color: AppTheme.error, fontSize: 12)),
+                        child: const Text(
+                          'Clear',
+                          style: TextStyle(color: AppTheme.error, fontSize: 12),
+                        ),
                       ),
                     ],
                   ),

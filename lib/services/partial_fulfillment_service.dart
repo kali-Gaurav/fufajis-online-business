@@ -42,7 +42,8 @@ class PartialFulfillmentService {
 
     if (!{'confirmed', 'preparing'}.contains(currentStatus)) {
       return PartialFulfillmentResult.failure(
-          'Cannot partially fulfil order in status: $currentStatus');
+        'Cannot partially fulfil order in status: $currentStatus',
+      );
     }
 
     // Calculate refund amount for unavailable items
@@ -56,7 +57,8 @@ class PartialFulfillmentService {
 
     if (remainingItems.isEmpty) {
       return PartialFulfillmentResult.failure(
-          'All items unavailable — use full cancellation instead');
+        'All items unavailable — use full cancellation instead',
+      );
     }
 
     final batch = _db.batch();
@@ -123,8 +125,10 @@ class PartialFulfillmentService {
   Future<bool> placeOnHold(String orderId, String reason, String performedBy) async {
     final snap = await _db.collection('orders').doc(orderId).get();
     if (!snap.exists) return false;
-    final currentStatus = (snap.data()!['status'] as String? ?? 'pending')
-        .replaceAll('OrderStatus.', '');
+    final currentStatus = (snap.data()!['status'] as String? ?? 'pending').replaceAll(
+      'OrderStatus.',
+      '',
+    );
     final result = await _engine.transition(
       orderId: orderId,
       fromStatus: currentStatus,
@@ -185,13 +189,12 @@ class PartialFulfillmentResult {
     required double refundAmount,
     required int unfulfilledCount,
     required int remainingCount,
-  }) =>
-      PartialFulfillmentResult._(
-        success: true,
-        refundAmount: refundAmount,
-        unfulfilledCount: unfulfilledCount,
-        remainingCount: remainingCount,
-      );
+  }) => PartialFulfillmentResult._(
+    success: true,
+    refundAmount: refundAmount,
+    unfulfilledCount: unfulfilledCount,
+    remainingCount: remainingCount,
+  );
 
   factory PartialFulfillmentResult.failure(String error) =>
       PartialFulfillmentResult._(success: false, error: error);

@@ -41,7 +41,7 @@ class CodLimitService {
   final FirebaseFirestore _firestore;
 
   CodLimitService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   // Order statuses that no longer count toward a customer's outstanding
   // COD exposure (money has either been collected/settled or the order
@@ -82,10 +82,7 @@ class CodLimitService {
   /// Compares (current outstanding COD exposure + orderAmount) against
   /// `customer.codLimit`. Returns a [CodLimitCheckResult] describing the
   /// outcome so the UI can show a clear, actionable message.
-  Future<CodLimitCheckResult> canPlaceCodOrder(
-    UserModel customer,
-    double orderAmount,
-  ) async {
+  Future<CodLimitCheckResult> canPlaceCodOrder(UserModel customer, double orderAmount) async {
     final exposure = await getCustomerCodExposure(customer.id);
     final after = exposure + orderAmount;
     final limit = customer.codLimit;
@@ -145,10 +142,7 @@ class CodLimitService {
 
   /// Checks whether [rider] has enough remaining cash-in-hand capacity to
   /// take on another COD delivery worth [codAmount].
-  Future<CodLimitCheckResult> canAssignCodTask(
-    UserModel rider,
-    double codAmount,
-  ) async {
+  Future<CodLimitCheckResult> canAssignCodTask(UserModel rider, double codAmount) async {
     final cashInHand = await getRiderCashInHand(rider.id);
     final after = cashInHand + codAmount;
     final limit = rider.maxCashInHand;

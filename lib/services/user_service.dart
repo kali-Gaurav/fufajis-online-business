@@ -65,7 +65,7 @@ class UserService {
         if (data.containsKey('phoneNumber')) sbData['phone'] = data['phoneNumber'];
         if (data.containsKey('profileImage')) sbData['avatar_url'] = data['profileImage'];
         if (data.containsKey('role')) {
-           sbData['role'] = data['role'].toString().split('.').last;
+          sbData['role'] = data['role'].toString().split('.').last;
         }
 
         if (sbData.isNotEmpty) {
@@ -171,14 +171,10 @@ class UserService {
   /// Permanently delete the user account and all associated data.
   Future<void> deleteUserAccount(String userId) async {
     try {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .delete();
+      await FirebaseFirestore.instance.collection('users').doc(userId).delete();
     } catch (e) {
       debugPrint('[UserService] deleteUserAccount failed: $e');
       rethrow;
     }
   }
-
 }

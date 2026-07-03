@@ -19,8 +19,7 @@ class WelcomeScreen extends StatefulWidget {
   State<WelcomeScreen> createState() => _WelcomeScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen>
-    with TickerProviderStateMixin {
+class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateMixin {
   late final AnimationController _fadeCtrl;
   late final AnimationController _scaleCtrl;
   late final Animation<double> _fadeAnim;
@@ -34,23 +33,19 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   void _initAnimations() {
-    _fadeCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    );
+    _fadeCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
 
-    _fadeAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut),
-    );
+    _fadeAnim = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut));
 
-    _scaleCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1400),
-    );
+    _scaleCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400));
 
-    _scaleAnim = Tween<double>(begin: 0.85, end: 1.0).animate(
-      CurvedAnimation(parent: _scaleCtrl, curve: Curves.elasticOut),
-    );
+    _scaleAnim = Tween<double>(
+      begin: 0.85,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _scaleCtrl, curve: Curves.elasticOut));
   }
 
   Future<void> _runAnimations() async {
@@ -80,20 +75,17 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           builder: (context, _) {
             return SingleChildScrollView(
               child: Container(
-                height: size.height - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom,
+                height:
+                    size.height -
+                    MediaQuery.of(context).padding.top -
+                    MediaQuery.of(context).padding.bottom,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: isDark
-                        ? [
-                            const Color(0xFF1A1A1A),
-                            const Color(0xFF262626),
-                          ]
-                        : [
-                            Colors.white,
-                            const Color(0xFFFFF8F0),
-                          ],
+                        ? [const Color(0xFF1A1A1A), const Color(0xFF262626)]
+                        : [Colors.white, const Color(0xFFFFF8F0)],
                   ),
                 ),
                 child: Column(
@@ -112,20 +104,20 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             Text(
                               'Fufaji Online',
                               style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                    fontSize: 40,
-                                    color: const Color(0xFFFF6B00),
-                                    letterSpacing: 0.5,
-                                  ),
+                                fontWeight: FontWeight.w800,
+                                fontSize: 40,
+                                color: const Color(0xFFFF6B00),
+                                letterSpacing: 0.5,
+                              ),
                             ),
                             const SizedBox(height: 8),
                             Text(
                               'आपकी अपनी दुकान',
                               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    color: isDark ? Colors.grey[400] : Colors.grey[600],
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ],
                         ),
@@ -161,31 +153,21 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                   Text(
                                     'Get fresh groceries from local shops',
                                     textAlign: TextAlign.center,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge
-                                        ?.copyWith(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w600,
-                                          color: isDark
-                                              ? Colors.white
-                                              : const Color(0xFF1A1A1A),
-                                        ),
+                                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                                    ),
                                   ),
                                   const SizedBox(height: 12),
                                   Text(
                                     'Browse, order, and get delivered in minutes from your neighbourhood shops',
                                     textAlign: TextAlign.center,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(
-                                          color: isDark
-                                              ? Colors.grey[400]
-                                              : Colors.grey[600],
-                                          fontSize: 14,
-                                          height: 1.5,
-                                        ),
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                      fontSize: 14,
+                                      height: 1.5,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -252,10 +234,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             child: Text(
                               'Continue',
                               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16,
-                                  ),
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
                             ),
                           ),
                         ),
@@ -296,11 +278,7 @@ class _FeatureItem extends StatelessWidget {
             color: const Color(0xFFFF6B00).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(
-            icon,
-            color: const Color(0xFFFF6B00),
-            size: 24,
-          ),
+          child: Icon(icon, color: const Color(0xFFFF6B00), size: 24),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -310,16 +288,16 @@ class _FeatureItem extends StatelessWidget {
               Text(
                 title,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-                    ),
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                ),
               ),
               const SizedBox(height: 4),
               Text(
                 subtitle,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
-                    ),
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
               ),
             ],
           ),

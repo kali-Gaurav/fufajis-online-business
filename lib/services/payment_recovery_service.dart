@@ -97,7 +97,8 @@ class PaymentRecoveryService {
 
       return PaymentRecoveryResult(
         status: RecoveryStatus.retryScheduled,
-        message: 'Retry ${retryCount + 1}/$_maxRetries scheduled in ${_retryDelays[retryCount].inMinutes} minutes.',
+        message:
+            'Retry ${retryCount + 1}/$_maxRetries scheduled in ${_retryDelays[retryCount].inMinutes} minutes.',
         requiresManualAction: false,
       );
     }
@@ -115,7 +116,8 @@ class PaymentRecoveryService {
 
     return const PaymentRecoveryResult(
       status: RecoveryStatus.maxRetriesExceeded,
-      message: 'Payment recovery failed after $_maxRetries retries. Customer notified. Manual review required.',
+      message:
+          'Payment recovery failed after $_maxRetries retries. Customer notified. Manual review required.',
       requiresManualAction: true,
     );
   }
@@ -131,10 +133,7 @@ class PaymentRecoveryService {
   }) async {
     final retryAt = DateTime.now().add(_retryDelays[retryCount]);
 
-    await _firestore
-        .collection('payment_retry_queue')
-        .doc('retry_${orderId}_$retryCount')
-        .set({
+    await _firestore.collection('payment_retry_queue').doc('retry_${orderId}_$retryCount').set({
       'orderId': orderId,
       'paymentId': paymentId,
       'customerId': customerId,
@@ -188,7 +187,9 @@ class PaymentRecoveryService {
       // Check if order is now paid (may have been resolved by customer manually)
       final alreadyPaid = await _checkIfOrderAlreadyPaid(orderId, data['paymentId'] as String);
       if (alreadyPaid) {
-        await _firestore.collection('payment_retry_queue').doc(retryDocId).update({'status': 'resolved_externally'});
+        await _firestore.collection('payment_retry_queue').doc(retryDocId).update({
+          'status': 'resolved_externally',
+        });
         return;
       }
 
@@ -199,13 +200,15 @@ class PaymentRecoveryService {
       // We push a notification to prompt the customer to retry payment
       await _notifyCustomerToRetry(orderId, retryCount);
 
-      await _firestore
-          .collection('payment_retry_queue')
-          .doc(retryDocId)
-          .update({'status': 'notified'});
+      await _firestore.collection('payment_retry_queue').doc(retryDocId).update({
+        'status': 'notified',
+      });
     } catch (e) {
       debugPrint('[PaymentRecovery] Retry execution failed: $e');
-      await _firestore.collection('payment_retry_queue').doc(retryDocId).update({'status': 'error', 'error': e.toString()});
+      await _firestore.collection('payment_retry_queue').doc(retryDocId).update({
+        'status': 'error',
+        'error': e.toString(),
+      });
     }
   }
 
@@ -268,20 +271,19 @@ class PaymentRecoveryService {
     try {
       String message;
       if (hasWalletFallback) {
-        message = '🔴 Payment Failed — Hi $name, your payment of ₹$amount for Order #$orderNumber '
+        message =
+            '🔴 Payment Failed — Hi $name, your payment of ₹$amount for Order #$orderNumber '
             'could not be processed.\n\n'
             '✅ You have ₹${walletBalance.toStringAsFixed(0)} in your Fufaji Wallet. '
             'Reply YES to pay using your wallet, or visit the app to choose another payment method.';
       } else {
-        message = '🔴 Payment Failed — Hi $name, your payment of ₹$amount for Order #$orderNumber '
+        message =
+            '🔴 Payment Failed — Hi $name, your payment of ₹$amount for Order #$orderNumber '
             'could not be processed.\n\n'
             'Please open the Fufaji app to retry with a different payment method, or choose Cash on Delivery.';
       }
 
-      await WhatsAppNotificationService.sendOrderUpdate(
-        phoneNumber: phone,
-        message: message,
-      );
+      await WhatsAppNotificationService.sendOrderUpdate(phoneNumber: phone, message: message);
     } catch (e) {
       debugPrint('[PaymentRecovery] WhatsApp failure notification error: $e');
     }
@@ -294,7 +296,8 @@ class PaymentRecoveryService {
       final order = OrderModel.fromMap(doc.data()!);
       if (order.customerPhone.isEmpty) return;
 
-      final message = '⏳ Payment Retry ${retryCount + 1}/$_maxRetries — Hi ${order.customerName}, '
+      final message =
+          '⏳ Payment Retry ${retryCount + 1}/$_maxRetries — Hi ${order.customerName}, '
           'your payment for Order #${order.orderNumber} is still pending. '
           'Open the Fufaji app to complete your payment.';
 
@@ -360,7 +363,9 @@ class PaymentRecoveryService {
       debugPrint('[PaymentRecovery] Auto-reconciliation error: $e');
     }
 
-    debugPrint('[PaymentRecovery] Reconciliation complete: $autoResolved auto-resolved, $manualRequired manual');
+    debugPrint(
+      '[PaymentRecovery] Reconciliation complete: $autoResolved auto-resolved, $manualRequired manual',
+    );
     return ReconciliationReport(
       autoResolved: autoResolved,
       manualRequired: manualRequired,
@@ -381,7 +386,8 @@ class PaymentRecoveryService {
       'reconId': reconId,
       'orderId': orderId,
       'amount': amount ?? 0,
-      'message': 'Payment reconciliation required for Order $orderId (₹${amount?.toStringAsFixed(0) ?? '?'}).',
+      'message':
+          'Payment reconciliation required for Order $orderId (₹${amount?.toStringAsFixed(0) ?? '?'}).',
       'isRead': false,
       'createdAt': FieldValue.serverTimestamp(),
     });
@@ -405,10 +411,7 @@ class PaymentRecoveryService {
 
   Future<int> _getRetryCount(String orderId) async {
     try {
-      final doc = await _firestore
-          .collection('payment_retry_counters')
-          .doc(orderId)
-          .get();
+      final doc = await _firestore.collection('payment_retry_counters').doc(orderId).get();
       return (doc.data()?['count'] as int?) ?? 0;
     } catch (_) {
       return 0;
@@ -416,10 +419,10 @@ class PaymentRecoveryService {
   }
 
   Future<void> _updateRetryCount(String orderId, int count) async {
-    await _firestore
-        .collection('payment_retry_counters')
-        .doc(orderId)
-        .set({'count': count, 'updatedAt': FieldValue.serverTimestamp()});
+    await _firestore.collection('payment_retry_counters').doc(orderId).set({
+      'count': count,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
 
   Future<OrderModel?> _getOrder(String orderId) async {

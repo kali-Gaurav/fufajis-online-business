@@ -13,16 +13,26 @@ class RiderEarningsScreen extends StatelessWidget {
         children: [
           // Section 1: Total Earnings Header
           _buildTotalEarningsCard(),
-          
+
           const SizedBox(height: 24),
-          
-          const Text('TODAY\'S BREAKDOWN', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey600)),
+
+          const Text(
+            'TODAY\'S BREAKDOWN',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey600),
+          ),
           const SizedBox(height: 12),
-          
+
           // Section 2: Detailed Breakdown
           _buildEarningBreakdownItem('Delivery #ORD1022', 45.0, 15.0, 10.0, 0.0),
           _buildEarningBreakdownItem('Delivery #ORD1023', 45.0, 20.0, 15.0, 0.0),
-          _buildEarningBreakdownItem('Delivery #ORD1024', 45.0, 10.0, 0.0, -10.0, penaltyReason: 'Late Pickup'),
+          _buildEarningBreakdownItem(
+            'Delivery #ORD1024',
+            45.0,
+            10.0,
+            0.0,
+            -10.0,
+            penaltyReason: 'Late Pickup',
+          ),
         ],
       ),
     );
@@ -44,15 +54,12 @@ class RiderEarningsScreen extends StatelessWidget {
             color: AppTheme.primary.withValues(alpha: 0.3),
             blurRadius: 10,
             offset: const Offset(0, 4),
-          )
+          ),
         ],
       ),
       child: Column(
         children: [
-          const Text(
-            'Today\'s Earnings',
-            style: TextStyle(color: Colors.white70, fontSize: 16),
-          ),
+          const Text('Today\'s Earnings', style: TextStyle(color: Colors.white70, fontSize: 16)),
           const SizedBox(height: 8),
           const Text(
             '₹180.00',
@@ -68,7 +75,7 @@ class RiderEarningsScreen extends StatelessWidget {
               Container(width: 1, height: 30, color: Colors.white30),
               _buildMiniStat('Distance', '12.5 km'),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -79,12 +86,22 @@ class RiderEarningsScreen extends StatelessWidget {
       children: [
         Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
         const SizedBox(height: 4),
-        Text(value, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+        Text(
+          value,
+          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+        ),
       ],
     );
   }
 
-  Widget _buildEarningBreakdownItem(String title, double base, double distance, double surge, double penalty, {String? penaltyReason}) {
+  Widget _buildEarningBreakdownItem(
+    String title,
+    double base,
+    double distance,
+    double surge,
+    double penalty, {
+    String? penaltyReason,
+  }) {
     final total = base + distance + surge + penalty;
 
     return Card(
@@ -95,31 +112,47 @@ class RiderEarningsScreen extends StatelessWidget {
         child: ExpansionTile(
           title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
           subtitle: const Text('Tap for transparency breakdown', style: TextStyle(fontSize: 12)),
-          trailing: Text('₹${total.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.success)),
+          trailing: Text(
+            '₹${total.toStringAsFixed(2)}',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: AppTheme.success,
+            ),
+          ),
           childrenPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           children: [
             _buildBreakdownRow('Base Pay', base),
             _buildBreakdownRow('Distance Bonus', distance),
             if (surge > 0) _buildBreakdownRow('Surge Bonus', surge, isPositive: true),
-            if (penalty < 0) _buildBreakdownRow('Penalty (${penaltyReason ?? "N/A"})', penalty, isNegative: true),
+            if (penalty < 0)
+              _buildBreakdownRow('Penalty (${penaltyReason ?? "N/A"})', penalty, isNegative: true),
             const Divider(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text('Total Earned', style: TextStyle(fontWeight: FontWeight.bold)),
-                Text('₹${total.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(
+                  '₹${total.toStringAsFixed(2)}',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
               ],
-            )
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildBreakdownRow(String label, double amount, {bool isPositive = false, bool isNegative = false}) {
+  Widget _buildBreakdownRow(
+    String label,
+    double amount, {
+    bool isPositive = false,
+    bool isNegative = false,
+  }) {
     Color color = Colors.black87;
     String prefix = '';
-    
+
     if (isPositive) {
       color = AppTheme.success;
       prefix = '+';
@@ -133,7 +166,10 @@ class RiderEarningsScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: TextStyle(color: Colors.grey[700])),
-          Text('$prefix₹${amount.abs().toStringAsFixed(2)}', style: TextStyle(color: color, fontWeight: FontWeight.w500)),
+          Text(
+            '$prefix₹${amount.abs().toStringAsFixed(2)}',
+            style: TextStyle(color: color, fontWeight: FontWeight.w500),
+          ),
         ],
       ),
     );

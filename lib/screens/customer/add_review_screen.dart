@@ -42,9 +42,9 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
 
   Future<void> _pickImages() async {
     if (_images.length >= 3) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Maximum 3 images allowed')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Maximum 3 images allowed')));
       return;
     }
 
@@ -129,9 +129,9 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
       await reviewProvider.submitReview(review);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Review submitted successfully')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Review submitted successfully')));
         Navigator.pop(context, true);
       }
     } catch (e) {
@@ -158,10 +158,7 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
             // Product name
             Text(
               widget.productName,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -170,11 +167,7 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
             // Rating selector
             Text(
               'How would you rate this product?',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[700],
-              ),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey[700]),
             ),
             const SizedBox(height: 12),
             Center(
@@ -201,11 +194,7 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
             // Review text
             Text(
               'Share your experience (optional)',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[700],
-              ),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey[700]),
             ),
             const SizedBox(height: 8),
             TextField(
@@ -214,27 +203,18 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
               minLines: 3,
               decoration: InputDecoration(
                 hintText: 'Tell others what you think about this product...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 contentPadding: const EdgeInsets.all(12),
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              'Minimum 3 characters',
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-            ),
+            Text('Minimum 3 characters', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
             const SizedBox(height: 24),
 
             // Image upload
             Text(
               'Add photos (up to 3)',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[700],
-              ),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey[700]),
             ),
             const SizedBox(height: 12),
             if (_images.isEmpty)
@@ -244,10 +224,7 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 32),
                   decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.grey[300]!,
-                      style: BorderStyle.solid,
-                    ),
+                    border: Border.all(color: Colors.grey[300]!, style: BorderStyle.solid),
                     borderRadius: BorderRadius.circular(8),
                     color: Colors.grey[50],
                   ),
@@ -255,10 +232,7 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
                     children: [
                       Icon(Icons.image_outlined, size: 40, color: Colors.grey[400]),
                       const SizedBox(height: 12),
-                      Text(
-                        'Tap to add photos',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
+                      Text('Tap to add photos', style: TextStyle(color: Colors.grey[600])),
                     ],
                   ),
                 ),
@@ -280,10 +254,7 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Image.file(
-                              File(_images[index].path),
-                              fit: BoxFit.cover,
-                            ),
+                            child: Image.file(File(_images[index].path), fit: BoxFit.cover),
                           ),
                           Positioned(
                             top: 4,
@@ -296,11 +267,7 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
                                   shape: BoxShape.circle,
                                 ),
                                 padding: const EdgeInsets.all(4),
-                                child: const Icon(
-                                  Icons.close,
-                                  color: Colors.white,
-                                  size: 16,
-                                ),
+                                child: const Icon(Icons.close, color: Colors.white, size: 16),
                               ),
                             ),
                           ),
@@ -329,10 +296,7 @@ class _AddReviewScreenState extends State<AddReviewScreen> {
                   border: Border.all(color: AppTheme.error),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(
-                  _error!,
-                  style: const TextStyle(color: AppTheme.error, fontSize: 13),
-                ),
+                child: Text(_error!, style: const TextStyle(color: AppTheme.error, fontSize: 13)),
               ),
               const SizedBox(height: 16),
             ],

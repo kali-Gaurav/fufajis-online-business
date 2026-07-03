@@ -19,12 +19,10 @@ class EmployeeSupportQueueScreen extends StatefulWidget {
   const EmployeeSupportQueueScreen({super.key});
 
   @override
-  State<EmployeeSupportQueueScreen> createState() =>
-      _EmployeeSupportQueueScreenState();
+  State<EmployeeSupportQueueScreen> createState() => _EmployeeSupportQueueScreenState();
 }
 
-class _EmployeeSupportQueueScreenState
-    extends State<EmployeeSupportQueueScreen>
+class _EmployeeSupportQueueScreenState extends State<EmployeeSupportQueueScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
@@ -72,13 +70,7 @@ class _EmployeeSupportQueueScreenState
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _MyQueueTab(),
-          _UnassignedTab(),
-        ],
-      ),
+      body: TabBarView(controller: _tabController, children: [_MyQueueTab(), _UnassignedTab()]),
     );
   }
 
@@ -103,9 +95,7 @@ class _MyQueueTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ChatProvider>(
       builder: (context, chat, _) {
-        final assigned = chat.conversations
-            .where((c) => c.status != ChatStatus.closed)
-            .toList();
+        final assigned = chat.conversations.where((c) => c.status != ChatStatus.closed).toList();
 
         if (assigned.isEmpty) {
           return const _EmptyState(
@@ -118,10 +108,7 @@ class _MyQueueTab extends StatelessWidget {
         return ListView.builder(
           padding: const EdgeInsets.symmetric(vertical: 8),
           itemCount: assigned.length,
-          itemBuilder: (context, i) => _ConversationTile(
-            conv: assigned[i],
-            showClaimButton: false,
-          ),
+          itemBuilder: (context, i) => _ConversationTile(conv: assigned[i], showClaimButton: false),
         );
       },
     );
@@ -148,10 +135,8 @@ class _UnassignedTab extends StatelessWidget {
         return ListView.builder(
           padding: const EdgeInsets.symmetric(vertical: 8),
           itemCount: unassigned.length,
-          itemBuilder: (context, i) => _ConversationTile(
-            conv: unassigned[i],
-            showClaimButton: true,
-          ),
+          itemBuilder: (context, i) =>
+              _ConversationTile(conv: unassigned[i], showClaimButton: true),
         );
       },
     );
@@ -164,10 +149,7 @@ class _ConversationTile extends StatelessWidget {
   final ChatConversationModel conv;
   final bool showClaimButton;
 
-  const _ConversationTile({
-    required this.conv,
-    required this.showClaimButton,
-  });
+  const _ConversationTile({required this.conv, required this.showClaimButton});
 
   @override
   Widget build(BuildContext context) {
@@ -190,16 +172,10 @@ class _ConversationTile extends StatelessWidget {
             children: [
               // Avatar
               CircleAvatar(
-                backgroundColor:
-                    const Color(0xFF6A1B9A).withValues(alpha: 0.1),
+                backgroundColor: const Color(0xFF6A1B9A).withValues(alpha: 0.1),
                 child: Text(
-                  conv.customerName.isNotEmpty
-                      ? conv.customerName[0].toUpperCase()
-                      : '?',
-                  style: const TextStyle(
-                    color: Color(0xFF6A1B9A),
-                    fontWeight: FontWeight.bold,
-                  ),
+                  conv.customerName.isNotEmpty ? conv.customerName[0].toUpperCase() : '?',
+                  style: const TextStyle(color: Color(0xFF6A1B9A), fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(width: 12),
@@ -213,18 +189,12 @@ class _ConversationTile extends StatelessWidget {
                         Expanded(
                           child: Text(
                             conv.customerName,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                           ),
                         ),
                         Text(
                           _formatTime(conv.lastUpdated),
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey,
-                          ),
+                          style: const TextStyle(fontSize: 11, color: Colors.grey),
                         ),
                       ],
                     ),
@@ -232,20 +202,14 @@ class _ConversationTile extends StatelessWidget {
                     if (conv.orderId != null)
                       Text(
                         'Order #${conv.orderNumber ?? conv.orderId}',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey.shade600,
-                        ),
+                        style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
                       ),
                     const SizedBox(height: 4),
                     Text(
                       conv.lastMessage,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey,
-                      ),
+                      style: const TextStyle(fontSize: 13, color: Colors.grey),
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -254,8 +218,7 @@ class _ConversationTile extends StatelessWidget {
                         const Spacer(),
                         if (conv.unreadCountOwner > 0)
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 7, vertical: 2),
+                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                             decoration: BoxDecoration(
                               color: AppTheme.error,
                               borderRadius: BorderRadius.circular(10),
@@ -284,21 +247,20 @@ class _ConversationTile extends StatelessWidget {
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content:
-                                          Text('Conversation claimed!'),
+                                      content: Text('Conversation claimed!'),
                                       backgroundColor: Color(0xFF6A1B9A),
                                     ),
                                   );
                                   // Navigate directly into the conversation
-                                  context
-                                      .push('/employee/chat/${conv.chatId}');
+                                  context.push('/employee/chat/${conv.chatId}');
                                 }
                               } catch (e) {
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                        content: Text('Error: $e'),
-                                        backgroundColor: AppTheme.error),
+                                      content: Text('Error: $e'),
+                                      backgroundColor: AppTheme.error,
+                                    ),
                                   );
                                 }
                               }
@@ -306,8 +268,7 @@ class _ConversationTile extends StatelessWidget {
                           ),
                         ] else ...[
                           const SizedBox(width: 6),
-                          const Icon(Icons.chevron_right,
-                              color: Colors.grey, size: 20),
+                          const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
                         ],
                       ],
                     ),
@@ -361,16 +322,14 @@ class _ClaimButtonState extends State<_ClaimButton> {
           backgroundColor: const Color(0xFF6A1B9A),
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 12),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
         ),
         child: _loading
             ? const SizedBox(
                 width: 12,
                 height: 12,
-                child: CircularProgressIndicator(
-                    strokeWidth: 2, color: Colors.white),
+                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
               )
             : const Text('Claim'),
       ),
@@ -412,11 +371,7 @@ class _StatusBadge extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          color: color,
-        ),
+        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: color),
       ),
     );
   }
@@ -429,11 +384,7 @@ class _EmptyState extends StatelessWidget {
   final String title;
   final String subtitle;
 
-  const _EmptyState({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-  });
+  const _EmptyState({required this.icon, required this.title, required this.subtitle});
 
   @override
   Widget build(BuildContext context) {
@@ -445,13 +396,13 @@ class _EmptyState extends StatelessWidget {
           children: [
             Icon(icon, size: 64, color: Colors.grey.shade300),
             const SizedBox(height: 16),
-            Text(title,
-                style: const TextStyle(
-                    fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            Text(subtitle,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey.shade600)),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey.shade600),
+            ),
           ],
         ),
       ),

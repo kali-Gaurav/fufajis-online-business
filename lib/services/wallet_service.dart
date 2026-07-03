@@ -91,8 +91,8 @@ class WalletTransaction {
       orderReference: map['orderReference'] as String?,
       timestamp: map['timestamp'] != null
           ? (map['timestamp'] is DateTime
-              ? map['timestamp'] as DateTime
-              : (map['timestamp'] as Timestamp).toDate())
+                ? map['timestamp'] as DateTime
+                : (map['timestamp'] as Timestamp).toDate())
           : DateTime.now(),
       description: map['description'] as String?,
       balanceAfter: (map['balanceAfter'] as num? ?? 0.0).toDouble(),
@@ -140,7 +140,7 @@ class WalletTransaction {
 }
 
 /// WalletService handles all wallet-related operations
-/// 
+///
 /// Responsibilities:
 /// - Update wallet balance with Firestore sync
 /// - Track wallet transaction history
@@ -156,7 +156,7 @@ class WalletService {
   WalletService._internal();
 
   /// Adds amount to wallet balance and records transaction
-  /// 
+  ///
   /// [Requirements 11.1, 11.6, 11.7]: Updates wallet balance with Firestore sync
   /// and tracks transaction history (transaction type, amount, order reference, timestamp)
   Future<bool> addToWallet({
@@ -213,10 +213,7 @@ class WalletService {
           sequenceNumber: newSeqNum,
         );
 
-        transaction.set(
-          txnDocRef,
-          transactionData.toMap(),
-        );
+        transaction.set(txnDocRef, transactionData.toMap());
       });
 
       // Log Refund to Audit
@@ -326,10 +323,7 @@ class WalletService {
           sequenceNumber: newSeqNum,
         );
 
-        transaction.set(
-          txnDocRef,
-          transactionData.toMap(),
-        );
+        transaction.set(txnDocRef, transactionData.toMap());
       });
 
       return true;
@@ -354,7 +348,7 @@ class WalletService {
   }
 
   /// Fetches wallet transaction history with pagination
-  /// 
+  ///
   /// [Requirements 11.7]: Displays transaction history with pagination,
   /// showing transaction type, amount, order reference, timestamp
   Future<List<WalletTransaction>> getTransactionHistory({
@@ -375,9 +369,7 @@ class WalletService {
       }
 
       final snapshot = await query.get();
-      return snapshot.docs
-          .map((doc) => WalletTransaction.fromMap(doc.data()))
-          .toList();
+      return snapshot.docs.map((doc) => WalletTransaction.fromMap(doc.data())).toList();
     } catch (e) {
       debugPrint('Error fetching transaction history: $e');
       return [];
@@ -400,9 +392,7 @@ class WalletService {
           .limit(limit)
           .get();
 
-      return snapshot.docs
-          .map((doc) => WalletTransaction.fromMap(doc.data()))
-          .toList();
+      return snapshot.docs.map((doc) => WalletTransaction.fromMap(doc.data())).toList();
     } catch (e) {
       debugPrint('Error fetching transactions by type: $e');
       return [];
@@ -423,9 +413,7 @@ class WalletService {
           .orderBy('timestamp', descending: true)
           .get();
 
-      return snapshot.docs
-          .map((doc) => WalletTransaction.fromMap(doc.data()))
-          .toList();
+      return snapshot.docs.map((doc) => WalletTransaction.fromMap(doc.data())).toList();
     } catch (e) {
       debugPrint('Error fetching transactions by order: $e');
       return [];
@@ -450,8 +438,8 @@ class WalletService {
         .orderBy('timestamp', descending: true)
         .limit(50)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => WalletTransaction.fromMap(doc.data()))
-            .toList());
+        .map(
+          (snapshot) => snapshot.docs.map((doc) => WalletTransaction.fromMap(doc.data())).toList(),
+        );
   }
 }

@@ -31,8 +31,7 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
-    with TickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
   // Controllers
   late final AnimationController _masterCtrl;
   late final AnimationController _glowCtrl;
@@ -64,10 +63,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _initAnimations() {
-    _masterCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1600),
-    );
+    _masterCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1600));
 
     _bgFade = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
@@ -92,10 +88,7 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    _logoSlide = Tween<Offset>(
-      begin: const Offset(0, 0.45),
-      end: Offset.zero,
-    ).animate(
+    _logoSlide = Tween<Offset>(begin: const Offset(0, 0.45), end: Offset.zero).animate(
       CurvedAnimation(
         parent: _masterCtrl,
         curve: const Interval(0.22, 0.55, curve: Curves.easeOutCubic),
@@ -109,46 +102,37 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    _taglineSlide = Tween<Offset>(
-      begin: const Offset(0, 0.40),
-      end: Offset.zero,
-    ).animate(
+    _taglineSlide = Tween<Offset>(begin: const Offset(0, 0.40), end: Offset.zero).animate(
       CurvedAnimation(
         parent: _masterCtrl,
         curve: const Interval(0.70, 1.0, curve: Curves.easeOutCubic),
       ),
     );
 
-    _glowCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1800),
-    )..repeat(reverse: true);
+    _glowCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1800))
+      ..repeat(reverse: true);
 
-    _glowPulse = Tween<double>(begin: 0.45, end: 1.0).animate(
-      CurvedAnimation(parent: _glowCtrl, curve: Curves.easeInOut),
-    );
+    _glowPulse = Tween<double>(
+      begin: 0.45,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _glowCtrl, curve: Curves.easeInOut));
 
-    _blobCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 7),
-    )..repeat(reverse: true);
+    _blobCtrl = AnimationController(vsync: this, duration: const Duration(seconds: 7))
+      ..repeat(reverse: true);
 
-    _blob1Y = Tween<double>(begin: -28.0, end: 28.0).animate(
-      CurvedAnimation(parent: _blobCtrl, curve: Curves.easeInOut),
-    );
-    _blob2Y = Tween<double>(begin: 28.0, end: -28.0).animate(
-      CurvedAnimation(parent: _blobCtrl, curve: Curves.easeInOut),
-    );
+    _blob1Y = Tween<double>(
+      begin: -28.0,
+      end: 28.0,
+    ).animate(CurvedAnimation(parent: _blobCtrl, curve: Curves.easeInOut));
+    _blob2Y = Tween<double>(
+      begin: 28.0,
+      end: -28.0,
+    ).animate(CurvedAnimation(parent: _blobCtrl, curve: Curves.easeInOut));
 
-    _progressCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
+    _progressCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
 
-    _dotsCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..repeat();
+    _dotsCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 900))
+      ..repeat();
   }
 
   Future<void> _runAnimations() async {
@@ -225,8 +209,7 @@ class _SplashScreenState extends State<SplashScreen>
           context.go('/security-pin');
           return;
         }
-        if (user.role == UserRole.customer &&
-            (user.name == null || user.name!.isEmpty)) {
+        if (user.role == UserRole.customer && (user.name == null || user.name!.isEmpty)) {
           context.go('/profile-creation');
           return;
         }
@@ -277,12 +260,7 @@ class _SplashScreenState extends State<SplashScreen>
     return Scaffold(
       backgroundColor: const Color(0xFFFF6B00),
       body: AnimatedBuilder(
-        animation: Listenable.merge([
-          _masterCtrl,
-          _glowCtrl,
-          _blobCtrl,
-          _progressCtrl,
-        ]),
+        animation: Listenable.merge([_masterCtrl, _glowCtrl, _blobCtrl, _progressCtrl]),
         builder: (context, _) {
           return Stack(
             children: [
@@ -294,11 +272,7 @@ class _SplashScreenState extends State<SplashScreen>
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [
-                        Color(0xFFFF6B00),
-                        Color(0xFFFF8C42),
-                        Color(0xFFE55B00),
-                      ],
+                      colors: [Color(0xFFFF6B00), Color(0xFFFF8C42), Color(0xFFE55B00)],
                       stops: [0.0, 0.55, 1.0],
                     ),
                   ),
@@ -405,8 +379,7 @@ class _SplashScreenState extends State<SplashScreen>
                                   color: Colors.white.withValues(alpha: 0.10),
                                   border: Border.all(
                                     color: Colors.white.withValues(
-                                      alpha:
-                                          0.22 + _glowPulse.value * 0.18,
+                                      alpha: 0.22 + _glowPulse.value * 0.18,
                                     ),
                                     width: 2,
                                   ),
@@ -433,11 +406,7 @@ class _SplashScreenState extends State<SplashScreen>
                           color: Colors.white,
                           letterSpacing: 0.4,
                           shadows: [
-                            Shadow(
-                              color: Color(0x44000000),
-                              blurRadius: 18,
-                              offset: Offset(0, 5),
-                            ),
+                            Shadow(color: Color(0x44000000), blurRadius: 18, offset: Offset(0, 5)),
                           ],
                         ),
                       ),
@@ -447,16 +416,11 @@ class _SplashScreenState extends State<SplashScreen>
                         child: FractionalTranslation(
                           translation: _taglineSlide.value,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 7,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 7),
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.14),
                               borderRadius: BorderRadius.circular(24),
-                              border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.28),
-                              ),
+                              border: Border.all(color: Colors.white.withValues(alpha: 0.28)),
                             ),
                             child: const Text(
                               'आपकी अपनी दुकान  ·  Your own store',
@@ -506,12 +470,8 @@ class _SplashScreenState extends State<SplashScreen>
                                 child: LinearProgressIndicator(
                                   value: _progressCtrl.value,
                                   minHeight: 3.5,
-                                  backgroundColor:
-                                      Colors.white.withValues(alpha: 0.22),
-                                  valueColor:
-                                      const AlwaysStoppedAnimation<Color>(
-                                    Colors.white,
-                                  ),
+                                  backgroundColor: Colors.white.withValues(alpha: 0.22),
+                                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                                 ),
                               ),
                             ),
@@ -531,11 +491,7 @@ class _SplashScreenState extends State<SplashScreen>
                         padding: EdgeInsets.only(bottom: 22),
                         child: Text(
                           'Powered by Fufaji Technologies',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.white54,
-                            letterSpacing: 0.6,
-                          ),
+                          style: TextStyle(fontSize: 11, color: Colors.white54, letterSpacing: 0.6),
                         ),
                       ),
                     ),
@@ -630,8 +586,7 @@ class _BouncingDots extends StatelessWidget {
             transform: Matrix4.translationValues(0, -10 * bounce, 0),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white
-                  .withValues(alpha: 0.60 + 0.40 * bounce),
+              color: Colors.white.withValues(alpha: 0.60 + 0.40 * bounce),
             ),
           );
         }),

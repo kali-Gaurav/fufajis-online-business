@@ -1,0 +1,756 @@
+{
+  "category": "Spices",
+  "count": 50,
+  "products": [
+    {
+      "id": "SPK001",
+      "familyName": "Cumin Seeds",
+      "brand": "MDH",
+      "hindiName": "MDH जीरा",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 45, "cost": 30},
+        {"size": "100g", "price": 75, "cost": 50},
+        {"size": "200g", "price": 140, "cost": 95}
+      ],
+      "keywords": ["spice", "cumin", "jira", "MDH cumin", "भारतीय जीरा"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK002",
+      "familyName": "Coriander Powder",
+      "brand": "Everest",
+      "hindiName": "Everest धनिया पाउडर",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 40, "cost": 28},
+        {"size": "100g", "price": 70, "cost": 48},
+        {"size": "200g", "price": 130, "cost": 90}
+      ],
+      "keywords": ["spice", "coriander", "dhaniya", "Everest coriander", "धनिया पाउडर"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK003",
+      "familyName": "Turmeric Powder",
+      "brand": "Tata Sampann",
+      "hindiName": "Tata Sampann हल्दी",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 35, "cost": 24},
+        {"size": "100g", "price": 60, "cost": 42},
+        {"size": "200g", "price": 115, "cost": 80}
+      ],
+      "keywords": ["spice", "turmeric", "haldi", "Tata turmeric", "हल्दी पाउडर"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK004",
+      "familyName": "Red Chili Powder",
+      "brand": "Catch",
+      "hindiName": "Catch लाल मिर्च",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 38, "cost": 26},
+        {"size": "100g", "price": 65, "cost": 45},
+        {"size": "200g", "price": 125, "cost": 87}
+      ],
+      "keywords": ["spice", "chili", "mirch", "Catch chili", "लाल मिर्च पाउडर"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK005",
+      "familyName": "Garam Masala",
+      "brand": "MDH",
+      "hindiName": "MDH गरम मसाला",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 50, "cost": 32},
+        {"size": "100g", "price": 85, "cost": 58},
+        {"size": "200g", "price": 160, "cost": 110}
+      ],
+      "keywords": ["spice", "garam masala", "masala", "MDH masala", "गरम मसाला मिश्रण"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK006",
+      "familyName": "Black Pepper",
+      "brand": "Everest",
+      "hindiName": "Everest काली मिर्च",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 55, "cost": 35},
+        {"size": "100g", "price": 95, "cost": 65},
+        {"size": "200g", "price": 180, "cost": 125}
+      ],
+      "keywords": ["spice", "pepper", "black pepper", "Everest pepper", "काली मिर्च"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK007",
+      "familyName": "Fennel Seeds",
+      "brand": "Shan",
+      "hindiName": "Shan सौंफ",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 42, "cost": 28},
+        {"size": "100g", "price": 72, "cost": 50},
+        {"size": "200g", "price": 135, "cost": 92}
+      ],
+      "keywords": ["spice", "fennel", "saunf", "Shan seeds", "सौंफ के बीज"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK008",
+      "familyName": "Fenugreek Powder",
+      "brand": "Badshah",
+      "hindiName": "Badshah मेथी",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 38, "cost": 25},
+        {"size": "100g", "price": 65, "cost": 43},
+        {"size": "200g", "price": 120, "cost": 82}
+      ],
+      "keywords": ["spice", "fenugreek", "methi", "Badshah methi", "मेथी पाउडर"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK009",
+      "familyName": "Asafoetida",
+      "brand": "Sona",
+      "hindiName": "Sona हींग",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 65, "cost": 40},
+        {"size": "100g", "price": 110, "cost": 75},
+        {"size": "200g", "price": 210, "cost": 145}
+      ],
+      "keywords": ["spice", "asafoetida", "hing", "Sona hing", "हींग मसाला"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK010",
+      "familyName": "Cloves",
+      "brand": "Everest",
+      "hindiName": "Everest लौंग",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 60, "cost": 38},
+        {"size": "100g", "price": 105, "cost": 70},
+        {"size": "200g", "price": 200, "cost": 135}
+      ],
+      "keywords": ["spice", "cloves", "laung", "Everest cloves", "लौंग मसाला"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK011",
+      "familyName": "Cardamom Green",
+      "brand": "MDH",
+      "hindiName": "MDH हरी इलायची",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 80, "cost": 48},
+        {"size": "100g", "price": 140, "cost": 95},
+        {"size": "200g", "price": 270, "cost": 185}
+      ],
+      "keywords": ["spice", "cardamom", "elaichi", "MDH green cardamom", "हरी इलायची"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK012",
+      "familyName": "Cinnamon Sticks",
+      "brand": "Tata Sampann",
+      "hindiName": "Tata Sampann दालचीनी",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 70, "cost": 42},
+        {"size": "100g", "price": 120, "cost": 82},
+        {"size": "200g", "price": 230, "cost": 160}
+      ],
+      "keywords": ["spice", "cinnamon", "dalchini", "Tata cinnamon", "दालचीनी की छड़ी"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK013",
+      "familyName": "Bay Leaves",
+      "brand": "Catch",
+      "hindiName": "Catch तेज पत्ता",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 45, "cost": 28},
+        {"size": "100g", "price": 78, "cost": 52},
+        {"size": "200g", "price": 145, "cost": 100}
+      ],
+      "keywords": ["spice", "bay leaves", "tej patta", "Catch leaves", "तेज पत्ता"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK014",
+      "familyName": "Star Anise",
+      "brand": "Shan",
+      "hindiName": "Shan चक्र फूल",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 48, "cost": 30},
+        {"size": "100g", "price": 82, "cost": 55},
+        {"size": "200g", "price": 155, "cost": 108}
+      ],
+      "keywords": ["spice", "star anise", "chakra phool", "Shan anise", "चक्र फूल मसाला"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK015",
+      "familyName": "Nutmeg",
+      "brand": "Badshah",
+      "hindiName": "Badshah जायफल",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 72, "cost": 44},
+        {"size": "100g", "price": 125, "cost": 85},
+        {"size": "200g", "price": 240, "cost": 165}
+      ],
+      "keywords": ["spice", "nutmeg", "jayaphal", "Badshah nutmeg", "जायफल पाउडर"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK016",
+      "familyName": "Mace",
+      "brand": "Sona",
+      "hindiName": "Sona जावित्री",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 68, "cost": 41},
+        {"size": "100g", "price": 118, "cost": 80},
+        {"size": "200g", "price": 225, "cost": 155}
+      ],
+      "keywords": ["spice", "mace", "javatri", "Sona mace", "जावित्री मसाला"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK017",
+      "familyName": "Kasuri Methi",
+      "brand": "MDH",
+      "hindiName": "MDH कसूरी मेथी",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 50, "cost": 32},
+        {"size": "100g", "price": 85, "cost": 58},
+        {"size": "200g", "price": 160, "cost": 110}
+      ],
+      "keywords": ["spice", "kasuri methi", "dried fenugreek", "MDH methi", "कसूरी मेथी"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK018",
+      "familyName": "Ajwain Seeds",
+      "brand": "Everest",
+      "hindiName": "Everest अजवाइन",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 42, "cost": 27},
+        {"size": "100g", "price": 72, "cost": 50},
+        {"size": "200g", "price": 135, "cost": 92}
+      ],
+      "keywords": ["spice", "ajwain", "carom seeds", "Everest ajwain", "अजवाइन के बीज"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK019",
+      "familyName": "Nigella Seeds",
+      "brand": "Tata Sampann",
+      "hindiName": "Tata Sampann काली जीरी",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 45, "cost": 29},
+        {"size": "100g", "price": 78, "cost": 52},
+        {"size": "200g", "price": 145, "cost": 100}
+      ],
+      "keywords": ["spice", "nigella", "kali jeeri", "Tata nigella", "काली जीरी"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK020",
+      "familyName": "Sesame Seeds",
+      "brand": "Catch",
+      "hindiName": "Catch तिल",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 40, "cost": 26},
+        {"size": "100g", "price": 70, "cost": 47},
+        {"size": "200g", "price": 130, "cost": 90}
+      ],
+      "keywords": ["spice", "sesame", "til", "Catch sesame", "तिल के बीज"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK021",
+      "familyName": "Poppy Seeds",
+      "brand": "Shan",
+      "hindiName": "Shan खस-खस",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 52, "cost": 33},
+        {"size": "100g", "price": 90, "cost": 60},
+        {"size": "200g", "price": 170, "cost": 115}
+      ],
+      "keywords": ["spice", "poppy seeds", "khas khas", "Shan poppy", "खस-खस के बीज"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK022",
+      "familyName": "Chaat Masala",
+      "brand": "Badshah",
+      "hindiName": "Badshah चाट मसाला",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 48, "cost": 30},
+        {"size": "100g", "price": 82, "cost": 55},
+        {"size": "200g", "price": 155, "cost": 108}
+      ],
+      "keywords": ["spice", "chaat masala", "street food spice", "Badshah chaat", "चाट मसाला"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK023",
+      "familyName": "Amchur Powder",
+      "brand": "Sona",
+      "hindiName": "Sona आमचूर",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 46, "cost": 29},
+        {"size": "100g", "price": 80, "cost": 54},
+        {"size": "200g", "price": 150, "cost": 104}
+      ],
+      "keywords": ["spice", "amchur", "dried mango", "Sona amchur", "आमचूर पाउडर"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK024",
+      "familyName": "Pomegranate Seeds",
+      "brand": "MDH",
+      "hindiName": "MDH अनार के दाने",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 55, "cost": 34},
+        {"size": "100g", "price": 95, "cost": 64},
+        {"size": "200g", "price": 180, "cost": 122}
+      ],
+      "keywords": ["spice", "pomegranate", "anar seeds", "MDH pomegranate", "अनार के दाने"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK025",
+      "familyName": "Dry Ginger",
+      "brand": "Everest",
+      "hindiName": "Everest सूखी अदरक",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 44, "cost": 28},
+        {"size": "100g", "price": 76, "cost": 52},
+        {"size": "200g", "price": 142, "cost": 98}
+      ],
+      "keywords": ["spice", "dry ginger", "sookhi adrak", "Everest ginger", "सूखी अदरक"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK026",
+      "familyName": "Peppercorn Mix",
+      "brand": "Tata Sampann",
+      "hindiName": "Tata Sampann मिश्रित पेपरकॉर्न",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 58, "cost": 36},
+        {"size": "100g", "price": 100, "cost": 68},
+        {"size": "200g", "price": 190, "cost": 130}
+      ],
+      "keywords": ["spice", "peppercorn", "mixed pepper", "Tata pepper", "मिश्रित काली मिर्च"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK027",
+      "familyName": "Sambar Powder",
+      "brand": "Catch",
+      "hindiName": "Catch सांभार पाउडर",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 50, "cost": 32},
+        {"size": "100g", "price": 85, "cost": 58},
+        {"size": "200g", "price": 160, "cost": 110}
+      ],
+      "keywords": ["spice", "sambar", "south indian", "Catch sambar", "सांभार पाउडर"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK028",
+      "familyName": "Rasam Powder",
+      "brand": "Shan",
+      "hindiName": "Shan रसम पाउडर",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 48, "cost": 30},
+        {"size": "100g", "price": 82, "cost": 55},
+        {"size": "200g", "price": 155, "cost": 108}
+      ],
+      "keywords": ["spice", "rasam", "south indian spice", "Shan rasam", "रसम पाउडर"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK029",
+      "familyName": "Panipuri Spice Mix",
+      "brand": "Badshah",
+      "hindiName": "Badshah पानीपूरी मसाला",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 46, "cost": 29},
+        {"size": "100g", "price": 80, "cost": 54},
+        {"size": "200g", "price": 150, "cost": 104}
+      ],
+      "keywords": ["spice", "panipuri", "pani puri", "Badshah pani puri", "पानीपूरी मसाला"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK030",
+      "familyName": "Bhel Masala",
+      "brand": "Sona",
+      "hindiName": "Sona भेल मसाला",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 45, "cost": 28},
+        {"size": "100g", "price": 78, "cost": 52},
+        {"size": "200g", "price": 145, "cost": 100}
+      ],
+      "keywords": ["spice", "bhel", "puffed rice spice", "Sona bhel", "भेल मसाला"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK031",
+      "familyName": "Curry Leaves Powder",
+      "brand": "MDH",
+      "hindiName": "MDH करी पत्ता",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 42, "cost": 27},
+        {"size": "100g", "price": 72, "cost": 50},
+        {"size": "200g", "price": 135, "cost": 92}
+      ],
+      "keywords": ["spice", "curry leaves", "kadi patta", "MDH curry", "करी पत्ता"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK032",
+      "familyName": "Garlic Powder",
+      "brand": "Everest",
+      "hindiName": "Everest लहसुन पाउडर",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 40, "cost": 26},
+        {"size": "100g", "price": 70, "cost": 47},
+        {"size": "200g", "price": 130, "cost": 90}
+      ],
+      "keywords": ["spice", "garlic", "lasun", "Everest garlic", "लहसुन पाउडर"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK033",
+      "familyName": "Onion Powder",
+      "brand": "Tata Sampann",
+      "hindiName": "Tata Sampann प्याज पाउडर",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 38, "cost": 25},
+        {"size": "100g", "price": 65, "cost": 43},
+        {"size": "200g", "price": 120, "cost": 82}
+      ],
+      "keywords": ["spice", "onion", "pyaz", "Tata onion", "प्याज पाउडर"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK034",
+      "familyName": "Mango Powder",
+      "brand": "Catch",
+      "hindiName": "Catch आम पाउडर",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 44, "cost": 28},
+        {"size": "100g", "price": 76, "cost": 52},
+        {"size": "200g", "price": 142, "cost": 98}
+      ],
+      "keywords": ["spice", "mango powder", "aam", "Catch mango", "आम पाउडर"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK035",
+      "familyName": "Cilantro Seeds",
+      "brand": "Shan",
+      "hindiName": "Shan धनिया के बीज",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 42, "cost": 27},
+        {"size": "100g", "price": 72, "cost": 50},
+        {"size": "200g", "price": 135, "cost": 92}
+      ],
+      "keywords": ["spice", "cilantro seeds", "dhaniya beej", "Shan cilantro", "धनिया के बीज"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK036",
+      "familyName": "Cassia Bark",
+      "brand": "Badshah",
+      "hindiName": "Badshah दालचीनी की छाल",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 52, "cost": 33},
+        {"size": "100g", "price": 90, "cost": 60},
+        {"size": "200g", "price": 170, "cost": 115}
+      ],
+      "keywords": ["spice", "cassia", "bark", "Badshah cassia", "दालचीनी की छाल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK037",
+      "familyName": "Liquorice Root",
+      "brand": "Sona",
+      "hindiName": "Sona मुलेठी",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 60, "cost": 38},
+        {"size": "100g", "price": 105, "cost": 70},
+        {"size": "200g", "price": 200, "cost": 135}
+      ],
+      "keywords": ["spice", "liquorice", "mulethi", "Sona root", "मुलेठी की जड़"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK038",
+      "familyName": "White Pepper",
+      "brand": "MDH",
+      "hindiName": "MDH सफेद मिर्च",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 62, "cost": 39},
+        {"size": "100g", "price": 108, "cost": 72},
+        {"size": "200g", "price": 205, "cost": 140}
+      ],
+      "keywords": ["spice", "white pepper", "safed mirch", "MDH white pepper", "सफेद मिर्च"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK039",
+      "familyName": "Fenugreek Seeds",
+      "brand": "Everest",
+      "hindiName": "Everest मेथी के बीज",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 40, "cost": 26},
+        {"size": "100g", "price": 70, "cost": 47},
+        {"size": "200g", "price": 130, "cost": 90}
+      ],
+      "keywords": ["spice", "fenugreek seeds", "methi beej", "Everest fenugreek", "मेथी के बीज"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK040",
+      "familyName": "Bishop's Weed",
+      "brand": "Tata Sampann",
+      "hindiName": "Tata Sampann यवनी",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 45, "cost": 29},
+        {"size": "100g", "price": 78, "cost": 52},
+        {"size": "200g", "price": 145, "cost": 100}
+      ],
+      "keywords": ["spice", "bishops weed", "yavani", "Tata yavani", "यवनी मसाला"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK041",
+      "familyName": "Carom Seeds",
+      "brand": "Catch",
+      "hindiName": "Catch अजवाइन",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 42, "cost": 27},
+        {"size": "100g", "price": 72, "cost": 50},
+        {"size": "200g", "price": 135, "cost": 92}
+      ],
+      "keywords": ["spice", "carom", "ajwain", "Catch carom", "अजवाइन के बीज"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK042",
+      "familyName": "Juniper Berries",
+      "brand": "Shan",
+      "hindiName": "Shan जूनिपर बेरी",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 48, "cost": 30},
+        {"size": "100g", "price": 82, "cost": 55},
+        {"size": "200g", "price": 155, "cost": 108}
+      ],
+      "keywords": ["spice", "juniper", "berries", "Shan juniper", "जूनिपर बेरी"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK043",
+      "familyName": "Allspice",
+      "brand": "Badshah",
+      "hindiName": "Badshah सर्वमसाला",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 50, "cost": 32},
+        {"size": "100g", "price": 85, "cost": 58},
+        {"size": "200g", "price": 160, "cost": 110}
+      ],
+      "keywords": ["spice", "allspice", "sarv masala", "Badshah allspice", "सर्वमसाला"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK044",
+      "familyName": "Grains of Paradise",
+      "brand": "Sona",
+      "hindiName": "Sona स्वर्ग के दाने",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 55, "cost": 34},
+        {"size": "100g", "price": 95, "cost": 64},
+        {"size": "200g", "price": 180, "cost": 122}
+      ],
+      "keywords": ["spice", "grains of paradise", "swarg", "Sona paradise", "स्वर्ग के दाने"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK045",
+      "familyName": "Musk Seed",
+      "brand": "MDH",
+      "hindiName": "MDH तारा मीरा",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 52, "cost": 33},
+        {"size": "100g", "price": 90, "cost": 60},
+        {"size": "200g", "price": 170, "cost": 115}
+      ],
+      "keywords": ["spice", "musk seed", "tara mira", "MDH musk", "तारा मीरा"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK046",
+      "familyName": "Pickling Spice Mix",
+      "brand": "Everest",
+      "hindiName": "Everest अचार मसाला",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 48, "cost": 30},
+        {"size": "100g", "price": 82, "cost": 55},
+        {"size": "200g", "price": 155, "cost": 108}
+      ],
+      "keywords": ["spice", "pickling", "achar masala", "Everest pickle", "अचार मसाला"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK047",
+      "familyName": "Pickling Turmeric",
+      "brand": "Tata Sampann",
+      "hindiName": "Tata Sampann अचार हल्दी",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 36, "cost": 24},
+        {"size": "100g", "price": 62, "cost": 42},
+        {"size": "200g", "price": 118, "cost": 81}
+      ],
+      "keywords": ["spice", "turmeric", "achar", "Tata pickle turmeric", "अचार हल्दी"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK048",
+      "familyName": "Pickling Chili",
+      "brand": "Catch",
+      "hindiName": "Catch अचार मिर्च",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 39, "cost": 26},
+        {"size": "100g", "price": 68, "cost": 46},
+        {"size": "200g", "price": 128, "cost": 88}
+      ],
+      "keywords": ["spice", "chili", "achar mirch", "Catch pickle chili", "अचार मिर्च"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK049",
+      "familyName": "Mixed Spice Blend",
+      "brand": "Shan",
+      "hindiName": "Shan मिश्रित मसाला",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 50, "cost": 32},
+        {"size": "100g", "price": 85, "cost": 58},
+        {"size": "200g", "price": 160, "cost": 110}
+      ],
+      "keywords": ["spice", "mixed blend", "masala mix", "Shan blend", "मिश्रित मसाला"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SPK050",
+      "familyName": "Premium Garam Masala",
+      "brand": "Badshah",
+      "hindiName": "Badshah प्रीमियम गरम मसाला",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 65, "cost": 40},
+        {"size": "100g", "price": 112, "cost": 75},
+        {"size": "200g", "price": 215, "cost": 145}
+      ],
+      "keywords": ["spice", "premium", "garam masala", "Badshah premium", "प्रीमियम गरम मसाला"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    }
+  ]
+}

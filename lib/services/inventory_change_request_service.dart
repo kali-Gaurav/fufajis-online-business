@@ -11,8 +11,7 @@ import 'audit_service.dart';
 /// mapping exists, dual-written to the Supabase `products` table, with a
 /// full audit trail via [AuditService].
 class InventoryChangeRequestService {
-  static final InventoryChangeRequestService _instance =
-      InventoryChangeRequestService._internal();
+  static final InventoryChangeRequestService _instance = InventoryChangeRequestService._internal();
   factory InventoryChangeRequestService() => _instance;
   InventoryChangeRequestService._internal();
 
@@ -20,9 +19,7 @@ class InventoryChangeRequestService {
   static const String _collection = 'inventory_change_requests';
 
   /// Creates a new pending change request. Returns the new document id.
-  Future<String> createChangeRequest(
-    InventoryChangeRequestModel request,
-  ) async {
+  Future<String> createChangeRequest(InventoryChangeRequestModel request) async {
     final docRef = await _db.collection(_collection).add(request.toMap());
 
     await AuditService().logAction(
@@ -51,9 +48,10 @@ class InventoryChangeRequestService {
         .where('status', isEqualTo: InventoryChangeRequestStatus.pending.name)
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs
-            .map((d) => InventoryChangeRequestModel.fromMap(d.data(), d.id))
-            .toList());
+        .map(
+          (snap) =>
+              snap.docs.map((d) => InventoryChangeRequestModel.fromMap(d.data(), d.id)).toList(),
+        );
   }
 
   /// Streams ALL requests (any status), newest first — used for a
@@ -64,9 +62,10 @@ class InventoryChangeRequestService {
         .orderBy('createdAt', descending: true)
         .limit(limit)
         .snapshots()
-        .map((snap) => snap.docs
-            .map((d) => InventoryChangeRequestModel.fromMap(d.data(), d.id))
-            .toList());
+        .map(
+          (snap) =>
+              snap.docs.map((d) => InventoryChangeRequestModel.fromMap(d.data(), d.id)).toList(),
+        );
   }
 
   /// Approves [requestId]: applies every field change to `products` in
@@ -182,18 +181,18 @@ class InventoryChangeRequestService {
     required String reason,
     String? queryDescription,
   }) async {
-    final field = changeType == InventoryChangeType.stockAdjustment
-        ? 'stockQuantity'
-        : 'price';
+    final field = changeType == InventoryChangeType.stockAdjustment ? 'stockQuantity' : 'price';
 
     final changes = productIds
-        .map((pid) => InventoryFieldChange(
-              productId: pid,
-              productName: pid, // name resolved on server/approval
-              field: field,
-              oldValue: null,
-              newValue: value,
-            ))
+        .map(
+          (pid) => InventoryFieldChange(
+            productId: pid,
+            productName: pid, // name resolved on server/approval
+            field: field,
+            oldValue: null,
+            newValue: value,
+          ),
+        )
         .toList();
 
     final request = InventoryChangeRequestModel(
@@ -201,8 +200,7 @@ class InventoryChangeRequestService {
       requestedBy: requestedBy,
       requestedByName: requestedByName,
       type: changeType,
-      filterDescription:
-          queryDescription ?? 'Bulk change affecting \${productIds.length} products',
+      filterDescription: queryDescription ?? 'Bulk change affecting \${productIds.length} products',
       note: reason, // model uses 'note' for requester comments
       status: InventoryChangeRequestStatus.pending,
       changes: changes,
@@ -211,5 +209,4 @@ class InventoryChangeRequestService {
 
     return createChangeRequest(request);
   }
-
 }

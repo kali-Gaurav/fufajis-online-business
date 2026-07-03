@@ -26,7 +26,7 @@ class WorkflowVerificationService {
     results['supabase_configured'] = false;
     results['redis_configured'] = AppConfig.upstashRedisRestUrl.isNotEmpty;
     results['gemini_configured'] = true; // Moved server side, always configured from client view
- 
+
     // 2. Monitoring & Error Tracking
     results['sentry_configured'] = AppConfig.sentryDsn.isNotEmpty;
 
@@ -97,15 +97,14 @@ class WorkflowVerificationService {
     try {
       final baseUrl = AppConfig.apiBaseUrl;
       if (baseUrl.isEmpty) return null;
-      
-      final response = await http.get(Uri.parse('$baseUrl/health')).timeout(const Duration(seconds: 15));
+
+      final response = await http
+          .get(Uri.parse('$baseUrl/health'))
+          .timeout(const Duration(seconds: 15));
       if (response.statusCode == 200) {
         final decoded = jsonDecode(response.body);
         if (decoded is Map<String, dynamic>) {
-          return {
-            'status': decoded['status'] ?? 'ok',
-            'timestamp': decoded['ts'],
-          };
+          return {'status': decoded['status'] ?? 'ok', 'timestamp': decoded['ts']};
         }
       }
       return null;

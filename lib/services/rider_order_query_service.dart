@@ -19,11 +19,11 @@ class RiderOrderQueryService {
 
   /// Statuses that riders can see/interact with
   static const List<String> riderVisibleStatuses = [
-    'ready',           // Order packed and ready for pickup
+    'ready', // Order packed and ready for pickup
     'awaiting_pickup', // Waiting for rider assignment
-    'picked_up',       // Rider has picked up
-    'in_transit',      // On the way to customer
-    'delivered',       // Delivered to customer
+    'picked_up', // Rider has picked up
+    'in_transit', // On the way to customer
+    'delivered', // Delivered to customer
   ];
 
   /// Get orders ready for rider pickup (awaiting assignment)
@@ -41,11 +41,9 @@ class RiderOrderQueryService {
           .limit(limit)
           .get();
 
-      return snapshot.docs.map((doc) => {
-        'orderId': doc.id,
-        'deliveryId': doc['deliveryId'],
-        ...doc.data(),
-      }).toList();
+      return snapshot.docs
+          .map((doc) => {'orderId': doc.id, 'deliveryId': doc['deliveryId'], ...doc.data()})
+          .toList();
     } catch (e) {
       debugPrint('[RiderOrderQueryService] Get available orders failed: $e');
       return [];
@@ -67,21 +65,12 @@ class RiderOrderQueryService {
         query = query.where('status', isEqualTo: status);
       } else {
         // Default: show active deliveries (not delivered/cancelled)
-        query = query.where('status', whereIn: [
-          'picked_up',
-          'in_transit',
-        ]);
+        query = query.where('status', whereIn: ['picked_up', 'in_transit']);
       }
 
-      final snapshot = await query
-          .orderBy('pickedUpAt', descending: true)
-          .limit(50)
-          .get();
+      final snapshot = await query.orderBy('pickedUpAt', descending: true).limit(50).get();
 
-      return snapshot.docs.map((doc) => {
-        'orderId': doc.id,
-        ...doc.data(),
-      }).toList();
+      return snapshot.docs.map((doc) => {'orderId': doc.id, ...doc.data()}).toList();
     } catch (e) {
       debugPrint('[RiderOrderQueryService] Get rider orders failed: $e');
       return [];
@@ -114,15 +103,11 @@ class RiderOrderQueryService {
       if (orderStatus != null && deliveryStatus != null && orderStatus != deliveryStatus) {
         debugPrint(
           '[RiderOrderQueryService] Status mismatch for order $orderId: '
-          'order=$orderStatus, delivery=$deliveryStatus'
+          'order=$orderStatus, delivery=$deliveryStatus',
         );
       }
 
-      return {
-        'orderId': orderId,
-        'order': orderData,
-        'delivery': deliveryData,
-      };
+      return {'orderId': orderId, 'order': orderData, 'delivery': deliveryData};
     } catch (e) {
       debugPrint('[RiderOrderQueryService] Get order with delivery failed: $e');
       return null;
@@ -134,18 +119,10 @@ class RiderOrderQueryService {
     return _db
         .collection('orders')
         .where('riderId', isEqualTo: riderId)
-        .where('status', whereIn: [
-          'picked_up',
-          'in_transit',
-        ])
+        .where('status', whereIn: ['picked_up', 'in_transit'])
         .orderBy('pickedUpAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => {
-              'orderId': doc.id,
-              ...doc.data(),
-            })
-            .toList());
+        .map((snapshot) => snapshot.docs.map((doc) => {'orderId': doc.id, ...doc.data()}).toList());
   }
 
   /// Get order delivery address
@@ -180,10 +157,7 @@ class RiderOrderQueryService {
   }
 
   /// Mark order as in transit
-  Future<void> markInTransit({
-    required String orderId,
-    required String riderId,
-  }) async {
+  Future<void> markInTransit({required String orderId, required String riderId}) async {
     try {
       await _db.runTransaction((transaction) async {
         final orderRef = _db.collection('orders').doc(orderId);

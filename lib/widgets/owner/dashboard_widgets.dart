@@ -34,9 +34,7 @@ class KPICard extends StatelessWidget {
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-          ),
+          border: Border.all(color: isDark ? Colors.grey[700]! : Colors.grey[300]!),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -61,12 +59,7 @@ class KPICard extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (icon != null)
-                  Icon(
-                    icon,
-                    color: color ?? AppTheme.ownerAccent,
-                    size: 20,
-                  ),
+                if (icon != null) Icon(icon, color: color ?? AppTheme.ownerAccent, size: 20),
               ],
             ),
             const SizedBox(height: 12),
@@ -90,11 +83,7 @@ class KPICard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     '$trendArrow ${trend!.abs().toStringAsFixed(1)}%',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: trendColor,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 12, color: trendColor, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(width: 4),
                   Text(
@@ -157,16 +146,9 @@ class AlertCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: isDark ? Colors.grey[850] : Colors.white,
-        border: Border(
-          left: BorderSide(color: severityColor, width: 4),
-        ),
+        border: Border(left: BorderSide(color: severityColor, width: 4)),
         borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 4,
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4)],
       ),
       child: Row(
         children: [
@@ -175,10 +157,7 @@ class AlertCard extends StatelessWidget {
           Expanded(
             child: Text(
               message,
-              style: TextStyle(
-                fontSize: 13,
-                color: isDark ? Colors.grey[200] : Colors.grey[800],
-              ),
+              style: TextStyle(fontSize: 13, color: isDark ? Colors.grey[200] : Colors.grey[800]),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -193,10 +172,7 @@ class AlertCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 minimumSize: Size.zero,
               ),
-              child: Text(
-                actionLabel,
-                style: const TextStyle(fontSize: 11, color: Colors.white),
-              ),
+              child: Text(actionLabel, style: const TextStyle(fontSize: 11, color: Colors.white)),
             ),
           ),
         ],
@@ -231,10 +207,7 @@ class StatRow extends StatelessWidget {
         children: [
           Text(
             label,
-            style: TextStyle(
-              fontSize: 13,
-              color: isDark ? Colors.grey[400] : Colors.grey[700],
-            ),
+            style: TextStyle(fontSize: 13, color: isDark ? Colors.grey[400] : Colors.grey[700]),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -291,10 +264,7 @@ class ProgressBar extends StatelessWidget {
           children: [
             Text(
               label,
-              style: TextStyle(
-                fontSize: 12,
-                color: isDark ? Colors.grey[400] : Colors.grey[700],
-              ),
+              style: TextStyle(fontSize: 12, color: isDark ? Colors.grey[400] : Colors.grey[700]),
             ),
             Text(
               percentage ?? '${progress.toStringAsFixed(1)}%',
@@ -327,12 +297,7 @@ class SectionHeader extends StatelessWidget {
   final String? subtitle;
   final VoidCallback? onMoreTap;
 
-  const SectionHeader({
-    super.key,
-    required this.title,
-    this.subtitle,
-    this.onMoreTap,
-  });
+  const SectionHeader({super.key, required this.title, this.subtitle, this.onMoreTap});
 
   @override
   Widget build(BuildContext context) {
@@ -366,11 +331,7 @@ class SectionHeader extends StatelessWidget {
               ],
             ],
           ),
-          if (onMoreTap != null)
-            TextButton(
-              onPressed: onMoreTap,
-              child: const Text('View All'),
-            ),
+          if (onMoreTap != null) TextButton(onPressed: onMoreTap, child: const Text('View All')),
         ],
       ),
     );
@@ -382,11 +343,7 @@ class TimePeriodSelector extends StatefulWidget {
   final Function(String) onSelected;
   final String initialPeriod;
 
-  const TimePeriodSelector({
-    super.key,
-    required this.onSelected,
-    this.initialPeriod = 'Today',
-  });
+  const TimePeriodSelector({super.key, required this.onSelected, this.initialPeriod = 'Today'});
 
   @override
   State<TimePeriodSelector> createState() => _TimePeriodSelectorState();
@@ -450,9 +407,7 @@ class SkeletonCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? Colors.grey[850] : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-        ),
+        border: Border.all(color: isDark ? Colors.grey[700]! : Colors.grey[300]!),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -505,11 +460,7 @@ class EmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            size: 48,
-            color: isDark ? Colors.grey[600] : Colors.grey[400],
-          ),
+          Icon(icon, size: 48, color: isDark ? Colors.grey[600] : Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
             title,
@@ -522,18 +473,12 @@ class EmptyState extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             subtitle,
-            style: TextStyle(
-              fontSize: 13,
-              color: isDark ? Colors.grey[400] : Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 13, color: isDark ? Colors.grey[400] : Colors.grey[600]),
             textAlign: TextAlign.center,
           ),
           if (onAction != null && actionLabel != null) ...[
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: onAction,
-              child: Text(actionLabel!),
-            ),
+            ElevatedButton(onPressed: onAction, child: Text(actionLabel!)),
           ],
         ],
       ),

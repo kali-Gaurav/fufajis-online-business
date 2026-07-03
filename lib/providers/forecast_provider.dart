@@ -31,7 +31,7 @@ class ForecastProvider with ChangeNotifier {
     try {
       // 1. Calculate Holt Smoothing Demand Forecasts
       _demandForecasts = await _forecastService.generateDemandForecast(forecastDays: 7);
-      
+
       // 2. Calculate 7d and 30d Revenue Forecasts
       _predictedRevenue7Days = await _forecastService.generateRevenueForecast(forecastDays: 7);
       _predictedRevenue30Days = await _forecastService.generateRevenueForecast(forecastDays: 30);

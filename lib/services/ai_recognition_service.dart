@@ -15,9 +15,7 @@ class AIRecognitionService {
     if (_isInitialized) return;
 
     // Configure image labeling for product recognition
-    final ImageLabelerOptions options = ImageLabelerOptions(
-      confidenceThreshold: 0.5,
-    );
+    final ImageLabelerOptions options = ImageLabelerOptions(confidenceThreshold: 0.5);
     _imageLabeler = ImageLabeler(options: options);
 
     // Configure text recognition for OCR
@@ -30,8 +28,8 @@ class AIRecognitionService {
   Future<bool> isOffline() async {
     try {
       final dynamic connectivityRes = await Connectivity().checkConnectivity();
-      final List<ConnectivityResult> connectivityResult = (connectivityRes is List) 
-          ? List<ConnectivityResult>.from(connectivityRes) 
+      final List<ConnectivityResult> connectivityResult = (connectivityRes is List)
+          ? List<ConnectivityResult>.from(connectivityRes)
           : [connectivityRes as ConnectivityResult];
       return connectivityResult.contains(ConnectivityResult.none);
     } catch (_) {
@@ -52,10 +50,7 @@ class AIRecognitionService {
     final labels = await _imageLabeler!.processImage(inputImage);
 
     return labels.map((label) {
-      return ProductRecognitionResult(
-        label: label.label,
-        confidence: label.confidence,
-      );
+      return ProductRecognitionResult(label: label.label, confidence: label.confidence);
     }).toList();
   }
 
@@ -95,9 +90,7 @@ class AIRecognitionService {
       }
 
       // Expiry date patterns
-      if (text.contains('EXP') ||
-          text.contains('EXPIRY') ||
-          text.contains('BEST BEFORE')) {
+      if (text.contains('EXP') || text.contains('EXPIRY') || text.contains('BEST BEFORE')) {
         final dateMatch = RegExp(
           r'(\d{2}[/-]\d{2}[/-]\d{2,4})|(\d{2}[/-]\d{4})|(\d{4}[/-]\d{2}[/-]\d{2})',
         ).firstMatch(text);
@@ -137,10 +130,7 @@ class ProductRecognitionResult {
   final String label;
   final double confidence;
 
-  ProductRecognitionResult({
-    required this.label,
-    required this.confidence,
-  });
+  ProductRecognitionResult({required this.label, required this.confidence});
 }
 
 class OCRResult {

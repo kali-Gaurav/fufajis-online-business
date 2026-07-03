@@ -17,14 +17,15 @@ class ExecutiveAssistantService {
         metadata: {'question': question},
       );
 
-      // In production, we would invoke an HTTPS Cloud Function that connects to Gemini 
+      // In production, we would invoke an HTTPS Cloud Function that connects to Gemini
       // passing the context (orders, inventory, etc).
       // Here, we simulate the AI's response based on keywords.
 
       await Future.delayed(const Duration(seconds: 2)); // Simulate network / AI processing time
 
       String insightType = 'General Analysis';
-      String summary = 'Based on the current data, operations are proceeding normally. No critical anomalies detected.';
+      String summary =
+          'Based on the current data, operations are proceeding normally. No critical anomalies detected.';
       List<String> primaryCauses = [];
 
       if (question.toLowerCase().contains('revenue')) {
@@ -33,21 +34,21 @@ class ExecutiveAssistantService {
         primaryCauses = [
           'Rice inventory shortage leading to stockouts',
           '8% fewer repeat customers',
-          'Delivery delays increased 15% due to traffic bottlenecks'
+          'Delivery delays increased 15% due to traffic bottlenecks',
         ];
-      } else if (question.toLowerCase().contains('inventory') || question.toLowerCase().contains('stock')) {
+      } else if (question.toLowerCase().contains('inventory') ||
+          question.toLowerCase().contains('stock')) {
         insightType = 'Inventory Health';
-        summary = 'Inventory levels are moderately healthy, but we are facing shortages in staples.';
-        primaryCauses = [
-          'Supplier delays for Rice 1kg',
-          'Sudden 20% spike in demand for Milk'
-        ];
-      } else if (question.toLowerCase().contains('employee') || question.toLowerCase().contains('staff')) {
+        summary =
+            'Inventory levels are moderately healthy, but we are facing shortages in staples.';
+        primaryCauses = ['Supplier delays for Rice 1kg', 'Sudden 20% spike in demand for Milk'];
+      } else if (question.toLowerCase().contains('employee') ||
+          question.toLowerCase().contains('staff')) {
         insightType = 'Staff Performance';
         summary = 'Overall employee efficiency is at 88%.';
         primaryCauses = [
           'High performance from evening shift',
-          'Slight drop in attendance score for delivery riders'
+          'Slight drop in attendance score for delivery riders',
         ];
       }
 

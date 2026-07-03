@@ -98,8 +98,7 @@ class SectionHeader extends StatelessWidget {
             GestureDetector(
               onTap: onSeeAll,
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                   color: AppTheme.primary.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(20),
@@ -116,11 +115,7 @@ class SectionHeader extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 2),
-                    const Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      size: 11,
-                      color: AppTheme.primary,
-                    ),
+                    const Icon(Icons.arrow_forward_ios_rounded, size: 11, color: AppTheme.primary),
                   ],
                 ),
               ),

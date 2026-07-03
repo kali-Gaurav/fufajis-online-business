@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/monetary_value.dart';
 
 enum RefundMethod { wallet, upi, gateway, bank }
+
 enum RefundStatus { pending, approved, processing, completed, failed }
 
 class RefundRequest {

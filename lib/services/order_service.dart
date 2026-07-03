@@ -27,9 +27,10 @@ class OrderService {
   /// Calculate distance using Haversine formula
   double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
     const p = 0.017453292519943295;
-    final double a = 0.5 - cos((lat2 - lat1) * p)/2 + 
-          cos(lat1 * p) * cos(lat2 * p) * 
-          (1 - cos((lon2 - lon1) * p))/2;
+    final double a =
+        0.5 -
+        cos((lat2 - lat1) * p) / 2 +
+        cos(lat1 * p) * cos(lat2 * p) * (1 - cos((lon2 - lon1) * p)) / 2;
     return 12742 * asin(sqrt(a)); // km
   }
 
@@ -61,16 +62,14 @@ class OrderService {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) => OrderModel.fromMap(doc.data())).toList();
-    });
+          return snapshot.docs.map((doc) => OrderModel.fromMap(doc.data())).toList();
+        });
   }
-  
+
   Stream<List<OrderModel>> getAllOrdersStream() {
-    return _db
-        .collection('orders')
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _db.collection('orders').orderBy('createdAt', descending: true).snapshots().map((
+      snapshot,
+    ) {
       return snapshot.docs.map((doc) => OrderModel.fromMap(doc.data())).toList();
     });
   }
@@ -102,12 +101,13 @@ class OrderService {
       if (recentDuplicates.docs.isNotEmpty) {
         final existingOrderNum = recentDuplicates.docs.first.data()['orderNumber'] ?? '';
         debugPrint('[OrderService] Duplicate checkout blocked (Firestore): $existingOrderNum');
-        throw Exception('A similar order ($existingOrderNum) was placed moments ago. Please check your orders before re-ordering.');
+        throw Exception(
+          'A similar order ($existingOrderNum) was placed moments ago. Please check your orders before re-ordering.',
+        );
       }
 
       final shopConfigService = ShopConfigService();
       final shopConfig = await shopConfigService.getShopConfig();
-
 
       // 1. Operating Hours & Open status check
       if (!shopConfig.isOpen) {
@@ -123,52 +123,75 @@ class OrderService {
           if (!todayHours.isOpen) {
             throw Exception('The store is closed today ($todayDay).');
           }
-          
+
           final openParts = todayHours.openTime.split(':');
           final closeParts = todayHours.closeTime.split(':');
-          
+
           if (openParts.length == 2 && closeParts.length == 2) {
             final openHour = int.tryParse(openParts[0]) ?? 0;
             final openMin = int.tryParse(openParts[1]) ?? 0;
             final closeHour = int.tryParse(closeParts[0]) ?? 23;
             final closeMin = int.tryParse(closeParts[1]) ?? 59;
-            
-            final openDateTime = DateTime(nowShop.year, nowShop.month, nowShop.day, openHour, openMin);
-            final closeDateTime = DateTime(nowShop.year, nowShop.month, nowShop.day, closeHour, closeMin);
-            
+
+            final openDateTime = DateTime(
+              nowShop.year,
+              nowShop.month,
+              nowShop.day,
+              openHour,
+              openMin,
+            );
+            final closeDateTime = DateTime(
+              nowShop.year,
+              nowShop.month,
+              nowShop.day,
+              closeHour,
+              closeMin,
+            );
+
             if (nowShop.isBefore(openDateTime) || nowShop.isAfter(closeDateTime)) {
-              throw Exception('The store is closed. Today\'s business hours: ${todayHours.openTime} to ${todayHours.closeTime}.');
+              throw Exception(
+                'The store is closed. Today\'s business hours: ${todayHours.openTime} to ${todayHours.closeTime}.',
+              );
             }
           }
         }
       }
 
       // 1b. Slot Capacity Check
-      if (order.deliveryType == DeliveryType.scheduled && order.scheduledDeliveryDate != null && order.timeSlot != null) {
+      if (order.deliveryType == DeliveryType.scheduled &&
+          order.scheduledDeliveryDate != null &&
+          order.timeSlot != null) {
         final isAvailable = await isDeliverySlotAvailable(
           order.scheduledDeliveryDate!,
           order.timeSlot!,
           shopConfig.maxOrdersPerSlot,
         );
         if (!isAvailable) {
-          throw Exception('The selected delivery slot (${order.timeSlot}) is fully booked for ${DateFormat('dd MMM').format(order.scheduledDeliveryDate!)}. Please pick another slot.');
+          throw Exception(
+            'The selected delivery slot (${order.timeSlot}) is fully booked for ${DateFormat('dd MMM').format(order.scheduledDeliveryDate!)}. Please pick another slot.',
+          );
         }
       }
 
       // 1c. Same-day Order Cutoff Check
-      if (order.deliveryType == DeliveryType.sameDay || 
-          (order.deliveryType == DeliveryType.scheduled && 
-           order.scheduledDeliveryDate != null && 
-           order.scheduledDeliveryDate!.year == DateTime.now().add(const Duration(hours: 5, minutes: 30)).year &&
-           order.scheduledDeliveryDate!.month == DateTime.now().add(const Duration(hours: 5, minutes: 30)).month &&
-           order.scheduledDeliveryDate!.day == DateTime.now().add(const Duration(hours: 5, minutes: 30)).day)) {
+      if (order.deliveryType == DeliveryType.sameDay ||
+          (order.deliveryType == DeliveryType.scheduled &&
+              order.scheduledDeliveryDate != null &&
+              order.scheduledDeliveryDate!.year ==
+                  DateTime.now().add(const Duration(hours: 5, minutes: 30)).year &&
+              order.scheduledDeliveryDate!.month ==
+                  DateTime.now().add(const Duration(hours: 5, minutes: 30)).month &&
+              order.scheduledDeliveryDate!.day ==
+                  DateTime.now().add(const Duration(hours: 5, minutes: 30)).day)) {
         final nowUtc = DateTime.now().toUtc();
         final nowShop = nowUtc.add(const Duration(hours: 5, minutes: 30));
         if (nowShop.hour >= shopConfig.sameDayCutoffHour) {
-          final cutoff12h = shopConfig.sameDayCutoffHour > 12 
-              ? '${shopConfig.sameDayCutoffHour - 12} PM' 
+          final cutoff12h = shopConfig.sameDayCutoffHour > 12
+              ? '${shopConfig.sameDayCutoffHour - 12} PM'
               : '${shopConfig.sameDayCutoffHour} AM';
-          throw Exception('Same-day delivery order placement is closed after $cutoff12h. Please select a future date or next-day slot.');
+          throw Exception(
+            'Same-day delivery order placement is closed after $cutoff12h. Please select a future date or next-day slot.',
+          );
         }
       }
 
@@ -185,7 +208,6 @@ class OrderService {
       if (!isDeliverable) {
         throw Exception('Delivery location is outside our service area.');
       }
-
 
       // Assign nearest branch if any
       final nearestBranch = shopConfigService.getNearestBranch(
@@ -247,7 +269,7 @@ class OrderService {
 
         // 3. Stock Allocation (Multi-branch aware)
         // FIXED (Task #16): Both card AND wallet payments now deduct inventory
-        
+
         // Fetch all product snapshots first to adhere to Firestore transaction requirement (all reads before writes)
         final Map<DocumentReference, DocumentSnapshot> productSnapshots = {};
         for (var item in updatedOrder.items) {
@@ -266,7 +288,9 @@ class OrderService {
             final data = snapshot.data() as Map<String, dynamic>?;
             if (data != null) {
               final Map<dynamic, dynamic> branchStockMap = data['branchStock'] as Map? ?? {};
-              final branchId = (updatedOrder.shopId?.isEmpty ?? true) ? 'primary' : updatedOrder.shopId!;
+              final branchId = (updatedOrder.shopId?.isEmpty ?? true)
+                  ? 'primary'
+                  : updatedOrder.shopId!;
 
               int currentBranchStock = 0;
               if (branchStockMap.containsKey(branchId)) {
@@ -285,7 +309,7 @@ class OrderService {
               if (currentBranchStock >= quantityOrdered) {
                 final newBranchStock = currentBranchStock - quantityOrdered;
                 final Map<String, int> updatedBranchStock = Map<String, int>.from(
-                  branchStockMap.map((k, v) => MapEntry(k.toString(), v as int))
+                  branchStockMap.map((k, v) => MapEntry(k.toString(), v as int)),
                 );
                 updatedBranchStock[branchId] = newBranchStock;
 
@@ -304,14 +328,17 @@ class OrderService {
                 transaction.update(prodRef, {
                   'branchStock': updatedBranchStock,
                   'stockQuantity': newGlobalStock,
-                  'isAvailable': newGlobalStock > 0 || updatedBranchStock.values.any((val) => val > 0),
+                  'isAvailable':
+                      newGlobalStock > 0 || updatedBranchStock.values.any((val) => val > 0),
                 });
               } else {
-                throw Exception('Inadequate stock for ${item.productName} at branch. Available: $currentBranchStock');
+                throw Exception(
+                  'Inadequate stock for ${item.productName} at branch. Available: $currentBranchStock',
+                );
               }
             }
           } else {
-             throw Exception('Product ${item.productName} not found in inventory.');
+            throw Exception('Product ${item.productName} not found in inventory.');
           }
         }
 
@@ -320,13 +347,15 @@ class OrderService {
       });
 
       // Record delivery demand for hyperlocal expansion analytics (Idea 26)
-      unawaited(HyperlocalExpansionService().recordDeliveryDemand(
-        latitude: updatedOrder.deliveryAddress.latitude,
-        longitude: updatedOrder.deliveryAddress.longitude,
-        pincode: updatedOrder.deliveryAddress.pincode,
-        orderAmount: updatedOrder.totalAmount.toDouble(),
-        zoneId: (updatedOrder.shopId?.isEmpty ?? true) ? 'primary' : updatedOrder.shopId!,
-      ));
+      unawaited(
+        HyperlocalExpansionService().recordDeliveryDemand(
+          latitude: updatedOrder.deliveryAddress.latitude,
+          longitude: updatedOrder.deliveryAddress.longitude,
+          pincode: updatedOrder.deliveryAddress.pincode,
+          orderAmount: updatedOrder.totalAmount.toDouble(),
+          zoneId: (updatedOrder.shopId?.isEmpty ?? true) ? 'primary' : updatedOrder.shopId!,
+        ),
+      );
 
       // Refresh Smart Kitchen predictions (Idea 27)
       unawaited(SmartKitchenService().refreshUserKitchenData(updatedOrder.customerId));
@@ -411,7 +440,9 @@ class OrderService {
       final doc = await orderRef.get();
       if (doc.exists && doc.data() != null) {
         final order = OrderModel.fromMap(doc.data()!);
-        unawaited(OrderNotificationService().notifyOrderStatusChanged(order, OrderStatus.processing));
+        unawaited(
+          OrderNotificationService().notifyOrderStatusChanged(order, OrderStatus.processing),
+        );
       }
     } catch (e) {
       debugPrint('[OrderService] Notification Error: $e');
@@ -419,7 +450,12 @@ class OrderService {
   }
 
   /// Rejects the packing for an order, keeping status at processing but marking as rejected
-  Future<void> rejectPacking(String orderId, String ownerId, String ownerName, String reason) async {
+  Future<void> rejectPacking(
+    String orderId,
+    String ownerId,
+    String ownerName,
+    String reason,
+  ) async {
     final orderRef = _db.collection('orders').doc(orderId);
 
     await _db.runTransaction((transaction) async {
@@ -453,7 +489,13 @@ class OrderService {
     });
   }
 
-  Future<void> updateOrderStatus(String orderId, String status, {String? employeeId, String? employeeName, String? note}) async {
+  Future<void> updateOrderStatus(
+    String orderId,
+    String status, {
+    String? employeeId,
+    String? employeeName,
+    String? note,
+  }) async {
     final orderRef = _db.collection('orders').doc(orderId);
     String? generatedOtp;
     OrderStatus previousStatus = OrderStatus.pending;
@@ -481,14 +523,21 @@ class OrderService {
       // Validate allowed transition
       final allowedNext = _validTransitions[currentStatus] ?? [];
       if (!allowedNext.contains(status)) {
-        throw Exception('Invalid status transition: "$currentStatus" → "$status". Allowed: ${allowedNext.join(", ")}');
+        throw Exception(
+          'Invalid status transition: "$currentStatus" → "$status". Allowed: ${allowedNext.join(", ")}',
+        );
       }
 
       // Packer lock — prevent two employees packing the same order
       if (status == 'processing') {
         final existingPackerId = orderData['packerId']?.toString();
-        if (existingPackerId != null && existingPackerId.isNotEmpty && employeeId != null && existingPackerId != employeeId) {
-          throw Exception('This order is already being packed by another employee ($existingPackerId).');
+        if (existingPackerId != null &&
+            existingPackerId.isNotEmpty &&
+            employeeId != null &&
+            existingPackerId != employeeId) {
+          throw Exception(
+            'This order is already being packed by another employee ($existingPackerId).',
+          );
         }
       }
 
@@ -570,7 +619,7 @@ class OrderService {
       // 1. Fetch Order Document
       final orderDoc = await _db.collection('orders').doc(orderId).get();
       if (!orderDoc.exists) throw Exception('Order not found');
-      
+
       final order = OrderModel.fromMap(orderDoc.data()!);
 
       // 2. Rider Proximity Geofence Check (must be within 50 meters of delivery address)
@@ -582,25 +631,67 @@ class OrderService {
       );
       final distanceMeters = distanceKm * 1000;
       if (distanceMeters > 50.0) {
-        throw Exception('Rider is outside the permitted delivery zone. You must be within 50m of the delivery location. Current distance: ${distanceMeters.toStringAsFixed(1)}m.');
+        throw Exception(
+          'Rider is outside the permitted delivery zone. You must be within 50m of the delivery location. Current distance: ${distanceMeters.toStringAsFixed(1)}m.',
+        );
       }
 
-      // 3. Verify OTP against the secure document
-      final secureOtpDoc = await _db
+      // 3. Verify OTP against the secure document — with brute-force lockout.
+      // FIX (Module 5, P1-5.2): a 4-digit OTP with unlimited attempts can be
+      // brute-forced in ≤10,000 tries. After [_maxOtpAttempts] consecutive
+      // failures the order's OTP verification locks for [_otpLockoutMinutes]
+      // minutes. Counter + lock are updated atomically in a transaction so
+      // parallel attempts can't bypass the limit.
+      const maxOtpAttempts = 5;
+      const otpLockoutMinutes = 15;
+      final secureOtpRef = _db
           .collection('orders')
           .doc(orderId)
           .collection('secure')
-          .doc('otp')
-          .get();
-      
-      if (!secureOtpDoc.exists) {
-        throw Exception('No verification code generated for this order.');
-      }
-      
-      final storedOtp = secureOtpDoc.data()?['otp']?.toString();
-      if (storedOtp != otp) {
-        throw Exception('Invalid verification code entered.');
-      }
+          .doc('otp');
+
+      await _db.runTransaction((txn) async {
+        final secureOtpDoc = await txn.get(secureOtpRef);
+        if (!secureOtpDoc.exists) {
+          throw Exception('No verification code generated for this order.');
+        }
+        final data = secureOtpDoc.data()!;
+
+        final lockedUntil = (data['lockedUntil'] as Timestamp?)?.toDate();
+        if (lockedUntil != null && lockedUntil.isAfter(DateTime.now())) {
+          final remaining = lockedUntil.difference(DateTime.now()).inMinutes + 1;
+          throw Exception(
+            'Too many wrong attempts. OTP verification is locked for ~$remaining more minute(s).',
+          );
+        }
+
+        final storedOtp = data['otp']?.toString();
+        if (storedOtp != otp) {
+          final attempts = ((data['failedAttempts'] as num?) ?? 0).toInt() + 1;
+          if (attempts >= maxOtpAttempts) {
+            txn.update(secureOtpRef, {
+              'failedAttempts': attempts,
+              'lockedUntil': Timestamp.fromDate(
+                DateTime.now().add(const Duration(minutes: otpLockoutMinutes)),
+              ),
+              'lastFailedAt': FieldValue.serverTimestamp(),
+            });
+            throw Exception(
+              'Too many wrong attempts. OTP verification locked for $otpLockoutMinutes minutes.',
+            );
+          }
+          txn.update(secureOtpRef, {
+            'failedAttempts': attempts,
+            'lastFailedAt': FieldValue.serverTimestamp(),
+          });
+          throw Exception(
+            'Invalid verification code entered. ${maxOtpAttempts - attempts} attempt(s) remaining.',
+          );
+        }
+
+        // Success — clear the failure counter.
+        txn.update(secureOtpRef, {'failedAttempts': 0, 'lockedUntil': null});
+      });
 
       // 4. Perform atomic update to status history and delivered status
       final updates = {
@@ -628,7 +719,7 @@ class OrderService {
         'latitude': latitude,
         'longitude': longitude,
         'updatedAt': FieldValue.serverTimestamp(),
-      }
+      },
     });
   }
 
@@ -641,7 +732,11 @@ class OrderService {
   }
 
   Stream<List<Map<String, dynamic>>> getAllReturnRequestsStream() {
-    return _db.collection('return_requests').orderBy('createdAt', descending: true).snapshots().map((snap) => snap.docs.map((doc) => doc.data()).toList());
+    return _db
+        .collection('return_requests')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snap) => snap.docs.map((doc) => doc.data()).toList());
   }
 
   Future<void> reconcileStuckOrders() async {
@@ -651,9 +746,10 @@ class OrderService {
 
   Stream<Map<String, dynamic>> getTodayOrdersStatsStream() {
     final start = DateTime.now().subtract(const Duration(hours: 24));
-    return _db.collection('orders')
-      .where('createdAt', isGreaterThan: Timestamp.fromDate(start))
-      .snapshots()
-      .map((s) => {'count': s.docs.length});
+    return _db
+        .collection('orders')
+        .where('createdAt', isGreaterThan: Timestamp.fromDate(start))
+        .snapshots()
+        .map((s) => {'count': s.docs.length});
   }
 }

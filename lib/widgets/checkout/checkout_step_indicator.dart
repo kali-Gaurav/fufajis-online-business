@@ -33,10 +33,7 @@ class CheckoutStepIndicator extends StatelessWidget {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(
-              totalSteps,
-              (index) => _buildStepIndicator(index),
-            ),
+            children: List.generate(totalSteps, (index) => _buildStepIndicator(index)),
           ),
           const SizedBox(height: 12),
           Row(
@@ -81,9 +78,7 @@ class CheckoutStepIndicator extends StatelessWidget {
                   width: 20,
                   height: 3,
                   decoration: BoxDecoration(
-                    color: index <= currentStep
-                        ? AppTheme.primary
-                        : AppTheme.grey300,
+                    color: index <= currentStep ? AppTheme.primary : AppTheme.grey300,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -93,13 +88,9 @@ class CheckoutStepIndicator extends StatelessWidget {
                 height: 32,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: isCompleted || isCurrent
-                      ? AppTheme.primary
-                      : Colors.white,
+                  color: isCompleted || isCurrent ? AppTheme.primary : Colors.white,
                   border: Border.all(
-                    color: isCompleted || isCurrent
-                        ? AppTheme.primary
-                        : AppTheme.grey300,
+                    color: isCompleted || isCurrent ? AppTheme.primary : AppTheme.grey300,
                     width: 2,
                   ),
                 ),
@@ -122,9 +113,7 @@ class CheckoutStepIndicator extends StatelessWidget {
                   width: 20,
                   height: 3,
                   decoration: BoxDecoration(
-                    color: index < currentStep
-                        ? AppTheme.primary
-                        : AppTheme.grey300,
+                    color: index < currentStep ? AppTheme.primary : AppTheme.grey300,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -164,10 +153,7 @@ class CompactCheckoutStepIndicator extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: List.generate(
-          stepTitles.length,
-          (index) => _buildCompactStep(index),
-        ),
+        children: List.generate(stepTitles.length, (index) => _buildCompactStep(index)),
       ),
     );
   }
@@ -187,9 +173,7 @@ class CompactCheckoutStepIndicator extends StatelessWidget {
               shape: BoxShape.circle,
               color: isCompleted || isCurrent ? AppTheme.primary : Colors.white,
               border: Border.all(
-                color: isCompleted || isCurrent
-                    ? AppTheme.primary
-                    : AppTheme.grey300,
+                color: isCompleted || isCurrent ? AppTheme.primary : AppTheme.grey300,
                 width: 2,
               ),
             ),

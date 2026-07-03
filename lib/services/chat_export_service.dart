@@ -39,7 +39,9 @@ class ChatExportService {
       buffer.writeln('Opened,${_fmt.format(conv.createdAt)}');
       buffer.writeln('Last Updated,${_fmt.format(conv.lastUpdated)}');
       if (conv.overallSentiment != null) {
-        buffer.writeln('Overall Sentiment,${conv.overallSentiment!.label} (${conv.sentimentScore.toStringAsFixed(2)})');
+        buffer.writeln(
+          'Overall Sentiment,${conv.overallSentiment!.label} (${conv.sentimentScore.toStringAsFixed(2)})',
+        );
       }
     }
     buffer.writeln('');
@@ -67,11 +69,11 @@ class ChatExportService {
     await file.writeAsString(buffer.toString());
 
     // ── Share ─────────────────────────────────────────────────────────────────
-    await Share.shareXFiles(
-      [XFile(file.path, mimeType: 'text/csv')],
+    await SharePlus.instance.share(ShareParams(
+      files: [XFile(file.path, mimeType: 'text/csv')],
       subject: 'Chat Export — ${conv?.customerName ?? chatId}',
       text: 'Chat transcript for compliance. Generated ${_fmt.format(DateTime.now())}.',
-    );
+    ));
   }
 
   String _escapeCsv(String value) {

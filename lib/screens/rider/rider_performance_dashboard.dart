@@ -11,9 +11,12 @@ class RiderPerformanceDashboard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('PERFORMANCE METRICS', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey600)),
+          const Text(
+            'PERFORMANCE METRICS',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey600),
+          ),
           const SizedBox(height: 16),
-          
+
           Row(
             children: [
               Expanded(child: _buildMetricCard('Acceptance Rate', '98%', AppTheme.success)),
@@ -24,14 +27,24 @@ class RiderPerformanceDashboard extends StatelessWidget {
           const SizedBox(height: 16),
           Row(
             children: [
-              Expanded(child: _buildMetricCard('Customer Rating', '4.8', AppTheme.warning, icon: Icons.star)),
+              Expanded(
+                child: _buildMetricCard(
+                  'Customer Rating',
+                  '4.8',
+                  AppTheme.warning,
+                  icon: Icons.star,
+                ),
+              ),
               const SizedBox(width: 16),
               Expanded(child: _buildMetricCard('Total Deliveries', '420', AppTheme.primary)),
             ],
           ),
-          
+
           const SizedBox(height: 32),
-          const Text('RECENT INCIDENTS', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey600)),
+          const Text(
+            'RECENT INCIDENTS',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey600),
+          ),
           const SizedBox(height: 16),
           _buildIncidentCard('Customer Unreachable', 'ORD1011', 'Resolved', AppTheme.success),
           _buildIncidentCard('Vehicle Issue', 'ORD0984', 'Pending Review', AppTheme.warning),
@@ -51,23 +64,26 @@ class RiderPerformanceDashboard extends StatelessWidget {
             color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
-          )
+          ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(color: Colors.grey[600], fontSize: 12, fontWeight: FontWeight.bold)),
+          Text(
+            title,
+            style: TextStyle(color: Colors.grey[600], fontSize: 12, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
           Row(
             children: [
-              Text(value, style: TextStyle(color: color, fontSize: 24, fontWeight: FontWeight.bold)),
-              if (icon != null) ...[
-                const SizedBox(width: 4),
-                Icon(icon, color: color, size: 20),
-              ]
+              Text(
+                value,
+                style: TextStyle(color: color, fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              if (icon != null) ...[const SizedBox(width: 4), Icon(icon, color: color, size: 20)],
             ],
-          )
+          ),
         ],
       ),
     );
@@ -78,7 +94,10 @@ class RiderPerformanceDashboard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
-        leading: const CircleAvatar(backgroundColor: AppTheme.error, child: Icon(Icons.warning, color: Colors.white)),
+        leading: const CircleAvatar(
+          backgroundColor: AppTheme.error,
+          child: Icon(Icons.warning, color: Colors.white),
+        ),
         title: Text(issue, style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text('Order #$orderId'),
         trailing: Container(
@@ -87,7 +106,10 @@ class RiderPerformanceDashboard extends StatelessWidget {
             color: statusColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
           ),
-          child: Text(status, style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 12)),
+          child: Text(
+            status,
+            style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 12),
+          ),
         ),
       ),
     );

@@ -8,12 +8,7 @@ class ErrorBoundary extends StatefulWidget {
   final String? errorTitle;
   final VoidCallback? onRetry;
 
-  const ErrorBoundary({
-    super.key,
-    required this.child,
-    this.errorTitle,
-    this.onRetry,
-  });
+  const ErrorBoundary({super.key, required this.child, this.errorTitle, this.onRetry});
 
   @override
   State<ErrorBoundary> createState() => _ErrorBoundaryState();
@@ -75,30 +70,19 @@ class _ErrorScreen extends StatelessWidget {
   final String? title;
   final VoidCallback onRetry;
 
-  const _ErrorScreen({
-    required this.error,
-    this.title,
-    required this.onRetry,
-  });
+  const _ErrorScreen({required this.error, this.title, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title ?? 'त्रुटि'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(title ?? 'त्रुटि'), centerTitle: true),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.error_outline_rounded,
-                size: 64,
-                color: AppTheme.error,
-              ),
+              const Icon(Icons.error_outline_rounded, size: 64, color: AppTheme.error),
               const SizedBox(height: 24),
               Text(
                 'कुछ गलत हो गया',
@@ -155,10 +139,7 @@ class SafeAsyncBuilder<T> extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return errorBuilder?.call(context, snapshot.error!) ??
-              _ErrorScreen(
-                error: snapshot.error.toString(),
-                onRetry: () {},
-              );
+              _ErrorScreen(error: snapshot.error.toString(), onRetry: () {});
         }
         if (!snapshot.hasData) {
           return loadingWidget ??

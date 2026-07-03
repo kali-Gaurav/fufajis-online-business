@@ -204,8 +204,7 @@ void main() {
       verificationService = DeliveryVerificationService();
     });
 
-    test('complete delivery flow: assignment -> verification -> completion',
-        () async {
+    test('complete delivery flow: assignment -> verification -> completion', () async {
       // Full integration test:
       // 1. Create order with delivery address
       // 2. Find nearest available agent

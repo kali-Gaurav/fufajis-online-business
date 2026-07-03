@@ -14,8 +14,7 @@ import 'package:flutter/foundation.dart';
 /// Fufaji policy: Transparent Pricing = no hidden surcharges, margins are
 /// visible to the owner but never shown to customers as percentage numbers.
 class DynamicPricingConfigService {
-  static final DynamicPricingConfigService _instance =
-      DynamicPricingConfigService._internal();
+  static final DynamicPricingConfigService _instance = DynamicPricingConfigService._internal();
   factory DynamicPricingConfigService() => _instance;
   DynamicPricingConfigService._internal();
 
@@ -31,9 +30,7 @@ class DynamicPricingConfigService {
 
   /// Returns the global pricing config, from cache if fresh.
   Future<PricingConfig> getGlobalConfig() async {
-    if (_globalCache != null &&
-        _cacheExpiry != null &&
-        DateTime.now().isBefore(_cacheExpiry!)) {
+    if (_globalCache != null && _cacheExpiry != null && DateTime.now().isBefore(_cacheExpiry!)) {
       return _globalCache!;
     }
     return _refreshGlobalConfig();
@@ -41,10 +38,7 @@ class DynamicPricingConfigService {
 
   Future<PricingConfig> _refreshGlobalConfig() async {
     try {
-      final doc = await _firestore
-          .collection('settings')
-          .doc('pricing_config')
-          .get();
+      final doc = await _firestore.collection('settings').doc('pricing_config').get();
       if (doc.exists) {
         _globalCache = PricingConfig.fromMap(doc.data()!);
       } else {
@@ -57,19 +51,14 @@ class DynamicPricingConfigService {
         '[DynamicPricingConfig] Config loaded: minimumMargin=${_globalCache!.minimumMarginPercent}%',
       );
     } catch (e) {
-      debugPrint(
-        '[DynamicPricingConfig] Config load failed, using defaults: $e',
-      );
+      debugPrint('[DynamicPricingConfig] Config load failed, using defaults: $e');
       _globalCache ??= PricingConfig.defaultConfig();
     }
     return _globalCache!;
   }
 
   /// Returns effective minimum margin for a product (category overrides global).
-  Future<double> getEffectiveMargin({
-    required String shopId,
-    required String category,
-  }) async {
+  Future<double> getEffectiveMargin({required String shopId, required String category}) async {
     final categoryRule = await getCategoryRule(shopId, category);
     if (categoryRule != null) return categoryRule.marginPercent;
     final global = await getGlobalConfig();
@@ -77,10 +66,7 @@ class DynamicPricingConfigService {
   }
 
   /// Returns effective pricing strategy.
-  Future<String> getEffectiveStrategy({
-    required String shopId,
-    required String category,
-  }) async {
+  Future<String> getEffectiveStrategy({required String shopId, required String category}) async {
     final categoryRule = await getCategoryRule(shopId, category);
     if (categoryRule != null) return categoryRule.strategy;
     final global = await getGlobalConfig();
@@ -89,10 +75,7 @@ class DynamicPricingConfigService {
 
   // ─────────────── CATEGORY RULES ───────────────
 
-  Future<CategoryMarginRule?> getCategoryRule(
-    String shopId,
-    String category,
-  ) async {
+  Future<CategoryMarginRule?> getCategoryRule(String shopId, String category) async {
     final cacheKey = '${shopId}_$category';
     if (_categoryCache.containsKey(cacheKey) &&
         _cacheExpiry != null &&
@@ -128,23 +111,16 @@ class DynamicPricingConfigService {
     bool isActive = true,
   }) async {
     final ruleId = 'rule_$category';
-    await _firestore
-        .collection('shops')
-        .doc(shopId)
-        .collection('pricing_rules')
-        .doc(ruleId)
-        .set({
-          'category': category,
-          'marginPercent': marginPercent,
-          'strategy': strategy,
-          'isActive': isActive,
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
+    await _firestore.collection('shops').doc(shopId).collection('pricing_rules').doc(ruleId).set({
+      'category': category,
+      'marginPercent': marginPercent,
+      'strategy': strategy,
+      'isActive': isActive,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
     // Invalidate category cache
     _categoryCache.remove('${shopId}_$category');
-    debugPrint(
-      '[DynamicPricingConfig] Category rule set: $category → $marginPercent%',
-    );
+    debugPrint('[DynamicPricingConfig] Category rule set: $category → $marginPercent%');
   }
 
   /// Lists all active margin rules for a shop (for admin UI).
@@ -157,9 +133,7 @@ class DynamicPricingConfigService {
           .where('isActive', isEqualTo: true)
           .get();
 
-      return snap.docs
-          .map((d) => CategoryMarginRule.fromMap(d.data()))
-          .toList();
+      return snap.docs.map((d) => CategoryMarginRule.fromMap(d.data())).toList();
     } catch (e) {
       debugPrint('[DynamicPricingConfig] List rules error: $e');
       return [];
@@ -181,11 +155,10 @@ class DynamicPricingConfigService {
 
   Future<void> _writeDefaultConfig(PricingConfig config) async {
     try {
-      await _firestore
-          .collection('settings')
-          .doc('pricing_config')
-          .set(config.toMap());
-    } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
+      await _firestore.collection('settings').doc('pricing_config').set(config.toMap());
+    } catch (e, stack) {
+      LoggingService().error('Silent error caught', e, stack);
+    }
   }
 
   /// Forces a cache refresh on next read.
@@ -202,9 +175,8 @@ class DynamicPricingConfigService {
         .doc('pricing_config')
         .snapshots()
         .map(
-          (snap) => snap.exists
-              ? PricingConfig.fromMap(snap.data()!)
-              : PricingConfig.defaultConfig(),
+          (snap) =>
+              snap.exists ? PricingConfig.fromMap(snap.data()!) : PricingConfig.defaultConfig(),
         );
   }
 }
@@ -213,8 +185,7 @@ class DynamicPricingConfigService {
 
 /// Global pricing configuration stored in Firestore /settings/pricing_config
 class PricingConfig {
-  final double
-  minimumMarginPercent; // Hard floor — price never goes below cost + this
+  final double minimumMarginPercent; // Hard floor — price never goes below cost + this
   final double defaultCompetitorMatchThreshold; // 2% = match if within 2%
   final String defaultStrategy; // 'match' | 'beat' | 'cost_plus' | 'premium'
   final bool autoApplyPriceChanges; // If false, owner must manually approve
@@ -241,8 +212,8 @@ class PricingConfig {
 
   factory PricingConfig.fromMap(Map<String, dynamic> map) => PricingConfig(
     minimumMarginPercent: ((map['minimumMarginPercent'] as num?) ?? 5.0).toDouble(),
-    defaultCompetitorMatchThreshold:
-        ((map['defaultCompetitorMatchThreshold'] as num?) ?? 2.0).toDouble(),
+    defaultCompetitorMatchThreshold: ((map['defaultCompetitorMatchThreshold'] as num?) ?? 2.0)
+        .toDouble(),
     defaultStrategy: map['defaultStrategy'] as String? ?? 'match',
     autoApplyPriceChanges: map['autoApplyPriceChanges'] as bool? ?? false,
     priceHistoryRetentionDays: map['priceHistoryRetentionDays'] as int? ?? 90,
@@ -273,11 +244,10 @@ class CategoryMarginRule {
     required this.isActive,
   });
 
-  factory CategoryMarginRule.fromMap(Map<String, dynamic> map) =>
-      CategoryMarginRule(
-        category: map['category'] as String? ?? '',
-        marginPercent: ((map['marginPercent'] as num?) ?? 5.0).toDouble(),
-        strategy: map['strategy'] as String? ?? 'match',
-        isActive: map['isActive'] as bool? ?? true,
-      );
+  factory CategoryMarginRule.fromMap(Map<String, dynamic> map) => CategoryMarginRule(
+    category: map['category'] as String? ?? '',
+    marginPercent: ((map['marginPercent'] as num?) ?? 5.0).toDouble(),
+    strategy: map['strategy'] as String? ?? 'match',
+    isActive: map['isActive'] as bool? ?? true,
+  );
 }

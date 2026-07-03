@@ -32,7 +32,8 @@ class FjCard extends StatelessWidget {
         color: color ?? Colors.white,
         borderRadius: BorderRadius.circular(borderRadius ?? 16),
         border: border ?? Border.all(color: AppTheme.grey100),
-        boxShadow: boxShadow ??
+        boxShadow:
+            boxShadow ??
             [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.05),

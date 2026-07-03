@@ -32,7 +32,10 @@ class InventoryModel {
     return InventoryModel(
       productId: map['productId'] as String? ?? '',
       branchId: map['branchId'] as String? ?? 'default',
-      availableStock: (map['availableStock'] as int?) ?? (map['stockQuantity'] as int?) ?? 0, // Fallback to legacy
+      availableStock:
+          (map['availableStock'] as int?) ??
+          (map['stockQuantity'] as int?) ??
+          0, // Fallback to legacy
       reservedStock: map['reservedStock'] as int? ?? 0,
       committedStock: map['committedStock'] as int? ?? 0,
       damagedStock: map['damagedStock'] as int? ?? 0,

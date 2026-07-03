@@ -34,13 +34,16 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final raw = prefs.getStringList('voice_command_history') ?? [];
-      final parsed = raw.map((s) {
-        try {
-          return jsonDecode(s) as Map<String, dynamic>;
-        } catch (_) {
-          return <String, dynamic>{};
-        }
-      }).where((m) => m.isNotEmpty).toList();
+      final parsed = raw
+          .map((s) {
+            try {
+              return jsonDecode(s) as Map<String, dynamic>;
+            } catch (_) {
+              return <String, dynamic>{};
+            }
+          })
+          .where((m) => m.isNotEmpty)
+          .toList();
       setState(() {
         _history = parsed;
         _isLoadingHistory = false;
@@ -57,10 +60,7 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
         title: const Text('History Clear Karein?', style: TextStyle(fontWeight: FontWeight.w700)),
         content: const Text('Saari voice command history delete ho jayegi.'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(backgroundColor: AppTheme.error),
@@ -86,7 +86,7 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
 
     try {
       final command = await VoiceCommandService().parse(commandText);
-      
+
       final result = await VoiceCommandExecutor.execute(command, context);
 
       // Reload history after execution
@@ -122,10 +122,7 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
     return Scaffold(
       backgroundColor: AppTheme.grey50,
       appBar: AppBar(
-        title: const Text(
-          'Voice Commands',
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
+        title: const Text('Voice Commands', style: TextStyle(fontWeight: FontWeight.w600)),
         backgroundColor: AppTheme.cream,
         foregroundColor: AppTheme.grey900,
         elevation: 0,
@@ -202,11 +199,7 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
             SizedBox(width: 6),
             Text(
               'Quick Commands',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.grey900,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.grey900),
             ),
           ],
         ),
@@ -252,9 +245,7 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
           childAspectRatio: 1.4,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          children: quickCommands
-              .map((qc) => _buildQuickCommandCard(qc))
-              .toList(),
+          children: quickCommands.map((qc) => _buildQuickCommandCard(qc)).toList(),
         ),
       ],
     );
@@ -294,13 +285,7 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
                     color: AppTheme.grey900,
                   ),
                 ),
-                Text(
-                  qc.subtitle,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: AppTheme.grey500,
-                  ),
-                ),
+                Text(qc.subtitle, style: const TextStyle(fontSize: 11, color: AppTheme.grey500)),
               ],
             ),
           ],
@@ -335,10 +320,7 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
             if (_history.isNotEmpty)
               Text(
                 '${_history.length} items',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.grey500,
-                ),
+                style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
               ),
           ],
         ),
@@ -395,11 +377,13 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
     if (tsRaw != null) {
       try {
         ts = DateTime.parse(tsRaw);
-      } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
+      } catch (e, stack) {
+        LoggingService().error('Silent error caught', e, stack);
+      }
     }
 
-    final isSuccess = !result.toLowerCase().contains('error') &&
-        !result.toLowerCase().contains('nahi mila');
+    final isSuccess =
+        !result.toLowerCase().contains('error') && !result.toLowerCase().contains('nahi mila');
 
     return Container(
       decoration: BoxDecoration(
@@ -446,10 +430,7 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
             const SizedBox(height: 2),
             Text(
               result,
-              style: TextStyle(
-                fontSize: 12,
-                color: isSuccess ? AppTheme.info : AppTheme.error,
-              ),
+              style: TextStyle(fontSize: 12, color: isSuccess ? AppTheme.info : AppTheme.error),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -458,19 +439,12 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
                 padding: const EdgeInsets.only(top: 2),
                 child: Text(
                   _formatTimestamp(ts),
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: AppTheme.grey400,
-                  ),
+                  style: const TextStyle(fontSize: 10, color: AppTheme.grey400),
                 ),
               ),
           ],
         ),
-        trailing: const Icon(
-          Icons.chevron_right,
-          color: AppTheme.grey300,
-          size: 18,
-        ),
+        trailing: const Icon(Icons.chevron_right, color: AppTheme.grey300, size: 18),
       ),
     );
   }

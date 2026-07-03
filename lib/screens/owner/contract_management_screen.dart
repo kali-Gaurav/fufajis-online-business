@@ -14,12 +14,17 @@ class ContractManagementScreen extends StatelessWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('supplier_contracts').snapshots(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
+          if (snapshot.connectionState == ConnectionState.waiting)
+            return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(child: Text('No active contracts found.'));
           }
 
-          final contracts = snapshot.data!.docs.map((doc) => SupplierContractModel.fromMap(doc.data() as Map<String, dynamic>, doc.id)).toList();
+          final contracts = snapshot.data!.docs
+              .map(
+                (doc) => SupplierContractModel.fromMap(doc.data() as Map<String, dynamic>, doc.id),
+              )
+              .toList();
 
           return ListView.builder(
             padding: const EdgeInsets.all(16.0),
@@ -29,28 +34,41 @@ class ContractManagementScreen extends StatelessWidget {
               return Card(
                 child: ExpansionTile(
                   title: Text(contract.title),
-                  subtitle: Text('Supplier ID: ${contract.supplierId} | Status: ${contract.status.name}'),
+                  subtitle: Text(
+                    'Supplier ID: ${contract.supplierId} | Status: ${contract.status.name}',
+                  ),
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Contract Period: ${contract.contractStart.toString().substring(0,10)} to ${contract.contractEnd.toString().substring(0,10)}'),
+                          Text(
+                            'Contract Period: ${contract.contractStart.toString().substring(0, 10)} to ${contract.contractEnd.toString().substring(0, 10)}',
+                          ),
                           Text('Payment Terms: ${contract.paymentTerms}'),
                           Text('Credit Limit: ₹${contract.creditLimit}'),
                           const SizedBox(height: 16),
-                          const Text('Supplier Performance Scorecard', style: TextStyle(fontWeight: FontWeight.bold)),
+                          const Text(
+                            'Supplier Performance Scorecard',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                           const SizedBox(height: 8),
                           FutureBuilder<DocumentSnapshot>(
-                            future: FirebaseFirestore.instance.collection('supplier_scorecards').doc(contract.supplierId).get(),
+                            future: FirebaseFirestore.instance
+                                .collection('supplier_scorecards')
+                                .doc(contract.supplierId)
+                                .get(),
                             builder: (context, scoreSnap) {
-                              if (!scoreSnap.hasData || scoreSnap.data == null || !scoreSnap.data!.exists) return const Text('No scorecard data yet.');
+                              if (!scoreSnap.hasData ||
+                                  scoreSnap.data == null ||
+                                  !scoreSnap.data!.exists)
+                                return const Text('No scorecard data yet.');
                               final doc = scoreSnap.data!;
                               final data = doc.data() as Map<String, dynamic>?;
                               if (data == null) return const Text('No scorecard data yet.');
                               final score = SupplierScorecardModel.fromMap(data, doc.id);
-                              
+
                               return Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
@@ -60,8 +78,12 @@ class ContractManagementScreen extends StatelessWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('Damage Rate: ${score.damageRatePercentage.toStringAsFixed(1)}%'),
-                                    Text('Fulfillment Rate: ${score.orderFulfillmentPercentage.toStringAsFixed(1)}%'),
+                                    Text(
+                                      'Damage Rate: ${score.damageRatePercentage.toStringAsFixed(1)}%',
+                                    ),
+                                    Text(
+                                      'Fulfillment Rate: ${score.orderFulfillmentPercentage.toStringAsFixed(1)}%',
+                                    ),
                                     Text('Total Orders: ${score.totalOrders}'),
                                   ],
                                 ),

@@ -46,15 +46,11 @@ class OfflineSyncService {
       _checkStatus(currentResults);
 
       // React to future connectivity changes
-      _connectivitySubscription = _connectivity.onConnectivityChanged.listen((
-        results,
-      ) {
+      _connectivitySubscription = _connectivity.onConnectivityChanged.listen((results) {
         _checkStatus(results);
       });
 
-      debugPrint(
-        '[OfflineSyncService] Initialized. Pending: ${pendingSyncCount.value}',
-      );
+      debugPrint('[OfflineSyncService] Initialized. Pending: ${pendingSyncCount.value}');
     } catch (e) {
       debugPrint('[OfflineSyncService] Failed to initialize: $e');
     }
@@ -81,27 +77,29 @@ class OfflineSyncService {
     String? otp,
     bool otpVerified = false,
   }) async {
-    if (!_isInitialized) await init();
-    final taskId = 'task_${DateTime.now().millisecondsSinceEpoch}_$orderId';
-    await _sqlite.enqueuePendingSync(
-      id: taskId,
-      actionType: 'order_status',
-      collection: 'orders',
-      documentId: orderId,
-      data: {
-        'id': taskId,
-        'orderId': orderId,
-        'status': status,
-        'otp': otp,
-        'otpVerified': otpVerified,
-        'timestamp': DateTime.now().toIso8601String(),
-      },
-    );
-    await _refreshCounts();
-    debugPrint(
-      '[OfflineSyncService] Enqueued status "$status" for order $orderId',
-    );
-    if (isOnline.value) processQueue();
+    try {
+      if (!_isInitialized) await init();
+      final taskId = 'task_${DateTime.now().millisecondsSinceEpoch}_$orderId';
+      await _sqlite.enqueuePendingSync(
+        id: taskId,
+        actionType: 'order_status',
+        collection: 'orders',
+        documentId: orderId,
+        data: {
+          'id': taskId,
+          'orderId': orderId,
+          'status': status,
+          'otp': otp,
+          'otpVerified': otpVerified,
+          'timestamp': DateTime.now().toIso8601String(),
+        },
+      );
+      await _refreshCounts();
+      debugPrint('[OfflineSyncService] Enqueued status "$status" for order $orderId');
+      if (isOnline.value) processQueue();
+    } catch (e) {
+      debugPrint('[OfflineSyncService] Failed to enqueue status update: $e');
+    }
   }
 
   /// Enqueue a new order placement for offline sync
@@ -109,28 +107,32 @@ class OfflineSyncService {
     required String orderId,
     required Map<String, dynamic> orderData,
   }) async {
-    if (!_isInitialized) await init();
-    
-    // Save to SQLite offline_orders table so it's visible in the UI immediately
-    await OfflineOrderQueueService().addOrderToQueue(OrderModel.fromMap(orderData));
+    try {
+      if (!_isInitialized) await init();
 
-    final taskId = 'order_placement_$orderId';
-    await _sqlite.enqueuePendingSync(
-      id: taskId,
-      actionType: 'order_placement',
-      collection: 'orders',
-      documentId: orderId,
-      data: {
-        'id': taskId,
-        'orderId': orderId,
-        'actionType': 'order_placement',
-        'orderData': orderData,
-        'timestamp': DateTime.now().toIso8601String(),
-      },
-    );
-    await _refreshCounts();
-    debugPrint('[OfflineSyncService] Enqueued new order placement for $orderId');
-    if (isOnline.value) processQueue();
+      // Save to SQLite offline_orders table so it's visible in the UI immediately
+      await OfflineOrderQueueService().addOrderToQueue(OrderModel.fromMap(orderData));
+
+      final taskId = 'order_placement_$orderId';
+      await _sqlite.enqueuePendingSync(
+        id: taskId,
+        actionType: 'order_placement',
+        collection: 'orders',
+        documentId: orderId,
+        data: {
+          'id': taskId,
+          'orderId': orderId,
+          'actionType': 'order_placement',
+          'orderData': orderData,
+          'timestamp': DateTime.now().toIso8601String(),
+        },
+      );
+      await _refreshCounts();
+      debugPrint('[OfflineSyncService] Enqueued new order placement for $orderId');
+      if (isOnline.value) processQueue();
+    } catch (e) {
+      debugPrint('[OfflineSyncService] Failed to enqueue order placement: $e');
+    }
   }
 
   /// Enqueue an employee inventory/attendance/damage/transfer action
@@ -141,29 +143,30 @@ class OfflineSyncService {
     required String documentId,
     required Map<String, dynamic> data,
   }) async {
-    if (!_isInitialized) await init();
-    final taskId =
-        'emp_${DateTime.now().millisecondsSinceEpoch}_${actionType}_$documentId';
-    await _sqlite.enqueuePendingSync(
-      id: taskId,
-      actionType: actionType,
-      collection: _collectionForAction(actionType),
-      documentId: documentId,
-      data: {
-        'id': taskId,
-        'actionType': actionType,
-        'shopId': shopId,
-        'branchId': branchId,
-        'documentId': documentId,
-        'data': data,
-        'timestamp': DateTime.now().toIso8601String(),
-      },
-    );
-    await _refreshCounts();
-    debugPrint(
-      '[OfflineSyncService] Enqueued employee action "$actionType" for $documentId',
-    );
-    if (isOnline.value) processQueue();
+    try {
+      if (!_isInitialized) await init();
+      final taskId = 'emp_${DateTime.now().millisecondsSinceEpoch}_${actionType}_$documentId';
+      await _sqlite.enqueuePendingSync(
+        id: taskId,
+        actionType: actionType,
+        collection: _collectionForAction(actionType),
+        documentId: documentId,
+        data: {
+          'id': taskId,
+          'actionType': actionType,
+          'shopId': shopId,
+          'branchId': branchId,
+          'documentId': documentId,
+          'data': data,
+          'timestamp': DateTime.now().toIso8601String(),
+        },
+      );
+      await _refreshCounts();
+      debugPrint('[OfflineSyncService] Enqueued employee action "$actionType" for $documentId');
+      if (isOnline.value) processQueue();
+    } catch (e) {
+      debugPrint('[OfflineSyncService] Failed to enqueue employee action: $e');
+    }
   }
 
   // ─────────────── PROCESS ───────────────
@@ -186,9 +189,7 @@ class OfflineSyncService {
         .toList();
     if (orderItems.isEmpty) return;
 
-    debugPrint(
-      '[OfflineSyncService] Processing ${orderItems.length} order tasks...',
-    );
+    debugPrint('[OfflineSyncService] Processing ${orderItems.length} order tasks...');
 
     final now = DateTime.now().millisecondsSinceEpoch;
 
@@ -197,7 +198,7 @@ class OfflineSyncService {
 
       final retryCount = (item['retryCount'] as int?) ?? 0;
       final lastTried = (item['last_tried_at'] as int?) ?? 0;
-      
+
       // Exponential backoff: skip if we shouldn't retry yet
       // 2^retryCount * 2 seconds. e.g., 2s, 4s, 8s, 16s...
       if (retryCount > 0) {
@@ -218,15 +219,17 @@ class OfflineSyncService {
           debugPrint('[OfflineSyncService] Synced order status $orderId → $status');
         } else if (actionType == 'order_placement') {
           final orderData = Map<String, dynamic>.from(data['orderData'] as Map);
-          await _orderService.createOrder(OrderModel.fromMap(orderData)); // Place order handles idempotency internally
+          await _orderService.createOrder(
+            OrderModel.fromMap(orderData),
+          ); // Place order handles idempotency internally
           debugPrint('[OfflineSyncService] Synced new order placement $orderId');
         }
-        
+
         await _sqlite.markSyncDone(item['id'] as String);
       } catch (e) {
         await _sqlite.markSyncFailed(item['id'] as String);
         debugPrint('[OfflineSyncService] Failed to sync order $orderId: $e');
-        break; // stop on connectivity / server error
+        continue; // proceed to next task without blocking queue
       }
     }
     await _refreshCounts();
@@ -241,9 +244,7 @@ class OfflineSyncService {
         .toList();
     if (empItems.isEmpty) return;
 
-    debugPrint(
-      '[OfflineSyncService] Processing ${empItems.length} employee tasks...',
-    );
+    debugPrint('[OfflineSyncService] Processing ${empItems.length} employee tasks...');
     final firestore = FirebaseFirestore.instance;
     final now = DateTime.now().millisecondsSinceEpoch;
 
@@ -252,7 +253,7 @@ class OfflineSyncService {
 
       final retryCount = (item['retryCount'] as int?) ?? 0;
       final lastTried = (item['last_tried_at'] as int?) ?? 0;
-      
+
       if (retryCount > 0) {
         final backoffMs = (1 << retryCount) * 2000;
         if (now < lastTried + backoffMs) {
@@ -265,19 +266,14 @@ class OfflineSyncService {
       final shopId = data['shopId'] as String? ?? '';
       final branchId = data['branchId'] as String? ?? '';
       final documentId = data['documentId'] as String? ?? '';
-      final rawLocalData = Map<String, dynamic>.from(
-        data['data'] as Map? ?? {},
-      );
+      final rawLocalData = Map<String, dynamic>.from(data['data'] as Map? ?? {});
       final localData = _convertDateTimeToTimestamp(rawLocalData);
       final localTimestamp =
-          DateTime.tryParse(data['timestamp'] as String? ?? '') ??
-          DateTime.now();
+          DateTime.tryParse(data['timestamp'] as String? ?? '') ?? DateTime.now();
 
       final collectionPath = _collectionForAction(actionType);
       if (collectionPath.isEmpty) {
-        debugPrint(
-          '[OfflineSyncService] Unknown action type $actionType. Discarding.',
-        );
+        debugPrint('[OfflineSyncService] Unknown action type $actionType. Discarding.');
         await _sqlite.markSyncDone(item['id'] as String);
         continue;
       }
@@ -301,32 +297,30 @@ class OfflineSyncService {
           if (serverData != null) {
             final serverModified = serverData['lastModified'] is Timestamp
                 ? (serverData['lastModified'] as Timestamp).toDate()
-                : DateTime.tryParse(
-                    serverData['lastModified']?.toString() ?? '',
-                  );
+                : DateTime.tryParse(serverData['lastModified']?.toString() ?? '');
 
             final strategy = _getConflictStrategy(collectionPath);
 
             if (strategy == 'SERVER_AUTHORITY') {
-               // If server is modified at all after local, server wins.
-               if (serverModified != null && serverModified.isAfter(localTimestamp)) {
-                 shouldWrite = false;
-               }
+              // If server is modified at all after local, server wins.
+              if (serverModified != null && serverModified.isAfter(localTimestamp)) {
+                shouldWrite = false;
+              }
             } else if (strategy == 'LAST_WRITE_WINS') {
-               // We assume local is the last write if localTimestamp > serverModified
-               if (serverModified != null && serverModified.isAfter(localTimestamp)) {
-                 shouldWrite = false;
-               }
+              // We assume local is the last write if localTimestamp > serverModified
+              if (serverModified != null && serverModified.isAfter(localTimestamp)) {
+                shouldWrite = false;
+              }
             } else if (strategy == 'VERSION_BASED') {
-               final serverVersion = serverData['documentVersion'] as int? ?? 1;
-               final localVersion = localData['documentVersion'] as int? ?? 1;
-               if (serverVersion >= localVersion) {
-                 shouldWrite = false;
-               }
+              final serverVersion = serverData['documentVersion'] as int? ?? 1;
+              final localVersion = localData['documentVersion'] as int? ?? 1;
+              if (serverVersion >= localVersion) {
+                shouldWrite = false;
+              }
             } else if (strategy == 'MERGE_DELTA') {
-               // We will merge quantity differences instead of rejecting
-               isMergeDelta = true;
-               shouldWrite = true; 
+              // We will merge quantity differences instead of rejecting
+              isMergeDelta = true;
+              shouldWrite = true;
             }
 
             if (!shouldWrite && !isMergeDelta) {
@@ -351,42 +345,32 @@ class OfflineSyncService {
         if (shouldWrite) {
           localData['lastModified'] = Timestamp.fromDate(localTimestamp);
           localData['lastSync'] = FieldValue.serverTimestamp();
-          
+
           if (isMergeDelta && snapshot.exists) {
-             // Example merge delta logic for inventory audits
-             final serverData = snapshot.data()!;
-             final serverQty = serverData['quantity'] as int? ?? 0;
-             final localQty = localData['quantity'] as int? ?? 0;
-             final delta = localQty; // Assuming localQty represents the adjustment
-             localData['quantity'] = serverQty + delta;
+            // Example merge delta logic for inventory audits
+            final serverData = snapshot.data()!;
+            final serverQty = serverData['quantity'] as int? ?? 0;
+            final localQty = localData['quantity'] as int? ?? 0;
+            final delta = localQty; // Assuming localQty represents the adjustment
+            localData['quantity'] = serverQty + delta;
           }
 
           await docRef.set(localData, SetOptions(merge: true));
 
           // Adjust stock for inventory mutations
-          if (actionType == 'receive' ||
-              actionType == 'damage' ||
-              actionType == 'return') {
-            await _adjustStock(
-              firestore,
-              shopId,
-              branchId,
-              localData,
-              actionType,
-            );
+          if (actionType == 'receive' || actionType == 'damage' || actionType == 'return') {
+            await _adjustStock(firestore, shopId, branchId, localData, actionType);
           }
         }
 
         await _sqlite.markSyncDone(item['id'] as String);
-        debugPrint(
-          '[OfflineSyncService] Employee sync complete: $actionType / $documentId',
-        );
+        debugPrint('[OfflineSyncService] Employee sync complete: $actionType / $documentId');
       } catch (e) {
         await _sqlite.markSyncFailed(item['id'] as String);
         debugPrint(
           '[OfflineSyncService] Failed to sync employee action $actionType / $documentId: $e',
         );
-        break;
+        continue;
       }
     }
     await _refreshCounts();
@@ -396,15 +380,24 @@ class OfflineSyncService {
 
   String _getConflictStrategy(String collection) {
     switch (collection) {
-      case 'orders': return 'SERVER_AUTHORITY';
-      case 'wallet_transactions': return 'SERVER_AUTHORITY';
-      case 'users': return 'LAST_WRITE_WINS';
-      case 'delivery_tasks': return 'LAST_WRITE_WINS';
-      case 'products': return 'VERSION_BASED';
-      case 'inventory_batches': return 'MERGE_DELTA';
-      case 'inventory_audits': return 'MERGE_DELTA';
-      case 'damage_reports': return 'MERGE_DELTA';
-      default: return 'SERVER_AUTHORITY';
+      case 'orders':
+        return 'SERVER_AUTHORITY';
+      case 'wallet_transactions':
+        return 'SERVER_AUTHORITY';
+      case 'users':
+        return 'LAST_WRITE_WINS';
+      case 'delivery_tasks':
+        return 'LAST_WRITE_WINS';
+      case 'products':
+        return 'VERSION_BASED';
+      case 'inventory_batches':
+        return 'MERGE_DELTA';
+      case 'inventory_audits':
+        return 'MERGE_DELTA';
+      case 'damage_reports':
+        return 'MERGE_DELTA';
+      default:
+        return 'SERVER_AUTHORITY';
     }
   }
 
@@ -447,8 +440,7 @@ class OfflineSyncService {
         if (snapshot.exists) {
           final data = snapshot.data();
           if (data != null) {
-            final Map<dynamic, dynamic> branchStockMap =
-                data['branchStock'] as Map? ?? {};
+            final Map<dynamic, dynamic> branchStockMap = data['branchStock'] as Map? ?? {};
             final targetBranchId = (branchId.isEmpty || branchId == 'primary')
                 ? 'primary'
                 : branchId;
@@ -471,18 +463,13 @@ class OfflineSyncService {
             if (updatedBranchStock.containsKey('primary')) {
               newGlobalStock = updatedBranchStock['primary']!;
             } else {
-              newGlobalStock = updatedBranchStock.values.fold(
-                0,
-                (total, val) => total + val,
-              );
+              newGlobalStock = updatedBranchStock.values.fold(0, (total, val) => total + val);
             }
 
             transaction.update(productRef, {
               'branchStock': updatedBranchStock,
               'stockQuantity': newGlobalStock,
-              'isAvailable':
-                  newGlobalStock > 0 ||
-                  updatedBranchStock.values.any((val) => val > 0),
+              'isAvailable': newGlobalStock > 0 || updatedBranchStock.values.any((val) => val > 0),
               'updatedAt': FieldValue.serverTimestamp(),
             });
           }
@@ -492,9 +479,7 @@ class OfflineSyncService {
         '[OfflineSyncService] Adjusted stock globally for product $productId by $quantity',
       );
     } catch (e) {
-      debugPrint(
-        '[OfflineSyncService] Error performing transaction-based stock adjustment: $e',
-      );
+      debugPrint('[OfflineSyncService] Error performing transaction-based stock adjustment: $e');
       rethrow;
     }
   }
@@ -510,8 +495,7 @@ class OfflineSyncService {
     required Map<String, dynamic> serverData,
     required DateTime serverModified,
   }) async {
-    final alertId =
-        'conflict_${DateTime.now().millisecondsSinceEpoch}_$documentId';
+    final alertId = 'conflict_${DateTime.now().millisecondsSinceEpoch}_$documentId';
     final alertRef = firestore
         .collection('shops')
         .doc(shopId)
@@ -549,9 +533,7 @@ class OfflineSyncService {
         );
       }
     } catch (waError) {
-      debugPrint(
-        '[OfflineSyncService] WhatsApp conflict alert failed: $waError',
-      );
+      debugPrint('[OfflineSyncService] WhatsApp conflict alert failed: $waError');
     }
   }
 
@@ -569,10 +551,7 @@ class OfflineSyncService {
 
     if (!branchSnap.exists || branchSnap.data() == null) {
       return const _ContactInfo(
-        phoneNumber: String.fromEnvironment(
-          'WHATSAPP_OPERATIONS_PHONE',
-          defaultValue: '',
-        ),
+        phoneNumber: String.fromEnvironment('WHATSAPP_OPERATIONS_PHONE', defaultValue: ''),
         name: 'Global Operations Support',
       );
     }
@@ -586,10 +565,7 @@ class OfflineSyncService {
       if (m.exists) {
         final p = m.data()?['phoneNumber'] as String? ?? '';
         if (p.isNotEmpty) {
-          return _ContactInfo(
-            phoneNumber: p,
-            name: (m.data()?['name'] as String?) ?? 'Manager',
-          );
+          return _ContactInfo(phoneNumber: p, name: (m.data()?['name'] as String?) ?? 'Manager');
         }
       }
     }
@@ -621,10 +597,7 @@ class OfflineSyncService {
     // 4. Escalation
     final escalation = bd['escalationPhone'] as String? ?? '';
     if (escalation.isNotEmpty) {
-      return _ContactInfo(
-        phoneNumber: escalation,
-        name: 'Operations Escalation Desk',
-      );
+      return _ContactInfo(phoneNumber: escalation, name: 'Operations Escalation Desk');
     }
 
     // 5. Global fallback
@@ -645,17 +618,13 @@ class OfflineSyncService {
         result[key] = Timestamp.fromDate(value);
       } else if (value is String) {
         final parsed = DateTime.tryParse(value);
-        if (parsed != null &&
-            value.length >= 19 &&
-            (value.contains('-') || value.contains(':'))) {
+        if (parsed != null && value.length >= 19 && (value.contains('-') || value.contains(':'))) {
           result[key] = Timestamp.fromDate(parsed);
         } else {
           result[key] = value;
         }
       } else if (value is Map) {
-        result[key] = _convertDateTimeToTimestamp(
-          Map<String, dynamic>.from(value),
-        );
+        result[key] = _convertDateTimeToTimestamp(Map<String, dynamic>.from(value));
       } else if (value is List) {
         result[key] = value.map((item) {
           if (item is DateTime) return Timestamp.fromDate(item);
@@ -756,7 +725,7 @@ class OfflineSyncService {
         final currentState = shift['current_state'] as String;
         final startedAtMs = shift['started_at'] as int;
         final endedAtMs = shift['ended_at'] as int?;
-        
+
         final startedAt = DateTime.fromMillisecondsSinceEpoch(startedAtMs);
         final endedAt = endedAtMs != null ? DateTime.fromMillisecondsSinceEpoch(endedAtMs) : null;
 
@@ -793,7 +762,9 @@ class OfflineSyncService {
               id,
               riderId,
               branchId,
-              currentState == 'offline' ? 'offline' : (currentState == 'on_break' ? 'on_break' : 'online'),
+              currentState == 'offline'
+                  ? 'offline'
+                  : (currentState == 'on_break' ? 'on_break' : 'online'),
               startedAt.toIso8601String(),
               endedAt?.toIso8601String(),
               shift['total_deliveries'] ?? 0,
@@ -831,11 +802,7 @@ class OfflineSyncService {
         final params = item['params'] as List<dynamic>;
 
         try {
-          await rds.query(
-            sql,
-            params: params,
-            allowWrite: true,
-          );
+          await rds.query(sql, params: params, allowWrite: true);
 
           await _sqlite.markRDSWriteSynced(id);
           debugPrint('[OfflineSyncService] Replayed RDS write success: $id');
@@ -850,7 +817,8 @@ class OfflineSyncService {
               type: 'SQL_SYNC_DEAD_LETTER',
               severity: 'critical',
               title: 'Postgres Write Permanently Failed',
-              description: 'SQL query in rds_write_queue exceeded max retries. Query: $sql. Error: $errorMsg',
+              description:
+                  'SQL query in rds_write_queue exceeded max retries. Query: $sql. Error: $errorMsg',
             );
           }
         }
@@ -864,9 +832,7 @@ class OfflineSyncService {
     pendingSyncCount.value = await _sqlite.getPendingSyncCount();
     // Employee tasks are a subset of pending_sync where type != 'order_status'
     final all = await _sqlite.getPendingSyncItems();
-    pendingEmployeeSyncCount.value = all
-        .where((i) => i['actionType'] != 'order_status')
-        .length;
+    pendingEmployeeSyncCount.value = all.where((i) => i['actionType'] != 'order_status').length;
   }
 
   void dispose() {

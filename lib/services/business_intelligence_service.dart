@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -28,8 +27,7 @@ import '../constants/order_status.dart';
 /// Firestore access is isolated to [loadDashboard] / [_fetchOrders].
 /// ─────────────────────────────────────────────────────────────────────────────
 class BusinessIntelligenceService {
-  static final BusinessIntelligenceService _instance =
-      BusinessIntelligenceService._internal();
+  static final BusinessIntelligenceService _instance = BusinessIntelligenceService._internal();
   factory BusinessIntelligenceService() => _instance;
   BusinessIntelligenceService._internal();
 
@@ -40,10 +38,7 @@ class BusinessIntelligenceService {
   static const Set<OrderStatus> realizedStatuses = {OrderStatus.delivered};
 
   /// Statuses that represent money flowing back out.
-  static const Set<OrderStatus> refundStatuses = {
-    OrderStatus.returned,
-    OrderStatus.refunded,
-  };
+  static const Set<OrderStatus> refundStatuses = {OrderStatus.returned, OrderStatus.refunded};
 
   /// Fallback cost ratio when a product has no [ProductModel.costPrice] set.
   static const double _fallbackCostRatio = 0.68;
@@ -173,8 +168,7 @@ class BusinessIntelligenceService {
     // Kick off all three reads concurrently, then await individually so the
     // static types stay precise (no heterogeneous Future.wait casts).
     final currentFuture = _fetchOrders(shopId: shopId, from: from, to: to);
-    final previousFuture =
-        _fetchOrders(shopId: shopId, from: prevFrom, to: prevTo);
+    final previousFuture = _fetchOrders(shopId: shopId, from: prevFrom, to: prevTo);
     final productsFuture = _fetchProducts(shopId);
 
     final current = await currentFuture;
@@ -185,8 +179,7 @@ class BusinessIntelligenceService {
     final categoryByProduct = <String, String>{};
     for (final p in products) {
       costByProduct[p.id] = p.costPrice;
-      categoryByProduct[p.id] =
-          p.category.isNotEmpty ? p.category : p.categoryId;
+      categoryByProduct[p.id] = p.category.isNotEmpty ? p.category : p.categoryId;
     }
 
     return BusinessIntelligenceData(
@@ -203,7 +196,6 @@ class BusinessIntelligenceService {
       generatedAt: DateTime.now(),
     );
   }
-
 
   // ───────────────────────────────────────────────────────────────────────────
   // FINANCIAL
@@ -267,8 +259,7 @@ class BusinessIntelligenceService {
     final netRevenue = grossRevenue - refunds;
     final grossProfit = netRevenue - cogs;
     final profitMargin = netRevenue > 0 ? (grossProfit / netRevenue) * 100 : 0.0;
-    final refundRate =
-        grossRevenue > 0 ? (refunds / grossRevenue) * 100 : 0.0;
+    final refundRate = grossRevenue > 0 ? (refunds / grossRevenue) * 100 : 0.0;
 
     // Previous-period net revenue for growth.
     double prevNet = 0;
@@ -306,16 +297,8 @@ class BusinessIntelligenceService {
   // BUSINESS (KPIs)
   // ───────────────────────────────────────────────────────────────────────────
 
-  BusinessReport computeBusiness(
-    List<OrderModel> current,
-    List<OrderModel> previous,
-  ) {
-    int placed = 0,
-        packed = 0,
-        shipped = 0,
-        delivered = 0,
-        cancelled = 0,
-        returned = 0;
+  BusinessReport computeBusiness(List<OrderModel> current, List<OrderModel> previous) {
+    int placed = 0, packed = 0, shipped = 0, delivered = 0, cancelled = 0, returned = 0;
 
     final spendByCustomer = <String, double>{};
     final ordersByCustomer = <String, int>{};
@@ -352,8 +335,7 @@ class BusinessIntelligenceService {
           break;
       }
 
-      ordersByCustomer[o.customerId] =
-          (ordersByCustomer[o.customerId] ?? 0) + 1;
+      ordersByCustomer[o.customerId] = (ordersByCustomer[o.customerId] ?? 0) + 1;
 
       final seen = firstSeen[o.customerId];
       if (seen == null || o.createdAt.isBefore(seen)) {
@@ -374,11 +356,9 @@ class BusinessIntelligenceService {
     }
 
     final totalCustomers = ordersByCustomer.length;
-    final returningCustomers =
-        ordersByCustomer.values.where((c) => c > 1).length;
+    final returningCustomers = ordersByCustomer.values.where((c) => c > 1).length;
     final newCustomers = totalCustomers - returningCustomers;
-    final retentionRate =
-        totalCustomers > 0 ? (returningCustomers / totalCustomers) * 100 : 0.0;
+    final retentionRate = totalCustomers > 0 ? (returningCustomers / totalCustomers) * 100 : 0.0;
 
     final aov = delivered > 0 ? realizedRevenue / delivered : 0.0;
     final avgClv = totalCustomers > 0
@@ -387,11 +367,8 @@ class BusinessIntelligenceService {
 
     // Churn: share of customers whose latest order is > 30 days old.
     final now = DateTime.now();
-    final churned = lastSeen.values
-        .where((d) => now.difference(d).inDays > 30)
-        .length;
-    final churnRate =
-        totalCustomers > 0 ? (churned / totalCustomers) * 100 : 0.0;
+    final churned = lastSeen.values.where((d) => now.difference(d).inDays > 30).length;
+    final churnRate = totalCustomers > 0 ? (churned / totalCustomers) * 100 : 0.0;
 
     // Growth in order count vs previous period.
     final prevOrders = previous.length;
@@ -457,10 +434,7 @@ class BusinessIntelligenceService {
 
     for (final o in current) {
       final id = (o.shopId == null || o.shopId!.isEmpty) ? 'unassigned' : o.shopId!;
-      final acc = byBranch.putIfAbsent(
-        id,
-        () => _BranchAccumulator(id, o.shopName ?? id),
-      );
+      final acc = byBranch.putIfAbsent(id, () => _BranchAccumulator(id, o.shopName ?? id));
       acc.orders++;
       if (o.status == OrderStatus.delivered) {
         acc.revenue += o.totalAmount.toDouble();
@@ -489,8 +463,7 @@ class BusinessIntelligenceService {
         refundCount: a.refunds,
         estimatedProfit: estProfit,
       );
-    }).toList()
-      ..sort((a, b) => b.revenue.compareTo(a.revenue));
+    }).toList()..sort((a, b) => b.revenue.compareTo(a.revenue));
 
     return FranchiseReport(branches: branches);
   }
@@ -515,21 +488,23 @@ class BusinessIntelligenceService {
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                pw.Text('Fufaji — Business Intelligence Report',
-                    style: pw.TextStyle(
-                        fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                pw.Text(
+                  'Fufaji — Business Intelligence Report',
+                  style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold),
+                ),
                 pw.SizedBox(height: 4),
                 pw.Text(
-                    '${dfmt.format(data.from)}  →  ${dfmt.format(data.to)}',
-                    style: const pw.TextStyle(
-                        fontSize: 11, color: PdfColors.grey700)),
+                  '${dfmt.format(data.from)}  →  ${dfmt.format(data.to)}',
+                  style: const pw.TextStyle(fontSize: 11, color: PdfColors.grey700),
+                ),
               ],
             ),
           ),
           pw.SizedBox(height: 12),
-          pw.Text('Financial Summary',
-              style:
-                  pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+          pw.Text(
+            'Financial Summary',
+            style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
+          ),
           pw.SizedBox(height: 8),
           _pdfKvTable(money, {
             'Gross Revenue': f.grossRevenue,
@@ -545,14 +520,16 @@ class BusinessIntelligenceService {
           }),
           pw.SizedBox(height: 6),
           pw.Text(
-              'Profit Margin: ${f.profitMargin.toStringAsFixed(1)}%   •   '
-              'Revenue Growth: ${f.revenueGrowth.toStringAsFixed(1)}%   •   '
-              'Refund Rate: ${f.refundRate.toStringAsFixed(1)}%',
-              style: const pw.TextStyle(fontSize: 10)),
+            'Profit Margin: ${f.profitMargin.toStringAsFixed(1)}%   •   '
+            'Revenue Growth: ${f.revenueGrowth.toStringAsFixed(1)}%   •   '
+            'Refund Rate: ${f.refundRate.toStringAsFixed(1)}%',
+            style: const pw.TextStyle(fontSize: 10),
+          ),
           pw.SizedBox(height: 18),
-          pw.Text('Business KPIs',
-              style:
-                  pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+          pw.Text(
+            'Business KPIs',
+            style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
+          ),
           pw.SizedBox(height: 8),
           pw.Table.fromTextArray(
             headers: ['Metric', 'Value'],
@@ -571,39 +548,40 @@ class BusinessIntelligenceService {
               ['Order Growth', '${b.orderGrowth.toStringAsFixed(1)}%'],
             ],
             headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-            headerDecoration:
-                const pw.BoxDecoration(color: PdfAppTheme.warning100),
+            headerDecoration: const pw.BoxDecoration(color: PdfAppTheme.warning100),
             cellAlignment: pw.Alignment.centerLeft,
             cellStyle: const pw.TextStyle(fontSize: 10),
           ),
           if (data.franchise.branches.isNotEmpty) ...[
             pw.SizedBox(height: 18),
-            pw.Text('Branch Performance',
-                style: pw.TextStyle(
-                    fontSize: 14, fontWeight: pw.FontWeight.bold)),
+            pw.Text(
+              'Branch Performance',
+              style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
+            ),
             pw.SizedBox(height: 8),
             pw.Table.fromTextArray(
               headers: ['Branch', 'Orders', 'Revenue', 'AOV', 'Rating'],
               data: data.franchise.branches
-                  .map((br) => [
-                        br.branchName,
-                        '${br.orders}',
-                        money.format(br.revenue),
-                        money.format(br.avgOrderValue),
-                        br.avgRating.toStringAsFixed(1),
-                      ])
+                  .map(
+                    (br) => [
+                      br.branchName,
+                      '${br.orders}',
+                      money.format(br.revenue),
+                      money.format(br.avgOrderValue),
+                      br.avgRating.toStringAsFixed(1),
+                    ],
+                  )
                   .toList(),
               headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-              headerDecoration:
-                  const pw.BoxDecoration(color: PdfAppTheme.warning100),
+              headerDecoration: const pw.BoxDecoration(color: PdfAppTheme.warning100),
               cellStyle: const pw.TextStyle(fontSize: 10),
             ),
           ],
           pw.SizedBox(height: 24),
           pw.Text(
-              'Generated ${DateFormat('dd MMM yyyy, HH:mm').format(data.generatedAt)} by Fufaji Commerce OS',
-              style:
-                  const pw.TextStyle(fontSize: 8, color: PdfColors.grey600)),
+            'Generated ${DateFormat('dd MMM yyyy, HH:mm').format(data.generatedAt)} by Fufaji Commerce OS',
+            style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey600),
+          ),
         ],
       ),
     );
@@ -625,9 +603,7 @@ class BusinessIntelligenceService {
     return pw.Table.fromTextArray(
       border: null,
       headers: ['Line Item', 'Amount'],
-      data: rows.entries
-          .map((e) => [e.key, money.format(e.value)])
-          .toList(),
+      data: rows.entries.map((e) => [e.key, money.format(e.value)]).toList(),
       headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
       headerDecoration: const pw.BoxDecoration(color: PdfColors.grey200),
       cellStyle: const pw.TextStyle(fontSize: 10),
@@ -654,9 +630,7 @@ class BusinessIntelligenceService {
         query = query.where('shopId', isEqualTo: shopId);
       }
       final snap = await query.get();
-      return snap.docs
-          .map((d) => OrderModel.fromMap({'id': d.id, ...d.data()}))
-          .toList();
+      return snap.docs.map((d) => OrderModel.fromMap({'id': d.id, ...d.data()})).toList();
     } catch (e) {
       debugPrint('[BI] _fetchOrders error: $e');
       return [];
@@ -752,24 +726,24 @@ class FinancialReport {
   });
 
   factory FinancialReport.empty() => const FinancialReport(
-        grossRevenue: 0,
-        netRevenue: 0,
-        refunds: 0,
-        refundRate: 0,
-        deliveryFeeRevenue: 0,
-        tips: 0,
-        walletUsage: 0,
-        discountsGiven: 0,
-        taxCollected: 0,
-        packagingFees: 0,
-        cogs: 0,
-        grossProfit: 0,
-        profitMargin: 0,
-        revenueGrowth: 0,
-        revenueByPaymentMethod: {},
-        revenueByCategory: {},
-        dailyRevenue: [],
-      );
+    grossRevenue: 0,
+    netRevenue: 0,
+    refunds: 0,
+    refundRate: 0,
+    deliveryFeeRevenue: 0,
+    tips: 0,
+    walletUsage: 0,
+    discountsGiven: 0,
+    taxCollected: 0,
+    packagingFees: 0,
+    cogs: 0,
+    grossProfit: 0,
+    profitMargin: 0,
+    revenueGrowth: 0,
+    revenueByPaymentMethod: {},
+    revenueByCategory: {},
+    dailyRevenue: [],
+  );
 }
 
 class BusinessReport {
@@ -812,24 +786,24 @@ class BusinessReport {
   });
 
   factory BusinessReport.empty() => const BusinessReport(
-        ordersPlaced: 0,
-        ordersPacked: 0,
-        ordersShipped: 0,
-        ordersDelivered: 0,
-        ordersCancelled: 0,
-        ordersReturned: 0,
-        totalOrders: 0,
-        newCustomers: 0,
-        returningCustomers: 0,
-        totalCustomers: 0,
-        retentionRate: 0,
-        churnRate: 0,
-        avgOrderValue: 0,
-        avgCustomerLtv: 0,
-        orderGrowth: 0,
-        clvDistribution: {},
-        aovTrend: [],
-      );
+    ordersPlaced: 0,
+    ordersPacked: 0,
+    ordersShipped: 0,
+    ordersDelivered: 0,
+    ordersCancelled: 0,
+    ordersReturned: 0,
+    totalOrders: 0,
+    newCustomers: 0,
+    returningCustomers: 0,
+    totalCustomers: 0,
+    retentionRate: 0,
+    churnRate: 0,
+    avgOrderValue: 0,
+    avgCustomerLtv: 0,
+    orderGrowth: 0,
+    clvDistribution: {},
+    aovTrend: [],
+  );
 }
 
 class FranchiseReport {
@@ -837,8 +811,7 @@ class FranchiseReport {
   const FranchiseReport({required this.branches});
   factory FranchiseReport.empty() => const FranchiseReport(branches: []);
 
-  double get totalRevenue =>
-      branches.fold(0.0, (total, b) => total + b.revenue);
+  double get totalRevenue => branches.fold(0.0, (total, b) => total + b.revenue);
 }
 
 class BranchPerformance {

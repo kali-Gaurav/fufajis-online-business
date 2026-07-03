@@ -45,7 +45,7 @@ class PricingEngineService {
     String? productCategory,
   }) async {
     final docId = '${productName.toLowerCase()}_${competitorName.toLowerCase()}';
-    
+
     await _competitorPricesCollection(shopId).doc(docId).set({
       'productName': productName,
       'competitorName': competitorName,
@@ -64,13 +64,10 @@ class PricingEngineService {
   }
 
   /// Get competitor prices for a product
-  Future<List<Map<String, dynamic>>> getCompetitorPrices(
-    String shopId,
-    String productName,
-  ) async {
-    final snapshot = await _competitorPricesCollection(shopId)
-        .where('productName', isEqualTo: productName)
-        .get();
+  Future<List<Map<String, dynamic>>> getCompetitorPrices(String shopId, String productName) async {
+    final snapshot = await _competitorPricesCollection(
+      shopId,
+    ).where('productName', isEqualTo: productName).get();
 
     return snapshot.docs.map((doc) {
       final data = doc.data() as Map<String, dynamic>;
@@ -80,10 +77,7 @@ class PricingEngineService {
   }
 
   /// Get lowest competitor price
-  Future<double?> getLowestCompetitorPrice(
-    String shopId,
-    String productName,
-  ) async {
+  Future<double?> getLowestCompetitorPrice(String shopId, String productName) async {
     final prices = await getCompetitorPrices(shopId, productName);
     if (prices.isEmpty) return null;
 
@@ -101,16 +95,21 @@ class PricingEngineService {
   }) async {
     try {
       // Get competitor prices
-      final competitorPrices = precalculatedCompetitorPrices ?? await getCompetitorPrices(shopId, productName);
+      final competitorPrices =
+          precalculatedCompetitorPrices ?? await getCompetitorPrices(shopId, productName);
       final lowestCompetitorPrice = competitorPrices.isNotEmpty
           ? competitorPrices.map((p) => p['price'] as double).reduce(min)
           : null;
 
       // Get dynamic pricing config (Firestore-driven, 15-min cached)
       final effectiveMarginPct = await _pricingConfig.getEffectiveMargin(
-        shopId: shopId, category: category ?? 'other');
+        shopId: shopId,
+        category: category ?? 'other',
+      );
       final effectiveStrategy = await _pricingConfig.getEffectiveStrategy(
-        shopId: shopId, category: category ?? 'other');
+        shopId: shopId,
+        category: category ?? 'other',
+      );
       final rules = await getPricingRules(shopId, category);
       final defaultRule = rules.firstWhere(
         (r) => r['isDefault'] == true,
@@ -194,7 +193,7 @@ class PricingEngineService {
 
       for (final doc in snapshot.docs) {
         final product = ProductModel.fromMap(doc.data() as Map<String, dynamic>);
-        
+
         // Skip if no cost price (can't calculate margin)
         // Skip non-competitor tracked items
         final competitorPrices = competitorPricesByProduct[product.name] ?? [];
@@ -211,10 +210,11 @@ class PricingEngineService {
         );
 
         // Check if price change is needed (threshold read from dynamic config)
-        final priceDifference = (optimalPrice - product.price.toDouble()) / product.price.toDouble();
+        final priceDifference =
+            (optimalPrice - product.price.toDouble()) / product.price.toDouble();
         final globalConfig = await _pricingConfig.getGlobalConfig();
         final matchThreshold = globalConfig.defaultCompetitorMatchThreshold / 100.0;
-        
+
         if (priceDifference.abs() > matchThreshold) {
           final change = {
             'productId': product.id,
@@ -282,9 +282,9 @@ class PricingEngineService {
 
     // Clean up old history
     final cutoff = now.subtract(const Duration(days: _priceHistoryDays));
-    final oldDocs = await _priceHistoryCollection(productId)
-        .where('createdAt', isLessThan: Timestamp.fromDate(cutoff))
-        .get();
+    final oldDocs = await _priceHistoryCollection(
+      productId,
+    ).where('createdAt', isLessThan: Timestamp.fromDate(cutoff)).get();
     for (final doc in oldDocs.docs) {
       await doc.reference.delete();
     }
@@ -296,11 +296,9 @@ class PricingEngineService {
     String productId,
     Map<String, dynamic> change,
   ) async {
-    await _priceAlertsCollection(shopId).doc(productId).set({
-      ...change,
-      'status': 'pending',
-      'createdAt': Timestamp.now(),
-    });
+    await _priceAlertsCollection(
+      shopId,
+    ).doc(productId).set({...change, 'status': 'pending', 'createdAt': Timestamp.now()});
   }
 
   /// Approve pending price change
@@ -309,12 +307,7 @@ class PricingEngineService {
     if (!doc.exists) return;
 
     final change = doc.data() as Map<String, dynamic>;
-    await _applyPriceChange(
-      shopId,
-      productId,
-      change['newPrice'] as double,
-      DateTime.now(),
-    );
+    await _applyPriceChange(shopId, productId, change['newPrice'] as double, DateTime.now());
 
     await _priceAlertsCollection(shopId).doc(productId).delete();
   }
@@ -329,12 +322,9 @@ class PricingEngineService {
   }
 
   /// Get pricing rules for a shop
-  Future<List<Map<String, dynamic>>> getPricingRules(
-    String shopId, [
-    String? category,
-  ]) async {
+  Future<List<Map<String, dynamic>>> getPricingRules(String shopId, [String? category]) async {
     Query query = _pricingRulesCollection(shopId).orderBy('priority', descending: true);
-    
+
     if (category != null) {
       query = query.where('category', isEqualTo: category);
     }
@@ -357,7 +347,7 @@ class PricingEngineService {
     bool isDefault = false,
   }) async {
     final ruleId = category != null ? 'rule_$category' : 'rule_default';
-    
+
     await _pricingRulesCollection(shopId).doc(ruleId).set({
       'name': name,
       'strategy': strategy,
@@ -371,11 +361,9 @@ class PricingEngineService {
 
   /// Get price history for a product
   Stream<List<Map<String, dynamic>>> getPriceHistory(String productId) {
-    return _priceHistoryCollection(productId)
-        .orderBy('createdAt', descending: true)
-        .limit(30)
-        .snapshots()
-        .map((snapshot) {
+    return _priceHistoryCollection(
+      productId,
+    ).orderBy('createdAt', descending: true).limit(30).snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
         data['id'] = doc.id;
@@ -386,10 +374,9 @@ class PricingEngineService {
 
   /// Get pending price changes
   Stream<List<Map<String, dynamic>>> getPendingPriceChanges(String shopId) {
-    return _priceAlertsCollection(shopId)
-        .where('status', isEqualTo: 'pending')
-        .snapshots()
-        .map((snapshot) {
+    return _priceAlertsCollection(shopId).where('status', isEqualTo: 'pending').snapshots().map((
+      snapshot,
+    ) {
       return snapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
         data['id'] = doc.id;
@@ -417,16 +404,19 @@ class PricingEngineService {
 
       for (final product in products) {
         totalPrice += product.price.toDouble();
-        
+
         // Get price changes in last 30 days
-        final changesSnapshot = await _priceHistoryCollection(product.id)
-            .where('createdAt', isGreaterThan: Timestamp.fromDate(monthAgo))
-            .get();
-        
+        final changesSnapshot = await _priceHistoryCollection(
+          product.id,
+        ).where('createdAt', isGreaterThan: Timestamp.fromDate(monthAgo)).get();
+
         for (final changeDoc in changesSnapshot.docs) {
           final change = changeDoc.data() as Map<String, dynamic>;
           priceChangeCount++;
-          totalChangePercentage += ((change['newPrice'] as num) - (change['oldPrice'] as num)) / (change['oldPrice'] as num) * 100;
+          totalChangePercentage +=
+              ((change['newPrice'] as num) - (change['oldPrice'] as num)) /
+              (change['oldPrice'] as num) *
+              100;
         }
       }
 
@@ -435,11 +425,14 @@ class PricingEngineService {
 
       // Get competitor coverage
       final competitorCount = await _competitorPricesCollection(shopId).count().get();
-      final productsWithCompetitors = products.where((p) => 
-        p.name.toLowerCase().contains('sugar') || 
-        p.name.toLowerCase().contains('flour') || 
-        p.name.toLowerCase().contains('rice')
-      ).length;
+      final productsWithCompetitors = products
+          .where(
+            (p) =>
+                p.name.toLowerCase().contains('sugar') ||
+                p.name.toLowerCase().contains('flour') ||
+                p.name.toLowerCase().contains('rice'),
+          )
+          .length;
 
       return {
         'totalProducts': products.length,
@@ -464,10 +457,9 @@ class PricingEngineService {
   /// Send price change notifications
   Future<void> sendPriceChangeNotifications(String shopId) async {
     try {
-      final pendingChanges = await _priceAlertsCollection(shopId)
-          .where('status', isEqualTo: 'pending')
-          .count()
-          .get();
+      final pendingChanges = await _priceAlertsCollection(
+        shopId,
+      ).where('status', isEqualTo: 'pending').count().get();
 
       if (pendingChanges.count == 0) return;
 
@@ -480,7 +472,8 @@ class PricingEngineService {
       await _notificationService.sendNotificationToUser(
         userId: ownerId,
         title: '💰 Price Update Recommendations',
-        body: '${pendingChanges.count} products have price recommendations based on competitor analysis.',
+        body:
+            '${pendingChanges.count} products have price recommendations based on competitor analysis.',
         data: {
           'type': 'price_recommendations',
           'shopId': shopId,
@@ -497,7 +490,7 @@ class PricingEngineService {
     // In production, this would call actual competitor APIs
     // For demo, generate realistic mock data
     final basePrice = 50.0 + Random().nextDouble() * 100;
-    
+
     return {
       'competitor_a': basePrice * (0.95 + Random().nextDouble() * 0.1),
       'competitor_b': basePrice * (0.92 + Random().nextDouble() * 0.12),
@@ -507,19 +500,14 @@ class PricingEngineService {
   }
 
   /// Bulk import competitor prices
-  Future<void> bulkImportCompetitorPrices(
-    String shopId,
-    List<Map<String, dynamic>> prices,
-  ) async {
+  Future<void> bulkImportCompetitorPrices(String shopId, List<Map<String, dynamic>> prices) async {
     final batch = _firestore.batch();
 
     for (final price in prices) {
-      final docId = '${price['productName'].toString().toLowerCase()}_${price['competitorName'].toString().toLowerCase()}';
+      final docId =
+          '${price['productName'].toString().toLowerCase()}_${price['competitorName'].toString().toLowerCase()}';
       final docRef = _competitorPricesCollection(shopId).doc(docId);
-      batch.set(docRef, {
-        ...price,
-        'updatedAt': Timestamp.now(),
-      });
+      batch.set(docRef, {...price, 'updatedAt': Timestamp.now()});
     }
 
     await batch.commit();
@@ -533,11 +521,11 @@ class PricingEngineService {
   /// Get price comparison report
   Future<Map<String, dynamic>> getPriceComparisonReport(String shopId) async {
     final now = DateTime.now();
-    
+
     try {
       // Get all competitor prices
       final competitorSnapshot = await _competitorPricesCollection(shopId).get();
-      
+
       // Group by product
       final productPrices = <String, List<Map<String, dynamic>>>{};
       for (final doc in competitorSnapshot.docs) {
@@ -553,15 +541,17 @@ class PricingEngineService {
         final myPrice = await getMyPrice(entry.key);
         final lowestCompetitor = prices.map((p) => p['price'] as double).reduce(min);
         final highestCompetitor = prices.map((p) => p['price'] as double).reduce(max);
-        
+
         comparisons.add({
           'productName': entry.key,
           'myPrice': myPrice,
           'lowestCompetitor': lowestCompetitor,
           'highestCompetitor': highestCompetitor,
-          'marketPosition': myPrice == null ? 'unknown' :
-                           (myPrice <= lowestCompetitor ? 'lowest' : 
-                            (myPrice >= highestCompetitor ? 'highest' : 'middle')),
+          'marketPosition': myPrice == null
+              ? 'unknown'
+              : (myPrice <= lowestCompetitor
+                    ? 'lowest'
+                    : (myPrice >= highestCompetitor ? 'highest' : 'middle')),
           'competitorCount': prices.length,
         });
       }
@@ -578,11 +568,7 @@ class PricingEngineService {
       };
     } catch (e) {
       print('Error getting price comparison: $e');
-      return {
-        'totalProductsTracked': 0,
-        'comparisons': [],
-        'summary': {},
-      };
+      return {'totalProductsTracked': 0, 'comparisons': [], 'summary': {}};
     }
   }
 
@@ -595,7 +581,7 @@ class PricingEngineService {
         .get();
 
     if (snapshot.docs.isEmpty) return null;
-    
+
     final product = ProductModel.fromMap(snapshot.docs.first.data());
     return product.price.toDouble();
   }

@@ -45,8 +45,8 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
   Widget build(BuildContext context) {
     final productProvider = Provider.of<ProductProvider>(context);
     final categoryName = _categories[_selectedCategory];
-    final products = categoryName == 'All' 
-        ? productProvider.products 
+    final products = categoryName == 'All'
+        ? productProvider.products
         : productProvider.getProductsByCategory(categoryName.toLowerCase());
 
     return Scaffold(
@@ -82,9 +82,9 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
                           }
                         } catch (e) {
                           if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Failed to seed: $e')),
-                            );
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(SnackBar(content: Text('Failed to seed: $e')));
                           }
                         }
                       },
@@ -102,7 +102,10 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
                     const SizedBox(width: 12),
                     FjButton(
                       label: 'Voice Entry',
-                      onPressed: () => showDialog(context: context, builder: (context) => const VoiceToStockDialog()),
+                      onPressed: () => showDialog(
+                        context: context,
+                        builder: (context) => const VoiceToStockDialog(),
+                      ),
                       icon: Icons.mic,
                       type: FjButtonType.outline,
                       height: 40,
@@ -131,7 +134,9 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
                       hintText: 'Search products...',
                       prefixIcon: const Icon(Icons.search),
                       filled: true,
-                      fillColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.grey800 : AppTheme.white,
+                      fillColor: Theme.of(context).brightness == Brightness.dark
+                          ? AppTheme.grey800
+                          : AppTheme.white,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -150,10 +155,9 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
                   child: DropdownButton<String>(
                     value: _categories[_selectedCategory],
                     underline: const SizedBox(),
-                    items: _categories.map((category) => DropdownMenuItem(
-                      value: category,
-                      child: Text(category),
-                    )).toList(),
+                    items: _categories
+                        .map((category) => DropdownMenuItem(value: category, child: Text(category)))
+                        .toList(),
                     onChanged: (value) {
                       if (value != null) {
                         setState(() {
@@ -233,17 +237,10 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
                               height: double.infinity,
                             ),
                           ),
-                          errorWidget: (context, url, error) => const Icon(
-                            Icons.inventory_2,
-                            size: 48,
-                            color: AppTheme.grey400,
-                          ),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.inventory_2, size: 48, color: AppTheme.grey400),
                         )
-                      : const Icon(
-                          Icons.inventory_2,
-                          size: 48,
-                          color: AppTheme.grey400,
-                        ),
+                      : const Icon(Icons.inventory_2, size: 48, color: AppTheme.grey400),
                 ),
                 if ((discount?.toDouble() ?? 0) > 0)
                   Positioned(
@@ -338,7 +335,8 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
                             icon: const Icon(Icons.edit, size: 20, color: AppTheme.info),
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
-                            onPressed: () => context.push('/owner/products/add?productId=${product.id}'),
+                            onPressed: () =>
+                                context.push('/owner/products/add?productId=${product.id}'),
                           ),
                           const SizedBox(width: 8),
                           IconButton(
@@ -359,8 +357,8 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
                       color: product.stockQuantity > 10
                           ? AppTheme.success.withValues(alpha: 0.1)
                           : product.stockQuantity > 0
-                              ? AppTheme.warning.withValues(alpha: 0.1)
-                              : AppTheme.error.withValues(alpha: 0.1),
+                          ? AppTheme.warning.withValues(alpha: 0.1)
+                          : AppTheme.error.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
@@ -370,8 +368,8 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
                         color: product.stockQuantity > 10
                             ? AppTheme.success
                             : product.stockQuantity > 0
-                                ? AppTheme.warning
-                                : AppTheme.error,
+                            ? AppTheme.warning
+                            : AppTheme.error,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -386,10 +384,7 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
   }
 
   void _showBulkUploadDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => const BulkUploadDialog(),
-    );
+    showDialog(context: context, builder: (context) => const BulkUploadDialog());
   }
 
   void _confirmDelete(BuildContext context, ProductModel product) {
@@ -397,12 +392,11 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Product?', style: TextStyle(fontWeight: FontWeight.w700)),
-        content: Text('Are you sure you want to delete "${product.name}"? This action cannot be undone.'),
+        content: Text(
+          'Are you sure you want to delete "${product.name}"? This action cannot be undone.',
+        ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
           TextButton(
             onPressed: () async {
               final productProvider = Provider.of<ProductProvider>(context, listen: false);
@@ -410,15 +404,15 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
                 await productProvider.deleteProduct(product.id);
                 if (context.mounted) {
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Product deleted successfully')),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('Product deleted successfully')));
                 }
               } catch (e) {
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Failed to delete: $e')),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Failed to delete: $e')));
                 }
               }
             },
@@ -429,7 +423,6 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
     );
   }
 }
-
 
 class SmartAddProductDialog extends StatefulWidget {
   const SmartAddProductDialog({super.key});
@@ -477,7 +470,12 @@ class _SmartAddProductDialogState extends State<SmartAddProductDialog> {
         description: 'Premium ${_selectedProduct!.name} from ${_selectedProduct!.brand}',
         price: MonetaryValue(double.parse(_priceController.text)),
         originalPrice: _selectedProduct!.mrp,
-        discountPercentage: MonetaryValue(((_selectedProduct!.mrp.toDouble() - double.parse(_priceController.text)) / _selectedProduct!.mrp.toDouble() * 100).roundToDouble()),
+        discountPercentage: MonetaryValue(
+          ((_selectedProduct!.mrp.toDouble() - double.parse(_priceController.text)) /
+                  _selectedProduct!.mrp.toDouble() *
+                  100)
+              .roundToDouble(),
+        ),
         unit: _selectedProduct!.unit,
         categoryId: _selectedProduct!.category.toLowerCase(),
         category: _selectedProduct!.category,
@@ -495,7 +493,12 @@ class _SmartAddProductDialogState extends State<SmartAddProductDialog> {
       await productProvider.addProduct(newProduct);
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Product added to your shop!'), backgroundColor: AppTheme.success));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Product added to your shop!'),
+            backgroundColor: AppTheme.success,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
@@ -520,12 +523,18 @@ class _SmartAddProductDialogState extends State<SmartAddProductDialog> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Quick Add Product', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                  IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
+                  const Text(
+                    'Quick Add Product',
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
-              
+
               if (_selectedProduct == null) ...[
                 const Text('Search from Global Catalog', style: TextStyle(color: AppTheme.grey600)),
                 const SizedBox(height: 8),
@@ -536,8 +545,14 @@ class _SmartAddProductDialogState extends State<SmartAddProductDialog> {
                   decoration: InputDecoration(
                     hintText: 'e.g. Maggi, Coca Cola, Parle-G...',
                     prefixIcon: const Icon(Icons.search),
-                    suffixIcon: _searchController.text.isNotEmpty 
-                        ? IconButton(icon: const Icon(Icons.clear), onPressed: () => setState(() { _searchController.clear(); _searchResults = []; }))
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () => setState(() {
+                              _searchController.clear();
+                              _searchResults = [];
+                            }),
+                          )
                         : null,
                   ),
                 ),
@@ -559,7 +574,12 @@ class _SmartAddProductDialogState extends State<SmartAddProductDialog> {
                         return ListTile(
                           leading: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: CachedNetworkImage(imageUrl: p.imageUrl, width: 40, height: 40, fit: BoxFit.cover),
+                            child: CachedNetworkImage(
+                              imageUrl: p.imageUrl,
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                           title: Text(p.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                           subtitle: Text('${p.brand} • MRP ₹${p.mrp}'),
@@ -570,7 +590,10 @@ class _SmartAddProductDialogState extends State<SmartAddProductDialog> {
                   ),
                 const SizedBox(height: 40),
                 const Center(
-                  child: Text('OR', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.grey400)),
+                  child: Text(
+                    'OR',
+                    style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.grey400),
+                  ),
                 ),
                 const SizedBox(height: 20),
                 SizedBox(
@@ -597,20 +620,37 @@ class _SmartAddProductDialogState extends State<SmartAddProductDialog> {
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: CachedNetworkImage(imageUrl: _selectedProduct!.imageUrl, width: 80, height: 80, fit: BoxFit.cover),
+                        child: CachedNetworkImage(
+                          imageUrl: _selectedProduct!.imageUrl,
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(_selectedProduct!.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                            Text('${_selectedProduct!.brand} • MRP ₹${_selectedProduct!.mrp}', style: const TextStyle(color: AppTheme.grey600)),
-                            Text('Unit: ${_selectedProduct!.unit}', style: const TextStyle(color: AppTheme.grey600, fontSize: 12)),
+                            Text(
+                              _selectedProduct!.name,
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              '${_selectedProduct!.brand} • MRP ₹${_selectedProduct!.mrp}',
+                              style: const TextStyle(color: AppTheme.grey600),
+                            ),
+                            Text(
+                              'Unit: ${_selectedProduct!.unit}',
+                              style: const TextStyle(color: AppTheme.grey600, fontSize: 12),
+                            ),
                           ],
                         ),
                       ),
-                      IconButton(onPressed: () => setState(() => _selectedProduct = null), icon: const Icon(Icons.edit, color: AppTheme.primary)),
+                      IconButton(
+                        onPressed: () => setState(() => _selectedProduct = null),
+                        icon: const Icon(Icons.edit, color: AppTheme.primary),
+                      ),
                     ],
                   ),
                 ),
@@ -621,7 +661,10 @@ class _SmartAddProductDialogState extends State<SmartAddProductDialog> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Your Selling Price', style: TextStyle(fontWeight: FontWeight.bold)),
+                          const Text(
+                            'Your Selling Price',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _priceController,
@@ -637,7 +680,10 @@ class _SmartAddProductDialogState extends State<SmartAddProductDialog> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Stock Quantity', style: TextStyle(fontWeight: FontWeight.bold)),
+                          const Text(
+                            'Stock Quantity',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _stockController,
@@ -656,10 +702,16 @@ class _SmartAddProductDialogState extends State<SmartAddProductDialog> {
                   height: 50,
                   child: ElevatedButton(
                     onPressed: _isSaving ? null : _saveProduct,
-                    style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, foregroundColor: Colors.white),
-                    child: _isSaving 
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primary,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: _isSaving
                         ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text('Add to Shop Inventory', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        : const Text(
+                            'Add to Shop Inventory',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
                   ),
                 ),
               ],
@@ -701,7 +753,7 @@ class _AddProductDialogState extends State<AddProductDialog> {
 
   Future<void> _removeBackground() async {
     if (_selectedImage == null) return;
-    
+
     setState(() => _isRemovingBg = true);
     try {
       final processed = await _imageProcessingService.removeBackgroundAI(_selectedImage!);
@@ -710,14 +762,17 @@ class _AddProductDialogState extends State<AddProductDialog> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Background removed successfully!'), backgroundColor: AppTheme.success),
+          const SnackBar(
+            content: Text('Background removed successfully!'),
+            backgroundColor: AppTheme.success,
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error));
       }
     } finally {
       setState(() => _isRemovingBg = false);
@@ -752,14 +807,16 @@ class _AddProductDialogState extends State<AddProductDialog> {
 
   void _addVariant() {
     if (_variantNameController.text.isEmpty || _variantPriceController.text.isEmpty) return;
-    
+
     setState(() {
-      _unitOptions.add(ProductUnitOption(
-        id: 'var_${DateTime.now().millisecondsSinceEpoch}',
-        name: _variantNameController.text,
-        price: MonetaryValue(double.parse(_variantPriceController.text)),
-        stockQuantity: int.tryParse(_variantStockController.text) ?? 100,
-      ));
+      _unitOptions.add(
+        ProductUnitOption(
+          id: 'var_${DateTime.now().millisecondsSinceEpoch}',
+          name: _variantNameController.text,
+          price: MonetaryValue(double.parse(_variantPriceController.text)),
+          stockQuantity: int.tryParse(_variantStockController.text) ?? 100,
+        ),
+      );
       _variantNameController.clear();
       _variantPriceController.clear();
       _variantStockController.clear();
@@ -786,7 +843,11 @@ class _AddProductDialogState extends State<AddProductDialog> {
                   children: [
                     const Text(
                       'Add New Product',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.grey900),
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.grey900,
+                      ),
                     ),
                     IconButton(
                       onPressed: () => Navigator.pop(context),
@@ -818,7 +879,10 @@ class _AddProductDialogState extends State<AddProductDialog> {
                             children: [
                               Icon(Icons.add_photo_alternate, size: 40, color: AppTheme.grey500),
                               SizedBox(height: 8),
-                              Text('Tap to add product photo', style: TextStyle(color: AppTheme.grey500)),
+                              Text(
+                                'Tap to add product photo',
+                                style: TextStyle(color: AppTheme.grey500),
+                              ),
                             ],
                           )
                         : Stack(
@@ -832,7 +896,11 @@ class _AddProductDialogState extends State<AddProductDialog> {
                                       backgroundColor: AppTheme.cream,
                                       radius: 18,
                                       child: IconButton(
-                                        icon: const Icon(Icons.edit, size: 18, color: AppTheme.primary),
+                                        icon: const Icon(
+                                          Icons.edit,
+                                          size: 18,
+                                          color: AppTheme.primary,
+                                        ),
                                         onPressed: _pickImage,
                                       ),
                                     ),
@@ -840,13 +908,24 @@ class _AddProductDialogState extends State<AddProductDialog> {
                                     CircleAvatar(
                                       backgroundColor: AppTheme.info,
                                       radius: 18,
-                                      child: _isRemovingBg 
-                                        ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                                        : IconButton(
-                                            icon: const Icon(Icons.auto_fix_high, size: 18, color: Colors.white),
-                                            tooltip: 'AI Remove Background',
-                                            onPressed: _removeBackground,
-                                          ),
+                                      child: _isRemovingBg
+                                          ? const SizedBox(
+                                              width: 14,
+                                              height: 14,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: Colors.white,
+                                              ),
+                                            )
+                                          : IconButton(
+                                              icon: const Icon(
+                                                Icons.auto_fix_high,
+                                                size: 18,
+                                                color: Colors.white,
+                                              ),
+                                              tooltip: 'AI Remove Background',
+                                              onPressed: _removeBackground,
+                                            ),
                                     ),
                                   ],
                                 ),
@@ -858,7 +937,10 @@ class _AddProductDialogState extends State<AddProductDialog> {
                 const SizedBox(height: 24),
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Product Name', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Product Name',
+                    border: OutlineInputBorder(),
+                  ),
                   validator: (value) => value!.isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 16),
@@ -867,8 +949,16 @@ class _AddProductDialogState extends State<AddProductDialog> {
                     Expanded(
                       child: DropdownButtonFormField<String>(
                         initialValue: _selectedCategory,
-                        decoration: const InputDecoration(labelText: 'Category', border: OutlineInputBorder()),
-                        items: _categories.map((category) => DropdownMenuItem(value: category, child: Text(category))).toList(),
+                        decoration: const InputDecoration(
+                          labelText: 'Category',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: _categories
+                            .map(
+                              (category) =>
+                                  DropdownMenuItem(value: category, child: Text(category)),
+                            )
+                            .toList(),
                         onChanged: (value) => setState(() => _selectedCategory = value!),
                       ),
                     ),
@@ -876,7 +966,10 @@ class _AddProductDialogState extends State<AddProductDialog> {
                     Expanded(
                       child: TextFormField(
                         controller: _unitController,
-                        decoration: const InputDecoration(labelText: 'Base Unit (e.g. 1 kg)', border: OutlineInputBorder()),
+                        decoration: const InputDecoration(
+                          labelText: 'Base Unit (e.g. 1 kg)',
+                          border: OutlineInputBorder(),
+                        ),
                         validator: (value) => value!.isEmpty ? 'Required' : null,
                       ),
                     ),
@@ -888,7 +981,11 @@ class _AddProductDialogState extends State<AddProductDialog> {
                     Expanded(
                       child: TextFormField(
                         controller: _priceController,
-                        decoration: const InputDecoration(labelText: 'Selling Price (₹)', border: OutlineInputBorder(), prefixText: '₹ '),
+                        decoration: const InputDecoration(
+                          labelText: 'Selling Price (₹)',
+                          border: OutlineInputBorder(),
+                          prefixText: '₹ ',
+                        ),
                         keyboardType: TextInputType.number,
                         validator: (value) => value!.isEmpty ? 'Required' : null,
                       ),
@@ -897,7 +994,11 @@ class _AddProductDialogState extends State<AddProductDialog> {
                     Expanded(
                       child: TextFormField(
                         controller: _costPriceController,
-                        decoration: const InputDecoration(labelText: 'Cost Price (₹)', border: OutlineInputBorder(), prefixText: '₹ '),
+                        decoration: const InputDecoration(
+                          labelText: 'Cost Price (₹)',
+                          border: OutlineInputBorder(),
+                          prefixText: '₹ ',
+                        ),
                         keyboardType: TextInputType.number,
                       ),
                     ),
@@ -905,7 +1006,11 @@ class _AddProductDialogState extends State<AddProductDialog> {
                     Expanded(
                       child: TextFormField(
                         controller: _originalPriceController,
-                        decoration: const InputDecoration(labelText: 'MRP (₹)', border: OutlineInputBorder(), prefixText: '₹ '),
+                        decoration: const InputDecoration(
+                          labelText: 'MRP (₹)',
+                          border: OutlineInputBorder(),
+                          prefixText: '₹ ',
+                        ),
                         keyboardType: TextInputType.number,
                       ),
                     ),
@@ -914,7 +1019,10 @@ class _AddProductDialogState extends State<AddProductDialog> {
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   initialValue: _selectedStrategy,
-                  decoration: const InputDecoration(labelText: 'Pricing Strategy', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Pricing Strategy',
+                    border: OutlineInputBorder(),
+                  ),
                   items: const [
                     DropdownMenuItem(value: 'beat', child: Text('Beat Competitors (2% lower)')),
                     DropdownMenuItem(value: 'match', child: Text('Match Competitors')),
@@ -926,23 +1034,31 @@ class _AddProductDialogState extends State<AddProductDialog> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _stockController,
-                  decoration: const InputDecoration(labelText: 'Main Stock Quantity', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Main Stock Quantity',
+                    border: OutlineInputBorder(),
+                  ),
                   keyboardType: TextInputType.number,
                   validator: (value) => value!.isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _minStockController,
-                  decoration: const InputDecoration(labelText: 'Min Stock for Alert', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Min Stock for Alert',
+                    border: OutlineInputBorder(),
+                  ),
                   keyboardType: TextInputType.number,
                   validator: (value) => value!.isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 16),
                 // Expiry Date Picker
                 ListTile(
-                  title: Text(_expiryDate == null
-                      ? 'No Expiry Date'
-                      : 'Expires: ${intl.DateFormat('dd/MM/yyyy').format(_expiryDate!)}'),
+                  title: Text(
+                    _expiryDate == null
+                        ? 'No Expiry Date'
+                        : 'Expires: ${intl.DateFormat('dd/MM/yyyy').format(_expiryDate!)}',
+                  ),
                   trailing: const Icon(Icons.calendar_today),
                   tileColor: AppTheme.grey50,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -957,10 +1073,13 @@ class _AddProductDialogState extends State<AddProductDialog> {
                   },
                 ),
                 const SizedBox(height: 16),
-                
+
                 // --- Variants Section ---
                 const Divider(height: 32),
-                const Text('Product Variants (Optional)', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text(
+                  'Product Variants (Optional)',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 8),
                 if (_unitOptions.isNotEmpty)
                   ListView.builder(
@@ -981,30 +1100,60 @@ class _AddProductDialogState extends State<AddProductDialog> {
                   ),
                 Row(
                   children: [
-                    Expanded(child: TextFormField(controller: _variantNameController, decoration: const InputDecoration(labelText: 'Unit (e.g. 500g)', isDense: true))),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _variantNameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Unit (e.g. 500g)',
+                          isDense: true,
+                        ),
+                      ),
+                    ),
                     const SizedBox(width: 8),
-                    Expanded(child: TextFormField(controller: _variantPriceController, decoration: const InputDecoration(labelText: 'Price', isDense: true), keyboardType: TextInputType.number)),
-                    IconButton(onPressed: _addVariant, icon: const Icon(Icons.add_circle, color: AppTheme.primary)),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _variantPriceController,
+                        decoration: const InputDecoration(labelText: 'Price', isDense: true),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: _addVariant,
+                      icon: const Icon(Icons.add_circle, color: AppTheme.primary),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
-                
+
                 TextFormField(
                   controller: _descriptionController,
-                  decoration: const InputDecoration(labelText: 'Description', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Description',
+                    border: OutlineInputBorder(),
+                  ),
                   maxLines: 2,
                 ),
                 const SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    OutlinedButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+                    OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cancel'),
+                    ),
                     const SizedBox(width: 12),
                     ElevatedButton(
                       onPressed: _isUploading ? null : _saveProduct,
-                      style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, foregroundColor: AppTheme.white),
-                      child: _isUploading 
-                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primary,
+                        foregroundColor: AppTheme.white,
+                      ),
+                      child: _isUploading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                            )
                           : const Text('Add Product'),
                     ),
                   ],
@@ -1035,7 +1184,9 @@ class _AddProductDialogState extends State<AddProductDialog> {
         name: _nameController.text,
         description: _descriptionController.text,
         price: MonetaryValue(double.parse(_priceController.text)),
-        originalPrice: _originalPriceController.text.isNotEmpty ? MonetaryValue(double.parse(_originalPriceController.text)) : MonetaryValue(double.parse(_priceController.text)),
+        originalPrice: _originalPriceController.text.isNotEmpty
+            ? MonetaryValue(double.parse(_originalPriceController.text))
+            : MonetaryValue(double.parse(_priceController.text)),
         unit: _unitController.text,
         categoryId: _selectedCategory.toLowerCase(),
         category: _selectedCategory,
@@ -1044,7 +1195,9 @@ class _AddProductDialogState extends State<AddProductDialog> {
         imageUrl: imageUrl ?? 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400',
         stockQuantity: int.parse(_stockController.text),
         minimumStock: int.parse(_minStockController.text),
-        costPrice: _costPriceController.text.isNotEmpty ? double.parse(_costPriceController.text) : null,
+        costPrice: _costPriceController.text.isNotEmpty
+            ? double.parse(_costPriceController.text)
+            : null,
         pricingStrategy: _selectedStrategy,
         expiryDate: _expiryDate,
         district: authProvider.currentUser?.district ?? 'Jaipur',
@@ -1056,11 +1209,15 @@ class _AddProductDialogState extends State<AddProductDialog> {
       await productProvider.addProduct(newProduct);
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Product added successfully!')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Product added successfully!')));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error adding product: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error adding product: $e')));
       }
     } finally {
       if (mounted) setState(() => _isUploading = false);
@@ -1111,12 +1268,15 @@ class _EditProductDialogState extends State<EditProductDialog> {
     super.initState();
     _nameController = TextEditingController(text: widget.product.name);
     _priceController = TextEditingController(text: widget.product.price.toString());
-    _originalPriceController = TextEditingController(text: widget.product.originalPrice?.toString() ?? '');
+    _originalPriceController = TextEditingController(
+      text: widget.product.originalPrice?.toString() ?? '',
+    );
     _costPriceController = TextEditingController(text: widget.product.costPrice?.toString() ?? '');
     _stockController = TextEditingController(text: widget.product.stockQuantity.toString());
     _minStockController = TextEditingController(text: widget.product.minimumStock.toString());
     _descriptionController = TextEditingController(text: widget.product.description);
-    _selectedCategory = widget.product.category[0].toUpperCase() + widget.product.category.substring(1);
+    _selectedCategory =
+        widget.product.category[0].toUpperCase() + widget.product.category.substring(1);
     if (!_categories.contains(_selectedCategory)) {
       _selectedCategory = 'Groceries';
     }
@@ -1189,10 +1349,9 @@ class _EditProductDialogState extends State<EditProductDialog> {
                     labelText: 'Category',
                     border: OutlineInputBorder(),
                   ),
-                  items: _categories.map((category) => DropdownMenuItem(
-                    value: category,
-                    child: Text(category),
-                  )).toList(),
+                  items: _categories
+                      .map((category) => DropdownMenuItem(value: category, child: Text(category)))
+                      .toList(),
                   onChanged: (value) => setState(() => _selectedCategory = value!),
                 ),
                 const SizedBox(height: 16),
@@ -1274,9 +1433,11 @@ class _EditProductDialogState extends State<EditProductDialog> {
                 const SizedBox(height: 16),
                 // Expiry Date Picker
                 ListTile(
-                  title: Text(_expiryDate == null
-                      ? 'No Expiry Date'
-                      : 'Expires: ${intl.DateFormat('dd/MM/yyyy').format(_expiryDate!)}'),
+                  title: Text(
+                    _expiryDate == null
+                        ? 'No Expiry Date'
+                        : 'Expires: ${intl.DateFormat('dd/MM/yyyy').format(_expiryDate!)}',
+                  ),
                   trailing: const Icon(Icons.calendar_today),
                   tileColor: AppTheme.grey50,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -1294,30 +1455,49 @@ class _EditProductDialogState extends State<EditProductDialog> {
                 // Competitor Prices
                 const Text('Competitor Prices', style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                ..._competitorPrices.map((cp) => ListTile(
-                  title: Text(cp.competitorName),
-                  trailing: Text('₹${cp.price.toDouble().round()}'),
-                  dense: true,
-                  onLongPress: () => setState(() => _competitorPrices.remove(cp)),
-                )),
+                ..._competitorPrices.map(
+                  (cp) => ListTile(
+                    title: Text(cp.competitorName),
+                    trailing: Text('₹${cp.price.toDouble().round()}'),
+                    dense: true,
+                    onLongPress: () => setState(() => _competitorPrices.remove(cp)),
+                  ),
+                ),
                 Row(
                   children: [
-                    Expanded(child: TextFormField(controller: _compNameController, decoration: const InputDecoration(labelText: 'Store Name', isDense: true))),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _compNameController,
+                        decoration: const InputDecoration(labelText: 'Store Name', isDense: true),
+                      ),
+                    ),
                     const SizedBox(width: 8),
-                    Expanded(child: TextFormField(controller: _compPriceController, decoration: const InputDecoration(labelText: 'Price', isDense: true), keyboardType: TextInputType.number)),
-                    IconButton(onPressed: () {
-                      if (_compNameController.text.isNotEmpty && _compPriceController.text.isNotEmpty) {
-                        setState(() {
-                          _competitorPrices.add(CompetitorPrice(
-                            competitorName: _compNameController.text,
-                            price: MonetaryValue(double.parse(_compPriceController.text)),
-                            updatedAt: DateTime.now(),
-                          ));
-                          _compNameController.clear();
-                          _compPriceController.clear();
-                        });
-                      }
-                    }, icon: const Icon(Icons.add_circle_outline)),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _compPriceController,
+                        decoration: const InputDecoration(labelText: 'Price', isDense: true),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        if (_compNameController.text.isNotEmpty &&
+                            _compPriceController.text.isNotEmpty) {
+                          setState(() {
+                            _competitorPrices.add(
+                              CompetitorPrice(
+                                competitorName: _compNameController.text,
+                                price: MonetaryValue(double.parse(_compPriceController.text)),
+                                updatedAt: DateTime.now(),
+                              ),
+                            );
+                            _compNameController.clear();
+                            _compPriceController.clear();
+                          });
+                        }
+                      },
+                      icon: const Icon(Icons.add_circle_outline),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -1332,21 +1512,30 @@ class _EditProductDialogState extends State<EditProductDialog> {
                 const SizedBox(height: 16),
                 // Switches for Featured/OnSale/Available
                 SwitchListTile(
-                  title: const Text('Available for Purchase', style: TextStyle(fontWeight: FontWeight.w700)),
+                  title: const Text(
+                    'Available for Purchase',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
                   value: _isAvailable,
                   onChanged: (val) => setState(() => _isAvailable = val),
                   contentPadding: EdgeInsets.zero,
                   activeThumbColor: AppTheme.primary,
                 ),
                 SwitchListTile(
-                  title: const Text('Mark as Featured', style: TextStyle(fontWeight: FontWeight.w700)),
+                  title: const Text(
+                    'Mark as Featured',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
                   value: _isFeatured,
                   onChanged: (val) => setState(() => _isFeatured = val),
                   contentPadding: EdgeInsets.zero,
                   activeThumbColor: AppTheme.primary,
                 ),
                 SwitchListTile(
-                  title: const Text('Mark as On Sale', style: TextStyle(fontWeight: FontWeight.w700)),
+                  title: const Text(
+                    'Mark as On Sale',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
                   value: _isOnSale,
                   onChanged: (val) => setState(() => _isOnSale = val),
                   contentPadding: EdgeInsets.zero,
@@ -1364,7 +1553,10 @@ class _EditProductDialogState extends State<EditProductDialog> {
                     ElevatedButton(
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          final productProvider = Provider.of<ProductProvider>(context, listen: false);
+                          final productProvider = Provider.of<ProductProvider>(
+                            context,
+                            listen: false,
+                          );
 
                           final updatedProduct = widget.product.copyWith(
                             name: _nameController.text,
@@ -1374,12 +1566,20 @@ class _EditProductDialogState extends State<EditProductDialog> {
                                 ? MonetaryValue(double.parse(_originalPriceController.text))
                                 : MonetaryValue(double.parse(_priceController.text)),
                             discountPercentage: _originalPriceController.text.isNotEmpty
-                                ? MonetaryValue((((double.parse(_originalPriceController.text) - double.parse(_priceController.text)) / double.parse(_originalPriceController.text)) * 100).roundToDouble())
+                                ? MonetaryValue(
+                                    (((double.parse(_originalPriceController.text) -
+                                                    double.parse(_priceController.text)) /
+                                                double.parse(_originalPriceController.text)) *
+                                            100)
+                                        .roundToDouble(),
+                                  )
                                 : MonetaryValue(0.0),
                             category: _selectedCategory.toLowerCase(),
                             stockQuantity: int.parse(_stockController.text),
                             minimumStock: int.parse(_minStockController.text),
-                            costPrice: _costPriceController.text.isNotEmpty ? double.parse(_costPriceController.text) : null,
+                            costPrice: _costPriceController.text.isNotEmpty
+                                ? double.parse(_costPriceController.text)
+                                : null,
                             pricingStrategy: _selectedStrategy,
                             expiryDate: _expiryDate,
                             competitorPrices: _competitorPrices,
@@ -1399,9 +1599,9 @@ class _EditProductDialogState extends State<EditProductDialog> {
                             }
                           } catch (e) {
                             if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Error updating product: $e')),
-                              );
+                              ScaffoldMessenger.of(
+                                context,
+                              ).showSnackBar(SnackBar(content: Text('Error updating product: $e')));
                             }
                           }
                         }
@@ -1501,34 +1701,38 @@ class _BulkUploadDialogState extends State<BulkUploadDialog> {
         final unit = parts.length > 5 ? parts[5].trim() : '1 unit';
         final description = parts.length > 6 ? parts[6].trim() : 'Premium quality $name';
 
-        bulkItems.add(ProductModel(
-          id: 'prod_bulk_${DateTime.now().millisecondsSinceEpoch}_$i',
-          name: name,
-          description: description,
-          price: MonetaryValue(price),
-          originalPrice: MonetaryValue(originalPrice),
-          discountPercentage: originalPrice > 0 ? MonetaryValue((((originalPrice - price) / originalPrice) * 100).roundToDouble()) : MonetaryValue(0.0),
-          unit: unit,
-          categoryId: category,
-          category: category,
-          shopId: 'shop_001',
-          shopName: "Fufaji Online",
-          imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400',
-          images: [],
-          rating: 4.8,
-          reviewCount: 0,
-          stockQuantity: stock,
-          isAvailable: true,
-          isFeatured: false,
-          isOnSale: false,
-          isNewArrival: true,
-          isTrending: false,
-          specifications: {},
-          tags: [name.toLowerCase(), category],
-          district: 'Jaipur',
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        ));
+        bulkItems.add(
+          ProductModel(
+            id: 'prod_bulk_${DateTime.now().millisecondsSinceEpoch}_$i',
+            name: name,
+            description: description,
+            price: MonetaryValue(price),
+            originalPrice: MonetaryValue(originalPrice),
+            discountPercentage: originalPrice > 0
+                ? MonetaryValue((((originalPrice - price) / originalPrice) * 100).roundToDouble())
+                : MonetaryValue(0.0),
+            unit: unit,
+            categoryId: category,
+            category: category,
+            shopId: 'shop_001',
+            shopName: "Fufaji Online",
+            imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400',
+            images: [],
+            rating: 4.8,
+            reviewCount: 0,
+            stockQuantity: stock,
+            isAvailable: true,
+            isFeatured: false,
+            isOnSale: false,
+            isNewArrival: true,
+            isTrending: false,
+            specifications: {},
+            tags: [name.toLowerCase(), category],
+            district: 'Jaipur',
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          ),
+        );
       } catch (e) {
         errorCount++;
         errors.add('Row ${i + 1}: $e');
@@ -1547,7 +1751,8 @@ class _BulkUploadDialogState extends State<BulkUploadDialog> {
 
     setState(() {
       _isUploading = false;
-      _statusLog = 'Import completed!\n'
+      _statusLog =
+          'Import completed!\n'
           'Successfully imported: $successCount products.\n'
           'Failed: $errorCount rows.\n'
           '${errors.isNotEmpty ? '\nErrors:\n${errors.join('\n')}' : ''}';
@@ -1585,10 +1790,7 @@ class _BulkUploadDialogState extends State<BulkUploadDialog> {
                     color: AppTheme.grey900,
                   ),
                 ),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close),
-                ),
+                IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
               ],
             ),
             const SizedBox(height: 12),
@@ -1608,7 +1810,10 @@ class _BulkUploadDialogState extends State<BulkUploadDialog> {
                           Text(
                             _statusLog ?? 'Processing catalog database...',
                             textAlign: TextAlign.center,
-                            style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.grey800),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.grey800,
+                            ),
                           ),
                         ],
                       ),
@@ -1625,7 +1830,9 @@ class _BulkUploadDialogState extends State<BulkUploadDialog> {
                             decoration: InputDecoration(
                               hintText: 'Paste CSV rows here...',
                               border: const OutlineInputBorder(),
-                              fillColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.grey800 : AppTheme.grey50,
+                              fillColor: Theme.of(context).brightness == Brightness.dark
+                                  ? AppTheme.grey800
+                                  : AppTheme.grey50,
                               filled: true,
                             ),
                           ),
@@ -1644,7 +1851,11 @@ class _BulkUploadDialogState extends State<BulkUploadDialog> {
                             child: SingleChildScrollView(
                               child: Text(
                                 _statusLog!,
-                                style: const TextStyle(fontSize: 11, fontFamily: 'monospace', color: AppTheme.grey700),
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontFamily: 'monospace',
+                                  color: AppTheme.grey700,
+                                ),
                               ),
                             ),
                           ),

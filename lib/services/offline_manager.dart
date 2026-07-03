@@ -68,8 +68,7 @@ class OfflineManager {
 
   // ─────────────── CART ───────────────
 
-  Future<void> saveCartItem(Map<String, dynamic> item) =>
-      _sqlite.saveCartItem(item);
+  Future<void> saveCartItem(Map<String, dynamic> item) => _sqlite.saveCartItem(item);
   Future<List<Map<String, dynamic>>> getCartItems() => _sqlite.getCartItems();
   Future<void> updateCartItemQuantity(String itemId, int qty) =>
       _sqlite.updateCartItemQuantity(itemId, qty);
@@ -103,8 +102,7 @@ class OfflineManager {
     data: data,
   );
 
-  Future<List<Map<String, dynamic>>> getPendingSyncItems() =>
-      _sqlite.getPendingSyncItems();
+  Future<List<Map<String, dynamic>>> getPendingSyncItems() => _sqlite.getPendingSyncItems();
 
   Future<void> markSyncDone(String syncId) => _sqlite.markSyncDone(syncId);
   Future<void> markSyncFailed(String syncId) => _sqlite.markSyncFailed(syncId);

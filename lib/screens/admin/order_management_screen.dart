@@ -74,9 +74,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
                 decoration: InputDecoration(
                   hintText: 'Search by Order Number or Customer',
                   prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   filled: true,
                   fillColor: Colors.white,
@@ -96,13 +94,10 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
                   ? const Center(child: Text('No orders found.'))
                   : Card(
                       elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       child: ListView.separated(
                         itemCount: filteredOrders.length,
-                        separatorBuilder: (context, index) =>
-                            const Divider(height: 1),
+                        separatorBuilder: (context, index) => const Divider(height: 1),
                         itemBuilder: (context, index) {
                           final order = filteredOrders[index];
                           return _buildOrderTile(context, order, adminProvider);
@@ -116,11 +111,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
     );
   }
 
-  Widget _buildOrderTile(
-    BuildContext context,
-    OrderModel order,
-    AdminProvider provider,
-  ) {
+  Widget _buildOrderTile(BuildContext context, OrderModel order, AdminProvider provider) {
     final status = order.status.displayName;
     final total = order.totalAmount;
     final itemsCount = order.items.length;
@@ -193,8 +184,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
             ),
           ),
           const SizedBox(width: 16),
-          if (order.status != OrderStatus.cancelled &&
-              order.status != OrderStatus.delivered)
+          if (order.status != OrderStatus.cancelled && order.status != OrderStatus.delivered)
             IconButton(
               icon: const Icon(Icons.cancel, color: AppTheme.error),
               tooltip: 'Cancel Order',
@@ -226,11 +216,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
     }
   }
 
-  void _showCancelDialog(
-    BuildContext context,
-    OrderModel order,
-    AdminProvider provider,
-  ) {
+  void _showCancelDialog(BuildContext context, OrderModel order, AdminProvider provider) {
     final controller = TextEditingController();
 
     showDialog(
@@ -246,10 +232,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               if (controller.text.isNotEmpty) {

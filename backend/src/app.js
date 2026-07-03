@@ -12,6 +12,7 @@ if (process.env.FIREBASE_SERVICE_ACCOUNT || process.env.GOOGLE_APPLICATION_CREDE
 }
 
 const webhooks = require('./routes/webhooks');
+const checkout = require('./routes/checkout-routes');
 const payments = require('./routes/payments');
 const admin = require('./routes/admin');
 const storage = require('./routes/storage');
@@ -30,6 +31,8 @@ const recommendations = require('./routes/recommendations');
 const notifications = require('./routes/notifications');
 const config = require('./routes/config');
 const mfa = require('./routes/mfa');
+const sync = require('./routes/sync');
+const systemFlags = require('./routes/system-flags');
 
 const app = express();
 
@@ -49,6 +52,7 @@ app.get('/health', (req, res) => res.json({ success: true, status: 'ok', ts: Dat
 app.use('/config', config);
 
 // Feature routes.
+app.use('/checkout', checkout);
 app.use('/payments', payments);
 app.use('/admin', admin);
 app.use('/storage', storage);
@@ -67,6 +71,10 @@ app.use('/pricing', pricing);
 app.use('/support', support);
 app.use('/recommendations', recommendations);
 app.use('/notifications', notifications);
+
+// PHASE C: Sync Engine Routes
+app.use('/sync', sync);
+app.use('/system-flags', systemFlags);
 
 // Fallback.
 app.use((req, res) => res.status(404).json({ success: false, error: 'not_found' }));

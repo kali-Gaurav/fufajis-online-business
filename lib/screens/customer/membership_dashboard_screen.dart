@@ -18,7 +18,7 @@ class MembershipDashboardScreen extends StatefulWidget {
 class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
   final LoyaltyMembershipService _loyaltyService = LoyaltyMembershipService();
   final MembershipTierCalculator _tierCalculator = MembershipTierCalculator();
-  
+
   Map<String, dynamic> _dashboardData = {};
   List<Map<String, dynamic>> _availableSlots = [];
   bool _isLoading = true;
@@ -36,10 +36,7 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
     try {
       final data = await _loyaltyService.getMembershipDashboard(userId);
       final tier = data['tier'] as MembershipTier? ?? MembershipTier.bronze;
-      final slots = await _loyaltyService.getAvailableSlots(
-        date: DateTime.now(),
-        userTier: tier,
-      );
+      final slots = await _loyaltyService.getAvailableSlots(date: DateTime.now(), userTier: tier);
 
       setState(() {
         _dashboardData = data;
@@ -56,13 +53,18 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
         backgroundColor: const Color(0xFF0F0F1A),
-        appBar: AppBar(title: const Text('My Membership', style: TextStyle(fontWeight: FontWeight.w700)), backgroundColor: AppTheme.cream, foregroundColor: AppTheme.grey900, elevation: 0, centerTitle: true),
+        appBar: AppBar(
+          title: const Text('My Membership', style: TextStyle(fontWeight: FontWeight.w700)),
+          backgroundColor: AppTheme.cream,
+          foregroundColor: AppTheme.grey900,
+          elevation: 0,
+          centerTitle: true,
+        ),
         body: const Center(child: CircularProgressIndicator(color: Color(0xFF6C63FF))),
       );
     }
@@ -152,7 +154,8 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
                               Text(
                                 nextTierInfo['nextTier'] != null
                                     ? _tierCalculator.getTierDisplayName(
-                                        nextTierInfo['nextTier'] as MembershipTier)
+                                        nextTierInfo['nextTier'] as MembershipTier,
+                                      )
                                     : '',
                                 style: TextStyle(
                                   color: Colors.white.withValues(alpha: 0.8),
@@ -231,7 +234,8 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
                         icon: Icons.local_fire_department,
                         value: '${streakData['currentStreak'] ?? 0}',
                         label: 'Order Streak',
-                        subValue: '${((streakData['bonusMultiplier'] as double?) ?? 1.0).toStringAsFixed(1)}x bonus',
+                        subValue:
+                            '${((streakData['bonusMultiplier'] as double?) ?? 1.0).toStringAsFixed(1)}x bonus',
                         color: const Color(0xFFFF6B6B),
                       ),
                     ],
@@ -241,7 +245,11 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
                   // Benefits Section
                   const Text(
                     'Your Benefits',
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   _buildBenefitTile(
@@ -280,7 +288,11 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
                   // Priority Slots Section
                   const Text(
                     'Priority Delivery Slots',
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -301,7 +313,11 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
                       icon: const Icon(Icons.redeem, color: Colors.white),
                       label: Text(
                         'Redeem $points Points (₹${pointsValue.toStringAsFixed(0)})',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF6C63FF),
@@ -398,8 +414,18 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600)),
-                Text(subtitle, style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12),
+                ),
               ],
             ),
           ),
@@ -417,9 +443,7 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF2D2B55), Color(0xFF1A1A2E)],
-        ),
+        gradient: const LinearGradient(colors: [Color(0xFF2D2B55), Color(0xFF1A1A2E)]),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -481,8 +505,8 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
             currentStreak >= 5
                 ? '🔥 On fire! Keep ordering weekly for bonus points!'
                 : currentStreak >= 3
-                    ? '💪 Great streak! 2 more weeks for 50% bonus!'
-                    : 'Order weekly to build your streak & earn bonus points!',
+                ? '💪 Great streak! 2 more weeks for 50% bonus!'
+                : 'Order weekly to build your streak & earn bonus points!',
             style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12),
           ),
         ],
@@ -519,17 +543,15 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
           color: isPriority
               ? const Color(0xFFFFD700).withValues(alpha: 0.3)
               : isAvailable
-                  ? Colors.transparent
-                  : const Color(0xFFFF6B6B).withValues(alpha: 0.2),
+              ? Colors.transparent
+              : const Color(0xFFFF6B6B).withValues(alpha: 0.2),
         ),
       ),
       child: Row(
         children: [
           Icon(
             Icons.access_time,
-            color: isAvailable
-                ? const Color(0xFF4ECDC4)
-                : const Color(0xFFFF6B6B),
+            color: isAvailable ? const Color(0xFF4ECDC4) : const Color(0xFFFF6B6B),
             size: 22,
           ),
           const SizedBox(width: 12),
@@ -541,7 +563,11 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
                   children: [
                     Text(
                       slotLabel,
-                      style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     if (isPriority) ...[
                       const SizedBox(width: 6),
@@ -553,7 +579,11 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
                         ),
                         child: const Text(
                           'PRIORITY',
-                          style: TextStyle(color: Color(0xFFFFD700), fontSize: 9, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            color: Color(0xFFFFD700),
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ],
@@ -569,8 +599,8 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
                       fillPct > 0.8
                           ? const Color(0xFFFF6B6B)
                           : fillPct > 0.5
-                              ? const Color(0xFFFFD93D)
-                              : const Color(0xFF4ECDC4),
+                          ? const Color(0xFFFFD93D)
+                          : const Color(0xFF4ECDC4),
                     ),
                     minHeight: 3,
                   ),
@@ -594,7 +624,7 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
 
   void _showRedeemDialog(int points) {
     final redeemController = TextEditingController(text: points.toString());
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

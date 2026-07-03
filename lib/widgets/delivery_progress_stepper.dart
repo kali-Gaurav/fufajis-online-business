@@ -32,10 +32,7 @@ class DeliveryProgressStepper extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: _getStepColor(index),
-                      border: Border.all(
-                        color: _getStepBorderColor(index),
-                        width: 2,
-                      ),
+                      border: Border.all(color: _getStepBorderColor(index), width: 2),
                     ),
                     child: Center(
                       child: completedSteps[index]
@@ -73,9 +70,7 @@ class DeliveryProgressStepper extends StatelessWidget {
             value: (currentStep + 1) / steps.length,
             minHeight: 6,
             backgroundColor: Colors.grey[300],
-            valueColor: const AlwaysStoppedAnimation<Color>(
-              AppTheme.info,
-            ),
+            valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.info),
           ),
         ),
       ],

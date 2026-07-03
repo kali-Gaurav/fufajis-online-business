@@ -8,7 +8,7 @@ import '../models/user_model.dart';
 import '../models/payment_method.dart';
 import '../services/storage_service.dart';
 import '../services/logging_service.dart';
-import 'package:fufajis_online/services/analytics_service.dart';
+import '../services/analytics_service.dart';
 import '../utils/monetary_value.dart';
 import '../constants/order_status.dart';
 
@@ -32,11 +32,7 @@ class PosBillItem {
   double get lineTotal => price * quantity;
 
   Map<String, dynamic> toMap() {
-    return {
-      'product': product.toMap(),
-      'quantity': quantity,
-      'customPrice': customPrice,
-    };
+    return {'product': product.toMap(), 'quantity': quantity, 'customPrice': customPrice};
   }
 
   factory PosBillItem.fromMap(Map<String, dynamic> map) {
@@ -64,7 +60,7 @@ class PosProvider with ChangeNotifier {
   bool _isSyncing = false;
   double _manualDiscount = 0.0;
   String _discountReason = '';
-  
+
   String? _customerPhone;
   String? _customerName;
   String? _customerId;
@@ -131,11 +127,9 @@ class PosProvider with ChangeNotifier {
 
       // 2. If online, fetch fresh
       if (_isOnline) {
-        final snap = await _db.collection('products')
-            .where('isAvailable', isEqualTo: true)
-            .get();
+        final snap = await _db.collection('products').where('isAvailable', isEqualTo: true).get();
         _products = snap.docs.map((d) => ProductModel.fromMap(d.data())).toList();
-        
+
         await _storage.put('pos_products_cache', _products.map((p) => p.toMap()).toList());
       }
     } catch (e, stack) {
@@ -215,7 +209,8 @@ class PosProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  double get subtotal => _cart.fold(0.0, (subtotalAccumulator, item) => subtotalAccumulator + item.lineTotal);
+  double get subtotal =>
+      _cart.fold(0.0, (subtotalAccumulator, item) => subtotalAccumulator + item.lineTotal);
   double get taxAmount => subtotal * 0.18; // 18% GST (standard rate for India)
   double get total => (subtotal - _manualDiscount) + taxAmount;
   String get discountReason => _discountReason;
@@ -236,16 +231,20 @@ class PosProvider with ChangeNotifier {
     final orderId = 'pos_${now.millisecondsSinceEpoch}';
     final orderNumber = 'POS-${now.millisecondsSinceEpoch.toString().substring(6)}';
 
-    final orderItems = _cart.map((bi) => OrderItem(
-      id: bi.product.id,
-      productId: bi.product.id,
-      productName: bi.product.name,
-      productImage: bi.product.imageUrl,
-      unit: bi.product.unit,
-      quantity: bi.quantity,
-      price: MonetaryValue(bi.price),
-      totalPrice: MonetaryValue(bi.lineTotal),
-    )).toList();
+    final orderItems = _cart
+        .map(
+          (bi) => OrderItem(
+            id: bi.product.id,
+            productId: bi.product.id,
+            productName: bi.product.name,
+            productImage: bi.product.imageUrl,
+            unit: bi.product.unit,
+            quantity: bi.quantity,
+            price: MonetaryValue(bi.price),
+            totalPrice: MonetaryValue(bi.lineTotal),
+          ),
+        )
+        .toList();
 
     final order = OrderModel(
       id: orderId,
@@ -298,7 +297,7 @@ class PosProvider with ChangeNotifier {
             'updatedAt': FieldValue.serverTimestamp(),
           });
         }
-        
+
         final orderRef = _db.collection('orders').doc(order.id);
         transaction.set(orderRef, order.toMap());
       });
@@ -319,17 +318,20 @@ class PosProvider with ChangeNotifier {
     }
 
     // Log POS-specific analytics event
-    await AnalyticsService.instance.logCustomEvent(eventName: 'pos_bill_created', parameters: {
-      'bill_id': order.id,
-      'order_number': order.orderNumber,
-      'total_amount': total,
-      'items_count': _cart.length,
-      'payment_method': paymentMethod,
-      'has_discount': _manualDiscount > 0 ? 1 : 0,
-      'discount_amount': _manualDiscount,
-      'tax_amount': taxAmount,
-      'subtotal': subtotal,
-    });
+    await AnalyticsService.instance.logCustomEvent(
+      eventName: 'pos_bill_created',
+      parameters: {
+        'bill_id': order.id,
+        'order_number': order.orderNumber,
+        'total_amount': total,
+        'items_count': _cart.length,
+        'payment_method': paymentMethod,
+        'has_discount': _manualDiscount > 0 ? 1 : 0,
+        'discount_amount': _manualDiscount,
+        'tax_amount': taxAmount,
+        'subtotal': subtotal,
+      },
+    );
 
     // [MOD] Return order instead of auto-printing inside provider
     // This allows UI to show success dialog first.

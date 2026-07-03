@@ -106,9 +106,7 @@ class AdminProvider with ChangeNotifier {
   /// Toggle block status of user
   Future<void> toggleBlockUser(String userId, bool isBlocked) async {
     try {
-      await _firestore.collection('users').doc(userId).update({
-        'isBlocked': isBlocked,
-      });
+      await _firestore.collection('users').doc(userId).update({'isBlocked': isBlocked});
       final index = _users.indexWhere((u) => u.id == userId);
       if (index >= 0) {
         _users[index] = _users[index].copyWith(isBlocked: isBlocked);
@@ -128,9 +126,7 @@ class AdminProvider with ChangeNotifier {
 
     try {
       final snapshot = await _firestore.collection('shops').get();
-      _shops = snapshot.docs
-          .map((doc) => {...doc.data(), 'id': doc.id})
-          .toList();
+      _shops = snapshot.docs.map((doc) => {...doc.data(), 'id': doc.id}).toList();
     } catch (e) {
       _error = 'Failed to fetch shops: $e';
     } finally {
@@ -180,14 +176,11 @@ class AdminProvider with ChangeNotifier {
   /// Approve product
   Future<void> approveProduct(String shopId, String productId) async {
     try {
-      await _firestore
-          .collection('products')
-          .doc(productId)
-          .update({
-            'isApproved': true,
-            'isAvailable': true,
-            'updatedAt': FieldValue.serverTimestamp(),
-          });
+      await _firestore.collection('products').doc(productId).update({
+        'isApproved': true,
+        'isAvailable': true,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
       _pendingProducts.removeWhere((p) => p.id == productId);
       notifyListeners();
     } catch (e) {
@@ -197,21 +190,14 @@ class AdminProvider with ChangeNotifier {
   }
 
   /// Reject product
-  Future<void> rejectProduct(
-    String shopId,
-    String productId,
-    String reason,
-  ) async {
+  Future<void> rejectProduct(String shopId, String productId, String reason) async {
     try {
-      await _firestore
-          .collection('products')
-          .doc(productId)
-          .update({
-            'isApproved': false,
-            'isAvailable': false,
-            'rejectionReason': reason,
-            'updatedAt': FieldValue.serverTimestamp(),
-          });
+      await _firestore.collection('products').doc(productId).update({
+        'isApproved': false,
+        'isAvailable': false,
+        'rejectionReason': reason,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
       _pendingProducts.removeWhere((p) => p.id == productId);
       notifyListeners();
     } catch (e) {
@@ -265,9 +251,7 @@ class AdminProvider with ChangeNotifier {
 
     try {
       final snapshot = await _firestore.collection('coupons').get();
-      _coupons = snapshot.docs
-          .map((doc) => Coupon.fromMap({...doc.data(), 'id': doc.id}))
-          .toList();
+      _coupons = snapshot.docs.map((doc) => Coupon.fromMap({...doc.data(), 'id': doc.id})).toList();
     } catch (e) {
       _error = 'Failed to fetch coupons: $e';
     } finally {

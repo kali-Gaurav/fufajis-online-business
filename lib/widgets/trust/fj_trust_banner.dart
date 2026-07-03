@@ -30,10 +30,7 @@ class FjTrustBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppTheme.primary.withValues(alpha: 0.15),
-          width: 1.5,
-        ),
+        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.15), width: 1.5),
         boxShadow: [
           BoxShadow(
             color: AppTheme.primary.withValues(alpha: 0.08),
@@ -50,11 +47,7 @@ class FjTrustBanner extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 12),
             child: Row(
               children: [
-                const Icon(
-                  Icons.verified_rounded,
-                  color: AppTheme.primary,
-                  size: 20,
-                ),
+                const Icon(Icons.verified_rounded, color: AppTheme.primary, size: 20),
                 const SizedBox(width: 8),
                 Text(
                   'Why Fufaji is Different',
@@ -74,7 +67,7 @@ class FjTrustBanner extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
-            childAspectRatio: 1.0,
+            childAspectRatio: 0.7,
             children: badges.map((badge) {
               return _TrustBadgeItem(badge: badge);
             }).toList(),
@@ -111,20 +104,14 @@ class _TrustBadgeItem extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppTheme.grey100,
-          width: 1,
-        ),
+        border: Border.all(color: AppTheme.grey100, width: 1),
       ),
       padding: const EdgeInsets.all(12),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // Icon
-          Text(
-            badge.icon,
-            style: const TextStyle(fontSize: 28),
-          ),
+          Text(badge.icon, style: const TextStyle(fontSize: 28)),
           const SizedBox(height: 8),
 
           // Title
@@ -145,11 +132,7 @@ class _TrustBadgeItem extends StatelessWidget {
             Text(
               badge.description,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 10,
-                color: AppTheme.grey600,
-                height: 1.2,
-              ),
+              style: const TextStyle(fontSize: 10, color: AppTheme.grey600, height: 1.2),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -169,21 +152,9 @@ class FufajiTrustBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return FjTrustBanner(
       badges: [
-        TrustBadge(
-          icon: '✓',
-          title: 'Honest Pricing',
-          description: 'No fake discounts',
-        ),
-        TrustBadge(
-          icon: '🌾',
-          title: 'Farm Direct',
-          description: 'Fair to farmers',
-        ),
-        TrustBadge(
-          icon: '⚡',
-          title: 'Fresh Daily',
-          description: 'Restocked daily',
-        ),
+        TrustBadge(icon: '✓', title: 'Honest Pricing', description: 'No fake discounts'),
+        TrustBadge(icon: '🌾', title: 'Farm Direct', description: 'Fair to farmers'),
+        TrustBadge(icon: '⚡', title: 'Fresh Daily', description: 'Restocked daily'),
       ],
     );
   }

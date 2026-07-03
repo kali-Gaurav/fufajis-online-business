@@ -19,7 +19,7 @@ class _OneClickVoiceOrderState extends State<OneClickVoiceOrder> {
   bool _isListening = false;
   String _text = 'Tap or Hold to Speak your order...';
   bool _isProcessing = false;
-  
+
   void _listen() async {
     if (!_isListening) {
       bool available = await _speech.initialize(
@@ -49,13 +49,13 @@ class _OneClickVoiceOrderState extends State<OneClickVoiceOrder> {
     try {
       final gemini = GeminiService();
       final items = await gemini.parseOneClickOrder(_text);
-      
+
       if (mounted) {
         final cart = Provider.of<CartProvider>(context, listen: false);
         final products = Provider.of<ProductProvider>(context, listen: false).products;
-        
+
         await cart.bulkAddByVoice(items, products);
-        
+
         if (mounted) {
           // Click 2: Review and book the order (Go to Fast Checkout)
           Navigator.pop(context); // Close bottom sheet
@@ -64,9 +64,9 @@ class _OneClickVoiceOrderState extends State<OneClickVoiceOrder> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error processing order: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error processing order: $e')));
       }
     } finally {
       if (mounted) setState(() => _isProcessing = false);
@@ -107,10 +107,15 @@ class _OneClickVoiceOrderState extends State<OneClickVoiceOrder> {
         CircleAvatar(
           radius: 12,
           backgroundColor: AppTheme.primaryColor,
-          child: Text(step, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+          child: Text(
+            step,
+            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+          ),
         ),
         const SizedBox(width: 12),
-        Expanded(child: Text(text, style: const TextStyle(fontWeight: FontWeight.w500))),
+        Expanded(
+          child: Text(text, style: const TextStyle(fontWeight: FontWeight.w500)),
+        ),
       ],
     );
   }
@@ -172,7 +177,10 @@ class _OneClickVoiceOrderState extends State<OneClickVoiceOrder> {
               children: [
                 CircularProgressIndicator(color: AppTheme.primary),
                 SizedBox(height: 16),
-                Text("AI is adding items to your cart...", style: TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.w500)),
+                Text(
+                  "AI is adding items to your cart...",
+                  style: TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.w500),
+                ),
               ],
             )
           else
@@ -184,7 +192,9 @@ class _OneClickVoiceOrderState extends State<OneClickVoiceOrder> {
                 duration: const Duration(milliseconds: 300),
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: _isListening ? AppTheme.error.withValues(alpha: 0.1) : AppTheme.primaryColor.withValues(alpha: 0.1),
+                  color: _isListening
+                      ? AppTheme.error.withValues(alpha: 0.1)
+                      : AppTheme.primaryColor.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: _isListening ? AppTheme.error : AppTheme.primaryColor,
@@ -225,9 +235,7 @@ class _OneClickVoiceOrderState extends State<OneClickVoiceOrder> {
                     backgroundColor: AppTheme.primaryColor,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: const Text('Add to Cart', style: TextStyle(fontWeight: FontWeight.bold)),
                 ),

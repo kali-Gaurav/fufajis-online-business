@@ -10,30 +10,24 @@ class BillItem {
   String unit;
   double pricePerUnit;
 
-  BillItem({
-    this.name = '',
-    this.quantity = 0,
-    this.unit = 'kg',
-    this.pricePerUnit = 0,
-  });
+  BillItem({this.name = '', this.quantity = 0, this.unit = 'kg', this.pricePerUnit = 0});
 
   double get total => quantity * pricePerUnit;
 
   Map<String, dynamic> toMap() => {
-        'name': name,
-        'quantity': quantity,
-        'unit': unit,
-        'pricePerUnit': pricePerUnit,
-        'total': total,
-      };
+    'name': name,
+    'quantity': quantity,
+    'unit': unit,
+    'pricePerUnit': pricePerUnit,
+    'total': total,
+  };
 
   factory BillItem.fromMap(Map<String, dynamic> map) => BillItem(
-        name: map['name']?.toString() ?? '',
-        quantity: ((map['quantity'] ?? map['qty'] ?? 0) as num).toDouble(),
-        unit: map['unit']?.toString() ?? 'kg',
-        pricePerUnit:
-            ((map['pricePerUnit'] ?? map['price'] ?? 0) as num).toDouble(),
-      );
+    name: map['name']?.toString() ?? '',
+    quantity: ((map['quantity'] ?? map['qty'] ?? 0) as num).toDouble(),
+    unit: map['unit']?.toString() ?? 'kg',
+    pricePerUnit: ((map['pricePerUnit'] ?? map['price'] ?? 0) as num).toDouble(),
+  );
 }
 
 // ─────────────── WIDGET ───────────────
@@ -60,7 +54,15 @@ class _BillItemRowState extends State<BillItemRow> {
   late final TextEditingController _priceCtrl;
 
   static const List<String> _units = [
-    'kg', 'g', 'l', 'ml', 'packet', 'piece', 'bottle', 'box', 'dozen'
+    'kg',
+    'g',
+    'l',
+    'ml',
+    'packet',
+    'piece',
+    'bottle',
+    'box',
+    'dozen',
   ];
 
   @override
@@ -68,11 +70,11 @@ class _BillItemRowState extends State<BillItemRow> {
     super.initState();
     _nameCtrl = TextEditingController(text: widget.item.name);
     _qtyCtrl = TextEditingController(
-        text: widget.item.quantity == 0 ? '' : widget.item.quantity.toString());
+      text: widget.item.quantity == 0 ? '' : widget.item.quantity.toString(),
+    );
     _priceCtrl = TextEditingController(
-        text: widget.item.pricePerUnit == 0
-            ? ''
-            : widget.item.pricePerUnit.toString());
+      text: widget.item.pricePerUnit == 0 ? '' : widget.item.pricePerUnit.toString(),
+    );
   }
 
   @override
@@ -124,8 +126,7 @@ class _BillItemRowState extends State<BillItemRow> {
                       color: AppTheme.error.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.delete_outline,
-                        color: AppTheme.error, size: 18),
+                    child: const Icon(Icons.delete_outline, color: AppTheme.error, size: 18),
                   ),
                 ),
               ],
@@ -157,17 +158,16 @@ class _BillItemRowState extends State<BillItemRow> {
                     ),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
-                        value: _units.contains(widget.item.unit)
-                            ? widget.item.unit
-                            : 'kg',
+                        value: _units.contains(widget.item.unit) ? widget.item.unit : 'kg',
                         isExpanded: true,
-                        style: const TextStyle(
-                            fontSize: 12, color: AppTheme.grey900),
+                        style: const TextStyle(fontSize: 12, color: AppTheme.grey900),
                         items: _units
-                            .map((u) => DropdownMenuItem(
+                            .map(
+                              (u) => DropdownMenuItem(
                                 value: u,
-                                child: Text(u,
-                                    style: const TextStyle(fontSize: 12))))
+                                child: Text(u, style: const TextStyle(fontSize: 12)),
+                              ),
+                            )
                             .toList(),
                         onChanged: (val) {
                           if (val != null) {
@@ -205,9 +205,10 @@ class _BillItemRowState extends State<BillItemRow> {
                     child: Text(
                       '₹${widget.item.total.toStringAsFixed(0)}',
                       style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.primary),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.primary,
+                      ),
                     ),
                   ),
                 ),
@@ -235,8 +236,7 @@ class _BillItemRowState extends State<BillItemRow> {
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: const TextStyle(fontSize: 11, color: AppTheme.grey400),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
             borderSide: const BorderSide(color: AppTheme.grey300),

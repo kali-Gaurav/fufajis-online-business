@@ -155,12 +155,7 @@ class _ExampleChatScreenState extends State<ExampleChatScreen> {
       builder: (context) => AlertDialog(
         title: Text(question),
         content: Text(response),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Got it'),
-          ),
-        ],
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Got it'))],
       ),
     );
   }

@@ -18,8 +18,7 @@ class DeliveryClusterView extends StatefulWidget {
 
 class _DeliveryClusterViewState extends State<DeliveryClusterView> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final DeliveryClusteringService _clusteringService =
-      DeliveryClusteringService();
+  final DeliveryClusteringService _clusteringService = DeliveryClusteringService();
 
   List<OrderModel> _orders = [];
   final Set<String> _deliveredIds = {};
@@ -51,14 +50,11 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
           .where('status', isEqualTo: OrderStatus.outForDelivery.toString())
           .get();
 
-      final orders = snap.docs
-          .map((d) => OrderModel.fromMap(d.data()))
-          .toList();
+      final orders = snap.docs.map((d) => OrderModel.fromMap(d.data())).toList();
 
       // Pre-check OTP eligibility
       for (final o in orders) {
-        _otplessMap[o.customerId] =
-            await _clusteringService.isOtplessEligible(o.customerId);
+        _otplessMap[o.customerId] = await _clusteringService.isOtplessEligible(o.customerId);
       }
 
       setState(() {
@@ -111,10 +107,7 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to mark delivered: $e'),
-            backgroundColor: AppTheme.error,
-          ),
+          SnackBar(content: Text('Failed to mark delivered: $e'), backgroundColor: AppTheme.error),
         );
       }
     }
@@ -141,21 +134,14 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
               controller: ctrl,
               keyboardType: TextInputType.number,
               maxLength: 6,
-              decoration: const InputDecoration(
-                labelText: 'Enter OTP',
-                counterText: '',
-              ),
+              decoration: const InputDecoration(labelText: 'Enter OTP', counterText: ''),
               textAlign: TextAlign.center,
-              style:
-                  const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               if (ctrl.text.trim() == correct) {
@@ -189,10 +175,7 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
           children: [
             const Icon(Icons.celebration, size: 64, color: AppTheme.primary),
             const SizedBox(height: 12),
-            Text(
-              'You delivered ${_orders.length} orders.',
-              style: const TextStyle(fontSize: 16),
-            ),
+            Text('You delivered ${_orders.length} orders.', style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 8),
             Text(
               'Earnings for this cluster: ₹${earnings.toStringAsFixed(0)}',
@@ -224,15 +207,14 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
     final query = Uri.encodeComponent(
       addr.fullAddress.isNotEmpty ? addr.fullAddress : addr.village,
     );
-    final uri = Uri.parse(
-        'https://www.google.com/maps/search/?api=1&query=$query');
+    final uri = Uri.parse('https://www.google.com/maps/search/?api=1&query=$query');
     try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open Maps')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Could not open Maps')));
       }
     }
   }
@@ -252,26 +234,21 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
       backgroundColor: AppTheme.grey50,
       appBar: AppBar(
         title: Text('Cluster ${widget.clusterId.split('_').last}'),
-        actions: [
-          IconButton(
-            onPressed: _loadCluster,
-            icon: const Icon(Icons.refresh),
-          ),
-        ],
+        actions: [IconButton(onPressed: _loadCluster, icon: const Icon(Icons.refresh))],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: AppTheme.deliveryAccent))
           : _error != null
-              ? _buildError()
-              : _orders.isEmpty
-                  ? _buildEmpty()
-                  : Column(
-                      children: [
-                        _buildProgressHeader(),
-                        Expanded(child: _buildStopList()),
-                        _buildBottomBar(),
-                      ],
-                    ),
+          ? _buildError()
+          : _orders.isEmpty
+          ? _buildEmpty()
+          : Column(
+              children: [
+                _buildProgressHeader(),
+                Expanded(child: _buildStopList()),
+                _buildBottomBar(),
+              ],
+            ),
     );
   }
 
@@ -284,8 +261,7 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
           const SizedBox(height: 12),
           Text(_error!, style: const TextStyle(color: AppTheme.grey700)),
           const SizedBox(height: 16),
-          ElevatedButton(
-              onPressed: _loadCluster, child: const Text('Retry')),
+          ElevatedButton(onPressed: _loadCluster, child: const Text('Retry')),
         ],
       ),
     );
@@ -293,10 +269,7 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
 
   Widget _buildEmpty() {
     return const Center(
-      child: Text(
-        'No orders in this cluster.',
-        style: TextStyle(color: AppTheme.grey600),
-      ),
+      child: Text('No orders in this cluster.', style: TextStyle(color: AppTheme.grey600)),
     );
   }
 
@@ -315,17 +288,11 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
             children: [
               Text(
                 '$done of $total deliveries complete',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 15,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
               ),
               Text(
                 '${(progress * 100).round()}%',
-                style: const TextStyle(
-                  color: AppTheme.primary,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -336,8 +303,7 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
               value: progress,
               minHeight: 8,
               backgroundColor: AppTheme.grey200,
-              valueColor:
-                  const AlwaysStoppedAnimation<Color>(AppTheme.primary),
+              valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primary),
             ),
           ),
         ],
@@ -373,9 +339,7 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: done
-                        ? AppTheme.success
-                        : AppTheme.primary.withValues(alpha: 0.15),
+                    color: done ? AppTheme.success : AppTheme.primary.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
@@ -398,22 +362,16 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
                         children: [
                           Text(
                             order.customerName,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                            ),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                           ),
                           const SizedBox(width: 8),
-                          if (otpless)
-                            _badge('OTP-FREE', AppTheme.success),
-                          if (isCod)
-                            _badge('COD', AppTheme.warning),
+                          if (otpless) _badge('OTP-FREE', AppTheme.success),
+                          if (isCod) _badge('COD', AppTheme.warning),
                         ],
                       ),
                       Text(
                         'Order #${order.orderNumber}',
-                        style: const TextStyle(
-                            color: AppTheme.grey600, fontSize: 12),
+                        style: const TextStyle(color: AppTheme.grey600, fontSize: 12),
                       ),
                     ],
                   ),
@@ -434,8 +392,7 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.location_on_outlined,
-                    size: 16, color: AppTheme.grey500),
+                const Icon(Icons.location_on_outlined, size: 16, color: AppTheme.grey500),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
@@ -445,25 +402,21 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
                         'Near ${order.deliveryAddress.landmark}',
                       order.deliveryAddress.village,
                     ].where((s) => s.isNotEmpty).join(', '),
-                    style: const TextStyle(
-                        fontSize: 13, color: AppTheme.grey700),
+                    style: const TextStyle(fontSize: 13, color: AppTheme.grey700),
                   ),
                 ),
               ],
             ),
-            if (order.deliveryInstructions != null &&
-                order.deliveryInstructions!.isNotEmpty) ...[
+            if (order.deliveryInstructions != null && order.deliveryInstructions!.isNotEmpty) ...[
               const SizedBox(height: 6),
               Row(
                 children: [
-                  const Icon(Icons.info_outline,
-                      size: 14, color: AppTheme.info),
+                  const Icon(Icons.info_outline, size: 14, color: AppTheme.info),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       order.deliveryInstructions!,
-                      style: const TextStyle(
-                          fontSize: 12, color: AppTheme.info),
+                      style: const TextStyle(fontSize: 12, color: AppTheme.info),
                     ),
                   ),
                 ],
@@ -487,9 +440,7 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
                       onPressed: () => _markDelivered(order),
                       icon: const Icon(Icons.check_circle_outline, size: 16),
                       label: const Text('Mark Delivered'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primary,
-                      ),
+                      style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary),
                     ),
                   ),
                 ],
@@ -497,14 +448,11 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
             else
               const Row(
                 children: [
-                  Icon(Icons.check_circle,
-                      color: AppTheme.success, size: 18),
+                  Icon(Icons.check_circle, color: AppTheme.success, size: 18),
                   SizedBox(width: 6),
                   Text(
                     'Delivered',
-                    style: TextStyle(
-                        color: AppTheme.success,
-                        fontWeight: FontWeight.w600),
+                    style: TextStyle(color: AppTheme.success, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -533,8 +481,7 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
                 children: [
                   const Text(
                     'Cluster Earnings',
-                    style:
-                        TextStyle(color: AppTheme.grey600, fontSize: 12),
+                    style: TextStyle(color: AppTheme.grey600, fontSize: 12),
                   ),
                   Text(
                     '₹${earnings.toStringAsFixed(0)}',
@@ -553,8 +500,7 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
                   label: const Text('All Done'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primary,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 14),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                   ),
                 ),
             ],
@@ -574,11 +520,7 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
       ),
       child: Text(
         text,
-        style: TextStyle(
-          color: color,
-          fontSize: 9,
-          fontWeight: FontWeight.bold,
-        ),
+        style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.bold),
       ),
     );
   }

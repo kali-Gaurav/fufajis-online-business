@@ -25,11 +25,13 @@ class KPIAggregationService {
   Future<bool> aggregateSalesAndRevenue(DateTime from, DateTime to) async {
     try {
       debugPrint('[KPIAggregation] Starting Sales and Revenue aggregation...');
-      
+
       // Query raw orders within range from Postgres (workload isolated reads)
       final ordersResponse = await _client
           .from('orders')
-          .select('order_id, shop_id, subtotal, discount, delivery_fee, final_amount, order_status, created_at')
+          .select(
+            'order_id, shop_id, subtotal, discount, delivery_fee, final_amount, order_status, created_at',
+          )
           .gte('created_at', from.toIso8601String())
           .lte('created_at', to.toIso8601String());
 
@@ -51,7 +53,7 @@ class KPIAggregationService {
         final String status = o['order_status'] ?? 'pending';
         final String shopId = o['shop_id'] ?? 'global';
         final String dateStr = o['created_at'].toString().split('T').first;
-        
+
         if (status == 'delivered') {
           totalGrossRevenue += finalAmt;
           totalDeliveryFees += deliveryFee;
@@ -60,18 +62,21 @@ class KPIAggregationService {
         }
 
         final key = '${dateStr}_$shopId';
-        salesRollups.putIfAbsent(key, () => {
-          'metric_id': key,
-          'shop_id': shopId,
-          'vendor_id': '00000000-0000-0000-0000-000000000000',
-          'order_count': 0,
-          'delivered_count': 0,
-          'cancelled_count': 0,
-          'revenue': 0.0,
-          'avg_order_value': 0.0,
-          'period': 'daily',
-          'created_at': DateTime.now().toIso8601String()
-        });
+        salesRollups.putIfAbsent(
+          key,
+          () => {
+            'metric_id': key,
+            'shop_id': shopId,
+            'vendor_id': '00000000-0000-0000-0000-000000000000',
+            'order_count': 0,
+            'delivered_count': 0,
+            'cancelled_count': 0,
+            'revenue': 0.0,
+            'avg_order_value': 0.0,
+            'period': 'daily',
+            'created_at': DateTime.now().toIso8601String(),
+          },
+        );
 
         final rollup = salesRollups[key]!;
         rollup['order_count'] = (rollup['order_count'] as int) + 1;
@@ -102,7 +107,7 @@ class KPIAggregationService {
         'refunds': totalRefunds,
         'delivery_fees': totalDeliveryFees,
         'cogs': cogs,
-        'gross_profit': grossProfit
+        'gross_profit': grossProfit,
       };
 
       for (var entry in revenueMetrics.entries) {
@@ -112,7 +117,7 @@ class KPIAggregationService {
           'metric_type': entry.key,
           'metric_value': entry.value,
           'period': 'daily',
-          'created_at': DateTime.now().toIso8601String()
+          'created_at': DateTime.now().toIso8601String(),
         });
       }
 
@@ -130,10 +135,8 @@ class KPIAggregationService {
       debugPrint('[KPIAggregation] Starting Inventory Health aggregation...');
 
       // Fetch all products from Postgres
-      final productsResponse = await _client
-          .from('products')
-          .select('id, stock, price');
-      
+      final productsResponse = await _client.from('products').select('id, stock, price');
+
       final List<dynamic> products = productsResponse as List<dynamic>;
       int outOfStock = 0;
       int lowStock = 0;
@@ -148,7 +151,7 @@ class KPIAggregationService {
         } else if (stock < 5) {
           lowStock++;
         }
-        
+
         // Assume items unsold and in stock represent holding value
         if (stock > 50) {
           deadStockValue += stock * price * 0.4; // 40% value tied in dead stock
@@ -159,7 +162,7 @@ class KPIAggregationService {
         'out_of_stock_count': outOfStock.toDouble(),
         'low_stock_count': lowStock.toDouble(),
         'dead_stock_value': deadStockValue,
-        'stock_turnover': 8.5 // Simulated turnover multiplier
+        'stock_turnover': 8.5, // Simulated turnover multiplier
       };
 
       for (var entry in metrics.entries) {
@@ -169,7 +172,7 @@ class KPIAggregationService {
           'metric_type': entry.key,
           'metric_value': entry.value,
           'period': 'daily',
-          'created_at': DateTime.now().toIso8601String()
+          'created_at': DateTime.now().toIso8601String(),
         });
       }
 
@@ -201,15 +204,20 @@ class KPIAggregationService {
         final String riderId = t['assigned_rider_id']?.toString() ?? 'unknown_rider';
         final String status = t['status'] ?? 'failed';
         final DateTime created = DateTime.parse(t['created_at'].toString());
-        final DateTime? completed = t['completed_at'] != null ? DateTime.parse(t['completed_at'].toString()) : null;
+        final DateTime? completed = t['completed_at'] != null
+            ? DateTime.parse(t['completed_at'].toString())
+            : null;
 
-        riderStats.putIfAbsent(riderId, () => {
-          'assigned': 0,
-          'delivered': 0,
-          'cancelled': 0,
-          'duration_sum_mins': 0.0,
-          'completed_count': 0
-        });
+        riderStats.putIfAbsent(
+          riderId,
+          () => {
+            'assigned': 0,
+            'delivered': 0,
+            'cancelled': 0,
+            'duration_sum_mins': 0.0,
+            'completed_count': 0,
+          },
+        );
 
         final stats = riderStats[riderId]!;
         stats['assigned'] = (stats['assigned'] as int) + 1;
@@ -229,7 +237,9 @@ class KPIAggregationService {
         final stats = entry.value;
         final String riderId = entry.key;
         final int compCount = stats['completed_count'] as int;
-        final double avgMins = compCount > 0 ? (stats['duration_sum_mins'] as double) / compCount : 0.0;
+        final double avgMins = compCount > 0
+            ? (stats['duration_sum_mins'] as double) / compCount
+            : 0.0;
 
         final key = 'daily_del_${riderId}_${DateFormat('yyyyMMdd').format(to)}';
         await _client.from('delivery_analytics').upsert({
@@ -240,7 +250,7 @@ class KPIAggregationService {
           'cancelled_count': stats['cancelled'],
           'avg_delivery_minutes': avgMins,
           'period': 'daily',
-          'created_at': DateTime.now().toIso8601String()
+          'created_at': DateTime.now().toIso8601String(),
         });
       }
 
@@ -297,7 +307,7 @@ class KPIAggregationService {
         'success_rate': successRate,
         'cod_ratio': codRatio,
         'refund_rate': refundRate,
-        'wallet_usage_rate': walletUsageRate
+        'wallet_usage_rate': walletUsageRate,
       };
 
       for (var entry in metrics.entries) {
@@ -307,7 +317,7 @@ class KPIAggregationService {
           'metric_type': entry.key,
           'metric_value': entry.value,
           'period': 'daily',
-          'created_at': DateTime.now().toIso8601String()
+          'created_at': DateTime.now().toIso8601String(),
         });
       }
 

@@ -19,10 +19,7 @@ class EmployeeAuthService {
 
         // Bind UID on first successful sign in
         if (data['uid'] == null || data['uid'].toString().isEmpty) {
-          await doc.reference.update({
-            'uid': uid,
-            'updatedAt': FieldValue.serverTimestamp(),
-          });
+          await doc.reference.update({'uid': uid, 'updatedAt': FieldValue.serverTimestamp()});
           data['uid'] = uid;
         }
 
@@ -48,20 +45,18 @@ class EmployeeAuthService {
         .limit(1)
         .snapshots()
         .map((snapshot) {
-      if (snapshot.docs.isNotEmpty) {
-        return Employee.fromJson(Map<String, dynamic>.from(snapshot.docs.first.data()));
-      }
-      return null;
-    });
+          if (snapshot.docs.isNotEmpty) {
+            return Employee.fromJson(Map<String, dynamic>.from(snapshot.docs.first.data()));
+          }
+          return null;
+        });
   }
 
   /// Returns a stream of all active employees for selection in dashboards
   static Stream<List<Employee>> streamActiveEmployees() {
-    return _firestore
-        .collection('employees')
-        .where('isActive', isEqualTo: true)
-        .snapshots()
-        .map((snapshot) {
+    return _firestore.collection('employees').where('isActive', isEqualTo: true).snapshots().map((
+      snapshot,
+    ) {
       return snapshot.docs
           .map((doc) => Employee.fromJson(Map<String, dynamic>.from(doc.data())))
           .toList();

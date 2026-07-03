@@ -15,8 +15,7 @@ class SubscriptionModel {
   final SubscriptionStatus status;
   final DateTime startDate;
   final DateTime? pauseUntil; // Feature 14: Vacation Mode support
-  final List<DateTime>
-  deliveryDates; // Feature 14: Specific dates for custom frequency
+  final List<DateTime> deliveryDates; // Feature 14: Specific dates for custom frequency
   final String timeSlot;
   final DateTime createdAt;
 
@@ -86,14 +85,9 @@ class SubscriptionModel {
       startDate: map['startDate'] != null
           ? DateTime.parse(map['startDate'] as String)
           : DateTime.now(),
-      pauseUntil: map['pauseUntil'] != null
-          ? DateTime.parse(map['pauseUntil'] as String)
-          : null,
+      pauseUntil: map['pauseUntil'] != null ? DateTime.parse(map['pauseUntil'] as String) : null,
       deliveryDates:
-          (map['deliveryDates'] as List?)
-              ?.map((d) => DateTime.parse(d as String))
-              .toList() ??
-          [],
+          (map['deliveryDates'] as List?)?.map((d) => DateTime.parse(d as String)).toList() ?? [],
       timeSlot: map['timeSlot'] as String? ?? '',
       createdAt: map['createdAt'] != null
           ? DateTime.parse(map['createdAt'] as String)

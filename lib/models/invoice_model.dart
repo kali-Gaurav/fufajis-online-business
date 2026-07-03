@@ -52,8 +52,7 @@ class InvoiceItem {
   }
 
   @override
-  String toString() =>
-      'InvoiceItem(product: $productName, qty: $quantity, tax: $taxRate%)';
+  String toString() => 'InvoiceItem(product: $productName, qty: $quantity, tax: $taxRate%)';
 }
 
 /// Payment status enum
@@ -175,11 +174,7 @@ class InvoiceModel {
 
   /// Format currency with Indian locale
   String formatCurrency(double amount) {
-    final formatter = NumberFormat.currency(
-      locale: 'en_IN',
-      symbol: '₹',
-      decimalDigits: 2,
-    );
+    final formatter = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 2);
     return formatter.format(amount);
   }
 
@@ -224,7 +219,8 @@ class InvoiceModel {
       customerName: map['customerName'] as String? ?? '',
       shopId: map['shopId'] as String? ?? '',
       shopName: map['shopName'] as String? ?? '',
-      items: (map['items'] as List<dynamic>?)
+      items:
+          (map['items'] as List<dynamic>?)
               ?.map((item) => InvoiceItem.fromMap(item as Map<String, dynamic>))
               .toList() ??
           [],
@@ -239,8 +235,7 @@ class InvoiceModel {
       issueDate: (map['issueDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
       dueDate: (map['dueDate'] as Timestamp?)?.toDate(),
       paymentMethod: map['paymentMethod'] as String?,
-      paymentStatus:
-          PaymentStatus.fromJson(map['paymentStatus'] as String?),
+      paymentStatus: PaymentStatus.fromJson(map['paymentStatus'] as String?),
       notes: map['notes'] as String?,
       pdfUrl: map['pdfUrl'] as String?,
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),

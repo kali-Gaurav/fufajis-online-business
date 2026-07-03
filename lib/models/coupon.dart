@@ -6,7 +6,7 @@ class Coupon {
   final String code;
   final String name;
   final String description;
-  final String discountType; // 'percentage' or 'flat'
+  final String discountType; // 'percentage' or 'flat' ('fixed' is normalized to 'flat')
   final MonetaryValue discountValue;
   final double minimumOrderAmount;
   final double maximumDiscountAmount;
@@ -32,7 +32,10 @@ class Coupon {
       code: map['code'] as String? ?? '',
       name: map['name'] as String? ?? '',
       description: map['description'] as String? ?? '',
-      discountType: map['discountType'] as String? ?? 'percentage',
+      // BUG FIX (Module 6, P0-6.2): admin coupon UI saves 'fixed' but the
+      // discount calculator only understood 'flat' — every "Fixed Amount"
+      // coupon computed a ₹0 discount. Normalize the vocabulary on read.
+      discountType: _normalizeDiscountType(map['discountType'] as String?),
       discountValue: MonetaryValue(map['discountValue'] ?? 0.0),
       minimumOrderAmount: (map['minimumOrderAmount'] as num? ?? 0.0).toDouble(),
       maximumDiscountAmount: (map['maximumDiscountAmount'] as num? ?? 0.0).toDouble(),
@@ -64,19 +67,41 @@ class Coupon {
     };
   }
 
+  /// Maps legacy/alternate discount-type spellings to the canonical form.
+  /// 'fixed' (written by the admin coupon UI) and 'flat' are the same thing.
+  static String _normalizeDiscountType(String? raw) {
+    switch (raw?.trim().toLowerCase()) {
+      case 'fixed':
+      case 'flat':
+        return 'flat';
+      case 'percentage':
+      case 'percent':
+        return 'percentage';
+      default:
+        return 'percentage';
+    }
+  }
+
   MonetaryValue calculateDiscount(MonetaryValue subtotal) {
     final minOrderVal = MonetaryValue(minimumOrderAmount);
     if (subtotal < minOrderVal) return MonetaryValue(0.0);
 
     MonetaryValue discount = MonetaryValue(0.0);
-    if (discountType == 'percentage') {
+    final normalizedType = _normalizeDiscountType(discountType);
+    if (normalizedType == 'percentage') {
       discount = subtotal * (discountValue.toDouble() / 100.0);
-      final maxDiscountVal = MonetaryValue(maximumDiscountAmount);
-      if (discount > maxDiscountVal) {
-        discount = maxDiscountVal;
+      // BUG FIX (Module 6): maximumDiscountAmount defaults to 0.0 when the
+      // Firestore doc omits the field, which used to clamp EVERY percentage
+      // discount to ₹0. A cap of 0 (or negative) now means "no cap".
+      if (maximumDiscountAmount > 0) {
+        final maxDiscountVal = MonetaryValue(maximumDiscountAmount);
+        if (discount > maxDiscountVal) {
+          discount = maxDiscountVal;
+        }
       }
-    } else if (discountType == 'flat') {
-      discount = discountValue;
+    } else {
+      // 'flat' / 'fixed': never discount more than the subtotal itself.
+      discount = discountValue > subtotal ? subtotal : discountValue;
     }
     return discount;
   }

@@ -63,17 +63,14 @@ class _PackingScreenState extends State<PackingScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Packing started'),
-            backgroundColor: AppTheme.success,
-          ),
+          const SnackBar(content: Text('Packing started'), backgroundColor: AppTheme.success),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error));
       }
     }
   }
@@ -87,11 +84,7 @@ class _PackingScreenState extends State<PackingScreen> {
         onSave: (quantity) async {
           try {
             final fulfillment = context.read<FulfillmentProvider>();
-            await fulfillment.markItemPacked(
-              widget.taskId,
-              item.productId,
-              quantity,
-            );
+            await fulfillment.markItemPacked(widget.taskId, item.productId, quantity);
 
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -104,9 +97,9 @@ class _PackingScreenState extends State<PackingScreen> {
             }
           } catch (e) {
             if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error));
             }
           }
         },
@@ -142,26 +135,19 @@ class _PackingScreenState extends State<PackingScreen> {
               maxLines: 3,
               decoration: InputDecoration(
                 hintText: 'E.g., Fragile items, Handle with care',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
               ),
             ),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () async {
               try {
                 await fulfillment.completePacking(
                   widget.taskId,
-                  notes: _notesController.text.isNotEmpty
-                      ? _notesController.text
-                      : null,
+                  notes: _notesController.text.isNotEmpty ? _notesController.text : null,
                 );
 
                 if (mounted) {
@@ -181,10 +167,7 @@ class _PackingScreenState extends State<PackingScreen> {
               } catch (e) {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Error: $e'),
-                      backgroundColor: AppTheme.error,
-                    ),
+                    SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
                   );
                 }
               }
@@ -218,8 +201,7 @@ class _PackingScreenState extends State<PackingScreen> {
                 children: [
                   const Icon(Icons.error_outline, size: 64, color: AppTheme.error),
                   const SizedBox(height: 16),
-                  Text('Task not found',
-                      style: Theme.of(context).textTheme.titleMedium),
+                  Text('Task not found', style: Theme.of(context).textTheme.titleMedium),
                 ],
               ),
             );
@@ -247,34 +229,30 @@ class _PackingScreenState extends State<PackingScreen> {
                 ),
 
                 // Special notes (if any)
-                if (task.notes != null)
-                  SpecialNotesAlert(notes: task.notes!),
+                if (task.notes != null) SpecialNotesAlert(notes: task.notes!),
 
                 // Items to pack
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Text(
                     'Items to Pack',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                   ),
                 ),
 
-                ...List.generate(
-                  task.items.length,
-                  (index) {
-                    final item = task.items[index];
-                    return OrderItemCard(
-                      item: item,
-                      isSelected: _currentItemIndex == index,
-                      onTap: () {
-                        setState(() => _currentItemIndex = index);
-                      },
-                      onVerify: () => _markItemPacked(item),
-                    );
-                  },
-                ),
+                ...List.generate(task.items.length, (index) {
+                  final item = task.items[index];
+                  return OrderItemCard(
+                    item: item,
+                    isSelected: _currentItemIndex == index,
+                    onTap: () {
+                      setState(() => _currentItemIndex = index);
+                    },
+                    onVerify: () => _markItemPacked(item),
+                  );
+                }),
 
                 // Action buttons
                 Padding(
@@ -300,8 +278,7 @@ class _PackingScreenState extends State<PackingScreen> {
                           label: const Text('Complete Packing'),
                           style: ElevatedButton.styleFrom(
                             minimumSize: const Size.fromHeight(48),
-                            backgroundColor:
-                                task.allItemsPacked ? AppTheme.success : Colors.grey,
+                            backgroundColor: task.allItemsPacked ? AppTheme.success : Colors.grey,
                             foregroundColor: Colors.white,
                           ),
                         ),
@@ -309,9 +286,7 @@ class _PackingScreenState extends State<PackingScreen> {
                           onPressed: () => Navigator.pop(context),
                           icon: const Icon(Icons.close),
                           label: const Text('Cancel'),
-                          style: OutlinedButton.styleFrom(
-                            minimumSize: const Size.fromHeight(48),
-                          ),
+                          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
                         ),
                       ],
                     ],
@@ -332,10 +307,7 @@ class _QuantityInputSheet extends StatefulWidget {
   final FulfillmentItem item;
   final Function(double) onSave;
 
-  const _QuantityInputSheet({
-    required this.item,
-    required this.onSave,
-  });
+  const _QuantityInputSheet({required this.item, required this.onSave});
 
   @override
   State<_QuantityInputSheet> createState() => _QuantityInputSheetState();
@@ -374,15 +346,10 @@ class _QuantityInputSheetState extends State<_QuantityInputSheet> {
         children: [
           Text(
             'Quantity Packed',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          Text(
-            widget.item.productName,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
+          Text(widget.item.productName, style: Theme.of(context).textTheme.bodyMedium),
           const SizedBox(height: 16),
           TextField(
             controller: _controller,
@@ -390,9 +357,7 @@ class _QuantityInputSheetState extends State<_QuantityInputSheet> {
             decoration: InputDecoration(
               hintText: 'Enter quantity',
               suffixText: widget.item.unit,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             ),
             autofocus: true,
           ),
@@ -402,9 +367,7 @@ class _QuantityInputSheetState extends State<_QuantityInputSheet> {
             children: [
               Text(
                 'Required: ${widget.item.requiredQuantity} ${widget.item.unit}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[600],
-                    ),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
               ),
             ],
           ),
@@ -412,10 +375,7 @@ class _QuantityInputSheetState extends State<_QuantityInputSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              OutlinedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
+              OutlinedButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
               ElevatedButton(
                 onPressed: () {
                   final quantity = double.tryParse(_controller.text) ?? 0;

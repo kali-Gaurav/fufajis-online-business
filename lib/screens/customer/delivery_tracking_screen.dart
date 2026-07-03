@@ -63,17 +63,17 @@ class _StatusCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Icon(Icons.local_shipping_outlined,
-              color: Colors.white, size: 40),
+          const Icon(Icons.local_shipping_outlined, color: Colors.white, size: 40),
           const SizedBox(height: 8),
-          Text(status.toUpperCase(),
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold)),
+          Text(
+            status.toUpperCase(),
+            style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 4),
-          const Text('Your order is on its way',
-              style: TextStyle(color: Colors.white70, fontSize: 12)),
+          const Text(
+            'Your order is on its way',
+            style: TextStyle(color: Colors.white70, fontSize: 12),
+          ),
         ],
       ),
     );
@@ -113,19 +113,16 @@ class _StepTimeline extends StatelessWidget {
                       backgroundColor: AppTheme.primary.withValues(alpha: 0.8),
                       child: Icon(step.$2, size: 14, color: Colors.white),
                     ),
-                    if (!isLast)
-                      Container(
-                          width: 2,
-                          height: 30,
-                          color: AppTheme.grey200),
+                    if (!isLast) Container(width: 2, height: 30, color: AppTheme.grey200),
                   ],
                 ),
                 const SizedBox(width: 12),
                 Padding(
                   padding: const EdgeInsets.only(top: 6),
-                  child: Text(step.$1,
-                      style: const TextStyle(
-                          fontSize: 13, fontWeight: FontWeight.w500)),
+                  child: Text(
+                    step.$1,
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                  ),
                 ),
               ],
             );
@@ -140,8 +137,7 @@ class _OrderSummaryCard extends StatelessWidget {
   final String orderId;
   final double total;
   final int itemCount;
-  const _OrderSummaryCard(
-      {required this.orderId, required this.total, required this.itemCount});
+  const _OrderSummaryCard({required this.orderId, required this.total, required this.itemCount});
 
   @override
   Widget build(BuildContext context) {

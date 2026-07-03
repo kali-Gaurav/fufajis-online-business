@@ -17,8 +17,7 @@ import '../config/app_config.dart';
 ///     destinations: deliveryPoints,
 ///   );
 class RouteOptimizationService {
-  static final RouteOptimizationService _instance =
-      RouteOptimizationService._internal();
+  static final RouteOptimizationService _instance = RouteOptimizationService._internal();
   factory RouteOptimizationService() => _instance;
   RouteOptimizationService._internal();
 
@@ -74,12 +73,15 @@ class RouteOptimizationService {
         .join('|');
 
     const url = 'https://maps.googleapis.com/maps/api/directions/json';
-    final resp = await _dio.get(url, queryParameters: {
-      'origin': originStr,
-      'destination': destStr,
-      'waypoints': 'optimize:true|$waypoints',
-      'key': _apiKey,
-    });
+    final resp = await _dio.get(
+      url,
+      queryParameters: {
+        'origin': originStr,
+        'destination': destStr,
+        'waypoints': 'optimize:true|$waypoints',
+        'key': _apiKey,
+      },
+    );
 
     final data = resp.data as Map<String, dynamic>;
     if (data['status'] != 'OK') {
@@ -87,8 +89,7 @@ class RouteOptimizationService {
     }
 
     final route = (data['routes'] as List).first as Map<String, dynamic>;
-    final waypointOrder =
-        (route['waypoint_order'] as List).map((e) => e as int).toList();
+    final waypointOrder = (route['waypoint_order'] as List).map((e) => e as int).toList();
 
     // Reorder destinations as Google suggests
     final reordered = <DeliveryWaypoint>[];
@@ -100,9 +101,10 @@ class RouteOptimizationService {
     // Extract duration & distance
     final legs = (route['legs'] as List).cast<Map<String, dynamic>>();
     final totalMinutes = legs.fold<int>(
-        0, (sum, leg) => sum + ((leg['duration']['value'] as int) ~/ 60));
-    final totalMeters = legs.fold<int>(
-        0, (sum, leg) => sum + (leg['distance']['value'] as int));
+      0,
+      (sum, leg) => sum + ((leg['duration']['value'] as int) ~/ 60),
+    );
+    final totalMeters = legs.fold<int>(0, (sum, leg) => sum + (leg['distance']['value'] as int));
 
     return RouteResult(
       orderedWaypoints: reordered,
@@ -171,8 +173,7 @@ class RouteOptimizationService {
             ...best.sublist(i + 1, j + 1).reversed,
             ...best.sublist(j + 1),
           ];
-          if (_routeLength(origin, newRoute) <
-              _routeLength(origin, best)) {
+          if (_routeLength(origin, newRoute) < _routeLength(origin, best)) {
             best = newRoute;
             improved = true;
           }
@@ -198,18 +199,13 @@ class RouteOptimizationService {
     final dLon = _toRad(b.longitude - a.longitude);
     final sinLat = sin(dLat / 2);
     final sinLon = sin(dLon / 2);
-    final h = sinLat * sinLat +
-        cos(_toRad(a.latitude)) *
-            cos(_toRad(b.latitude)) *
-            sinLon *
-            sinLon;
+    final h = sinLat * sinLat + cos(_toRad(a.latitude)) * cos(_toRad(b.latitude)) * sinLon * sinLon;
     return 2 * R * asin(sqrt(h));
   }
 
   double _toRad(double deg) => deg * pi / 180;
 
-  int _estimateMinutes(LatLng a, LatLng b) =>
-      (_haversineKm(a, b) / 25 * 60).round();
+  int _estimateMinutes(LatLng a, LatLng b) => (_haversineKm(a, b) / 25 * 60).round();
 
   // ─── Google Polyline decoder ──────────────────────────────────────────────────
   List<LatLng> _decodePolyline(String encoded) {

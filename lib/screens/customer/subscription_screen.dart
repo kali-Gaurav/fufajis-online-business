@@ -23,15 +23,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
   Future<void> _loadSubscriptions() async {
     setState(() => _isLoading = true);
-    final subscriptionProvider = Provider.of<SubscriptionProvider>(
-      context,
-      listen: false,
-    );
+    final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     if (authProvider.currentUser != null) {
-      await subscriptionProvider.fetchSubscriptions(
-        authProvider.currentUser!.id,
-      );
+      await subscriptionProvider.fetchSubscriptions(authProvider.currentUser!.id);
     }
     setState(() => _isLoading = false);
   }
@@ -71,19 +66,11 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.calendar_today_outlined,
-              size: 80,
-              color: AppTheme.grey300,
-            ),
+            const Icon(Icons.calendar_today_outlined, size: 80, color: AppTheme.grey300),
             const SizedBox(height: 24),
             const Text(
               'No Subscriptions Yet',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.grey800,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.grey800),
             ),
             const SizedBox(height: 12),
             const Text(
@@ -99,13 +86,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primary,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 16,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: const Text('Browse Essentials'),
             ),
@@ -157,10 +139,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                       width: 60,
                       height: 60,
                       color: AppTheme.grey100,
-                      child: const Icon(
-                        Icons.shopping_basket,
-                        color: AppTheme.grey400,
-                      ),
+                      child: const Icon(Icons.shopping_basket, color: AppTheme.grey400),
                     ),
                   ),
                 ),
@@ -171,25 +150,16 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                     children: [
                       Text(
                         sub.productName,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         '${sub.quantity} x ${sub.unit}',
-                        style: const TextStyle(
-                          color: AppTheme.grey600,
-                          fontSize: 13,
-                        ),
+                        style: const TextStyle(color: AppTheme.grey600, fontSize: 13),
                       ),
                       const SizedBox(height: 4),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: AppTheme.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
@@ -238,18 +208,11 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(
-                      Icons.access_time,
-                      size: 16,
-                      color: AppTheme.grey500,
-                    ),
+                    const Icon(Icons.access_time, size: 16, color: AppTheme.grey500),
                     const SizedBox(width: 6),
                     Text(
                       'Slot: ${sub.timeSlot}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.grey600,
-                      ),
+                      style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
                     ),
                   ],
                 ),

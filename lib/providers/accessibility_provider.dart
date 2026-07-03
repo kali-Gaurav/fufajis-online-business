@@ -50,8 +50,7 @@ class AccessibilityProvider extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       _isElderlyMode = prefs.getBool(_elderlyModeKey) ?? false;
-      _fontScale =
-          prefs.getDouble(_fontScaleKey) ?? (_isElderlyMode ? 1.3 : 1.0);
+      _fontScale = prefs.getDouble(_fontScaleKey) ?? (_isElderlyMode ? 1.3 : 1.0);
       _preferredLanguage = prefs.getString(_languageKey) ?? 'en';
       _highContrast = prefs.getBool(_highContrastKey) ?? false;
       _isInitialized = true;
@@ -76,6 +75,7 @@ class AccessibilityProvider extends ChangeNotifier {
     } else {
       _fontScale = 1.0;
       _highContrast = false;
+      _preferredLanguage = 'en'; // Reset language when disabling elderly mode
     }
 
     await _savePreferences();

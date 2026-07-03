@@ -14,8 +14,7 @@ import 'package:uuid/uuid.dart';
 ///   • If packed weight < ordered weight: partial refund automatically issued
 ///   • Photo proof stored in Firebase Storage; URL saved to order record
 class WeightVerificationService {
-  static final WeightVerificationService _instance =
-      WeightVerificationService._internal();
+  static final WeightVerificationService _instance = WeightVerificationService._internal();
   factory WeightVerificationService() => _instance;
   WeightVerificationService._internal();
 
@@ -52,11 +51,7 @@ class WeightVerificationService {
   }) async {
     String? photoUrl;
     if (proofPhoto != null) {
-      photoUrl = await _uploadProofPhoto(
-        orderId: orderId,
-        productId: productId,
-        file: proofPhoto,
-      );
+      photoUrl = await _uploadProofPhoto(orderId: orderId, productId: productId, file: proofPhoto);
     }
 
     final outcome = _computeOutcome(orderedWeightKg, packedWeightKg);
@@ -162,11 +157,7 @@ class WeightVerificationService {
   }) async {
     try {
       final bytes = await File(file.path).readAsBytes();
-      final ref = _storage
-          .ref()
-          .child('weight_proofs')
-          .child(orderId)
-          .child('$productId.jpg');
+      final ref = _storage.ref().child('weight_proofs').child(orderId).child('$productId.jpg');
       await ref.putData(bytes, SettableMetadata(contentType: 'image/jpeg'));
       return await ref.getDownloadURL();
     } catch (e) {
@@ -241,25 +232,24 @@ class WeightProofRecord {
     'recordedAt': Timestamp.fromDate(recordedAt),
   };
 
-  factory WeightProofRecord.fromMap(Map<String, dynamic> map) =>
-      WeightProofRecord(
-        id: map['id'] as String? ?? '',
-        orderId: map['orderId'] as String? ?? '',
-        orderItemId: map['orderItemId'] as String? ?? '',
-        productId: map['productId'] as String? ?? '',
-        productName: map['productName'] as String? ?? '',
-        orderedWeightKg: ((map['orderedWeightKg'] as num?) ?? 0).toDouble(),
-        packedWeightKg: ((map['packedWeightKg'] as num?) ?? 0).toDouble(),
-        outcome: WeightOutcome.values.firstWhere(
-          (e) => e.name == map['outcome'],
-          orElse: () => WeightOutcome.exact,
-        ),
-        refundAmountIfAny: ((map['refundAmountIfAny'] as num?) ?? 0).toDouble(),
-        photoUrl: map['photoUrl'] as String?,
-        employeeId: map['employeeId'] as String? ?? '',
-        employeeName: map['employeeName'] as String? ?? '',
-        recordedAt: map['recordedAt'] is Timestamp
-            ? (map['recordedAt'] as Timestamp).toDate()
-            : DateTime.now(),
-      );
+  factory WeightProofRecord.fromMap(Map<String, dynamic> map) => WeightProofRecord(
+    id: map['id'] as String? ?? '',
+    orderId: map['orderId'] as String? ?? '',
+    orderItemId: map['orderItemId'] as String? ?? '',
+    productId: map['productId'] as String? ?? '',
+    productName: map['productName'] as String? ?? '',
+    orderedWeightKg: ((map['orderedWeightKg'] as num?) ?? 0).toDouble(),
+    packedWeightKg: ((map['packedWeightKg'] as num?) ?? 0).toDouble(),
+    outcome: WeightOutcome.values.firstWhere(
+      (e) => e.name == map['outcome'],
+      orElse: () => WeightOutcome.exact,
+    ),
+    refundAmountIfAny: ((map['refundAmountIfAny'] as num?) ?? 0).toDouble(),
+    photoUrl: map['photoUrl'] as String?,
+    employeeId: map['employeeId'] as String? ?? '',
+    employeeName: map['employeeName'] as String? ?? '',
+    recordedAt: map['recordedAt'] is Timestamp
+        ? (map['recordedAt'] as Timestamp).toDate()
+        : DateTime.now(),
+  );
 }

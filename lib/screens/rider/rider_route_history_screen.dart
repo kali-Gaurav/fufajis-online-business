@@ -42,11 +42,14 @@ class _RiderRouteHistoryScreenState extends State<RiderRouteHistoryScreen> {
           final docs = snap.data?.docs ?? [];
           if (docs.isEmpty) {
             return const Center(
-              child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Icon(Icons.route, size: 64, color: Colors.grey),
-                SizedBox(height: 12),
-                Text('No completed trips yet', style: TextStyle(color: Colors.grey)),
-              ]),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.route, size: 64, color: Colors.grey),
+                  SizedBox(height: 12),
+                  Text('No completed trips yet', style: TextStyle(color: Colors.grey)),
+                ],
+              ),
             );
           }
 
@@ -84,23 +87,24 @@ class _RiderRouteHistoryScreenState extends State<RiderRouteHistoryScreen> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                    child: Row(children: [
-                      Text(
-                        isToday ? 'Today' : DateFormat('EEE, dd MMM').format(parsedDate),
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w700, fontSize: 15),
-                      ),
-                      const Spacer(),
-                      Text(
-                        '$dayDeliveries deliveries · ₹${dayEarnings.toStringAsFixed(0)}',
-                        style: const TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                    ]),
+                    child: Row(
+                      children: [
+                        Text(
+                          isToday ? 'Today' : DateFormat('EEE, dd MMM').format(parsedDate),
+                          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                        ),
+                        const Spacer(),
+                        Text(
+                          '$dayDeliveries deliveries · ₹${dayEarnings.toStringAsFixed(0)}',
+                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                      ],
+                    ),
                   ),
                   ...trips.map((t) {
                     final td = t.data() as Map<String, dynamic>;
                     final startedAt = (td['startedAt'] as Timestamp?)?.toDate();
-                    final endedAt   = (td['endedAt']   as Timestamp?)?.toDate();
+                    final endedAt = (td['endedAt'] as Timestamp?)?.toDate();
                     final earnings = (td['earnings'] as num?)?.toDouble() ?? 0;
                     final deliveries = (td['deliveryCount'] as num?)?.toInt() ?? 0;
                     final duration = (startedAt != null && endedAt != null)
@@ -114,17 +118,21 @@ class _RiderRouteHistoryScreenState extends State<RiderRouteHistoryScreen> {
                         child: Row(
                           children: [
                             Container(
-                              width: 42, height: 42,
+                              width: 42,
+                              height: 42,
                               decoration: BoxDecoration(
                                 color: AppTheme.ownerAccent.withValues(alpha: 0.08),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Center(
-                                child: Text('$deliveries',
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 18,
-                                        color: AppTheme.ownerAccent)),
+                                child: Text(
+                                  '$deliveries',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 18,
+                                    color: AppTheme.ownerAccent,
+                                  ),
+                                ),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -139,8 +147,8 @@ class _RiderRouteHistoryScreenState extends State<RiderRouteHistoryScreen> {
                                   Text(
                                     startedAt != null
                                         ? '${DateFormat('HH:mm').format(startedAt)} – '
-                                          '${endedAt != null ? DateFormat('HH:mm').format(endedAt) : '?'}'
-                                          '  ($duration min)'
+                                              '${endedAt != null ? DateFormat('HH:mm').format(endedAt) : '?'}'
+                                              '  ($duration min)'
                                         : 'Time not recorded',
                                     style: const TextStyle(fontSize: 12, color: Colors.grey),
                                   ),
@@ -153,11 +161,15 @@ class _RiderRouteHistoryScreenState extends State<RiderRouteHistoryScreen> {
                                 Text(
                                   '₹${earnings.toStringAsFixed(0)}',
                                   style: const TextStyle(
-                                      fontWeight: FontWeight.w800, fontSize: 16,
-                                      color: AppTheme.success),
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 16,
+                                    color: AppTheme.success,
+                                  ),
                                 ),
-                                const Text('earned',
-                                    style: TextStyle(fontSize: 11, color: Colors.grey)),
+                                const Text(
+                                  'earned',
+                                  style: TextStyle(fontSize: 11, color: Colors.grey),
+                                ),
                               ],
                             ),
                           ],

@@ -35,10 +35,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Order Tracking'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Order Tracking'), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -114,10 +111,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
                   const SizedBox(
                     width: 50,
                     height: 50,
-                    child: CircularProgressIndicator(
-                      value: 0.6,
-                      strokeWidth: 3,
-                    ),
+                    child: CircularProgressIndicator(value: 0.6, strokeWidth: 3),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -126,17 +120,11 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
                       children: [
                         Text(
                           currentStatus,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                         Text(
                           '4 minutes in progress',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
+                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                         ),
                       ],
                     ),
@@ -161,14 +149,9 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: completed ? Colors.green : Colors.grey[300],
-                border: Border.all(
-                  color: completed ? Colors.green : Colors.grey,
-                  width: 2,
-                ),
+                border: Border.all(color: completed ? Colors.green : Colors.grey, width: 2),
               ),
-              child: completed
-                  ? const Icon(Icons.check, size: 14, color: Colors.white)
-                  : null,
+              child: completed ? const Icon(Icons.check, size: 14, color: Colors.white) : null,
             ),
             const SizedBox(width: 12),
             Text(
@@ -182,10 +165,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
           ],
         ),
         if (status != 'Delivered')
-          const Padding(
-            padding: EdgeInsets.only(left: 11),
-            child: Divider(height: 16),
-          ),
+          const Padding(padding: EdgeInsets.only(left: 11), child: Divider(height: 16)),
       ],
     );
   }

@@ -71,12 +71,19 @@ class _GoodsReceiptScreenState extends State<GoodsReceiptScreen> {
                 );
 
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Processing receipt...')));
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Processing receipt...')));
 
-                await _portalService.receiveGoods(receipt, FirebaseAuth.instance.currentUser?.uid ?? 'sys');
+                await _portalService.receiveGoods(
+                  receipt,
+                  FirebaseAuth.instance.currentUser?.uid ?? 'sys',
+                );
 
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Goods received and inventory updated!')));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Goods received and inventory updated!')),
+                  );
                 }
               },
               child: const Text('Confirm Receipt'),
@@ -93,29 +100,35 @@ class _GoodsReceiptScreenState extends State<GoodsReceiptScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Goods Receipt')),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _firestore.collection('purchase_orders')
-          .where('status', whereIn: [
-            PurchaseOrderStatus.po_generated.name, 
-            PurchaseOrderStatus.supplier_accepted.name, 
-            PurchaseOrderStatus.dispatched.name, 
-            PurchaseOrderStatus.in_transit.name, 
-            PurchaseOrderStatus.partially_received.name,
-            PurchaseOrderStatus.fully_received.name
-          ])
-          .snapshots(),
+        stream: _firestore
+            .collection('purchase_orders')
+            .where(
+              'status',
+              whereIn: [
+                PurchaseOrderStatus.po_generated.name,
+                PurchaseOrderStatus.supplier_accepted.name,
+                PurchaseOrderStatus.dispatched.name,
+                PurchaseOrderStatus.in_transit.name,
+                PurchaseOrderStatus.partially_received.name,
+                PurchaseOrderStatus.fully_received.name,
+              ],
+            )
+            .snapshots(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
+          if (snapshot.connectionState == ConnectionState.waiting)
+            return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(child: Text('No pending deliveries.'));
           }
 
-          final orders = snapshot.data!.docs.map((doc) => PurchaseOrderModel.fromMap(doc.data() as Map<String, dynamic>, doc.id)).toList();
+          final orders = snapshot.data!.docs
+              .map((doc) => PurchaseOrderModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+              .toList();
 
           return ListView.builder(
             padding: const EdgeInsets.all(16.0),
@@ -125,7 +138,9 @@ class _GoodsReceiptScreenState extends State<GoodsReceiptScreen> {
               return Card(
                 child: ListTile(
                   title: Text('PO: ${po.id}'),
-                  subtitle: Text('Product: ${po.productId}\nExpected: ${po.quantity} | Delivery: ${po.expectedDeliveryDate.toString().substring(0, 10)}'),
+                  subtitle: Text(
+                    'Product: ${po.productId}\nExpected: ${po.quantity} | Delivery: ${po.expectedDeliveryDate.toString().substring(0, 10)}',
+                  ),
                   isThreeLine: true,
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -161,7 +176,10 @@ class _GoodsReceiptScreenState extends State<GoodsReceiptScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('3-Way Match Verification', style: TextStyle(fontWeight: FontWeight.w700)),
+          title: const Text(
+            '3-Way Match Verification',
+            style: TextStyle(fontWeight: FontWeight.w700),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -181,7 +199,7 @@ class _GoodsReceiptScreenState extends State<GoodsReceiptScreen> {
               onPressed: () async {
                 final amount = double.tryParse(invoiceController.text) ?? 0.0;
                 if (amount <= 0) return;
-                
+
                 final invoiceDoc = _firestore.collection('supplier_invoices').doc();
                 await invoiceDoc.set({
                   'id': invoiceDoc.id,
@@ -197,17 +215,29 @@ class _GoodsReceiptScreenState extends State<GoodsReceiptScreen> {
 
                 Navigator.pop(context);
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Verifying 3-Way Match...')));
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('Verifying 3-Way Match...')));
                 }
-                
+
                 final isMatched = await _portalService.verifyThreeWayMatch(invoiceDoc.id);
                 if (context.mounted) {
                   if (isMatched) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ 3-Way Match SUCCESS. Invoice ready for payment.')));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('✅ 3-Way Match SUCCESS. Invoice ready for payment.'),
+                      ),
+                    );
                     // Update PO to closed
-                    await _firestore.collection('purchase_orders').doc(po.id).update({'status': PurchaseOrderStatus.closed.name});
+                    await _firestore.collection('purchase_orders').doc(po.id).update({
+                      'status': PurchaseOrderStatus.closed.name,
+                    });
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('⚠️ 3-Way Match DISCREPANCY. Flagged for review.')));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('⚠️ 3-Way Match DISCREPANCY. Flagged for review.'),
+                      ),
+                    );
                   }
                 }
               },

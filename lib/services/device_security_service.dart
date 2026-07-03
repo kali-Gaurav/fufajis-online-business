@@ -38,7 +38,7 @@ class DeviceSecurityService {
     } else {
       newId = DateTime.now().millisecondsSinceEpoch.toString();
     }
-    
+
     await _secureStorage.write(key: _keyDeviceId, value: newId);
     return newId;
   }
@@ -177,7 +177,7 @@ class DeviceSecurityService {
     if (lockout.isLocked) return false;
 
     String? storedHash = await _secureStorage.read(key: _keyPinHash);
-    
+
     // If not found locally (e.g. newly approved device), fetch from Firestore if email is provided
     if (storedHash == null && email != null) {
       try {
@@ -213,7 +213,7 @@ class DeviceSecurityService {
     } else {
       // Fallback verification for older SHA256 pins
       isValid = (hashPinLegacy(pin) == storedHash);
-      
+
       // Auto-upgrade legacy hash to PBKDF2 locally and in Firestore upon successful login
       if (isValid && email != null) {
         final upgradedHash = hashPin(pin);
@@ -259,10 +259,8 @@ class DeviceSecurityService {
     try {
       return await _localAuth.authenticate(
         localizedReason: reason,
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: false,
-        ),
+        persistAcrossBackgrounding: true,
+        biometricOnly: false,
       );
     } catch (e) {
       return false;

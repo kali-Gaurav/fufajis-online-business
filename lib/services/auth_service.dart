@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:google_sign_in/google_sign_in.dart' as gsignin;
 import 'package:flutter/foundation.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'employee_auth_service.dart';
@@ -10,12 +10,7 @@ import '../models/employee_model.dart';
 import '../models/owner_model.dart';
 import 'api_client.dart';
 
-enum AuthResultStatus {
-  ownerAccess,
-  employeeAccess,
-  unauthorized,
-  error,
-}
+enum AuthResultStatus { ownerAccess, employeeAccess, unauthorized, error }
 
 class AuthResult {
   final AuthResultStatus status;
@@ -28,7 +23,7 @@ class AuthResult {
 
 class AuthService extends ChangeNotifier {
   static final FirebaseAuth _auth = FirebaseAuth.instance;
-  static final GoogleSignIn _googleSignIn = GoogleSignIn();
+  static final gsignin.GoogleSignIn _googleSignIn = gsignin.GoogleSignIn.instance;
 
   String? _currentSessionId;
   bool _isSessionRevoked = false;
@@ -44,15 +39,17 @@ class AuthService extends ChangeNotifier {
   /// Handle Google Sign-In and check authorization level
   Future<AuthResult> signInWithGoogle() async {
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      final gsignin.GoogleSignInAccount? googleUser = await _googleSignIn.authenticate();
       if (googleUser == null) {
         return AuthResult(status: AuthResultStatus.error, message: 'Google sign-in cancelled');
       }
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final gsignin.GoogleSignInAuthentication googleAuth = googleUser.authentication;
+      final authorization = await googleUser.authorizationClient.authorizeScopes(['email', 'profile', 'openid']);
+      final String accessToken = authorization.accessToken;
 
       final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
+        accessToken: accessToken,
         idToken: googleAuth.idToken,
       );
 
@@ -60,9 +57,12 @@ class AuthService extends ChangeNotifier {
       final User? user = userCredential.user;
 
       if (user == null || user.email == null) {
-         await _googleSignIn.signOut();
-         await _auth.signOut();
-         return AuthResult(status: AuthResultStatus.error, message: 'Failed to retrieve email from Google');
+        await _googleSignIn.signOut();
+        await _auth.signOut();
+        return AuthResult(
+          status: AuthResultStatus.error,
+          message: 'Failed to retrieve email from Google',
+        );
       }
 
       String email = user.email!;
@@ -71,7 +71,7 @@ class AuthService extends ChangeNotifier {
       try {
         await ApiClient().post('/admin/claims/sync');
       } catch (e) {
-        print('Error syncing custom claims: $e');
+        debugPrint('Error syncing custom claims: $e');
         // Continue and try to refresh token anyway
       }
 
@@ -83,7 +83,10 @@ class AuthService extends ChangeNotifier {
       if (role == null) {
         await _googleSignIn.signOut();
         await _auth.signOut();
-        return AuthResult(status: AuthResultStatus.unauthorized, message: 'Your email is not authorized for access.');
+        return AuthResult(
+          status: AuthResultStatus.unauthorized,
+          message: 'Your email is not authorized for access.',
+        );
       }
 
       // 3. Handle Owner Access
@@ -100,7 +103,6 @@ class AuthService extends ChangeNotifier {
           return AuthResult(status: AuthResultStatus.ownerAccess, owner: owner);
         }
       }
-
       // 4. Handle Employee Access
       else if (role == 'employee') {
         Employee? employee = await EmployeeAuthService.verifyEmployeeAccess(email, user.uid);
@@ -119,10 +121,12 @@ class AuthService extends ChangeNotifier {
       // 5. Fallback if claims set but Firestore verification failed (e.g. deactivated employee)
       await _googleSignIn.signOut();
       await _auth.signOut();
-      return AuthResult(status: AuthResultStatus.unauthorized, message: 'Unauthorized or deactivated account.');
-
+      return AuthResult(
+        status: AuthResultStatus.unauthorized,
+        message: 'Unauthorized or deactivated account.',
+      );
     } catch (e) {
-      print('Error during Google Sign In: $e');
+      debugPrint('Error during Google Sign In: $e');
       return AuthResult(status: AuthResultStatus.error, message: e.toString());
     }
   }
@@ -130,14 +134,14 @@ class AuthService extends ChangeNotifier {
   /// Sign in with Apple ID (iOS/macOS only — Task 34).
   Future<AuthResult> signInWithApple() async {
     if (!Platform.isIOS && !Platform.isMacOS) {
-      return AuthResult(status: AuthResultStatus.error, message: 'Apple Sign-In is only available on iOS/macOS.');
+      return AuthResult(
+        status: AuthResultStatus.error,
+        message: 'Apple Sign-In is only available on iOS/macOS.',
+      );
     }
     try {
       final appleCredential = await SignInWithApple.getAppleIDCredential(
-        scopes: [
-          AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName,
-        ],
+        scopes: [AppleIDAuthorizationScopes.email, AppleIDAuthorizationScopes.fullName],
       );
 
       final oauthCredential = OAuthProvider('apple.com').credential(
@@ -154,7 +158,10 @@ class AuthService extends ChangeNotifier {
       final email = user.email ?? appleCredential.email;
       if (email == null || email.isEmpty) {
         await _auth.signOut();
-        return AuthResult(status: AuthResultStatus.unauthorized, message: 'Apple account has no associated email.');
+        return AuthResult(
+          status: AuthResultStatus.unauthorized,
+          message: 'Apple account has no associated email.',
+        );
       }
 
       // Sync claims and resolve role (same as Google flow)
@@ -167,7 +174,10 @@ class AuthService extends ChangeNotifier {
 
       if (role == null) {
         await _auth.signOut();
-        return AuthResult(status: AuthResultStatus.unauthorized, message: 'Apple account not authorized.');
+        return AuthResult(
+          status: AuthResultStatus.unauthorized,
+          message: 'Apple account not authorized.',
+        );
       }
 
       if (role == 'owner') {
@@ -191,12 +201,18 @@ class AuthService extends ChangeNotifier {
       }
 
       await _auth.signOut();
-      return AuthResult(status: AuthResultStatus.unauthorized, message: 'Unauthorized or deactivated account.');
+      return AuthResult(
+        status: AuthResultStatus.unauthorized,
+        message: 'Unauthorized or deactivated account.',
+      );
     } on SignInWithAppleAuthorizationException catch (e) {
       if (e.code == AuthorizationErrorCode.canceled) {
         return AuthResult(status: AuthResultStatus.error, message: 'Apple Sign-In cancelled.');
       }
-      return AuthResult(status: AuthResultStatus.error, message: 'Apple Sign-In error: ${e.message}');
+      return AuthResult(
+        status: AuthResultStatus.error,
+        message: 'Apple Sign-In error: ${e.message}',
+      );
     } catch (e) {
       return AuthResult(status: AuthResultStatus.error, message: e.toString());
     }
@@ -222,7 +238,7 @@ class AuthService extends ChangeNotifier {
         await SessionService().revokeSession(
           _currentSessionId!,
           currentUser.uid,
-          currentUser.displayName ?? currentUser.email ?? 'Self'
+          currentUser.displayName ?? currentUser.email ?? 'Self',
         );
       }
       _currentSessionId = null;

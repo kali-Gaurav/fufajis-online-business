@@ -51,7 +51,10 @@ class _DispatchControlTowerScreenState extends State<DispatchControlTowerScreen>
   Future<void> _optimizeAndCreateRoute() async {
     if (_selectedOrderIds.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select at least one order'), backgroundColor: AppTheme.warning),
+        const SnackBar(
+          content: Text('Please select at least one order'),
+          backgroundColor: AppTheme.warning,
+        ),
       );
       return;
     }
@@ -59,9 +62,9 @@ class _DispatchControlTowerScreenState extends State<DispatchControlTowerScreen>
     setState(() => _isOptimizing = true);
     try {
       // 1. Get selected waypoints
-      final selectedOrders = _unassignedOrders.where(
-        (o) => _selectedOrderIds.contains(o['id']),
-      ).toList();
+      final selectedOrders = _unassignedOrders
+          .where((o) => _selectedOrderIds.contains(o['id']))
+          .toList();
 
       const origin = google_maps.LatLng(25.1006, 76.5156); // Baran HQ Coordinate
       final waypoints = selectedOrders.map((o) {
@@ -94,7 +97,8 @@ class _DispatchControlTowerScreenState extends State<DispatchControlTowerScreen>
       }).toList();
 
       // 4. Create route manifest
-      final routeName = 'Route - ${DateTime.now().toLocal().toString().substring(0, 16)} - ${tasks.length} stops';
+      final routeName =
+          'Route - ${DateTime.now().toLocal().toString().substring(0, 16)} - ${tasks.length} stops';
       final routeId = await _ledgerService.createRouteManifest(
         routeName: routeName,
         riderId: _selectedRiderId,
@@ -106,7 +110,9 @@ class _DispatchControlTowerScreenState extends State<DispatchControlTowerScreen>
       if (routeId != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Created Route Manifest! Distance: ${routeResult.totalDistanceKm.toStringAsFixed(2)} km, ETA: ${routeResult.estimatedMinutes} mins'),
+            content: Text(
+              'Created Route Manifest! Distance: ${routeResult.totalDistanceKm.toStringAsFixed(2)} km, ETA: ${routeResult.estimatedMinutes} mins',
+            ),
             backgroundColor: AppTheme.success,
           ),
         );
@@ -128,12 +134,7 @@ class _DispatchControlTowerScreenState extends State<DispatchControlTowerScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dispatch Control Tower', style: TextStyle(fontWeight: FontWeight.w700)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadData,
-          ),
-        ],
+        actions: [IconButton(icon: const Icon(Icons.refresh), onPressed: _loadData)],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent))
@@ -161,7 +162,11 @@ class _DispatchControlTowerScreenState extends State<DispatchControlTowerScreen>
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text('Customer: ${order['customer_name'] ?? 'N/A'}'),
-                                    Text('Address: ${order['address'] ?? 'N/A'}', maxLines: 2, overflow: TextOverflow.ellipsis),
+                                    Text(
+                                      'Address: ${order['address'] ?? 'N/A'}',
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ],
                                 ),
                                 onChanged: (val) {

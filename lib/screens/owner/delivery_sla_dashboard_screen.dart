@@ -30,14 +30,17 @@ class _DeliverySLADashboardScreenState extends State<DeliverySLADashboardScreen>
   }
 
   Future<void> _load() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final now = DateTime.now();
       final from = _period == 'today'
           ? DateTime(now.year, now.month, now.day)
           : _period == 'week'
-              ? now.subtract(const Duration(days: 7))
-              : now.subtract(const Duration(days: 30));
+          ? now.subtract(const Duration(days: 7))
+          : now.subtract(const Duration(days: 30));
 
       final snap = await FirebaseFirestore.instance
           .collection('orders')
@@ -46,9 +49,17 @@ class _DeliverySLADashboardScreenState extends State<DeliverySLADashboardScreen>
           .get();
 
       final stats = _SLAStats.fromDocs(snap.docs);
-      if (mounted) setState(() { _stats = stats; _loading = false; });
+      if (mounted)
+        setState(() {
+          _stats = stats;
+          _loading = false;
+        });
     } catch (e) {
-      if (mounted) setState(() { _error = e.toString(); _loading = false; });
+      if (mounted)
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
     }
   }
 
@@ -65,10 +76,15 @@ class _DeliverySLADashboardScreenState extends State<DeliverySLADashboardScreen>
             dropdownColor: AppTheme.ownerAccent,
             items: const [
               DropdownMenuItem(value: 'today', child: Text('Today')),
-              DropdownMenuItem(value: 'week',  child: Text('Last 7 days')),
+              DropdownMenuItem(value: 'week', child: Text('Last 7 days')),
               DropdownMenuItem(value: 'month', child: Text('Last 30 days')),
             ],
-            onChanged: (v) { if (v != null) { setState(() => _period = v); _load(); } },
+            onChanged: (v) {
+              if (v != null) {
+                setState(() => _period = v);
+                _load();
+              }
+            },
           ),
           IconButton(icon: const Icon(Icons.refresh), onPressed: _load),
         ],
@@ -76,10 +92,10 @@ class _DeliverySLADashboardScreenState extends State<DeliverySLADashboardScreen>
       body: _loading
           ? const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent))
           : _error != null
-              ? Center(child: Text(_error!))
-              : _stats == null
-                  ? const Center(child: Text('No data'))
-                  : _buildBody(),
+          ? Center(child: Text(_error!))
+          : _stats == null
+          ? const Center(child: Text('No data'))
+          : _buildBody(),
     );
   }
 
@@ -89,42 +105,56 @@ class _DeliverySLADashboardScreenState extends State<DeliverySLADashboardScreen>
       padding: const EdgeInsets.all(16),
       children: [
         // ── KPI Cards ──────────────────────────────────────────────────────
-        Row(children: [
-          Expanded(child: _KpiCard(
-            label: 'On-Time Rate',
-            value: '${s.onTimePercent.toStringAsFixed(1)}%',
-            target: '≥ 90%',
-            isGood: s.onTimePercent >= 90,
-          )),
-          const SizedBox(width: 12),
-          Expanded(child: _KpiCard(
-            label: 'Avg Delivery',
-            value: '${s.avgMinutes.toStringAsFixed(0)} min',
-            target: '≤ 45 min',
-            isGood: s.avgMinutes <= 45,
-          )),
-        ]),
+        Row(
+          children: [
+            Expanded(
+              child: _KpiCard(
+                label: 'On-Time Rate',
+                value: '${s.onTimePercent.toStringAsFixed(1)}%',
+                target: '≥ 90%',
+                isGood: s.onTimePercent >= 90,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _KpiCard(
+                label: 'Avg Delivery',
+                value: '${s.avgMinutes.toStringAsFixed(0)} min',
+                target: '≤ 45 min',
+                isGood: s.avgMinutes <= 45,
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 12),
-        Row(children: [
-          Expanded(child: _KpiCard(
-            label: 'Total Deliveries',
-            value: '${s.total}',
-            target: '',
-            isGood: true,
-          )),
-          const SizedBox(width: 12),
-          Expanded(child: _KpiCard(
-            label: 'SLA Breaches',
-            value: '${s.breaches}',
-            target: '> 60 min',
-            isGood: s.breaches == 0,
-          )),
-        ]),
+        Row(
+          children: [
+            Expanded(
+              child: _KpiCard(
+                label: 'Total Deliveries',
+                value: '${s.total}',
+                target: '',
+                isGood: true,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _KpiCard(
+                label: 'SLA Breaches',
+                value: '${s.breaches}',
+                target: '> 60 min',
+                isGood: s.breaches == 0,
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 24),
         // ── Rider Breach Table ─────────────────────────────────────────────
         if (s.byRider.isNotEmpty) ...[
-          const Text('SLA Breaches by Rider',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppTheme.grey900)),
+          const Text(
+            'SLA Breaches by Rider',
+            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppTheme.grey900),
+          ),
           const SizedBox(height: 12),
           ...s.byRider.entries.map((e) {
             final breachSeverity = e.value > 2;
@@ -135,7 +165,9 @@ class _DeliverySLADashboardScreenState extends State<DeliverySLADashboardScreen>
                 borderRadius: BorderRadius.circular(12),
                 color: AppTheme.white,
                 border: Border.all(
-                  color: (breachSeverity ? AppTheme.error : AppTheme.warning).withValues(alpha: 0.3),
+                  color: (breachSeverity ? AppTheme.error : AppTheme.warning).withValues(
+                    alpha: 0.3,
+                  ),
                   width: 1.5,
                 ),
                 boxShadow: [
@@ -151,7 +183,9 @@ class _DeliverySLADashboardScreenState extends State<DeliverySLADashboardScreen>
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: (breachSeverity ? AppTheme.error : AppTheme.warning).withValues(alpha: 0.12),
+                      color: (breachSeverity ? AppTheme.error : AppTheme.warning).withValues(
+                        alpha: 0.12,
+                      ),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
@@ -167,7 +201,11 @@ class _DeliverySLADashboardScreenState extends State<DeliverySLADashboardScreen>
                       children: [
                         Text(
                           e.key,
-                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppTheme.grey900),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            color: AppTheme.grey900,
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 2),
@@ -186,7 +224,9 @@ class _DeliverySLADashboardScreenState extends State<DeliverySLADashboardScreen>
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: (breachSeverity ? AppTheme.error : AppTheme.warning).withValues(alpha: 0.15),
+                      color: (breachSeverity ? AppTheme.error : AppTheme.warning).withValues(
+                        alpha: 0.15,
+                      ),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -225,9 +265,7 @@ class _KpiCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
@@ -246,20 +284,39 @@ class _KpiCard extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(label, style: const TextStyle(fontSize: 12, color: AppTheme.grey600, fontWeight: FontWeight.w500)),
-            const SizedBox(height: 8),
-            Text(value,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.grey600,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                value,
                 style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w800,
-                    color: isGood ? AppTheme.success : AppTheme.error)),
-            if (target.isNotEmpty) ...[
-              const SizedBox(height: 6),
-              Text('Target: $target',
-                  style: const TextStyle(fontSize: 11, color: AppTheme.grey600, fontWeight: FontWeight.w500)),
-            ]
-          ]),
+                  fontSize: 32,
+                  fontWeight: FontWeight.w800,
+                  color: isGood ? AppTheme.success : AppTheme.error,
+                ),
+              ),
+              if (target.isNotEmpty) ...[
+                const SizedBox(height: 6),
+                Text(
+                  'Target: $target',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppTheme.grey600,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );

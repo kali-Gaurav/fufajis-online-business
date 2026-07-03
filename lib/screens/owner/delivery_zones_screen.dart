@@ -72,7 +72,11 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
                   children: [
                     Text(
                       zone == null ? 'Add Delivery Zone' : 'Edit Delivery Zone',
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.close),
@@ -143,7 +147,8 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
                           hintText: 'e.g. 30.0',
                         ),
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        validator: (v) => v == null || double.tryParse(v) == null ? 'Invalid number' : null,
+                        validator: (v) =>
+                            v == null || double.tryParse(v) == null ? 'Invalid number' : null,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -155,7 +160,8 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
                           hintText: 'e.g. 500.0',
                         ),
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        validator: (v) => v == null || double.tryParse(v) == null ? 'Invalid number' : null,
+                        validator: (v) =>
+                            v == null || double.tryParse(v) == null ? 'Invalid number' : null,
                       ),
                     ),
                   ],
@@ -170,7 +176,11 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
                   ),
                   child: Text(
                     zone == null ? 'Add Zone' : 'Update Zone',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ],
@@ -198,15 +208,17 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
     if (_editingZone != null) {
       tempZones.removeWhere((z) => z.id == _editingZone!.id);
     }
-    tempZones.add(DeliveryZone(
-      id: 'temp',
-      label: label,
-      fromRadiusKm: fromRadius,
-      toRadiusKm: toRadius,
-      deliveryCharge: charge,
-      minOrderForFree: minOrderFree,
-      isActive: true,
-    ));
+    tempZones.add(
+      DeliveryZone(
+        id: 'temp',
+        label: label,
+        fromRadiusKm: fromRadius,
+        toRadiusKm: toRadius,
+        deliveryCharge: charge,
+        minOrderForFree: minOrderFree,
+        isActive: true,
+      ),
+    );
     tempZones.sort((a, b) => a.fromRadiusKm.compareTo(b.fromRadiusKm));
 
     for (int i = 1; i < tempZones.length; i++) {
@@ -215,7 +227,9 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
       if (curr.fromRadiusKm < prev.toRadiusKm) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Zone overlap detected! "${curr.label}" starts at ${curr.fromRadiusKm} km, which is less than preceding zone "${prev.label}" ending at ${prev.toRadiusKm} km.'),
+            content: Text(
+              'Zone overlap detected! "${curr.label}" starts at ${curr.fromRadiusKm} km, which is less than preceding zone "${prev.label}" ending at ${prev.toRadiusKm} km.',
+            ),
             backgroundColor: AppTheme.error,
           ),
         );
@@ -248,10 +262,9 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
             maxRadius = z.toRadiusKm;
           }
         }
-        await provider.updateBranch(widget.branch!.copyWith(
-          deliveryZones: updatedZones,
-          deliveryRadiusKm: maxRadius,
-        ));
+        await provider.updateBranch(
+          widget.branch!.copyWith(deliveryZones: updatedZones, deliveryRadiusKm: maxRadius),
+        );
       } else {
         if (_editingZone == null) {
           await provider.addDeliveryZone(zone);
@@ -261,7 +274,10 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
       }
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Delivery zone saved successfully!'), backgroundColor: AppTheme.success),
+        const SnackBar(
+          content: Text('Delivery zone saved successfully!'),
+          backgroundColor: AppTheme.success,
+        ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -274,17 +290,21 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
     final provider = Provider.of<ShopConfigProvider>(context, listen: false);
     try {
       if (widget.branch != null) {
-        final List<DeliveryZone> updatedZones = widget.branch!.deliveryZones.where((z) => z.id != id).toList();
+        final List<DeliveryZone> updatedZones = widget.branch!.deliveryZones
+            .where((z) => z.id != id)
+            .toList();
         double maxRadius = 0.0;
         for (var z in updatedZones) {
           if (z.isActive && z.toRadiusKm > maxRadius) {
             maxRadius = z.toRadiusKm;
           }
         }
-        await provider.updateBranch(widget.branch!.copyWith(
-          deliveryZones: updatedZones,
-          deliveryRadiusKm: maxRadius > 0.0 ? maxRadius : widget.branch!.deliveryRadiusKm,
-        ));
+        await provider.updateBranch(
+          widget.branch!.copyWith(
+            deliveryZones: updatedZones,
+            deliveryRadiusKm: maxRadius > 0.0 ? maxRadius : widget.branch!.deliveryRadiusKm,
+          ),
+        );
       } else {
         await provider.removeDeliveryZone(id);
       }
@@ -292,9 +312,9 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
         const SnackBar(content: Text('Zone deleted!'), backgroundColor: AppTheme.success),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Delete failed: $e'), backgroundColor: AppTheme.error),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Delete failed: $e'), backgroundColor: AppTheme.error));
     }
   }
 
@@ -311,21 +331,25 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
         await provider.updateDeliveryZone(updatedZone);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Update failed: $e'), backgroundColor: AppTheme.error),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Update failed: $e'), backgroundColor: AppTheme.error));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ShopConfigProvider>(context);
-    final zones = widget.branch != null ? widget.branch!.deliveryZones : (provider.shopConfig?.deliveryZones ?? []);
+    final zones = widget.branch != null
+        ? widget.branch!.deliveryZones
+        : (provider.shopConfig?.deliveryZones ?? []);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.branch != null ? '${widget.branch!.branchName} - Delivery Zones' : 'Delivery Zones Configuration',
+          widget.branch != null
+              ? '${widget.branch!.branchName} - Delivery Zones'
+              : 'Delivery Zones Configuration',
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
@@ -333,7 +357,10 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
         onPressed: () => _showZoneForm(),
         backgroundColor: AppTheme.primary,
         icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('Add Zone', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        label: const Text(
+          'Add Zone',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
       ),
       body: zones.isEmpty
           ? Center(
@@ -342,9 +369,15 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
                 children: [
                   Icon(Icons.map, size: 80, color: Colors.grey[400]),
                   const SizedBox(height: 16),
-                  const Text('No Delivery Zones Defined', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  const Text(
+                    'No Delivery Zones Defined',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
                   const SizedBox(height: 8),
-                  Text('Define concentric circles around the shop for zone pricing.', style: TextStyle(color: Colors.grey[600])),
+                  Text(
+                    'Define concentric circles around the shop for zone pricing.',
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
                 ],
               ),
             )
@@ -367,7 +400,11 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
                           children: [
                             Text(
                               zone.label,
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
                             ),
                             Switch(
                               value: zone.isActive,
@@ -383,7 +420,10 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Range', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                                const Text(
+                                  'Range',
+                                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                                ),
                                 const SizedBox(height: 2),
                                 Text(
                                   '${zone.fromRadiusKm} km - ${zone.toRadiusKm} km',
@@ -394,13 +434,18 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Delivery Charge', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                                const Text(
+                                  'Delivery Charge',
+                                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                                ),
                                 const SizedBox(height: 2),
                                 Text(
                                   zone.deliveryCharge == 0 ? 'FREE' : '₹${zone.deliveryCharge}',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    color: zone.deliveryCharge == 0 ? AppTheme.success : Colors.black87,
+                                    color: zone.deliveryCharge == 0
+                                        ? AppTheme.success
+                                        : Colors.black87,
                                     fontSize: 14,
                                   ),
                                 ),
@@ -409,7 +454,10 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Free Order Limit', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                                const Text(
+                                  'Free Order Limit',
+                                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                                ),
                                 const SizedBox(height: 2),
                                 Text(
                                   '₹${zone.minOrderForFree}',
@@ -435,7 +483,7 @@ class _DeliveryZonesScreenState extends State<DeliveryZonesScreen> {
                               tooltip: 'Delete Zone',
                             ),
                           ],
-                        )
+                        ),
                       ],
                     ),
                   ),

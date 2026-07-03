@@ -1,6 +1,35 @@
 # Master Gap & Fix Backlog — Modules 1-10
 
-Consolidated from the 17-module audit series (`docs/modules/01_*.md` through `10_*.md`). Every item below was confirmed by reading live code/rules, not inferred. None are fixed yet. Grouped by module, priority-tagged. A recurring architecture smell shows up in every module: the same business operation is implemented 2-5 times in parallel, usually with only one version actually wired to a live screen.
+Consolidated from the 17-module audit series (`docs/modules/01_*.md` through `10_*.md`). Every item below was confirmed by reading live code/rules, not inferred. Grouped by module, priority-tagged. A recurring architecture smell shows up in every module: the same business operation is implemented 2-5 times in parallel, usually with only one version actually wired to a live screen.
+
+---
+
+## STATUS UPDATE — 2026-07-02 sprint (see `SPRINT_SUMMARY_2026_07_02.md` for details)
+
+**Verified already fixed before this sprint:** P0-1.1 (role lock), P0-1.2 (auth collection rules), P0-2.1 (SQL injection), P0-3.1 (scanner dead-ends), P0-7.2 (Stripe removed, commit 9b9d650), P0-8.1 (packing consolidated), P0-8.2 (ledger call neutralized).
+
+**Fixed this sprint:**
+- P0-1.3 → `db_migrations_002_role_constraint_fix.sql` (MUST BE RUN against Postgres).
+- P0-6.2 → `Coupon` model normalizes 'fixed'/'flat'; ALSO fixed a second live bug: missing `maximumDiscountAmount` defaulted the cap to ₹0, zeroing EVERY percentage coupon.
+- P1-6.3 → checkout now persists `discount`/`couponCode`/`couponDiscount` on orders.
+- P0-10.3 → stock restored on cancellation, atomic with the idempotency ledger.
+- P0-10.4 → refund/settlements/settlement-reports screens routed + owner nav entries (also fixed: drawer 'COD Settlements' pointed at a nonexistent route; NavigationRail was missing 2 entries so taps past 'Retention' opened the WRONG screens).
+- P1-5.2 → OTP brute-force lockout (5 attempts / 15 min) in `verifyAndDeliverOrder`.
+- P0-5.1 (partial) → 7-day return window ported to `OrderModel.canReturn`; deleted 5 dead engines with zero importers (`order_business_logic`, `unified_order_service`, `wallet_order_service`, `consolidated_order_service`, `coupon_discount_service`) + 2 backup files.
+- P1-3.3 → `_ensureActiveStaff()` gate on `receiveInventory`/`reportDamage`.
+- Module 9 follow-up → failed-delivery pipeline was 3-way broken (rider wrote invalid `'failedDelivery'`, last-mile wrote invalid `'READY'`, escalation screen queried never-written `'OrderStatus.delivery_failed'` and escalated via the orphaned engine). Now: writers set `'OrderStatus.packed'` + `deliveryFailed: true`; escalation screen queries the flag; its cancel action routes through `CancellationFeeService` (fee waived) so refund + stock restore happen.
+- **NEW P0 found & fixed:** `users/{uid}/wallet_transactions` subcollection had NO rule (default deny) — with these rules deployed, every wallet debit at checkout, top-up, and refund credit silently failed. Rule added (append-only, owner/admin).
+- **NEW P0 found & fixed:** wallet quick-add buttons credited real spendable balance with NO payment. Top-up now requires a Razorpay payment; credit is idempotent on paymentId.
+
+**Still open (highest first):**
+- **P0-W1 (new)** `walletBalance` remains client-writable by the owning user (rules can't distinguish the app's legit client-side credits from a crafted SDK call). Real fix: move wallet credits server-side (Cloud Function / backend endpoint), then flip the rule to decrease-only for owners. Needs a functions deploy — do this next.
+- **P0-9.2** Three services still write conflicting shapes to `deliveries/{id}`; consolidate around `DeliveryService` as sole writer (dedicated session).
+- P1-2.3 (price change via generic update), P1-4.1/4.2/4.3, P2-4.4, P2-5.3, P1-6.4 (usage limits), P1-7.3, P2-8.3 (dup owner packing screen), P1-9.4, P2-9.5, P1-10.5, P1-10.6.
+- `order_status_engine.dart` / `order_workflow_engine.dart` still imported by 4 files — consolidation decision pending.
+
+**Deployment checklist for the above:** deploy `firestore.rules`; run `db_migrations_002_role_constraint_fix.sql`; rebuild APK. P0-2.2 downgraded: `products` writes require `isGlobalAdmin` in rules, so CSV bulk import is already owner-gated server-side.
+
+---
 
 ## Module 1 — Auth
 - **P0-1.1** `firestore.rules` `users/{userId}` update rule has no field lock — a customer can self-write `role: 'owner'` onto their own doc. Add a guard so `role` can't change except via admin write.

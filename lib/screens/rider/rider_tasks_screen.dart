@@ -15,7 +15,6 @@ class RiderTasksScreen extends StatefulWidget {
 }
 
 class _RiderTasksScreenState extends State<RiderTasksScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -34,7 +33,7 @@ class _RiderTasksScreenState extends State<RiderTasksScreen> {
         if (provider.isLoading) {
           return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
         }
-        
+
         final stats = provider.todayStats;
         final deliveries = provider.assignedDeliveries;
         final currentDelivery = provider.currentDelivery;
@@ -58,36 +57,58 @@ class _RiderTasksScreenState extends State<RiderTasksScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Section 1: Today's Briefing
-              DailyBriefingUI(
-                briefing: briefing,
-                onDismiss: () {},
-              ),
-              
+              DailyBriefingUI(briefing: briefing, onDismiss: () {}),
+
               const SizedBox(height: 24),
-              
+
               // Section 2: Current Active Task
               if (currentDelivery != null) ...[
-                const Text('CURRENT ACTIVE TASK', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey600)),
+                const Text(
+                  'CURRENT ACTIVE TASK',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: AppTheme.grey600,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 _buildActiveTaskCard(context, currentDelivery),
                 const SizedBox(height: 24),
               ] else if (deliveries.isNotEmpty) ...[
-                const Text('NEXT ACTIVE TASK', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey600)),
+                const Text(
+                  'NEXT ACTIVE TASK',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: AppTheme.grey600,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 _buildActiveTaskCard(context, deliveries.first),
                 const SizedBox(height: 24),
               ],
 
               // Section 3: Work Queue
-              const Text('UPCOMING IN BATCH', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey600)),
+              const Text(
+                'UPCOMING IN BATCH',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color: AppTheme.grey600,
+                ),
+              ),
               const SizedBox(height: 12),
               ...deliveries.skip(currentDelivery != null ? 0 : 1).map((d) {
-                return _buildUpcomingTaskCard('Task #${d.orderId}', d.customerName ?? 'Unknown Customer', '${((d.estimatedDistance ?? 0.0) / 1000).toStringAsFixed(1)} km');
+                return _buildUpcomingTaskCard(
+                  'Task #${d.orderId}',
+                  d.customerName ?? 'Unknown Customer',
+                  '${((d.estimatedDistance ?? 0.0) / 1000).toStringAsFixed(1)} km',
+                );
               }),
             ],
           ),
         );
-      }
+      },
     );
   }
 
@@ -102,7 +123,7 @@ class _RiderTasksScreenState extends State<RiderTasksScreen> {
             color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
-          )
+          ),
         ],
       ),
       padding: const EdgeInsets.all(20),
@@ -118,17 +139,29 @@ class _RiderTasksScreenState extends State<RiderTasksScreen> {
                   color: AppTheme.warning.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Text('PICKUP', style: TextStyle(color: AppTheme.warning, fontWeight: FontWeight.bold)),
+                child: const Text(
+                  'PICKUP',
+                  style: TextStyle(color: AppTheme.warning, fontWeight: FontWeight.bold),
+                ),
               ),
-              const Text('Before 10:25 AM', style: TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold)),
+              const Text(
+                'Before 10:25 AM',
+                style: TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold),
+              ),
             ],
           ),
           const SizedBox(height: 16),
-          Text('Order #${delivery.orderId}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(
+            'Order #${delivery.orderId}',
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
           Text('Customer: ${delivery.customerName}', style: const TextStyle(fontSize: 16)),
           const SizedBox(height: 4),
-          Text('Distance: ${(delivery.estimatedDistance / 1000).toStringAsFixed(1)} km', style: const TextStyle(color: AppTheme.grey600)),
+          Text(
+            'Distance: ${(delivery.estimatedDistance / 1000).toStringAsFixed(1)} km',
+            style: const TextStyle(color: AppTheme.grey600),
+          ),
           const SizedBox(height: 24),
           Row(
             children: [
@@ -137,7 +170,9 @@ class _RiderTasksScreenState extends State<RiderTasksScreen> {
                   icon: const Icon(Icons.navigation),
                   label: const Text('Navigate'),
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Starting Navigation')));
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(const SnackBar(content: Text('Starting Navigation')));
                   },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -179,7 +214,10 @@ class _RiderTasksScreenState extends State<RiderTasksScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
-        leading: const CircleAvatar(backgroundColor: AppTheme.grey200, child: Icon(Icons.location_on, color: AppTheme.grey600)),
+        leading: const CircleAvatar(
+          backgroundColor: AppTheme.grey200,
+          child: Icon(Icons.location_on, color: AppTheme.grey600),
+        ),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text('$customer • $distance'),
         trailing: const Icon(Icons.chevron_right),
@@ -191,8 +229,10 @@ class _RiderTasksScreenState extends State<RiderTasksScreen> {
   }
 
   void _handleTaskAction(String action) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('⏳ Pending Sync: $action...')));
-    
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('⏳ Pending Sync: $action...')));
+
     // Simulate network delay then sync
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
@@ -208,12 +248,14 @@ class _RiderTasksScreenState extends State<RiderTasksScreen> {
       'Item Missing',
       'Vehicle Issue',
       'Payment Issue',
-      'Safety Concern'
+      'Safety Concern',
     ];
 
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) {
         return SafeArea(
           child: Padding(
@@ -222,17 +264,22 @@ class _RiderTasksScreenState extends State<RiderTasksScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Report Incident', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Report Incident',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 16),
-                ...categories.map((cat) => ListTile(
-                  leading: const Icon(Icons.warning_amber_rounded, color: AppTheme.warning),
-                  title: Text(cat),
-                  onTap: () {
-                    Navigator.pop(context);
-                    context.read<DeliveryProvider>().failDeliveryTask(delivery.id as String, cat);
-                    _handleTaskAction('Incident: $cat');
-                  },
-                )),
+                ...categories.map(
+                  (cat) => ListTile(
+                    leading: const Icon(Icons.warning_amber_rounded, color: AppTheme.warning),
+                    title: Text(cat),
+                    onTap: () {
+                      Navigator.pop(context);
+                      context.read<DeliveryProvider>().failDeliveryTask(delivery.id as String, cat);
+                      _handleTaskAction('Incident: $cat');
+                    },
+                  ),
+                ),
               ],
             ),
           ),

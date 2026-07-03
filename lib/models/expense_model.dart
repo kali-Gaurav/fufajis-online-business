@@ -10,7 +10,7 @@ enum ExpenseCategory {
   inventory,
   delivery,
   refund,
-  other
+  other,
 }
 
 class ExpenseModel {
@@ -66,9 +66,7 @@ class ExpenseModel {
         (e) => e.toString() == map['category'] as String?,
         orElse: () => ExpenseCategory.other,
       ),
-      date: map['date'] != null
-          ? (map['date'] as Timestamp).toDate()
-          : DateTime.now(),
+      date: map['date'] != null ? (map['date'] as Timestamp).toDate() : DateTime.now(),
       receiptUrl: map['receiptUrl'] as String?,
       recordedBy: map['recordedBy'] as String? ?? '',
       isRecurring: map['isRecurring'] as bool? ?? false,

@@ -15,8 +15,7 @@ class BulkInventoryQueryScreen extends StatefulWidget {
   const BulkInventoryQueryScreen({super.key});
 
   @override
-  State<BulkInventoryQueryScreen> createState() =>
-      _BulkInventoryQueryScreenState();
+  State<BulkInventoryQueryScreen> createState() => _BulkInventoryQueryScreenState();
 }
 
 class _BulkInventoryQueryScreenState extends State<BulkInventoryQueryScreen> {
@@ -25,7 +24,7 @@ class _BulkInventoryQueryScreenState extends State<BulkInventoryQueryScreen> {
 
   // ── Filter state ──────────────────────────────────────────────────────────
   String? _selectedCategory;
-  String _stockOperator = '<=';   // <=, >=, ==
+  String _stockOperator = '<='; // <=, >=, ==
   double _stockThreshold = 10;
   final double _priceMin = 0;
   final double _priceMax = 10000;
@@ -42,8 +41,14 @@ class _BulkInventoryQueryScreenState extends State<BulkInventoryQueryScreen> {
   bool _isSubmitting = false;
 
   final List<String> _categories = [
-    'All', 'Fruits & Vegetables', 'Dairy', 'Grocery', 'Snacks',
-    'Beverages', 'Personal Care', 'Household',
+    'All',
+    'Fruits & Vegetables',
+    'Dairy',
+    'Grocery',
+    'Snacks',
+    'Beverages',
+    'Personal Care',
+    'Household',
   ];
 
   @override
@@ -80,9 +85,12 @@ class _BulkInventoryQueryScreenState extends State<BulkInventoryQueryScreen> {
   Future<void> _submitRequest() async {
     if (_results.isEmpty) return;
     if (_reasonCtrl.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
           content: Text('Please provide a reason for this change.'),
-          backgroundColor: AppTheme.warning));
+          backgroundColor: AppTheme.warning,
+        ),
+      );
       return;
     }
 
@@ -108,16 +116,19 @@ class _BulkInventoryQueryScreenState extends State<BulkInventoryQueryScreen> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text(
-                'Change request submitted — awaiting owner approval.'),
-            backgroundColor: AppTheme.success));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Change request submitted — awaiting owner approval.'),
+            backgroundColor: AppTheme.success,
+          ),
+        );
         Navigator.of(context).pop();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Error: $e'), backgroundColor: AppTheme.error));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error));
       }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
@@ -151,8 +162,7 @@ class _BulkInventoryQueryScreenState extends State<BulkInventoryQueryScreen> {
             TextButton.icon(
               onPressed: _isSubmitting ? null : _submitRequest,
               icon: const Icon(Icons.send_outlined, color: Colors.white),
-              label: const Text('Submit Request',
-                  style: TextStyle(color: Colors.white)),
+              label: const Text('Submit Request', style: TextStyle(color: Colors.white)),
             ),
         ],
       ),
@@ -165,11 +175,14 @@ class _BulkInventoryQueryScreenState extends State<BulkInventoryQueryScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Filters',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                        color: Color(0xFF1565C0))),
+                const Text(
+                  'Filters',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: Color(0xFF1565C0),
+                  ),
+                ),
                 const SizedBox(height: 12),
                 // Category
                 DropdownButtonFormField<String>(
@@ -181,8 +194,7 @@ class _BulkInventoryQueryScreenState extends State<BulkInventoryQueryScreen> {
                     isDense: true,
                   ),
                   items: _categories
-                      .map((c) =>
-                          DropdownMenuItem(value: c, child: Text(c)))
+                      .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                       .toList(),
                   onChanged: (v) => setState(() => _selectedCategory = v),
                 ),
@@ -192,12 +204,12 @@ class _BulkInventoryQueryScreenState extends State<BulkInventoryQueryScreen> {
                   children: [
                     DropdownButton<String>(
                       value: _stockOperator,
-                      items: ['<=', '>=', '==']
-                          .map((o) =>
-                              DropdownMenuItem(value: o, child: Text(o)))
-                          .toList(),
-                      onChanged: (v) =>
-                          setState(() => _stockOperator = v!),
+                      items: [
+                        '<=',
+                        '>=',
+                        '==',
+                      ].map((o) => DropdownMenuItem(value: o, child: Text(o))).toList(),
+                      onChanged: (v) => setState(() => _stockOperator = v!),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
@@ -206,15 +218,12 @@ class _BulkInventoryQueryScreenState extends State<BulkInventoryQueryScreen> {
                         min: 0,
                         max: 500,
                         divisions: 50,
-                        label:
-                            'Stock ${_stockThreshold.toInt()}',
+                        label: 'Stock ${_stockThreshold.toInt()}',
                         activeColor: const Color(0xFF1565C0),
-                        onChanged: (v) =>
-                            setState(() => _stockThreshold = v),
+                        onChanged: (v) => setState(() => _stockThreshold = v),
                       ),
                     ),
-                    Text('${_stockThreshold.toInt()} units',
-                        style: const TextStyle(fontSize: 12)),
+                    Text('${_stockThreshold.toInt()} units', style: const TextStyle(fontSize: 12)),
                   ],
                 ),
                 // Expiry toggle
@@ -222,8 +231,7 @@ class _BulkInventoryQueryScreenState extends State<BulkInventoryQueryScreen> {
                   children: [
                     Switch.adaptive(
                       value: _expiryFilter,
-                      onChanged: (v) =>
-                          setState(() => _expiryFilter = v),
+                      onChanged: (v) => setState(() => _expiryFilter = v),
                       activeColor: const Color(0xFF1565C0),
                     ),
                     const Text('Expiry filter'),
@@ -237,12 +245,10 @@ class _BulkInventoryQueryScreenState extends State<BulkInventoryQueryScreen> {
                           divisions: 89,
                           label: '$_expiryDays days',
                           activeColor: AppTheme.warning,
-                          onChanged: (v) =>
-                              setState(() => _expiryDays = v.toInt()),
+                          onChanged: (v) => setState(() => _expiryDays = v.toInt()),
                         ),
                       ),
-                      Text('<$_expiryDays days',
-                          style: const TextStyle(fontSize: 12)),
+                      Text('<$_expiryDays days', style: const TextStyle(fontSize: 12)),
                     ],
                   ],
                 ),
@@ -251,18 +257,18 @@ class _BulkInventoryQueryScreenState extends State<BulkInventoryQueryScreen> {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1565C0),
-                        foregroundColor: Colors.white),
+                      backgroundColor: const Color(0xFF1565C0),
+                      foregroundColor: Colors.white,
+                    ),
                     onPressed: _isQuerying ? null : _runQuery,
                     icon: _isQuerying
                         ? const SizedBox(
                             width: 16,
                             height: 16,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2, color: Colors.white))
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          )
                         : const Icon(Icons.search),
-                    label:
-                        Text(_isQuerying ? 'Querying...' : 'Run Query'),
+                    label: Text(_isQuerying ? 'Querying...' : 'Run Query'),
                   ),
                 ),
               ],
@@ -272,26 +278,21 @@ class _BulkInventoryQueryScreenState extends State<BulkInventoryQueryScreen> {
           if (_results.isNotEmpty) ...[
             Container(
               color: const Color(0xFFE3F2FD),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
-                  Text('${_results.length} products matched',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1565C0))),
+                  Text(
+                    '${_results.length} products matched',
+                    style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1565C0)),
+                  ),
                   const Spacer(),
                   // Change type selector
                   DropdownButton<String>(
                     value: _changeType,
                     isDense: true,
                     items: const [
-                      DropdownMenuItem(
-                          value: 'stock_adjustment',
-                          child: Text('Stock Adj.')),
-                      DropdownMenuItem(
-                          value: 'price_update',
-                          child: Text('Price Update')),
+                      DropdownMenuItem(value: 'stock_adjustment', child: Text('Stock Adj.')),
+                      DropdownMenuItem(value: 'price_update', child: Text('Price Update')),
                     ],
                     onChanged: (v) => setState(() => _changeType = v!),
                   ),
@@ -301,7 +302,10 @@ class _BulkInventoryQueryScreenState extends State<BulkInventoryQueryScreen> {
                     child: TextField(
                       controller: _valueCtrl,
                       decoration: const InputDecoration(
-                          labelText: 'Value', isDense: true, border: OutlineInputBorder()),
+                        labelText: 'Value',
+                        isDense: true,
+                        border: OutlineInputBorder(),
+                      ),
                       keyboardType: TextInputType.number,
                     ),
                   ),
@@ -309,8 +313,7 @@ class _BulkInventoryQueryScreenState extends State<BulkInventoryQueryScreen> {
               ),
             ),
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               child: TextField(
                 controller: _reasonCtrl,
                 decoration: const InputDecoration(
@@ -327,11 +330,12 @@ class _BulkInventoryQueryScreenState extends State<BulkInventoryQueryScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.filter_list,
-                            size: 48, color: AppTheme.grey300),
+                        Icon(Icons.filter_list, size: 48, color: AppTheme.grey300),
                         SizedBox(height: 8),
-                        Text('Set filters and tap Run Query',
-                            style: TextStyle(color: AppTheme.grey500)),
+                        Text(
+                          'Set filters and tap Run Query',
+                          style: TextStyle(color: AppTheme.grey500),
+                        ),
                       ],
                     ),
                   )
@@ -345,16 +349,17 @@ class _BulkInventoryQueryScreenState extends State<BulkInventoryQueryScreen> {
                           child: Text(
                             (p['name'] as String? ?? 'P')[0].toUpperCase(),
                             style: const TextStyle(
-                                color: Color(0xFF1565C0),
-                                fontWeight: FontWeight.bold),
+                              color: Color(0xFF1565C0),
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                         title: Text(p['name'] as String? ?? ''),
-                        subtitle: Text(
-                            'Stock: ${p['stock'] ?? 0} • Price: Rs.${p['price'] ?? 0}'),
-                        trailing: Text(p['category'] as String? ?? '',
-                            style: const TextStyle(
-                                fontSize: 11, color: AppTheme.grey500)),
+                        subtitle: Text('Stock: ${p['stock'] ?? 0} • Price: Rs.${p['price'] ?? 0}'),
+                        trailing: Text(
+                          p['category'] as String? ?? '',
+                          style: const TextStyle(fontSize: 11, color: AppTheme.grey500),
+                        ),
                       );
                     },
                   ),

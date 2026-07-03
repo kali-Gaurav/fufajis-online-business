@@ -6,13 +6,7 @@ class LiquidProgressBar extends StatelessWidget {
   final double? height;
   final Color? color;
 
-  const LiquidProgressBar({
-    super.key,
-    required this.value,
-    this.width,
-    this.height,
-    this.color,
-  });
+  const LiquidProgressBar({super.key, required this.value, this.width, this.height, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +16,7 @@ class LiquidProgressBar extends StatelessWidget {
       child: LinearProgressIndicator(
         value: value,
         color: color ?? Theme.of(context).primaryColor,
-        backgroundColor: (color ?? Theme.of(context).primaryColor).withOpacity(0.2),
+        backgroundColor: (color ?? Theme.of(context).primaryColor).withValues(alpha: 0.2),
       ),
     );
   }
@@ -36,11 +30,7 @@ class AnimatedCheck extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Icon(
-      Icons.check_circle,
-      color: color ?? Colors.green,
-      size: size ?? 64,
-    );
+    return Icon(Icons.check_circle, color: color ?? Colors.green, size: size ?? 64);
   }
 }
 
@@ -50,20 +40,11 @@ class MorphNumber extends StatelessWidget {
   final String? suffix;
   final TextStyle? style;
 
-  const MorphNumber({
-    super.key,
-    required this.value,
-    this.prefix,
-    this.suffix,
-    this.style,
-  });
+  const MorphNumber({super.key, required this.value, this.prefix, this.suffix, this.style});
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      '${prefix ?? ''}$value${suffix ?? ''}',
-      style: style,
-    );
+    return Text('${prefix ?? ''}$value${suffix ?? ''}', style: style);
   }
 }
 
@@ -91,11 +72,7 @@ class PulsingLive extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          Icons.fiber_manual_record,
-          color: color ?? Colors.red,
-          size: size ?? 12,
-        ),
+        Icon(Icons.fiber_manual_record, color: color ?? Colors.red, size: size ?? 12),
         if (label != null) ...[
           const SizedBox(width: 4),
           Text(label!, style: TextStyle(color: color ?? Colors.red)),

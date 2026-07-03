@@ -20,8 +20,7 @@ class PhoneLoginScreen extends StatefulWidget {
   State<PhoneLoginScreen> createState() => _PhoneLoginScreenState();
 }
 
-class _PhoneLoginScreenState extends State<PhoneLoginScreen>
-    with SingleTickerProviderStateMixin {
+class _PhoneLoginScreenState extends State<PhoneLoginScreen> with SingleTickerProviderStateMixin {
   late PhoneNumber _phoneNumber;
   final TextEditingController _phoneController = TextEditingController();
   bool _isValidPhone = false;
@@ -32,13 +31,12 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen>
   void initState() {
     super.initState();
     _phoneNumber = PhoneNumber(isoCode: 'IN');
-    _bgCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 700),
-    )..forward();
-    _bgFade = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _bgCtrl, curve: Curves.easeOut),
-    );
+    _bgCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 700))
+      ..forward();
+    _bgFade = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _bgCtrl, curve: Curves.easeOut));
   }
 
   @override
@@ -72,7 +70,9 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen>
       await authProvider.sendOTP(phoneNumber);
       if (mounted && context.mounted) {
         final role = GoRouterState.of(context).uri.queryParameters['role'] ?? 'customer';
-        context.push('/auth/phone-verify?phone=${Uri.encodeComponent(phoneNumber)}&role=${Uri.encodeComponent(role)}');
+        context.push(
+          '/auth/phone-verify?phone=${Uri.encodeComponent(phoneNumber)}&role=${Uri.encodeComponent(role)}',
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -102,51 +102,62 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen>
                 // ── Top orange hero section ─────────────────────────
                 Expanded(
                   flex: 3,
-                  child: Center(
-                    child: BounceIn(
-                      delay: const Duration(milliseconds: 100),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const FufajiLogo(size: 100, onDark: true),
-                          const SizedBox(height: 20),
-                          FadeSlideIn(
-                            delay: const Duration(milliseconds: 300),
-                            child: const Text(
-                              "Fufaji's Online",
-                              style: TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white,
-                                letterSpacing: 0.3,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          FadeSlideIn(
-                            delay: const Duration(milliseconds: 420),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 14, vertical: 5),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.30)),
-                              ),
-                              child: const Text(
-                                'आपकी अपनी दुकान  ·  Your own store',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500,
+                  child: Stack(
+                    children: [
+                      // Back Button
+                      Positioned(
+                        top: 10,
+                        left: 10,
+                        child: IconButton(
+                          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                          onPressed: () => context.pop(),
+                        ),
+                      ),
+                      Center(
+                        child: BounceIn(
+                          delay: const Duration(milliseconds: 100),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const FufajiLogo(size: 100, onDark: true),
+                              const SizedBox(height: 20),
+                              const FadeSlideIn(
+                                delay: Duration(milliseconds: 300),
+                                child: Text(
+                                  "Fufaji's Online",
+                                  style: TextStyle(
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.white,
+                                    letterSpacing: 0.3,
+                                  ),
                                 ),
                               ),
-                            ),
+                              const SizedBox(height: 6),
+                              FadeSlideIn(
+                                delay: const Duration(milliseconds: 420),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(color: Colors.white.withValues(alpha: 0.30)),
+                                  ),
+                                  child: const Text(
+                                    'आपकी अपनी दुकान  ·  Your own store',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
 
@@ -161,8 +172,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen>
                       padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
                       decoration: const BoxDecoration(
                         color: Colors.white,
-                        borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(32)),
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
                       ),
                       child: SingleChildScrollView(
                         child: StaggeredList(
@@ -177,10 +187,9 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen>
                               ),
                             ),
                             const SizedBox(height: 6),
-                            Text(
+                            const Text(
                               "We'll send a one-time verification code",
-                              style: TextStyle(
-                                  fontSize: 14, color: AppTheme.grey600),
+                              style: TextStyle(fontSize: 14, color: AppTheme.grey600),
                             ),
                             const SizedBox(height: 28),
 
@@ -190,9 +199,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen>
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(14),
                                 border: Border.all(
-                                  color: _isValidPhone
-                                      ? AppTheme.primary
-                                      : Colors.grey.shade300,
+                                  color: _isValidPhone ? AppTheme.primary : Colors.grey.shade300,
                                   width: _isValidPhone ? 2 : 1,
                                 ),
                               ),
@@ -216,7 +223,9 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen>
                                   hintStyle: TextStyle(color: Colors.grey[400]),
                                   border: InputBorder.none,
                                   contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 14),
+                                    horizontal: 12,
+                                    vertical: 14,
+                                  ),
                                 ),
                                 initialValue: _phoneNumber,
                               ),
@@ -233,9 +242,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen>
                                   icon: Icons.send_rounded,
                                   isLoading: auth.isLoading,
                                   onTap: _isValidPhone ? _handlePhoneLogin : null,
-                                  color: _isValidPhone
-                                      ? AppTheme.primary
-                                      : Colors.grey[400],
+                                  color: _isValidPhone ? AppTheme.primary : Colors.grey[400],
                                 ),
                               ),
                             ),
@@ -252,21 +259,17 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen>
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
                                       color: Colors.red.shade50,
-                                      border: Border.all(
-                                          color: Colors.red.shade200),
+                                      border: Border.all(color: Colors.red.shade200),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: Row(
                                       children: [
-                                        Icon(Icons.error_outline,
-                                            color: Colors.red[700], size: 18),
+                                        Icon(Icons.error_outline, color: Colors.red[700], size: 18),
                                         const SizedBox(width: 8),
                                         Expanded(
                                           child: Text(
                                             auth.errorMessage!,
-                                            style: TextStyle(
-                                                color: Colors.red[800],
-                                                fontSize: 13),
+                                            style: TextStyle(color: Colors.red[800], fontSize: 13),
                                           ),
                                         ),
                                       ],
@@ -280,13 +283,11 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen>
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.info_outline,
-                                    color: Colors.grey[500], size: 16),
+                                Icon(Icons.info_outline, color: Colors.grey[500], size: 16),
                                 const SizedBox(width: 6),
                                 Text(
                                   'Standard SMS rates may apply',
-                                  style: TextStyle(
-                                      fontSize: 12, color: Colors.grey[500]),
+                                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                                 ),
                               ],
                             ),

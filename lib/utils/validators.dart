@@ -82,9 +82,6 @@ class Validators {
     final addressError = getAddressError(address);
     if (addressError.isNotEmpty) errors['address'] = addressError;
 
-    return {
-      'valid': errors.isEmpty,
-      'errors': errors,
-    };
+    return {'valid': errors.isEmpty, 'errors': errors};
   }
 }

@@ -41,11 +41,7 @@ class AgentKpis {
   final double approvalRate;
   final double impactScore;
 
-  const AgentKpis({
-    this.tasksDone = 0,
-    this.approvalRate = 0,
-    this.impactScore = 0,
-  });
+  const AgentKpis({this.tasksDone = 0, this.approvalRate = 0, this.impactScore = 0});
 
   factory AgentKpis.fromMap(Map<String, dynamic>? map) {
     if (map == null) return const AgentKpis();
@@ -142,9 +138,9 @@ class AgentGlobalConfig {
   }
 
   factory AgentGlobalConfig.empty() => const AgentGlobalConfig(
-        masterEnabled: false,
-        dailyBudgetUsd: 2,
-        freqCaps: {},
-        quietHours: {},
-      );
+    masterEnabled: false,
+    dailyBudgetUsd: 2,
+    freqCaps: {},
+    quietHours: {},
+  );
 }

@@ -10,21 +10,16 @@ void main() {
   });
 
   group('End-to-End Order → Payment → Delivery Flow', () {
-    
     test('✅ TEST 1: Create order and track status transitions', () async {
       final orderId = 'order_${DateTime.now().millisecondsSinceEpoch}';
-      
+
       // Create order
       await firestore.collection('orders').doc(orderId).set({
         'id': orderId,
         'customerId': 'customer_123',
         'customerName': 'Rajesh Kumar',
         'items': [
-          {
-            'productName': 'Biryani',
-            'quantity': 2,
-            'price': 250.0,
-          }
+          {'productName': 'Biryani', 'quantity': 2, 'price': 250.0},
         ],
         'totalAmount': 580.0,
         'deliveryAddress': 'Apt 5B, Green Park',
@@ -40,7 +35,7 @@ void main() {
 
     test('✅ TEST 2: Process Razorpay payment successfully', () async {
       final orderId = 'order_payment_${DateTime.now().millisecondsSinceEpoch}';
-      
+
       // Create pending order
       await firestore.collection('orders').doc(orderId).set({
         'status': 'pending',
@@ -70,9 +65,9 @@ void main() {
 
     test('✅ TEST 3: Assign to kitchen and track processing', () async {
       final orderId = 'order_kitchen_${DateTime.now().millisecondsSinceEpoch}';
-      
+
       await firestore.collection('orders').doc(orderId).set({'status': 'confirmed'});
-      
+
       // Assign to kitchen
       final taskRef = await firestore.collection('kitchen_tasks').add({
         'orderId': orderId,
@@ -90,7 +85,7 @@ void main() {
 
     test('✅ TEST 4: Assign delivery based on proximity', () async {
       final orderId = 'order_delivery_${DateTime.now().millisecondsSinceEpoch}';
-      
+
       // Create agents with locations
       await firestore.collection('delivery_agents').doc('agent_001').set({
         'name': 'Akshay',
@@ -118,9 +113,9 @@ void main() {
 
     test('✅ TEST 5: Generate and verify OTP securely (PBKDF2-SHA256)', () async {
       // Simulate OTP hashing (in real app: OTPHashService.hashOTP)
-      final plainOTP = '123456';
-      final hashedOTP = 'pbkdf2_hash_value_here';
-      
+      const plainOTP = '123456';
+      const hashedOTP = 'pbkdf2_hash_value_here';
+
       // Store hashed OTP
       await firestore.collection('delivery_tasks').doc('order_123').set({
         'otp': hashedOTP,
@@ -135,7 +130,7 @@ void main() {
 
     test('✅ TEST 6: Generate invoice PDF on delivery', () async {
       final orderId = 'order_invoice_${DateTime.now().millisecondsSinceEpoch}';
-      final customerId = 'customer_123';
+      const customerId = 'customer_123';
 
       // Create invoice
       await firestore.collection('invoices').add({
@@ -150,7 +145,7 @@ void main() {
           .collection('invoices')
           .where('orderId', isEqualTo: orderId)
           .get();
-      
+
       expect(invoices.docs.length, 1);
       expect(invoices.docs.first['total'], 580.0);
       print('✅ TEST 6 PASSED: Invoice generated and stored');
@@ -178,10 +173,10 @@ void main() {
 
     test('✅ TEST 8: Open 7-day return window and process refund', () async {
       final orderId = 'order_refund_${DateTime.now().millisecondsSinceEpoch}';
-      final customerId = 'customer_refund';
+      const customerId = 'customer_refund';
 
       // Open return window
-      final deadline = DateTime.now().add(Duration(days: 7));
+      final deadline = DateTime.now().add(const Duration(days: 7));
       await firestore.collection('return_windows').doc(orderId).set({
         'orderId': orderId,
         'deadline': Timestamp.fromDate(deadline),
@@ -210,21 +205,17 @@ void main() {
       final orderId = 'order_state_${DateTime.now().millisecondsSinceEpoch}';
 
       // Start with pending
-      await firestore.collection('orders').doc(orderId).set({
-        'status': 'pending',
-      });
+      await firestore.collection('orders').doc(orderId).set({'status': 'pending'});
 
       // Transition sequence
       final states = ['confirmed', 'processing', 'packed', 'outForDelivery', 'delivered'];
-      
+
       for (final state in states) {
-        await firestore.collection('orders').doc(orderId).update({
-          'status': state,
-        });
+        await firestore.collection('orders').doc(orderId).update({'status': state});
       }
 
-      final final_order = await firestore.collection('orders').doc(orderId).get();
-      expect(final_order['status'], 'delivered');
+      final finalOrder = await firestore.collection('orders').doc(orderId).get();
+      expect(finalOrder['status'], 'delivered');
       print('✅ TEST 9 PASSED: Order transitioned through 6 states');
     });
 
@@ -246,9 +237,7 @@ void main() {
       });
 
       // Mark as paid
-      await firestore.collection('orders').doc(orderId).update({
-        'paymentStatus': 'paid',
-      });
+      await firestore.collection('orders').doc(orderId).update({'paymentStatus': 'paid'});
 
       final order = await firestore.collection('orders').doc(orderId).get();
       expect(order['paymentStatus'], 'paid');

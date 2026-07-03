@@ -25,7 +25,8 @@ class ReconciliationService {
   set rds(RDSDatabaseService rdsService) => _customRds = rdsService;
 
   WalletReconciliationService? _customWalletRecon;
-  WalletReconciliationService get _walletRecon => _customWalletRecon ?? WalletReconciliationService();
+  WalletReconciliationService get _walletRecon =>
+      _customWalletRecon ?? WalletReconciliationService();
   set walletRecon(WalletReconciliationService reconService) => _customWalletRecon = reconService;
 
   /// Runs the full suite of nightly reconciliations across all 5 subsystems.
@@ -108,7 +109,8 @@ class ReconciliationService {
           type: 'NIGHTLY_RECON_ANOMALIES',
           severity: 'high',
           title: 'Nightly Reconciliation Anomalies Detected',
-          description: 'Reconciliation run $runId finished with ${anomalies.length} unresolved discrepancies across subsystems.',
+          description:
+              'Reconciliation run $runId finished with ${anomalies.length} unresolved discrepancies across subsystems.',
         );
       }
 
@@ -127,11 +129,7 @@ class ReconciliationService {
         'error': e.toString(),
         'completedAt': Timestamp.fromDate(DateTime.now()),
       });
-      return {
-        'runId': runId,
-        'success': false,
-        'error': e.toString(),
-      };
+      return {'runId': runId, 'success': false, 'error': e.toString()};
     }
   }
 
@@ -145,8 +143,19 @@ class ReconciliationService {
       final startCutoff = DateTime.now().subtract(const Duration(hours: 4));
       final maxUnpaidCutoff = DateTime.now().subtract(const Duration(minutes: 30));
 
-      final ordersSnap = await _db.collection('orders')
-          .where('status', whereIn: ['pending', 'placed', 'confirmed', 'processing', 'picked_up', 'out_for_delivery'])
+      final ordersSnap = await _db
+          .collection('orders')
+          .where(
+            'status',
+            whereIn: [
+              'pending',
+              'placed',
+              'confirmed',
+              'processing',
+              'picked_up',
+              'out_for_delivery',
+            ],
+          )
           .get();
 
       for (final doc in ordersSnap.docs) {
@@ -158,7 +167,9 @@ class ReconciliationService {
         final paymentStatus = data['paymentStatus'] as String? ?? 'pending';
 
         // Case A: Stuck unpaid order beyond 30 min (abandoned checkout)
-        if (paymentStatus == 'pending' && createdAt.isBefore(maxUnpaidCutoff) && status == 'placed') {
+        if (paymentStatus == 'pending' &&
+            createdAt.isBefore(maxUnpaidCutoff) &&
+            status == 'placed') {
           await _db.collection('orders').doc(orderId).update({
             'status': 'cancelled',
             'cancellationReason': 'payment_timeout_reconciliation',
@@ -171,7 +182,8 @@ class ReconciliationService {
 
         // Case B: Stuck in transit beyond 4 hours
         if (createdAt.isBefore(startCutoff)) {
-          const sql = "SELECT to_status FROM delivery_status_logs WHERE order_id = \$1 ORDER BY created_at DESC LIMIT 1";
+          const sql =
+              "SELECT to_status FROM delivery_status_logs WHERE order_id = \$1 ORDER BY created_at DESC LIMIT 1";
           final rows = await _rds.rows(sql, params: [orderId]);
 
           if (rows.isNotEmpty) {
@@ -182,7 +194,9 @@ class ReconciliationService {
                 'updatedAt': FieldValue.serverTimestamp(),
               });
               autoResolved++;
-              debugPrint('[ReconciliationService] Synced forward delivered status for order $orderId');
+              debugPrint(
+                '[ReconciliationService] Synced forward delivered status for order $orderId',
+              );
               continue;
             }
           }
@@ -192,7 +206,8 @@ class ReconciliationService {
             'orderId': orderId,
             'status': status,
             'createdAt': createdAt.toIso8601String(),
-            'description': 'Order has been in state "$status" since ${createdAt.toIso8601String()} (>4 hours).',
+            'description':
+                'Order has been in state "$status" since ${createdAt.toIso8601String()} (>4 hours).',
           };
           anomalies.add(anomaly);
           await _logAnomaly('ORDER_STUCK', 2, orderId, 0.0, 0.0, anomaly['description']!);
@@ -202,11 +217,7 @@ class ReconciliationService {
       debugPrint('[ReconciliationService] Error in reconcileOrders: $e');
     }
 
-    return {
-      'processed': processed,
-      'autoResolved': autoResolved,
-      'anomalies': anomalies,
-    };
+    return {'processed': processed, 'autoResolved': autoResolved, 'anomalies': anomalies};
   }
 
   /// Subsystem 2: Reconcile Firestore payments collection with RDS payment_ledger
@@ -242,7 +253,9 @@ class ReconciliationService {
               allowWrite: true,
             );
             syncRecovered++;
-            debugPrint('[ReconciliationService] Restored missing payment ledger in Postgres for $paymentId');
+            debugPrint(
+              '[ReconciliationService] Restored missing payment ledger in Postgres for $paymentId',
+            );
           }
         } else {
           final pgStatus = rows.first['status'] as String?;
@@ -254,15 +267,25 @@ class ReconciliationService {
               'paymentId': paymentId,
               'firestoreAmount': amount,
               'postgresAmount': pgAmount,
-              'description': 'Payment $paymentId amount mismatch. Firestore: $amount, Postgres: $pgAmount',
+              'description':
+                  'Payment $paymentId amount mismatch. Firestore: $amount, Postgres: $pgAmount',
             };
             anomalies.add(anomaly);
-            await _logAnomaly('PAYMENT_MISMATCH', 3, paymentId, amount, pgAmount, anomaly['description'] as String);
+            await _logAnomaly(
+              'PAYMENT_MISMATCH',
+              3,
+              paymentId,
+              amount,
+              pgAmount,
+              anomaly['description'] as String,
+            );
           } else if (pgStatus != status) {
             if (pgStatus == 'success' || pgStatus == 'captured') {
               await _db.collection('payments').doc(paymentId).update({'status': pgStatus});
               syncRecovered++;
-              debugPrint('[ReconciliationService] Updated status mismatch in Firestore for payment $paymentId to $pgStatus');
+              debugPrint(
+                '[ReconciliationService] Updated status mismatch in Firestore for payment $paymentId to $pgStatus',
+              );
             }
           }
         }
@@ -271,11 +294,7 @@ class ReconciliationService {
       debugPrint('[ReconciliationService] Error in reconcilePayments: $e');
     }
 
-    return {
-      'processed': processed,
-      'syncRecovered': syncRecovered,
-      'anomalies': anomalies,
-    };
+    return {'processed': processed, 'syncRecovered': syncRecovered, 'anomalies': anomalies};
   }
 
   /// Subsystem 3: Reconcile Firestore product stock with Postgres inventory table
@@ -307,7 +326,8 @@ class ReconciliationService {
               'productName': name,
               'firestoreStock': fsStock,
               'postgresStock': pgStock,
-              'description': 'Product "$name" ($productId) stock drift: Firestore $fsStock, Postgres $pgStock',
+              'description':
+                  'Product "$name" ($productId) stock drift: Firestore $fsStock, Postgres $pgStock',
             };
             anomalies.add(anomaly);
 
@@ -318,7 +338,14 @@ class ReconciliationService {
             });
             autoCorrected++;
 
-            await _logAnomaly('INVENTORY_DRIFT', 2, productId, fsStock.toDouble(), pgStock.toDouble(), anomaly['description'] as String);
+            await _logAnomaly(
+              'INVENTORY_DRIFT',
+              2,
+              productId,
+              fsStock.toDouble(),
+              pgStock.toDouble(),
+              anomaly['description'] as String,
+            );
           }
         }
       }
@@ -326,11 +353,7 @@ class ReconciliationService {
       debugPrint('[ReconciliationService] Error in reconcileInventory: $e');
     }
 
-    return {
-      'processed': processed,
-      'autoCorrected': autoCorrected,
-      'anomalies': anomalies,
-    };
+    return {'processed': processed, 'autoCorrected': autoCorrected, 'anomalies': anomalies};
   }
 
   /// Subsystem 4: Reconcile wallet ledger consistency
@@ -353,7 +376,8 @@ class ReconciliationService {
       if (!gatewayOk) {
         anomalies.add({
           'type': 'WALLET_GATEWAY_MISMATCH',
-          'description': 'Total captured payments from gateway do not match orders paid + wallet topups expectation.',
+          'description':
+              'Total captured payments from gateway do not match orders paid + wallet topups expectation.',
         });
       }
 
@@ -389,7 +413,8 @@ class ReconciliationService {
     int resolved = 0;
 
     try {
-      final deliveryTasksSnap = await _db.collection('delivery_tasks')
+      final deliveryTasksSnap = await _db
+          .collection('delivery_tasks')
           .where('status', isEqualTo: 'delivered')
           .limit(50)
           .get();
@@ -409,7 +434,9 @@ class ReconciliationService {
                 'updatedAt': FieldValue.serverTimestamp(),
               });
               resolved++;
-              debugPrint('[ReconciliationService] Reconciled delivery mismatch: set order $orderId to delivered.');
+              debugPrint(
+                '[ReconciliationService] Reconciled delivery mismatch: set order $orderId to delivered.',
+              );
             }
           }
         }
@@ -419,7 +446,8 @@ class ReconciliationService {
       final rows = await _rds.rows(sql);
       final pgCodOrders = rows.map((r) => r['order_id'] as String).toSet();
 
-      final codOrdersSnap = await _db.collection('orders')
+      final codOrdersSnap = await _db
+          .collection('orders')
           .where('paymentMethod', isEqualTo: 'cod')
           .where('status', isEqualTo: 'delivered')
           .limit(50)
@@ -434,21 +462,25 @@ class ReconciliationService {
             'type': 'COD_COLLECTION_MISSING_IN_RDS',
             'orderId': orderId,
             'amount': amount,
-            'description': 'Order $orderId was delivered via COD in Firestore, but has no record in cod_settlements_rds in Postgres.',
+            'description':
+                'Order $orderId was delivered via COD in Firestore, but has no record in cod_settlements_rds in Postgres.',
           };
           anomalies.add(anomaly);
-          await _logAnomaly('COD_MISSING', 2, orderId, amount, 0.0, anomaly['description'] as String);
+          await _logAnomaly(
+            'COD_MISSING',
+            2,
+            orderId,
+            amount,
+            0.0,
+            anomaly['description'] as String,
+          );
         }
       }
     } catch (e) {
       debugPrint('[ReconciliationService] Error in reconcileDelivery: $e');
     }
 
-    return {
-      'processed': processed,
-      'resolved': resolved,
-      'anomalies': anomalies,
-    };
+    return {'processed': processed, 'resolved': resolved, 'anomalies': anomalies};
   }
 
   /// Helper to write anomalies to reconciliation logs and transaction integrity events
@@ -478,14 +510,7 @@ class ReconciliationService {
         INSERT INTO reconciliation_logs (recon_type, level, user_id, stored_amount, calculated_amount, difference, status)
         VALUES (\$1, \$2, \$3, \$4, \$5, \$6, 'UNRESOLVED')
         ''',
-        params: [
-          type,
-          level,
-          referenceId,
-          stored,
-          calculated,
-          stored - calculated,
-        ],
+        params: [type, level, referenceId, stored, calculated, stored - calculated],
         allowWrite: true,
       );
     } catch (e) {

@@ -61,7 +61,11 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
                 children: [
                   const Text(
                     'Auto-Pilot Pricing',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.grey700),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: AppTheme.grey700,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Switch(
@@ -93,15 +97,9 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                flex: 3,
-                child: _buildMarkupSettingsPanel(),
-              ),
+              Expanded(flex: 3, child: _buildMarkupSettingsPanel()),
               const SizedBox(width: 24),
-              Expanded(
-                flex: 2,
-                child: _buildFormulaSummaryPanel(),
-              ),
+              Expanded(flex: 2, child: _buildFormulaSummaryPanel()),
             ],
           ),
           const SizedBox(height: 28),
@@ -109,11 +107,7 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
           // Mandi Live Feed Ticker / Grid
           const Text(
             'Live Wholesale Mandi Market Index',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.grey900,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey900),
           ),
           const SizedBox(height: 12),
           _buildMandiFeedGrid(mandiFeeds),
@@ -137,28 +131,36 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
                     : () async {
                         setState(() => _isUpdating = true);
                         try {
-                          final count = await _pricingService.autoUpdateEligibleProductPrices(allProducts);
+                          final count = await _pricingService.autoUpdateEligibleProductPrices(
+                            allProducts,
+                          );
                           await productProvider.refreshProducts(); // Refresh products list
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text('Dynamic pricing optimization complete! Updated $count retail prices.'),
+                                content: Text(
+                                  'Dynamic pricing optimization complete! Updated $count retail prices.',
+                                ),
                                 backgroundColor: AppTheme.success,
                               ),
                             );
                           }
                         } catch (e) {
                           if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Error updating prices: $e')),
-                            );
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(SnackBar(content: Text('Error updating prices: $e')));
                           }
                         } finally {
                           if (mounted) setState(() => _isUpdating = false);
                         }
                       },
                 icon: _isUpdating
-                    ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    ? const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
                     : const Icon(Icons.flash_on),
                 label: const Text('Apply Dynamic Optimization to All'),
                 style: ElevatedButton.styleFrom(
@@ -269,7 +271,8 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
   }
 
   Widget _buildFormulaSummaryPanel() {
-    final totalMarkup = _pricingService.marginPercentage +
+    final totalMarkup =
+        _pricingService.marginPercentage +
         _pricingService.transportChargePercentage +
         _pricingService.wastageBufferPercentage;
     return Container(
@@ -290,7 +293,11 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
               SizedBox(width: 8),
               Text(
                 'Pricing Formula Summary',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.primary),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.primary,
+                ),
               ),
             ],
           ),
@@ -303,10 +310,17 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('COMBINED ADD-ON RATE', style: TextStyle(fontSize: 10, color: AppTheme.grey500)),
+              const Text(
+                'COMBINED ADD-ON RATE',
+                style: TextStyle(fontSize: 10, color: AppTheme.grey500),
+              ),
               Text(
                 '+${totalMarkup.toStringAsFixed(0)}%',
-                style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppTheme.primary),
+                style: const TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.primary,
+                ),
               ),
             ],
           ),
@@ -321,7 +335,11 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
               children: [
                 Text(
                   'SRP = Mandi Rate × (1 + Markup%)',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'monospace',
+                  ),
                 ),
               ],
             ),
@@ -366,7 +384,11 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
                   children: [
                     Text(
                       feed.itemName,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey800),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: AppTheme.grey800,
+                      ),
                     ),
                     Icon(
                       isUp ? Icons.trending_up : Icons.trending_down,
@@ -406,11 +428,11 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
       return Container(
         height: 150,
         alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: AppTheme.white,
-          borderRadius: BorderRadius.circular(16),
+        decoration: BoxDecoration(color: AppTheme.white, borderRadius: BorderRadius.circular(16)),
+        child: const Text(
+          'No active products match Mandi index items.',
+          style: TextStyle(color: AppTheme.grey500),
         ),
-        child: const Text('No active products match Mandi index items.', style: TextStyle(color: AppTheme.grey500)),
       );
     }
 
@@ -450,7 +472,10 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
                     children: [
                       Text(
                         product.name,
-                        style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.grey900),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.grey900,
+                        ),
                       ),
                       Text(
                         'Category: ${product.category.toUpperCase()} | Unit: ${product.unit}',
@@ -465,10 +490,16 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Mandi Rate', style: TextStyle(fontSize: 11, color: AppTheme.grey500)),
+                      const Text(
+                        'Mandi Rate',
+                        style: TextStyle(fontSize: 11, color: AppTheme.grey500),
+                      ),
                       Text(
                         '₹${mandiPrice.toStringAsFixed(1)}',
-                        style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.grey800),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.grey800,
+                        ),
                       ),
                     ],
                   ),
@@ -479,10 +510,16 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Current Retail', style: TextStyle(fontSize: 11, color: AppTheme.grey500)),
+                      const Text(
+                        'Current Retail',
+                        style: TextStyle(fontSize: 11, color: AppTheme.grey500),
+                      ),
                       Text(
                         '₹${product.price.toDouble().toStringAsFixed(0)}',
-                        style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.grey800),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.grey800,
+                        ),
                       ),
                     ],
                   ),
@@ -493,10 +530,16 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Recommended SRP', style: TextStyle(fontSize: 11, color: AppTheme.primary)),
+                      const Text(
+                        'Recommended SRP',
+                        style: TextStyle(fontSize: 11, color: AppTheme.primary),
+                      ),
                       Text(
                         '₹${suggestedPrice.toStringAsFixed(0)}',
-                        style: const TextStyle(fontWeight: FontWeight.w900, color: AppTheme.primary),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          color: AppTheme.primary,
+                        ),
                       ),
                     ],
                   ),
@@ -515,21 +558,26 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
 
                           try {
                             final productService = ProductService();
-                            await productService.updateProduct(updatedProduct.id, updatedProduct.toMap());
+                            await productService.updateProduct(
+                              updatedProduct.id,
+                              updatedProduct.toMap(),
+                            );
                             await provider.refreshProducts(); // Refresh list
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('Updated ${product.name} retail price to ₹${suggestedPrice.toStringAsFixed(0)}!'),
+                                  content: Text(
+                                    'Updated ${product.name} retail price to ₹${suggestedPrice.toStringAsFixed(0)}!',
+                                  ),
                                   backgroundColor: AppTheme.success,
                                 ),
                               );
                             }
                           } catch (e) {
                             if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Error: $e')),
-                              );
+                              ScaffoldMessenger.of(
+                                context,
+                              ).showSnackBar(SnackBar(content: Text('Error: $e')));
                             }
                           }
                         },

@@ -20,8 +20,7 @@ class InventoryReceivingScreen extends StatefulWidget {
   const InventoryReceivingScreen({super.key, this.barcode});
 
   @override
-  State<InventoryReceivingScreen> createState() =>
-      _InventoryReceivingScreenState();
+  State<InventoryReceivingScreen> createState() => _InventoryReceivingScreenState();
 }
 
 class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
@@ -66,15 +65,13 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
     });
   }
 
-
-
   Future<void> _loadPurchaseOrders() async {
     setState(() => _isLoading = true);
     try {
       final authProvider = context.read<AuthProvider>();
       final shopId = authProvider.currentShop?.id ?? '';
       final branchId = authProvider.currentBranch?.id ?? '';
-      
+
       if (shopId.isNotEmpty && branchId.isNotEmpty) {
         final querySnapshot = await FirebaseFirestore.instance
             .collection('shops')
@@ -84,11 +81,9 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
             .collection('purchase_orders')
             .where('status', isNotEqualTo: 'received')
             .get();
-            
-        final pos = querySnapshot.docs
-            .map((doc) => PurchaseOrder.fromMap(doc.data()))
-            .toList();
-            
+
+        final pos = querySnapshot.docs.map((doc) => PurchaseOrder.fromMap(doc.data())).toList();
+
         setState(() {
           _purchaseOrders = pos;
           _isLoading = false;
@@ -105,14 +100,14 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
 
   void _matchInvoiceWithPO(OCRResult ocr) {
     if (_selectedPO == null) return;
-    
+
     final lines = ocr.lines;
     final Map<String, int> matchedQuantities = {};
-    
+
     for (var item in _selectedPO!.items) {
       final productName = item.productName.toUpperCase();
       final words = productName.split(' ').where((w) => w.length > 2).toList();
-      
+
       bool matched = false;
       for (var line in lines) {
         final upperLine = line.toUpperCase();
@@ -122,9 +117,13 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
             matchCount++;
           }
         }
-        
+
         if (matchCount >= (words.length > 1 ? 2 : 1)) {
-          final numbers = RegExp(r'\b\d+\b').allMatches(upperLine).map((m) => int.tryParse(m.group(0) ?? '')).whereType<int>().toList();
+          final numbers = RegExp(r'\b\d+\b')
+              .allMatches(upperLine)
+              .map((m) => int.tryParse(m.group(0) ?? ''))
+              .whereType<int>()
+              .toList();
           if (numbers.isNotEmpty) {
             int bestQty = item.quantity;
             int minDiff = 999999;
@@ -141,12 +140,12 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
           }
         }
       }
-      
+
       if (!matched) {
         matchedQuantities[item.productId] = item.quantity;
       }
     }
-    
+
     setState(() {
       _poReceivedQuantities = matchedQuantities;
       if (ocr.batchNumber != null) {
@@ -168,7 +167,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
         }
       }
     });
-    
+
     _showSuccess('Matched invoice OCR');
   }
 
@@ -193,23 +192,23 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
   Future<void> _confirmPOReceive() async {
     if (_selectedPO == null) return;
     setState(() => _isLoading = true);
-    
+
     try {
       final authProvider = context.read<AuthProvider>();
       final shopId = authProvider.currentShop?.id ?? '';
       final branchId = authProvider.currentBranch?.id ?? '';
-      
+
       final service = EmployeeScannerService(
         shopId: shopId,
         branchId: branchId,
         employeeId: authProvider.currentUser?.uid ?? '',
         employeeName: authProvider.currentUser?.name ?? 'Employee',
       );
-      
+
       for (var item in _selectedPO!.items) {
         final qty = _poReceivedQuantities[item.productId] ?? item.quantity;
         if (qty <= 0) continue;
-        
+
         await service.receiveInventory(
           productId: item.productId,
           barcode: '',
@@ -221,7 +220,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
           notes: 'Received bulk via PO #${_selectedPO!.id}',
         );
       }
-      
+
       await FirebaseFirestore.instance
           .collection('shops')
           .doc(shopId)
@@ -229,11 +228,8 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
           .doc(branchId)
           .collection('purchase_orders')
           .doc(_selectedPO!.id)
-          .update({
-        'status': 'received',
-        'receivedAt': FieldValue.serverTimestamp(),
-      });
-      
+          .update({'status': 'received', 'receivedAt': FieldValue.serverTimestamp()});
+
       _showSuccess('PO received successfully');
       setState(() {
         _selectedPO = null;
@@ -313,21 +309,13 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
     final printerService = PrinterService();
     final hasDefault = await printerService.getDefaultPrinterAddress() != null;
     if (!hasDefault) {
-      _showWarningWithAction(
-        'Auto-print failed: No printer.',
-        'Configure',
-        _showPrinterSettings,
-      );
+      _showWarningWithAction('Auto-print failed: No printer.', 'Configure', _showPrinterSettings);
       return;
     }
 
     final connected = await printerService.connectToSavedDevice();
     if (!connected) {
-      _showWarningWithAction(
-        'Auto-print failed: Reconnect.',
-        'Reconnect',
-        _showPrinterSettings,
-      );
+      _showWarningWithAction('Auto-print failed: Reconnect.', 'Reconnect', _showPrinterSettings);
       return;
     }
 
@@ -355,11 +343,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
       SnackBar(
         content: Text(message),
         backgroundColor: AppTheme.warning,
-        action: SnackBarAction(
-          label: actionLabel,
-          textColor: Colors.white,
-          onPressed: onAction,
-        ),
+        action: SnackBarAction(label: actionLabel, textColor: Colors.white, onPressed: onAction),
       ),
     );
   }
@@ -440,14 +424,9 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
       } else {
         final productProvider = context.read<ProductProvider>();
         final cached = productProvider.getProductByBarcode(barcode);
-        
+
         if (cached != null && _bulkMode) {
-          await _performAdd(
-            product: cached,
-            barcode: barcode,
-            quantity: 1,
-            notes: 'Bulk scanned',
-          );
+          await _performAdd(product: cached, barcode: barcode, quantity: 1, notes: 'Bulk scanned');
           return;
         }
 
@@ -482,15 +461,15 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: AppTheme.error));
   }
 
   void _showSuccess(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: AppTheme.success),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: AppTheme.success));
   }
 
   Future<void> _addToStock() async {
@@ -621,17 +600,13 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Receive Inventory', style: TextStyle(fontWeight: FontWeight.w700)),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.print),
-            onPressed: _showPrinterSettings,
-          ),
+          IconButton(icon: const Icon(Icons.print), onPressed: _showPrinterSettings),
           if (_poMode)
             IconButton(
               icon: const Icon(Icons.refresh),
@@ -722,10 +697,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
               ],
             ),
             const SizedBox(height: 16),
-            if (_poMode)
-              _buildPOWorkflowView()
-            else
-              _buildStandardWorkflowView(),
+            if (_poMode) _buildPOWorkflowView() else _buildStandardWorkflowView(),
           ],
         ),
       ),
@@ -762,7 +734,9 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                           setState(() {
                             _selectedPO = po;
                             if (po != null) {
-                              _poReceivedQuantities = {for (var item in po.items) item.productId: item.quantity};
+                              _poReceivedQuantities = {
+                                for (var item in po.items) item.productId: item.quantity,
+                              };
                             }
                           });
                         },
@@ -771,7 +745,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
             ),
           ),
         ),
-        
+
         if (_selectedPO != null) ...[
           const SizedBox(height: 16),
           Card(
@@ -783,7 +757,10 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('PO Items (${_selectedPO!.items.length})', style: const TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                        'PO Items (${_selectedPO!.items.length})',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       OutlinedButton.icon(
                         onPressed: _isLoading ? null : _scanInvoiceOCR,
                         icon: const Icon(Icons.camera_alt),
@@ -805,9 +782,20 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            IconButton(icon: const Icon(Icons.remove), onPressed: () => setState(() => _poReceivedQuantities[item.productId] = (currentQty - 1).clamp(0, 999))),
+                            IconButton(
+                              icon: const Icon(Icons.remove),
+                              onPressed: () => setState(
+                                () => _poReceivedQuantities[item.productId] = (currentQty - 1)
+                                    .clamp(0, 999),
+                              ),
+                            ),
                             Text('$currentQty'),
-                            IconButton(icon: const Icon(Icons.add), onPressed: () => setState(() => _poReceivedQuantities[item.productId] = currentQty + 1)),
+                            IconButton(
+                              icon: const Icon(Icons.add),
+                              onPressed: () => setState(
+                                () => _poReceivedQuantities[item.productId] = currentQty + 1,
+                              ),
+                            ),
                           ],
                         ),
                       );
@@ -818,7 +806,9 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _confirmPOReceive,
-                      child: _isLoading ? const CircularProgressIndicator(color: Colors.white) : const Text('Confirm PO Receive'),
+                      child: _isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text('Confirm PO Receive'),
                     ),
                   ),
                 ],
@@ -857,10 +847,16 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Barcode: $_scannedBarcode', style: const TextStyle(fontWeight: FontWeight.bold)),
+                              Text(
+                                'Barcode: $_scannedBarcode',
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
                               if (_product != null) Text(_product!.name),
                               if (_poReference != null)
-                                Text('📋 PO: $_poReference', style: const TextStyle(fontSize: 11, color: AppTheme.info)),
+                                Text(
+                                  '📋 PO: $_poReference',
+                                  style: const TextStyle(fontSize: 11, color: AppTheme.info),
+                                ),
                             ],
                           ),
                         ),
@@ -914,20 +910,44 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
                     focusNode: _quantityFocusNode,
                     keyboardType: TextInputType.number,
                     onSubmitted: (_) => _addToStock(),
-                    decoration: const InputDecoration(labelText: 'Quantity *', border: OutlineInputBorder()),
+                    decoration: const InputDecoration(
+                      labelText: 'Quantity *',
+                      border: OutlineInputBorder(),
+                    ),
                   ),
                   const SizedBox(height: 12),
-                  TextField(controller: _batchNumberController, decoration: const InputDecoration(labelText: 'Batch Number', border: OutlineInputBorder())),
+                  TextField(
+                    controller: _batchNumberController,
+                    decoration: const InputDecoration(
+                      labelText: 'Batch Number',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
                   const SizedBox(height: 12),
-                  TextField(controller: _supplierController, decoration: const InputDecoration(labelText: 'Supplier', border: OutlineInputBorder())),
+                  TextField(
+                    controller: _supplierController,
+                    decoration: const InputDecoration(
+                      labelText: 'Supplier',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
                   const SizedBox(height: 12),
-                  TextField(controller: _costPriceController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Cost Price', border: OutlineInputBorder())),
+                  TextField(
+                    controller: _costPriceController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Cost Price',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _addToStock,
-                      child: _isLoading ? const CircularProgressIndicator(color: Colors.white) : const Text('Add to Stock'),
+                      child: _isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text('Add to Stock'),
                     ),
                   ),
                 ],
@@ -939,18 +959,26 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen> {
         if (_receivedItems.isNotEmpty) ...[
           const SizedBox(height: 16),
           const Text('Recently Received', style: TextStyle(fontWeight: FontWeight.bold)),
-          ..._receivedItems.map((item) => Card(
-            child: ListTile(
-              title: Text(item.productName),
-              subtitle: Text('Qty: ${item.quantity}'),
-              trailing: IconButton(icon: const Icon(Icons.print), onPressed: () => _printShelfTag(productName: item.productName, barcode: item.barcode, price: item.price ?? 0)),
+          ..._receivedItems.map(
+            (item) => Card(
+              child: ListTile(
+                title: Text(item.productName),
+                subtitle: Text('Qty: ${item.quantity}'),
+                trailing: IconButton(
+                  icon: const Icon(Icons.print),
+                  onPressed: () => _printShelfTag(
+                    productName: item.productName,
+                    barcode: item.barcode,
+                    price: item.price ?? 0,
+                  ),
+                ),
+              ),
             ),
-          )),
+          ),
         ],
       ],
     );
   }
-
 
   void _showScannerDialog() {
     showDialog(

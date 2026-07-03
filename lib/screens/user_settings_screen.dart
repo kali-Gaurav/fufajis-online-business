@@ -54,33 +54,29 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
     final user = userProvider.currentUser;
 
     if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No user logged in')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No user logged in')));
       return;
     }
 
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(color: AppTheme.primary),
-      ),
+      builder: (context) => const Center(child: CircularProgressIndicator(color: AppTheme.primary)),
     );
 
     try {
       final path = await ExportService().exportUserData(user.id);
       if (mounted) Navigator.pop(context);
-      
-      await Share.shareXFiles(
-        [XFile(path)],
+
+      await SharePlus.instance.share(ShareParams(
+        files: [XFile(path)],
         text: 'My Fufaji Store personal data export (GDPR/DPDP compliance).',
-      );
+      ));
     } catch (e) {
       if (mounted) Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
@@ -89,9 +85,9 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
     final user = userProvider.currentUser;
 
     if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No user logged in')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No user logged in')));
       return;
     }
 
@@ -113,20 +109,16 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              
+
               showDialog(
                 context: context,
                 barrierDismissible: false,
-                builder: (context) => const Center(
-                  child: CircularProgressIndicator(color: AppTheme.primary),
-                ),
+                builder: (context) =>
+                    const Center(child: CircularProgressIndicator(color: AppTheme.primary)),
               );
 
               try {
@@ -142,9 +134,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
               } catch (e) {
                 if (mounted) {
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error: $e')),
-                  );
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
                 }
               }
             },
@@ -162,10 +152,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
         title: const Text('Sign Out?', style: TextStyle(fontWeight: FontWeight.w700)),
         content: const Text('Are you sure you want to sign out?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
@@ -184,9 +171,9 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                 }
               } catch (e) {
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error signing out: $e')),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Error signing out: $e')));
                 }
               }
             },
@@ -248,9 +235,9 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
       child: Text(
         title,
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: isRed ? AppTheme.error : null,
-              fontWeight: FontWeight.bold,
-            ),
+          color: isRed ? AppTheme.error : null,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
@@ -269,15 +256,12 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Language',
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
+                    Text('Language', style: Theme.of(context).textTheme.bodyLarge),
                     Text(
                       currentLang == 'en' ? 'English' : 'हिन्दी',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[600],
-                          ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -291,9 +275,9 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                       }
                     } catch (e) {
                       if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error: $e')),
-                        );
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text('Error: $e')));
                       }
                     }
                   },
@@ -318,15 +302,12 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Theme',
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
+                    Text('Theme', style: Theme.of(context).textTheme.bodyLarge),
                     Text(
                       _getThemeName(themeProvider.themeMode),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[600],
-                          ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -366,9 +347,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                       ),
                     ),
                   ],
-                  child: Icon(
-                    _getThemeIcon(themeProvider.themeMode),
-                  ),
+                  child: Icon(_getThemeIcon(themeProvider.themeMode)),
                 ),
               ],
             ),
@@ -392,15 +371,12 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Notifications',
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
+                    Text('Notifications', style: Theme.of(context).textTheme.bodyLarge),
                     Text(
                       prefs?.notificationsEnabled == true ? 'Enabled' : 'Disabled',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[600],
-                          ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -410,9 +386,9 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                     try {
                       userProvider.toggleNotifications(value);
                     } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error: $e')),
-                      );
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text('Error: $e')));
                     }
                   },
                 ),
@@ -432,9 +408,9 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
         trailing: const Icon(Icons.open_in_new),
         onTap: () {
           // In a real app, open privacy policy link
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Privacy policy link opening...')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Privacy policy link opening...')));
         },
       ),
     );
@@ -445,7 +421,10 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
       child: ListTile(
         leading: const Icon(Icons.download),
         title: const Text('Export My Data (GDPR)', style: TextStyle(fontWeight: FontWeight.w700)),
-        subtitle: const Text('Download all your personal data', style: TextStyle(fontWeight: FontWeight.w700)),
+        subtitle: const Text(
+          'Download all your personal data',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
         trailing: const Icon(Icons.arrow_forward),
         onTap: _exportUserData,
       ),
@@ -457,11 +436,11 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
       color: AppTheme.error.withValues(alpha: 0.1),
       child: ListTile(
         leading: const Icon(Icons.delete_outline, color: AppTheme.error),
-        title: const Text(
-          'Delete Account (GDPR)',
-          style: TextStyle(color: AppTheme.error),
+        title: const Text('Delete Account (GDPR)', style: TextStyle(color: AppTheme.error)),
+        subtitle: const Text(
+          'Permanently delete your account and data',
+          style: TextStyle(fontWeight: FontWeight.w700),
         ),
-        subtitle: const Text('Permanently delete your account and data', style: TextStyle(fontWeight: FontWeight.w700)),
         trailing: const Icon(Icons.arrow_forward, color: AppTheme.error),
         onTap: _deleteAccount,
       ),
@@ -473,10 +452,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
       color: AppTheme.error.withValues(alpha: 0.1),
       child: ListTile(
         leading: const Icon(Icons.logout, color: AppTheme.error),
-        title: const Text(
-          'Sign Out',
-          style: TextStyle(color: AppTheme.error),
-        ),
+        title: const Text('Sign Out', style: TextStyle(color: AppTheme.error)),
         trailing: const Icon(Icons.arrow_forward, color: AppTheme.error),
         onTap: _signOut,
       ),
@@ -493,17 +469,12 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'App Version',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
+                Text('App Version', style: Theme.of(context).textTheme.bodyLarge),
                 Text(
                   _isLoadingVersion
                       ? 'Loading...'
                       : '${_packageInfo.version} (Build ${_packageInfo.buildNumber})',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
               ],
             ),

@@ -8,9 +8,7 @@ class DeliveryVerificationService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final NotificationService _notificationService = NotificationService();
 
-
-  static final DeliveryVerificationService _instance =
-      DeliveryVerificationService._internal();
+  static final DeliveryVerificationService _instance = DeliveryVerificationService._internal();
   factory DeliveryVerificationService() => _instance;
   DeliveryVerificationService._internal();
 
@@ -45,10 +43,7 @@ class DeliveryVerificationService {
           orderId: orderId,
           agentId: agentId,
           eventType: 'otp_verification_failed',
-          details: {
-            'providedOTP': providedOTP,
-            'attemptedAt': FieldValue.serverTimestamp(),
-          },
+          details: {'providedOTP': providedOTP, 'attemptedAt': FieldValue.serverTimestamp()},
         );
         return false;
       }
@@ -119,8 +114,10 @@ class DeliveryVerificationService {
   Future<String> generateAndStoreOTP(String orderId) async {
     try {
       final random = DateTime.now().millisecond + DateTime.now().microsecond;
-      final otp = List.generate(6, (index) => (random + index * 7) % 10)
-          .join(); // Generate 6-digit OTP
+      final otp = List.generate(
+        6,
+        (index) => (random + index * 7) % 10,
+      ).join(); // Generate 6-digit OTP
 
       await _db.collection('orders').doc(orderId).update({
         'otp': otp,
@@ -167,19 +164,15 @@ class DeliveryVerificationService {
     required Map<String, dynamic> details,
   }) async {
     try {
-      final logId =
-          '${orderId}_${DateTime.now().millisecondsSinceEpoch}';
-      await _db
-          .collection('delivery_events')
-          .doc(logId)
-          .set({
-            'id': logId,
-            'orderId': orderId,
-            'agentId': agentId,
-            'eventType': eventType,
-            'timestamp': FieldValue.serverTimestamp(),
-            ...details,
-          });
+      final logId = '${orderId}_${DateTime.now().millisecondsSinceEpoch}';
+      await _db.collection('delivery_events').doc(logId).set({
+        'id': logId,
+        'orderId': orderId,
+        'agentId': agentId,
+        'eventType': eventType,
+        'timestamp': FieldValue.serverTimestamp(),
+        ...details,
+      });
     } catch (e) {
       debugPrint('Error logging delivery event: $e');
     }
@@ -195,21 +188,17 @@ class DeliveryVerificationService {
     double? longitude,
   }) async {
     try {
-      final logId =
-          '${orderId}_${eventType}_${DateTime.now().millisecondsSinceEpoch}';
-      await _db
-          .collection('delivery_events')
-          .doc(logId)
-          .set({
-            'id': logId,
-            'orderId': orderId,
-            'agentId': agentId,
-            'eventType': eventType,
-            'notes': notes,
-            'latitude': latitude,
-            'longitude': longitude,
-            'timestamp': FieldValue.serverTimestamp(),
-          });
+      final logId = '${orderId}_${eventType}_${DateTime.now().millisecondsSinceEpoch}';
+      await _db.collection('delivery_events').doc(logId).set({
+        'id': logId,
+        'orderId': orderId,
+        'agentId': agentId,
+        'eventType': eventType,
+        'notes': notes,
+        'latitude': latitude,
+        'longitude': longitude,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
 
       debugPrint('Logged delivery event: $eventType for order $orderId');
     } catch (e) {
@@ -218,31 +207,27 @@ class DeliveryVerificationService {
   }
 
   /// Get delivery event history for an order
-  Stream<List<Map<String, dynamic>>> getDeliveryEventsStream(
-    String orderId,
-  ) {
+  Stream<List<Map<String, dynamic>>> getDeliveryEventsStream(String orderId) {
     return _db
         .collection('delivery_events')
         .where('orderId', isEqualTo: orderId)
         .orderBy('timestamp', descending: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) => doc.data()).toList();
-    });
+          return snapshot.docs.map((doc) => doc.data()).toList();
+        });
   }
 
   /// Get delivery event history for an agent
-  Stream<List<Map<String, dynamic>>> getAgentDeliveryEventsStream(
-    String agentId,
-  ) {
+  Stream<List<Map<String, dynamic>>> getAgentDeliveryEventsStream(String agentId) {
     return _db
         .collection('delivery_events')
         .where('agentId', isEqualTo: agentId)
         .orderBy('timestamp', descending: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) => doc.data()).toList();
-    });
+          return snapshot.docs.map((doc) => doc.data()).toList();
+        });
   }
 
   /// Resend OTP via SMS/WhatsApp
@@ -299,8 +284,7 @@ class DeliveryVerificationService {
         'totalDeliveries': deliveredSnapshot.docs.length,
         'otpVerifiedDeliveries': otpVerifiedCount,
         'verificationRate': deliveredSnapshot.docs.isNotEmpty
-            ? (otpVerifiedCount / deliveredSnapshot.docs.length * 100)
-                .toStringAsFixed(2)
+            ? (otpVerifiedCount / deliveredSnapshot.docs.length * 100).toStringAsFixed(2)
             : '0.00',
       };
     } catch (e) {

@@ -68,9 +68,9 @@ class _RiderChatScreenState extends State<RiderChatScreen> {
       await _chatService.sendSupportMessage(chatMsg);
       _scrollToBottom();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to send message: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to send message: $e')));
     }
   }
 
@@ -103,7 +103,11 @@ class _RiderChatScreenState extends State<RiderChatScreen> {
                 ),
                 Text(
                   'Typically replies instantly',
-                  style: TextStyle(fontSize: 11, color: AppTheme.success, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppTheme.success,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -118,7 +122,9 @@ class _RiderChatScreenState extends State<RiderChatScreen> {
               stream: _chatService.getCustomerChatStream(riderId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator(color: AppTheme.deliveryAccent));
+                  return const Center(
+                    child: CircularProgressIndicator(color: AppTheme.deliveryAccent),
+                  );
                 }
 
                 final messages = snapshot.data ?? [];
@@ -139,7 +145,11 @@ class _RiderChatScreenState extends State<RiderChatScreen> {
                           SizedBox(height: 16),
                           Text(
                             'Support Channel Active',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey700),
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.grey700,
+                            ),
                           ),
                           SizedBox(height: 8),
                           Text(
@@ -203,7 +213,9 @@ class _RiderChatScreenState extends State<RiderChatScreen> {
                                 Text(
                                   DateFormat('hh:mm a').format(message.timestamp),
                                   style: TextStyle(
-                                    color: isMe ? AppTheme.white.withValues(alpha: 0.7) : AppTheme.grey400,
+                                    color: isMe
+                                        ? AppTheme.white.withValues(alpha: 0.7)
+                                        : AppTheme.grey400,
                                     fontSize: 10,
                                   ),
                                 ),
@@ -212,7 +224,9 @@ class _RiderChatScreenState extends State<RiderChatScreen> {
                                   Icon(
                                     Icons.done_all,
                                     size: 12,
-                                    color: message.isRead ? AppTheme.deliveryAccent : AppTheme.white.withValues(alpha: 0.7),
+                                    color: message.isRead
+                                        ? AppTheme.deliveryAccent
+                                        : AppTheme.white.withValues(alpha: 0.7),
                                   ),
                                 ],
                               ],
@@ -277,7 +291,9 @@ class _RiderChatScreenState extends State<RiderChatScreen> {
                         borderSide: const BorderSide(color: AppTheme.primary),
                       ),
                       filled: true,
-                      fillColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.grey800 : AppTheme.grey50,
+                      fillColor: Theme.of(context).brightness == Brightness.dark
+                          ? AppTheme.grey800
+                          : AppTheme.grey50,
                     ),
                     onSubmitted: (text) => _sendMessage(text, riderId, riderName),
                   ),

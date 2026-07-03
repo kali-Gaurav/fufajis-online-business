@@ -57,7 +57,9 @@ class OrderStatusMigrationService {
               });
               migratedCount++;
 
-              debugPrint('[OrderStatusMigration] Migrating order ${doc.id}: $currentStatus → $normalizedStatus');
+              debugPrint(
+                '[OrderStatusMigration] Migrating order ${doc.id}: $currentStatus → $normalizedStatus',
+              );
             }
           }
         }
@@ -103,13 +105,12 @@ class OrderStatusMigrationService {
 
           if (oldStatus != normalizedStatus) {
             migratedCount++;
-            debugPrint('[OrderStatusMigration] Migrating history entry: $oldStatus → $normalizedStatus');
+            debugPrint(
+              '[OrderStatusMigration] Migrating history entry: $oldStatus → $normalizedStatus',
+            );
           }
 
-          updatedHistory.add({
-            ...entryMap,
-            'status': normalizedStatus,
-          });
+          updatedHistory.add({...entryMap, 'status': normalizedStatus});
         }
       }
 
@@ -119,7 +120,9 @@ class OrderStatusMigrationService {
           'updatedAt': FieldValue.serverTimestamp(),
         });
 
-        debugPrint('[OrderStatusMigration] Migrated $migratedCount history entries for order $orderId');
+        debugPrint(
+          '[OrderStatusMigration] Migrated $migratedCount history entries for order $orderId',
+        );
       }
 
       return migratedCount;
@@ -157,7 +160,9 @@ class OrderStatusMigrationService {
               OrderStatus.fromString(currentStatus);
             } catch (e) {
               invalidOrders.add('${doc.id}: $currentStatus');
-              debugPrint('[OrderStatusMigration] Invalid status in order ${doc.id}: $currentStatus');
+              debugPrint(
+                '[OrderStatusMigration] Invalid status in order ${doc.id}: $currentStatus',
+              );
             }
           }
         }
@@ -170,7 +175,9 @@ class OrderStatusMigrationService {
       if (invalidOrders.isEmpty) {
         debugPrint('[OrderStatusMigration] Verification passed - all orders have valid statuses');
       } else {
-        debugPrint('[OrderStatusMigration] Verification FAILED - ${invalidOrders.length} orders have invalid statuses');
+        debugPrint(
+          '[OrderStatusMigration] Verification FAILED - ${invalidOrders.length} orders have invalid statuses',
+        );
       }
 
       return invalidOrders;

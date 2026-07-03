@@ -69,8 +69,7 @@ class BarcodeInventoryScreen extends StatefulWidget {
   const BarcodeInventoryScreen({super.key});
 
   @override
-  State<BarcodeInventoryScreen> createState() =>
-      _BarcodeInventoryScreenState();
+  State<BarcodeInventoryScreen> createState() => _BarcodeInventoryScreenState();
 }
 
 class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
@@ -102,11 +101,25 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
   final List<_ScanEntry> _history = [];
 
   static const List<String> _units = [
-    'piece', 'kg', 'g', 'l', 'ml', 'packet', 'bottle', 'box', 'dozen'
+    'piece',
+    'kg',
+    'g',
+    'l',
+    'ml',
+    'packet',
+    'bottle',
+    'box',
+    'dozen',
   ];
   static const List<String> _categories = [
-    'groceries', 'vegetables', 'fruits', 'dairy', 'snacks', 'beverages',
-    'household', 'other'
+    'groceries',
+    'vegetables',
+    'fruits',
+    'dairy',
+    'snacks',
+    'beverages',
+    'household',
+    'other',
   ];
 
   @override
@@ -136,8 +149,7 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
     });
 
     try {
-      final authProvider =
-          Provider.of<app_auth.AuthProvider>(context, listen: false);
+      final authProvider = Provider.of<app_auth.AuthProvider>(context, listen: false);
       final shopId = authProvider.currentShop?.id ?? 'shop_001';
 
       final snapshot = await _db
@@ -222,8 +234,7 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
     }
 
     try {
-      final authProvider =
-          Provider.of<app_auth.AuthProvider>(context, listen: false);
+      final authProvider = Provider.of<app_auth.AuthProvider>(context, listen: false);
       final shopId = authProvider.currentShop?.id ?? 'shop_001';
       final shopName = authProvider.currentShop?.name ?? 'Fufaji Store';
 
@@ -281,13 +292,15 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
 
   void _showSnack(String msg, {bool isError = false}) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(msg),
-      backgroundColor: isError ? AppTheme.error : AppTheme.info,
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      duration: const Duration(seconds: 2),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        backgroundColor: isError ? AppTheme.error : AppTheme.info,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   // ─── UI ───
@@ -297,8 +310,10 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
     return Scaffold(
       backgroundColor: AppTheme.grey900,
       appBar: AppBar(
-        title: const Text('Barcode Scanner',
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: const Text(
+          'Barcode Scanner',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -325,10 +340,7 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
             flex: 4,
             child: Stack(
               children: [
-                MobileScanner(
-                  controller: _scannerCtrl,
-                  onDetect: _onBarcodeDetected,
-                ),
+                MobileScanner(controller: _scannerCtrl, onDetect: _onBarcodeDetected),
                 // Overlay frame
                 Center(
                   child: Container(
@@ -343,9 +355,7 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
                 if (_isProcessing)
                   Container(
                     color: Colors.black45,
-                    child: const Center(
-                      child: CircularProgressIndicator(color: AppTheme.primary),
-                    ),
+                    child: const Center(child: CircularProgressIndicator(color: AppTheme.primary)),
                   ),
                 if (_scannedBarcode != null)
                   Positioned(
@@ -354,16 +364,14 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
                     right: 0,
                     child: Center(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         decoration: BoxDecoration(
                           color: Colors.black87,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
                           _scannedBarcode!,
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 13),
+                          style: const TextStyle(color: Colors.white, fontSize: 13),
                         ),
                       ),
                     ),
@@ -378,16 +386,15 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
             child: Container(
               decoration: const BoxDecoration(
                 color: AppTheme.white,
-                borderRadius:
-                    BorderRadius.vertical(top: Radius.circular(20)),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
               child: _scannedBarcode == null
                   ? _buildIdlePanel()
                   : _showNewProductForm
-                      ? _buildNewProductForm()
-                      : _foundProduct != null
-                          ? _buildProductPanel()
-                          : _buildIdlePanel(),
+                  ? _buildNewProductForm()
+                  : _foundProduct != null
+                  ? _buildProductPanel()
+                  : _buildIdlePanel(),
             ),
           ),
         ],
@@ -410,16 +417,13 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
                 margin: const EdgeInsets.symmetric(horizontal: 3),
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
-                  color:
-                      selected ? mode.color : Colors.white.withValues(alpha: 0.1),
+                  color: selected ? mode.color : Colors.white.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(mode.icon,
-                        size: 22,
-                        color: selected ? Colors.white : Colors.white54),
+                    Icon(mode.icon, size: 22, color: selected ? Colors.white : Colors.white54),
                     const SizedBox(height: 4),
                     Text(
                       mode.label,
@@ -444,14 +448,15 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
     return Column(
       children: [
         const SizedBox(height: 20),
-        const Text('Point camera at barcode',
-            style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.grey700)),
+        const Text(
+          'Point camera at barcode',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.grey700),
+        ),
         const SizedBox(height: 4),
-        const Text('Barcode will be detected automatically',
-            style: TextStyle(fontSize: 13, color: AppTheme.grey400)),
+        const Text(
+          'Barcode will be detected automatically',
+          style: TextStyle(fontSize: 13, color: AppTheme.grey400),
+        ),
         if (_history.isNotEmpty) ...[
           const SizedBox(height: 16),
           const Divider(),
@@ -459,15 +464,19 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                const Text('Session History',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                        color: AppTheme.grey800)),
+                const Text(
+                  'Session History',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: AppTheme.grey800,
+                  ),
+                ),
                 const Spacer(),
-                Text('${_history.length} scans',
-                    style: const TextStyle(
-                        fontSize: 12, color: AppTheme.grey500)),
+                Text(
+                  '${_history.length} scans',
+                  style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
+                ),
               ],
             ),
           ),
@@ -480,10 +489,7 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
           ),
         ] else
           const Expanded(
-            child: Center(
-              child: Icon(Icons.qr_code_scanner,
-                  size: 80, color: AppTheme.grey200),
-            ),
+            child: Center(child: Icon(Icons.qr_code_scanner, size: 80, color: AppTheme.grey200)),
           ),
       ],
     );
@@ -497,16 +503,14 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
         backgroundColor: entry.mode.color.withValues(alpha: 0.15),
         child: Icon(entry.mode.icon, size: 16, color: entry.mode.color),
       ),
-      title: Text(entry.productName,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-      subtitle: Text(entry.barcode,
-          style: const TextStyle(fontSize: 11, color: AppTheme.grey500)),
+      title: Text(
+        entry.productName,
+        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+      ),
+      subtitle: Text(entry.barcode, style: const TextStyle(fontSize: 11, color: AppTheme.grey500)),
       trailing: Text(
         '${entry.mode == InventoryMode.pickOrder ? '-' : '+'}${entry.quantityChanged}',
-        style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: entry.mode.color),
+        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: entry.mode.color),
       ),
     );
   }
@@ -530,19 +534,17 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(name,
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 2),
-                    Text('₹${price.toStringAsFixed(0)} / $unit',
-                        style: const TextStyle(
-                            fontSize: 13, color: AppTheme.grey600)),
+                    Text(
+                      '₹${price.toStringAsFixed(0)} / $unit',
+                      style: const TextStyle(fontSize: 13, color: AppTheme.grey600),
+                    ),
                   ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
                   color: currentQty < 5
                       ? AppTheme.error.withValues(alpha: 0.1)
@@ -551,16 +553,15 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
                 ),
                 child: Column(
                   children: [
-                    Text('$currentQty',
-                        style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: currentQty < 5
-                                ? AppTheme.error
-                                : AppTheme.info)),
-                    Text(unit,
-                        style: const TextStyle(
-                            fontSize: 11, color: AppTheme.grey600)),
+                    Text(
+                      '$currentQty',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: currentQty < 5 ? AppTheme.error : AppTheme.info,
+                      ),
+                    ),
+                    Text(unit, style: const TextStyle(fontSize: 11, color: AppTheme.grey600)),
                   ],
                 ),
               ),
@@ -568,11 +569,10 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
           ),
 
           const SizedBox(height: 16),
-          Text(_mode.label,
-              style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: _mode.color,
-                  fontSize: 13)),
+          Text(
+            _mode.label,
+            style: TextStyle(fontWeight: FontWeight.w600, color: _mode.color, fontSize: 13),
+          ),
           const SizedBox(height: 8),
 
           // Quick-add buttons + custom qty
@@ -591,17 +591,14 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     decoration: InputDecoration(
                       hintText: 'Custom',
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 0),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                       focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide:
-                              const BorderSide(color: AppTheme.primary)),
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: AppTheme.primary),
+                      ),
                     ),
-                    onChanged: (v) =>
-                        setState(() => _adjustQty = int.tryParse(v) ?? 1),
+                    onChanged: (v) => setState(() => _adjustQty = int.tryParse(v) ?? 1),
                   ),
                 ),
               ),
@@ -618,8 +615,7 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
                   onPressed: _resetScan,
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: const Text('New Scan'),
                 ),
@@ -629,15 +625,12 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
                 flex: 2,
                 child: ElevatedButton.icon(
                   onPressed: _confirmUpdate,
-                  icon:
-                      const Icon(Icons.check_circle, color: Colors.white),
-                  label: const Text('Confirm',
-                      style: TextStyle(color: Colors.white, fontSize: 16)),
+                  icon: const Icon(Icons.check_circle, color: Colors.white),
+                  label: const Text('Confirm', style: TextStyle(color: Colors.white, fontSize: 16)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _mode.color,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     elevation: 0,
                   ),
                 ),
@@ -664,8 +657,9 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
         child: Text(
           '+$qty',
           style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: selected ? Colors.white : AppTheme.grey700),
+            fontWeight: FontWeight.bold,
+            color: selected ? Colors.white : AppTheme.grey700,
+          ),
         ),
       ),
     );
@@ -681,29 +675,31 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
             children: [
               const Icon(Icons.fiber_new, color: AppTheme.primary),
               const SizedBox(width: 8),
-              const Text('New Product',
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.grey900)),
+              const Text(
+                'New Product',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.grey900,
+                ),
+              ),
               const Spacer(),
               TextButton(
-                  onPressed: _resetScan,
-                  child: const Text('Cancel',
-                      style: TextStyle(color: AppTheme.grey600))),
+                onPressed: _resetScan,
+                child: const Text('Cancel', style: TextStyle(color: AppTheme.grey600)),
+              ),
             ],
           ),
-          Text('Barcode: ${_scannedBarcode ?? ""}',
-              style:
-                  const TextStyle(fontSize: 12, color: AppTheme.grey500)),
+          Text(
+            'Barcode: ${_scannedBarcode ?? ""}',
+            style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
+          ),
           const SizedBox(height: 12),
           _formField(_nameCtrl, 'Product Name', TextInputType.text),
           const SizedBox(height: 10),
-          _formField(_priceCtrl, 'Price (₹)',
-              const TextInputType.numberWithOptions(decimal: true)),
+          _formField(_priceCtrl, 'Price (₹)', const TextInputType.numberWithOptions(decimal: true)),
           const SizedBox(height: 10),
-          _formField(_stockCtrl, 'Initial Stock',
-              TextInputType.number),
+          _formField(_stockCtrl, 'Initial Stock', TextInputType.number),
           const SizedBox(height: 10),
           // Unit + Category row
           Row(
@@ -734,15 +730,13 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
             child: ElevatedButton.icon(
               onPressed: _createNewProduct,
               icon: const Icon(Icons.save, color: Colors.white),
-              label: const Text('Create Product',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold)),
+              label: const Text(
+                'Create Product',
+                style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primary,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 elevation: 0,
               ),
             ),
@@ -752,8 +746,7 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
     );
   }
 
-  Widget _formField(
-      TextEditingController ctrl, String label, TextInputType type) {
+  Widget _formField(TextEditingController ctrl, String label, TextInputType type) {
     return TextFormField(
       controller: ctrl,
       keyboardType: type,
@@ -761,8 +754,7 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(fontSize: 13, color: AppTheme.grey600),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
@@ -782,8 +774,7 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(fontSize: 13, color: AppTheme.grey600),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
       ),
       child: DropdownButtonHideUnderline(
@@ -791,10 +782,7 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
           value: value,
           isExpanded: true,
           style: const TextStyle(fontSize: 13, color: AppTheme.grey900),
-          items: items
-              .map((e) =>
-                  DropdownMenuItem(value: e, child: Text(e)))
-              .toList(),
+          items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
           onChanged: onChanged,
         ),
       ),

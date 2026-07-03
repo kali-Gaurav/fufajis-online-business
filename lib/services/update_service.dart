@@ -79,10 +79,8 @@ class UpdateService {
 
     if (lastShownVersion != currentVersion) {
       // Fetch release notes from Firestore
-      final snap = await _db.collection('release_notes')
-          .doc(currentVersion)
-          .get();
-      
+      final snap = await _db.collection('release_notes').doc(currentVersion).get();
+
       if (snap.exists && context.mounted) {
         final note = ReleaseNote.fromMap(snap.data()!);
         _showReleaseNotesDialog(context, note);
@@ -109,43 +107,26 @@ class UpdateService {
           children: [
             Text(note.title, style: const TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
-            ...note.notes.map((n) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('• ', style: TextStyle(fontWeight: FontWeight.bold)),
-                  Expanded(child: Text(n)),
-                ],
+            ...note.notes.map(
+              (n) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('• ', style: TextStyle(fontWeight: FontWeight.bold)),
+                    Expanded(child: Text(n)),
+                  ],
+                ),
               ),
-            )),
+            ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Great!'),
-          ),
-        ],
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Great!'))],
       ),
     );
   }
 
-  bool _isVersionLower(String current, String target) {
-    try {
-      List<int> currentParts = current.split('.').map(int.parse).toList();
-      List<int> targetParts = target.split('.').map(int.parse).toList();
 
-      for (int i = 0; i < currentParts.length && i < targetParts.length; i++) {
-        if (currentParts[i] < targetParts[i]) return true;
-        if (currentParts[i] > targetParts[i]) return false;
-      }
-      if (targetParts.length > currentParts.length) return true;
-    } catch (e) {
-      debugPrint('Version comparison error: $e');
-    }
-    return false;
-  }
 
   void _showUpdateDialog(BuildContext context, {required bool isForceUpdate}) {
     showDialog(
@@ -154,9 +135,7 @@ class UpdateService {
       builder: (context) => PopScope(
         canPop: !isForceUpdate,
         child: AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Row(
             children: [
               Icon(
@@ -176,19 +155,14 @@ class UpdateService {
             if (!isForceUpdate)
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text(
-                  'Later',
-                  style: TextStyle(color: Colors.grey),
-                ),
+                child: const Text('Later', style: TextStyle(color: Colors.grey)),
               ),
             ElevatedButton(
               onPressed: () => _launchUpdateUrl(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFFF5722),
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: const Text('Update Now'),
             ),
@@ -205,9 +179,7 @@ class UpdateService {
       builder: (context) => PopScope(
         canPop: false,
         child: AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: const Row(
             children: [
               Icon(Icons.construction, color: AppTheme.warning),

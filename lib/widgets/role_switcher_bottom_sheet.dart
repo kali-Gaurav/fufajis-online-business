@@ -26,11 +26,7 @@ class RoleSwitcherBottomSheet extends StatelessWidget {
         children: [
           const Text(
             'Switch Role',
-            style: TextStyle(
-              fontSize: 20, 
-              fontWeight: FontWeight.bold,
-              color: AppTheme.grey900,
-            ),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.grey900),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
@@ -70,7 +66,7 @@ class RoleSwitcherBottomSheet extends StatelessWidget {
                   _getRoleDescription(role),
                   style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
                 ),
-                trailing: isSelected 
+                trailing: isSelected
                     ? const Icon(Icons.check_circle, color: AppTheme.primary)
                     : null,
                 onTap: isSelected

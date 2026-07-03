@@ -59,11 +59,7 @@ class FjEmptyState extends StatelessWidget {
               Text(
                 subtitle,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppTheme.grey500,
-                  height: 1.5,
-                ),
+                style: const TextStyle(fontSize: 14, color: AppTheme.grey500, height: 1.5),
               ),
             ],
             // CTA
@@ -81,8 +77,7 @@ class FjEmptyState extends StatelessWidget {
                     onTap: onButtonTap,
                     borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 32, vertical: 14),
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                       child: Text(
                         buttonLabel!,
                         style: const TextStyle(
@@ -109,12 +104,7 @@ class FjInlineEmpty extends StatelessWidget {
   final String message;
   final Color? color;
 
-  const FjInlineEmpty({
-    super.key,
-    required this.icon,
-    required this.message,
-    this.color,
-  });
+  const FjInlineEmpty({super.key, required this.icon, required this.message, this.color});
 
   @override
   Widget build(BuildContext context) {

@@ -270,8 +270,8 @@ class NotificationPreferences {
     TimeOfDay? quietHoursStart,
     TimeOfDay? quietHoursEnd,
     this.maxNotificationsPerHour = 20,
-  })  : quietHoursStart = quietHoursStart ?? const TimeOfDay(hour: 22, minute: 0),
-        quietHoursEnd = quietHoursEnd ?? const TimeOfDay(hour: 8, minute: 0);
+  }) : quietHoursStart = quietHoursStart ?? const TimeOfDay(hour: 22, minute: 0),
+       quietHoursEnd = quietHoursEnd ?? const TimeOfDay(hour: 8, minute: 0);
 
   /// Convert to Firestore document
   Map<String, dynamic> toMap() {

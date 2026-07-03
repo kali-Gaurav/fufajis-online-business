@@ -33,15 +33,15 @@ class _ReturnsScreenState extends State<ReturnsScreen> {
   bool _autoFilled = false;
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: AppTheme.error));
   }
 
   void _showSuccess(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: AppTheme.success),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: AppTheme.success));
   }
 
   Future<void> _lookupProduct(String barcode) async {
@@ -59,8 +59,8 @@ class _ReturnsScreenState extends State<ReturnsScreen> {
         branchId: auth.currentBranch?.id ?? '',
       );
 
-      final product = result.product ??
-          context.read<ProductProvider>().getProductByBarcode(barcode);
+      final product =
+          result.product ?? context.read<ProductProvider>().getProductByBarcode(barcode);
 
       // Try to find the most recent delivered order containing this product
       String? autoOrderId;
@@ -76,12 +76,8 @@ class _ReturnsScreenState extends State<ReturnsScreen> {
               .get();
 
           for (final doc in orderSnap.docs) {
-            final items = (doc.data()['items'] as List?)
-                    ?.cast<Map<String, dynamic>>() ??
-                [];
-            if (items.any((i) =>
-                i['productId'] == product.id ||
-                i['barcode'] == barcode)) {
+            final items = (doc.data()['items'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+            if (items.any((i) => i['productId'] == product.id || i['barcode'] == barcode)) {
               autoOrderId = doc.id;
               break;
             }
@@ -151,8 +147,7 @@ class _ReturnsScreenState extends State<ReturnsScreen> {
         barcode: _scannedBarcode ?? '',
         quantity: quantity,
         condition: _selectedCondition,
-        reason:
-            _reasonController.text.isNotEmpty ? _reasonController.text : null,
+        reason: _reasonController.text.isNotEmpty ? _reasonController.text : null,
       );
 
       setState(() {
@@ -186,7 +181,8 @@ class _ReturnsScreenState extends State<ReturnsScreen> {
 
       await SmartScanService.hapticComplete();
       _showSuccess(
-          '✓ Return processed  •  $_batchCount return${_batchCount == 1 ? '' : 's'} this session');
+        '✓ Return processed  •  $_batchCount return${_batchCount == 1 ? '' : 's'} this session',
+      );
     } catch (e) {
       setState(() => _isLoading = false);
       _showError('Failed to process return: $e');
@@ -198,7 +194,6 @@ class _ReturnsScreenState extends State<ReturnsScreen> {
     _reasonController.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -224,10 +219,7 @@ class _ReturnsScreenState extends State<ReturnsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Scan Returned Product',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
+                    Text('Scan Returned Product', style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 12),
                     if (_scannedBarcode != null)
                       Container(
@@ -246,8 +238,7 @@ class _ReturnsScreenState extends State<ReturnsScreen> {
                                 children: [
                                   Text(
                                     'Barcode: $_scannedBarcode',
-                                    style:
-                                        const TextStyle(fontWeight: FontWeight.bold),
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                   if (_product != null) Text(_product!.name),
                                 ],
@@ -276,10 +267,7 @@ class _ReturnsScreenState extends State<ReturnsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Return Details',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
+                      Text('Return Details', style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 12),
                       TextField(
                         controller: _orderIdController,
@@ -288,19 +276,15 @@ class _ReturnsScreenState extends State<ReturnsScreen> {
                           labelText: 'Order ID',
                           prefixIcon: const Icon(Icons.receipt),
                           border: const OutlineInputBorder(),
-                          enabledBorder: _autoFilled &&
-                                  _orderIdController.text.isNotEmpty
+                          enabledBorder: _autoFilled && _orderIdController.text.isNotEmpty
                               ? const OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: AppTheme.success,
-                                      width: 2))
+                                  borderSide: BorderSide(color: AppTheme.success, width: 2),
+                                )
                               : null,
-                          helperText: _autoFilled &&
-                                  _orderIdController.text.isNotEmpty
+                          helperText: _autoFilled && _orderIdController.text.isNotEmpty
                               ? '✓ Auto-matched from last delivery'
                               : null,
-                          helperStyle:
-                              const TextStyle(color: AppTheme.success),
+                          helperStyle: const TextStyle(color: AppTheme.success),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -314,10 +298,7 @@ class _ReturnsScreenState extends State<ReturnsScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      const Text(
-                        'Condition',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                      const Text('Condition', style: TextStyle(fontWeight: FontWeight.bold)),
                       const SizedBox(height: 8),
                       Wrap(
                         spacing: 8,
@@ -325,9 +306,7 @@ class _ReturnsScreenState extends State<ReturnsScreen> {
                         children: ReturnCondition.values.map((condition) {
                           final isSelected = _selectedCondition == condition;
                           return ChoiceChip(
-                            label: Text(condition.name
-                                .replaceAll('_', ' ')
-                                .toUpperCase()),
+                            label: Text(condition.name.replaceAll('_', ' ').toUpperCase()),
                             selected: isSelected,
                             selectedColor: Colors.brown.shade200,
                             onSelected: (selected) {
@@ -371,26 +350,28 @@ class _ReturnsScreenState extends State<ReturnsScreen> {
             // Recent Returns
             if (_returns.isNotEmpty) ...[
               const SizedBox(height: 24),
-              Text(
-                'Recent Returns',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
+              Text('Recent Returns', style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
-              ..._returns.take(5).map((returnItem) => Card(
-                    child: ListTile(
-                      leading: const CircleAvatar(
-                        backgroundColor: Colors.brown,
-                        child: Icon(Icons.replay, color: Colors.white),
-                      ),
-                      title: Text(returnItem.productName),
-                      subtitle: Text(
-                          'Order: ${returnItem.orderId} • ${returnItem.condition.name}'),
-                      trailing: Text(
-                        'x${returnItem.quantity}',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+              ..._returns
+                  .take(5)
+                  .map(
+                    (returnItem) => Card(
+                      child: ListTile(
+                        leading: const CircleAvatar(
+                          backgroundColor: Colors.brown,
+                          child: Icon(Icons.replay, color: Colors.white),
+                        ),
+                        title: Text(returnItem.productName),
+                        subtitle: Text(
+                          'Order: ${returnItem.orderId} • ${returnItem.condition.name}',
+                        ),
+                        trailing: Text(
+                          'x${returnItem.quantity}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
-                  )),
+                  ),
             ],
           ],
         ),
@@ -405,10 +386,7 @@ class _ReturnsScreenState extends State<ReturnsScreen> {
         title: const Text('Enter Barcode', style: TextStyle(fontWeight: FontWeight.w700)),
         content: TextField(
           autofocus: true,
-          decoration: const InputDecoration(
-            labelText: 'Barcode',
-            border: OutlineInputBorder(),
-          ),
+          decoration: const InputDecoration(labelText: 'Barcode', border: OutlineInputBorder()),
           onSubmitted: (value) {
             if (value.isNotEmpty) {
               Navigator.pop(context);
@@ -419,12 +397,7 @@ class _ReturnsScreenState extends State<ReturnsScreen> {
             }
           },
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-        ],
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel'))],
       ),
     );
   }

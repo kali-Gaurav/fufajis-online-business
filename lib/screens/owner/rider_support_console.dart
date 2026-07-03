@@ -116,9 +116,7 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
           // Sorted by timestamp descending, so first is latest
           msgs.sort((a, b) => b.timestamp.compareTo(a.timestamp));
           final latestMsg = msgs.first;
-          final unreadCount = msgs
-              .where((m) => !m.isRead && m.senderId != 'owner_admin')
-              .length;
+          final unreadCount = msgs.where((m) => !m.isRead && m.senderId != 'owner_admin').length;
 
           return {
             'channelId': entry.key,
@@ -132,11 +130,7 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
         }).toList();
 
         // Sort channels by latest message time
-        channels.sort(
-          (a, b) => (b['timestamp'] as DateTime).compareTo(
-            a['timestamp'] as DateTime,
-          ),
-        );
+        channels.sort((a, b) => (b['timestamp'] as DateTime).compareTo(a['timestamp'] as DateTime));
 
         return Container(
           color: AppTheme.white,
@@ -171,26 +165,18 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.chat_outlined,
-                              size: 40,
-                              color: AppTheme.grey300,
-                            ),
+                            Icon(Icons.chat_outlined, size: 40, color: AppTheme.grey300),
                             SizedBox(height: 12),
                             Text(
                               'No active support chats.',
-                              style: TextStyle(
-                                color: AppTheme.grey400,
-                                fontSize: 13,
-                              ),
+                              style: TextStyle(color: AppTheme.grey400, fontSize: 13),
                             ),
                           ],
                         ),
                       )
                     : ListView.separated(
                         itemCount: channels.length,
-                        separatorBuilder: (context, index) =>
-                            const Divider(height: 1),
+                        separatorBuilder: (context, index) => const Divider(height: 1),
                         itemBuilder: (context, index) {
                           final channel = channels[index];
                           final id = channel['channelId'] as String;
@@ -202,22 +188,11 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
                             tileColor: isSelected
                                 ? AppTheme.primary.withValues(alpha: 0.05)
                                 : Colors.transparent,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 8,
-                            ),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                             leading: CircleAvatar(
-                              backgroundColor: isSelected
-                                  ? AppTheme.primary
-                                  : AppTheme.grey200,
-                              foregroundColor: isSelected
-                                  ? AppTheme.white
-                                  : AppTheme.grey700,
-                              child: Text(
-                                riderName.isNotEmpty
-                                    ? riderName[0].toUpperCase()
-                                    : 'R',
-                              ),
+                              backgroundColor: isSelected ? AppTheme.primary : AppTheme.grey200,
+                              foregroundColor: isSelected ? AppTheme.white : AppTheme.grey700,
+                              child: Text(riderName.isNotEmpty ? riderName[0].toUpperCase() : 'R'),
                             ),
                             title: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -236,13 +211,8 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
                                   ),
                                 ),
                                 Text(
-                                  DateFormat(
-                                    'hh:mm a',
-                                  ).format(channel['timestamp'] as DateTime),
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    color: AppTheme.grey400,
-                                  ),
+                                  DateFormat('hh:mm a').format(channel['timestamp'] as DateTime),
+                                  style: const TextStyle(fontSize: 10, color: AppTheme.grey400),
                                 ),
                               ],
                             ),
@@ -254,9 +224,7 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
-                                      color: unreadCount > 0
-                                          ? AppTheme.grey800
-                                          : AppTheme.grey500,
+                                      color: unreadCount > 0 ? AppTheme.grey800 : AppTheme.grey500,
                                       fontWeight: unreadCount > 0
                                           ? FontWeight.bold
                                           : FontWeight.normal,
@@ -320,11 +288,7 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
             const SizedBox(height: 20),
             const Text(
               'Select a Conversation',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.grey700,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.grey700),
             ),
             const SizedBox(height: 8),
             const Text(
@@ -416,9 +380,7 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
                   final isMe = message.senderId == 'owner_admin';
 
                   return Align(
-                    alignment: isMe
-                        ? Alignment.centerRight
-                        : Alignment.centerLeft,
+                    alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
                     child: Container(
                       margin: const EdgeInsets.symmetric(vertical: 4),
                       padding: const EdgeInsets.all(12),
@@ -430,16 +392,10 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
                         borderRadius: BorderRadius.only(
                           topLeft: const Radius.circular(12),
                           topRight: const Radius.circular(12),
-                          bottomLeft: isMe
-                              ? const Radius.circular(12)
-                              : Radius.zero,
-                          bottomRight: isMe
-                              ? Radius.zero
-                              : const Radius.circular(12),
+                          bottomLeft: isMe ? const Radius.circular(12) : Radius.zero,
+                          bottomRight: isMe ? Radius.zero : const Radius.circular(12),
                         ),
-                        border: isMe
-                            ? null
-                            : Border.all(color: AppTheme.grey200),
+                        border: isMe ? null : Border.all(color: AppTheme.grey200),
                         boxShadow: [
                           BoxShadow(
                             color: AppTheme.black.withValues(alpha: 0.02),
@@ -508,13 +464,7 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
                 child: ActionChip(
                   backgroundColor: AppTheme.white,
                   side: const BorderSide(color: AppTheme.grey300),
-                  label: Text(
-                    text,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: AppTheme.grey700,
-                    ),
-                  ),
+                  label: Text(text, style: const TextStyle(fontSize: 11, color: AppTheme.grey700)),
                   onPressed: () => _sendReply(text),
                 ),
               );
@@ -546,7 +496,9 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
                       borderSide: const BorderSide(color: AppTheme.primary),
                     ),
                     filled: true,
-                    fillColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.grey800 : AppTheme.grey50,
+                    fillColor: Theme.of(context).brightness == Brightness.dark
+                        ? AppTheme.grey800
+                        : AppTheme.grey50,
                   ),
                   onSubmitted: (text) => _sendReply(text),
                 ),

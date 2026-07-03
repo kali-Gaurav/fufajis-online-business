@@ -10,11 +10,7 @@ class PaymentVerificationDialog extends StatefulWidget {
   final String orderId;
   final String orderNumber;
 
-  const PaymentVerificationDialog({
-    super.key,
-    required this.orderId,
-    required this.orderNumber,
-  });
+  const PaymentVerificationDialog({super.key, required this.orderId, required this.orderNumber});
 
   @override
   State<PaymentVerificationDialog> createState() => _PaymentVerificationDialogState();
@@ -37,18 +33,18 @@ class _PaymentVerificationDialogState extends State<PaymentVerificationDialog> {
         .doc(widget.orderId)
         .snapshots()
         .listen((snapshot) {
-      if (!snapshot.exists) return;
+          if (!snapshot.exists) return;
 
-      final data = snapshot.data()!;
-      final status = data['status'];
-      final paymentStatus = data['paymentStatus'];
+          final data = snapshot.data()!;
+          final status = data['status'];
+          final paymentStatus = data['paymentStatus'];
 
-      if (paymentStatus == 'paid' || status == 'OrderStatus.confirmed') {
-        _handleSuccess();
-      } else if (paymentStatus == 'failed' || status == 'OrderStatus.cancelled') {
-        _handleFailure();
-      }
-    });
+          if (paymentStatus == 'paid' || status == 'OrderStatus.confirmed') {
+            _handleSuccess();
+          } else if (paymentStatus == 'failed' || status == 'OrderStatus.cancelled') {
+            _handleFailure();
+          }
+        });
 
     // Timeout after 30 seconds
     Future.delayed(const Duration(seconds: 30), () {
@@ -69,7 +65,9 @@ class _PaymentVerificationDialogState extends State<PaymentVerificationDialog> {
 
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
-        context.go('/customer/order-confirmation?orderId=${widget.orderId}&orderNumber=${widget.orderNumber}');
+        context.go(
+          '/customer/order-confirmation?orderId=${widget.orderId}&orderNumber=${widget.orderNumber}',
+        );
       }
     });
   }
@@ -84,7 +82,9 @@ class _PaymentVerificationDialogState extends State<PaymentVerificationDialog> {
       if (mounted) {
         Navigator.pop(context); // Close dialog
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Payment verification failed. Please try again or contact support.')),
+          const SnackBar(
+            content: Text('Payment verification failed. Please try again or contact support.'),
+          ),
         );
       }
     });
@@ -100,7 +100,11 @@ class _PaymentVerificationDialogState extends State<PaymentVerificationDialog> {
       if (mounted) {
         Navigator.pop(context); // Close dialog
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Verification timed out. If money was deducted, your order will confirm automatically.')),
+          const SnackBar(
+            content: Text(
+              'Verification timed out. If money was deducted, your order will confirm automatically.',
+            ),
+          ),
         );
       }
     });

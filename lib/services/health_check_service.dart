@@ -31,11 +31,7 @@ class HealthStatus {
 
   bool get isOk => state == HealthState.ok;
 
-  Map<String, dynamic> toMap() => {
-        'state': state.name,
-        'message': message,
-        'latencyMs': latencyMs,
-      };
+  Map<String, dynamic> toMap() => {'state': state.name, 'message': message, 'latencyMs': latencyMs};
 }
 
 class HealthCheckService {
@@ -117,10 +113,7 @@ class HealthCheckService {
       try {
         client = SupabaseConfig.client;
       } catch (e) {
-        return HealthStatus(
-          state: HealthState.down,
-          message: 'Supabase client unavailable: $e',
-        );
+        return HealthStatus(state: HealthState.down, message: 'Supabase client unavailable: $e');
       }
 
       // Cheap reachability probe: select a single row's id from a
@@ -185,7 +178,11 @@ class HealthCheckService {
       }
       final s3 = Map<String, dynamic>.from(health['s3'] as Map? ?? {});
       if (s3['reachable'] == true) {
-        return HealthStatus(state: HealthState.ok, message: 'S3 reachable', latencyMs: sw.elapsedMilliseconds);
+        return HealthStatus(
+          state: HealthState.ok,
+          message: 'S3 reachable',
+          latencyMs: sw.elapsedMilliseconds,
+        );
       }
       return const HealthStatus(state: HealthState.down, message: 'S3 not reachable');
     } catch (e) {

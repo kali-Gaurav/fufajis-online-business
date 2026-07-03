@@ -47,7 +47,7 @@ class SentimentService {
     'cold': -0.4, 'unhappy': -0.65, 'dissatisfied': -0.7,
     'disappointed': -0.7, 'upset': -0.65, 'frustrated': -0.7,
     'annoyed': -0.6, 'hate': -0.8, 'dislike': -0.55, 'complaint': -0.55,
-    'complain': -0.55, 
+    'complain': -0.55,
     'cheated': -0.85, 'fraud': -0.9, 'scam': -0.9, 'stealing': -0.9,
     'lied': -0.8, 'lie': -0.75, 'fake': -0.75, 'pathetic': -0.8,
     'pathetically': -0.8,
@@ -64,15 +64,32 @@ class SentimentService {
 
   // Intensifiers multiply the base score.
   static const Map<String, double> _intensifiers = {
-    'very': 1.3, 'really': 1.25, 'extremely': 1.5, 'so': 1.2,
-    'absolutely': 1.4, 'totally': 1.3, 'completely': 1.35, 'highly': 1.25,
-    'super': 1.3, 'too': 1.2, 'quite': 1.1, 'rather': 1.05,
+    'very': 1.3,
+    'really': 1.25,
+    'extremely': 1.5,
+    'so': 1.2,
+    'absolutely': 1.4,
+    'totally': 1.3,
+    'completely': 1.35,
+    'highly': 1.25,
+    'super': 1.3,
+    'too': 1.2,
+    'quite': 1.1,
+    'rather': 1.05,
   };
 
   // Negations flip the sign and reduce magnitude.
   static const Set<String> _negations = {
-    'not', "n't", 'never', 'no', 'nobody', 'nothing',
-    'neither', 'nor', 'hardly', 'barely',
+    'not',
+    "n't",
+    'never',
+    'no',
+    'nobody',
+    'nothing',
+    'neither',
+    'nor',
+    'hardly',
+    'barely',
   };
 
   // ── Public API ────────────────────────────────────────────────────────────

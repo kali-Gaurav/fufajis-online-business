@@ -9,7 +9,7 @@ class UpdateAnnouncementBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final remoteConfig = RemoteConfigService();
-    
+
     if (!remoteConfig.showAnnouncement) return const SizedBox.shrink();
 
     return Container(
@@ -48,10 +48,7 @@ class UpdateAnnouncementBanner extends StatelessWidget {
                 ),
                 Text(
                   remoteConfig.announcementMsg,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 11,
-                  ),
+                  style: const TextStyle(color: Colors.white70, fontSize: 11),
                 ),
               ],
             ),
@@ -64,15 +61,10 @@ class UpdateAnnouncementBanner extends StatelessWidget {
               foregroundColor: AppTheme.primary,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
               minimumSize: const Size(60, 30),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
               elevation: 0,
             ),
-            child: const Text(
-              'View',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-            ),
+            child: const Text('View', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
           ),
         ],
       ),

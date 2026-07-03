@@ -18,7 +18,7 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _districtController = TextEditingController();
   final TextEditingController _villageController = TextEditingController();
-  
+
   bool _isLocating = false;
   bool _isSaving = false;
 
@@ -53,7 +53,7 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
 
     setState(() => _isSaving = true);
     final auth = Provider.of<AuthProvider>(context, listen: false);
-    
+
     try {
       if (auth.currentUser != null) {
         await auth.updateProfile(
@@ -62,16 +62,16 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
           district: _districtController.text.trim(),
           village: _villageController.text.trim(),
         );
-        
+
         if (mounted) {
           context.go('/');
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -86,7 +86,6 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
     _villageController.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -115,10 +114,14 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
                         radius: 50,
                         backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
                         child: Text(
-                          _nameController.text.isNotEmpty 
-                              ? _nameController.text[0].toUpperCase() 
+                          _nameController.text.isNotEmpty
+                              ? _nameController.text[0].toUpperCase()
                               : "?",
-                          style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: AppTheme.primary),
+                          style: const TextStyle(
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.primary,
+                          ),
                         ),
                       ),
                       Positioned(
@@ -126,7 +129,10 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
                         right: 0,
                         child: Container(
                           padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(color: AppTheme.primary, shape: BoxShape.circle),
+                          decoration: const BoxDecoration(
+                            color: AppTheme.primary,
+                            shape: BoxShape.circle,
+                          ),
                           child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
                         ),
                       ),
@@ -134,7 +140,7 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                
+
                 // Name Field
                 _buildFieldTitle("Full Name"),
                 TextFormField(
@@ -144,7 +150,7 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
                   validator: (v) => (v == null || v.isEmpty) ? "Name is required" : null,
                 ),
                 const SizedBox(height: 20),
-                
+
                 // Email Field
                 _buildFieldTitle("Email Address"),
                 TextFormField(
@@ -153,19 +159,24 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
                   decoration: const InputDecoration(hintText: "name@example.com"),
                   validator: (v) {
                     if (v == null || v.isEmpty) return "Email is required";
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v)) return "Enter a valid email";
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v))
+                      return "Enter a valid email";
                     return null;
                   },
                 ),
                 const SizedBox(height: 20),
-                
+
                 // Location Details
                 Row(
                   children: [
                     _buildFieldTitle("Location Details"),
                     const Spacer(),
                     if (_isLocating)
-                      const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                      const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
                     else
                       TextButton.icon(
                         onPressed: _autoDetectLocation,
@@ -194,18 +205,29 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 48),
-                
+
                 ElevatedButton(
                   onPressed: _isSaving ? null : _saveProfile,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 18),
                     backgroundColor: AppTheme.primary,
                   ),
-                  child: _isSaving 
-                    ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : const Text("Save & Continue", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                  child: _isSaving
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                      : const Text(
+                          "Save & Continue",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               ],
             ),
@@ -220,11 +242,7 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Text(
         title,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: Colors.grey,
-        ),
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.grey),
       ),
     );
   }

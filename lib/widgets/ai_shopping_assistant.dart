@@ -15,7 +15,10 @@ class _AIShoppingAssistantState extends State<AIShoppingAssistant> {
   bool _isOpen = false;
   final TextEditingController _controller = TextEditingController();
   final List<Map<String, String>> _messages = [
-    {'role': 'assistant', 'content': 'Hello! I am Fufaji\'s AI assistant. How can I help you today?'}
+    {
+      'role': 'assistant',
+      'content': 'Hello! I am Fufaji\'s AI assistant. How can I help you today?',
+    },
   ];
   bool _isTyping = false;
 
@@ -37,8 +40,9 @@ class _AIShoppingAssistantState extends State<AIShoppingAssistant> {
     try {
       final productProvider = Provider.of<ProductProvider>(context, listen: false);
       final products = productProvider.products.map((p) => p.name).join(', ');
-      
-      final prompt = """
+
+      final prompt =
+          """
       You are Fufaji's Shopping Assistant. 
       The user is asking: "$userMessage"
       Available products are: $products
@@ -46,14 +50,17 @@ class _AIShoppingAssistantState extends State<AIShoppingAssistant> {
       """;
 
       final response = await GeminiService.generateText(prompt);
-      
+
       setState(() {
         _messages.add({'role': 'assistant', 'content': response});
         _isTyping = false;
       });
     } catch (e) {
       setState(() {
-        _messages.add({'role': 'assistant', 'content': 'Sorry, I am having trouble connecting. Try again?'});
+        _messages.add({
+          'role': 'assistant',
+          'content': 'Sorry, I am having trouble connecting. Try again?',
+        });
         _isTyping = false;
       });
     }
@@ -65,14 +72,13 @@ class _AIShoppingAssistantState extends State<AIShoppingAssistant> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         if (_isOpen)
           Positioned(
-            bottom: 90,
+            bottom: 160 + MediaQuery.of(context).padding.bottom,
             right: 16,
             child: Material(
               elevation: 8,
@@ -142,7 +148,10 @@ class _AIShoppingAssistantState extends State<AIShoppingAssistant> {
                         padding: EdgeInsets.only(left: 16, bottom: 8),
                         child: Align(
                           alignment: Alignment.centerLeft,
-                          child: Text('Fufaji AI is typing...', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                          child: Text(
+                            'Fufaji AI is typing...',
+                            style: TextStyle(fontSize: 10, color: Colors.grey),
+                          ),
                         ),
                       ),
                     Padding(
@@ -178,15 +187,15 @@ class _AIShoppingAssistantState extends State<AIShoppingAssistant> {
             ),
           ),
         Positioned(
-          bottom: 16,
+          bottom: 96 + MediaQuery.of(context).padding.bottom,
           right: 16,
           child: FloatingActionButton(
             heroTag: 'ai_assistant',
             onPressed: _toggleChat,
             backgroundColor: AppTheme.primaryColor,
-            child: _isOpen 
-              ? const Icon(Icons.close, color: Colors.white)
-              : const Icon(Icons.smart_toy_outlined, color: Colors.white),
+            child: _isOpen
+                ? const Icon(Icons.close, color: Colors.white)
+                : const Icon(Icons.smart_toy_outlined, color: Colors.white),
           ),
         ),
       ],

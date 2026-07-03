@@ -30,7 +30,7 @@ class RiderPayoutService {
     if (amount <= 0) {
       return PayoutResult(success: false, message: 'Invalid payout amount');
     }
-    
+
     // 1. Payout Threshold (Step 13: ₹100 minimum)
     if (amount < 100) {
       return PayoutResult(success: false, message: 'Minimum payout amount is ₹100');
@@ -39,16 +39,20 @@ class RiderPayoutService {
     // P1-11 Idempotency Key (hourly resolution per rider to prevent double-tap payouts)
     final dateKey = DateTime.now().toIso8601String().substring(0, 13); // hourly window
     final idempotencyKey = 'payout_${riderId}_$dateKey';
-    
+
     try {
       // Check if payout already exists for this window
-      final existingDoc = await _firestore.collection('rider_payouts_idempotency').doc(idempotencyKey).get();
+      final existingDoc = await _firestore
+          .collection('rider_payouts_idempotency')
+          .doc(idempotencyKey)
+          .get();
       if (existingDoc.exists) {
         final data = existingDoc.data()!;
         if (data['status'] == 'processed') {
           return PayoutResult(
             success: false,
-            message: 'A payout has already been processed for this rider in this hour window. Idempotency enforced.',
+            message:
+                'A payout has already been processed for this rider in this hour window. Idempotency enforced.',
           );
         }
       }
@@ -67,7 +71,7 @@ class RiderPayoutService {
 
       final data = riderDoc.data()!;
       final String? accountId = data['razorpayAccountId'] as String?;
-      
+
       // Step 14: Bank Account Validation
       if (data['bankAccountNumber'] == null || data['bankIfsc'] == null) {
         return PayoutResult(
@@ -107,10 +111,7 @@ class RiderPayoutService {
         );
 
         // 3. Record in Ledger (Bahi Khata)
-        await _firestore
-            .collection('rider_payouts')
-            .doc(payout.id)
-            .set(payout.toMap());
+        await _firestore.collection('rider_payouts').doc(payout.id).set(payout.toMap());
 
         // Mirror to AWS RDS for financial integrity
         await _syncPayoutToRDS(payout);
@@ -133,7 +134,8 @@ class RiderPayoutService {
         await _firestore.collection('rider_payouts_idempotency').doc(idempotencyKey).delete();
         return PayoutResult(
           success: false,
-          message: (gatewayResponse?['error'] as String?) ?? 'Payment gateway rejected the transfer',
+          message:
+              (gatewayResponse?['error'] as String?) ?? 'Payment gateway rejected the transfer',
         );
       }
     } catch (e) {
@@ -175,9 +177,7 @@ class RiderPayoutService {
         .orderBy('timestamp', descending: true)
         .snapshots()
         .map(
-          (snap) => snap.docs
-              .map((doc) => RiderPayoutModel.fromMap(doc.data(), doc.id))
-              .toList(),
+          (snap) => snap.docs.map((doc) => RiderPayoutModel.fromMap(doc.data(), doc.id)).toList(),
         );
   }
 }

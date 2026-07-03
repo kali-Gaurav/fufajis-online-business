@@ -3,12 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:io' show Platform;
 
-enum AuditActionType {
-  employeeAction,
-  adminAction,
-  securityEvent,
-  financialEvent,
-}
+enum AuditActionType { employeeAction, adminAction, securityEvent, financialEvent }
 
 class AuditLog {
   final String id;
@@ -19,7 +14,8 @@ class AuditLog {
   final String? branchId;
   final DateTime timestamp;
   final Map<String, dynamic>? metadata;
-  final String? ipAddress; // Can be obtained via a cloud function or 3rd party API, keeping it optional
+  final String?
+  ipAddress; // Can be obtained via a cloud function or 3rd party API, keeping it optional
   final String deviceInfo;
 
   AuditLog({
@@ -92,7 +88,13 @@ class AuditLoggerService {
   }
 
   Future<void> _logEvent(
-      AuditActionType type, String action, Map<String, dynamic>? metadata, {String? targetUserId, String? role, String? branchId}) async {
+    AuditActionType type,
+    String action,
+    Map<String, dynamic>? metadata, {
+    String? targetUserId,
+    String? role,
+    String? branchId,
+  }) async {
     try {
       final user = _auth.currentUser;
       final userId = targetUserId ?? user?.uid ?? 'system';
@@ -118,31 +120,75 @@ class AuditLoggerService {
     }
   }
 
-  Future<void> logEmployeeAction(String action, {Map<String, dynamic>? metadata, String? branchId}) async {
-    await _logEvent(AuditActionType.employeeAction, action, metadata, branchId: branchId, role: 'employee');
+  Future<void> logEmployeeAction(
+    String action, {
+    Map<String, dynamic>? metadata,
+    String? branchId,
+  }) async {
+    await _logEvent(
+      AuditActionType.employeeAction,
+      action,
+      metadata,
+      branchId: branchId,
+      role: 'employee',
+    );
   }
 
-  Future<void> logAdminAction(String action, {String? targetUserId, Map<String, dynamic>? metadata}) async {
-    await _logEvent(AuditActionType.adminAction, action, metadata, targetUserId: targetUserId, role: 'admin');
+  Future<void> logAdminAction(
+    String action, {
+    String? targetUserId,
+    Map<String, dynamic>? metadata,
+  }) async {
+    await _logEvent(
+      AuditActionType.adminAction,
+      action,
+      metadata,
+      targetUserId: targetUserId,
+      role: 'admin',
+    );
   }
 
-  Future<void> logSecurityEvent(String action, {String? targetUserId, Map<String, dynamic>? metadata}) async {
-    await _logEvent(AuditActionType.securityEvent, action, metadata, targetUserId: targetUserId, role: 'system_or_user');
+  Future<void> logSecurityEvent(
+    String action, {
+    String? targetUserId,
+    Map<String, dynamic>? metadata,
+  }) async {
+    await _logEvent(
+      AuditActionType.securityEvent,
+      action,
+      metadata,
+      targetUserId: targetUserId,
+      role: 'system_or_user',
+    );
   }
 
-  Future<void> logFinancialEvent(String action, {Map<String, dynamic>? metadata, String? branchId}) async {
-    await _logEvent(AuditActionType.financialEvent, action, metadata, branchId: branchId, role: 'system_or_user');
+  Future<void> logFinancialEvent(
+    String action, {
+    Map<String, dynamic>? metadata,
+    String? branchId,
+  }) async {
+    await _logEvent(
+      AuditActionType.financialEvent,
+      action,
+      metadata,
+      branchId: branchId,
+      role: 'system_or_user',
+    );
   }
 
   /// Query audit logs for the dashboard
-  Future<List<AuditLog>> getRecentLogs({int limit = 100, AuditActionType? filterType, String? branchId}) async {
+  Future<List<AuditLog>> getRecentLogs({
+    int limit = 100,
+    AuditActionType? filterType,
+    String? branchId,
+  }) async {
     try {
       var query = _firestore.collection('audit_logs').orderBy('timestamp', descending: true);
-      
+
       if (filterType != null) {
         query = query.where('type', isEqualTo: filterType.name);
       }
-      
+
       if (branchId != null) {
         query = query.where('branchId', isEqualTo: branchId);
       }

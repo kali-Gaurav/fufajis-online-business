@@ -17,13 +17,7 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
   final _branchIdController = TextEditingController();
   String _selectedRole = 'packer';
 
-  final List<String> _roles = [
-    'packer',
-    'delivery',
-    'inventory',
-    'branch_manager',
-    'support'
-  ];
+  final List<String> _roles = ['packer', 'delivery', 'inventory', 'branch_manager', 'support'];
 
   @override
   void dispose() {
@@ -37,18 +31,18 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
     final email = _emailController.text.trim().toLowerCase();
     final name = _nameController.text.trim();
     final branchId = _branchIdController.text.trim().toUpperCase();
-    
+
     if (email.isEmpty || name.isEmpty || branchId.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('All fields are required.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('All fields are required.')));
       return;
     }
 
     if (!email.endsWith('@gmail.com')) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Employee must use a Gmail address.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Employee must use a Gmail address.')));
       return;
     }
 
@@ -81,7 +75,8 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
       userId: currentUser?.uid ?? 'system',
       userName: currentUser?.displayName ?? currentUser?.email ?? 'Owner',
       action: AuditAction.adminAction,
-      description: 'Authorized new employee "$name" ($email) as "$_selectedRole" for Branch $branchId',
+      description:
+          'Authorized new employee "$name" ($email) as "$_selectedRole" for Branch $branchId',
       metadata: {
         'employeeEmail': email,
         'employeeName': name,
@@ -96,12 +91,12 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
     setState(() {
       _selectedRole = 'packer';
     });
-    
+
     if (mounted) Navigator.pop(context);
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Employee "$name" authorized successfully.')),
-    );
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Employee "$name" authorized successfully.')));
   }
 
   void _deleteEmployee(DocumentSnapshot doc) async {
@@ -113,8 +108,13 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Revoke Employee Authorization', style: TextStyle(fontWeight: FontWeight.w700)),
-        content: Text('Are you sure you want to revoke access for "$name"? They will be signed out immediately.'),
+        title: const Text(
+          'Revoke Employee Authorization',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+        content: Text(
+          'Are you sure you want to revoke access for "$name"? They will be signed out immediately.',
+        ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
           ElevatedButton(
@@ -128,10 +128,14 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
 
     if (confirm == true) {
       await doc.reference.delete();
-      
+
       // Also delete from pre_authorized_users
       final preAuthDocId = email.replaceAll('@', '_').replaceAll('.', '_');
-      await FirebaseFirestore.instance.collection('pre_authorized_users').doc(preAuthDocId).delete().catchError((_){});
+      await FirebaseFirestore.instance
+          .collection('pre_authorized_users')
+          .doc(preAuthDocId)
+          .delete()
+          .catchError((_) {});
 
       // Audit log
       await AuditService().logAction(
@@ -139,16 +143,13 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
         userName: currentUser?.displayName ?? currentUser?.email ?? 'Owner',
         action: AuditAction.adminAction,
         description: 'Revoked employee authorization for "$name" ($email)',
-        metadata: {
-          'employeeEmail': email,
-          'employeeName': name,
-        },
+        metadata: {'employeeEmail': email, 'employeeName': name},
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Employee "$name" authorization revoked.')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Employee "$name" authorization revoked.')));
       }
     }
   }
@@ -173,7 +174,7 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
           }
-          
+
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(
               child: Column(
@@ -183,13 +184,17 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
                   SizedBox(height: 16),
                   Text(
                     'No employees authorized yet.',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppTheme.grey600),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: AppTheme.grey600,
+                    ),
                   ),
                 ],
               ),
             );
           }
-          
+
           final employees = snapshot.data!.docs;
           return ListView.separated(
             padding: const EdgeInsets.all(16.0),
@@ -227,9 +232,15 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            Text(
+                              name,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
                             const SizedBox(height: 4),
-                            Text(email, style: const TextStyle(color: AppTheme.grey600, fontSize: 13)),
+                            Text(
+                              email,
+                              style: const TextStyle(color: AppTheme.grey600, fontSize: 13),
+                            ),
                             const SizedBox(height: 4),
                             Row(
                               children: [
@@ -241,7 +252,11 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
                                   ),
                                   child: Text(
                                     role.toUpperCase(),
-                                    style: const TextStyle(fontSize: 10, color: AppTheme.ownerAccent, fontWeight: FontWeight.bold),
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      color: AppTheme.ownerAccent,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
@@ -253,7 +268,11 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
                                   ),
                                   child: Text(
                                     'BRANCH: $branchId',
-                                    style: TextStyle(fontSize: 10, color: Colors.purple.shade700, fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.purple.shade700,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                                 if (isBound) ...[
@@ -266,10 +285,14 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
                                     ),
                                     child: const Text(
                                       'BOUND',
-                                      style: TextStyle(fontSize: 10, color: AppTheme.success, fontWeight: FontWeight.bold),
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: AppTheme.success,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
-                                ]
+                                ],
                               ],
                             ),
                           ],
@@ -291,7 +314,10 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
         onPressed: _showAddDialog,
         backgroundColor: AppTheme.primary,
         icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('Add Employee', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        label: const Text(
+          'Add Employee',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }
@@ -302,49 +328,59 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text('Authorize New Employee', style: TextStyle(fontWeight: FontWeight.bold)),
+          title: const Text(
+            'Authorize New Employee',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 TextField(
-                  controller: _nameController, 
+                  controller: _nameController,
                   decoration: const InputDecoration(
                     labelText: 'Full Name',
                     prefixIcon: Icon(Icons.person_outline),
-                  )
+                  ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
-                  controller: _emailController, 
+                  controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: const InputDecoration(
                     labelText: 'Gmail Address',
                     prefixIcon: Icon(Icons.email_outlined),
                     hintText: 'user@gmail.com',
-                  )
+                  ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
-                  controller: _branchIdController, 
+                  controller: _branchIdController,
                   decoration: const InputDecoration(
                     labelText: 'Branch ID',
                     prefixIcon: Icon(Icons.store_outlined),
                     hintText: 'KOTA01',
-                  )
+                  ),
                 ),
                 const SizedBox(height: 16),
-                const Text('Assign Role:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.grey700)),
+                const Text(
+                  'Assign Role:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    color: AppTheme.grey700,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
                   initialValue: _selectedRole,
                   decoration: const InputDecoration(
                     contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),
-                  items: _roles.map((r) => 
-                    DropdownMenuItem(value: r, child: Text(r.toUpperCase()))
-                  ).toList(),
+                  items: _roles
+                      .map((r) => DropdownMenuItem(value: r, child: Text(r.toUpperCase())))
+                      .toList(),
                   onChanged: (v) {
                     setState(() => _selectedRole = v!);
                     setDialogState(() {});
@@ -360,17 +396,17 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
                 _emailController.clear();
                 _branchIdController.clear();
                 Navigator.pop(context);
-              }, 
-              child: const Text('Cancel')
+              },
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
-              onPressed: _addEmployee, 
+              onPressed: _addEmployee,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primary,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
-              child: const Text('Authorize')
+              child: const Text('Authorize'),
             ),
           ],
         ),

@@ -21,115 +21,107 @@ class ScanQrWidget extends StatelessWidget {
     required this.color,
     this.size = 180,
     this.canCopy = true,
-    this.canFullscreen = true,
     this.compact = false,
-  });
+  }) : canFullscreen = true;
 
   factory ScanQrWidget.order({
     required String orderId,
     String? orderNumber,
     double size = 180,
     bool compact = false,
-  }) =>
-      ScanQrWidget._(
-        qrData: 'ORDER-$orderId',
-        label: 'Order QR',
-        sublabel: orderNumber != null ? '#$orderNumber' : null,
-        color: const Color(0xFF6A1B9A),
-        size: size,
-        canCopy: true,
-        compact: compact,
-      );
+  }) => ScanQrWidget._(
+    qrData: 'ORDER-$orderId',
+    label: 'Order QR',
+    sublabel: orderNumber != null ? '#$orderNumber' : null,
+    color: const Color(0xFF6A1B9A),
+    size: size,
+    canCopy: true,
+    compact: compact,
+  );
 
   factory ScanQrWidget.dispatch({
     required String orderId,
     String? orderNumber,
     double size = 180,
     bool compact = false,
-  }) =>
-      ScanQrWidget._(
-        qrData: 'DISPATCH-$orderId',
-        label: 'Dispatch QR',
-        sublabel: orderNumber != null ? 'Scan to dispatch #$orderNumber' : null,
-        color: const Color(0xFFE65100),
-        size: size,
-        compact: compact,
-      );
+  }) => ScanQrWidget._(
+    qrData: 'DISPATCH-$orderId',
+    label: 'Dispatch QR',
+    sublabel: orderNumber != null ? 'Scan to dispatch #$orderNumber' : null,
+    color: const Color(0xFFE65100),
+    size: size,
+    compact: compact,
+  );
 
   factory ScanQrWidget.parcel({
     required String orderId,
     String? orderNumber,
     double size = 180,
     bool compact = false,
-  }) =>
-      ScanQrWidget._(
-        qrData: 'PARCEL-$orderId',
-        label: 'Delivery QR',
-        sublabel: orderNumber != null ? 'Scan to confirm delivery #$orderNumber' : null,
-        color: const Color(0xFF2E7D32),
-        size: size,
-        compact: compact,
-      );
+  }) => ScanQrWidget._(
+    qrData: 'PARCEL-$orderId',
+    label: 'Delivery QR',
+    sublabel: orderNumber != null ? 'Scan to confirm delivery #$orderNumber' : null,
+    color: const Color(0xFF2E7D32),
+    size: size,
+    compact: compact,
+  );
 
   factory ScanQrWidget.member({
     required String customerId,
     String? customerName,
     double size = 180,
     bool compact = false,
-  }) =>
-      ScanQrWidget._(
-        qrData: 'MEMBER-$customerId',
-        label: 'Member QR',
-        sublabel: customerName,
-        color: const Color(0xFFAD1457),
-        size: size,
-        compact: compact,
-      );
+  }) => ScanQrWidget._(
+    qrData: 'MEMBER-$customerId',
+    label: 'Member QR',
+    sublabel: customerName,
+    color: const Color(0xFFAD1457),
+    size: size,
+    compact: compact,
+  );
 
   factory ScanQrWidget.shelf({
     required String shelfId,
     String? shelfName,
     double size = 160,
     bool compact = false,
-  }) =>
-      ScanQrWidget._(
-        qrData: 'SHELF-$shelfId',
-        label: 'Shelf QR',
-        sublabel: shelfName ?? shelfId,
-        color: const Color(0xFFF57F17),
-        size: size,
-        compact: compact,
-      );
+  }) => ScanQrWidget._(
+    qrData: 'SHELF-$shelfId',
+    label: 'Shelf QR',
+    sublabel: shelfName ?? shelfId,
+    color: const Color(0xFFF57F17),
+    size: size,
+    compact: compact,
+  );
 
   factory ScanQrWidget.attendance({
     required String branchId,
     String? branchName,
     double size = 200,
     bool compact = false,
-  }) =>
-      ScanQrWidget._(
-        qrData: 'ATTENDANCE-$branchId',
-        label: 'Attendance QR',
-        sublabel: branchName ?? 'Scan to check in / out',
-        color: const Color(0xFF37474F),
-        size: size,
-        compact: compact,
-      );
+  }) => ScanQrWidget._(
+    qrData: 'ATTENDANCE-$branchId',
+    label: 'Attendance QR',
+    sublabel: branchName ?? 'Scan to check in / out',
+    color: const Color(0xFF37474F),
+    size: size,
+    compact: compact,
+  );
 
   factory ScanQrWidget.product({
     required String barcode,
     String? productName,
     double size = 160,
     bool compact = false,
-  }) =>
-      ScanQrWidget._(
-        qrData: barcode,
-        label: 'Product Barcode',
-        sublabel: productName,
-        color: const Color(0xFF1565C0),
-        size: size,
-        compact: compact,
-      );
+  }) => ScanQrWidget._(
+    qrData: barcode,
+    label: 'Product Barcode',
+    sublabel: productName,
+    color: const Color(0xFF1565C0),
+    size: size,
+    compact: compact,
+  );
 
   factory ScanQrWidget.custom({
     required String data,
@@ -138,15 +130,14 @@ class ScanQrWidget extends StatelessWidget {
     Color color = const Color(0xFF455A64),
     double size = 180,
     bool compact = false,
-  }) =>
-      ScanQrWidget._(
-        qrData: data,
-        label: label,
-        sublabel: sublabel,
-        color: color,
-        size: size,
-        compact: compact,
-      );
+  }) => ScanQrWidget._(
+    qrData: data,
+    label: label,
+    sublabel: sublabel,
+    color: color,
+    size: size,
+    compact: compact,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -189,18 +180,10 @@ class ScanQrWidget extends StatelessWidget {
                   children: [
                     Text(
                       label,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: color,
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.bold, color: color, fontSize: 14),
                     ),
                     if (sublabel != null)
-                      Text(
-                        sublabel!,
-                        style: const TextStyle(
-                            color: Colors.grey, fontSize: 12),
-                      ),
+                      Text(sublabel!, style: const TextStyle(color: Colors.grey, fontSize: 12)),
                   ],
                 ),
               ),
@@ -222,17 +205,13 @@ class ScanQrWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                    color: color.withValues(alpha: 0.15)),
+                border: Border.all(color: color.withValues(alpha: 0.15)),
               ),
               child: QrImageView(
                 data: qrData,
                 version: QrVersions.auto,
                 size: size,
-                eyeStyle: QrEyeStyle(
-                  eyeShape: QrEyeShape.square,
-                  color: color,
-                ),
+                eyeStyle: QrEyeStyle(eyeShape: QrEyeShape.square, color: color),
                 dataModuleStyle: const QrDataModuleStyle(
                   dataModuleShape: QrDataModuleShape.square,
                   color: Color(0xFF1A1A1A),
@@ -247,11 +226,7 @@ class ScanQrWidget extends StatelessWidget {
               Flexible(
                 child: Text(
                   qrData,
-                  style: const TextStyle(
-                    fontFamily: 'monospace',
-                    fontSize: 11,
-                    color: Colors.grey,
-                  ),
+                  style: const TextStyle(fontFamily: 'monospace', fontSize: 11, color: Colors.grey),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -285,8 +260,7 @@ class ScanQrWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
-          border:
-              Border.all(color: color.withValues(alpha: 0.3)),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -295,8 +269,7 @@ class ScanQrWidget extends StatelessWidget {
               data: qrData,
               version: QrVersions.auto,
               size: size,
-              eyeStyle: QrEyeStyle(
-                  eyeShape: QrEyeShape.square, color: color),
+              eyeStyle: QrEyeStyle(eyeShape: QrEyeShape.square, color: color),
               dataModuleStyle: const QrDataModuleStyle(
                 dataModuleShape: QrDataModuleShape.square,
                 color: Color(0xFF1A1A1A),
@@ -305,10 +278,7 @@ class ScanQrWidget extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               label,
-              style: TextStyle(
-                  fontSize: 10,
-                  color: color,
-                  fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -322,8 +292,7 @@ class ScanQrWidget extends StatelessWidget {
       barrierColor: Colors.black87,
       builder: (_) => Dialog(
         backgroundColor: AppTheme.cream,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -334,11 +303,7 @@ class ScanQrWidget extends StatelessWidget {
                   Expanded(
                     child: Text(
                       label,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: color,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: color),
                     ),
                   ),
                   IconButton(
@@ -348,26 +313,21 @@ class ScanQrWidget extends StatelessWidget {
                 ],
               ),
               if (sublabel != null) ...[
-                Text(sublabel!,
-                    style: const TextStyle(
-                        color: Colors.grey, fontSize: 13)),
+                Text(sublabel!, style: const TextStyle(color: Colors.grey, fontSize: 13)),
                 const SizedBox(height: 8),
               ],
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  border: Border.all(
-                      color: color.withValues(alpha: 0.3),
-                      width: 2),
+                  border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: QrImageView(
                   data: qrData,
                   version: QrVersions.auto,
                   size: 280,
-                  eyeStyle: QrEyeStyle(
-                      eyeShape: QrEyeShape.square, color: color),
+                  eyeStyle: QrEyeStyle(eyeShape: QrEyeShape.square, color: color),
                   dataModuleStyle: const QrDataModuleStyle(
                     dataModuleShape: QrDataModuleShape.square,
                     color: Color(0xFF1A1A1A),
@@ -377,11 +337,7 @@ class ScanQrWidget extends StatelessWidget {
               const SizedBox(height: 16),
               SelectableText(
                 qrData,
-                style: const TextStyle(
-                  fontFamily: 'monospace',
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
+                style: const TextStyle(fontFamily: 'monospace', fontSize: 12, color: Colors.grey),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
@@ -395,15 +351,13 @@ class ScanQrWidget extends StatelessWidget {
                       Clipboard.setData(ClipboardData(text: qrData));
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Copied'),
-                          duration: Duration(seconds: 1),
-                        ),
+                        const SnackBar(content: Text('Copied'), duration: Duration(seconds: 1)),
                       );
                     },
                     style: OutlinedButton.styleFrom(
-                        foregroundColor: color,
-                        side: BorderSide(color: color)),
+                      foregroundColor: color,
+                      side: BorderSide(color: color),
+                    ),
                   ),
                 ],
               ),

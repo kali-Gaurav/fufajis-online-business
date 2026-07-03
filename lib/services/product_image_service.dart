@@ -64,13 +64,14 @@ class ProductImageService {
       debugPrint('[ProductImageService] Upload complete. URL: $downloadUrl');
 
       // Sync to Firestore
-      await _firestore.collection('products').doc(productId).update({
-        'imageUrl': downloadUrl,
-        'imageUpdatedAt': FieldValue.serverTimestamp(),
-      }).catchError((e) {
-        debugPrint('[ProductImageService] Firestore update error: $e');
-        // Don't throw - image was uploaded successfully, just log the sync issue
-      });
+      await _firestore
+          .collection('products')
+          .doc(productId)
+          .update({'imageUrl': downloadUrl, 'imageUpdatedAt': FieldValue.serverTimestamp()})
+          .catchError((e) {
+            debugPrint('[ProductImageService] Firestore update error: $e');
+            // Don't throw - image was uploaded successfully, just log the sync issue
+          });
 
       // Cache the signed URL reference
       await _cacheStorageReference(
@@ -113,10 +114,7 @@ class ProductImageService {
   /// Delete a product image from storage
   ///
   /// Removes the image file and updates Firestore
-  Future<bool> deleteProductImage({
-    required String shopId,
-    required String productId,
-  }) async {
+  Future<bool> deleteProductImage({required String shopId, required String productId}) async {
     try {
       debugPrint('[ProductImageService] Deleting image for product: $productId');
 

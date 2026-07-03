@@ -16,13 +16,6 @@ tasks.register("clean", Delete) {
 }
 
 subprojects {
-    configurations.all {
-        resolutionStrategy.eachDependency { details ->
-            if (details.requested.group == 'org.jetbrains.kotlin') {
-                details.useVersion "2.1.10"
-            }
-        }
-    }
     afterEvaluate { project ->
         if (project.hasProperty('android')) {
             project.android {

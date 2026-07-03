@@ -3,11 +3,7 @@ class Device {
   final String deviceName;
   final bool approved;
 
-  Device({
-    required this.deviceId,
-    required this.deviceName,
-    required this.approved,
-  });
+  Device({required this.deviceId, required this.deviceName, required this.approved});
 
   factory Device.fromJson(Map<String, dynamic> json) {
     return Device(
@@ -18,11 +14,7 @@ class Device {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'deviceId': deviceId,
-      'deviceName': deviceName,
-      'approved': approved,
-    };
+    return {'deviceId': deviceId, 'deviceName': deviceName, 'approved': approved};
   }
 }
 

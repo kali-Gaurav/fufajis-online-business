@@ -8,11 +8,7 @@ class BarChartData {
   final double value;
   final Color color;
 
-  BarChartData({
-    required this.label,
-    required this.value,
-    this.color = AppTheme.info,
-  });
+  BarChartData({required this.label, required this.value, this.color = AppTheme.info});
 }
 
 /// A simple bar chart widget for displaying comparative data
@@ -44,12 +40,7 @@ class _BarChartWidgetState extends State<BarChartWidget> {
   @override
   Widget build(BuildContext context) {
     if (widget.data.isEmpty) {
-      return Center(
-        child: Text(
-          'No data available',
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-      );
+      return Center(child: Text('No data available', style: Theme.of(context).textTheme.bodySmall));
     }
 
     return Column(
@@ -57,9 +48,7 @@ class _BarChartWidgetState extends State<BarChartWidget> {
       children: [
         Text(
           widget.title,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 16),
         SizedBox(
@@ -87,55 +76,46 @@ class _BarChartWidgetState extends State<BarChartWidget> {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: List.generate(
-          widget.data.length,
-          (index) {
-            final item = widget.data[index];
-            return GestureDetector(
-              onTap: () {
-                setState(() {
-                  _selectedIndex = _selectedIndex == index ? null : index;
-                });
-                widget.onBarTap?.call(index);
-              },
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: _selectedIndex == index
-                      ? item.color.withValues(alpha: 0.2)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(4),
-                  border: _selectedIndex == index
-                      ? Border.all(color: item.color)
-                      : null,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      item.label,
-                      style: Theme.of(context).textTheme.labelSmall,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (widget.showValues)
-                      Text(
-                        item.value.toStringAsFixed(0),
-                        style:
-                            Theme.of(context).textTheme.labelSmall?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                      ),
-                  ],
-                ),
+        children: List.generate(widget.data.length, (index) {
+          final item = widget.data[index];
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                _selectedIndex = _selectedIndex == index ? null : index;
+              });
+              widget.onBarTap?.call(index);
+            },
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: _selectedIndex == index
+                    ? item.color.withValues(alpha: 0.2)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(4),
+                border: _selectedIndex == index ? Border.all(color: item.color) : null,
               ),
-            );
-          },
-        ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    item.label,
+                    style: Theme.of(context).textTheme.labelSmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (widget.showValues)
+                    Text(
+                      item.value.toStringAsFixed(0),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                ],
+              ),
+            ),
+          );
+        }),
       ),
     );
   }
@@ -147,18 +127,13 @@ class _BarChartPainter extends CustomPainter {
   final int? selectedIndex;
   final bool showValues;
 
-  _BarChartPainter({
-    required this.data,
-    this.selectedIndex,
-    required this.showValues,
-  });
+  _BarChartPainter({required this.data, this.selectedIndex, required this.showValues});
 
   @override
   void paint(Canvas canvas, Size size) {
     if (data.isEmpty) return;
 
-    final maxValue =
-        data.map((d) => d.value).reduce((a, b) => a > b ? a : b);
+    final maxValue = data.map((d) => d.value).reduce((a, b) => a > b ? a : b);
     const padding = 40.0;
     final chartHeight = size.height - padding * 2;
     final chartWidth = size.width - padding * 2;
@@ -195,10 +170,8 @@ class _BarChartPainter extends CustomPainter {
         ..style = PaintingStyle.fill;
 
       // Scale up selected bar
-      final scaledHeight =
-          selectedIndex == i ? barHeight * 1.05 : barHeight;
-      final scaledY =
-          size.height - padding - scaledHeight;
+      final scaledHeight = selectedIndex == i ? barHeight * 1.05 : barHeight;
+      final scaledY = size.height - padding - scaledHeight;
 
       // Draw bar with rounded top
       final barRect = RRect.fromLTRBR(
@@ -225,13 +198,7 @@ class _BarChartPainter extends CustomPainter {
           textDirection: TextDirection.ltr,
         );
         textPainter.layout();
-        textPainter.paint(
-          canvas,
-          Offset(
-            x + (barWidth - textPainter.width) / 2,
-            scaledY - 12,
-          ),
-        );
+        textPainter.paint(canvas, Offset(x + (barWidth - textPainter.width) / 2, scaledY - 12));
       }
     }
 
@@ -245,28 +212,18 @@ class _BarChartPainter extends CustomPainter {
       final value = maxValue * (1 - i / 5);
 
       // Draw grid line
-      canvas.drawLine(
-        Offset(padding, y),
-        Offset(size.width - padding, y),
-        gridPaint,
-      );
+      canvas.drawLine(Offset(padding, y), Offset(size.width - padding, y), gridPaint);
 
       // Draw label
       final textPainter = TextPainter(
         text: TextSpan(
           text: value.toStringAsFixed(0),
-          style: const TextStyle(
-            color: Colors.grey,
-            fontSize: 9,
-          ),
+          style: const TextStyle(color: Colors.grey, fontSize: 9),
         ),
         textDirection: TextDirection.ltr,
       );
       textPainter.layout();
-      textPainter.paint(
-        canvas,
-        Offset(padding - 30, y - 5),
-      );
+      textPainter.paint(canvas, Offset(padding - 30, y - 5));
     }
   }
 

@@ -58,20 +58,10 @@ class FilterCondition {
   final dynamic value;
   final dynamic value2;
 
-  const FilterCondition({
-    required this.field,
-    required this.operator,
-    this.value,
-    this.value2,
-  });
+  const FilterCondition({required this.field, required this.operator, this.value, this.value2});
 
   Map<String, dynamic> toMap() {
-    return {
-      'field': field,
-      'operator': operator.name,
-      'value': value,
-      'value2': value2,
-    };
+    return {'field': field, 'operator': operator.name, 'value': value, 'value2': value2};
   }
 
   factory FilterCondition.fromMap(Map<String, dynamic> map) {
@@ -103,15 +93,24 @@ class FilterCondition {
 
   String _symbolFor(FilterOperator op) {
     switch (op) {
-      case FilterOperator.equals: return '=';
-      case FilterOperator.notEquals: return '!=';
-      case FilterOperator.contains: return 'contains';
-      case FilterOperator.notContains: return 'not contains';
-      case FilterOperator.greaterThan: return '>';
-      case FilterOperator.greaterOrEqual: return '>=';
-      case FilterOperator.lessThan: return '<';
-      case FilterOperator.lessOrEqual: return '<=';
-      default: return op.name;
+      case FilterOperator.equals:
+        return '=';
+      case FilterOperator.notEquals:
+        return '!=';
+      case FilterOperator.contains:
+        return 'contains';
+      case FilterOperator.notContains:
+        return 'not contains';
+      case FilterOperator.greaterThan:
+        return '>';
+      case FilterOperator.greaterOrEqual:
+        return '>=';
+      case FilterOperator.lessThan:
+        return '<';
+      case FilterOperator.lessOrEqual:
+        return '<=';
+      default:
+        return op.name;
     }
   }
 }
@@ -219,11 +218,13 @@ class InventoryQueryService {
             break;
           case FilterOperator.inList:
             final items = (c.value?.toString() ?? '').split(',').map((s) => s.trim()).toList();
-            final placeholders = items.map((_) {
-              final str = '\$$paramIndex';
-              paramIndex++;
-              return str;
-            }).join(',');
+            final placeholders = items
+                .map((_) {
+                  final str = '\$$paramIndex';
+                  paramIndex++;
+                  return str;
+                })
+                .join(',');
             clauses.add('$col IN ($placeholders)');
             params.addAll(items);
             break;
@@ -234,11 +235,7 @@ class InventoryQueryService {
       sql += ' AND (${clauses.join(joiner)})';
     }
 
-    return {
-      'sql': sql,
-      'params': params,
-      'nextParamIndex': paramIndex,
-    };
+    return {'sql': sql, 'params': params, 'nextParamIndex': paramIndex};
   }
 
   /// Builds and executes a dynamic SQL query on AWS RDS.
@@ -256,7 +253,12 @@ class InventoryQueryService {
         WHERE 1=1
       ''';
 
-      final whereResult = buildWhereClause(conditions, logic: logic, shopId: shopId, startParamIndex: 1);
+      final whereResult = buildWhereClause(
+        conditions,
+        logic: logic,
+        shopId: shopId,
+        startParamIndex: 1,
+      );
       baseSql += whereResult['sql'] as String;
       final params = whereResult['params'] as List<dynamic>;
 
@@ -276,7 +278,6 @@ class InventoryQueryService {
         };
         return ProductModel.fromMap(adaptedMap);
       }).toList();
-
     } catch (e) {
       debugPrint('[InventoryQueryService] SQL fetch failed: $e');
       return [];
@@ -284,7 +285,12 @@ class InventoryQueryService {
   }
 
   /// Saves a configured query for later use.
-  Future<bool> saveQuery(String queryName, List<FilterCondition> conditions, FilterLogic logic, String ownerId) async {
+  Future<bool> saveQuery(
+    String queryName,
+    List<FilterCondition> conditions,
+    FilterLogic logic,
+    String ownerId,
+  ) async {
     try {
       final filterJson = {
         'logic': logic.name,
@@ -322,18 +328,17 @@ class InventoryQueryService {
   }
 }
 
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Simple filter model used by BulkInventoryQueryScreen.
 // Translates to FilterConditions for fetchProductsSQL.
 // ─────────────────────────────────────────────────────────────────────────────
 class InventoryQueryFilter {
   final String? category;
-  final String stockOperator;   // '<=', '>=', '=='
+  final String stockOperator; // '<=', '>=', '=='
   final double stockThreshold;
   final double? priceMin;
   final double? priceMax;
-  final int? expiryWithinDays;  // products expiring within N days
+  final int? expiryWithinDays; // products expiring within N days
 
   const InventoryQueryFilter({
     this.category,
@@ -348,16 +353,13 @@ class InventoryQueryFilter {
 extension InventoryQueryServiceSimple on InventoryQueryService {
   /// Simple query used by BulkInventoryQueryScreen — builds conditions from
   /// an [InventoryQueryFilter] and returns lightweight maps.
-  Future<List<Map<String, dynamic>>> queryProducts(
-      InventoryQueryFilter filter) async {
+  Future<List<Map<String, dynamic>>> queryProducts(InventoryQueryFilter filter) async {
     final conditions = <FilterCondition>[];
 
     if (filter.category != null) {
-      conditions.add(FilterCondition(
-        field: 'category',
-        operator: FilterOperator.equals,
-        value: filter.category,
-      ));
+      conditions.add(
+        FilterCondition(field: 'category', operator: FilterOperator.equals, value: filter.category),
+      );
     }
 
     FilterOperator stockOp;
@@ -371,36 +373,40 @@ extension InventoryQueryServiceSimple on InventoryQueryService {
       default:
         stockOp = FilterOperator.lessOrEqual;
     }
-    conditions.add(FilterCondition(
-      field: 'current_stock',
-      operator: stockOp,
-      value: filter.stockThreshold,
-    ));
+    conditions.add(
+      FilterCondition(field: 'current_stock', operator: stockOp, value: filter.stockThreshold),
+    );
 
     if (filter.priceMin != null) {
-      conditions.add(FilterCondition(
-        field: 'price',
-        operator: FilterOperator.greaterOrEqual,
-        value: filter.priceMin,
-      ));
+      conditions.add(
+        FilterCondition(
+          field: 'price',
+          operator: FilterOperator.greaterOrEqual,
+          value: filter.priceMin,
+        ),
+      );
     }
     if (filter.priceMax != null && filter.priceMax! < 10000) {
-      conditions.add(FilterCondition(
-        field: 'price',
-        operator: FilterOperator.lessOrEqual,
-        value: filter.priceMax,
-      ));
+      conditions.add(
+        FilterCondition(
+          field: 'price',
+          operator: FilterOperator.lessOrEqual,
+          value: filter.priceMax,
+        ),
+      );
     }
 
     final products = await fetchProductsSQL(conditions);
     return products
-        .map((p) => {
-              'id': p.id,
-              'name': p.name,
-              'category': p.category,
-              'price': p.price,
-              'stock': p.stockQuantity,
-            })
+        .map(
+          (p) => {
+            'id': p.id,
+            'name': p.name,
+            'category': p.category,
+            'price': p.price,
+            'stock': p.stockQuantity,
+          },
+        )
         .toList();
   }
 }

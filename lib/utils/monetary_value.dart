@@ -2,7 +2,7 @@ import 'package:decimal/decimal.dart';
 
 /// Represents a monetary value with guaranteed accuracy.
 /// Uses Decimal for all calculations (no floating-point errors).
-/// 
+///
 /// Benefits:
 /// - No rounding errors from double arithmetic
 /// - ₹99.99 * 3 = ₹299.97 exactly (not 299.96999999999997)
@@ -22,8 +22,10 @@ class MonetaryValue implements Comparable<MonetaryValue> {
     }
     if (value is String) return Decimal.parse(value);
     if (value is MonetaryValue) return value._value;
-    throw ArgumentError('Invalid value type: ${value.runtimeType}. '
-        'Expected Decimal, int, double, String, or MonetaryValue.');
+    throw ArgumentError(
+      'Invalid value type: ${value.runtimeType}. '
+      'Expected Decimal, int, double, String, or MonetaryValue.',
+    );
   }
 
   // Arithmetic operations (all return new MonetaryValue)
@@ -70,7 +72,7 @@ class MonetaryValue implements Comparable<MonetaryValue> {
 
   @override
   int compareTo(MonetaryValue other) => _value.compareTo(other._value);
-  
+
   @override
   bool operator ==(Object other) {
     if (other is! MonetaryValue) return false;
@@ -83,19 +85,19 @@ class MonetaryValue implements Comparable<MonetaryValue> {
   // Conversions
   double toDouble() => _value.toDouble();
   int toInt() => _value.toDouble().toInt();
-  
+
   /// Format as Indian Rupees (e.g., "₹99.99")
   String toDisplayString() => '₹${_value.toStringAsFixed(2)}';
-  
+
   /// Format without currency symbol (e.g., "99.99")
   String toFormattedString() => _value.toStringAsFixed(2);
-  
+
   /// For storage in Firestore (converts to double)
   double toFirestore() => _value.toDouble();
-  
+
   /// For database storage (returns string for max precision)
   String toDatabaseString() => _value.toString();
-  
+
   /// Get the underlying Decimal for advanced operations
   Decimal toDecimal() => _value;
 
@@ -124,7 +126,6 @@ class MonetaryValue implements Comparable<MonetaryValue> {
   String toString() => _value.toStringAsFixed(2);
 }
 
-
 /// Extension for easier usage
 /// Usage: 99.99.inr returns MonetaryValue
 extension MonetaryExt on num {
@@ -152,8 +153,7 @@ class MonetaryUtils {
   }
 
   /// Check if amount is within tolerance (for floating-point comparisons)
-  static bool isApproxEqual(MonetaryValue a, MonetaryValue b,
-      {MonetaryValue? tolerance}) {
+  static bool isApproxEqual(MonetaryValue a, MonetaryValue b, {MonetaryValue? tolerance}) {
     final t = tolerance ?? MonetaryValue(0.01);
     final diff = (a - b);
     return (diff.toDecimal().abs() < t.toDecimal());

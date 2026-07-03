@@ -23,7 +23,7 @@ class _ExecutiveDecisionCenterState extends State<ExecutiveDecisionCenter> {
     supportingFactors: [
       'Sales velocity increased by 24% over last 3 days',
       'Current stock covers only 2.3 days',
-      'Supplier ABC lead time is 5 days'
+      'Supplier ABC lead time is 5 days',
     ],
     confidence: 0.91,
     expectedOutcome: 'Prevents predicted stockout on Friday. Retains approx ₹48k in revenue.',
@@ -47,7 +47,10 @@ class _ExecutiveDecisionCenterState extends State<ExecutiveDecisionCenter> {
         return Scaffold(
           backgroundColor: AppTheme.cream,
           appBar: AppBar(
-            title: const Text('Commerce OS Executive Center', style: TextStyle(fontWeight: FontWeight.bold)),
+            title: const Text(
+              'Commerce OS Executive Center',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             backgroundColor: AppTheme.ownerAccent,
             foregroundColor: Colors.white,
             elevation: 0,
@@ -58,56 +61,115 @@ class _ExecutiveDecisionCenterState extends State<ExecutiveDecisionCenter> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // WHAT CHANGED?
-                const Text('WHAT CHANGED?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey600)),
+                const Text(
+                  'WHAT CHANGED?',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: AppTheme.grey600,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    Expanded(child: _buildMetricDeltaCard('Revenue', '+6%', '₹2.45L', AppTheme.success)),
+                    Expanded(
+                      child: _buildMetricDeltaCard('Revenue', '+6%', '₹2.45L', AppTheme.success),
+                    ),
                     const SizedBox(width: 16),
-                    Expanded(child: _buildMetricDeltaCard('Orders', '+11%', '842', AppTheme.success)),
+                    Expanded(
+                      child: _buildMetricDeltaCard('Orders', '+11%', '842', AppTheme.success),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 24),
 
                 // WHY? (Root Cause Analysis summary)
-                const Text('WHY?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey600)),
+                const Text(
+                  'WHY?',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: AppTheme.grey600,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 _buildWhyPanel(),
                 const SizedBox(height: 24),
 
                 // RISKS
-                const Text('RISKS', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.error)),
+                const Text(
+                  'RISKS',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: AppTheme.error,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 _buildRiskItem('2 Branches Near Stockout', 'Sector 10, Sector 15'),
                 _buildRiskItem('3 SLA Breaches', 'Sector 4 (HQ) Rider Capacity full'),
                 const SizedBox(height: 24),
 
                 // RECOMMENDATIONS
-                const Text('RECOMMENDATIONS', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.primary)),
+                const Text(
+                  'RECOMMENDATIONS',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: AppTheme.primary,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 ExplainableAiCard(
                   recommendation: _mockRecommendation,
                   onApprove: () => _showImpactSimulation(context),
                   onReject: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Recommendation Rejected')));
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(const SnackBar(content: Text('Recommendation Rejected')));
                   },
                   onInvestigate: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Opening Investigation Panel')));
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(const SnackBar(content: Text('Opening Investigation Panel')));
                   },
                 ),
                 const SizedBox(height: 24),
 
                 // PENDING DECISIONS
-                const Text('PENDING DECISIONS', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey600)),
+                const Text(
+                  'PENDING DECISIONS',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: AppTheme.grey600,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 Card(
                   child: ListTile(
-                    leading: CircleAvatar(backgroundColor: AppTheme.warning, child: Text('${provider.ownerQueue.length}', style: const TextStyle(color: Colors.white))),
-                    title: const Text('Approvals Waiting', style: TextStyle(fontWeight: FontWeight.w700)),
-                    subtitle: Text('${provider.ownerQueue.length} pending items requiring executive review'),
-                    trailing: ElevatedButton(onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Opening Pending Decisions Queue')));
-                    }, child: const Text('Review All')),
+                    leading: CircleAvatar(
+                      backgroundColor: AppTheme.warning,
+                      child: Text(
+                        '${provider.ownerQueue.length}',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    title: const Text(
+                      'Approvals Waiting',
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                    subtitle: Text(
+                      '${provider.ownerQueue.length} pending items requiring executive review',
+                    ),
+                    trailing: ElevatedButton(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Opening Pending Decisions Queue')),
+                        );
+                      },
+                      child: const Text('Review All'),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 40),
@@ -115,7 +177,7 @@ class _ExecutiveDecisionCenterState extends State<ExecutiveDecisionCenter> {
             ),
           ),
         );
-      }
+      },
     );
   }
 
@@ -134,7 +196,10 @@ class _ExecutiveDecisionCenterState extends State<ExecutiveDecisionCenter> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(label, style: const TextStyle(color: AppTheme.grey600, fontSize: 12)),
-              Text(delta, style: TextStyle(color: deltaColor, fontWeight: FontWeight.bold)),
+              Text(
+                delta,
+                style: TextStyle(color: deltaColor, fontWeight: FontWeight.bold),
+              ),
             ],
           ),
           const SizedBox(height: 8),
@@ -159,11 +224,17 @@ class _ExecutiveDecisionCenterState extends State<ExecutiveDecisionCenter> {
             children: [
               Icon(Icons.insights, color: AppTheme.info, size: 20),
               SizedBox(width: 8),
-              Text('Primary Driver: Festival Campaign', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                'Primary Driver: Festival Campaign',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ],
           ),
           const SizedBox(height: 8),
-          Text('Higher repeat customer volume (+15%) observed in the last 24 hours directly correlated to push notifications sent yesterday.', style: TextStyle(color: Colors.grey[800], fontSize: 13)),
+          Text(
+            'Higher repeat customer volume (+15%) observed in the last 24 hours directly correlated to push notifications sent yesterday.',
+            style: TextStyle(color: Colors.grey[800], fontSize: 13),
+          ),
         ],
       ),
     );
@@ -185,11 +256,14 @@ class _ExecutiveDecisionCenterState extends State<ExecutiveDecisionCenter> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.error)),
+                Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.error),
+                ),
                 Text(subtitle, style: const TextStyle(fontSize: 12)),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
@@ -212,7 +286,9 @@ class _ExecutiveDecisionCenterState extends State<ExecutiveDecisionCenter> {
             supplierDependencyRisk: 'High dependence on Supplier A. Delay probability: 15%.',
             onApprove: () {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Action Approved & Executed. Tracking Outcome...')));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Action Approved & Executed. Tracking Outcome...')),
+              );
             },
             onCancel: () => Navigator.pop(context),
           ),

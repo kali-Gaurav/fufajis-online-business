@@ -37,12 +37,16 @@ class _AutomatedPayoutsScreenState extends State<AutomatedPayoutsScreen> {
     final result = await _service.approveRiderRequest(request: r, ownerUid: _ownerUid);
     if (!mounted) return;
     setState(() => _processing.remove(r.id));
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(result.success
-          ? 'Payout of ${kInr.format(r.amount)} sent to ${r.recipientName}'
-          : 'Payout failed: ${result.message}'),
-      backgroundColor: result.success ? AppTheme.success : AppTheme.error,
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          result.success
+              ? 'Payout of ${kInr.format(r.amount)} sent to ${r.recipientName}'
+              : 'Payout failed: ${result.message}',
+        ),
+        backgroundColor: result.success ? AppTheme.success : AppTheme.error,
+      ),
+    );
   }
 
   Future<void> _approveVendor(PayoutRequestModel r) async {
@@ -51,7 +55,10 @@ class _AutomatedPayoutsScreenState extends State<AutomatedPayoutsScreen> {
     final ref = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Mark Vendor Payout as Paid', style: TextStyle(fontWeight: FontWeight.w700)),
+        title: const Text(
+          'Mark Vendor Payout as Paid',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,16 +110,17 @@ class _AutomatedPayoutsScreenState extends State<AutomatedPayoutsScreen> {
         notes: notesController.text.trim().isEmpty ? null : notesController.text.trim(),
       );
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Marked ${kInr.format(r.amount)} paid to ${r.recipientName}'),
-        backgroundColor: AppTheme.success,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Marked ${kInr.format(r.amount)} paid to ${r.recipientName}'),
+          backgroundColor: AppTheme.success,
+        ),
+      );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Failed: $e'),
-        backgroundColor: AppTheme.error,
-      ));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed: $e'), backgroundColor: AppTheme.error));
     } finally {
       if (mounted) setState(() => _processing.remove(r.id));
     }
@@ -175,7 +183,6 @@ class _AutomatedPayoutsScreenState extends State<AutomatedPayoutsScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -217,8 +224,8 @@ class _AutomatedPayoutsScreenState extends State<AutomatedPayoutsScreen> {
                       _showHistory
                           ? 'No resolved payout requests yet'
                           : 'No pending payout requests.\nThe weekly automation job will '
-                              'generate new requests from unpaid rider earnings and '
-                              'vendor dues.',
+                                'generate new requests from unpaid rider earnings and '
+                                'vendor dues.',
                       textAlign: TextAlign.center,
                       style: const TextStyle(color: AppTheme.grey600),
                     ),
@@ -294,8 +301,9 @@ class _PayoutRequestCard extends StatelessWidget {
             Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: (isRider ? AppTheme.info : AppTheme.primary)
-                      .withValues(alpha: 0.12),
+                  backgroundColor: (isRider ? AppTheme.info : AppTheme.primary).withValues(
+                    alpha: 0.12,
+                  ),
                   child: Icon(
                     isRider ? Icons.delivery_dining : Icons.storefront_outlined,
                     color: isRider ? AppTheme.info : AppTheme.primary,
@@ -306,8 +314,10 @@ class _PayoutRequestCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(request.recipientName,
-                          style: const TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                        request.recipientName,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       Text(
                         isRider ? 'Rider delivery earnings' : 'Vendor commission settlement',
                         style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
@@ -332,7 +342,10 @@ class _PayoutRequestCard extends StatelessWidget {
                       child: Text(
                         request.status.name.toUpperCase(),
                         style: TextStyle(
-                            fontSize: 10, fontWeight: FontWeight.bold, color: _statusColor()),
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: _statusColor(),
+                        ),
                       ),
                     ),
                   ],
@@ -351,13 +364,17 @@ class _PayoutRequestCard extends StatelessWidget {
             ],
             if (request.transactionId != null) ...[
               const SizedBox(height: 4),
-              Text('Ref: ${request.transactionId}',
-                  style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
+              Text(
+                'Ref: ${request.transactionId}',
+                style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
+              ),
             ],
             if (request.errorMessage != null) ...[
               const SizedBox(height: 4),
-              Text('Error: ${request.errorMessage}',
-                  style: const TextStyle(fontSize: 12, color: AppTheme.error)),
+              Text(
+                'Error: ${request.errorMessage}',
+                style: const TextStyle(fontSize: 12, color: AppTheme.error),
+              ),
             ],
             if (isPending) ...[
               const SizedBox(height: 12),
@@ -407,12 +424,16 @@ class _ErrorBox extends StatelessWidget {
           children: [
             const Icon(Icons.error_outline, size: 48, color: AppTheme.error),
             const SizedBox(height: 12),
-            const Text('Could not load payout requests',
-                style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.grey800)),
+            const Text(
+              'Could not load payout requests',
+              style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.grey800),
+            ),
             const SizedBox(height: 4),
-            Text(message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
+            ),
           ],
         ),
       ),

@@ -19,7 +19,7 @@ class SupplierShell extends StatelessWidget {
               context.read<AuthProvider>().logout();
               context.go('/login');
             },
-          )
+          ),
         ],
       ),
       drawer: Drawer(
@@ -44,7 +44,9 @@ class SupplierShell extends StatelessWidget {
               onTap: () {
                 // Future Implementation
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Coming Soon')));
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Coming Soon')));
               },
             ),
           ],

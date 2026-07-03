@@ -29,7 +29,7 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
   final _actualCountFocusNode = FocusNode();
   final _actualCountController = TextEditingController(text: '0');
   final SmartScanService _smartScan = SmartScanService();
-  int _expectedStock = 0;   // from DB — shown as reference
+  int _expectedStock = 0; // from DB — shown as reference
   int _discrepancyTotal = 0; // running session tally
   bool _autoFilled = false;
 
@@ -56,16 +56,14 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
         branchId: auth.currentBranch?.id ?? '',
       );
 
-      final product = result.product ??
-          context.read<ProductProvider>().getProductByBarcode(barcode);
+      final product =
+          result.product ?? context.read<ProductProvider>().getProductByBarcode(barcode);
 
       if (product != null) {
         setState(() {
           _scannedBarcode = barcode;
           _product = product;
-          _expectedStock = result.dbStock > 0
-              ? result.dbStock
-              : product.stockQuantity;
+          _expectedStock = result.dbStock > 0 ? result.dbStock : product.stockQuantity;
           // Pre-fill actual count with expected — employee just
           // corrects it if wrong (saves time when stock matches)
           _actualStock = _expectedStock;
@@ -94,15 +92,15 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: AppTheme.error));
   }
 
   void _showSuccess(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: AppTheme.success),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: AppTheme.success));
   }
 
   Future<void> _submitAudit() async {
@@ -112,8 +110,7 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
     }
 
     // Read actual count from the dedicated controller
-    final actualCount =
-        int.tryParse(_actualCountController.text) ?? _actualStock;
+    final actualCount = int.tryParse(_actualCountController.text) ?? _actualStock;
     setState(() {
       _actualStock = actualCount;
       _isLoading = true;
@@ -134,9 +131,7 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
         barcode: _scannedBarcode ?? '',
         expectedStock: _expectedStock,
         actualStock: actualCount,
-        notes: _notesController.text.isNotEmpty
-            ? _notesController.text
-            : null,
+        notes: _notesController.text.isNotEmpty ? _notesController.text : null,
       );
 
       final difference = actualCount - _expectedStock;
@@ -185,7 +180,6 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -210,10 +204,7 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Scan Product',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
+                    Text('Scan Product', style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 12),
                     if (_scannedBarcode != null)
                       Container(
@@ -232,8 +223,7 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                                 children: [
                                   Text(
                                     'Barcode: $_scannedBarcode',
-                                    style:
-                                        const TextStyle(fontWeight: FontWeight.bold),
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                   if (_product != null) Text(_product!.name),
                                 ],
@@ -262,14 +252,10 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Product Details',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
+                      Text('Product Details', style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 12),
                       _buildDetailRow('Name', _product!.name),
-                      _buildDetailRow(
-                          'Expected Stock', _product!.stockQuantity.toString()),
+                      _buildDetailRow('Expected Stock', _product!.stockQuantity.toString()),
                       _buildDetailRow('Barcode', _scannedBarcode ?? ''),
                     ],
                   ),
@@ -288,15 +274,14 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Count Actual Stock',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium),
+                          Text(
+                            'Count Actual Stock',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
                           // Running discrepancy tally
                           if (_auditResults.isNotEmpty)
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
                                 color: _discrepancyTotal == 0
                                     ? AppTheme.success.withValues(alpha: 0.1)
@@ -321,38 +306,35 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                       if (_autoFilled)
                         Container(
                           margin: const EdgeInsets.only(bottom: 8),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
                             color: AppTheme.info.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                                color: AppTheme.info.withValues(alpha: 0.2)),
+                            border: Border.all(color: AppTheme.info.withValues(alpha: 0.2)),
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.inventory_2_outlined,
-                                  size: 14,
-                                  color: AppTheme.info),
+                              const Icon(
+                                Icons.inventory_2_outlined,
+                                size: 14,
+                                color: AppTheme.info,
+                              ),
                               const SizedBox(width: 6),
                               const Text(
                                 'DB expects: ',
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: AppTheme.info),
+                                style: TextStyle(fontSize: 12, color: AppTheme.info),
                               ),
                               Text(
                                 '$_expectedStock',
                                 style: const TextStyle(
-                                    fontSize: 12,
-                                    color: AppTheme.info,
-                                    fontWeight: FontWeight.bold),
+                                  fontSize: 12,
+                                  color: AppTheme.info,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                               const Text(
                                 '  —  enter what you physically counted',
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: AppTheme.info),
+                                style: TextStyle(fontSize: 12, color: AppTheme.info),
                               ),
                             ],
                           ),
@@ -360,8 +342,8 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                       TextField(
                         controller: _actualCountController,
                         focusNode: _actualCountFocusNode,
-                        onChanged: (value) => setState(
-                            () => _actualStock = int.tryParse(value) ?? 0),
+                        onChanged: (value) =>
+                            setState(() => _actualStock = int.tryParse(value) ?? 0),
                         keyboardType: TextInputType.number,
                         textInputAction: TextInputAction.done,
                         onSubmitted: (_) => _submitAudit(),
@@ -371,20 +353,18 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                           border: const OutlineInputBorder(),
                           enabledBorder: _autoFilled
                               ? const OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: AppTheme.warning,
-                                      width: 2))
+                                  borderSide: BorderSide(color: AppTheme.warning, width: 2),
+                                )
                               : null,
                           helperText: _autoFilled
                               ? 'Pre-filled from DB — change if different'
                               : null,
-                          helperStyle: const TextStyle(
-                              color: AppTheme.warning),
+                          helperStyle: const TextStyle(color: AppTheme.warning),
                           // Live discrepancy hint
                           suffixText: _autoFilled && _expectedStock > 0
                               ? (_actualStock - _expectedStock) == 0
-                                  ? '✓ match'
-                                  : '${_actualStock - _expectedStock > 0 ? '+' : ''}${_actualStock - _expectedStock}'
+                                    ? '✓ match'
+                                    : '${_actualStock - _expectedStock > 0 ? '+' : ''}${_actualStock - _expectedStock}'
                               : null,
                           suffixStyle: TextStyle(
                             color: (_actualStock - _expectedStock) == 0
@@ -431,10 +411,7 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Quick Count',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
+                      Text('Quick Count', style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 12),
                       Wrap(
                         spacing: 8,
@@ -460,10 +437,7 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Audit Results',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
+                  Text('Audit Results', style: Theme.of(context).textTheme.titleMedium),
                   TextButton(
                     onPressed: () => setState(() => _auditResults.clear()),
                     child: const Text('Clear All'),
@@ -476,8 +450,8 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                 return Card(
                   color: hasDiscrepancy
                       ? (result.difference > 0
-                          ? AppTheme.success.withValues(alpha: 0.1)
-                          : AppTheme.error.withValues(alpha: 0.1))
+                            ? AppTheme.success.withValues(alpha: 0.1)
+                            : AppTheme.error.withValues(alpha: 0.1))
                       : Colors.white,
                   child: ListTile(
                     leading: CircleAvatar(
@@ -504,9 +478,7 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: hasDiscrepancy
-                                ? (result.difference > 0
-                                    ? AppTheme.success
-                                    : AppTheme.error)
+                                ? (result.difference > 0 ? AppTheme.success : AppTheme.error)
                                 : Colors.grey,
                           ),
                         ),
@@ -524,25 +496,14 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _buildSummaryItem(
-                        'Total Audited',
-                        _auditResults.length.toString(),
-                      ),
+                      _buildSummaryItem('Total Audited', _auditResults.length.toString()),
                       _buildSummaryItem(
                         'Discrepancies',
-                        _auditResults
-                            .where((r) => r.hasDiscrepancy)
-                            .length
-                            .toString(),
+                        _auditResults.where((r) => r.hasDiscrepancy).length.toString(),
                       ),
                       _buildSummaryItem(
                         'Total Variance',
-                        _auditResults
-                            .fold<int>(
-                              0,
-                              (sum, r) => sum + r.difference,
-                            )
-                            .toString(),
+                        _auditResults.fold<int>(0, (sum, r) => sum + r.difference).toString(),
                       ),
                     ],
                   ),
@@ -571,14 +532,8 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
   Widget _buildSummaryItem(String label, String value) {
     return Column(
       children: [
-        Text(
-          value,
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12, color: Colors.grey),
-        ),
+        Text(value, style: Theme.of(context).textTheme.headlineSmall),
+        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
       ],
     );
   }
@@ -590,10 +545,7 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
         title: const Text('Enter Barcode', style: TextStyle(fontWeight: FontWeight.w700)),
         content: TextField(
           autofocus: true,
-          decoration: const InputDecoration(
-            labelText: 'Barcode',
-            border: OutlineInputBorder(),
-          ),
+          decoration: const InputDecoration(labelText: 'Barcode', border: OutlineInputBorder()),
           onSubmitted: (value) {
             if (value.isNotEmpty) {
               Navigator.pop(context);
@@ -601,12 +553,7 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
             }
           },
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-        ],
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel'))],
       ),
     );
   }

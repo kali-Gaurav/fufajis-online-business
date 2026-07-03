@@ -124,10 +124,7 @@ class _ProfitDashboardScreenState extends State<ProfitDashboardScreen> {
     });
 
     try {
-      final metrics = await _profitService.getProfitMetricsForRange(
-        _currentShopId,
-        _selectedRange,
-      );
+      final metrics = await _profitService.getProfitMetricsForRange(_currentShopId, _selectedRange);
 
       setState(() {
         _metrics = metrics;
@@ -162,10 +159,10 @@ class _ProfitDashboardScreenState extends State<ProfitDashboardScreen> {
       body: _isLoading && _metrics == null
           ? _buildLoadingState()
           : _errorMessage != null
-              ? _buildErrorState()
-              : _metrics != null
-                  ? _buildContent(context)
-                  : _buildEmptyState(),
+          ? _buildErrorState()
+          : _metrics != null
+          ? _buildContent(context)
+          : _buildEmptyState(),
       floatingActionButton: FloatingActionButton(
         onPressed: _loadProfitMetrics,
         tooltip: 'Refresh',
@@ -176,9 +173,7 @@ class _ProfitDashboardScreenState extends State<ProfitDashboardScreen> {
 
   /// Build loading state
   Widget _buildLoadingState() {
-    return const Center(
-      child: CircularProgressIndicator(color: AppTheme.ownerAccent),
-    );
+    return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
   }
 
   /// Build error state
@@ -187,28 +182,18 @@ class _ProfitDashboardScreenState extends State<ProfitDashboardScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.error_outline,
-            size: 64,
-            color: AppTheme.error,
-          ),
+          const Icon(Icons.error_outline, size: 64, color: AppTheme.error),
           const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
               _errorMessage ?? 'An error occurred',
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 16,
-                color: AppTheme.grey700,
-              ),
+              style: const TextStyle(fontSize: 16, color: AppTheme.grey700),
             ),
           ),
           const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: _loadProfitMetrics,
-            child: const Text('Retry'),
-          ),
+          ElevatedButton(onPressed: _loadProfitMetrics, child: const Text('Retry')),
         ],
       ),
     );
@@ -220,27 +205,16 @@ class _ProfitDashboardScreenState extends State<ProfitDashboardScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.shopping_cart_outlined,
-            size: 64,
-            color: AppTheme.grey400,
-          ),
+          Icon(Icons.shopping_cart_outlined, size: 64, color: AppTheme.grey400),
           SizedBox(height: 16),
           Text(
             'No orders found',
-            style: TextStyle(
-              fontSize: 18,
-              color: AppTheme.grey700,
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(fontSize: 18, color: AppTheme.grey700, fontWeight: FontWeight.w600),
           ),
           SizedBox(height: 8),
           Text(
             'No delivered orders in the selected period',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppTheme.grey600,
-            ),
+            style: TextStyle(fontSize: 14, color: AppTheme.grey600),
           ),
         ],
       ),
@@ -266,8 +240,7 @@ class _ProfitDashboardScreenState extends State<ProfitDashboardScreen> {
             value: _formatCurrency(metrics.grossRevenue),
             icon: Icons.trending_up,
             color: AppTheme.info,
-            subtitle:
-                '${metrics.ordersProcessed} orders processed',
+            subtitle: '${metrics.ordersProcessed} orders processed',
           ),
           const SizedBox(height: 12),
 
@@ -323,9 +296,7 @@ class _ProfitDashboardScreenState extends State<ProfitDashboardScreen> {
             label: 'Profit Margin',
             value: '${metrics.profitMarginPercentage.toStringAsFixed(2)}%',
             icon: Icons.assessment,
-            color: metrics.profitMarginPercentage >= 0
-                ? AppTheme.success
-                : AppTheme.error,
+            color: metrics.profitMarginPercentage >= 0 ? AppTheme.success : AppTheme.error,
             subtitle: 'Profit / Gross Revenue',
           ),
           const SizedBox(height: 20),
@@ -352,10 +323,7 @@ class _ProfitDashboardScreenState extends State<ProfitDashboardScreen> {
         isExpanded: true,
         underline: const SizedBox.shrink(),
         items: _dateRanges.map((range) {
-          return DropdownMenuItem(
-            value: range,
-            child: Text(_dateRangeLabels[range] ?? range),
-          );
+          return DropdownMenuItem(value: range, child: Text(_dateRangeLabels[range] ?? range));
         }).toList(),
         onChanged: _onRangeChanged,
       ),
@@ -414,23 +382,13 @@ class _ProfitDashboardScreenState extends State<ProfitDashboardScreen> {
                   color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: 32,
-                ),
+                child: Icon(icon, color: color, size: 32),
               ),
             ],
           ),
           if (subtitle != null) ...[
             const SizedBox(height: 12),
-            Text(
-              subtitle,
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppTheme.grey500,
-              ),
-            ),
+            Text(subtitle, style: const TextStyle(fontSize: 12, color: AppTheme.grey500)),
           ],
         ],
       ),
@@ -467,20 +425,12 @@ class _ProfitDashboardScreenState extends State<ProfitDashboardScreen> {
           const SizedBox(height: 12),
           Text(
             _formatCurrency(metrics.netProfit),
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: textColor,
-            ),
+            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: textColor),
           ),
           const SizedBox(height: 8),
           Text(
             isPositive ? 'Profitable' : 'Loss',
-            style: TextStyle(
-              fontSize: 14,
-              color: textColor,
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(fontSize: 14, color: textColor, fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -493,23 +443,14 @@ class _ProfitDashboardScreenState extends State<ProfitDashboardScreen> {
 
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppTheme.grey100,
-        borderRadius: BorderRadius.circular(8),
-      ),
+      decoration: BoxDecoration(color: AppTheme.grey100, borderRadius: BorderRadius.circular(8)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Date Range',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.grey600,
-                ),
-              ),
+              const Text('Date Range', style: TextStyle(fontSize: 12, color: AppTheme.grey600)),
               Text(
                 '${dateFormat.format(metrics.startDate)} - ${dateFormat.format(metrics.endDate)}',
                 style: const TextStyle(
@@ -523,13 +464,7 @@ class _ProfitDashboardScreenState extends State<ProfitDashboardScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              const Text(
-                'Orders',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.grey600,
-                ),
-              ),
+              const Text('Orders', style: TextStyle(fontSize: 12, color: AppTheme.grey600)),
               Text(
                 metrics.ordersProcessed.toString(),
                 style: const TextStyle(

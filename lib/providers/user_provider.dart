@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
-import 'package:fufajis_online/models/user_model.dart';
-import 'package:fufajis_online/models/address_model.dart';
-import 'package:fufajis_online/models/preferences_model.dart';
-import 'package:fufajis_online/services/user_data_service.dart';
+import '../models/user_model.dart';
+import '../models/address_model.dart';
+import '../models/preferences_model.dart';
+import '../services/user_data_service.dart';
 
 /// User State Management Provider
 ///
@@ -193,11 +193,7 @@ class UserProvider with ChangeNotifier {
       _setLoading(true);
       _error = null;
 
-      await _userDataService.updateAddress(
-        _currentUser!.id,
-        addressId,
-        address,
-      );
+      await _userDataService.updateAddress(_currentUser!.id, addressId, address);
 
       // Reload addresses
       _addresses = await _userDataService.getAddresses(_currentUser!.id);

@@ -61,7 +61,9 @@ class BulkImportService {
       // SECURITY: Perform batch import with ownership checks
       final importedIds = await _performBatchImport(shopId, validProducts);
 
-      debugPrint('[BulkImportService] Successfully imported ${importedIds.length} products to shop $shopId');
+      debugPrint(
+        '[BulkImportService] Successfully imported ${importedIds.length} products to shop $shopId',
+      );
       return importedIds;
     } catch (e) {
       debugPrint('[BulkImportService] Import failed: $e');
@@ -70,10 +72,7 @@ class BulkImportService {
   }
 
   /// Performs the actual batch import into Firestore
-  Future<List<String>> _performBatchImport(
-    String shopId,
-    List<ProductModel> products,
-  ) async {
+  Future<List<String>> _performBatchImport(String shopId, List<ProductModel> products) async {
     final importedIds = <String>[];
 
     try {

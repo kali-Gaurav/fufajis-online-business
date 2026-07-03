@@ -1,0 +1,426 @@
+{
+  "category": "Oils",
+  "count": 30,
+  "products": [
+    {
+      "id": "OIL001",
+      "familyName": "Sunflower Oil",
+      "brand": "Fortune",
+      "hindiName": "Fortune सूरजमुखी तेल",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "500ml", "price": 95, "cost": 65},
+        {"size": "1L", "price": 175, "cost": 120}
+      ],
+      "keywords": ["oil", "sunflower", "cooking oil", "Fortune oil", "सूरजमुखी तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL002",
+      "familyName": "Mustard Oil",
+      "brand": "Dhara",
+      "hindiName": "Dhara सरसों का तेल",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "500ml", "price": 85, "cost": 58},
+        {"size": "1L", "price": 155, "cost": 105}
+      ],
+      "keywords": ["oil", "mustard", "sarso tel", "Dhara mustard", "सरसों का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL003",
+      "familyName": "Coconut Oil",
+      "brand": "Parachute",
+      "hindiName": "Parachute नारियल का तेल",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "500ml", "price": 105, "cost": 72},
+        {"size": "1L", "price": 195, "cost": 135}
+      ],
+      "keywords": ["oil", "coconut", "nariyal tel", "Parachute coconut", "नारियल का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL004",
+      "familyName": "Olive Oil",
+      "brand": "Borges",
+      "hindiName": "Borges जैतून का तेल",
+      "brandType": "premium",
+      "skus": [
+        {"size": "500ml", "price": 320, "cost": 200},
+        {"size": "1L", "price": 595, "cost": 380}
+      ],
+      "keywords": ["oil", "olive", "jaitun", "Borges premium", "जैतून का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL005",
+      "familyName": "Groundnut Oil",
+      "brand": "Fortune",
+      "hindiName": "Fortune मूंगफली का तेल",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "500ml", "price": 100, "cost": 68},
+        {"size": "1L", "price": 185, "cost": 125}
+      ],
+      "keywords": ["oil", "groundnut", "moongphali tel", "Fortune groundnut", "मूंगफली का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL006",
+      "familyName": "Canola Oil",
+      "brand": "Tropicana",
+      "hindiName": "Tropicana कैनोला तेल",
+      "brandType": "premium",
+      "skus": [
+        {"size": "500ml", "price": 110, "cost": 75},
+        {"size": "1L", "price": 205, "cost": 140}
+      ],
+      "keywords": ["oil", "canola", "Tropicana oil", "canola cooking", "कैनोला तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL007",
+      "familyName": "Sesame Oil",
+      "brand": "Dhara",
+      "hindiName": "Dhara तिल का तेल",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "500ml", "price": 125, "cost": 85},
+        {"size": "1L", "price": 235, "cost": 160}
+      ],
+      "keywords": ["oil", "sesame", "til tel", "Dhara sesame", "तिल का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL008",
+      "familyName": "Rice Bran Oil",
+      "brand": "Parachute",
+      "hindiName": "Parachute चावल की भूसी का तेल",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "500ml", "price": 115, "cost": 78},
+        {"size": "1L", "price": 215, "cost": 145}
+      ],
+      "keywords": ["oil", "rice bran", "chawal tel", "Parachute rice", "चावल की भूसी का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL009",
+      "familyName": "Safflower Oil",
+      "brand": "Fortune",
+      "hindiName": "Fortune कुसुम का तेल",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "500ml", "price": 105, "cost": 72},
+        {"size": "1L", "price": 195, "cost": 135}
+      ],
+      "keywords": ["oil", "safflower", "kusum tel", "Fortune safflower", "कुसुम का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL010",
+      "familyName": "Almond Oil",
+      "brand": "Borges",
+      "hindiName": "Borges बादाम का तेल",
+      "brandType": "premium",
+      "skus": [
+        {"size": "500ml", "price": 280, "cost": 175},
+        {"size": "1L", "price": 525, "cost": 335}
+      ],
+      "keywords": ["oil", "almond", "badam tel", "Borges almond", "बादाम का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL011",
+      "familyName": "Grapeseed Oil",
+      "brand": "Tropicana",
+      "hindiName": "Tropicana अंगूर के बीज का तेल",
+      "brandType": "premium",
+      "skus": [
+        {"size": "500ml", "price": 245, "cost": 155},
+        {"size": "1L", "price": 460, "cost": 295}
+      ],
+      "keywords": ["oil", "grapeseed", "angoor tel", "Tropicana grape", "अंगूर के बीज का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL012",
+      "familyName": "Walnut Oil",
+      "brand": "Borges",
+      "hindiName": "Borges अखरोट का तेल",
+      "brandType": "premium",
+      "skus": [
+        {"size": "500ml", "price": 315, "cost": 195},
+        {"size": "1L", "price": 590, "cost": 375}
+      ],
+      "keywords": ["oil", "walnut", "akhrot tel", "Borges walnut", "अखरोट का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL013",
+      "familyName": "Avocado Oil",
+      "brand": "Tropicana",
+      "hindiName": "Tropicana एवोकाडो का तेल",
+      "brandType": "premium",
+      "skus": [
+        {"size": "500ml", "price": 350, "cost": 220},
+        {"size": "1L", "price": 655, "cost": 415}
+      ],
+      "keywords": ["oil", "avocado", "avocado cooking", "Tropicana avocado", "एवोकाडो का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL014",
+      "familyName": "Peanut Oil",
+      "brand": "Dhara",
+      "hindiName": "Dhara मूंगफली का तेल विशेष",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "500ml", "price": 105, "cost": 72},
+        {"size": "1L", "price": 195, "cost": 135}
+      ],
+      "keywords": ["oil", "peanut", "moongphali special", "Dhara peanut", "मूंगफली का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL015",
+      "familyName": "Sunflower + Olive Blend",
+      "brand": "Fortune",
+      "hindiName": "Fortune सूरजमुखी-जैतून मिश्रण",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "500ml", "price": 165, "cost": 110},
+        {"size": "1L", "price": 310, "cost": 205}
+      ],
+      "keywords": ["oil", "blend", "mixed oil", "Fortune blend", "सूरजमुखी-जैतून मिश्रण"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL016",
+      "familyName": "Soybean Oil",
+      "brand": "Parachute",
+      "hindiName": "Parachute सोयाबीन का तेल",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "500ml", "price": 90, "cost": 62},
+        {"size": "1L", "price": 165, "cost": 115}
+      ],
+      "keywords": ["oil", "soybean", "soybean cooking", "Parachute soy", "सोयाबीन का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL017",
+      "familyName": "Virgin Coconut Oil",
+      "brand": "Parachute",
+      "hindiName": "Parachute कुंवारी नारियल का तेल",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "500ml", "price": 145, "cost": 95},
+        {"size": "1L", "price": 270, "cost": 180}
+      ],
+      "keywords": ["oil", "virgin coconut", "nariyal virgin", "Parachute virgin", "कुंवारी नारियल का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL018",
+      "familyName": "Corn Oil",
+      "brand": "Fortune",
+      "hindiName": "Fortune मकई का तेल",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "500ml", "price": 95, "cost": 65},
+        {"size": "1L", "price": 175, "cost": 120}
+      ],
+      "keywords": ["oil", "corn", "makka tel", "Fortune corn", "मकई का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL019",
+      "familyName": "Cold Pressed Sesame Oil",
+      "brand": "Dhara",
+      "hindiName": "Dhara शीत दबाव तिल का तेल",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "500ml", "price": 155, "cost": 105},
+        {"size": "1L", "price": 290, "cost": 195}
+      ],
+      "keywords": ["oil", "cold pressed", "til tel", "Dhara cold pressed", "शीत दबाव तिल का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL020",
+      "familyName": "Extra Virgin Olive Oil",
+      "brand": "Borges",
+      "hindiName": "Borges अतिरिक्त कुंवारी जैतून का तेल",
+      "brandType": "premium",
+      "skus": [
+        {"size": "500ml", "price": 385, "cost": 240},
+        {"size": "1L", "price": 720, "cost": 460}
+      ],
+      "keywords": ["oil", "extra virgin", "jaitun premium", "Borges extra virgin", "अतिरिक्त कुंवारी जैतून का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL021",
+      "familyName": "Linseed Oil",
+      "brand": "Tropicana",
+      "hindiName": "Tropicana अलसी का तेल",
+      "brandType": "premium",
+      "skus": [
+        {"size": "500ml", "price": 195, "cost": 130},
+        {"size": "1L", "price": 365, "cost": 245}
+      ],
+      "keywords": ["oil", "linseed", "alsi tel", "Tropicana linseed", "अलसी का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL022",
+      "familyName": "Sunflower Oil Premium",
+      "brand": "Fortune",
+      "hindiName": "Fortune प्रीमियम सूरजमुखी तेल",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "500ml", "price": 115, "cost": 78},
+        {"size": "1L", "price": 215, "cost": 145}
+      ],
+      "keywords": ["oil", "premium", "sunflower premium", "Fortune premium", "प्रीमियम सूरजमुखी तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL023",
+      "familyName": "Mustard Oil Pure",
+      "brand": "Dhara",
+      "hindiName": "Dhara शुद्ध सरसों का तेल",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "500ml", "price": 95, "cost": 65},
+        {"size": "1L", "price": 175, "cost": 120}
+      ],
+      "keywords": ["oil", "pure mustard", "sarso pure", "Dhara pure", "शुद्ध सरसों का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL024",
+      "familyName": "Coconut Oil Organic",
+      "brand": "Parachute",
+      "hindiName": "Parachute जैविक नारियल का तेल",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "500ml", "price": 135, "cost": 90},
+        {"size": "1L", "price": 250, "cost": 170}
+      ],
+      "keywords": ["oil", "organic", "nariyal organic", "Parachute organic", "जैविक नारियल का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL025",
+      "familyName": "Mixed Seed Oil",
+      "brand": "Fortune",
+      "hindiName": "Fortune मिश्रित बीज का तेल",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "500ml", "price": 105, "cost": 72},
+        {"size": "1L", "price": 195, "cost": 135}
+      ],
+      "keywords": ["oil", "mixed seed", "mixed oil", "Fortune seed mix", "मिश्रित बीज का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL026",
+      "familyName": "Macadamia Oil",
+      "brand": "Tropicana",
+      "hindiName": "Tropicana मैकाडामिया का तेल",
+      "brandType": "premium",
+      "skus": [
+        {"size": "500ml", "price": 385, "cost": 240},
+        {"size": "1L", "price": 720, "cost": 460}
+      ],
+      "keywords": ["oil", "macadamia", "macadamia nut", "Tropicana macadamia", "मैकाडामिया का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL027",
+      "familyName": "Apricot Kernel Oil",
+      "brand": "Borges",
+      "hindiName": "Borges खुबानी की गुठली का तेल",
+      "brandType": "premium",
+      "skus": [
+        {"size": "500ml", "price": 295, "cost": 185},
+        {"size": "1L", "price": 550, "cost": 350}
+      ],
+      "keywords": ["oil", "apricot kernel", "khubani tel", "Borges apricot", "खुबानी की गुठली का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL028",
+      "familyName": "Hazelnut Oil",
+      "brand": "Tropicana",
+      "hindiName": "Tropicana हेजलनट का तेल",
+      "brandType": "premium",
+      "skus": [
+        {"size": "500ml", "price": 330, "cost": 210},
+        {"size": "1L", "price": 615, "cost": 395}
+      ],
+      "keywords": ["oil", "hazelnut", "hazelnuts", "Tropicana hazel", "हेजलनट का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL029",
+      "familyName": "Refined Sunflower Oil",
+      "brand": "Fortune",
+      "hindiName": "Fortune शोधित सूरजमुखी तेल",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "500ml", "price": 100, "cost": 68},
+        {"size": "1L", "price": 185, "cost": 125}
+      ],
+      "keywords": ["oil", "refined", "sunflower refined", "Fortune refined", "शोधित सूरजमुखी तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "OIL030",
+      "familyName": "Coconut Oil Cooking",
+      "brand": "Parachute",
+      "hindiName": "Parachute पाक नारियल का तेल",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "500ml", "price": 115, "cost": 78},
+        {"size": "1L", "price": 215, "cost": 145}
+      ],
+      "keywords": ["oil", "cooking coconut", "nariyal cooking", "Parachute cooking", "पाक नारियल का तेल"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    }
+  ]
+}

@@ -31,8 +31,7 @@ class SessionTimeoutOverlay extends StatefulWidget {
   State<SessionTimeoutOverlay> createState() => SessionTimeoutOverlayState();
 }
 
-class SessionTimeoutOverlayState extends State<SessionTimeoutOverlay>
-    with WidgetsBindingObserver {
+class SessionTimeoutOverlayState extends State<SessionTimeoutOverlay> with WidgetsBindingObserver {
   Timer? _checkTimer;
   DateTime _lastActivity = DateTime.now();
   bool _warningShown = false;
@@ -74,8 +73,7 @@ class SessionTimeoutOverlayState extends State<SessionTimeoutOverlay>
 
     if (remaining.isNegative) {
       _handleTimeout();
-    } else if (remaining.inSeconds <= widget.warnAtSecondsRemaining &&
-        !_warningShown) {
+    } else if (remaining.inSeconds <= widget.warnAtSecondsRemaining && !_warningShown) {
       _showWarning(remaining.inSeconds);
     }
   }
@@ -203,9 +201,7 @@ class _TimeoutWarningDialogState extends State<_TimeoutWarningDialog> {
             child: const Icon(Icons.timer_outlined, color: AppTheme.warning, size: 24),
           ),
           const SizedBox(width: 12),
-          const Expanded(
-            child: Text('Session Expiring Soon', style: TextStyle(fontSize: 17)),
-          ),
+          const Expanded(child: Text('Session Expiring Soon', style: TextStyle(fontSize: 17))),
         ],
       ),
       content: Column(
@@ -221,9 +217,7 @@ class _TimeoutWarningDialogState extends State<_TimeoutWarningDialog> {
             decoration: BoxDecoration(
               color: _remaining < 60 ? AppTheme.error : AppTheme.warning,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: _remaining < 60 ? AppTheme.error : AppTheme.warning,
-              ),
+              border: Border.all(color: _remaining < 60 ? AppTheme.error : AppTheme.warning),
             ),
             child: Text(
               _timeText,
@@ -237,9 +231,7 @@ class _TimeoutWarningDialogState extends State<_TimeoutWarningDialog> {
           const SizedBox(height: 12),
           Text(
             'Tap "Stay Signed In" to continue your session.',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.grey600,
-            ),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.grey600),
             textAlign: TextAlign.center,
           ),
         ],

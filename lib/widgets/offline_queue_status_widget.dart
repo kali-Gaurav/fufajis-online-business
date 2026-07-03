@@ -10,11 +10,7 @@ class OfflineQueueStatusWidget extends StatelessWidget {
   final bool showDetails;
   final VoidCallback? onRetryTap;
 
-  const OfflineQueueStatusWidget({
-    super.key,
-    this.showDetails = false,
-    this.onRetryTap,
-  });
+  const OfflineQueueStatusWidget({super.key, this.showDetails = false, this.onRetryTap});
 
   @override
   Widget build(BuildContext context) {
@@ -27,12 +23,7 @@ class OfflineQueueStatusWidget extends StatelessWidget {
           builder: (context, queuedCount, _) {
             if (queuedCount == 0) return const SizedBox.shrink();
 
-            return _buildQueueStatusBanner(
-              context,
-              queuedCount,
-              queueService,
-              orderProvider,
-            );
+            return _buildQueueStatusBanner(context, queuedCount, queueService, orderProvider);
           },
         );
       },
@@ -60,16 +51,10 @@ class OfflineQueueStatusWidget extends StatelessWidget {
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          AppTheme.warning,
-                        ),
+                        valueColor: AlwaysStoppedAnimation<Color>(AppTheme.warning),
                       ),
                     )
-                  : const Icon(
-                      Icons.cloud_upload,
-                      color: AppTheme.warning,
-                      size: 20,
-                    );
+                  : const Icon(Icons.cloud_upload, color: AppTheme.warning, size: 20);
             },
           ),
           const SizedBox(width: 12),
@@ -95,19 +80,13 @@ class OfflineQueueStatusWidget extends StatelessWidget {
                       if (lastSyncTime == null) {
                         return const Text(
                           'Syncing will start when you go online',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.warning,
-                          ),
+                          style: TextStyle(fontSize: 12, color: AppTheme.warning),
                         );
                       }
                       final timeAgo = _formatTimeAgo(lastSyncTime);
                       return Text(
                         'Last sync: $timeAgo',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.warning,
-                        ),
+                        style: const TextStyle(fontSize: 12, color: AppTheme.warning),
                       );
                     },
                   ),
@@ -124,15 +103,11 @@ class OfflineQueueStatusWidget extends StatelessWidget {
                 children: [
                   if (failedCount > 0)
                     TextButton.icon(
-                      onPressed: onRetryTap ??
-                          () => queueService.syncQueuedOrders(),
+                      onPressed: onRetryTap ?? () => queueService.syncQueuedOrders(),
                       icon: const Icon(Icons.refresh, size: 18),
                       label: const Text(
                         'Retry',
-                        style: TextStyle(
-                          color: AppTheme.error,
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: AppTheme.error, fontSize: 12),
                       ),
                     ),
                 ],
@@ -175,10 +150,7 @@ class OfflineOrderBadge extends StatelessWidget {
               color: AppTheme.error,
               borderRadius: BorderRadius.circular(12),
             ),
-            constraints: const BoxConstraints(
-              minWidth: 20,
-              minHeight: 20,
-            ),
+            constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
             child: Text(
               count.toString(),
               style: const TextStyle(
@@ -199,10 +171,7 @@ class OfflineOrderBadge extends StatelessWidget {
 class QueueStatusDialog extends StatefulWidget {
   final OfflineOrderQueueService queueService;
 
-  const QueueStatusDialog({
-    super.key,
-    required this.queueService,
-  });
+  const QueueStatusDialog({super.key, required this.queueService});
 
   @override
   State<QueueStatusDialog> createState() => _QueueStatusDialogState();
@@ -239,33 +208,18 @@ class _QueueStatusDialogState extends State<QueueStatusDialog> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildStatRow(
-                  'Queued Orders',
-                  stats.queuedCount.toString(),
-                  AppTheme.info,
-                ),
+                _buildStatRow('Queued Orders', stats.queuedCount.toString(), AppTheme.info),
                 const SizedBox(height: 8),
-                _buildStatRow(
-                  'Failed Orders',
-                  stats.failedCount.toString(),
-                  AppTheme.error,
-                ),
+                _buildStatRow('Failed Orders', stats.failedCount.toString(), AppTheme.error),
                 const SizedBox(height: 8),
-                _buildStatRow(
-                  'Synced Orders',
-                  stats.syncedCount.toString(),
-                  AppTheme.success,
-                ),
+                _buildStatRow('Synced Orders', stats.syncedCount.toString(), AppTheme.success),
                 const SizedBox(height: 12),
                 const Divider(),
                 const SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Total Size:',
-                      style: TextStyle(fontWeight: FontWeight.w500),
-                    ),
+                    const Text('Total Size:', style: TextStyle(fontWeight: FontWeight.w500)),
                     Text(
                       '${(stats.totalSize / 1024).toStringAsFixed(2)} KB',
                       style: const TextStyle(fontFamily: 'monospace'),
@@ -277,10 +231,7 @@ class _QueueStatusDialogState extends State<QueueStatusDialog> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Last Sync:',
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
+                      const Text('Last Sync:', style: TextStyle(fontWeight: FontWeight.w500)),
                       Text(
                         _formatDateTime(stats.lastSyncTime!),
                         style: const TextStyle(fontSize: 12),
@@ -293,10 +244,7 @@ class _QueueStatusDialogState extends State<QueueStatusDialog> {
         },
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Close'),
-        ),
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
         if (widget.queueService.failedCount.value > 0)
           ElevatedButton.icon(
             onPressed: () {
@@ -323,10 +271,7 @@ class _QueueStatusDialogState extends State<QueueStatusDialog> {
           ),
           child: Text(
             value,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, color: color),
           ),
         ),
       ],
@@ -360,18 +305,12 @@ class OfflineCheckoutWarning extends StatelessWidget {
               children: [
                 Text(
                   'You are offline',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.warning,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.warning),
                 ),
                 SizedBox(height: 4),
                 Text(
                   'This order will be saved locally and synced when you\'re online',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.warning,
-                  ),
+                  style: TextStyle(fontSize: 12, color: AppTheme.warning),
                 ),
               ],
             ),
@@ -386,10 +325,7 @@ class OfflineCheckoutWarning extends StatelessWidget {
 class SyncProgressOverlay extends StatelessWidget {
   final OfflineOrderQueueService queueService;
 
-  const SyncProgressOverlay({
-    super.key,
-    required this.queueService,
-  });
+  const SyncProgressOverlay({super.key, required this.queueService});
 
   @override
   Widget build(BuildContext context) {
@@ -408,9 +344,7 @@ class SyncProgressOverlay extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Theme.of(context).primaryColor,
-                      ),
+                      valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
                     ),
                     const SizedBox(height: 16),
                     Text(

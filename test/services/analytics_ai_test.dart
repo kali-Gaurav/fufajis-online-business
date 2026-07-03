@@ -42,7 +42,12 @@ class MockPostgrestQueryBuilder extends Mock implements SupabaseQueryBuilder {
   }
 
   @override
-  PostgrestFilterBuilder<PostgrestList> upsert(Object values, {String? onConflict, bool ignoreDuplicates = false, bool defaultToNull = false}) {
+  PostgrestFilterBuilder<PostgrestList> upsert(
+    Object values, {
+    String? onConflict,
+    bool ignoreDuplicates = false,
+    bool defaultToNull = false,
+  }) {
     if (values is Map<String, dynamic>) {
       client.upsertedRecords.add({'table': tableName, 'data': values});
     } else if (values is List<dynamic>) {
@@ -101,11 +106,7 @@ class MockAlertService extends Mock implements AlertService {
     required String details,
     String? userId,
   }) async {
-    generatedSecurityAlerts.add({
-      'event': securityEvent,
-      'details': details,
-      'userId': userId,
-    });
+    generatedSecurityAlerts.add({'event': securityEvent, 'details': details, 'userId': userId});
   }
 }
 
@@ -166,7 +167,7 @@ void main() {
             'final_amount': 540.0,
             'order_status': 'cancelled',
             'created_at': '2026-06-19T11:00:00Z',
-          }
+          },
         ];
 
         final success = await kpiService.aggregateSalesAndRevenue(
@@ -192,7 +193,10 @@ void main() {
         final revUpserts = mockSupabase.upsertedRecords
             .where((r) => r['table'] == 'revenue_analytics')
             .toList();
-        expect(revUpserts.length, equals(6)); // gross, net, refunds, delivery_fees, cogs, gross_profit
+        expect(
+          revUpserts.length,
+          equals(6),
+        ); // gross, net, refunds, delivery_fees, cogs, gross_profit
       });
 
       test('aggregateInventoryHealth aggregates product stock levels', () async {
@@ -212,13 +216,19 @@ void main() {
             .toList();
         expect(invUpserts.length, equals(4)); // out_of_stock, low_stock, dead_stock, turnover
 
-        final oosRecord = invUpserts.firstWhere((r) => r['data']['metric_id'].contains('out_of_stock_count'));
+        final oosRecord = invUpserts.firstWhere(
+          (r) => r['data']['metric_id'].contains('out_of_stock_count'),
+        );
         expect(oosRecord['data']['metric_value'], equals(1.0));
 
-        final lowStockRecord = invUpserts.firstWhere((r) => r['data']['metric_id'].contains('low_stock_count'));
+        final lowStockRecord = invUpserts.firstWhere(
+          (r) => r['data']['metric_id'].contains('low_stock_count'),
+        );
         expect(lowStockRecord['data']['metric_value'], equals(1.0));
 
-        final deadStockRecord = invUpserts.firstWhere((r) => r['data']['metric_id'].contains('dead_stock_value'));
+        final deadStockRecord = invUpserts.firstWhere(
+          (r) => r['data']['metric_id'].contains('dead_stock_value'),
+        );
         // 60 * 150 * 0.4 = 3600.0
         expect(deadStockRecord['data']['metric_value'], equals(3600.0));
       });
@@ -237,7 +247,7 @@ void main() {
           rawOrderItems.add({
             'product_id': 'prod_rice',
             'quantity': 2.0,
-            'orders': {'created_at': orderDateStr}
+            'orders': {'created_at': orderDateStr},
           });
         }
 
@@ -265,7 +275,7 @@ void main() {
         for (int i = 0; i < 30; i++) {
           rawRevenueAnalytics.add({
             'metric_value': 1000.0,
-            'created_at': now.subtract(Duration(days: i)).toIso8601String()
+            'created_at': now.subtract(Duration(days: i)).toIso8601String(),
           });
         }
         mockSupabase.queryResponses['revenue_analytics'] = rawRevenueAnalytics;
@@ -285,74 +295,75 @@ void main() {
     });
 
     group('FraudDetectionService Tests', () {
-      test('analyzeOrderRisk assigns high risk score and triggers alert for geolocation mismatch', () async {
-        final sampleOrder = OrderModel(
-          id: 'order_fraud_1',
-          orderNumber: 'FO-12345',
-          customerId: 'user_cheater_1',
-          customerName: 'Cheater Lal',
-          customerPhone: '+919999999999',
-          items: [],
-          subtotal: MonetaryValue(1000.0),
-          totalAmount: MonetaryValue(1050.0),
-          paymentMethod: PaymentMethod.cod,
-          status: OrderStatus.confirmed,
-          paymentStatus: 'pending',
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-          // Location far outside branch central boundary
-          liveLocation: const GeoPoint(20.0, 70.0), 
-          deliveryAddress: Address(
-            id: 'addr_1',
-            label: 'Home',
-            latitude: 20.0,
-            longitude: 70.0,
-          ),
-        );
+      test(
+        'analyzeOrderRisk assigns high risk score and triggers alert for geolocation mismatch',
+        () async {
+          final sampleOrder = OrderModel(
+            id: 'order_fraud_1',
+            orderNumber: 'FO-12345',
+            customerId: 'user_cheater_1',
+            customerName: 'Cheater Lal',
+            customerPhone: '+919999999999',
+            items: [],
+            subtotal: MonetaryValue(1000.0),
+            totalAmount: MonetaryValue(1050.0),
+            paymentMethod: PaymentMethod.cod,
+            status: OrderStatus.confirmed,
+            paymentStatus: 'pending',
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+            // Location far outside branch central boundary
+            liveLocation: const GeoPoint(20.0, 70.0),
+            deliveryAddress: Address(id: 'addr_1', label: 'Home', latitude: 20.0, longitude: 70.0),
+          );
 
-        // Previous orders: Not first-time order
-        mockSupabase.queryResponses['orders'] = [
-          {'order_id': 'order_prev_1'}
-        ];
+          // Previous orders: Not first-time order
+          mockSupabase.queryResponses['orders'] = [
+            {'order_id': 'order_prev_1'},
+          ];
 
-        final score = await fraudService.analyzeOrderRisk(sampleOrder);
-        // Far location adds 0.35
-        expect(score, closeTo(0.35, 0.05));
-      });
+          final score = await fraudService.analyzeOrderRisk(sampleOrder);
+          // Far location adds 0.35
+          expect(score, closeTo(0.35, 0.05));
+        },
+      );
 
-      test('analyzeOrderRisk flags high value first order and high value COD combination as critical', () async {
-        final sampleOrder = OrderModel(
-          id: 'order_fraud_critical',
-          orderNumber: 'FO-99999',
-          customerId: 'user_new_1',
-          customerName: 'New Guest User',
-          customerPhone: '+918888888888',
-          items: [],
-          subtotal: MonetaryValue(6000.0),
-          totalAmount: MonetaryValue(6100.0), // Over 5000 threshold
-          paymentMethod: PaymentMethod.cod, // High value COD
-          status: OrderStatus.confirmed,
-          paymentStatus: 'pending',
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-          liveLocation: const GeoPoint(26.9124, 75.7873), // Correct location
-          deliveryAddress: Address(
-            id: 'addr_2',
-            label: 'Office',
-            latitude: 26.9124,
-            longitude: 75.7873,
-          ),
-        );
+      test(
+        'analyzeOrderRisk flags high value first order and high value COD combination as critical',
+        () async {
+          final sampleOrder = OrderModel(
+            id: 'order_fraud_critical',
+            orderNumber: 'FO-99999',
+            customerId: 'user_new_1',
+            customerName: 'New Guest User',
+            customerPhone: '+918888888888',
+            items: [],
+            subtotal: MonetaryValue(6000.0),
+            totalAmount: MonetaryValue(6100.0), // Over 5000 threshold
+            paymentMethod: PaymentMethod.cod, // High value COD
+            status: OrderStatus.confirmed,
+            paymentStatus: 'pending',
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+            liveLocation: const GeoPoint(26.9124, 75.7873), // Correct location
+            deliveryAddress: Address(
+              id: 'addr_2',
+              label: 'Office',
+              latitude: 26.9124,
+              longitude: 75.7873,
+            ),
+          );
 
-        // Previous orders: Empty (First-time order)
-        mockSupabase.queryResponses['orders'] = [];
+          // Previous orders: Empty (First-time order)
+          mockSupabase.queryResponses['orders'] = [];
 
-        final score = await fraudService.analyzeOrderRisk(sampleOrder);
-        // First order > 5000: +0.25
-        // COD > 3000: +0.20
-        // Total risk score: 0.45
-        expect(score, closeTo(0.45, 0.05));
-      });
+          final score = await fraudService.analyzeOrderRisk(sampleOrder);
+          // First order > 5000: +0.25
+          // COD > 3000: +0.20
+          // Total risk score: 0.45
+          expect(score, closeTo(0.45, 0.05));
+        },
+      );
 
       test('analyzeOrderRisk triggers alerts when risk exceeds critical threshold', () async {
         // Mismatched payment status (+0.40) + far outside location (+0.35) = 0.75 (> 0.7 threshold)
@@ -371,16 +382,11 @@ void main() {
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
           liveLocation: const GeoPoint(20.0, 70.0), // Far outside (+0.35)
-          deliveryAddress: Address(
-            id: 'addr_3',
-            label: 'Work',
-            latitude: 20.0,
-            longitude: 70.0,
-          ),
+          deliveryAddress: Address(id: 'addr_3', label: 'Work', latitude: 20.0, longitude: 70.0),
         );
 
         mockSupabase.queryResponses['orders'] = [
-          {'order_id': 'order_prev_1'}
+          {'order_id': 'order_prev_1'},
         ];
 
         final score = await fraudService.analyzeOrderRisk(sampleOrder);

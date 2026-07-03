@@ -9,11 +9,7 @@ class PhoneVerifyScreen extends StatefulWidget {
   final String phoneNumber;
   final String? role;
 
-  const PhoneVerifyScreen({
-    super.key,
-    required this.phoneNumber,
-    this.role,
-  });
+  const PhoneVerifyScreen({super.key, required this.phoneNumber, this.role});
 
   @override
   State<PhoneVerifyScreen> createState() => _PhoneVerifyScreenState();
@@ -79,9 +75,9 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
     final otp = _pinController.text;
 
     if (otp.isEmpty || otp.length != 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid 6-digit OTP')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter a valid 6-digit OTP')));
       return;
     }
 
@@ -105,15 +101,15 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
         final role = user?.role ?? parsedRole ?? UserRole.customer;
         context.go(_routeForRole(role));
       } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid OTP. Please try again.')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Invalid OTP. Please try again.')));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
       }
     }
   }
@@ -127,15 +123,15 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
       _startResendTimer();
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('OTP resent successfully')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('OTP resent successfully')));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
       }
     }
   }
@@ -158,16 +154,11 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
     );
 
     final submittedPinTheme = defaultPinTheme.copyWith(
-      decoration: defaultPinTheme.decoration?.copyWith(
-        color: Colors.grey[100],
-      ),
+      decoration: defaultPinTheme.decoration?.copyWith(color: Colors.grey[100]),
     );
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Verify Phone Number'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Verify Phone Number'), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -183,9 +174,7 @@ class _PhoneVerifyScreenState extends State<PhoneVerifyScreen> {
             const SizedBox(height: 8),
             Text(
               'We sent a code to ${widget.phoneNumber}',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),

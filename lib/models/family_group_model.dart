@@ -67,10 +67,7 @@ class FamilyMember {
   /// Remaining budget for the month
   double get remainingBudget {
     if (monthlySpendingLimit <= 0) return double.infinity;
-    return (monthlySpendingLimit - currentMonthSpending).clamp(
-      0,
-      monthlySpendingLimit,
-    );
+    return (monthlySpendingLimit - currentMonthSpending).clamp(0, monthlySpendingLimit);
   }
 
   static const Map<FamilyRole, Set<FamilyPermission>> _permissionMatrix = {
@@ -323,19 +320,15 @@ class FamilyGroup {
   });
 
   /// Get the owner member
-  FamilyMember? get owner => members.cast<FamilyMember?>().firstWhere(
-    (m) => m?.userId == ownerUserId,
-    orElse: () => null,
-  );
+  FamilyMember? get owner =>
+      members.cast<FamilyMember?>().firstWhere((m) => m?.userId == ownerUserId, orElse: () => null);
 
   /// Get active members count
   int get activeMemberCount => members.where((m) => m.isActive).length;
 
   /// Get shared cart total
-  double get sharedCartTotal => sharedCart.fold(
-    0.0,
-    (total, item) => total + (item.price * item.quantity),
-  );
+  double get sharedCartTotal =>
+      sharedCart.fold(0.0, (total, item) => total + (item.price * item.quantity));
 
   /// Check if household can afford more spending
   bool canAfford(double amount) {
@@ -350,27 +343,17 @@ class FamilyGroup {
       ownerUserId: map['ownerUserId'] as String? ?? '',
       members:
           (map['members'] as List<dynamic>?)
-              ?.map(
-                (m) =>
-                    FamilyMember.fromMap(Map<String, dynamic>.from(m as Map)),
-              )
+              ?.map((m) => FamilyMember.fromMap(Map<String, dynamic>.from(m as Map)))
               .toList() ??
           [],
       sharedCart:
           (map['sharedCart'] as List<dynamic>?)
-              ?.map(
-                (c) =>
-                    SharedCartItem.fromMap(Map<String, dynamic>.from(c as Map)),
-              )
+              ?.map((c) => SharedCartItem.fromMap(Map<String, dynamic>.from(c as Map)))
               .toList() ??
           [],
       pendingApprovals:
           (map['pendingApprovals'] as List<dynamic>?)
-              ?.map(
-                (a) => FamilyApprovalRequest.fromMap(
-                  Map<String, dynamic>.from(a as Map),
-                ),
-              )
+              ?.map((a) => FamilyApprovalRequest.fromMap(Map<String, dynamic>.from(a as Map)))
               .toList() ??
           [],
       monthlyBudget: (map['monthlyBudget'] as num? ?? 0.0).toDouble(),

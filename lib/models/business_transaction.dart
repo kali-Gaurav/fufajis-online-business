@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum TransactionType { payment, refund, cashback, referral, walletTopup, deliveryFee }
+
 enum TransactionStatus { pending, completed, failed, reversed }
 
 class BusinessTransaction {

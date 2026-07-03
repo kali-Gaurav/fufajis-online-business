@@ -9,11 +9,7 @@ class CrashReporter {
   static Future<void> log(String message) async {
     debugPrint('[CrashReporter] LOG: $message');
     await Sentry.addBreadcrumb(
-      Breadcrumb(
-        message: message,
-        timestamp: DateTime.now(),
-        level: SentryLevel.info,
-      ),
+      Breadcrumb(message: message, timestamp: DateTime.now(), level: SentryLevel.info),
     );
   }
 
@@ -48,16 +44,10 @@ class CrashReporter {
       await _analytics.logEvent(
         name: 'app_error',
         parameters: {
-          'exception': exception.toString().substring(
-            0,
-            exception.toString().length.clamp(0, 100),
-          ),
+          'exception': exception.toString().substring(0, exception.toString().length.clamp(0, 100)),
           'fatal': fatal ? 1 : 0,
           if (reason != null)
-            'reason': reason.toString().substring(
-              0,
-              reason.toString().length.clamp(0, 100),
-            ),
+            'reason': reason.toString().substring(0, reason.toString().length.clamp(0, 100)),
         },
       );
     } catch (e) {
@@ -68,9 +58,7 @@ class CrashReporter {
   /// Associates subsequent crash reports and logs with a specific user ID
   static Future<void> setUserId(String userId) async {
     debugPrint('[CrashReporter] Setting User ID: $userId');
-    await Sentry.configureScope(
-      (scope) => scope.setUser(SentryUser(id: userId)),
-    );
+    await Sentry.configureScope((scope) => scope.setUser(SentryUser(id: userId)));
     try {
       await _analytics.setUserId(id: userId);
     } catch (e) {

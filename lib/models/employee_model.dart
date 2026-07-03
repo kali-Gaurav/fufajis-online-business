@@ -1,9 +1,4 @@
-enum EmployeeRole {
-  superOwner,
-  franchiseOwner,
-  branchManager,
-  employee,
-}
+enum EmployeeRole { superOwner, franchiseOwner, branchManager, employee }
 
 extension EmployeeRoleExtension on EmployeeRole {
   String get displayName {

@@ -50,19 +50,28 @@ class _BranchManagementScreenState extends State<BranchManagementScreen> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Branch Name', hintText: 'e.g. Vaishali Nagar Branch'),
+                decoration: const InputDecoration(
+                  labelText: 'Branch Name',
+                  hintText: 'e.g. Vaishali Nagar Branch',
+                ),
                 validator: (v) => v == null || v.trim().isEmpty ? 'Please enter a name' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _phoneController,
-                decoration: const InputDecoration(labelText: 'Contact Phone', hintText: '+91 98765 43210'),
+                decoration: const InputDecoration(
+                  labelText: 'Contact Phone',
+                  hintText: '+91 98765 43210',
+                ),
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _managerController,
-                decoration: const InputDecoration(labelText: 'Manager User ID', hintText: 'Auth User ID of manager'),
+                decoration: const InputDecoration(
+                  labelText: 'Manager User ID',
+                  hintText: 'Auth User ID of manager',
+                ),
               ),
             ],
           ),
@@ -95,17 +104,19 @@ class _BranchManagementScreenState extends State<BranchManagementScreen> {
       latitude: branch?.latitude ?? 26.9124,
       longitude: branch?.longitude ?? 75.7873,
       deliveryRadiusKm: branch?.deliveryRadiusKm ?? 8.0,
-      deliveryZones: branch?.deliveryZones ?? [
-        DeliveryZone(
-          id: 'zone_b1',
-          label: 'Branch Zone 1 - Free (0-3 km)',
-          fromRadiusKm: 0.0,
-          toRadiusKm: 3.0,
-          deliveryCharge: 0.0,
-          minOrderForFree: 300.0,
-          isActive: true,
-        )
-      ],
+      deliveryZones:
+          branch?.deliveryZones ??
+          [
+            DeliveryZone(
+              id: 'zone_b1',
+              label: 'Branch Zone 1 - Free (0-3 km)',
+              fromRadiusKm: 0.0,
+              toRadiusKm: 3.0,
+              deliveryCharge: 0.0,
+              minOrderForFree: 300.0,
+              isActive: true,
+            ),
+          ],
       isPrimary: branch?.isPrimary ?? false,
       isActive: branch?.isActive ?? true,
       contactPhone: phone.isEmpty ? null : phone,
@@ -132,7 +143,15 @@ class _BranchManagementScreenState extends State<BranchManagementScreen> {
 
   Map<String, OperatingHours> _getDefaultHours() {
     final Map<String, OperatingHours> hours = {};
-    for (var day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']) {
+    for (var day in [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ]) {
       hours[day] = OperatingHours(isOpen: true, openTime: '09:00', closeTime: '21:00');
     }
     return hours;
@@ -157,9 +176,9 @@ class _BranchManagementScreenState extends State<BranchManagementScreen> {
     try {
       await provider.updateBranch(branch.copyWith(isActive: !branch.isActive));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Update failed: $e'), backgroundColor: AppTheme.error),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Update failed: $e'), backgroundColor: AppTheme.error));
     }
   }
 
@@ -174,12 +193,15 @@ class _BranchManagementScreenState extends State<BranchManagementScreen> {
       }
       await provider.updateBranch(branch.copyWith(isPrimary: true));
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Branch designated as Primary!'), backgroundColor: AppTheme.success),
+        const SnackBar(
+          content: Text('Branch designated as Primary!'),
+          backgroundColor: AppTheme.success,
+        ),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Update failed: $e'), backgroundColor: AppTheme.error),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Update failed: $e'), backgroundColor: AppTheme.error));
     }
   }
 
@@ -196,7 +218,10 @@ class _BranchManagementScreenState extends State<BranchManagementScreen> {
         onPressed: () => _showBranchDialog(),
         backgroundColor: AppTheme.primary,
         icon: const Icon(Icons.add_business, color: Colors.white),
-        label: const Text('Add Branch', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        label: const Text(
+          'Add Branch',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
       ),
       body: branches.isEmpty
           ? Center(
@@ -205,9 +230,15 @@ class _BranchManagementScreenState extends State<BranchManagementScreen> {
                 children: [
                   Icon(Icons.store, size: 80, color: Colors.grey[400]),
                   const SizedBox(height: 16),
-                  const Text('No Branches Configured', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  const Text(
+                    'No Branches Configured',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
                   const SizedBox(height: 8),
-                  Text('Set up additional branch locations to cover more areas.', style: TextStyle(color: Colors.grey[600])),
+                  Text(
+                    'Set up additional branch locations to cover more areas.',
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
                 ],
               ),
             )
@@ -233,7 +264,11 @@ class _BranchManagementScreenState extends State<BranchManagementScreen> {
                               children: [
                                 Text(
                                   b.branchName,
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black87),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                    color: Colors.black87,
+                                  ),
                                 ),
                                 const SizedBox(width: 8),
                                 if (b.isPrimary)
@@ -245,7 +280,11 @@ class _BranchManagementScreenState extends State<BranchManagementScreen> {
                                     ),
                                     child: const Text(
                                       'PRIMARY',
-                                      style: TextStyle(color: AppTheme.primary, fontSize: 10, fontWeight: FontWeight.bold),
+                                      style: TextStyle(
+                                        color: AppTheme.primary,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                               ],
@@ -278,7 +317,10 @@ class _BranchManagementScreenState extends State<BranchManagementScreen> {
                             children: [
                               const Icon(Icons.phone, size: 16, color: Colors.grey),
                               const SizedBox(width: 4),
-                              Text(b.contactPhone!, style: TextStyle(color: Colors.grey[700], fontSize: 13)),
+                              Text(
+                                b.contactPhone!,
+                                style: TextStyle(color: Colors.grey[700], fontSize: 13),
+                              ),
                             ],
                           ),
                         const SizedBox(height: 12),
@@ -293,14 +335,18 @@ class _BranchManagementScreenState extends State<BranchManagementScreen> {
                               children: [
                                 TextButton.icon(
                                   onPressed: () => Navigator.of(context).push(
-                                    MaterialPageRoute(builder: (context) => ShopLocationPickerScreen(branch: b)),
+                                    MaterialPageRoute(
+                                      builder: (context) => ShopLocationPickerScreen(branch: b),
+                                    ),
                                   ),
                                   icon: const Icon(Icons.map, size: 16),
                                   label: const Text('Map & Radius'),
                                 ),
                                 TextButton.icon(
                                   onPressed: () => Navigator.of(context).push(
-                                    MaterialPageRoute(builder: (context) => DeliveryZonesScreen(branch: b)),
+                                    MaterialPageRoute(
+                                      builder: (context) => DeliveryZonesScreen(branch: b),
+                                    ),
                                   ),
                                   icon: const Icon(Icons.delivery_dining, size: 16),
                                   label: const Text('Zones'),
@@ -319,8 +365,18 @@ class _BranchManagementScreenState extends State<BranchManagementScreen> {
                               },
                               itemBuilder: (context) => [
                                 const PopupMenuItem(value: 'edit', child: Text('Edit Info')),
-                                if (!b.isPrimary) const PopupMenuItem(value: 'primary', child: Text('Set as Primary')),
-                                const PopupMenuItem(value: 'delete', child: Text('Delete Branch', style: TextStyle(color: AppTheme.error))),
+                                if (!b.isPrimary)
+                                  const PopupMenuItem(
+                                    value: 'primary',
+                                    child: Text('Set as Primary'),
+                                  ),
+                                const PopupMenuItem(
+                                  value: 'delete',
+                                  child: Text(
+                                    'Delete Branch',
+                                    style: TextStyle(color: AppTheme.error),
+                                  ),
+                                ),
                               ],
                             ),
                           ],

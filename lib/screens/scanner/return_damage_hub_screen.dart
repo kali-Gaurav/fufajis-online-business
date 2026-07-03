@@ -128,10 +128,7 @@ class _ReturnDamageHubScreenState extends State<ReturnDamageHubScreen> {
                     const SizedBox(height: 4),
                     Text(
                       'डिलीवर किया गया: $daysSinceDelivery दिन पहले',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: canReturn ? Colors.green : Colors.red,
-                      ),
+                      style: TextStyle(fontSize: 12, color: canReturn ? Colors.green : Colors.red),
                     ),
                   ],
                 ),
@@ -216,9 +213,7 @@ class _ReturnDamageHubScreenState extends State<ReturnDamageHubScreen> {
                   'Order #${returnData['orderNumber'] ?? returnData['orderId'].toString().substring(0, 8)}',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                subtitle: Text(
-                  returnData['reason'] ?? 'Return request',
-                ),
+                subtitle: Text(returnData['reason'] ?? 'Return request'),
                 trailing: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -319,14 +314,10 @@ class _ReturnFormDialogState extends State<_ReturnFormDialog> {
                 initialValue: _selectedReason,
                 hint: const Text('कारण चुनें'),
                 items: _returnReasons.map((reason) {
-                  return DropdownMenuItem(
-                    value: reason,
-                    child: Text(reason),
-                  );
+                  return DropdownMenuItem(value: reason, child: Text(reason));
                 }).toList(),
                 onChanged: (value) => setState(() => _selectedReason = value),
-                validator: (value) =>
-                    value == null ? 'कारण आवश्यक है' : null,
+                validator: (value) => value == null ? 'कारण आवश्यक है' : null,
               ),
               const SizedBox(height: 16),
 
@@ -363,10 +354,7 @@ class _ReturnFormDialogState extends State<_ReturnFormDialog> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('रद्द करें'),
-        ),
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('रद्द करें')),
         ElevatedButton(
           onPressed: _isSubmitting ? null : _submitReturn,
           child: _isSubmitting
@@ -408,12 +396,9 @@ class _ReturnFormDialogState extends State<_ReturnFormDialog> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('त्रुटि: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('त्रुटि: $e'), backgroundColor: Colors.red));
       }
     } finally {
       setState(() => _isSubmitting = false);

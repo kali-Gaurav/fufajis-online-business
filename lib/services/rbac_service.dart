@@ -181,10 +181,7 @@ class RBACService {
     '/owner/backend-diagnostics': [Permission.accessBackendDiagnostics],
     '/owner/device-management': [Permission.viewDeviceManagement],
     '/owner/employees': [Permission.manageEmployees],
-    '/owner/analytics': [
-      Permission.viewBranchAnalytics,
-      Permission.viewSalesAnalytics,
-    ],
+    '/owner/analytics': [Permission.viewBranchAnalytics, Permission.viewSalesAnalytics],
     '/owner/analytics/postgres': [
       Permission.viewSalesAnalytics,
       Permission.viewVendorAnalytics,

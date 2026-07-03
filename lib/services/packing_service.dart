@@ -53,11 +53,7 @@ class PackingService {
   }
 
   /// Get pick list for an order (items in warehouse location order)
-  Future<List<FulfillmentItem>> getPickList(
-    String shopId,
-    String branchId,
-    String orderId,
-  ) async {
+  Future<List<FulfillmentItem>> getPickList(String shopId, String branchId, String orderId) async {
     try {
       final orderSnapshot = await _db
           .collection('shops')
@@ -88,14 +84,16 @@ class PackingService {
 
         if (productSnapshot.exists) {
           final productData = productSnapshot.data() as Map<String, dynamic>;
-          pickList.add(FulfillmentItem(
-            productId: productId,
-            productName: productData['name'] as String? ?? 'Unknown',
-            productImage: productData['imageUrl'] as String?,
-            requiredQuantity: (item['quantity'] as num? ?? 0).toDouble(),
-            unit: productData['unit'] as String? ?? 'pcs',
-            createdAt: DateTime.now(),
-          ));
+          pickList.add(
+            FulfillmentItem(
+              productId: productId,
+              productName: productData['name'] as String? ?? 'Unknown',
+              productImage: productData['imageUrl'] as String?,
+              requiredQuantity: (item['quantity'] as num? ?? 0).toDouble(),
+              unit: productData['unit'] as String? ?? 'pcs',
+              createdAt: DateTime.now(),
+            ),
+          );
         }
       }
 
@@ -108,11 +106,7 @@ class PackingService {
   }
 
   /// Mark an item as packed
-  Future<void> markItemPacked(
-    String taskId,
-    String productId,
-    double quantity,
-  ) async {
+  Future<void> markItemPacked(String taskId, String productId, double quantity) async {
     try {
       final taskSnapshot = await _db.collection('fulfillment_tasks').doc(taskId).get();
       if (!taskSnapshot.exists) throw Exception('Task not found');
@@ -134,11 +128,7 @@ class PackingService {
   }
 
   /// Complete packing for an order
-  Future<void> completePacking(
-    String taskId,
-    String orderId,
-    String shopId,
-  ) async {
+  Future<void> completePacking(String taskId, String orderId, String shopId) async {
     try {
       final now = DateTime.now();
 
@@ -149,12 +139,7 @@ class PackingService {
       });
 
       // Update order status
-      await _db
-          .collection('shops')
-          .doc(shopId)
-          .collection('orders')
-          .doc(orderId)
-          .update({
+      await _db.collection('shops').doc(shopId).collection('orders').doc(orderId).update({
         'status': 'packed',
         'packedAt': Timestamp.fromDate(now),
       });
@@ -164,10 +149,7 @@ class PackingService {
   }
 
   /// Get employee stats for a specific date
-  Future<EmployeeDailyStats> getEmployeeStats(
-    String employeeId,
-    DateTime date,
-  ) async {
+  Future<EmployeeDailyStats> getEmployeeStats(String employeeId, DateTime date) async {
     try {
       final dateStr =
           '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
@@ -179,10 +161,7 @@ class PackingService {
         return EmployeeDailyStats.fromMap(snapshot.data()!);
       }
 
-      return EmployeeDailyStats(
-        employeeId: employeeId,
-        date: dateStr,
-      );
+      return EmployeeDailyStats(employeeId: employeeId, date: dateStr);
     } catch (e) {
       rethrow;
     }
@@ -218,10 +197,7 @@ class PackingService {
   }
 
   /// Get available unassigned orders for a branch
-  Future<List<OrderModel>> getUnassignedOrders(
-    String shopId,
-    String branchId,
-  ) async {
+  Future<List<OrderModel>> getUnassignedOrders(String shopId, String branchId) async {
     try {
       await _db
           .collection('shops')
@@ -241,12 +217,7 @@ class PackingService {
   }
 
   /// Reject a task (send back to queue)
-  Future<void> rejectTask(
-    String taskId,
-    String orderId,
-    String shopId,
-    String reason,
-  ) async {
+  Future<void> rejectTask(String taskId, String orderId, String shopId, String reason) async {
     try {
       final now = DateTime.now();
 
@@ -258,12 +229,7 @@ class PackingService {
       });
 
       // Revert order status back to confirmed
-      await _db
-          .collection('shops')
-          .doc(shopId)
-          .collection('orders')
-          .doc(orderId)
-          .update({
+      await _db.collection('shops').doc(shopId).collection('orders').doc(orderId).update({
         'status': 'confirmed',
         'fulfillmentTaskId': FieldValue.delete(),
         'assignedToEmployee': FieldValue.delete(),
@@ -290,12 +256,14 @@ class PackingService {
         'qualityScore': task.qualityScore,
         'completionTime': task.totalTimeSeconds,
         'items': task.items
-            .map((i) => {
-                  'productName': i.productName,
-                  'required': i.requiredQuantity,
-                  'packed': i.packedQuantity,
-                  'verified': i.verified,
-                })
+            .map(
+              (i) => {
+                'productName': i.productName,
+                'required': i.requiredQuantity,
+                'packed': i.packedQuantity,
+                'verified': i.verified,
+              },
+            )
             .toList(),
       };
     } catch (e) {
@@ -304,11 +272,7 @@ class PackingService {
   }
 
   /// Get average packing time for a product in a shop
-  Future<double> getAverageDuration(
-    String shopId,
-    String branchId,
-    String productId,
-  ) async {
+  Future<double> getAverageDuration(String shopId, String branchId, String productId) async {
     try {
       final snapshot = await _db
           .collection('fulfillment_tasks')

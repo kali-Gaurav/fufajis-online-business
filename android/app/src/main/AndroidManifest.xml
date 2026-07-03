@@ -20,6 +20,12 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
+    <!-- Fix 15: Bluetooth Permissions for blue_thermal_printer (API 31+) -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
     <!-- Package Visibility for UPI Apps & Razorpay -->
     <queries>
         <package android:name="com.google.android.apps.nbu.paisa.user" />

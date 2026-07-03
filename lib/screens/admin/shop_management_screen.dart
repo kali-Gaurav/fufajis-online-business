@@ -37,8 +37,7 @@ class _ShopManagementScreenState extends State<ShopManagementScreen> {
     final filteredShops = adminProvider.shops.where((shop) {
       final name = (shop['name'] ?? '').toString().toLowerCase();
       final ownerName = (shop['ownerName'] ?? '').toString().toLowerCase();
-      final matchesSearch =
-          name.contains(_searchQuery) || ownerName.contains(_searchQuery);
+      final matchesSearch = name.contains(_searchQuery) || ownerName.contains(_searchQuery);
 
       if (_selectedFilter == 'all') return matchesSearch;
       final status = (shop['status'] ?? 'pending').toString().toLowerCase();
@@ -81,12 +80,8 @@ class _ShopManagementScreenState extends State<ShopManagementScreen> {
                     decoration: InputDecoration(
                       hintText: 'Search by Shop Name or Owner',
                       prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                      ),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                       filled: true,
                       fillColor: Colors.white,
                     ),
@@ -108,22 +103,19 @@ class _ShopManagementScreenState extends State<ShopManagementScreen> {
                 FilterChip(
                   label: const Text('Pending Approval'),
                   selected: _selectedFilter == 'pending',
-                  onSelected: (_) =>
-                      setState(() => _selectedFilter = 'pending'),
+                  onSelected: (_) => setState(() => _selectedFilter = 'pending'),
                 ),
                 const SizedBox(width: 8),
                 FilterChip(
                   label: const Text('Approved'),
                   selected: _selectedFilter == 'approved',
-                  onSelected: (_) =>
-                      setState(() => _selectedFilter = 'approved'),
+                  onSelected: (_) => setState(() => _selectedFilter = 'approved'),
                 ),
                 const SizedBox(width: 8),
                 FilterChip(
                   label: const Text('Suspended'),
                   selected: _selectedFilter == 'suspended',
-                  onSelected: (_) =>
-                      setState(() => _selectedFilter = 'suspended'),
+                  onSelected: (_) => setState(() => _selectedFilter = 'suspended'),
                 ),
               ],
             ),
@@ -135,13 +127,10 @@ class _ShopManagementScreenState extends State<ShopManagementScreen> {
                   ? const Center(child: Text('No shops found.'))
                   : Card(
                       elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       child: ListView.separated(
                         itemCount: filteredShops.length,
-                        separatorBuilder: (context, index) =>
-                            const Divider(height: 1),
+                        separatorBuilder: (context, index) => const Divider(height: 1),
                         itemBuilder: (context, index) {
                           final shop = filteredShops[index];
                           return _buildShopTile(context, shop, adminProvider);
@@ -155,11 +144,7 @@ class _ShopManagementScreenState extends State<ShopManagementScreen> {
     );
   }
 
-  Widget _buildShopTile(
-    BuildContext context,
-    Map<String, dynamic> shop,
-    AdminProvider provider,
-  ) {
+  Widget _buildShopTile(BuildContext context, Map<String, dynamic> shop, AdminProvider provider) {
     final status = (shop['status'] ?? 'pending').toString().toUpperCase();
     final name = shop['name'] as String? ?? 'No Name';
     final ownerName = shop['ownerName'] as String? ?? 'Unknown Owner';
@@ -178,10 +163,7 @@ class _ShopManagementScreenState extends State<ShopManagementScreen> {
         backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
         child: const Icon(Icons.store, color: AppTheme.primary),
       ),
-      title: Text(
-        name,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-      ),
+      title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -201,11 +183,7 @@ class _ShopManagementScreenState extends State<ShopManagementScreen> {
             ),
             child: Text(
               status,
-              style: TextStyle(
-                color: statusColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-              ),
+              style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 12),
             ),
           ),
           const SizedBox(width: 16),
@@ -221,20 +199,11 @@ class _ShopManagementScreenState extends State<ShopManagementScreen> {
             },
             itemBuilder: (context) => [
               if (status != 'APPROVED')
-                const PopupMenuItem(
-                  value: 'approve',
-                  child: Text('Approve Shop'),
-                ),
+                const PopupMenuItem(value: 'approve', child: Text('Approve Shop')),
               if (status != 'SUSPENDED')
-                const PopupMenuItem(
-                  value: 'suspend',
-                  child: Text('Suspend Shop'),
-                ),
+                const PopupMenuItem(value: 'suspend', child: Text('Suspend Shop')),
               if (status != 'PENDING')
-                const PopupMenuItem(
-                  value: 'pending',
-                  child: Text('Set to Pending'),
-                ),
+                const PopupMenuItem(value: 'pending', child: Text('Set to Pending')),
             ],
           ),
         ],

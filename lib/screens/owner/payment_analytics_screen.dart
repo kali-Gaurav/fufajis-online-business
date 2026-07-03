@@ -21,8 +21,7 @@ class PaymentAnalyticsScreen extends StatefulWidget {
   const PaymentAnalyticsScreen({super.key});
 
   @override
-  State<PaymentAnalyticsScreen> createState() =>
-      _PaymentAnalyticsScreenState();
+  State<PaymentAnalyticsScreen> createState() => _PaymentAnalyticsScreenState();
 }
 
 class _PaymentAnalyticsScreenState extends State<PaymentAnalyticsScreen> {
@@ -104,14 +103,10 @@ class _PaymentAnalyticsScreenState extends State<PaymentAnalyticsScreen> {
       final txnType = <String, double>{};
       for (final doc in txnSnap.docs) {
         final data = doc.data();
-        final status = _statusLabel(
-          (data['status'] as String? ?? 'unknown').split('.').last,
-        );
+        final status = _statusLabel((data['status'] as String? ?? 'unknown').split('.').last);
         txnStatus[status] = (txnStatus[status] ?? 0) + 1;
 
-        final type = _statusLabel(
-          (data['type'] as String? ?? 'other').split('.').last,
-        );
+        final type = _statusLabel((data['type'] as String? ?? 'other').split('.').last);
         final amount = (data['amount'] as num?)?.toDouble() ?? 0.0;
         txnType[type] = (txnType[type] ?? 0) + amount;
       }
@@ -209,10 +204,13 @@ class _PaymentAnalyticsScreenState extends State<PaymentAnalyticsScreen> {
                     child: Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent)),
                   )
                 else if (p.error != null)
-                  _ErrorBox(message: p.error!, onRetry: () async {
-                    await p.refresh();
-                    await _loadExtra();
-                  })
+                  _ErrorBox(
+                    message: p.error!,
+                    onRetry: () async {
+                      await p.refresh();
+                      await _loadExtra();
+                    },
+                  )
                 else
                   ..._buildContent(context, p.financial),
               ],
@@ -259,8 +257,7 @@ class _PaymentAnalyticsScreenState extends State<PaymentAnalyticsScreen> {
             value: '${_txnStatusCounts.values.fold(0, (a, b) => a + b)}',
             icon: Icons.swap_horiz,
             color: AppTheme.success,
-            subtitle:
-                '${_txnStatusCounts['Failed'] ?? 0} failed',
+            subtitle: '${_txnStatusCounts['Failed'] ?? 0} failed',
           ),
         ],
       ),
@@ -272,9 +269,7 @@ class _PaymentAnalyticsScreenState extends State<PaymentAnalyticsScreen> {
       const SizedBox(height: 16),
       BiSectionCard(
         title: 'Daily Revenue Trend',
-        child: BiLineChart(
-          values: f.dailyRevenue.map((d) => d.value).toList(),
-        ),
+        child: BiLineChart(values: f.dailyRevenue.map((d) => d.value).toList()),
       ),
       const SizedBox(height: 16),
       if (_loadingExtra)
@@ -296,14 +291,12 @@ class _PaymentAnalyticsScreenState extends State<PaymentAnalyticsScreen> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.account_balance_outlined,
-                    color: AppTheme.warning, size: 20),
+                const Icon(Icons.account_balance_outlined, color: AppTheme.warning, size: 20),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     '$_refundsAwaitingBankDetails bank-transfer refund(s) need account details before processing.',
-                    style: const TextStyle(
-                        fontSize: 12, color: AppTheme.grey800),
+                    style: const TextStyle(fontSize: 12, color: AppTheme.grey800),
                   ),
                 ),
               ],
@@ -311,10 +304,7 @@ class _PaymentAnalyticsScreenState extends State<PaymentAnalyticsScreen> {
           ),
         BiSectionCard(
           title: 'Refund Pipeline Status',
-          child: BiBarChart(
-            data: _countsAsDouble(_refundStatusCounts),
-            color: AppTheme.error,
-          ),
+          child: BiBarChart(data: _countsAsDouble(_refundStatusCounts), color: AppTheme.error),
         ),
         const SizedBox(height: 16),
         BiSectionCard(
@@ -324,10 +314,7 @@ class _PaymentAnalyticsScreenState extends State<PaymentAnalyticsScreen> {
         const SizedBox(height: 16),
         BiSectionCard(
           title: 'Transaction Status (Gateway Success/Failure)',
-          child: BiBarChart(
-            data: _countsAsDouble(_txnStatusCounts),
-            color: AppTheme.info,
-          ),
+          child: BiBarChart(data: _countsAsDouble(_txnStatusCounts), color: AppTheme.info),
         ),
         const SizedBox(height: 16),
         BiSectionCard(
@@ -353,13 +340,16 @@ class _ErrorBox extends StatelessWidget {
         children: [
           const Icon(Icons.error_outline, size: 48, color: AppTheme.error),
           const SizedBox(height: 12),
-          const Text('Could not load data',
-              style: TextStyle(
-                  fontWeight: FontWeight.bold, color: AppTheme.grey800)),
+          const Text(
+            'Could not load data',
+            style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.grey800),
+          ),
           const SizedBox(height: 4),
-          Text(message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
+          ),
           const SizedBox(height: 16),
           ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
         ],

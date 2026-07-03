@@ -17,8 +17,7 @@ class VoiceCommandFab extends StatefulWidget {
   State<VoiceCommandFab> createState() => _VoiceCommandFabState();
 }
 
-class _VoiceCommandFabState extends State<VoiceCommandFab>
-    with TickerProviderStateMixin {
+class _VoiceCommandFabState extends State<VoiceCommandFab> with TickerProviderStateMixin {
   // Services
   final SpeechToTextService _sttService = SpeechToTextService();
 
@@ -42,23 +41,21 @@ class _VoiceCommandFabState extends State<VoiceCommandFab>
   void initState() {
     super.initState();
 
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..repeat(reverse: true);
+    _pulseController = AnimationController(vsync: this, duration: const Duration(milliseconds: 900))
+      ..repeat(reverse: true);
 
-    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.25).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
+    _pulseAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.25,
+    ).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
 
-    _waveController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    )..repeat(reverse: true);
+    _waveController = AnimationController(vsync: this, duration: const Duration(milliseconds: 600))
+      ..repeat(reverse: true);
 
-    _waveAnimation = Tween<double>(begin: 0.3, end: 1.0).animate(
-      CurvedAnimation(parent: _waveController, curve: Curves.easeInOut),
-    );
+    _waveAnimation = Tween<double>(
+      begin: 0.3,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _waveController, curve: Curves.easeInOut));
   }
 
   @override
@@ -158,40 +155,37 @@ class _VoiceCommandFabState extends State<VoiceCommandFab>
     try {
       final command = await VoiceCommandService().parse(text);
 
-      if (mounted) {
-        setState(() => _statusMessage = 'Execute ho raha hai...');
-        final confirmationMsg = await VoiceCommandExecutor.execute(command, context);
+      setState(() => _statusMessage = 'Execute ho raha hai...');
+      if (!mounted) return;
+      final confirmationMsg = await VoiceCommandExecutor.execute(command, context);
 
-        // Save to history
-        await _saveCommandToHistory(text, confirmationMsg);
+      // Save to history
+      await _saveCommandToHistory(text, confirmationMsg);
 
-        setState(() {
-          _isProcessing = false;
-          _statusMessage = confirmationMsg;
-        });
+      setState(() {
+        _isProcessing = false;
+        _statusMessage = confirmationMsg;
+      });
 
-        Navigator.of(context).pop(); // dismiss overlay
+      if (!mounted) return;
+      Navigator.of(context).pop(); // dismiss overlay
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle, color: Colors.white),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    confirmationMsg,
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: AppTheme.info,
-            duration: const Duration(seconds: 4),
-            behavior: SnackBarBehavior.floating,
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle, color: Colors.white),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(confirmationMsg, style: const TextStyle(color: Colors.white)),
+              ),
+            ],
           ),
-        );
-      }
+          backgroundColor: AppTheme.info,
+          duration: const Duration(seconds: 4),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     } catch (e) {
       debugPrint('[VoiceCommandFab] processCommand error: $e');
       if (mounted) {
@@ -379,9 +373,7 @@ class _VoiceCommandFabState extends State<VoiceCommandFab>
                         backgroundColor: AppTheme.primary,
                         foregroundColor: Colors.white,
                         minimumSize: const Size(double.infinity, 48),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -395,10 +387,7 @@ class _VoiceCommandFabState extends State<VoiceCommandFab>
                         _stopAndProcess();
                       },
                       icon: const Icon(Icons.stop_circle, color: AppTheme.error),
-                      label: const Text(
-                        'Stop & Process',
-                        style: TextStyle(color: AppTheme.error),
-                      ),
+                      label: const Text('Stop & Process', style: TextStyle(color: AppTheme.error)),
                     ),
 
                   if (_isProcessing)
@@ -440,11 +429,7 @@ class _VoiceCommandFabState extends State<VoiceCommandFab>
             backgroundColor: _isListening ? AppTheme.error : AppTheme.primary,
             elevation: 6,
             tooltip: 'Voice Command (Hindi/English)',
-            child: Icon(
-              _isListening ? Icons.stop : Icons.mic,
-              color: Colors.white,
-              size: 28,
-            ),
+            child: Icon(_isListening ? Icons.stop : Icons.mic, color: Colors.white, size: 28),
           ),
         );
       },

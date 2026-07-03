@@ -12,8 +12,7 @@ class BusinessDashboardScreen extends StatefulWidget {
   const BusinessDashboardScreen({super.key});
 
   @override
-  State<BusinessDashboardScreen> createState() =>
-      _BusinessDashboardScreenState();
+  State<BusinessDashboardScreen> createState() => _BusinessDashboardScreenState();
 }
 
 class _BusinessDashboardScreenState extends State<BusinessDashboardScreen> {
@@ -48,10 +47,7 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                BiRangeSelector(
-                  selected: p.range,
-                  onSelected: (r) => p.setRange(r),
-                ),
+                BiRangeSelector(selected: p.range, onSelected: (r) => p.setRange(r)),
                 const SizedBox(height: 16),
                 if (p.isLoading)
                   const Padding(
@@ -62,8 +58,7 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 60),
                     child: Center(
-                      child: Text(p.error!,
-                          style: const TextStyle(color: AppTheme.error)),
+                      child: Text(p.error!, style: const TextStyle(color: AppTheme.error)),
                     ),
                   )
                 else
@@ -77,8 +72,7 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen> {
   }
 
   List<Widget> _buildContent({required BusinessReport b}) {
-    final clv = b.clvDistribution
-        .map((k, v) => MapEntry(k, v.toDouble()));
+    final clv = b.clvDistribution.map((k, v) => MapEntry(k, v.toDouble()));
     return [
       GridView.count(
         crossAxisCount: 2,
@@ -122,18 +116,12 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen> {
         title: 'Order Fulfilment Funnel',
         child: Column(
           children: [
-            _funnelBar('Placed / Processing', b.ordersPlaced, b.totalOrders,
-                AppTheme.info),
-            _funnelBar('Packed', b.ordersPacked, b.totalOrders,
-                const Color(0xFF9C27B0)),
-            _funnelBar('Out for Delivery', b.ordersShipped, b.totalOrders,
-                const Color(0xFF00BCD4)),
-            _funnelBar(
-                'Delivered', b.ordersDelivered, b.totalOrders, AppTheme.success),
-            _funnelBar('Cancelled', b.ordersCancelled, b.totalOrders,
-                AppTheme.error),
-            _funnelBar('Returned / Refunded', b.ordersReturned, b.totalOrders,
-                AppTheme.warning),
+            _funnelBar('Placed / Processing', b.ordersPlaced, b.totalOrders, AppTheme.info),
+            _funnelBar('Packed', b.ordersPacked, b.totalOrders, const Color(0xFF9C27B0)),
+            _funnelBar('Out for Delivery', b.ordersShipped, b.totalOrders, const Color(0xFF00BCD4)),
+            _funnelBar('Delivered', b.ordersDelivered, b.totalOrders, AppTheme.success),
+            _funnelBar('Cancelled', b.ordersCancelled, b.totalOrders, AppTheme.error),
+            _funnelBar('Returned / Refunded', b.ordersReturned, b.totalOrders, AppTheme.warning),
           ],
         ),
       ),
@@ -141,20 +129,14 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen> {
       BiSectionCard(
         title: 'New vs Returning Customers',
         child: BiDonutChart(
-          data: {
-            'New': b.newCustomers.toDouble(),
-            'Returning': b.returningCustomers.toDouble(),
-          },
+          data: {'New': b.newCustomers.toDouble(), 'Returning': b.returningCustomers.toDouble()},
           height: 170,
         ),
       ),
       const SizedBox(height: 16),
       BiSectionCard(
         title: 'Average Order Value Trend',
-        child: BiLineChart(
-          values: b.aovTrend.map((d) => d.value).toList(),
-          color: AppTheme.info,
-        ),
+        child: BiLineChart(values: b.aovTrend.map((d) => d.value).toList(), color: AppTheme.info),
       ),
       const SizedBox(height: 16),
       BiSectionCard(
@@ -187,14 +169,11 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(label,
-                  style: const TextStyle(
-                      fontSize: 12, color: AppTheme.grey700)),
-              Text('$count',
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: color)),
+              Text(label, style: const TextStyle(fontSize: 12, color: AppTheme.grey700)),
+              Text(
+                '$count',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: color),
+              ),
             ],
           ),
           const SizedBox(height: 4),
@@ -218,13 +197,15 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label,
-              style: const TextStyle(fontSize: 13, color: AppTheme.grey700)),
-          Text(value,
-              style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.grey900)),
+          Text(label, style: const TextStyle(fontSize: 13, color: AppTheme.grey700)),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.grey900,
+            ),
+          ),
         ],
       ),
     );

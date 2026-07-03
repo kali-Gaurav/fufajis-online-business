@@ -10,11 +10,7 @@ class SagaStep {
   final SagaStepAction action;
   final SagaCompensationAction? compensation;
 
-  SagaStep({
-    required this.name,
-    required this.action,
-    this.compensation,
-  });
+  SagaStep({required this.name, required this.action, this.compensation});
 }
 
 class TransactionCoordinator {
@@ -26,11 +22,7 @@ class TransactionCoordinator {
     required SagaStepAction action,
     SagaCompensationAction? compensation,
   }) {
-    _steps.add(SagaStep(
-      name: name,
-      action: action,
-      compensation: compensation,
-    ));
+    _steps.add(SagaStep(name: name, action: action, compensation: compensation));
   }
 
   Future<List<dynamic>> execute() async {
@@ -46,14 +38,18 @@ class TransactionCoordinator {
       }
       return results;
     } catch (e, stackTrace) {
-      debugPrint('[TransactionCoordinator] Transaction failed at step ${_steps[_completedSteps.length].name}: $e');
+      debugPrint(
+        '[TransactionCoordinator] Transaction failed at step ${_steps[_completedSteps.length].name}: $e',
+      );
       await _rollback();
       throw ErrorMapper.map(e, stackTrace);
     }
   }
 
   Future<void> _rollback() async {
-    debugPrint('[TransactionCoordinator] Initiating rollback for ${_completedSteps.length} completed steps.');
+    debugPrint(
+      '[TransactionCoordinator] Initiating rollback for ${_completedSteps.length} completed steps.',
+    );
     // Execute compensations in reverse order
     for (int i = _completedSteps.length - 1; i >= 0; i--) {
       final step = _completedSteps[i];
@@ -64,7 +60,9 @@ class TransactionCoordinator {
           debugPrint('[TransactionCoordinator] Successfully compensated: ${step.name}');
         } catch (compensationError) {
           // If compensation fails, it MUST be dead-lettered
-          debugPrint('[TransactionCoordinator] CRITICAL: Compensation failed for ${step.name}: $compensationError');
+          debugPrint(
+            '[TransactionCoordinator] CRITICAL: Compensation failed for ${step.name}: $compensationError',
+          );
           // Note: In Step 4 (Retry Engine & Dead Letter), we will intercept this and queue it.
           // For now, we print and continue other rollbacks.
         }

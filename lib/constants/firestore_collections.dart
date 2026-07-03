@@ -55,8 +55,8 @@ class FirestoreCollections {
   // Orphaned collections to be deleted: delivery_tracking, delivery_routes, delivery_assignments,
   // delivery_otp, delivery_agents, delivery_locations, delivery_status, delivery_history,
   // delivery_notifications, delivery_preferences
-  static const String DELIVERIES = 'deliveries';  // Legacy, use DELIVERY_TASKS for new code
-  static const String DELIVERY_TASKS = 'delivery_tasks';  // SINGLE SOURCE OF TRUTH
+  static const String DELIVERIES = 'deliveries'; // Legacy, use DELIVERY_TASKS for new code
+  static const String DELIVERY_TASKS = 'delivery_tasks'; // SINGLE SOURCE OF TRUTH
   static const String RIDER_LOCATIONS = 'rider_locations';
   static const String DELIVERY_PARTNER_LOCATIONS = 'delivery_partner_locations';
 

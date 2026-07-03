@@ -11,6 +11,8 @@ import '../../../providers/agent_task_provider.dart';
 import '../../../providers/report_provider.dart';
 import '../../../providers/broadcast_provider.dart';
 import '../../../utils/app_theme.dart';
+import 'broadcast_compose_screen.dart';
+import 'activity_feed_screen.dart';
 
 /// Mission Control ("Karyalay") - Team Room.
 ///
@@ -44,6 +46,18 @@ class _TeamRoomScreenState extends State<TeamRoomScreen> with SingleTickerProvid
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mission Control', style: TextStyle(fontWeight: FontWeight.w700)),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.history),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ActivityFeedScreen()),
+              );
+            },
+            tooltip: 'Activity Feed',
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
@@ -57,12 +71,7 @@ class _TeamRoomScreenState extends State<TeamRoomScreen> with SingleTickerProvid
       ),
       body: TabBarView(
         controller: _tabController,
-        children: const [
-          _TeamRoomTab(),
-          _ApprovalsTab(),
-          _ReportsTab(),
-          _BroadcastsTab(),
-        ],
+        children: const [_TeamRoomTab(), _ApprovalsTab(), _ReportsTab(), _BroadcastsTab()],
       ),
     );
   }
@@ -89,10 +98,12 @@ class _TeamRoomTab extends StatelessWidget {
               if (agentProvider.agents.isEmpty)
                 _EmptyRosterCard(agentProvider: agentProvider)
               else
-                ...agentProvider.agents.map((agent) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _AgentDeskCard(agent: agent),
-                    )),
+                ...agentProvider.agents.map(
+                  (agent) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _AgentDeskCard(agent: agent),
+                  ),
+                ),
               if (agentProvider.errorMessage != null) ...[
                 const SizedBox(height: 12),
                 Text(
@@ -205,10 +216,7 @@ class _EmptyRosterCard extends StatelessWidget {
           children: [
             const Icon(Icons.groups_outlined, size: 48, color: Colors.grey),
             const SizedBox(height: 12),
-            const Text(
-              'No AI employees set up yet',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            const Text('No AI employees set up yet', style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             const Text(
               'Set up the starter team: Chief of Staff, Business Analyst, '
@@ -308,7 +316,11 @@ class _AgentDeskCard extends StatelessWidget {
                         ),
                         child: Text(
                           _statusLabel(agent.status),
-                          style: TextStyle(color: statusColor, fontSize: 12, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                            color: statusColor,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],
@@ -321,8 +333,10 @@ class _AgentDeskCard extends StatelessWidget {
                     runSpacing: 4,
                     children: [
                       _kpiChip(Icons.task_alt, '${agent.kpis.tasksDone} tasks'),
-                      _kpiChip(Icons.thumb_up_alt_outlined,
-                          '${(agent.kpis.approvalRate * 100).toStringAsFixed(0)}% approved'),
+                      _kpiChip(
+                        Icons.thumb_up_alt_outlined,
+                        '${(agent.kpis.approvalRate * 100).toStringAsFixed(0)}% approved',
+                      ),
                     ],
                   ),
                 ],
@@ -358,26 +372,113 @@ class _ApprovalsTab extends StatelessWidget {
         }
 
         final pending = taskProvider.awaitingApproval;
-        if (pending.isEmpty) {
+        final advisory = taskProvider.tasks
+            .where(
+              (t) =>
+                  t.autonomy == AgentAutonomyTier.advisory && t.status == AgentTaskStatus.proposed,
+            )
+            .toList();
+
+        if (pending.isEmpty && advisory.isEmpty) {
           return const _PlaceholderTab(
             icon: Icons.inbox_outlined,
             title: 'Nothing waiting on you',
-            subtitle: 'When an agent proposes something that needs your OK, it will show up here.',
+            subtitle:
+                'When an agent proposes something that needs your OK or a new idea, it will show up here.',
           );
         }
 
-        return ListView.builder(
+        return ListView(
           padding: const EdgeInsets.all(16),
-          itemCount: pending.length,
-          itemBuilder: (context, index) {
-            final task = pending[index];
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: _ApprovalCard(task: task, taskProvider: taskProvider),
-            );
-          },
+          children: [
+            if (pending.isNotEmpty) ...[
+              const Text(
+                'AWAITING YOUR APPROVAL',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  letterSpacing: 1.2,
+                  color: Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 12),
+              ...pending.map(
+                (task) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _ApprovalCard(task: task, taskProvider: taskProvider),
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
+            if (advisory.isNotEmpty) ...[
+              const Text(
+                'IDEAS & ALERTS',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  letterSpacing: 1.2,
+                  color: Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 12),
+              ...advisory.map(
+                (task) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _AdvisoryCard(task: task),
+                ),
+              ),
+            ],
+          ],
         );
       },
+    );
+  }
+}
+
+class _AdvisoryCard extends StatelessWidget {
+  final AgentTaskModel task;
+
+  const _AdvisoryCard({required this.task});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.shade200),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    task.title,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                ),
+                const Icon(Icons.lightbulb_outline, size: 18, color: Colors.amber),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(task.description, style: Theme.of(context).textTheme.bodySmall),
+            if (task.reasoning.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                'Reasoning: ${task.reasoning}',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontStyle: FontStyle.italic,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }
@@ -387,6 +488,49 @@ class _ApprovalCard extends StatelessWidget {
   final AgentTaskProvider taskProvider;
 
   const _ApprovalCard({required this.task, required this.taskProvider});
+
+  Widget _buildDiffPreview(BuildContext context, AgentTaskModel task) {
+    final payload = task.payload;
+    final diff =
+        (payload['diff'] as Map<String, dynamic>?) ??
+        (payload['productDraft'] as Map<String, dynamic>?);
+
+    if (diff == null || diff.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.blue.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.blue.withValues(alpha: 0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'PROPOSED CHANGES',
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.blue),
+          ),
+          const SizedBox(height: 8),
+          ...diff.entries.map(
+            (entry) => Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${entry.key}: ',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                  ),
+                  Expanded(child: Text('${entry.value}', style: const TextStyle(fontSize: 12))),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -408,16 +552,22 @@ class _ApprovalCard extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
               ),
             ],
+            if (task.type == 'catalog_improvement' || task.type == 'product_draft') ...[
+              const SizedBox(height: 12),
+              _buildDiffPreview(context, task),
+            ],
             if (task.evidence.isNotEmpty) ...[
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 runSpacing: 4,
                 children: task.evidence
-                    .map((e) => Chip(
-                          label: Text('${e.label}: ${e.value}', style: const TextStyle(fontSize: 11)),
-                          visualDensity: VisualDensity.compact,
-                        ))
+                    .map(
+                      (e) => Chip(
+                        label: Text('${e.label}: ${e.value}', style: const TextStyle(fontSize: 11)),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    )
                     .toList(),
               ),
             ],
@@ -464,7 +614,8 @@ class _ReportsTab extends StatelessWidget {
           return const _PlaceholderTab(
             icon: Icons.bar_chart,
             title: 'No reports yet',
-            subtitle: 'The Business Analyst posts a daily report every morning '
+            subtitle:
+                'The Business Analyst posts a daily report every morning '
                 'and a weekly report on Mondays. Check back soon.',
           );
         }
@@ -540,11 +691,19 @@ class _ReportCard extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.warning_amber_rounded, size: 14, color: AppTheme.warning),
+                          const Icon(
+                            Icons.warning_amber_rounded,
+                            size: 14,
+                            color: AppTheme.warning,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             '${report.anomalies.length}',
-                            style: const TextStyle(fontSize: 12, color: AppTheme.warning, fontWeight: FontWeight.w600),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppTheme.warning,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ],
                       ),
@@ -556,10 +715,7 @@ class _ReportCard extends StatelessWidget {
                 Text(dateStr, style: Theme.of(context).textTheme.bodySmall),
               ],
               const SizedBox(height: 8),
-              Text(
-                snippet,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
+              Text(snippet, style: Theme.of(context).textTheme.bodyMedium),
               const SizedBox(height: 12),
               Row(
                 children: [
@@ -617,7 +773,10 @@ class _MiniStat extends StatelessWidget {
         const SizedBox(height: 2),
         Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
         if (pctStr.isNotEmpty)
-          Text(pctStr, style: TextStyle(fontSize: 11, color: pctColor, fontWeight: FontWeight.w600)),
+          Text(
+            pctStr,
+            style: TextStyle(fontSize: 11, color: pctColor, fontWeight: FontWeight.w600),
+          ),
       ],
     );
   }
@@ -670,8 +829,7 @@ class _ReportReaderScreenState extends State<_ReportReaderScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          if (dateStr.isNotEmpty)
-            Text(dateStr, style: Theme.of(context).textTheme.bodySmall),
+          if (dateStr.isNotEmpty) Text(dateStr, style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: 12),
           if (narrative.isNotEmpty)
             Card(
@@ -695,11 +853,13 @@ class _ReportReaderScreenState extends State<_ReportReaderScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Column(
                   children: report.insights
-                      .map((insight) => ListTile(
-                            dense: true,
-                            leading: const Icon(Icons.lightbulb_outline, size: 20),
-                            title: Text(insight),
-                          ))
+                      .map(
+                        (insight) => ListTile(
+                          dense: true,
+                          leading: const Icon(Icons.lightbulb_outline, size: 20),
+                          title: Text(insight),
+                        ),
+                      )
                       .toList(),
                 ),
               ),
@@ -747,10 +907,14 @@ class _ReportReaderScreenState extends State<_ReportReaderScreen> {
                   children: [
                     for (var i = 0; i < report.topProducts.length; i++)
                       Padding(
-                        padding: EdgeInsets.only(bottom: i == report.topProducts.length - 1 ? 0 : 12),
+                        padding: EdgeInsets.only(
+                          bottom: i == report.topProducts.length - 1 ? 0 : 12,
+                        ),
                         child: _ProductBar(
                           entry: report.topProducts[i],
-                          maxValue: report.topProducts.map((p) => p.revenue).reduce((a, b) => a > b ? a : b),
+                          maxValue: report.topProducts
+                              .map((p) => p.revenue)
+                              .reduce((a, b) => a > b ? a : b),
                         ),
                       ),
                   ],
@@ -841,10 +1005,7 @@ class _ComparisonBar extends StatelessWidget {
         const SizedBox(height: 6),
         Row(
           children: [
-            SizedBox(
-              width: 64,
-              child: Text('Now', style: Theme.of(context).textTheme.bodySmall),
-            ),
+            SizedBox(width: 64, child: Text('Now', style: Theme.of(context).textTheme.bodySmall)),
             Expanded(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(4),
@@ -908,10 +1069,16 @@ class _ProductBar extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: Text(entry.name, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w600)),
+              child: Text(
+                entry.name,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
             ),
-            Text('₹${entry.revenue.toStringAsFixed(0)} · ${entry.quantity.toStringAsFixed(0)} units',
-                style: Theme.of(context).textTheme.bodySmall),
+            Text(
+              '₹${entry.revenue.toStringAsFixed(0)} · ${entry.quantity.toStringAsFixed(0)} units',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           ],
         ),
         const SizedBox(height: 4),
@@ -972,7 +1139,11 @@ class _PlaceholderTab extends StatelessWidget {
             const SizedBox(height: 12),
             Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             const SizedBox(height: 8),
-            Text(subtitle, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodySmall),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           ],
         ),
       ),
@@ -993,7 +1164,12 @@ class _BroadcastsTab extends StatelessWidget {
 
         return Scaffold(
           floatingActionButton: FloatingActionButton.extended(
-            onPressed: () => _showComposeDialog(context, provider),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const BroadcastComposeScreen()),
+              );
+            },
             icon: const Icon(Icons.add),
             label: const Text('Compose'),
             backgroundColor: AppTheme.ownerAccent,
@@ -1003,7 +1179,8 @@ class _BroadcastsTab extends StatelessWidget {
               ? const _PlaceholderTab(
                   icon: Icons.campaign_outlined,
                   title: 'No Broadcasts Yet',
-                  subtitle: 'Use Compose to write a message, or wait for the Comms agent to draft one.',
+                  subtitle:
+                      'Use Compose to write a message, or wait for the Comms agent to draft one.',
                 )
               : ListView.builder(
                   padding: const EdgeInsets.all(16),
@@ -1018,74 +1195,6 @@ class _BroadcastsTab extends StatelessWidget {
                 ),
         );
       },
-    );
-  }
-
-  void _showComposeDialog(BuildContext context, BroadcastProvider provider) {
-    final titleController = TextEditingController();
-    final bodyController = TextEditingController();
-    String audienceType = 'all';
-
-    showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: const Text('Compose Broadcast', style: TextStyle(fontWeight: FontWeight.bold)),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: titleController,
-                  decoration: const InputDecoration(labelText: 'Title'),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: bodyController,
-                  decoration: const InputDecoration(labelText: 'Body Text'),
-                  maxLines: 3,
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  initialValue: audienceType,
-                  decoration: const InputDecoration(labelText: 'Audience'),
-                  items: const [
-                    DropdownMenuItem(value: 'all', child: Text('All Customers')),
-                    DropdownMenuItem(value: 'segment', child: Text('Recent Buyers')),
-                  ],
-                  onChanged: (val) {
-                    if (val != null) setState(() => audienceType = val);
-                  },
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () async {
-                if (titleController.text.isEmpty || bodyController.text.isEmpty) return;
-                final ok = await provider.saveDraft(
-                  title: titleController.text,
-                  body: bodyController.text,
-                  type: audienceType,
-                  segmentId: audienceType == 'segment' ? 'recent_buyers' : null,
-                );
-                if (context.mounted) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(ok ? 'Draft saved.' : 'Failed to save draft.')),
-                  );
-                }
-              },
-              child: const Text('Save Draft'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -1195,7 +1304,6 @@ class _BroadcastCard extends StatelessWidget {
       case BroadcastStatus.cancelled:
         return Colors.red;
       case BroadcastStatus.draft:
-      default:
         return Colors.grey;
     }
   }

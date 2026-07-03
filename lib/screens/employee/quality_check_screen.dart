@@ -57,10 +57,9 @@ class _QualityCheckScreenState extends State<QualityCheckScreen> {
 
       // Initialize verified items list
       if (_currentTask != null) {
-        _verifiedItems.addAll(List.generate(
-          _currentTask!.items.length,
-          (i) => _currentTask!.items[i].verified,
-        ));
+        _verifiedItems.addAll(
+          List.generate(_currentTask!.items.length, (i) => _currentTask!.items[i].verified),
+        );
       }
 
       setState(() => _isLoading = false);
@@ -85,11 +84,7 @@ class _QualityCheckScreenState extends State<QualityCheckScreen> {
 
       final approvedBy = auth.currentUser?.uid ?? 'unknown';
 
-      await fulfillment.approveQuality(
-        _currentTask!.id,
-        _qualityScore.toDouble(),
-        approvedBy,
-      );
+      await fulfillment.approveQuality(_currentTask!.id, _qualityScore.toDouble(), approvedBy);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -106,9 +101,9 @@ class _QualityCheckScreenState extends State<QualityCheckScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error));
       }
     } finally {
       setState(() => _isLoading = false);
@@ -135,10 +130,7 @@ class _QualityCheckScreenState extends State<QualityCheckScreen> {
         title: const Text('Confirm Rejection', style: TextStyle(fontWeight: FontWeight.w700)),
         content: Text('Are you sure you want to reject this order?\n\nReason: $reason'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(context);
@@ -151,11 +143,7 @@ class _QualityCheckScreenState extends State<QualityCheckScreen> {
 
                 final rejectedBy = auth.currentUser?.uid ?? 'unknown';
 
-                await fulfillment.rejectQuality(
-                  _currentTask!.id,
-                  reason,
-                  rejectedBy,
-                );
+                await fulfillment.rejectQuality(_currentTask!.id, reason, rejectedBy);
 
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -172,10 +160,7 @@ class _QualityCheckScreenState extends State<QualityCheckScreen> {
               } catch (e) {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Error: $e'),
-                      backgroundColor: AppTheme.error,
-                    ),
+                    SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
                   );
                 }
               } finally {
@@ -210,8 +195,7 @@ class _QualityCheckScreenState extends State<QualityCheckScreen> {
             children: [
               Icon(Icons.inbox, size: 64, color: Colors.grey[400]),
               const SizedBox(height: 16),
-              Text('No orders ready for QC',
-                  style: Theme.of(context).textTheme.titleMedium),
+              Text('No orders ready for QC', style: Theme.of(context).textTheme.titleMedium),
             ],
           ),
         ),
@@ -246,9 +230,9 @@ class _QualityCheckScreenState extends State<QualityCheckScreen> {
                     children: [
                       Text(
                         'Quality Score',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 16),
                       Row(
@@ -296,25 +280,22 @@ class _QualityCheckScreenState extends State<QualityCheckScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
                 'Verify Items',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
 
-            ...List.generate(
-              _currentTask!.items.length,
-              (index) {
-                final item = _currentTask!.items[index];
-                return QualityCheckItemCard(
-                  item: item,
-                  isChecked: _verifiedItems[index],
-                  onVerify: () {
-                    setState(() => _verifiedItems[index] = true);
-                  },
-                );
-              },
-            ),
+            ...List.generate(_currentTask!.items.length, (index) {
+              final item = _currentTask!.items[index];
+              return QualityCheckItemCard(
+                item: item,
+                isChecked: _verifiedItems[index],
+                onVerify: () {
+                  setState(() => _verifiedItems[index] = true);
+                },
+              );
+            }),
 
             // Rejection reason field
             Padding(
@@ -332,9 +313,7 @@ class _QualityCheckScreenState extends State<QualityCheckScreen> {
                     maxLines: 3,
                     decoration: InputDecoration(
                       hintText: 'E.g., Damaged items, Missing items, Incorrect quantity',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                   ),
                 ],

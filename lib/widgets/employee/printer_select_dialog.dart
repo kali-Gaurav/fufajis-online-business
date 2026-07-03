@@ -92,10 +92,7 @@ class _PrinterSelectDialogState extends State<PrinterSelectDialog> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const Text('Select Printer'),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _isLoading ? null : _loadDevices,
-          ),
+          IconButton(icon: const Icon(Icons.refresh), onPressed: _isLoading ? null : _loadDevices),
         ],
       ),
       content: SizedBox(
@@ -106,21 +103,12 @@ class _PrinterSelectDialogState extends State<PrinterSelectDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Printer Roll Size:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
+                const Text('Printer Roll Size:', style: TextStyle(fontWeight: FontWeight.bold)),
                 DropdownButton<String>(
                   value: _selectedWidth,
                   items: const [
-                    DropdownMenuItem(
-                      value: '58mm',
-                      child: Text('58mm (2-inch)'),
-                    ),
-                    DropdownMenuItem(
-                      value: '80mm',
-                      child: Text('80mm (3-inch)'),
-                    ),
+                    DropdownMenuItem(value: '58mm', child: Text('58mm (2-inch)')),
+                    DropdownMenuItem(value: '80mm', child: Text('80mm (3-inch)')),
                   ],
                   onChanged: (val) {
                     if (val != null) {
@@ -153,10 +141,7 @@ class _PrinterSelectDialogState extends State<PrinterSelectDialog> {
                         final device = _devices[index];
                         final isDefault = device.address == _defaultAddress;
                         return ListTile(
-                          leading: Icon(
-                            Icons.print,
-                            color: isDefault ? AppTheme.success : null,
-                          ),
+                          leading: Icon(Icons.print, color: isDefault ? AppTheme.success : null),
                           title: Row(
                             children: [
                               Expanded(
@@ -167,10 +152,7 @@ class _PrinterSelectDialogState extends State<PrinterSelectDialog> {
                               ),
                               if (isDefault)
                                 Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 2,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                   decoration: BoxDecoration(
                                     color: AppTheme.success,
                                     borderRadius: BorderRadius.circular(12),
@@ -195,11 +177,7 @@ class _PrinterSelectDialogState extends State<PrinterSelectDialog> {
                                     foregroundColor: Colors.white,
                                   )
                                 : null,
-                            child: Text(
-                              isDefault && _isConnected
-                                  ? 'Connected'
-                                  : 'Connect',
-                            ),
+                            child: Text(isDefault && _isConnected ? 'Connected' : 'Connect'),
                           ),
                         );
                       },
@@ -208,12 +186,7 @@ class _PrinterSelectDialogState extends State<PrinterSelectDialog> {
           ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
-      ],
+      actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel'))],
     );
   }
 }

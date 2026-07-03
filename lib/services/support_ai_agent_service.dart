@@ -45,7 +45,7 @@ class SupportAiAgentService {
     if (_activeAiChats.contains(chatId)) return; // Already processing
 
     _activeAiChats.add(chatId);
-    
+
     try {
       // 1. Show AI is typing
       await _chatService.updateTypingStatus(
@@ -57,9 +57,20 @@ class SupportAiAgentService {
       final lowerMsg = customerMessage.toLowerCase();
       bool isFrustrated = false;
       final frustrationWords = [
-        'angry', 'terrible', 'worst', 'cheat', 'fraud',
-        'useless', 'waste', 'disappointed', 'hate', 'furious',
-        'bad service', 'stole', 'stolen', 'cheated'
+        'angry',
+        'terrible',
+        'worst',
+        'cheat',
+        'fraud',
+        'useless',
+        'waste',
+        'disappointed',
+        'hate',
+        'furious',
+        'bad service',
+        'stole',
+        'stolen',
+        'cheated',
       ];
       for (final word in frustrationWords) {
         if (lowerMsg.contains(word)) {
@@ -72,7 +83,8 @@ class SupportAiAgentService {
       bool escalated = false;
 
       if (isFrustrated) {
-        replyText = 'I understand you are frustrated and I apologize for the inconvenience. Let me immediately connect you to our human support team to resolve this right away!';
+        replyText =
+            'I understand you are frustrated and I apologize for the inconvenience. Let me immediately connect you to our human support team to resolve this right away!';
         escalated = true;
 
         // Mark conversation as urgent/frustrated in Firestore
@@ -86,23 +98,31 @@ class SupportAiAgentService {
         String? faqTopic;
         if (lowerMsg.contains('refund') || lowerMsg.contains('money')) {
           faqTopic = 'Refunds';
-          faqAnswer = 'Refunds typically process in 3-5 business days to your original payment method or Fufaji Wallet.';
+          faqAnswer =
+              'Refunds typically process in 3-5 business days to your original payment method or Fufaji Wallet.';
         } else if (lowerMsg.contains('cancel')) {
           faqTopic = 'Cancellation';
-          faqAnswer = 'Pending orders can be cancelled directly from the app for a full refund. Once packed, cancellations may incur a fee.';
-        } else if (lowerMsg.contains('delivery') || lowerMsg.contains('eta') || lowerMsg.contains('arrive')) {
+          faqAnswer =
+              'Pending orders can be cancelled directly from the app for a full refund. Once packed, cancellations may incur a fee.';
+        } else if (lowerMsg.contains('delivery') ||
+            lowerMsg.contains('eta') ||
+            lowerMsg.contains('arrive')) {
           faqTopic = 'Delivery Tracking';
-          faqAnswer = 'You can track your order in real-time under the \'Track Order\' section of your app.';
+          faqAnswer =
+              'You can track your order in real-time under the \'Track Order\' section of your app.';
         } else if (lowerMsg.contains('cod') || lowerMsg.contains('cash')) {
           faqTopic = 'Cash on Delivery';
-          faqAnswer = 'We support Cash on Delivery up to your account limit. You can check your COD limit in user settings.';
+          faqAnswer =
+              'We support Cash on Delivery up to your account limit. You can check your COD limit in user settings.';
         }
 
         if (faqAnswer != null) {
-          replyText = '📚 [FAQ Auto-Link: $faqTopic]\n$faqAnswer\n\nHope this helps! Let me know if you need to speak to a human.';
+          replyText =
+              '📚 [FAQ Auto-Link: $faqTopic]\n$faqAnswer\n\nHope this helps! Let me know if you need to speak to a human.';
         } else {
           // Fallback to Gemini
-          final prompt = '''
+          final prompt =
+              '''
 You are the Fufaji Level 1 AI Support Agent. 
 You handle queries for a hyperlocal delivery app in India.
 
@@ -130,32 +150,35 @@ Instructions:
       );
 
       // 4. Audit trail
-      final bool actuallyEscalated = escalated || _escalationPhrases.any(
-        (phrase) => replyText.toLowerCase().contains(phrase),
-      );
+      final bool actuallyEscalated =
+          escalated || _escalationPhrases.any((phrase) => replyText.toLowerCase().contains(phrase));
 
-      unawaited(_auditService.logAction(
-        userId: 'ai_support_agent',
-        userName: 'Fufaji AI Support',
-        action: actuallyEscalated ? AuditAction.aiSupportEscalated : AuditAction.aiSupportReply,
-        description: actuallyEscalated
-            ? 'AI support agent could not resolve query and flagged for human follow-up'
-            : 'AI support agent auto-replied to customer query',
-        targetId: chatId,
-        targetType: 'chat',
-        metadata: {
-          'customerId': customerId,
-          'customerMessage': customerMessage,
-          'replyText': replyText,
-          'sentiment': isFrustrated ? 'frustrated' : 'neutral',
-        },
-      ));
+      unawaited(
+        _auditService.logAction(
+          userId: 'ai_support_agent',
+          userName: 'Fufaji AI Support',
+          action: actuallyEscalated ? AuditAction.aiSupportEscalated : AuditAction.aiSupportReply,
+          description: actuallyEscalated
+              ? 'AI support agent could not resolve query and flagged for human follow-up'
+              : 'AI support agent auto-replied to customer query',
+          targetId: chatId,
+          targetType: 'chat',
+          metadata: {
+            'customerId': customerId,
+            'customerMessage': customerMessage,
+            'replyText': replyText,
+            'sentiment': isFrustrated ? 'frustrated' : 'neutral',
+          },
+        ),
+      );
 
       // 5. If the AI handed off, open a support ticket
       if (actuallyEscalated) {
         await FirebaseFirestore.instance.collection('support_tickets').add({
           'userId': customerId,
-          'subject': isFrustrated ? 'Urgent escalation: chat $chatId' : 'AI escalation: chat $chatId',
+          'subject': isFrustrated
+              ? 'Urgent escalation: chat $chatId'
+              : 'AI escalation: chat $chatId',
           'description': 'Customer asked: "$customerMessage"\n\nAI reply: "$replyText"',
           'priority': isFrustrated ? 'high' : 'normal',
           'status': 'open',
@@ -163,7 +186,6 @@ Instructions:
           'updatedAt': FieldValue.serverTimestamp(),
         });
       }
-
     } catch (e) {
       debugPrint('[SupportAiAgentService] Auto-reply failed: $e');
     } finally {

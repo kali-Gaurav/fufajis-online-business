@@ -51,7 +51,7 @@ class PrinterService {
   Future<BluetoothDevice?> getSavedDevice() async {
     final address = await getDefaultPrinterAddress();
     if (address == null || address.isEmpty) return null;
-    
+
     final devices = await getDevices();
     for (var device in devices) {
       if (device.address == address) {
@@ -68,10 +68,10 @@ class PrinterService {
         await getDefaultPrinterWidth();
         return true;
       }
-      
+
       final device = await getSavedDevice();
       if (device == null) return false;
-      
+
       await bluetooth.connect(device);
       await getDefaultPrinterWidth();
       return true;
@@ -95,26 +95,38 @@ class PrinterService {
       bluetooth.printCustom("FUFAJI ONLINE", 3, 1); // Size 3, Center
       bluetooth.printCustom("Your District Shop", 1, 1);
       bluetooth.printNewLine();
-      
+
       bluetooth.printCustom("Order: #${order.orderNumber}", 1, 0);
-      bluetooth.printCustom("Date: ${DateFormat('dd-MM-yyyy HH:mm').format(order.createdAt)}", 1, 0);
+      bluetooth.printCustom(
+        "Date: ${DateFormat('dd-MM-yyyy HH:mm').format(order.createdAt)}",
+        1,
+        0,
+      );
       bluetooth.printCustom("Customer: ${order.customerName}", 1, 0);
       bluetooth.printCustom("-" * lineWidth, 1, 1);
-      
+
       for (var item in order.items) {
         if (!item.isOutOfStock) {
-          bluetooth.printLeftRight("${item.productName} x${item.quantity}", "Rs.${item.totalPrice}", 1);
+          bluetooth.printLeftRight(
+            "${item.productName} x${item.quantity}",
+            "Rs.${item.totalPrice}",
+            1,
+          );
         }
       }
-      
+
       bluetooth.printCustom("-" * lineWidth, 1, 1);
       bluetooth.printCustom("TOTAL AMOUNT: Rs.${order.totalAmount}", 2, 0);
-      bluetooth.printCustom("Payment: ${order.paymentMethod.toString().split('.').last.toUpperCase()}", 1, 0);
+      bluetooth.printCustom(
+        "Payment: ${order.paymentMethod.toString().split('.').last.toUpperCase()}",
+        1,
+        0,
+      );
       bluetooth.printNewLine();
-      
+
       bluetooth.printCustom("Thank you for shopping!", 1, 1);
       bluetooth.printCustom("Sourcing Local, Serving Digital", 0, 1);
-      
+
       bluetooth.printNewLine();
       bluetooth.printNewLine();
       bluetooth.paperCut();
@@ -123,7 +135,8 @@ class PrinterService {
     }
   }
 
-  Future<void> printProductTag(BluetoothDevice device, {
+  Future<void> printProductTag(
+    BluetoothDevice device, {
     required String productName,
     required double price,
     required double? originalPrice,
@@ -140,7 +153,7 @@ class PrinterService {
       bluetooth.printNewLine();
       bluetooth.printCustom("FUFAJI ONLINE", 2, 1);
       bluetooth.printCustom("-" * lineWidth, 1, 1);
-      
+
       bluetooth.printCustom(productName, 1, 1);
       if (originalPrice != null && originalPrice > price) {
         bluetooth.printCustom("MRP: Rs. ${originalPrice.toStringAsFixed(2)}", 1, 1);
@@ -148,21 +161,21 @@ class PrinterService {
       } else {
         bluetooth.printCustom("PRICE: Rs. ${price.toStringAsFixed(2)}", 2, 1);
       }
-      
+
       if (batchNumber != null) {
         bluetooth.printCustom("Batch: $batchNumber", 1, 1);
       }
       if (expiryDate != null) {
         bluetooth.printCustom("Exp: ${DateFormat('dd-MM-yyyy').format(expiryDate)}", 1, 1);
       }
-      
+
       bluetooth.printCustom("-" * lineWidth, 1, 1);
       bluetooth.printCustom("Barcode: $barcode", 1, 1);
-      
+
       // Note: blue_thermal_printer might have different method names depending on version
       // Fallback to text if printBarcode is not available in this version
       bluetooth.printCustom(barcode, 1, 1);
-      
+
       bluetooth.printNewLine();
       bluetooth.printNewLine();
       bluetooth.paperCut();
@@ -171,7 +184,8 @@ class PrinterService {
     }
   }
 
-  Future<void> printParcelTag(BluetoothDevice device, {
+  Future<void> printParcelTag(
+    BluetoothDevice device, {
     required String parcelId,
     required String orderNumber,
     required String customerName,
@@ -187,19 +201,19 @@ class PrinterService {
       bluetooth.printNewLine();
       bluetooth.printCustom("FUFAJI PARCEL", 2, 1);
       bluetooth.printCustom("-" * lineWidth, 1, 1);
-      
+
       bluetooth.printCustom("Parcel ID: $parcelId", 1, 1);
       bluetooth.printCustom("Order: #$orderNumber", 1, 1);
       bluetooth.printCustom("-" * lineWidth, 1, 1);
-      
+
       bluetooth.printCustom("To: $customerName", 1, 0);
       bluetooth.printCustom("Phone: $customerPhone", 1, 0);
       bluetooth.printCustom("Address: $address", 1, 0);
       bluetooth.printCustom("-" * lineWidth, 1, 1);
-      
+
       // Print QR code for Parcel ID
       await bluetooth.printQRcode(parcelId, 200, 200, 1);
-      
+
       bluetooth.printNewLine();
       bluetooth.printNewLine();
       bluetooth.paperCut();

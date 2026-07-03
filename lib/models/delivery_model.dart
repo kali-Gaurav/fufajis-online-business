@@ -145,8 +145,8 @@ class ProofOfDelivery {
       signatureUrl: map['signatureUrl'] as String?,
       timestamp: map['timestamp'] != null
           ? (map['timestamp'] is Timestamp
-              ? (map['timestamp'] as Timestamp).toDate()
-              : DateTime.parse(map['timestamp'].toString()))
+                ? (map['timestamp'] as Timestamp).toDate()
+                : DateTime.parse(map['timestamp'].toString()))
           : DateTime.now(),
       location: map['location'] as GeoPoint? ?? const GeoPoint(0, 0),
       notes: map['notes'] as String?,
@@ -227,8 +227,7 @@ class DeliveryStats {
       totalDeliveries: map['totalDeliveries'] as int? ?? 0,
       successfulDeliveries: map['successfulDeliveries'] as int? ?? 0,
       failedDeliveries: map['failedDeliveries'] as int? ?? 0,
-      averageCustomerRating:
-          (map['averageCustomerRating'] as num?)?.toDouble() ?? 0.0,
+      averageCustomerRating: (map['averageCustomerRating'] as num?)?.toDouble() ?? 0.0,
       totalDistance: (map['totalDistance'] as num?)?.toDouble() ?? 0.0,
       totalTime: (map['totalTime'] as num?)?.toDouble() ?? 0.0,
       onTimeDeliveries: map['onTimeDeliveries'] as int? ?? 0,
@@ -276,8 +275,7 @@ class DeliveryStats {
       totalDeliveries: totalDeliveries ?? this.totalDeliveries,
       successfulDeliveries: successfulDeliveries ?? this.successfulDeliveries,
       failedDeliveries: failedDeliveries ?? this.failedDeliveries,
-      averageCustomerRating:
-          averageCustomerRating ?? this.averageCustomerRating,
+      averageCustomerRating: averageCustomerRating ?? this.averageCustomerRating,
       totalDistance: totalDistance ?? this.totalDistance,
       totalTime: totalTime ?? this.totalTime,
       onTimeDeliveries: onTimeDeliveries ?? this.onTimeDeliveries,
@@ -382,8 +380,8 @@ class DeliveryTask {
       currentLongitude: (map['currentLongitude'] as num? ?? 0.0).toDouble(),
       estimatedArrival: map['estimatedArrival'] != null
           ? (map['estimatedArrival'] is Timestamp
-              ? (map['estimatedArrival'] as Timestamp).toDate()
-              : DateTime.tryParse(map['estimatedArrival'].toString()))
+                ? (map['estimatedArrival'] as Timestamp).toDate()
+                : DateTime.tryParse(map['estimatedArrival'].toString()))
           : null,
       distanceRemaining: (map['distanceRemaining'] as num?)?.toDouble(),
       estimatedDistance: (map['estimatedDistance'] as num?)?.toDouble(),
@@ -391,25 +389,25 @@ class DeliveryTask {
       customerPhone: map['customerPhone'] as String?,
       estimatedDeliveryTime: map['estimatedDeliveryTime'] != null
           ? (map['estimatedDeliveryTime'] is Timestamp
-              ? (map['estimatedDeliveryTime'] as Timestamp).toDate()
-              : DateTime.parse(map['estimatedDeliveryTime'].toString()))
+                ? (map['estimatedDeliveryTime'] as Timestamp).toDate()
+                : DateTime.parse(map['estimatedDeliveryTime'].toString()))
           : DateTime.now().add(const Duration(hours: 2)),
       actualDeliveryTime: map['actualDeliveryTime'] != null
           ? (map['actualDeliveryTime'] is Timestamp
-              ? (map['actualDeliveryTime'] as Timestamp).toDate()
-              : DateTime.tryParse(map['actualDeliveryTime'].toString()))
+                ? (map['actualDeliveryTime'] as Timestamp).toDate()
+                : DateTime.tryParse(map['actualDeliveryTime'].toString()))
           : null,
       otpGenerated: map['otpGenerated'] as String? ?? '',
       otpVerified: map['otpVerified'] as bool? ?? false,
       otpGeneratedAt: map['otpGeneratedAt'] != null
           ? (map['otpGeneratedAt'] is Timestamp
-              ? (map['otpGeneratedAt'] as Timestamp).toDate()
-              : DateTime.parse(map['otpGeneratedAt'].toString()))
+                ? (map['otpGeneratedAt'] as Timestamp).toDate()
+                : DateTime.parse(map['otpGeneratedAt'].toString()))
           : DateTime.now(),
       otpExpiresAt: map['otpExpiresAt'] != null
           ? (map['otpExpiresAt'] is Timestamp
-              ? (map['otpExpiresAt'] as Timestamp).toDate()
-              : DateTime.parse(map['otpExpiresAt'].toString()))
+                ? (map['otpExpiresAt'] as Timestamp).toDate()
+                : DateTime.parse(map['otpExpiresAt'].toString()))
           : DateTime.now().add(const Duration(minutes: 15)),
       otpAttempts: map['otpAttempts'] as int? ?? 0,
       proofOfDelivery: map['proofOfDelivery'] != null
@@ -418,30 +416,35 @@ class DeliveryTask {
       customerRating: (map['customerRating'] as num?)?.toDouble(),
       customerFeedback: map['customerFeedback'] as String?,
       route: (map['route'] as List?)
-          ?.map((item) => LatLng((item['latitude'] as num).toDouble(), (item['longitude'] as num).toDouble()))
+          ?.map(
+            (item) =>
+                LatLng((item['latitude'] as num).toDouble(), (item['longitude'] as num).toDouble()),
+          )
           .toList(),
       createdAt: map['createdAt'] != null
           ? (map['createdAt'] is Timestamp
-              ? (map['createdAt'] as Timestamp).toDate()
-              : DateTime.parse(map['createdAt'].toString()))
+                ? (map['createdAt'] as Timestamp).toDate()
+                : DateTime.parse(map['createdAt'].toString()))
           : DateTime.now(),
       updatedAt: map['updatedAt'] != null
           ? (map['updatedAt'] is Timestamp
-              ? (map['updatedAt'] as Timestamp).toDate()
-              : DateTime.parse(map['updatedAt'].toString()))
+                ? (map['updatedAt'] as Timestamp).toDate()
+                : DateTime.parse(map['updatedAt'].toString()))
           : DateTime.now(),
       failureReason: map['failureReason'] as String?,
       attemptNumber: map['attemptNumber'] as int? ?? 1,
       isRescheduled: map['isRescheduled'] as bool? ?? false,
       rescheduledDate: map['rescheduledDate'] != null
           ? (map['rescheduledDate'] is Timestamp
-              ? (map['rescheduledDate'] as Timestamp).toDate()
-              : DateTime.tryParse(map['rescheduledDate'].toString()))
+                ? (map['rescheduledDate'] as Timestamp).toDate()
+                : DateTime.tryParse(map['rescheduledDate'].toString()))
           : null,
       deliveryMetrics: map['deliveryMetrics'] != null
           ? Map<String, double>.from(
-              (map['deliveryMetrics'] as Map)
-                  .map((k, v) => MapEntry(k.toString(), (v as num).toDouble())))
+              (map['deliveryMetrics'] as Map).map(
+                (k, v) => MapEntry(k.toString(), (v as num).toDouble()),
+              ),
+            )
           : null,
       shopId: map['shopId'] as String?,
       shopName: map['shopName'] as String?,
@@ -479,19 +482,14 @@ class DeliveryTask {
       'customerRating': customerRating,
       'customerFeedback': customerFeedback,
       'route': route
-          ?.map((point) => {
-                'latitude': point.latitude,
-                'longitude': point.longitude,
-              })
+          ?.map((point) => {'latitude': point.latitude, 'longitude': point.longitude})
           .toList(),
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
       'failureReason': failureReason,
       'attemptNumber': attemptNumber,
       'isRescheduled': isRescheduled,
-      'rescheduledDate': rescheduledDate != null
-          ? Timestamp.fromDate(rescheduledDate!)
-          : null,
+      'rescheduledDate': rescheduledDate != null ? Timestamp.fromDate(rescheduledDate!) : null,
       'deliveryMetrics': deliveryMetrics,
       'shopId': shopId,
       'shopName': shopName,
@@ -502,12 +500,10 @@ class DeliveryTask {
 
   bool get isOtpValid => !isOtpExpired && otpAttempts < 3;
 
-  Duration get estimatedTimeRemaining =>
-      estimatedDeliveryTime.difference(DateTime.now());
+  Duration get estimatedTimeRemaining => estimatedDeliveryTime.difference(DateTime.now());
 
   bool get isLate =>
-      DateTime.now().isAfter(estimatedDeliveryTime) &&
-      status == DeliveryStatus.outForDelivery;
+      DateTime.now().isAfter(estimatedDeliveryTime) && status == DeliveryStatus.outForDelivery;
 
   GeoPoint get destinationLocation => deliveryLocation;
 
@@ -564,8 +560,7 @@ class DeliveryTask {
       distanceRemaining: distanceRemaining ?? this.distanceRemaining,
       customerName: customerName ?? this.customerName,
       customerPhone: customerPhone ?? this.customerPhone,
-      estimatedDeliveryTime:
-          estimatedDeliveryTime ?? this.estimatedDeliveryTime,
+      estimatedDeliveryTime: estimatedDeliveryTime ?? this.estimatedDeliveryTime,
       actualDeliveryTime: actualDeliveryTime ?? this.actualDeliveryTime,
       otpGenerated: otpGenerated ?? this.otpGenerated,
       otpVerified: otpVerified ?? this.otpVerified,

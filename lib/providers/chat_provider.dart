@@ -35,8 +35,7 @@ class ChatProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     _msgsSub?.cancel();
-    _msgsSub =
-        _svc.watchMessages(chatId, customerView: customerView).listen((msgs) {
+    _msgsSub = _svc.watchMessages(chatId, customerView: customerView).listen((msgs) {
       _messages = msgs;
       _isLoading = false;
       notifyListeners();

@@ -4,13 +4,13 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Brand Colors (Warm Sunset Orange & Cream White)
-  static const Color primary = Color(0xFFFF8C42);        // Brand Orange
-  static const Color primaryDark = Color(0xFFE56F1F);    // Darker Orange
-  static const Color primaryLight = Color(0xFFFFE5D0);   // Light Orange
-  static const Color cream = Color(0xFFFFF8F2);          // Cream Background
-  static const Color sand = Color(0xFFFAECE3);           // Sand Surface
-  static const Color secondary = Color(0xFFFFF5F0);      // Legacy/Off-white
-  static const Color secondaryDark = Color(0xFFF5F0E8);  // Legacy/Slightly darker off-white
+  static const Color primary = Color(0xFFFF8C42); // Brand Orange
+  static const Color primaryDark = Color(0xFFE56F1F); // Darker Orange
+  static const Color primaryLight = Color(0xFFFFE5D0); // Light Orange
+  static const Color cream = Color(0xFFFFF8F2); // Cream Background
+  static const Color sand = Color(0xFFFAECE3); // Sand Surface
+  static const Color secondary = Color(0xFFFFF5F0); // Legacy/Off-white
+  static const Color secondaryDark = Color(0xFFF5F0E8); // Legacy/Slightly darker off-white
   static const Color secondaryLight = Color(0xFFFFFFFF); // Legacy/Pure white
 
   // Neutral Colors
@@ -25,13 +25,13 @@ class AppTheme {
   static const Color grey600 = Color(0xFF757575);
   static const Color grey700 = Color(0xFF616161);
   static const Color grey800 = Color(0xFF424242);
-  static const Color grey900 = Color(0xFF1F2937);       // Text Dark
+  static const Color grey900 = Color(0xFF1F2937); // Text Dark
 
   // Status Colors
-  static const Color success = Color(0xFF22C55E);        // Green
-  static const Color warning = Color(0xFFF59E0B);        // Amber
-  static const Color error = Color(0xFFEF4444);          // Red
-  static const Color info = Color(0xFF3B82F6);           // Blue
+  static const Color success = Color(0xFF22C55E); // Green
+  static const Color warning = Color(0xFFF59E0B); // Amber
+  static const Color error = Color(0xFFEF4444); // Red
+  static const Color info = Color(0xFF3B82F6); // Blue
   static const Color primaryColor = primary;
   static const Color errorColor = error;
   static const Color ownerColor = info;
@@ -79,13 +79,14 @@ class AppTheme {
   };
 
   static FestiveThemeConfig get currentConfig {
-    return festiveConfigs[activeFestiveSeason] ?? const FestiveThemeConfig(
-      primary: primary,
-      primaryDark: primaryDark,
-      primaryLight: primaryLight,
-      cream: cream,
-      sand: sand,
-    );
+    return festiveConfigs[activeFestiveSeason] ??
+        const FestiveThemeConfig(
+          primary: primary,
+          primaryDark: primaryDark,
+          primaryLight: primaryLight,
+          cream: cream,
+          sand: sand,
+        );
   }
 
   // ─── Deep-orange accent palette ──────────────────────────────────────────────
@@ -115,9 +116,9 @@ class AppTheme {
 
   static LinearGradient get heroGradient => LinearGradient(
     colors: [
-      currentConfig.primary, 
+      currentConfig.primary,
       Color.lerp(currentConfig.primary, currentConfig.primaryLight, 0.3) ?? currentConfig.primary,
-      currentConfig.primaryDark
+      currentConfig.primaryDark,
     ],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
@@ -242,14 +243,8 @@ class AppTheme {
         unselectedItemColor: grey400,
         type: BottomNavigationBarType.fixed,
         elevation: 12,
-        selectedLabelStyle: const TextStyle(
-          fontWeight: FontWeight.w700,
-          fontSize: 11,
-        ),
-        unselectedLabelStyle: const TextStyle(
-          fontWeight: FontWeight.w500,
-          fontSize: 11,
-        ),
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
+        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 11),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: grey100,
@@ -291,9 +286,7 @@ class AppTheme {
       color: Color(0xFF1E1E1E),
       elevation: 4,
       margin: EdgeInsets.all(8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(16)),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
@@ -433,9 +426,7 @@ class AppTheme {
   static BoxDecoration get softOrangeCardDecoration => BoxDecoration(
     color: primaryLight.withValues(alpha: 0.35),
     borderRadius: const BorderRadius.all(Radius.circular(radiusLg)),
-    border: Border.all(
-      color: primary.withValues(alpha: 0.18),
-    ),
+    border: Border.all(color: primary.withValues(alpha: 0.18)),
   );
 
   // Text Styles
@@ -569,10 +560,10 @@ class AppTheme {
 
   // ─── Role-specific brand colors ───────────────────────────────────────────────
   static const Color customerAccent = primary;
-  static const Color ownerAccent = Color(0xFF1E3A8A);   // Warm/Dark Indigo/Blue
+  static const Color ownerAccent = Color(0xFF1E3A8A); // Warm/Dark Indigo/Blue
   static const Color deliveryAccent = Color(0xFF15803D); // Warm Forest Green
   static const Color employeeAccent = Color(0xFF701A75); // Warm Plum Purple
-  static const Color adminAccent = Color(0xFFB91C1C);    // Warm Crimson Red
+  static const Color adminAccent = Color(0xFFB91C1C); // Warm Crimson Red
 
   // ─── Additional UI Properties ─────────────────────────────────────────────────
   static const Color textPrimary = grey900;

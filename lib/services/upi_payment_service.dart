@@ -22,15 +22,11 @@ class UpiPaymentService {
         if (data['isActive'] == true) {
           _upiId = data['upiId'] as String? ?? defaultUpiId;
           _merchantName = data['merchantName'] as String? ?? defaultMerchantName;
-          debugPrint(
-            '[UpiPaymentService] Loaded dynamic UPI Config: $_upiId ($_merchantName)',
-          );
+          debugPrint('[UpiPaymentService] Loaded dynamic UPI Config: $_upiId ($_merchantName)');
         }
       }
     } catch (e) {
-      debugPrint(
-        '[UpiPaymentService] Error loading dynamic UPI VPA, using defaults: $e',
-      );
+      debugPrint('[UpiPaymentService] Error loading dynamic UPI VPA, using defaults: $e');
     }
   }
 
@@ -39,11 +35,7 @@ class UpiPaymentService {
 
   /// Generates a standard BHIM UPI intent URI.
   /// Format: upi://pay?pa=VPA&pn=NAME&tr=TXNID&am=AMOUNT&cu=INR&tn=NOTE
-  static String generateUpiUri({
-    required String orderId,
-    required double amount,
-    String? note,
-  }) {
+  static String generateUpiUri({required String orderId, required double amount, String? note}) {
     final cleanNote = Uri.encodeComponent(note ?? 'Order $orderId');
     final cleanName = Uri.encodeComponent(_merchantName);
     return 'upi://pay?pa=$_upiId&pn=$cleanName&tr=$orderId&am=${amount.toStringAsFixed(2)}&cu=INR&tn=$cleanNote';

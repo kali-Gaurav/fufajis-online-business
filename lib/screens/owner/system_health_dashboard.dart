@@ -32,10 +32,13 @@ class _SystemHealthDashboardState extends State<SystemHealthDashboard> {
 
   Future<void> _runHealthChecks() async {
     setState(() => _isCheckingHealth = true);
-    
+
     // Check Firestore
     try {
-      await _firestore.collection('system_config').limit(1).get(const GetOptions(source: Source.server));
+      await _firestore
+          .collection('system_config')
+          .limit(1)
+          .get(const GetOptions(source: Source.server));
       _firestoreHealth = true;
     } catch (_) {
       _firestoreHealth = false;
@@ -58,13 +61,11 @@ class _SystemHealthDashboardState extends State<SystemHealthDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Enterprise Command Center', style: TextStyle(fontWeight: FontWeight.w700)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _runHealthChecks,
-          ),
-        ],
+        title: const Text(
+          'Enterprise Command Center',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+        actions: [IconButton(icon: const Icon(Icons.refresh), onPressed: _runHealthChecks)],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -74,12 +75,12 @@ class _SystemHealthDashboardState extends State<SystemHealthDashboard> {
             _buildSectionTitle('Live Operations Stream'),
             const SizedBox(height: 16),
             _buildLiveMetricsPanel(),
-            
+
             const SizedBox(height: 32),
             _buildSectionTitle('System Health Overview'),
             const SizedBox(height: 16),
             _buildHealthGrid(),
-            
+
             const SizedBox(height: 32),
             _buildSectionTitle('Security Command Center'),
             const SizedBox(height: 16),
@@ -91,10 +92,7 @@ class _SystemHealthDashboardState extends State<SystemHealthDashboard> {
   }
 
   Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-    );
+    return Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold));
   }
 
   Widget _buildLiveMetricsPanel() {
@@ -109,10 +107,7 @@ class _SystemHealthDashboardState extends State<SystemHealthDashboard> {
 
   Widget _buildLiveOrderCount() {
     return StreamBuilder<QuerySnapshot>(
-      stream: _firestore
-          .collection('orders')
-          .where('status', isEqualTo: 'pending')
-          .snapshots(),
+      stream: _firestore.collection('orders').where('status', isEqualTo: 'pending').snapshots(),
       builder: (context, snapshot) {
         int count = 0;
         if (snapshot.hasData) {
@@ -150,7 +145,12 @@ class _SystemHealthDashboardState extends State<SystemHealthDashboard> {
     );
   }
 
-  Widget _buildMetricCard({required String title, required String value, required IconData icon, required Color color}) {
+  Widget _buildMetricCard({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+  }) {
     return Card(
       elevation: 2,
       child: Padding(
@@ -161,7 +161,11 @@ class _SystemHealthDashboardState extends State<SystemHealthDashboard> {
             const SizedBox(height: 8),
             Text(value, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
-            Text(title, style: const TextStyle(color: Colors.grey, fontSize: 12), textAlign: TextAlign.center),
+            Text(
+              title,
+              style: const TextStyle(color: Colors.grey, fontSize: 12),
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
       ),
@@ -197,12 +201,11 @@ class _SystemHealthDashboardState extends State<SystemHealthDashboard> {
   Widget _buildHealthIndicator(String serviceName, bool isHealthy) {
     return Container(
       decoration: BoxDecoration(
-        color: isHealthy ? AppTheme.success.withValues(alpha: 0.1) : AppTheme.error.withValues(alpha: 0.1),
+        color: isHealthy
+            ? AppTheme.success.withValues(alpha: 0.1)
+            : AppTheme.error.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isHealthy ? AppTheme.success : AppTheme.error,
-          width: 1,
-        ),
+        border: Border.all(color: isHealthy ? AppTheme.success : AppTheme.error, width: 1),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
@@ -233,7 +236,7 @@ class _SystemHealthDashboardState extends State<SystemHealthDashboard> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
         }
-        
+
         if (snapshot.hasError) {
           return const Text('Failed to load security events.');
         }
@@ -248,7 +251,10 @@ class _SystemHealthDashboardState extends State<SystemHealthDashboard> {
                   children: [
                     Icon(Icons.shield, size: 48, color: AppTheme.success),
                     SizedBox(height: 16),
-                    Text('No recent security threats detected', style: TextStyle(color: AppTheme.success, fontWeight: FontWeight.bold)),
+                    Text(
+                      'No recent security threats detected',
+                      style: TextStyle(color: AppTheme.success, fontWeight: FontWeight.bold),
+                    ),
                   ],
                 ),
               ),
@@ -267,7 +273,10 @@ class _SystemHealthDashboardState extends State<SystemHealthDashboard> {
               final log = logs[index];
               return ListTile(
                 leading: const Icon(Icons.warning, color: AppTheme.error),
-                title: Text(log.action, style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.error)),
+                title: Text(
+                  log.action,
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.error),
+                ),
                 subtitle: Text('User ID: ${log.userId} • Device: ${log.deviceInfo}'),
                 trailing: Text(
                   _formatTimeAgo(log.timestamp),

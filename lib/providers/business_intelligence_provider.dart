@@ -52,18 +52,15 @@ class BusinessIntelligenceProvider with ChangeNotifier {
   BiRange get range => _range;
   bool get allBranches => _allBranches;
 
-  FinancialReport get financial =>
-      _data?.financial ?? FinancialReport.empty();
+  FinancialReport get financial => _data?.financial ?? FinancialReport.empty();
   BusinessReport get business => _data?.business ?? BusinessReport.empty();
-  FranchiseReport get franchise =>
-      _data?.franchise ?? FranchiseReport.empty();
+  FranchiseReport get franchise => _data?.franchise ?? FranchiseReport.empty();
 
   DateTime get from => _resolveRange().$1;
   DateTime get to => _resolveRange().$2;
 
   /// Switch preset range and reload. [load] is a no-op if data is cached.
-  Future<void> setRange(BiRange range,
-      {DateTime? customFrom, DateTime? customTo}) async {
+  Future<void> setRange(BiRange range, {DateTime? customFrom, DateTime? customTo}) async {
     _range = range;
     if (range == BiRange.custom) {
       _customFrom = customFrom;
@@ -97,11 +94,7 @@ class BusinessIntelligenceProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final result = await _service.loadDashboard(
-        shopId: shopId,
-        from: rangeFrom,
-        to: rangeTo,
-      );
+      final result = await _service.loadDashboard(shopId: shopId, from: rangeFrom, to: rangeTo);
       _data = result;
       _cache[cacheKey] = result;
     } catch (e) {
@@ -141,10 +134,7 @@ class BusinessIntelligenceProvider with ChangeNotifier {
       case BiRange.year:
         return (now.subtract(const Duration(days: 365)), endOfToday);
       case BiRange.custom:
-        return (
-          _customFrom ?? now.subtract(const Duration(days: 30)),
-          _customTo ?? endOfToday,
-        );
+        return (_customFrom ?? now.subtract(const Duration(days: 30)), _customTo ?? endOfToday);
     }
   }
 }

@@ -80,10 +80,7 @@ class UnifiedDeliveryService {
         'createdAt': Timestamp.fromDate(now),
         'updatedAt': Timestamp.fromDate(now),
         'statusHistory': [
-          {
-            'status': 'assigned',
-            'timestamp': Timestamp.fromDate(now),
-          }
+          {'status': 'assigned', 'timestamp': Timestamp.fromDate(now)},
         ],
         'trackingUpdates': [],
       };
@@ -163,16 +160,14 @@ class UnifiedDeliveryService {
         if (orderId != null) {
           final orderSnap = await _db.collection('orders').doc(orderId).get();
           if (orderSnap.exists) {
-            enrichedTasks.add({
-              ...task,
-              'order': orderSnap.data(),
-            });
+            enrichedTasks.add({...task, 'order': orderSnap.data()});
           }
         }
       }
 
       debugPrint(
-          '[UnifiedDeliveryService] Retrieved ${enrichedTasks.length} orders for rider $riderId');
+        '[UnifiedDeliveryService] Retrieved ${enrichedTasks.length} orders for rider $riderId',
+      );
       return enrichedTasks;
     } catch (e) {
       debugPrint('[UnifiedDeliveryService] Failed to get rider orders: $e');
@@ -181,8 +176,10 @@ class UnifiedDeliveryService {
   }
 
   /// Get rider's delivery history (completed deliveries)
-  Future<List<Map<String, dynamic>>> getRiderDeliveryHistory(String riderId,
-      {int limit = 50}) async {
+  Future<List<Map<String, dynamic>>> getRiderDeliveryHistory(
+    String riderId, {
+    int limit = 50,
+  }) async {
     try {
       final snap = await _db
           .collection('delivery_tasks')
@@ -204,11 +201,7 @@ class UnifiedDeliveryService {
   // ──────────────────────────────────────────────────────────────
 
   /// Mark order picked up from shop
-  Future<void> markPickedUp({
-    required String taskId,
-    double? latitude,
-    double? longitude,
-  }) async {
+  Future<void> markPickedUp({required String taskId, double? latitude, double? longitude}) async {
     try {
       await _transitionDelivery(
         taskId: taskId,
@@ -241,7 +234,8 @@ class UnifiedDeliveryService {
 
       final now = DateTime.now();
       final trackingUpdates = List<Map<String, dynamic>>.from(
-          (taskSnap.data()?['trackingUpdates'] as List?) ?? []);
+        (taskSnap.data()?['trackingUpdates'] as List?) ?? [],
+      );
 
       trackingUpdates.add({
         'latitude': latitude,
@@ -270,9 +264,7 @@ class UnifiedDeliveryService {
       await _transitionDelivery(
         taskId: taskId,
         toStatus: 'in_transit',
-        updates: {
-          'inTransitAt': Timestamp.fromDate(DateTime.now()),
-        },
+        updates: {'inTransitAt': Timestamp.fromDate(DateTime.now())},
       );
 
       debugPrint('[UnifiedDeliveryService] Marked in transit: $taskId');
@@ -345,7 +337,8 @@ class UnifiedDeliveryService {
 
       // Add to failure history
       final failureHistory = List<Map<String, dynamic>>.from(
-          (taskData['failureHistory'] as List?) ?? []);
+        (taskData['failureHistory'] as List?) ?? [],
+      );
       failureHistory.add({
         'reason': failureReason,
         'timestamp': Timestamp.fromDate(DateTime.now()),
@@ -365,19 +358,17 @@ class UnifiedDeliveryService {
 
       // Add status to history
       final statusHistory = List<Map<String, dynamic>>.from(
-          (taskData['statusHistory'] as List?) ?? []);
+        (taskData['statusHistory'] as List?) ?? [],
+      );
       statusHistory.add({
         'status': 'failed',
         'timestamp': Timestamp.fromDate(DateTime.now()),
         'reason': failureReason,
       });
 
-      await _db.collection('delivery_tasks').doc(taskId).update({
-        'statusHistory': statusHistory,
-      });
+      await _db.collection('delivery_tasks').doc(taskId).update({'statusHistory': statusHistory});
 
-      debugPrint(
-          '[UnifiedDeliveryService] Marked failed: $taskId ($failureReason)');
+      debugPrint('[UnifiedDeliveryService] Marked failed: $taskId ($failureReason)');
     } catch (e) {
       debugPrint('[UnifiedDeliveryService] Failed to mark failed: $e');
       rethrow;
@@ -468,8 +459,7 @@ class UnifiedDeliveryService {
 
       // Validate transition
       if (!canTransition(currentStatus, toStatus)) {
-        throw Exception(
-            'Invalid transition: $currentStatus → $toStatus for delivery $taskId');
+        throw Exception('Invalid transition: $currentStatus → $toStatus for delivery $taskId');
       }
 
       final now = DateTime.now();
@@ -481,17 +471,16 @@ class UnifiedDeliveryService {
 
       // Add to status history
       final statusHistory = List<Map<String, dynamic>>.from(
-          (taskData['statusHistory'] as List?) ?? []);
-      statusHistory.add({
-        'status': toStatus,
-        'timestamp': Timestamp.fromDate(now),
-      });
+        (taskData['statusHistory'] as List?) ?? [],
+      );
+      statusHistory.add({'status': toStatus, 'timestamp': Timestamp.fromDate(now)});
       updateData['statusHistory'] = statusHistory;
 
       await _db.collection('delivery_tasks').doc(taskId).update(updateData);
 
       debugPrint(
-          '[UnifiedDeliveryService] Delivery $taskId transitioned: $currentStatus → $toStatus');
+        '[UnifiedDeliveryService] Delivery $taskId transitioned: $currentStatus → $toStatus',
+      );
     } catch (e) {
       debugPrint('[UnifiedDeliveryService] Transition failed: $e');
       rethrow;

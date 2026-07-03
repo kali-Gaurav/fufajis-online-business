@@ -22,8 +22,7 @@ class RetryConfig {
 class RetryEngine {
   final FirebaseFirestore _db;
 
-  RetryEngine({FirebaseFirestore? firestore}) 
-      : _db = firestore ?? FirebaseFirestore.instance;
+  RetryEngine({FirebaseFirestore? firestore}) : _db = firestore ?? FirebaseFirestore.instance;
 
   Future<T> executeWithRetry<T>({
     required String operationName,
@@ -41,7 +40,9 @@ class RetryEngine {
         return await operation();
       } catch (e, stackTrace) {
         if (attempts >= config.maxRetries) {
-          debugPrint('[$operationName] Exhausted all ${config.maxRetries} retries. Moving to Dead Letter Queue.');
+          debugPrint(
+            '[$operationName] Exhausted all ${config.maxRetries} retries. Moving to Dead Letter Queue.',
+          );
           await _sendToDeadLetterQueue(
             operationName: operationName,
             payload: payload,
@@ -60,7 +61,7 @@ class RetryEngine {
         attempts++;
       }
     }
-    
+
     throw AppExceptionWrapper('Unexpected exit from RetryEngine');
   }
 

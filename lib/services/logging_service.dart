@@ -11,10 +11,16 @@ class LoggingService {
 
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
-  void log(String message, {LogLevel level = LogLevel.info, Object? error, StackTrace? stackTrace, Map<String, dynamic>? data}) {
+  void log(
+    String message, {
+    LogLevel level = LogLevel.info,
+    Object? error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? data,
+  }) {
     final timestamp = DateTime.now().toIso8601String();
     final logMessage = '[$timestamp] [${level.name.toUpperCase()}] $message';
-    
+
     // 1. Console Log (Debug only)
     if (kDebugMode) {
       debugPrint(logMessage);
@@ -23,14 +29,22 @@ class LoggingService {
 
     // 2. Sentry (Error/Fatal/Warning)
     if (level == LogLevel.error || level == LogLevel.fatal) {
-      Sentry.captureException(error ?? message, stackTrace: stackTrace, withScope: (scope) {
-        if (data != null) scope.setContexts('extra_data', data);
-        scope.level = _mapSentryLevel(level);
-      });
+      Sentry.captureException(
+        error ?? message,
+        stackTrace: stackTrace,
+        withScope: (scope) {
+          if (data != null) scope.setContexts('extra_data', data);
+          scope.level = _mapSentryLevel(level);
+        },
+      );
     } else if (level == LogLevel.warning) {
-      Sentry.captureMessage(message, level: SentryLevel.warning, withScope: (scope) {
-        if (data != null) scope.setContexts('extra_data', data);
-      });
+      Sentry.captureMessage(
+        message,
+        level: SentryLevel.warning,
+        withScope: (scope) {
+          if (data != null) scope.setContexts('extra_data', data);
+        },
+      );
     }
 
     // 3. Firebase Analytics (Breadcrumb)
@@ -46,11 +60,16 @@ class LoggingService {
 
   SentryLevel _mapSentryLevel(LogLevel level) {
     switch (level) {
-      case LogLevel.debug: return SentryLevel.debug;
-      case LogLevel.info: return SentryLevel.info;
-      case LogLevel.warning: return SentryLevel.warning;
-      case LogLevel.error: return SentryLevel.error;
-      case LogLevel.fatal: return SentryLevel.fatal;
+      case LogLevel.debug:
+        return SentryLevel.debug;
+      case LogLevel.info:
+        return SentryLevel.info;
+      case LogLevel.warning:
+        return SentryLevel.warning;
+      case LogLevel.error:
+        return SentryLevel.error;
+      case LogLevel.fatal:
+        return SentryLevel.fatal;
     }
   }
 

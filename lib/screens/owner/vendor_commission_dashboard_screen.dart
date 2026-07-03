@@ -84,7 +84,10 @@ class _VendorCommissionDashboardScreenState extends State<VendorCommissionDashbo
     return Scaffold(
       backgroundColor: AppTheme.grey50,
       appBar: AppBar(
-        title: const Text('Vendor Commission Dashboard', style: TextStyle(fontWeight: FontWeight.w700)),
+        title: const Text(
+          'Vendor Commission Dashboard',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.date_range),
@@ -96,36 +99,36 @@ class _VendorCommissionDashboardScreenState extends State<VendorCommissionDashbo
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent))
           : _error != null
-              ? Center(child: Text('Failed to load: $_error'))
-              : RefreshIndicator(
-                  onRefresh: _load,
-                  child: ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      Text(
-                        '${_dateFmt.format(_startDate)} – ${_dateFmt.format(_endDate)}',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                      const SizedBox(height: 12),
-                      if (_summaries.isEmpty)
-                        const FjEmptyState(
-                          icon: Icons.storefront_outlined,
-                          title: 'No vendor data',
-                          subtitle: 'No shops or delivered orders found for this date range.',
-                        )
-                      else ...[
-                        _buildTotalsCard(),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Per-Vendor Breakdown',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                        ),
-                        const SizedBox(height: 8),
-                        ..._summaries.map((s) => _VendorCommissionCard(summary: s)),
-                      ],
-                    ],
+          ? Center(child: Text('Failed to load: $_error'))
+          : RefreshIndicator(
+              onRefresh: _load,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  Text(
+                    '${_dateFmt.format(_startDate)} – ${_dateFmt.format(_endDate)}',
+                    style: TextStyle(color: Colors.grey[600]),
                   ),
-                ),
+                  const SizedBox(height: 12),
+                  if (_summaries.isEmpty)
+                    const FjEmptyState(
+                      icon: Icons.storefront_outlined,
+                      title: 'No vendor data',
+                      subtitle: 'No shops or delivered orders found for this date range.',
+                    )
+                  else ...[
+                    _buildTotalsCard(),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Per-Vendor Breakdown',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    ),
+                    const SizedBox(height: 8),
+                    ..._summaries.map((s) => _VendorCommissionCard(summary: s)),
+                  ],
+                ],
+              ),
+            ),
     );
   }
 
@@ -135,11 +138,17 @@ class _VendorCommissionDashboardScreenState extends State<VendorCommissionDashbo
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Platform Totals', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+          const Text(
+            'Platform Totals',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          ),
           const SizedBox(height: 8),
           _TotalsRow(label: 'Total Vendor Sales', value: kInr.format(totals.grossSales)),
           const Divider(),
-          _TotalsRow(label: 'Platform Commission Earned', value: kInr.format(totals.commissionAmount)),
+          _TotalsRow(
+            label: 'Platform Commission Earned',
+            value: kInr.format(totals.commissionAmount),
+          ),
           const Divider(),
           _TotalsRow(
             label: 'Total Payable to Vendors',
@@ -160,7 +169,10 @@ class _TotalsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal, fontSize: bold ? 16 : 14);
+    final style = TextStyle(
+      fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+      fontSize: bold ? 16 : 14,
+    );
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
@@ -203,19 +215,32 @@ class _VendorCommissionCard extends StatelessWidget {
                 ),
                 child: Text(
                   '${summary.commissionPercent.toStringAsFixed(1)}% commission',
-                  style: const TextStyle(color: AppTheme.primary, fontSize: 11, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    color: AppTheme.primary,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 4),
-          Text('${summary.orderCount} delivered orders', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+          Text(
+            '${summary.orderCount} delivered orders',
+            style: TextStyle(color: Colors.grey[600], fontSize: 12),
+          ),
           const Divider(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Gross Sales: ${kInr.format(summary.grossSales)}', style: const TextStyle(fontSize: 13)),
-              Text('Commission: ${kInr.format(summary.commissionAmount)}', style: const TextStyle(fontSize: 13)),
+              Text(
+                'Gross Sales: ${kInr.format(summary.grossSales)}',
+                style: const TextStyle(fontSize: 13),
+              ),
+              Text(
+                'Commission: ${kInr.format(summary.commissionAmount)}',
+                style: const TextStyle(fontSize: 13),
+              ),
             ],
           ),
           const SizedBox(height: 4),

@@ -24,17 +24,13 @@ class _BahiKhataScreenState extends State<BahiKhataScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Digital Bahi-Khata', style: TextStyle(fontWeight: FontWeight.w700)),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.info_outline),
-            onPressed: () => _showKhataInfo(),
-          ),
+          IconButton(icon: const Icon(Icons.info_outline), onPressed: () => _showKhataInfo()),
         ],
       ),
       body: Column(
@@ -66,8 +62,7 @@ class _BahiKhataScreenState extends State<BahiKhataScreen> {
                   borderSide: BorderSide.none,
                 ),
               ),
-              onChanged: (val) =>
-                  setState(() => _searchQuery = val.toLowerCase()),
+              onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
             ),
           ),
 
@@ -80,33 +75,28 @@ class _BahiKhataScreenState extends State<BahiKhataScreen> {
                   .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
+                  return const Center(
+                    child: CircularProgressIndicator(color: AppTheme.ownerAccent),
+                  );
                 }
 
                 final users = snapshot.data!.docs
-                    .map(
-                      (doc) =>
-                          UserModel.fromMap(doc.data() as Map<String, dynamic>),
-                    )
+                    .map((doc) => UserModel.fromMap(doc.data() as Map<String, dynamic>))
                     .where(
                       (user) =>
-                          user.name?.toLowerCase().contains(_searchQuery) ==
-                              true ||
+                          user.name?.toLowerCase().contains(_searchQuery) == true ||
                           user.phoneNumber.contains(_searchQuery),
                     )
                     .toList();
 
                 if (users.isEmpty) {
-                  return const Center(
-                    child: Text('No customers with outstanding credit.'),
-                  );
+                  return const Center(child: Text('No customers with outstanding credit.'));
                 }
 
                 return ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   itemCount: users.length,
-                  itemBuilder: (context, index) =>
-                      _buildCustomerCreditCard(users[index]),
+                  itemBuilder: (context, index) => _buildCustomerCreditCard(users[index]),
                 );
               },
             ),
@@ -141,8 +131,7 @@ class _BahiKhataScreenState extends State<BahiKhataScreen> {
           int count = 0;
           if (snapshot.hasData) {
             for (var doc in snapshot.data!.docs) {
-              total +=
-                  (doc.data() as Map<String, dynamic>)['creditBalance'] ?? 0.0;
+              total += (doc.data() as Map<String, dynamic>)['creditBalance'] ?? 0.0;
               count++;
             }
           }
@@ -183,25 +172,16 @@ class _BahiKhataScreenState extends State<BahiKhataScreen> {
           backgroundColor: AppTheme.info.withValues(alpha: 0.1),
           child: Text(
             user.name?[0].toUpperCase() ?? '?',
-            style: const TextStyle(
-              color: AppTheme.info,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(color: AppTheme.info, fontWeight: FontWeight.bold),
           ),
         ),
-        title: Text(
-          user.name ?? 'Unknown',
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: Text(user.name ?? 'Unknown', style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text(user.phoneNumber),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            const Text(
-              'Owes',
-              style: TextStyle(fontSize: 10, color: AppTheme.grey500),
-            ),
+            const Text('Owes', style: TextStyle(fontSize: 10, color: AppTheme.grey500)),
             Text(
               '₹${user.creditBalance}',
               style: const TextStyle(
@@ -256,44 +236,43 @@ class _BahiKhataScreenState extends State<BahiKhataScreen> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                 Expanded(
-                   child: OutlinedButton(
-                     onPressed: () async {
-                       final success = await WhatsAppNotificationService.sendLedgerReminder(
-                         phoneNumber: user.phoneNumber,
-                         customerName: user.name ?? 'Customer',
-                         outstandingAmount: user.creditBalance,
-                       );
-                       if (context.mounted) {
-                         ScaffoldMessenger.of(context).showSnackBar(
-                           SnackBar(
-                             content: Text(
-                               success
-                                   ? 'Reminder sent via WhatsApp!'
-                                   : 'Failed to send WhatsApp reminder.',
-                             ),
-                             backgroundColor: success ? AppTheme.success : AppTheme.error,
-                           ),
-                         );
-                       }
-                     },
-                     child: const Text('REMIND'),
-                   ),
-                 ),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () async {
+                      final success = await WhatsAppNotificationService.sendLedgerReminder(
+                        phoneNumber: user.phoneNumber,
+                        customerName: user.name ?? 'Customer',
+                        outstandingAmount: user.creditBalance,
+                      );
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              success
+                                  ? 'Reminder sent via WhatsApp!'
+                                  : 'Failed to send WhatsApp reminder.',
+                            ),
+                            backgroundColor: success ? AppTheme.success : AppTheme.error,
+                          ),
+                        );
+                      }
+                    },
+                    child: const Text('REMIND'),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 12),
-            const Text(
-              'Recent Khata History',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            const Text('Recent Khata History', style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             Expanded(
               child: StreamBuilder<List<KhataTransaction>>(
                 stream: _khataService.getCustomerKhataStream(user.id),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
-                    return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
+                    return const Center(
+                      child: CircularProgressIndicator(color: AppTheme.ownerAccent),
+                    );
                   }
                   final txs = snapshot.data!;
                   if (txs.isEmpty) {
@@ -307,17 +286,11 @@ class _BahiKhataScreenState extends State<BahiKhataScreen> {
                       final isCredit = tx.type == KhataTransactionType.credit;
                       return ListTile(
                         leading: Icon(
-                          isCredit
-                              ? Icons.add_circle_outline
-                              : Icons.remove_circle_outline,
+                          isCredit ? Icons.add_circle_outline : Icons.remove_circle_outline,
                           color: isCredit ? AppTheme.error : AppTheme.success,
                         ),
-                        title: Text(
-                          isCredit ? 'Credit Added' : 'Payment Received',
-                        ),
-                        subtitle: Text(
-                          tx.timestamp.toString().substring(0, 16),
-                        ),
+                        title: Text(isCredit ? 'Credit Added' : 'Payment Received'),
+                        subtitle: Text(tx.timestamp.toString().substring(0, 16)),
                         trailing: Text(
                           '₹${tx.amount}',
                           style: TextStyle(
@@ -346,16 +319,10 @@ class _BahiKhataScreenState extends State<BahiKhataScreen> {
         content: TextField(
           controller: amountController,
           keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
-            labelText: 'Amount Paid (₹)',
-            prefixText: '₹',
-          ),
+          decoration: const InputDecoration(labelText: 'Amount Paid (₹)', prefixText: '₹'),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () async {
               double paid = double.tryParse(amountController.text) ?? 0;
@@ -396,7 +363,10 @@ class _BahiKhataScreenState extends State<BahiKhataScreen> {
           builder: (context, setDialogState) {
             return AlertDialog(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              title: const Text('Add Manual Transaction', style: TextStyle(fontWeight: FontWeight.w700)),
+              title: const Text(
+                'Add Manual Transaction',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -437,7 +407,7 @@ class _BahiKhataScreenState extends State<BahiKhataScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // User Selector
                     FutureBuilder<QuerySnapshot>(
                       future: FirebaseFirestore.instance
@@ -470,10 +440,7 @@ class _BahiKhataScreenState extends State<BahiKhataScreen> {
                           ),
                           initialValue: selectedUser,
                           items: users.map((u) {
-                            return DropdownMenuItem(
-                              value: u,
-                              child: Text(u.name ?? u.phoneNumber),
-                            );
+                            return DropdownMenuItem(value: u, child: Text(u.name ?? u.phoneNumber));
                           }).toList(),
                           onChanged: (val) {
                             setDialogState(() {
@@ -509,23 +476,20 @@ class _BahiKhataScreenState extends State<BahiKhataScreen> {
                 ),
               ),
               actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
-                ),
+                TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
                 ElevatedButton(
                   onPressed: () async {
                     if (selectedUser == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Please select a customer')),
-                      );
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(const SnackBar(content: Text('Please select a customer')));
                       return;
                     }
                     double amount = double.tryParse(amountController.text) ?? 0;
                     if (amount <= 0) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Enter a valid amount')),
-                      );
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(const SnackBar(content: Text('Enter a valid amount')));
                       return;
                     }
 

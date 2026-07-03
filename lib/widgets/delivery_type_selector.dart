@@ -71,11 +71,7 @@ class _DeliveryTypeSelectorState extends State<DeliveryTypeSelector> {
       children: [
         const Text(
           'Delivery Type',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: AppTheme.grey900,
-          ),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.grey900),
         ),
         const SizedBox(height: 12),
         ...filteredOptions.map((option) => _buildDeliveryOption(option)),
@@ -87,10 +83,7 @@ class _DeliveryTypeSelectorState extends State<DeliveryTypeSelector> {
 
   Widget _buildDeliveryOption(DeliveryTypeOption option) {
     final isSelected = _selectedType == option.type;
-    final charge = DeliveryChargeCalculator.calculateDeliveryCharge(
-      option.type,
-      widget.subtotal,
-    );
+    final charge = DeliveryChargeCalculator.calculateDeliveryCharge(option.type, widget.subtotal);
     final formattedDate = DeliveryChargeCalculator.getFormattedDeliveryDate(option.type);
     final icon = DeliveryTypeOption.getIcon(option.type);
     final color = DeliveryTypeOption.getColor(option.type);
@@ -128,11 +121,7 @@ class _DeliveryTypeSelectorState extends State<DeliveryTypeSelector> {
                   color: isSelected ? color.withValues(alpha: 0.15) : AppTheme.grey100,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
-                  icon,
-                  color: isSelected ? color : AppTheme.grey600,
-                  size: 24,
-                ),
+                child: Icon(icon, color: isSelected ? color : AppTheme.grey600, size: 24),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -164,10 +153,7 @@ class _DeliveryTypeSelectorState extends State<DeliveryTypeSelector> {
                     const SizedBox(height: 4),
                     Text(
                       option.description,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.grey600,
-                      ),
+                      style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
                     ),
                     const SizedBox(height: 8),
                     Container(
@@ -205,19 +191,10 @@ class _DeliveryTypeSelectorState extends State<DeliveryTypeSelector> {
                 height: 24,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isSelected ? color : AppTheme.grey400,
-                    width: 2,
-                  ),
+                  border: Border.all(color: isSelected ? color : AppTheme.grey400, width: 2),
                   color: isSelected ? color : Colors.transparent,
                 ),
-                child: isSelected
-                    ? const Icon(
-                        Icons.check,
-                        color: Colors.white,
-                        size: 14,
-                      )
-                    : null,
+                child: isSelected ? const Icon(Icons.check, color: Colors.white, size: 14) : null,
               ),
             ],
           ),
@@ -237,9 +214,7 @@ class _DeliveryTypeSelectorState extends State<DeliveryTypeSelector> {
         decoration: BoxDecoration(
           color: AppTheme.success.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: AppTheme.success.withValues(alpha: 0.3),
-          ),
+          border: Border.all(color: AppTheme.success.withValues(alpha: 0.3)),
         ),
         child: const Row(
           children: [
@@ -267,9 +242,7 @@ class _DeliveryTypeSelectorState extends State<DeliveryTypeSelector> {
       decoration: BoxDecoration(
         color: AppTheme.primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppTheme.primary.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -337,10 +310,7 @@ class CompactDeliveryTypeSelector extends StatelessWidget {
         itemBuilder: (context, index) {
           final option = filteredOptions[index];
           final isSelected = selectedType == option.type;
-          final charge = DeliveryChargeCalculator.calculateDeliveryCharge(
-            option.type,
-            subtotal,
-          );
+          final charge = DeliveryChargeCalculator.calculateDeliveryCharge(option.type, subtotal);
           final icon = DeliveryTypeOption.getIcon(option.type);
           final color = DeliveryTypeOption.getColor(option.type);
 
@@ -360,11 +330,7 @@ class CompactDeliveryTypeSelector extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    icon,
-                    color: isSelected ? color : AppTheme.grey600,
-                    size: 20,
-                  ),
+                  Icon(icon, color: isSelected ? color : AppTheme.grey600, size: 20),
                   const SizedBox(height: 4),
                   Text(
                     charge == 0 ? 'FREE' : '₹${charge.round()}',

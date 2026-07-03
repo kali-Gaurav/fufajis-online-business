@@ -28,7 +28,7 @@ class _DeliveryEarningsScreenState extends State<DeliveryEarningsScreen> {
     return orders.where((order) {
       if (order.deliveredAt == null) return false;
       final deliveredDate = order.deliveredAt!;
-      
+
       switch (period) {
         case 'Today':
           return deliveredDate.year == now.year &&
@@ -86,7 +86,9 @@ class _DeliveryEarningsScreenState extends State<DeliveryEarningsScreen> {
           double ruralBonus = 0.0;
 
           for (var order in filteredOrders) {
-            final pay = order.deliveryCharge.toDouble() > 0 ? order.deliveryCharge.toDouble() : 45.0;
+            final pay = order.deliveryCharge.toDouble() > 0
+                ? order.deliveryCharge.toDouble()
+                : 45.0;
             totalEarnings += pay;
 
             final tipVal = (order.id.hashCode % 3 == 0) ? 20.0 : 10.0;
@@ -100,7 +102,7 @@ class _DeliveryEarningsScreenState extends State<DeliveryEarningsScreen> {
             }
 
             fuelAllowance += (tripDist * fuelRatePerKm);
-            
+
             if (order.paymentMethod == PaymentMethod.cod) {
               codCollected += order.totalAmount.toDouble();
             }
@@ -132,12 +134,24 @@ class _DeliveryEarningsScreenState extends State<DeliveryEarningsScreen> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(colors: [AppTheme.success, Colors.green.shade700]),
                     borderRadius: BorderRadius.circular(20),
-                    boxShadow: [BoxShadow(color: Colors.green.withValues(alpha: 0.3), blurRadius: 12)],
+                    boxShadow: [
+                      BoxShadow(color: Colors.green.withValues(alpha: 0.3), blurRadius: 12),
+                    ],
                   ),
                   child: Column(
                     children: [
-                      const Text('Total Take Home', style: TextStyle(color: Colors.white70, fontSize: 16)),
-                      Text('₹${finalTakeHome.toStringAsFixed(0)}', style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w900)),
+                      const Text(
+                        'Total Take Home',
+                        style: TextStyle(color: Colors.white70, fontSize: 16),
+                      ),
+                      Text(
+                        '₹${finalTakeHome.toStringAsFixed(0)}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 36,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
                       const SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -152,7 +166,10 @@ class _DeliveryEarningsScreenState extends State<DeliveryEarningsScreen> {
                 ),
 
                 const SizedBox(height: 24),
-                const Text('Earnings Breakdown', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Earnings Breakdown',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 12),
                 _buildBreakdownRow('Delivery Pay', totalEarnings),
                 _buildBreakdownRow('Fuel Allowance', fuelAllowance),
@@ -176,16 +193,31 @@ class _DeliveryEarningsScreenState extends State<DeliveryEarningsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('COD Cash in Hand', style: TextStyle(fontWeight: FontWeight.bold)),
-                            Text('₹${codCollected.toStringAsFixed(0)} needs submission', style: const TextStyle(fontSize: 12)),
+                            const Text(
+                              'COD Cash in Hand',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              '₹${codCollected.toStringAsFixed(0)} needs submission',
+                              style: const TextStyle(fontSize: 12),
+                            ),
                           ],
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: codCollected > 0 
-                          ? () => _showSubmitCashDialog(context, agentId, authProvider.currentUser?.name ?? 'Rider', authProvider.currentUser?.phoneNumber ?? '', codCollected)
-                          : null,
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white),
+                        onPressed: codCollected > 0
+                            ? () => _showSubmitCashDialog(
+                                context,
+                                agentId,
+                                authProvider.currentUser?.name ?? 'Rider',
+                                authProvider.currentUser?.phoneNumber ?? '',
+                                codCollected,
+                              )
+                            : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          foregroundColor: Colors.white,
+                        ),
                         child: const Text('Submit'),
                       ),
                     ],
@@ -202,7 +234,10 @@ class _DeliveryEarningsScreenState extends State<DeliveryEarningsScreen> {
   Widget _buildMiniStat(String label, String value) {
     return Column(
       children: [
-        Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+        Text(
+          value,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+        ),
         Text(label, style: const TextStyle(color: Colors.white70, fontSize: 11)),
       ],
     );
@@ -215,13 +250,22 @@ class _DeliveryEarningsScreenState extends State<DeliveryEarningsScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: const TextStyle(color: AppTheme.grey700)),
-          Text('₹${amount.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(
+            '₹${amount.toStringAsFixed(0)}',
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
         ],
       ),
     );
   }
 
-  void _showSubmitCashDialog(BuildContext context, String agentId, String agentName, String agentPhone, double maxAmount) {
+  void _showSubmitCashDialog(
+    BuildContext context,
+    String agentId,
+    String agentName,
+    String agentPhone,
+    double maxAmount,
+  ) {
     final amountController = TextEditingController(text: maxAmount.toStringAsFixed(0));
     final notesController = TextEditingController();
     final formKey = GlobalKey<FormState>();
@@ -277,22 +321,21 @@ class _DeliveryEarningsScreenState extends State<DeliveryEarningsScreen> {
             ),
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
             ElevatedButton(
               onPressed: () async {
                 if (formKey.currentState!.validate()) {
                   final amount = double.parse(amountController.text.trim());
                   final notes = notesController.text.trim();
-                  
+
                   final request = CodSettlementModel(
                     id: 'settle_${DateTime.now().millisecondsSinceEpoch}',
                     riderId: agentId,
                     riderName: agentName,
                     riderPhone: agentPhone,
-                    branchId: Provider.of<AuthProvider>(context, listen: false).currentUser?.branchId ?? 'branch_001',
+                    branchId:
+                        Provider.of<AuthProvider>(context, listen: false).currentUser?.branchId ??
+                        'branch_001',
                     amount: amount,
                     expectedAmount: maxAmount,
                     receivedAmount: amount,
@@ -303,12 +346,14 @@ class _DeliveryEarningsScreenState extends State<DeliveryEarningsScreen> {
                   );
 
                   Navigator.pop(context);
-                  
+
                   try {
                     await _fleetService.submitCodSettlement(request);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Submission request for ₹${amount.toStringAsFixed(0)} sent to owner!'),
+                        content: Text(
+                          'Submission request for ₹${amount.toStringAsFixed(0)} sent to owner!',
+                        ),
                         backgroundColor: AppTheme.success,
                       ),
                     );

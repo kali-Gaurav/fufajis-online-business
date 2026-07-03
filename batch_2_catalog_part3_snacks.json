@@ -1,0 +1,806 @@
+{
+  "category": "Snacks",
+  "count": 50,
+  "products": [
+    {
+      "id": "SNK001",
+      "familyName": "Fried Chickpeas",
+      "brand": "Haldiram",
+      "hindiName": "Haldiram भुनी हुई चने",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 65, "cost": 42},
+        {"size": "200g", "price": 85, "cost": 55},
+        {"size": "400g", "price": 160, "cost": 105},
+        {"size": "1kg", "price": 385, "cost": 250}
+      ],
+      "keywords": ["snack", "chickpeas", "chane", "Haldiram spiced", "भुनी हुई चने"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK002",
+      "familyName": "Namkeen Mix",
+      "brand": "Bikano",
+      "hindiName": "Bikano नमकीन मिश्रण",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 70, "cost": 45},
+        {"size": "200g", "price": 90, "cost": 58},
+        {"size": "400g", "price": 170, "cost": 110},
+        {"size": "1kg", "price": 410, "cost": 265}
+      ],
+      "keywords": ["snack", "namkeen", "spiced mix", "Bikano mix", "नमकीन मिश्रण"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK003",
+      "familyName": "Parle Wafers",
+      "brand": "Parle",
+      "hindiName": "Parle वेफर्स",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 55, "cost": 35},
+        {"size": "200g", "price": 70, "cost": 45},
+        {"size": "400g", "price": 130, "cost": 85},
+        {"size": "1kg", "price": 310, "cost": 200}
+      ],
+      "keywords": ["snack", "wafers", "crispy", "Parle wafers", "वेफर्स"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK004",
+      "familyName": "Britannia Crackers",
+      "brand": "Britannia",
+      "hindiName": "Britannia क्रैकर्स",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 50, "cost": 32},
+        {"size": "200g", "price": 65, "cost": 42},
+        {"size": "400g", "price": 120, "cost": 78},
+        {"size": "1kg", "price": 285, "cost": 185}
+      ],
+      "keywords": ["snack", "crackers", "biscuit", "Britannia crisp", "क्रैकर्स"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK005",
+      "familyName": "Lay's Potato Chips",
+      "brand": "Lay's",
+      "hindiName": "Lay's आलू के चिप्स",
+      "brandType": "international",
+      "skus": [
+        {"size": "150g", "price": 75, "cost": 48},
+        {"size": "200g", "price": 95, "cost": 60},
+        {"size": "400g", "price": 180, "cost": 115},
+        {"size": "1kg", "price": 435, "cost": 280}
+      ],
+      "keywords": ["snack", "chips", "potato", "Lay's crunchy", "आलू के चिप्स"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK006",
+      "familyName": "Aloo Bhujia",
+      "brand": "Haldiram",
+      "hindiName": "Haldiram आलू भुजिया",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 68, "cost": 44},
+        {"size": "200g", "price": 88, "cost": 57},
+        {"size": "400g", "price": 165, "cost": 107},
+        {"size": "1kg", "price": 395, "cost": 255}
+      ],
+      "keywords": ["snack", "bhujia", "aloo", "Haldiram crispy", "आलू भुजिया"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK007",
+      "familyName": "Chikhalwali",
+      "brand": "Bikano",
+      "hindiName": "Bikano चिखलवाली",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 72, "cost": 46},
+        {"size": "200g", "price": 92, "cost": 60},
+        {"size": "400g", "price": 175, "cost": 113},
+        {"size": "1kg", "price": 420, "cost": 270}
+      ],
+      "keywords": ["snack", "chikhalwali", "namkeen", "Bikano spiced", "चिखलवाली"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK008",
+      "familyName": "Saffola Oats",
+      "brand": "Saffola",
+      "hindiName": "Saffola ओट्स",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 80, "cost": 52},
+        {"size": "200g", "price": 105, "cost": 68},
+        {"size": "400g", "price": 200, "cost": 130},
+        {"size": "1kg", "price": 480, "cost": 310}
+      ],
+      "keywords": ["snack", "oats", "healthy", "Saffola oats", "ओट्स"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK009",
+      "familyName": "Moong Dal Namkeen",
+      "brand": "Haldiram",
+      "hindiName": "Haldiram मूंग दाल नमकीन",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 65, "cost": 42},
+        {"size": "200g", "price": 85, "cost": 55},
+        {"size": "400g", "price": 160, "cost": 105},
+        {"size": "1kg", "price": 385, "cost": 250}
+      ],
+      "keywords": ["snack", "moong dal", "dal snack", "Haldiram dal", "मूंग दाल नमकीन"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK010",
+      "familyName": "Boondi",
+      "brand": "Bikano",
+      "hindiName": "Bikano बूंदी",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 70, "cost": 45},
+        {"size": "200g", "price": 90, "cost": 58},
+        {"size": "400g", "price": 170, "cost": 110},
+        {"size": "1kg", "price": 410, "cost": 265}
+      ],
+      "keywords": ["snack", "boondi", "spiced", "Bikano round", "बूंदी"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK011",
+      "familyName": "Cornflakes",
+      "brand": "Parle",
+      "hindiName": "Parle कॉर्न फ्लेक्स",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 60, "cost": 38},
+        {"size": "200g", "price": 78, "cost": 50},
+        {"size": "400g", "price": 145, "cost": 94},
+        {"size": "1kg", "price": 350, "cost": 225}
+      ],
+      "keywords": ["snack", "cornflakes", "cereal", "Parle corn", "कॉर्न फ्लेक्स"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK012",
+      "familyName": "Baj Popcorn",
+      "brand": "Baji",
+      "hindiName": "Baji पॉपकॉर्न",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 55, "cost": 35},
+        {"size": "200g", "price": 70, "cost": 45},
+        {"size": "400g", "price": 130, "cost": 85},
+        {"size": "1kg", "price": 310, "cost": 200}
+      ],
+      "keywords": ["snack", "popcorn", "baji snack", "Baji crispy", "पॉपकॉर्न"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK013",
+      "familyName": "Potato Wafers Spiced",
+      "brand": "Lay's",
+      "hindiName": "Lay's मसालेदार आलू वेफर्स",
+      "brandType": "international",
+      "skus": [
+        {"size": "150g", "price": 78, "cost": 50},
+        {"size": "200g", "price": 98, "cost": 63},
+        {"size": "400g", "price": 185, "cost": 120},
+        {"size": "1kg", "price": 445, "cost": 288}
+      ],
+      "keywords": ["snack", "chips", "spiced", "Lay's masala", "मसालेदार आलू वेफर्स"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK014",
+      "familyName": "Masala Peanuts",
+      "brand": "Haldiram",
+      "hindiName": "Haldiram मसालेदार मूंगफली",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 72, "cost": 46},
+        {"size": "200g", "price": 92, "cost": 60},
+        {"size": "400g", "price": 175, "cost": 113},
+        {"size": "1kg", "price": 420, "cost": 270}
+      ],
+      "keywords": ["snack", "peanuts", "masala", "Haldiram spiced", "मसालेदार मूंगफली"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK015",
+      "familyName": "Mathri",
+      "brand": "Bikano",
+      "hindiName": "Bikano मठरी",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 68, "cost": 44},
+        {"size": "200g", "price": 88, "cost": 57},
+        {"size": "400g", "price": 165, "cost": 107},
+        {"size": "1kg", "price": 395, "cost": 255}
+      ],
+      "keywords": ["snack", "mathri", "crispy", "Bikano savoury", "मठरी"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK016",
+      "familyName": "Sev",
+      "brand": "Haldiram",
+      "hindiName": "Haldiram सेव",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 65, "cost": 42},
+        {"size": "200g", "price": 85, "cost": 55},
+        {"size": "400g", "price": 160, "cost": 105},
+        {"size": "1kg", "price": 385, "cost": 250}
+      ],
+      "keywords": ["snack", "sev", "noodle snack", "Haldiram sev", "सेव"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK017",
+      "familyName": "Chakli",
+      "brand": "Bikano",
+      "hindiName": "Bikano चकली",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 70, "cost": 45},
+        {"size": "200g", "price": 90, "cost": 58},
+        {"size": "400g", "price": 170, "cost": 110},
+        {"size": "1kg", "price": 410, "cost": 265}
+      ],
+      "keywords": ["snack", "chakli", "spiral", "Bikano spiral", "चकली"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK018",
+      "familyName": "Samosa Chips",
+      "brand": "Parle",
+      "hindiName": "Parle समोसा चिप्स",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 62, "cost": 40},
+        {"size": "200g", "price": 80, "cost": 52},
+        {"size": "400g", "price": 150, "cost": 98},
+        {"size": "1kg", "price": 360, "cost": 233}
+      ],
+      "keywords": ["snack", "samosa chips", "flavored", "Parle samosa", "समोसा चिप्स"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK019",
+      "familyName": "Roasted Chickpea Snack",
+      "brand": "Saffola",
+      "hindiName": "Saffola भुनी हुई चने स्नैक",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 75, "cost": 48},
+        {"size": "200g", "price": 98, "cost": 63},
+        {"size": "400g", "price": 185, "cost": 120},
+        {"size": "1kg", "price": 445, "cost": 288}
+      ],
+      "keywords": ["snack", "roasted", "chickpea", "Saffola health", "भुनी हुई चने स्नैक"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK020",
+      "familyName": "Rice Crackers",
+      "brand": "Britannia",
+      "hindiName": "Britannia चावल क्रैकर्स",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 58, "cost": 37},
+        {"size": "200g", "price": 75, "cost": 48},
+        {"size": "400g", "price": 140, "cost": 91},
+        {"size": "1kg", "price": 335, "cost": 217}
+      ],
+      "keywords": ["snack", "rice crackers", "crispy", "Britannia rice", "चावल क्रैकर्स"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK021",
+      "familyName": "Cornsnacks Masala",
+      "brand": "Haldiram",
+      "hindiName": "Haldiram कॉर्न स्नैक्स मसाला",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 68, "cost": 44},
+        {"size": "200g", "price": 88, "cost": 57},
+        {"size": "400g", "price": 165, "cost": 107},
+        {"size": "1kg", "price": 395, "cost": 255}
+      ],
+      "keywords": ["snack", "corn", "masala", "Haldiram corn", "कॉर्न स्नैक्स मसाला"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK022",
+      "familyName": "Aloo Papad",
+      "brand": "Bikano",
+      "hindiName": "Bikano आलू पापड़",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 65, "cost": 42},
+        {"size": "200g", "price": 85, "cost": 55},
+        {"size": "400g", "price": 160, "cost": 105},
+        {"size": "1kg", "price": 385, "cost": 250}
+      ],
+      "keywords": ["snack", "papad", "aloo", "Bikano thin", "आलू पापड़"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK023",
+      "familyName": "Pickle Flavored Chips",
+      "brand": "Lay's",
+      "hindiName": "Lay's अचार स्वाद चिप्स",
+      "brandType": "international",
+      "skus": [
+        {"size": "150g", "price": 76, "cost": 49},
+        {"size": "200g", "price": 96, "cost": 62},
+        {"size": "400g", "price": 182, "cost": 118},
+        {"size": "1kg", "price": 438, "cost": 283}
+      ],
+      "keywords": ["snack", "chips", "pickle", "Lay's pickle", "अचार स्वाद चिप्स"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK024",
+      "familyName": "Wheat Crackers",
+      "brand": "Parle",
+      "hindiName": "Parle गेहूं क्रैकर्स",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 62, "cost": 40},
+        {"size": "200g", "price": 80, "cost": 52},
+        {"size": "400g", "price": 150, "cost": 98},
+        {"size": "1kg", "price": 360, "cost": 233}
+      ],
+      "keywords": ["snack", "wheat", "crackers", "Parle wheat", "गेहूं क्रैकर्स"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK025",
+      "familyName": "Pepper Chips",
+      "brand": "Britannia",
+      "hindiName": "Britannia मिर्च चिप्स",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 64, "cost": 41},
+        {"size": "200g", "price": 82, "cost": 53},
+        {"size": "400g", "price": 155, "cost": 101},
+        {"size": "1kg", "price": 372, "cost": 241}
+      ],
+      "keywords": ["snack", "pepper", "spiced chips", "Britannia pepper", "मिर्च चिप्स"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK026",
+      "familyName": "Mint Chips",
+      "brand": "Lay's",
+      "hindiName": "Lay's पुदीना चिप्स",
+      "brandType": "international",
+      "skus": [
+        {"size": "150g", "price": 74, "cost": 47},
+        {"size": "200g", "price": 94, "cost": 60},
+        {"size": "400g", "price": 178, "cost": 115},
+        {"size": "1kg", "price": 428, "cost": 277}
+      ],
+      "keywords": ["snack", "mint", "chips", "Lay's mint", "पुदीना चिप्स"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK027",
+      "familyName": "Onion Rings",
+      "brand": "Parle",
+      "hindiName": "Parle प्याज रिंग्स",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 66, "cost": 42},
+        {"size": "200g", "price": 86, "cost": 55},
+        {"size": "400g", "price": 162, "cost": 105},
+        {"size": "1kg", "price": 390, "cost": 252}
+      ],
+      "keywords": ["snack", "onion rings", "circular", "Parle onion", "प्याज रिंग्स"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK028",
+      "familyName": "Garlic Flavored Snack",
+      "brand": "Haldiram",
+      "hindiName": "Haldiram लहसुन स्वाद स्नैक",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 70, "cost": 45},
+        {"size": "200g", "price": 90, "cost": 58},
+        {"size": "400g", "price": 170, "cost": 110},
+        {"size": "1kg", "price": 410, "cost": 265}
+      ],
+      "keywords": ["snack", "garlic", "flavored", "Haldiram garlic", "लहसुन स्वाद स्नैक"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK029",
+      "familyName": "Barbecue Chips",
+      "brand": "Lay's",
+      "hindiName": "Lay's बारबिक्यू चिप्स",
+      "brandType": "international",
+      "skus": [
+        {"size": "150g", "price": 77, "cost": 49},
+        {"size": "200g", "price": 99, "cost": 64},
+        {"size": "400g", "price": 188, "cost": 122},
+        {"size": "1kg", "price": 452, "cost": 292}
+      ],
+      "keywords": ["snack", "bbq", "barbecue", "Lay's bbq", "बारबिक्यू चिप्स"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK030",
+      "familyName": "Cheese Crackers",
+      "brand": "Britannia",
+      "hindiName": "Britannia पनीर क्रैकर्स",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 68, "cost": 44},
+        {"size": "200g", "price": 88, "cost": 57},
+        {"size": "400g", "price": 165, "cost": 107},
+        {"size": "1kg", "price": 395, "cost": 255}
+      ],
+      "keywords": ["snack", "cheese", "crackers", "Britannia cheese", "पनीर क्रैकर्स"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK031",
+      "familyName": "Tomato Flavored Chips",
+      "brand": "Parle",
+      "hindiName": "Parle टमाटर स्वाद चिप्स",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 64, "cost": 41},
+        {"size": "200g", "price": 82, "cost": 53},
+        {"size": "400g", "price": 155, "cost": 101},
+        {"size": "1kg", "price": 372, "cost": 241}
+      ],
+      "keywords": ["snack", "tomato", "flavored", "Parle tomato", "टमाटर स्वाद चिप्स"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK032",
+      "familyName": "Pickle Papad",
+      "brand": "Haldiram",
+      "hindiName": "Haldiram अचार पापड़",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 67, "cost": 43},
+        {"size": "200g", "price": 87, "cost": 56},
+        {"size": "400g", "price": 163, "cost": 106},
+        {"size": "1kg", "price": 392, "cost": 253}
+      ],
+      "keywords": ["snack", "papad", "pickle", "Haldiram pickle", "अचार पापड़"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK033",
+      "familyName": "Puffed Snack Mix",
+      "brand": "Bikano",
+      "hindiName": "Bikano फूला हुआ स्नैक मिश्रण",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 71, "cost": 46},
+        {"size": "200g", "price": 91, "cost": 59},
+        {"size": "400g", "price": 172, "cost": 111},
+        {"size": "1kg", "price": 413, "cost": 267}
+      ],
+      "keywords": ["snack", "puffed", "mix", "Bikano puff", "फूला हुआ स्नैक मिश्रण"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK034",
+      "familyName": "Lentil Chips",
+      "brand": "Saffola",
+      "hindiName": "Saffola दाल चिप्स",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 73, "cost": 47},
+        {"size": "200g", "price": 93, "cost": 60},
+        {"size": "400g", "price": 175, "cost": 113},
+        {"size": "1kg", "price": 420, "cost": 272}
+      ],
+      "keywords": ["snack", "lentil", "chips", "Saffola dal", "दाल चिप्स"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK035",
+      "familyName": "Yogurt Chips",
+      "brand": "Britannia",
+      "hindiName": "Britannia दही चिप्स",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 69, "cost": 44},
+        {"size": "200g", "price": 89, "cost": 57},
+        {"size": "400g", "price": 167, "cost": 108},
+        {"size": "1kg", "price": 400, "cost": 258}
+      ],
+      "keywords": ["snack", "yogurt", "curd", "Britannia yogurt", "दही चिप्स"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK036",
+      "familyName": "Masala Mix Puffed",
+      "brand": "Haldiram",
+      "hindiName": "Haldiram मसाला मिश्रण फूला",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 72, "cost": 46},
+        {"size": "200g", "price": 92, "cost": 60},
+        {"size": "400g", "price": 174, "cost": 112},
+        {"size": "1kg", "price": 418, "cost": 270}
+      ],
+      "keywords": ["snack", "masala", "puffed", "Haldiram mix", "मसाला मिश्रण फूला"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK037",
+      "familyName": "Salted Nuts",
+      "brand": "Saffola",
+      "hindiName": "Saffola नमकीन मेवे",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 95, "cost": 61},
+        {"size": "200g", "price": 122, "cost": 79},
+        {"size": "400g", "price": 230, "cost": 149},
+        {"size": "1kg", "price": 552, "cost": 357}
+      ],
+      "keywords": ["snack", "nuts", "salted", "Saffola premium", "नमकीन मेवे"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK038",
+      "familyName": "Mixed Vegetable Chips",
+      "brand": "Parle",
+      "hindiName": "Parle मिश्रित सब्जी चिप्स",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 67, "cost": 43},
+        {"size": "200g", "price": 87, "cost": 56},
+        {"size": "400g", "price": 163, "cost": 106},
+        {"size": "1kg", "price": 392, "cost": 253}
+      ],
+      "keywords": ["snack", "vegetable", "mixed", "Parle veggie", "मिश्रित सब्जी चिप्स"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK039",
+      "familyName": "Chili Lime Chips",
+      "brand": "Lay's",
+      "hindiName": "Lay's मिर्च-नींबू चिप्स",
+      "brandType": "international",
+      "skus": [
+        {"size": "150g", "price": 76, "cost": 49},
+        {"size": "200g", "price": 96, "cost": 62},
+        {"size": "400g", "price": 182, "cost": 118},
+        {"size": "1kg", "price": 438, "cost": 283}
+      ],
+      "keywords": ["snack", "chili lime", "spicy", "Lay's chili", "मिर्च-नींबू चिप्स"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK040",
+      "familyName": "Caramel Popcorn",
+      "brand": "Baji",
+      "hindiName": "Baji कारमेल पॉपकॉर्न",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 72, "cost": 46},
+        {"size": "200g", "price": 92, "cost": 60},
+        {"size": "400g", "price": 174, "cost": 112},
+        {"size": "1kg", "price": 418, "cost": 270}
+      ],
+      "keywords": ["snack", "popcorn", "caramel", "Baji sweet", "कारमेल पॉपकॉर्न"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK041",
+      "familyName": "Spicy Popcorn",
+      "brand": "Baji",
+      "hindiName": "Baji मसालेदार पॉपकॉर्न",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 68, "cost": 44},
+        {"size": "200g", "price": 88, "cost": 57},
+        {"size": "400g", "price": 165, "cost": 107},
+        {"size": "1kg", "price": 395, "cost": 255}
+      ],
+      "keywords": ["snack", "popcorn", "spicy", "Baji spice", "मसालेदार पॉपकॉर्न"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK042",
+      "familyName": "Wasabi Peas",
+      "brand": "Bikano",
+      "hindiName": "Bikano वसाबी मटर",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 75, "cost": 48},
+        {"size": "200g", "price": 95, "cost": 60},
+        {"size": "400g", "price": 180, "cost": 115},
+        {"size": "1kg", "price": 432, "cost": 278}
+      ],
+      "keywords": ["snack", "peas", "wasabi", "Bikano spicy", "वसाबी मटर"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK043",
+      "familyName": "Savory Rice Snack",
+      "brand": "Haldiram",
+      "hindiName": "Haldiram नमकीन चावल स्नैक",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 68, "cost": 44},
+        {"size": "200g", "price": 88, "cost": 57},
+        {"size": "400g", "price": 165, "cost": 107},
+        {"size": "1kg", "price": 395, "cost": 255}
+      ],
+      "keywords": ["snack", "rice", "savory", "Haldiram rice", "नमकीन चावल स्नैक"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK044",
+      "familyName": "Herb and Spice Mix",
+      "brand": "Saffola",
+      "hindiName": "Saffola जड़ी-बूटी और मसाला मिश्रण",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 82, "cost": 53},
+        {"size": "200g", "price": 107, "cost": 69},
+        {"size": "400g", "price": 203, "cost": 131},
+        {"size": "1kg", "price": 488, "cost": 315}
+      ],
+      "keywords": ["snack", "herb", "spice", "Saffola herb", "जड़ी-बूटी और मसाला मिश्रण"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK045",
+      "familyName": "Roasted Almonds",
+      "brand": "Parle",
+      "hindiName": "Parle भुनी हुई बादाम",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 105, "cost": 68},
+        {"size": "200g", "price": 138, "cost": 89},
+        {"size": "400g", "price": 262, "cost": 169},
+        {"size": "1kg", "price": 628, "cost": 405}
+      ],
+      "keywords": ["snack", "almonds", "roasted", "Parle badam", "भुनी हुई बादाम"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK046",
+      "familyName": "Cashew Snack",
+      "brand": "Bikano",
+      "hindiName": "Bikano काजू स्नैक",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 115, "cost": 74},
+        {"size": "200g", "price": 150, "cost": 97},
+        {"size": "400g", "price": 285, "cost": 184},
+        {"size": "1kg", "price": 685, "cost": 442}
+      ],
+      "keywords": ["snack", "cashew", "kaju", "Bikano nut", "काजू स्नैक"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK047",
+      "familyName": "Dried Fruit Mix",
+      "brand": "Saffola",
+      "hindiName": "Saffola सूखे फल मिश्रण",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 125, "cost": 81},
+        {"size": "200g", "price": 162, "cost": 105},
+        {"size": "400g", "price": 308, "cost": 199},
+        {"size": "1kg", "price": 740, "cost": 477}
+      ],
+      "keywords": ["snack", "dried fruit", "mix", "Saffola dry", "सूखे फल मिश्रण"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK048",
+      "familyName": "Granola Clusters",
+      "brand": "Britannia",
+      "hindiName": "Britannia ग्रेनोला क्लस्टर",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 88, "cost": 57},
+        {"size": "200g", "price": 115, "cost": 74},
+        {"size": "400g", "price": 218, "cost": 141},
+        {"size": "1kg", "price": 523, "cost": 338}
+      ],
+      "keywords": ["snack", "granola", "clusters", "Britannia grain", "ग्रेनोला क्लस्टर"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK049",
+      "familyName": "Muesli Mix",
+      "brand": "Haldiram",
+      "hindiName": "Haldiram मूसली मिश्रण",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 92, "cost": 59},
+        {"size": "200g", "price": 120, "cost": 78},
+        {"size": "400g", "price": 228, "cost": 147},
+        {"size": "1kg", "price": 548, "cost": 354}
+      ],
+      "keywords": ["snack", "muesli", "cereal mix", "Haldiram muesli", "मूसली मिश्रण"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "SNK050",
+      "familyName": "Protein Bars Mix",
+      "brand": "Saffola",
+      "hindiName": "Saffola प्रोटीन बार्स मिश्रण",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "150g", "price": 110, "cost": 71},
+        {"size": "200g", "price": 145, "cost": 94},
+        {"size": "400g", "price": 275, "cost": 177},
+        {"size": "1kg", "price": 660, "cost": 426}
+      ],
+      "keywords": ["snack", "protein bars", "health", "Saffola protein", "प्रोटीन बार्स मिश्रण"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    }
+  ]
+}

@@ -35,12 +35,7 @@ class TrustedDeviceService {
     final deviceId = await getDeviceId();
     final deviceName = await getDeviceName();
 
-    await _firestore
-        .collection('users')
-        .doc(uid)
-        .collection('devices')
-        .doc(deviceId)
-        .set({
+    await _firestore.collection('users').doc(uid).collection('devices').doc(deviceId).set({
       'deviceId': deviceId,
       'deviceName': deviceName,
       'lastLogin': FieldValue.serverTimestamp(),
@@ -61,9 +56,7 @@ class TrustedDeviceService {
 
       if (doc.exists && doc.data()?['trusted'] == true) {
         // Update last login
-        await doc.reference.update({
-          'lastLogin': FieldValue.serverTimestamp(),
-        });
+        await doc.reference.update({'lastLogin': FieldValue.serverTimestamp()});
         return true;
       }
       return false;
@@ -82,11 +75,6 @@ class TrustedDeviceService {
   }
 
   Future<void> revokeDevice(String uid, String deviceId) async {
-    await _firestore
-        .collection('users')
-        .doc(uid)
-        .collection('devices')
-        .doc(deviceId)
-        .delete();
+    await _firestore.collection('users').doc(uid).collection('devices').doc(deviceId).delete();
   }
 }

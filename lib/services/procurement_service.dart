@@ -10,7 +10,9 @@ class ProcurementService {
   /// Generates a list of items that need to be ordered from suppliers
   List<Map<String, dynamic>> generatePurchaseList(BuildContext context) {
     final productProvider = Provider.of<ProductProvider>(context, listen: false);
-    final lowStockItems = productProvider.products.where((p) => p.stockQuantity <= p.minimumStock).toList();
+    final lowStockItems = productProvider.products
+        .where((p) => p.stockQuantity <= p.minimumStock)
+        .toList();
 
     return lowStockItems.map((p) {
       final orderQty = (p.minimumStock * 2) - p.stockQuantity;

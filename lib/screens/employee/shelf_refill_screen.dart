@@ -40,7 +40,6 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
   Future<void> _lookupProduct(String barcode) async {
     setState(() {
       _isLoading = true;
-      _autoFilled = false;
     });
 
     final auth = context.read<AuthProvider>();
@@ -52,8 +51,8 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
         branchId: auth.currentBranch?.id ?? '',
       );
 
-      final product = result.product ??
-          context.read<ProductProvider>().getProductByBarcode(barcode);
+      final product =
+          result.product ?? context.read<ProductProvider>().getProductByBarcode(barcode);
 
       if (product != null) {
         setState(() {
@@ -85,15 +84,15 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: AppTheme.error));
   }
 
   void _showSuccess(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: AppTheme.success),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: AppTheme.success));
   }
 
   Future<void> _performRefill() async {
@@ -131,11 +130,7 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
       setState(() {
         _refillHistory.insert(
           0,
-          RefillItem(
-            productName: productName,
-            quantity: quantity,
-            timestamp: DateTime.now(),
-          ),
+          RefillItem(productName: productName, quantity: quantity, timestamp: DateTime.now()),
         );
         _product = null;
         _scannedBarcode = null;
@@ -185,10 +180,7 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Scan Item from Godown',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
+                    Text('Scan Item from Godown', style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 12),
                     if (_scannedBarcode != null)
                       ListTile(
@@ -219,10 +211,7 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Refill Details',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
+                      Text('Refill Details', style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 16),
                       TextField(
                         controller: _quantityController,
@@ -271,20 +260,22 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              ..._refillHistory.map((item) => Card(
-                    child: ListTile(
-                      leading: const CircleAvatar(
-                        backgroundColor: AppTheme.success,
-                        child: Icon(Icons.check, color: Colors.white, size: 16),
-                      ),
-                      title: Text(item.productName),
-                      subtitle: Text('${item.quantity} units moved'),
-                      trailing: Text(
-                        '${item.timestamp.hour}:${item.timestamp.minute.toString().padLeft(2, '0')}',
-                        style: const TextStyle(color: Colors.grey, fontSize: 12),
-                      ),
+              ..._refillHistory.map(
+                (item) => Card(
+                  child: ListTile(
+                    leading: const CircleAvatar(
+                      backgroundColor: AppTheme.success,
+                      child: Icon(Icons.check, color: Colors.white, size: 16),
                     ),
-                  )),
+                    title: Text(item.productName),
+                    subtitle: Text('${item.quantity} units moved'),
+                    trailing: Text(
+                      '${item.timestamp.hour}:${item.timestamp.minute.toString().padLeft(2, '0')}',
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ],
         ),
@@ -299,10 +290,7 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
         title: const Text('Enter Barcode', style: TextStyle(fontWeight: FontWeight.w700)),
         content: TextField(
           autofocus: true,
-          decoration: const InputDecoration(
-            labelText: 'Barcode',
-            border: OutlineInputBorder(),
-          ),
+          decoration: const InputDecoration(labelText: 'Barcode', border: OutlineInputBorder()),
           onSubmitted: (value) {
             if (value.isNotEmpty) {
               Navigator.pop(context);
@@ -313,12 +301,7 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
             }
           },
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-        ],
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel'))],
       ),
     );
   }
@@ -329,9 +312,5 @@ class RefillItem {
   final int quantity;
   final DateTime timestamp;
 
-  RefillItem({
-    required this.productName,
-    required this.quantity,
-    required this.timestamp,
-  });
+  RefillItem({required this.productName, required this.quantity, required this.timestamp});
 }

@@ -114,11 +114,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
   }
 
   Future<void> _scanBarcode() async {
-    final result = await Navigator.of(context).push<String>(
-      MaterialPageRoute(
-        builder: (_) => const _BarcodeScannerPage(),
-      ),
-    );
+    final result = await Navigator.of(
+      context,
+    ).push<String>(MaterialPageRoute(builder: (_) => const _BarcodeScannerPage()));
     if (result != null) {
       setState(() => _barcodeController.text = result);
     }
@@ -152,7 +150,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
     try {
       final barcode = _barcodeController.text.trim();
       if (barcode.isNotEmpty) {
-        final isUnique = await ProductService().isBarcodeUnique(barcode, excludeProductId: _existingProductId);
+        final isUnique = await ProductService().isBarcodeUnique(
+          barcode,
+          excludeProductId: _existingProductId,
+        );
         if (!isUnique) {
           _showError('Barcode "$barcode" is already assigned to another product.');
           setState(() => _isLoading = false);
@@ -202,7 +203,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       };
 
       if (_isEditMode) {
-         await _firestore.collection('products').doc(productId).set(data, SetOptions(merge: true));
+        await _firestore.collection('products').doc(productId).set(data, SetOptions(merge: true));
       } else {
         // Use ProductProvider to trigger barcode unique check
         final newProduct = ProductModel.fromMap({...data, 'createdAt': DateTime.now()});
@@ -213,7 +214,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
         await Provider.of<ProductProvider>(context, listen: false).refreshProducts();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(_isEditMode ? 'Product updated successfully!' : 'Product added successfully!'),
+            content: Text(
+              _isEditMode ? 'Product updated successfully!' : 'Product added successfully!',
+            ),
             backgroundColor: AppTheme.success,
           ),
         );
@@ -228,9 +231,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   void _showError(String msg) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg), backgroundColor: AppTheme.error),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(msg), backgroundColor: AppTheme.error));
   }
 
   @override
@@ -261,13 +264,20 @@ class _AddProductScreenState extends State<AddProductScreen> {
           if (_isLoading)
             const Padding(
               padding: EdgeInsets.all(16),
-              child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
             )
           else
             TextButton.icon(
               onPressed: _saveProduct,
               icon: const Icon(Icons.save, color: AppTheme.primary),
-              label: const Text('Save', style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold)),
+              label: const Text(
+                'Save',
+                style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold),
+              ),
             ),
         ],
       ),
@@ -282,10 +292,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   children: [
                     _sectionHeader('Product Images'),
                     const SizedBox(height: 12),
-                    FjCard(
-                      padding: const EdgeInsets.all(12),
-                      child: _buildImagesPicker(),
-                    ),
+                    FjCard(padding: const EdgeInsets.all(12), child: _buildImagesPicker()),
                     const SizedBox(height: 24),
                     _sectionHeader('Basic Information'),
                     const SizedBox(height: 12),
@@ -294,13 +301,20 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         children: [
                           TextFormField(
                             controller: _nameController,
-                            decoration: const InputDecoration(labelText: 'Product Name *', hintText: 'e.g. Basmati Rice'),
-                            validator: (v) => v == null || v.trim().isEmpty ? 'Product name is required' : null,
+                            decoration: const InputDecoration(
+                              labelText: 'Product Name *',
+                              hintText: 'e.g. Basmati Rice',
+                            ),
+                            validator: (v) =>
+                                v == null || v.trim().isEmpty ? 'Product name is required' : null,
                           ),
                           const SizedBox(height: 16),
                           TextFormField(
                             controller: _descriptionController,
-                            decoration: const InputDecoration(labelText: 'Description', hintText: 'Product details...'),
+                            decoration: const InputDecoration(
+                              labelText: 'Description',
+                              hintText: 'Product details...',
+                            ),
                             maxLines: 3,
                           ),
                           const SizedBox(height: 16),
@@ -308,10 +322,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
                             initialValue: _selectedCategory,
                             decoration: const InputDecoration(labelText: 'Category'),
                             items: ProductCategory.values
-                                .map((cat) => DropdownMenuItem(
-                                      value: cat,
-                                      child: Text(cat.localizedName(AppLocalizations.of(context)!.localeName)),
-                                    ))
+                                .map(
+                                  (cat) => DropdownMenuItem(
+                                    value: cat,
+                                    child: Text(
+                                      cat.localizedName(AppLocalizations.of(context)!.localeName),
+                                    ),
+                                  ),
+                                )
                                 .toList(),
                             onChanged: (v) => setState(() => _selectedCategory = v!),
                           ),
@@ -327,19 +345,30 @@ class _AddProductScreenState extends State<AddProductScreen> {
                           Expanded(
                             child: TextFormField(
                               controller: _priceController,
-                              decoration: const InputDecoration(labelText: 'Price (₹) *', prefixText: '₹ '),
+                              decoration: const InputDecoration(
+                                labelText: 'Price (₹) *',
+                                prefixText: '₹ ',
+                              ),
                               keyboardType: TextInputType.number,
-                              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
-                              validator: (v) => v == null || v.trim().isEmpty ? 'Price is required' : null,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                              ],
+                              validator: (v) =>
+                                  v == null || v.trim().isEmpty ? 'Price is required' : null,
                             ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: TextFormField(
                               controller: _originalPriceController,
-                              decoration: const InputDecoration(labelText: 'MRP (₹)', prefixText: '₹ '),
+                              decoration: const InputDecoration(
+                                labelText: 'MRP (₹)',
+                                prefixText: '₹ ',
+                              ),
                               keyboardType: TextInputType.number,
-                              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                              ],
                             ),
                           ),
                         ],
@@ -353,7 +382,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                         children: [
                           TextFormField(
                             controller: _unitController,
-                            decoration: const InputDecoration(labelText: 'Unit', hintText: 'kg, g, piece, packet, litre...'),
+                            decoration: const InputDecoration(
+                              labelText: 'Unit',
+                              hintText: 'kg, g, piece, packet, litre...',
+                            ),
                           ),
                           const SizedBox(height: 16),
                           Row(
@@ -364,7 +396,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                   decoration: const InputDecoration(labelText: 'Stock Quantity *'),
                                   keyboardType: TextInputType.number,
                                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                  validator: (v) => v == null || v.trim().isEmpty ? 'Stock is required' : null,
+                                  validator: (v) =>
+                                      v == null || v.trim().isEmpty ? 'Stock is required' : null,
                                 ),
                               ),
                               const SizedBox(width: 12),
@@ -410,7 +443,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
                               Expanded(
                                 child: TextFormField(
                                   controller: _hsnController,
-                                  decoration: const InputDecoration(labelText: 'HSN Code (optional)'),
+                                  decoration: const InputDecoration(
+                                    labelText: 'HSN Code (optional)',
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 12),
@@ -437,7 +472,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                               Expanded(
                                 child: TextFormField(
                                   controller: _tagController,
-                                  decoration: const InputDecoration(labelText: 'Add tag', hintText: 'e.g. organic, local'),
+                                  decoration: const InputDecoration(
+                                    labelText: 'Add tag',
+                                    hintText: 'e.g. organic, local',
+                                  ),
                                   onFieldSubmitted: (_) => _addTag(),
                                 ),
                               ),
@@ -454,11 +492,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
                               spacing: 8,
                               runSpacing: 4,
                               children: _tags
-                                  .map((tag) => Chip(
-                                        label: Text(tag),
-                                        onDeleted: () => setState(() => _tags.remove(tag)),
-                                        deleteIcon: const Icon(Icons.close, size: 16),
-                                      ))
+                                  .map(
+                                    (tag) => Chip(
+                                      label: Text(tag),
+                                      onDeleted: () => setState(() => _tags.remove(tag)),
+                                      deleteIcon: const Icon(Icons.close, size: 16),
+                                    ),
+                                  )
                                   .toList(),
                             ),
                           ],
@@ -473,7 +513,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       child: Column(
                         children: [
                           SwitchListTile(
-                            title: const Text('Featured Product', style: TextStyle(fontWeight: FontWeight.w700)),
+                            title: const Text(
+                              'Featured Product',
+                              style: TextStyle(fontWeight: FontWeight.w700),
+                            ),
                             subtitle: const Text('Show in Featured / Fufaji\'s Pick section'),
                             value: _isFeatured,
                             activeThumbColor: AppTheme.primary,
@@ -481,8 +524,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
                           ),
                           const Divider(height: 1),
                           SwitchListTile(
-                            title: const Text('Available for Sale', style: TextStyle(fontWeight: FontWeight.w700)),
-                            subtitle: const Text('Customers can order this product', style: TextStyle(fontWeight: FontWeight.w700)),
+                            title: const Text(
+                              'Available for Sale',
+                              style: TextStyle(fontWeight: FontWeight.w700),
+                            ),
+                            subtitle: const Text(
+                              'Customers can order this product',
+                              style: TextStyle(fontWeight: FontWeight.w700),
+                            ),
                             value: _isAvailable,
                             activeThumbColor: AppTheme.success,
                             onChanged: (v) => setState(() => _isAvailable = v),
@@ -509,11 +558,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   Widget _sectionHeader(String title) {
     return Text(
       title,
-      style: const TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-        color: AppTheme.grey700,
-      ),
+      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.grey700),
     );
   }
 
@@ -635,10 +680,7 @@ class _BarcodeScannerPageState extends State<_BarcodeScannerPage> {
       appBar: AppBar(
         title: const Text('Scan Barcode', style: TextStyle(fontWeight: FontWeight.w700)),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.flash_on),
-            onPressed: () => _controller.toggleTorch(),
-          ),
+          IconButton(icon: const Icon(Icons.flash_on), onPressed: () => _controller.toggleTorch()),
         ],
       ),
       body: MobileScanner(

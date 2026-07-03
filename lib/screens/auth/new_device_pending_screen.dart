@@ -33,7 +33,7 @@ class NewDevicePendingScreen extends StatelessWidget {
                   Navigator.of(context).pop(); // Go back to login screen
                 },
                 child: const Text('Return to Login'),
-              )
+              ),
             ],
           ),
         ),

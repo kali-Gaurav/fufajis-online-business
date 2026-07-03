@@ -195,12 +195,7 @@ class FirebaseOfflineCacheService extends ChangeNotifier {
     Map<String, dynamic> data,
   ) async {
     final cacheKey = '${collection}_$documentId';
-    await save(
-      cacheKey,
-      data,
-      boxName: _cacheBoxName,
-      ttl: const Duration(days: 7),
-    );
+    await save(cacheKey, data, boxName: _cacheBoxName, ttl: const Duration(days: 7));
   }
 
   /// Get cached document
@@ -210,17 +205,9 @@ class FirebaseOfflineCacheService extends ChangeNotifier {
   }
 
   /// Save collection snapshot to cache
-  Future<void> cacheCollection(
-    String collection,
-    List<Map<String, dynamic>> documents,
-  ) async {
+  Future<void> cacheCollection(String collection, List<Map<String, dynamic>> documents) async {
     final cacheKey = '${collection}_list';
-    await save(
-      cacheKey,
-      documents,
-      boxName: _cacheBoxName,
-      ttl: const Duration(hours: 6),
-    );
+    await save(cacheKey, documents, boxName: _cacheBoxName, ttl: const Duration(hours: 6));
   }
 
   /// Get cached collection

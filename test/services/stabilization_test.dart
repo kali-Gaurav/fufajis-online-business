@@ -25,10 +25,7 @@ class FakeRDSDatabaseService extends RDSDatabaseService {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> rows(
-    String sql, {
-    List<dynamic>? params,
-  }) async {
+  Future<List<Map<String, dynamic>>> rows(String sql, {List<dynamic>? params}) async {
     lastSql = sql;
     lastParams = params;
     return mockRows;
@@ -90,7 +87,7 @@ void main() {
 
       // Postgres mock response for Order B status log
       fakeRds.mockRows = [
-        {'to_status': 'delivered'}
+        {'to_status': 'delivered'},
       ];
 
       final res = await reconciliationService.reconcileOrders();
@@ -143,7 +140,7 @@ void main() {
 
       // Postgres inventory table says baseline is 85
       fakeRds.mockRows = [
-        {'current_stock': 85}
+        {'current_stock': 85},
       ];
 
       final res = await reconciliationService.reconcileInventory();
@@ -161,9 +158,7 @@ void main() {
       fakeWalletRecon.gatewayResult = true;
 
       // Seed a user to check Level 1
-      await fakeFirestore.collection('users').doc('user_wallet_test').set({
-        'name': 'Ramesh Kumar',
-      });
+      await fakeFirestore.collection('users').doc('user_wallet_test').set({'name': 'Ramesh Kumar'});
 
       final res = await reconciliationService.reconcileWallet();
 
@@ -174,7 +169,7 @@ void main() {
 
     test('5. Delivery Reconciliation - Missing COD ledger detection', () async {
       const orderId = 'order_cod_recon';
-      
+
       // Seed a delivered COD order in Firestore
       await fakeFirestore.collection('orders').doc(orderId).set({
         'paymentMethod': 'cod',

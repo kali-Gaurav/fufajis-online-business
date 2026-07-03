@@ -15,8 +15,7 @@ class SmartDispatchScreen extends StatefulWidget {
 }
 
 class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
-  final DeliveryClusteringService _clusteringService =
-      DeliveryClusteringService();
+  final DeliveryClusteringService _clusteringService = DeliveryClusteringService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   List<OrderModel> _pendingOrders = [];
@@ -56,22 +55,19 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
     try {
       final snap = await _firestore
           .collection('orders')
-          .where('status', whereIn: [
-            OrderStatus.confirmed.toString(),
-            OrderStatus.packed.toString(),
-          ])
+          .where(
+            'status',
+            whereIn: [OrderStatus.confirmed.toString(), OrderStatus.packed.toString()],
+          )
           .orderBy('createdAt')
           .get();
 
-      _pendingOrders = snap.docs
-          .map((d) => OrderModel.fromMap(d.data()))
-          .toList();
+      _pendingOrders = snap.docs.map((d) => OrderModel.fromMap(d.data())).toList();
 
       // Pre-fetch OTP-less eligibility
       final customerIds = _pendingOrders.map((o) => o.customerId).toSet();
       for (final cid in customerIds) {
-        _otplessCache[cid] =
-            await _clusteringService.isOtplessEligible(cid);
+        _otplessCache[cid] = await _clusteringService.isOtplessEligible(cid);
       }
     } catch (e) {
       setState(() => _error = 'Failed to load orders: $e');
@@ -88,11 +84,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
 
       _agents = snap.docs.map((d) {
         final data = d.data();
-        return {
-          'id': d.id,
-          'name': data['name'] ?? 'Agent',
-          'phone': data['phoneNumber'] ?? '',
-        };
+        return {'id': d.id, 'name': data['name'] ?? 'Agent', 'phone': data['phoneNumber'] ?? ''};
       }).toList();
     } catch (e) {
       // Non-fatal: agents may be empty
@@ -160,9 +152,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'Cluster ${cluster.id} dispatched to ${agent['name']}',
-            ),
+            content: Text('Cluster ${cluster.id} dispatched to ${agent['name']}'),
             backgroundColor: AppTheme.success,
           ),
         );
@@ -176,10 +166,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Dispatch failed: $e'),
-            backgroundColor: AppTheme.error,
-          ),
+          SnackBar(content: Text('Dispatch failed: $e'), backgroundColor: AppTheme.error),
         );
       }
     } finally {
@@ -189,14 +176,12 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
 
   // ── Drag-drop: move order to another cluster ──────────────────────────────
 
-  void _moveOrderToCluster(OrderModel order, String fromClusterId,
-      String toClusterId) {
+  void _moveOrderToCluster(OrderModel order, String fromClusterId, String toClusterId) {
     setState(() {
       final fromCluster = _clusters.firstWhere((c) => c.id == fromClusterId);
       final toCluster = _clusters.firstWhere((c) => c.id == toClusterId);
 
-      final fromOrders = List<OrderModel>.from(fromCluster.orders)
-        ..remove(order);
+      final fromOrders = List<OrderModel>.from(fromCluster.orders)..remove(order);
       final toOrders = List<OrderModel>.from(toCluster.orders)..add(order);
 
       final fromIdx = _clusters.indexOf(fromCluster);
@@ -231,27 +216,19 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
       appBar: AppBar(
         title: const Text('Smart Dispatch', style: TextStyle(fontWeight: FontWeight.w700)),
         actions: [
-          IconButton(
-            onPressed: _loadData,
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Refresh',
-          ),
+          IconButton(onPressed: _loadData, icon: const Icon(Icons.refresh), tooltip: 'Refresh'),
         ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent))
           : _error != null
-              ? _buildError()
-              : Column(
-                  children: [
-                    _buildTopBar(),
-                    Expanded(
-                      child: _clusters.isEmpty
-                          ? _buildEmptyState()
-                          : _buildClusterList(),
-                    ),
-                  ],
-                ),
+          ? _buildError()
+          : Column(
+              children: [
+                _buildTopBar(),
+                Expanded(child: _clusters.isEmpty ? _buildEmptyState() : _buildClusterList()),
+              ],
+            ),
     );
   }
 
@@ -282,38 +259,26 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
               children: [
                 Text(
                   '${_pendingOrders.length} Pending Orders',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
+                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                 ),
                 Text(
                   '${_agents.length} agents available',
-                  style: const TextStyle(
-                    color: AppTheme.grey600,
-                    fontSize: 12,
-                  ),
+                  style: const TextStyle(color: AppTheme.grey600, fontSize: 12),
                 ),
               ],
             ),
           ),
           ElevatedButton.icon(
-            onPressed:
-                _pendingOrders.isEmpty || _isClustering ? null : _autocluster,
+            onPressed: _pendingOrders.isEmpty || _isClustering ? null : _autocluster,
             icon: _isClustering
                 ? const SizedBox(
                     width: 16,
                     height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: AppTheme.white,
-                    ),
+                    child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.white),
                   )
                 : const Icon(Icons.auto_awesome),
             label: const Text('Auto Cluster'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primary,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary),
           ),
         ],
       ),
@@ -328,15 +293,9 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
           children: [
             Icon(Icons.check_circle_outline, size: 64, color: AppTheme.success),
             SizedBox(height: 16),
-            Text(
-              'No pending orders!',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            ),
+            Text('No pending orders!', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             SizedBox(height: 8),
-            Text(
-              'All orders have been dispatched.',
-              style: TextStyle(color: AppTheme.grey600),
-            ),
+            Text('All orders have been dispatched.', style: TextStyle(color: AppTheme.grey600)),
           ],
         ),
       );
@@ -391,8 +350,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
             Row(
               children: [
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: AppTheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
@@ -410,10 +368,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
                 Expanded(
                   child: Text(
                     cluster.areaLabel,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                    ),
+                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -425,15 +380,13 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
             // Stats row
             Row(
               children: [
-                _stat(
-                    Icons.shopping_bag_outlined,
-                    '${cluster.orderCount} orders',
-                    AppTheme.info),
+                _stat(Icons.shopping_bag_outlined, '${cluster.orderCount} orders', AppTheme.info),
                 const SizedBox(width: 16),
                 _stat(
-                    Icons.route,
-                    '${cluster.totalDistanceKm.toStringAsFixed(1)} km',
-                    AppTheme.info),
+                  Icons.route,
+                  '${cluster.totalDistanceKm.toStringAsFixed(1)} km',
+                  AppTheme.info,
+                ),
                 const SizedBox(width: 16),
                 _stat(Icons.schedule, '~$minutes min', AppTheme.warning),
               ],
@@ -442,9 +395,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
             const Divider(height: 20),
 
             // Orders list with drag targets
-            ...cluster.orders.map(
-              (order) => _buildOrderRow(order, cluster),
-            ),
+            ...cluster.orders.map((order) => _buildOrderRow(order, cluster)),
 
             const SizedBox(height: 12),
 
@@ -472,9 +423,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
             // Agent selector + dispatch
             Row(
               children: [
-                Expanded(
-                  child: _buildAgentDropdown(cluster),
-                ),
+                Expanded(child: _buildAgentDropdown(cluster)),
                 const SizedBox(width: 12),
                 ElevatedButton(
                   onPressed: _isDispatching || agent == null
@@ -482,8 +431,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
                       : () => _dispatchCluster(cluster),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.info,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 14),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                   ),
                   child: const Text('Dispatch'),
                 ),
@@ -518,10 +466,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
         child: Container(
           padding: const EdgeInsets.all(12),
           color: AppTheme.primary.withValues(alpha: 0.9),
-          child: Text(
-            '#${order.orderNumber}',
-            style: const TextStyle(color: AppTheme.white),
-          ),
+          child: Text('#${order.orderNumber}', style: const TextStyle(color: AppTheme.white)),
         ),
       ),
       child: DragTarget<Map<String, String>>(
@@ -536,7 +481,9 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
               for (final c in _clusters) {
                 try {
                   return c.orders.firstWhere((o) => o.id == draggedOrderId);
-                } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
+                } catch (e, stack) {
+                  LoggingService().error('Silent error caught', e, stack);
+                }
               }
               return order;
             },
@@ -549,13 +496,9 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
             margin: const EdgeInsets.symmetric(vertical: 3),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: isHovered
-                  ? AppTheme.primary.withValues(alpha: 0.08)
-                  : AppTheme.grey50,
+              color: isHovered ? AppTheme.primary.withValues(alpha: 0.08) : AppTheme.grey50,
               borderRadius: BorderRadius.circular(8),
-              border: isHovered
-                  ? Border.all(color: AppTheme.primary, width: 1.5)
-                  : null,
+              border: isHovered ? Border.all(color: AppTheme.primary, width: 1.5) : null,
             ),
             child: Row(
               children: [
@@ -585,24 +528,17 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
                         children: [
                           Text(
                             '#${order.orderNumber}',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                            ),
+                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
                           ),
                           const SizedBox(width: 6),
                           Text(
                             order.customerName,
-                            style: const TextStyle(
-                              color: AppTheme.grey700,
-                              fontSize: 13,
-                            ),
+                            style: const TextStyle(color: AppTheme.grey700, fontSize: 13),
                           ),
                           if (otpless) ...[
                             const SizedBox(width: 6),
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
                                 color: AppTheme.success.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(4),
@@ -621,10 +557,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
                       ),
                       Text(
                         order.deliveryAddress.fullAddress,
-                        style: const TextStyle(
-                          color: AppTheme.grey600,
-                          fontSize: 11,
-                        ),
+                        style: const TextStyle(color: AppTheme.grey600, fontSize: 11),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -633,14 +566,10 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
                 ),
                 Text(
                   '₹${order.totalAmount.toDouble().toStringAsFixed(0)}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
+                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
                 ),
                 const SizedBox(width: 6),
-                const Icon(Icons.drag_indicator,
-                    size: 18, color: AppTheme.grey400),
+                const Icon(Icons.drag_indicator, size: 18, color: AppTheme.grey400),
               ],
             ),
           );
@@ -655,20 +584,14 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
       decoration: InputDecoration(
         labelText: 'Assign Agent',
         isDense: true,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
       ),
       items: [
-        const DropdownMenuItem<String>(
-          value: null,
-          child: Text('Select Agent'),
-        ),
+        const DropdownMenuItem<String>(value: null, child: Text('Select Agent')),
         ..._agents.map(
-          (a) => DropdownMenuItem<String>(
-            value: a['id'] as String,
-            child: Text(a['name'] as String),
-          ),
+          (a) =>
+              DropdownMenuItem<String>(value: a['id'] as String, child: Text(a['name'] as String)),
         ),
       ],
       onChanged: (val) {

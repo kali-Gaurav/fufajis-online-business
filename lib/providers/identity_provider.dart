@@ -4,7 +4,7 @@ import '../services/identity_service.dart';
 
 class IdentityProvider with ChangeNotifier {
   final IdentityService _identityService = IdentityService();
-  
+
   List<ContactModel> _contacts = [];
   bool _isLoading = false;
   String? _error;

@@ -96,7 +96,41 @@
         { "fieldPath": "isActive", "order": "ASCENDING" },
         { "fieldPath": "endTime", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "products",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "keywords", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "isAvailable", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "products",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "category", "order": "ASCENDING" },
+        { "fieldPath": "isAvailable", "order": "ASCENDING" },
+        { "fieldPath": "stock", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "products",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isAvailable", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
     }
   ],
-  "fieldOverrides": []
+  "fieldOverrides": [
+    {
+      "collectionGroup": "products",
+      "fieldPath": "keywords",
+      "indexes": [
+        { "order": "ASCENDING" },
+        { "arrayConfig": "CONTAINS" }
+      ]
+    }
+  ]
 }

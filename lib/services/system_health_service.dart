@@ -24,7 +24,7 @@ class HealthStatus {
 
 class SystemHealthService extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
+
   Map<String, HealthStatus> _healthStates = {};
   Map<String, HealthStatus> get healthStates => _healthStates;
 
@@ -35,22 +35,41 @@ class SystemHealthService extends ChangeNotifier {
   void _initStates() {
     final now = DateTime.now();
     _healthStates = {
-      'Firebase Firestore': HealthStatus(serviceName: 'Firebase Firestore', status: ServiceStatus.unknown, message: 'Waiting for ping...', lastChecked: now),
-      'AWS RDS (Postgres)': HealthStatus(serviceName: 'AWS RDS (Postgres)', status: ServiceStatus.unknown, message: 'Waiting for ping...', lastChecked: now),
-      'Upstash Redis': HealthStatus(serviceName: 'Upstash Redis', status: ServiceStatus.unknown, message: 'Waiting for ping...', lastChecked: now),
-      'AWS S3 (Storage)': HealthStatus(serviceName: 'AWS S3 (Storage)', status: ServiceStatus.unknown, message: 'Waiting for ping...', lastChecked: now),
-      'AWS Bedrock (AI)': HealthStatus(serviceName: 'AWS Bedrock (AI)', status: ServiceStatus.unknown, message: 'Waiting for ping...', lastChecked: now),
+      'Firebase Firestore': HealthStatus(
+        serviceName: 'Firebase Firestore',
+        status: ServiceStatus.unknown,
+        message: 'Waiting for ping...',
+        lastChecked: now,
+      ),
+      'AWS RDS (Postgres)': HealthStatus(
+        serviceName: 'AWS RDS (Postgres)',
+        status: ServiceStatus.unknown,
+        message: 'Waiting for ping...',
+        lastChecked: now,
+      ),
+      'Upstash Redis': HealthStatus(
+        serviceName: 'Upstash Redis',
+        status: ServiceStatus.unknown,
+        message: 'Waiting for ping...',
+        lastChecked: now,
+      ),
+      'AWS S3 (Storage)': HealthStatus(
+        serviceName: 'AWS S3 (Storage)',
+        status: ServiceStatus.unknown,
+        message: 'Waiting for ping...',
+        lastChecked: now,
+      ),
+      'AWS Bedrock (AI)': HealthStatus(
+        serviceName: 'AWS Bedrock (AI)',
+        status: ServiceStatus.unknown,
+        message: 'Waiting for ping...',
+        lastChecked: now,
+      ),
     };
   }
 
   Future<void> runFullDiagnostic() async {
-    await Future.wait([
-      _pingFirestore(),
-      _pingRDS(),
-      _pingRedis(),
-      _pingStorage(),
-      _pingBedrock(),
-    ]);
+    await Future.wait([_pingFirestore(), _pingRDS(), _pingRedis(), _pingStorage(), _pingBedrock()]);
     notifyListeners();
   }
 
@@ -58,7 +77,11 @@ class SystemHealthService extends ChangeNotifier {
     final start = DateTime.now();
     try {
       // Very light query to test connectivity
-      await _firestore.collection('system_health_checks').limit(1).get().timeout(const Duration(seconds: 3));
+      await _firestore
+          .collection('system_health_checks')
+          .limit(1)
+          .get()
+          .timeout(const Duration(seconds: 3));
       final latency = DateTime.now().difference(start);
       _updateStatus('Firebase Firestore', ServiceStatus.healthy, 'Operational', latency);
     } catch (e) {
@@ -71,18 +94,17 @@ class SystemHealthService extends ChangeNotifier {
     try {
       final redisUrl = AppConfig.upstashRedisRestUrl;
       final redisToken = AppConfig.upstashRedisRestToken;
-      
+
       if (redisUrl.isEmpty) {
         _updateStatus('Upstash Redis', ServiceStatus.degraded, 'Missing URL Configuration', null);
         return;
       }
 
       final url = redisUrl.endsWith('/') ? '${redisUrl}ping' : '$redisUrl/ping';
-      
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {'Authorization': 'Bearer $redisToken'},
-      ).timeout(const Duration(seconds: 3));
+
+      final response = await http
+          .get(Uri.parse(url), headers: {'Authorization': 'Bearer $redisToken'})
+          .timeout(const Duration(seconds: 3));
 
       if (response.statusCode == 200) {
         final latency = DateTime.now().difference(start);
@@ -100,13 +122,23 @@ class SystemHealthService extends ChangeNotifier {
   Future<void> _pingStorage() async {
     // Simulated ping for AWS S3
     await Future.delayed(const Duration(milliseconds: 300));
-    _updateStatus('AWS S3 (Storage)', ServiceStatus.healthy, 'Operational', const Duration(milliseconds: 300));
+    _updateStatus(
+      'AWS S3 (Storage)',
+      ServiceStatus.healthy,
+      'Operational',
+      const Duration(milliseconds: 300),
+    );
   }
 
   Future<void> _pingBedrock() async {
     // Simulated ping for AWS Bedrock
     await Future.delayed(const Duration(milliseconds: 600));
-    _updateStatus('AWS Bedrock (AI)', ServiceStatus.healthy, 'Operational', const Duration(milliseconds: 600));
+    _updateStatus(
+      'AWS Bedrock (AI)',
+      ServiceStatus.healthy,
+      'Operational',
+      const Duration(milliseconds: 600),
+    );
   }
 
   Future<void> _pingRDS() async {

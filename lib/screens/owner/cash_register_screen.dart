@@ -109,15 +109,10 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
             .where('isAvailable', isEqualTo: true)
             .orderBy('name')
             .get();
-        final products = snap.docs
-            .map((d) => ProductModel.fromMap(d.data()))
-            .toList();
+        final products = snap.docs.map((d) => ProductModel.fromMap(d.data())).toList();
 
         // Cache to Hive for offline use
-        await _storage.put(
-          'pos_products_cache',
-          products.map((p) => p.toMap()).toList(),
-        );
+        await _storage.put('pos_products_cache', products.map((p) => p.toMap()).toList());
 
         setState(() {
           _allProducts = products;
@@ -202,16 +197,14 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
   }
 
   // ── Totals ────────────────────────────────────────────────────────────
-  double get _totalAmount =>
-      _billItems.fold(0.0, (total, item) => total + item.lineTotal);
+  double get _totalAmount => _billItems.fold(0.0, (total, item) => total + item.lineTotal);
 
   // ── Save order to Firestore (or queue if offline) ────────────────────
   Future<OrderModel?> _buildOrder(String paymentMethod) async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final user = authProvider.currentUser;
     final now = DateTime.now();
-    final orderNumber =
-        'POS-${now.millisecondsSinceEpoch.toString().substring(6)}';
+    final orderNumber = 'POS-${now.millisecondsSinceEpoch.toString().substring(6)}';
 
     final items = _billItems.map((bi) {
       return OrderItem(
@@ -238,9 +231,7 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
       discount: MonetaryValue(0),
       tax: MonetaryValue(0),
       totalAmount: MonetaryValue(_totalAmount),
-      paymentMethod: paymentMethod == 'UPI'
-          ? PaymentMethod.upi
-          : PaymentMethod.cod,
+      paymentMethod: paymentMethod == 'UPI' ? PaymentMethod.upi : PaymentMethod.cod,
       paymentStatus: 'paid',
       status: OrderStatus.delivered,
       deliveryAddress: Address(
@@ -277,15 +268,11 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
       }
 
       if (_isOnline) {
-        await FirebaseFirestore.instance
-            .collection('orders')
-            .doc(order.id)
-            .set(order.toMap());
+        await FirebaseFirestore.instance.collection('orders').doc(order.id).set(order.toMap());
       } else {
         // Offline: cache locally in Hive until connectivity returns
         const pendingKey = 'pending_pos_orders';
-        final existing =
-            (_storage.get(pendingKey) as List?) ?? [];
+        final existing = (_storage.get(pendingKey) as List?) ?? [];
         existing.add(order.toMap());
         await _storage.put(pendingKey, existing);
         _showSnack('Offline: order saved locally, will sync when online.');
@@ -312,8 +299,7 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
 
   void _showSnack(String msg) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   // ── Cash change calculator dialog ─────────────────────────────────────
@@ -347,39 +333,34 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
               ),
               const SizedBox(height: 12),
               if (_cashGivenCtrl.text.isNotEmpty) ...[
-                Builder(builder: (_) {
-                  final given =
-                      double.tryParse(_cashGivenCtrl.text) ?? 0;
-                  final change = given - _totalAmount;
-                  return Column(
-                    children: [
-                      Text(
-                        change >= 0
-                            ? 'Change: ₹${change.round()}'
-                            : 'Insufficient! Short by ₹${(-change).round()}',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: change >= 0
-                              ? AppTheme.success
-                              : AppTheme.error,
+                Builder(
+                  builder: (_) {
+                    final given = double.tryParse(_cashGivenCtrl.text) ?? 0;
+                    final change = given - _totalAmount;
+                    return Column(
+                      children: [
+                        Text(
+                          change >= 0
+                              ? 'Change: ₹${change.round()}'
+                              : 'Insufficient! Short by ₹${(-change).round()}',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: change >= 0 ? AppTheme.success : AppTheme.error,
+                          ),
                         ),
-                      ),
-                    ],
-                  );
-                }),
+                      ],
+                    );
+                  },
+                ),
               ],
             ],
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
-            ),
+            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
             ElevatedButton(
               onPressed: () {
-                final given =
-                    double.tryParse(_cashGivenCtrl.text) ?? 0;
+                final given = double.tryParse(_cashGivenCtrl.text) ?? 0;
                 if (given < _totalAmount) {
                   _showSnack('Insufficient cash!');
                   return;
@@ -414,8 +395,7 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
             ),
             const SizedBox(height: 12),
             if (_upiId != null && _upiId!.isNotEmpty) ...[
-              const Text('Scan to Pay:',
-                  style: TextStyle(color: AppTheme.grey600)),
+              const Text('Scan to Pay:', style: TextStyle(color: AppTheme.grey600)),
               const SizedBox(height: 8),
               Container(
                 width: 160,
@@ -428,13 +408,11 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.qr_code,
-                          size: 80, color: AppTheme.grey700),
+                      const Icon(Icons.qr_code, size: 80, color: AppTheme.grey700),
                       const SizedBox(height: 4),
                       Text(
                         _upiId!,
-                        style: const TextStyle(
-                            fontSize: 11, color: AppTheme.grey600),
+                        style: const TextStyle(fontSize: 11, color: AppTheme.grey600),
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -443,16 +421,16 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
               ),
             ] else ...[
               const Icon(Icons.qr_code, size: 80, color: AppTheme.grey400),
-              const Text('UPI ID not configured.\nSet it in Shop Settings.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: AppTheme.grey500)),
+              const Text(
+                'UPI ID not configured.\nSet it in Shop Settings.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: AppTheme.grey500),
+              ),
             ],
           ],
         ),
         actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(ctx);
@@ -481,9 +459,7 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
                 children: [
                   Icon(Icons.wifi_off, color: AppTheme.warning, size: 18),
                   SizedBox(width: 4),
-                  Text('Offline',
-                      style: TextStyle(
-                          color: AppTheme.warning, fontSize: 12)),
+                  Text('Offline', style: TextStyle(color: AppTheme.warning, fontSize: 12)),
                 ],
               ),
             ),
@@ -518,8 +494,7 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
                               },
                             )
                           : null,
-                      contentPadding:
-                          const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                     ),
                   ),
                 ),
@@ -532,8 +507,7 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
                     onTap: _openBarcodeScanner,
                     child: const Padding(
                       padding: EdgeInsets.all(10),
-                      child: Icon(Icons.qr_code_scanner,
-                          color: AppTheme.white, size: 24),
+                      child: Icon(Icons.qr_code_scanner, color: AppTheme.white, size: 24),
                     ),
                   ),
                 ),
@@ -552,25 +526,26 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
                   child: _isLoading
                       ? const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent))
                       : _filteredProducts.isEmpty
-                          ? const Center(
-                              child: Text('No products found.',
-                                  style: TextStyle(color: AppTheme.grey500)))
-                          : GridView.builder(
-                              padding: const EdgeInsets.all(8),
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
-                                crossAxisSpacing: 8,
-                                mainAxisSpacing: 8,
-                                childAspectRatio: 0.78,
-                              ),
-                              itemCount: _filteredProducts.length,
-                              itemBuilder: (ctx, i) =>
-                                  _ProductCard(
-                                product: _filteredProducts[i],
-                                onTap: () => _addToBill(_filteredProducts[i]),
-                              ),
-                            ),
+                      ? const Center(
+                          child: Text(
+                            'No products found.',
+                            style: TextStyle(color: AppTheme.grey500),
+                          ),
+                        )
+                      : GridView.builder(
+                          padding: const EdgeInsets.all(8),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                            childAspectRatio: 0.78,
+                          ),
+                          itemCount: _filteredProducts.length,
+                          itemBuilder: (ctx, i) => _ProductCard(
+                            product: _filteredProducts[i],
+                            onTap: () => _addToBill(_filteredProducts[i]),
+                          ),
+                        ),
                 ),
 
                 // Right: Bill
@@ -598,17 +573,16 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
                       Expanded(
                         child: _billItems.isEmpty
                             ? const Center(
-                                child: Text('Tap products to add',
-                                    style:
-                                        TextStyle(color: AppTheme.grey400)),
+                                child: Text(
+                                  'Tap products to add',
+                                  style: TextStyle(color: AppTheme.grey400),
+                                ),
                               )
                             : ListView.separated(
                                 padding: const EdgeInsets.all(0),
                                 itemCount: _billItems.length,
-                                separatorBuilder: (_, __) =>
-                                    const Divider(height: 1),
-                                itemBuilder: (ctx, i) =>
-                                    _BillItemRow(
+                                separatorBuilder: (_, __) => const Divider(height: 1),
+                                itemBuilder: (ctx, i) => _BillItemRow(
                                   item: _billItems[i],
                                   onIncrement: () => _incrementItem(i),
                                   onDecrement: () => _decrementItem(i),
@@ -621,20 +595,18 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
                       Container(
                         decoration: const BoxDecoration(
                           color: AppTheme.white,
-                          border: Border(
-                              top: BorderSide(color: AppTheme.grey200)),
+                          border: Border(top: BorderSide(color: AppTheme.grey200)),
                         ),
                         padding: const EdgeInsets.all(12),
                         child: Column(
                           children: [
                             Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text('Total',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18)),
+                                const Text(
+                                  'Total',
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                ),
                                 Text(
                                   '₹${_totalAmount.round()}',
                                   style: const TextStyle(
@@ -650,33 +622,26 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
                               children: [
                                 Expanded(
                                   child: ElevatedButton.icon(
-                                    onPressed: _billItems.isEmpty
-                                        ? null
-                                        : _showCashDialog,
+                                    onPressed: _billItems.isEmpty ? null : _showCashDialog,
                                     icon: const Icon(Icons.money, size: 18),
                                     label: const Text('Cash'),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: AppTheme.info,
                                       foregroundColor: AppTheme.white,
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 10),
+                                      padding: const EdgeInsets.symmetric(vertical: 10),
                                     ),
                                   ),
                                 ),
                                 const SizedBox(width: 6),
                                 Expanded(
                                   child: ElevatedButton.icon(
-                                    onPressed: _billItems.isEmpty
-                                        ? null
-                                        : _showUpiDialog,
-                                    icon: const Icon(Icons.phone_android,
-                                        size: 18),
+                                    onPressed: _billItems.isEmpty ? null : _showUpiDialog,
+                                    icon: const Icon(Icons.phone_android, size: 18),
                                     label: const Text('UPI'),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: AppTheme.info,
                                       foregroundColor: AppTheme.white,
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 10),
+                                      padding: const EdgeInsets.symmetric(vertical: 10),
                                     ),
                                   ),
                                 ),
@@ -687,10 +652,9 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
                               children: [
                                 Expanded(
                                   child: OutlinedButton.icon(
-                                    onPressed:
-                                        _billItems.isEmpty || _isProcessing
-                                            ? null
-                                            : _printBill,
+                                    onPressed: _billItems.isEmpty || _isProcessing
+                                        ? null
+                                        : _printBill,
                                     icon: const Icon(Icons.print, size: 18),
                                     label: const Text('Print'),
                                   ),
@@ -698,16 +662,12 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
                                 const SizedBox(width: 6),
                                 Expanded(
                                   child: OutlinedButton.icon(
-                                    onPressed: _billItems.isEmpty
-                                        ? null
-                                        : _clearBill,
-                                    icon: const Icon(Icons.clear_all,
-                                        size: 18),
+                                    onPressed: _billItems.isEmpty ? null : _clearBill,
+                                    icon: const Icon(Icons.clear_all, size: 18),
                                     label: const Text('Clear'),
                                     style: OutlinedButton.styleFrom(
                                       foregroundColor: AppTheme.error,
-                                      side: const BorderSide(
-                                          color: AppTheme.error),
+                                      side: const BorderSide(color: AppTheme.error),
                                     ),
                                   ),
                                 ),
@@ -732,13 +692,12 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: AppTheme.white)),
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.white),
+                  ),
                   SizedBox(width: 8),
-                  Text('Processing...',
-                      style: TextStyle(color: AppTheme.white)),
+                  Text('Processing...', style: TextStyle(color: AppTheme.white)),
                 ],
               ),
             ),
@@ -749,11 +708,9 @@ class _CashRegisterScreenState extends State<CashRegisterScreen> {
 
   Future<void> _openBarcodeScanner() async {
     // Navigate to the scanner screen in context
-    final productId = await Navigator.of(context).push<String>(
-      MaterialPageRoute(
-        builder: (_) => const _BarcodeScannerPlaceholder(),
-      ),
-    );
+    final productId = await Navigator.of(
+      context,
+    ).push<String>(MaterialPageRoute(builder: (_) => const _BarcodeScannerPlaceholder()));
     if (productId != null && productId.isNotEmpty) {
       final match = _allProducts.firstWhere(
         (p) => p.barcode == productId || p.id == productId,
@@ -801,22 +758,20 @@ class _ProductCard extends StatelessWidget {
             children: [
               Expanded(
                 child: ClipRRect(
-                  borderRadius:
-                      BorderRadius.circular(AppTheme.radiusSm),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                   child: product.imageUrl.isNotEmpty
                       ? Image.network(
                           product.imageUrl,
                           width: double.infinity,
                           fit: BoxFit.cover,
                           errorBuilder: (_, __, ___) =>
-                              const Icon(Icons.shopping_bag,
-                                  size: 40, color: AppTheme.grey300),
+                              const Icon(Icons.shopping_bag, size: 40, color: AppTheme.grey300),
                         )
                       : Container(
                           color: AppTheme.grey100,
                           child: const Center(
-                              child: Icon(Icons.shopping_bag,
-                                  size: 40, color: AppTheme.grey300)),
+                            child: Icon(Icons.shopping_bag, size: 40, color: AppTheme.grey300),
+                          ),
                         ),
                 ),
               ),
@@ -825,20 +780,18 @@ class _ProductCard extends StatelessWidget {
                 product.name,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                    fontSize: 11, fontWeight: FontWeight.w600),
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 2),
               Text(
                 '₹${product.price.toDouble().round()}',
                 style: const TextStyle(
-                    color: AppTheme.primary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13),
+                  color: AppTheme.primary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
               ),
-              Text(product.unit,
-                  style: const TextStyle(
-                      fontSize: 10, color: AppTheme.grey500)),
+              Text(product.unit, style: const TextStyle(fontSize: 10, color: AppTheme.grey500)),
             ],
           ),
         ),
@@ -875,42 +828,32 @@ class _BillItemRow extends StatelessWidget {
               children: [
                 Text(
                   item.product.name,
-                  style: const TextStyle(
-                      fontSize: 12, fontWeight: FontWeight.w600),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   '₹${item.product.price.toDouble().round()} × ${item.quantity} = ₹${item.lineTotal.round()}',
-                  style: const TextStyle(
-                      fontSize: 11, color: AppTheme.grey600),
+                  style: const TextStyle(fontSize: 11, color: AppTheme.grey600),
                 ),
               ],
             ),
           ),
           Row(
             children: [
-              _QtyBtn(
-                icon: Icons.remove,
-                onTap: onDecrement,
-                color: AppTheme.error,
-              ),
+              _QtyBtn(icon: Icons.remove, onTap: onDecrement, color: AppTheme.error),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Text('${item.quantity}',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 14)),
+                child: Text(
+                  '${item.quantity}',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
               ),
-              _QtyBtn(
-                icon: Icons.add,
-                onTap: onIncrement,
-                color: AppTheme.info,
-              ),
+              _QtyBtn(icon: Icons.add, onTap: onIncrement, color: AppTheme.info),
               const SizedBox(width: 4),
               GestureDetector(
                 onTap: onRemove,
-                child: const Icon(Icons.close,
-                    size: 16, color: AppTheme.grey500),
+                child: const Icon(Icons.close, size: 16, color: AppTheme.grey500),
               ),
             ],
           ),
@@ -925,8 +868,7 @@ class _QtyBtn extends StatelessWidget {
   final VoidCallback onTap;
   final Color color;
 
-  const _QtyBtn(
-      {required this.icon, required this.onTap, required this.color});
+  const _QtyBtn({required this.icon, required this.onTap, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -960,16 +902,11 @@ class _BarcodeScannerPlaceholder extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.qr_code_scanner,
-                size: 80, color: AppTheme.grey400),
+            const Icon(Icons.qr_code_scanner, size: 80, color: AppTheme.grey400),
             const SizedBox(height: 16),
-            const Text('Point camera at barcode',
-                style: TextStyle(color: AppTheme.grey600)),
+            const Text('Point camera at barcode', style: TextStyle(color: AppTheme.grey600)),
             const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
+            ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ],
         ),
       ),

@@ -736,7 +736,8 @@ class AppLocalizationsHi extends AppLocalizations {
   String get noSavedAddresses => 'कोई सहेजा गया पता नहीं है';
 
   @override
-  String get noSavedAddressesSubtitle => 'आपने अभी तक कोई पता नहीं सहेजा है। चेकआउट तेज़ करने के लिए एक जोड़ें।';
+  String get noSavedAddressesSubtitle =>
+      'आपने अभी तक कोई पता नहीं सहेजा है। चेकआउट तेज़ करने के लिए एक जोड़ें।';
 
   @override
   String get addShippingAddress => 'डिलीवरी का पता जोड़ें';

@@ -32,7 +32,7 @@ class ForecastService {
   Future<Map<String, double>> generateDemandForecast({int forecastDays = 7}) async {
     try {
       debugPrint('[ForecastService] Calculating product demand forecast via Holt Smoothing...');
-      
+
       // Fetch order items from Postgres in the last 60 days
       final cutoff = DateTime.now().subtract(const Duration(days: 60)).toIso8601String();
       final itemsResponse = await _client
@@ -54,7 +54,7 @@ class ForecastService {
 
         final DateTime dt = DateTime.parse(order['created_at'].toString());
         final int dayIdx = now.difference(dt).inDays;
-        
+
         if (dayIdx >= 0 && dayIdx < 60) {
           productSalesHistory.putIfAbsent(pid, () => {});
           productSalesHistory[pid]![dayIdx] = (productSalesHistory[pid]![dayIdx] ?? 0.0) + qty;
@@ -101,11 +101,13 @@ class ForecastService {
           'prediction_window': '${forecastDays}days',
           'predicted_value': forecastedSum,
           'confidence_score': 0.85,
-          'generated_at': DateTime.now().toIso8601String()
+          'generated_at': DateTime.now().toIso8601String(),
         });
       }
 
-      debugPrint('[ForecastService] Demand forecast completed. Found ${forecastResults.length} forecasts.');
+      debugPrint(
+        '[ForecastService] Demand forecast completed. Found ${forecastResults.length} forecasts.',
+      );
       return forecastResults;
     } catch (e) {
       debugPrint('[ForecastService] Demand forecast failed: $e');
@@ -117,7 +119,7 @@ class ForecastService {
   Future<double> generateRevenueForecast({int forecastDays = 7}) async {
     try {
       debugPrint('[ForecastService] Calculating revenue forecast...');
-      
+
       // Query daily net revenues from Postgres for the last 30 days
       final cutoff = DateTime.now().subtract(const Duration(days: 30)).toIso8601String();
       final revResponse = await _client
@@ -131,7 +133,7 @@ class ForecastService {
 
       // Extract sorted list of daily net revenues
       final dailyRevenues = rows.map((r) => (r['metric_value'] as num).toDouble()).toList();
-      
+
       // Apply Holt smoothing over overall daily revenue
       const double alpha = 0.5;
       const double beta = 0.2;
@@ -157,7 +159,7 @@ class ForecastService {
         'prediction_window': '${forecastDays}days',
         'predicted_value': projectedRevenue,
         'confidence_score': 0.88,
-        'generated_at': DateTime.now().toIso8601String()
+        'generated_at': DateTime.now().toIso8601String(),
       });
 
       // Write to Firestore forecasts
@@ -175,11 +177,14 @@ class ForecastService {
   }
 
   /// Leverages AWS Bedrock (Anthropic Claude proxy) to build an explainable forecast narrative
-  Future<String> generateExplainableForecastBriefing(double predictedRevenue, int forecastDays) async {
+  Future<String> generateExplainableForecastBriefing(
+    double predictedRevenue,
+    int forecastDays,
+  ) async {
     try {
       debugPrint('[ForecastService] Requesting explainable forecast narrative from AWS Bedrock...');
-      
-      final String prompt = 
+
+      final String prompt =
           'You are a senior financial advisor for Fufaji Online Business, a neighborhood commerce system. '
           'We have predicted a net revenue of ₹${predictedRevenue.toStringAsFixed(2)} for the next $forecastDays days. '
           'Provide a structured, easy-to-read business narrative in markdown. Include:\n'

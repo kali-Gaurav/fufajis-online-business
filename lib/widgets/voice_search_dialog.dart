@@ -17,10 +17,8 @@ class _VoiceSearchDialogState extends State<VoiceSearchDialog> with SingleTicker
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    )..repeat();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500))
+      ..repeat();
 
     // Start listening automatically
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -54,7 +52,7 @@ class _VoiceSearchDialogState extends State<VoiceSearchDialog> with SingleTicker
                     color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 20,
                     spreadRadius: 5,
-                  )
+                  ),
                 ],
               ),
               child: Column(
@@ -158,14 +156,10 @@ class _VoiceSearchDialogState extends State<VoiceSearchDialog> with SingleTicker
                       color: AppTheme.primary.withValues(alpha: 0.4),
                       blurRadius: 20,
                       spreadRadius: 2,
-                    )
+                    ),
                 ],
               ),
-              child: Icon(
-                isListening ? Icons.mic : Icons.mic_none,
-                size: 40,
-                color: Colors.white,
-              ),
+              child: Icon(isListening ? Icons.mic : Icons.mic_none, size: 40, color: Colors.white),
             ),
           ],
         );

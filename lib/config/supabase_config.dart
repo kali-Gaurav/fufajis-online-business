@@ -22,9 +22,7 @@ class SupabaseConfig {
       await Supabase.initialize(
         url: url,
         anonKey: anonKey,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
       );
       _client = Supabase.instance.client;
       _initialized = true;

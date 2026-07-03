@@ -37,8 +37,7 @@ class DeliveryCluster {
     return parts.take(2).join(', ');
   }
 
-  double get codTotal =>
-      orders.fold(0.0, (sum, o) => sum + o.totalAmount.toDouble());
+  double get codTotal => orders.fold(0.0, (sum, o) => sum + o.totalAmount.toDouble());
 
   /// Earnings estimate for delivery agent (₹15 per order)
   double get agentEarnings => orders.length * 15.0;
@@ -55,7 +54,7 @@ class DeliveryClusteringService {
   // ── Public API ────────────────────────────────────────────────────────────
 
   /// Groups a flat list of orders into geographic and weight-aware clusters.
-  /// 
+  ///
   /// Uses Greedy Clustering + Weight Constraint (from FastAPI backend logic)
   List<DeliveryCluster> clusterOrders(List<OrderModel> orders, {double maxWeightKg = 25.0}) {
     if (orders.isEmpty) return [];
@@ -82,7 +81,7 @@ class DeliveryClusteringService {
 
       for (final o in located) {
         if (assigned.contains(o.id)) continue;
-        
+
         final d = _distanceBetween(seedLat, seedLng, _lat(o), _lng(o));
         final orderWeight = _estimateOrderWeight(o);
 
@@ -98,36 +97,42 @@ class DeliveryClusteringService {
         final centre = _computeCentre(group);
         final totalDist = _routeDistance(optimised);
 
-        clusters.add(DeliveryCluster(
-          id: 'cluster_${++clusterIndex}',
-          orders: optimised,
-          centerLat: centre.$1,
-          centerLng: centre.$2,
-          totalDistanceKm: totalDist,
-          estimatedTime: estimateClusterTime(DeliveryCluster(
-            id: '',
+        clusters.add(
+          DeliveryCluster(
+            id: 'cluster_${++clusterIndex}',
             orders: optimised,
             centerLat: centre.$1,
             centerLng: centre.$2,
             totalDistanceKm: totalDist,
-            estimatedTime: Duration.zero,
-          )),
-        ));
+            estimatedTime: estimateClusterTime(
+              DeliveryCluster(
+                id: '',
+                orders: optimised,
+                centerLat: centre.$1,
+                centerLng: centre.$2,
+                totalDistanceKm: totalDist,
+                estimatedTime: Duration.zero,
+              ),
+            ),
+          ),
+        );
       }
     }
 
     // Unlocated orders form their own clusters (respecting weight)
     for (final o in unlocated) {
       if (assigned.contains(o.id)) continue;
-      
-      clusters.add(DeliveryCluster(
-        id: 'cluster_${++clusterIndex}_unloc',
-        orders: [o],
-        centerLat: shopLat,
-        centerLng: shopLng,
-        totalDistanceKm: 0,
-        estimatedTime: const Duration(minutes: 15),
-      ));
+
+      clusters.add(
+        DeliveryCluster(
+          id: 'cluster_${++clusterIndex}_unloc',
+          orders: [o],
+          centerLat: shopLat,
+          centerLng: shopLng,
+          totalDistanceKm: 0,
+          estimatedTime: const Duration(minutes: 15),
+        ),
+      );
     }
 
     return clusters;
@@ -138,9 +143,9 @@ class DeliveryClusteringService {
     // Or use the weight fields if available in OrderModel/OrderItem
     double weight = 0.0;
     for (var item in o.items) {
-      // In a real system, we'd pull from product metadata. 
+      // In a real system, we'd pull from product metadata.
       // For now, heuristic fallback.
-      weight += (item.quantity * 0.5); 
+      weight += (item.quantity * 0.5);
     }
     return weight;
   }
@@ -177,12 +182,12 @@ class DeliveryClusteringService {
   // ── Private helpers ───────────────────────────────────────────────────────
 
   /// Haversine distance in kilometres between two lat/lng points.
-  double _distanceBetween(
-      double lat1, double lng1, double lat2, double lng2) {
+  double _distanceBetween(double lat1, double lng1, double lat2, double lng2) {
     const r = 6371.0; // Earth radius km
     final dLat = _deg2rad(lat2 - lat1);
     final dLng = _deg2rad(lng2 - lng1);
-    final a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+    final a =
+        math.sin(dLat / 2) * math.sin(dLat / 2) +
         math.cos(_deg2rad(lat1)) *
             math.cos(_deg2rad(lat2)) *
             math.sin(dLng / 2) *
@@ -194,8 +199,7 @@ class DeliveryClusteringService {
   double _deg2rad(double deg) => deg * math.pi / 180;
 
   bool _hasLocation(OrderModel o) =>
-      o.deliveryAddress.latitude != 0.0 ||
-      o.deliveryAddress.longitude != 0.0;
+      o.deliveryAddress.latitude != 0.0 || o.deliveryAddress.longitude != 0.0;
 
   double _lat(OrderModel o) => o.deliveryAddress.latitude;
   double _lng(OrderModel o) => o.deliveryAddress.longitude;
@@ -213,7 +217,11 @@ class DeliveryClusteringService {
     double total = _distanceBetween(shopLat, shopLng, _lat(orders.first), _lng(orders.first));
     for (int i = 0; i < orders.length - 1; i++) {
       total += _distanceBetween(
-          _lat(orders[i]), _lng(orders[i]), _lat(orders[i + 1]), _lng(orders[i + 1]));
+        _lat(orders[i]),
+        _lng(orders[i]),
+        _lat(orders[i + 1]),
+        _lng(orders[i + 1]),
+      );
     }
     return total;
   }

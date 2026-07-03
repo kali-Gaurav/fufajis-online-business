@@ -8,14 +8,10 @@ class PhotoVerificationService {
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
   /// Uploads a daily freshness shelf photo for a product
-  Future<String?> uploadShelfPhoto({
-    required String productId,
-    required File imageFile,
-  }) async {
+  Future<String?> uploadShelfPhoto({required String productId, required File imageFile}) async {
     try {
       final now = DateTime.now();
-      final path =
-          'products/$productId/shelf_${now.millisecondsSinceEpoch}.jpg';
+      final path = 'products/$productId/shelf_${now.millisecondsSinceEpoch}.jpg';
       final ref = _storage.ref().child(path);
 
       final uploadTask = await ref.putFile(imageFile);

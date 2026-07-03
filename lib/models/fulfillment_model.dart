@@ -1,14 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// Enum for fulfillment task status
-enum FulfillmentStatus {
-  assigned,
-  packing,
-  ready,
-  qualityChecked,
-  rejected,
-  completed,
-}
+enum FulfillmentStatus { assigned, packing, ready, qualityChecked, rejected, completed }
 
 extension FulfillmentStatusExtension on FulfillmentStatus {
   String get displayName {
@@ -90,13 +83,13 @@ class FulfillmentItem {
           : map['createdAt'] as DateTime,
       scannedAt: map['scannedAt'] != null
           ? map['scannedAt'] is Timestamp
-              ? (map['scannedAt'] as Timestamp).toDate()
-              : map['scannedAt'] as DateTime
+                ? (map['scannedAt'] as Timestamp).toDate()
+                : map['scannedAt'] as DateTime
           : null,
       verifiedAt: map['verifiedAt'] != null
           ? map['verifiedAt'] is Timestamp
-              ? (map['verifiedAt'] as Timestamp).toDate()
-              : map['verifiedAt'] as DateTime
+                ? (map['verifiedAt'] as Timestamp).toDate()
+                : map['verifiedAt'] as DateTime
           : null,
     );
   }
@@ -191,24 +184,28 @@ class FulfillmentTask {
       shopId: map['shopId'] as String? ?? '',
       branchId: map['branchId'] as String? ?? '',
       status: FulfillmentStatus.values[map['status'] as int? ?? 0],
-      items: (map['items'] as List?)?.map((i) => FulfillmentItem.fromMap(i as Map<String, dynamic>)).toList() ?? [],
+      items:
+          (map['items'] as List?)
+              ?.map((i) => FulfillmentItem.fromMap(i as Map<String, dynamic>))
+              .toList() ??
+          [],
       createdAt: map['createdAt'] is Timestamp
           ? (map['createdAt'] as Timestamp).toDate()
           : map['createdAt'] as DateTime,
       startedAt: map['startedAt'] != null
           ? map['startedAt'] is Timestamp
-              ? (map['startedAt'] as Timestamp).toDate()
-              : map['startedAt'] as DateTime
+                ? (map['startedAt'] as Timestamp).toDate()
+                : map['startedAt'] as DateTime
           : null,
       completedAt: map['completedAt'] != null
           ? map['completedAt'] is Timestamp
-              ? (map['completedAt'] as Timestamp).toDate()
-              : map['completedAt'] as DateTime
+                ? (map['completedAt'] as Timestamp).toDate()
+                : map['completedAt'] as DateTime
           : null,
       qualityCheckedAt: map['qualityCheckedAt'] != null
           ? map['qualityCheckedAt'] is Timestamp
-              ? (map['qualityCheckedAt'] as Timestamp).toDate()
-              : map['qualityCheckedAt'] as DateTime
+                ? (map['qualityCheckedAt'] as Timestamp).toDate()
+                : map['qualityCheckedAt'] as DateTime
           : null,
       totalTimeSeconds: map['totalTimeSeconds'] as int? ?? 0,
       qualityScore: (map['qualityScore'] as num? ?? 0).toDouble(),

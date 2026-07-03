@@ -33,16 +33,16 @@ class ConsolidateDeliveryCollectionsMigration {
 
   /// List of orphaned collections to consolidate
   static const List<String> ORPHANED_COLLECTIONS = [
-    'delivery_tracking',      // → deliveryCompleted / completedAt
-    'delivery_routes',        // → route field in delivery_tasks
-    'delivery_assignments',   // → assignment field in delivery_tasks
-    'delivery_otp',           // → otp field in delivery_tasks (MUST HASH)
-    'delivery_agents',        // → riderId field already in delivery_tasks
-    'delivery_locations',     // → locationHistory array in delivery_tasks
-    'delivery_status',        // → status field in delivery_tasks
-    'delivery_history',       // → history array in delivery_tasks
+    'delivery_tracking', // → deliveryCompleted / completedAt
+    'delivery_routes', // → route field in delivery_tasks
+    'delivery_assignments', // → assignment field in delivery_tasks
+    'delivery_otp', // → otp field in delivery_tasks (MUST HASH)
+    'delivery_agents', // → riderId field already in delivery_tasks
+    'delivery_locations', // → locationHistory array in delivery_tasks
+    'delivery_status', // → status field in delivery_tasks
+    'delivery_history', // → history array in delivery_tasks
     'delivery_notifications', // → notifications collection (general)
-    'delivery_preferences',   // → preferences field in delivery_tasks
+    'delivery_preferences', // → preferences field in delivery_tasks
   ];
 
   /// Check if a collection has documents
@@ -85,8 +85,7 @@ class ConsolidateDeliveryCollectionsMigration {
       return;
     }
 
-    debugPrint(
-        '[$collName] Migrating $count documents to delivery_tasks.completedAt...');
+    debugPrint('[$collName] Migrating $count documents to delivery_tasks.completedAt...');
 
     try {
       final docs = await _firestore.collection(collName).get();
@@ -98,15 +97,11 @@ class ConsolidateDeliveryCollectionsMigration {
         final completedAt = data['completedAt'] ?? data['timestamp'];
 
         // Merge into delivery_tasks
-        batch.set(
-          _firestore.collection(FirestoreCollections.DELIVERY_TASKS).doc(deliveryId),
-          {
-            'completedAt': completedAt,
-            'migratedFrom_tracking': collName,
-            'migrationTimestamp': FieldValue.serverTimestamp(),
-          },
-          SetOptions(merge: true),
-        );
+        batch.set(_firestore.collection(FirestoreCollections.DELIVERY_TASKS).doc(deliveryId), {
+          'completedAt': completedAt,
+          'migratedFrom_tracking': collName,
+          'migrationTimestamp': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
       }
 
       await batch.commit();
@@ -137,21 +132,17 @@ class ConsolidateDeliveryCollectionsMigration {
         final data = doc.data();
         final deliveryId = data['deliveryId'] ?? data['taskId'] ?? doc.id;
 
-        batch.set(
-          _firestore.collection(FirestoreCollections.DELIVERY_TASKS).doc(deliveryId),
-          {
-            'route': {
-              'waypoints': data['waypoints'],
-              'distance': data['distance'],
-              'estimatedDuration': data['estimatedDuration'],
-              'optimizationLevel': data['optimizationLevel'],
-              'createdAt': data['createdAt'],
-            },
-            'migratedFrom_routes': collName,
-            'migrationTimestamp': FieldValue.serverTimestamp(),
+        batch.set(_firestore.collection(FirestoreCollections.DELIVERY_TASKS).doc(deliveryId), {
+          'route': {
+            'waypoints': data['waypoints'],
+            'distance': data['distance'],
+            'estimatedDuration': data['estimatedDuration'],
+            'optimizationLevel': data['optimizationLevel'],
+            'createdAt': data['createdAt'],
           },
-          SetOptions(merge: true),
-        );
+          'migratedFrom_routes': collName,
+          'migrationTimestamp': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
       }
 
       await batch.commit();
@@ -172,8 +163,7 @@ class ConsolidateDeliveryCollectionsMigration {
       return;
     }
 
-    debugPrint(
-        '[$collName] Migrating $count documents to delivery_tasks.assignment...');
+    debugPrint('[$collName] Migrating $count documents to delivery_tasks.assignment...');
 
     try {
       final docs = await _firestore.collection(collName).get();
@@ -183,22 +173,18 @@ class ConsolidateDeliveryCollectionsMigration {
         final data = doc.data();
         final deliveryId = data['orderId'] ?? data['taskId'] ?? doc.id;
 
-        batch.set(
-          _firestore.collection(FirestoreCollections.DELIVERY_TASKS).doc(deliveryId),
-          {
-            'assignment': {
-              'agentId': data['agentId'],
-              'agentName': data['agentName'],
-              'agentPhone': data['agentPhone'],
-              'assignedAt': data['assignedAt'],
-              'assignedBy': data['assignedBy'],
-              'status': data['status'],
-            },
-            'migratedFrom_assignments': collName,
-            'migrationTimestamp': FieldValue.serverTimestamp(),
+        batch.set(_firestore.collection(FirestoreCollections.DELIVERY_TASKS).doc(deliveryId), {
+          'assignment': {
+            'agentId': data['agentId'],
+            'agentName': data['agentName'],
+            'agentPhone': data['agentPhone'],
+            'assignedAt': data['assignedAt'],
+            'assignedBy': data['assignedBy'],
+            'status': data['status'],
           },
-          SetOptions(merge: true),
-        );
+          'migratedFrom_assignments': collName,
+          'migrationTimestamp': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
       }
 
       await batch.commit();
@@ -235,21 +221,17 @@ class ConsolidateDeliveryCollectionsMigration {
         final otp = data['otp'] as String?;
         final hashedOtp = otp != null ? OTPHashService.hashOTP(otp) : null;
 
-        batch.set(
-          _firestore.collection(FirestoreCollections.DELIVERY_TASKS).doc(deliveryId),
-          {
-            'otp': hashedOtp,
-            'otpGeneratedAt': data['generatedAt'],
-            'otpExpiresAt': data['expiresAt'],
-            'otpVerified': data['verified'] ?? false,
-            'otpAttempts': data['attempts'] ?? 0,
-            'otpHashAlgorithm': 'PBKDF2-SHA256',
-            'otpHashIterations': 100000,
-            'migratedFrom_otp': collName,
-            'migrationTimestamp': FieldValue.serverTimestamp(),
-          },
-          SetOptions(merge: true),
-        );
+        batch.set(_firestore.collection(FirestoreCollections.DELIVERY_TASKS).doc(deliveryId), {
+          'otp': hashedOtp,
+          'otpGeneratedAt': data['generatedAt'],
+          'otpExpiresAt': data['expiresAt'],
+          'otpVerified': data['verified'] ?? false,
+          'otpAttempts': data['attempts'] ?? 0,
+          'otpHashAlgorithm': 'PBKDF2-SHA256',
+          'otpHashIterations': 100000,
+          'migratedFrom_otp': collName,
+          'migrationTimestamp': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
       }
 
       await batch.commit();
@@ -271,8 +253,7 @@ class ConsolidateDeliveryCollectionsMigration {
       return;
     }
 
-    debugPrint(
-        '[$collName] Migrating $count documents to delivery_tasks.locationHistory...');
+    debugPrint('[$collName] Migrating $count documents to delivery_tasks.locationHistory...');
 
     try {
       final docs = await _firestore.collection(collName).get();
@@ -300,17 +281,11 @@ class ConsolidateDeliveryCollectionsMigration {
       // Merge into delivery_tasks
       final batch = _firestore.batch();
       for (final entry in locationsByDelivery.entries) {
-        batch.set(
-          _firestore
-              .collection(FirestoreCollections.DELIVERY_TASKS)
-              .doc(entry.key),
-          {
-            'locationHistory': entry.value,
-            'migratedFrom_locations': collName,
-            'migrationTimestamp': FieldValue.serverTimestamp(),
-          },
-          SetOptions(merge: true),
-        );
+        batch.set(_firestore.collection(FirestoreCollections.DELIVERY_TASKS).doc(entry.key), {
+          'locationHistory': entry.value,
+          'migratedFrom_locations': collName,
+          'migrationTimestamp': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
       }
 
       await batch.commit();
@@ -331,8 +306,7 @@ class ConsolidateDeliveryCollectionsMigration {
       return;
     }
 
-    debugPrint(
-        '[$collName] Migrating $count documents to delivery_tasks.history...');
+    debugPrint('[$collName] Migrating $count documents to delivery_tasks.history...');
 
     try {
       final docs = await _firestore.collection(collName).get();
@@ -356,17 +330,11 @@ class ConsolidateDeliveryCollectionsMigration {
 
       final batch = _firestore.batch();
       for (final entry in historyByDelivery.entries) {
-        batch.set(
-          _firestore
-              .collection(FirestoreCollections.DELIVERY_TASKS)
-              .doc(entry.key),
-          {
-            'history': entry.value,
-            'migratedFrom_history': collName,
-            'migrationTimestamp': FieldValue.serverTimestamp(),
-          },
-          SetOptions(merge: true),
-        );
+        batch.set(_firestore.collection(FirestoreCollections.DELIVERY_TASKS).doc(entry.key), {
+          'history': entry.value,
+          'migratedFrom_history': collName,
+          'migrationTimestamp': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
       }
 
       await batch.commit();
@@ -387,8 +355,7 @@ class ConsolidateDeliveryCollectionsMigration {
       return;
     }
 
-    debugPrint(
-        '[$collName] Migrating $count documents to delivery_tasks.preferences...');
+    debugPrint('[$collName] Migrating $count documents to delivery_tasks.preferences...');
 
     try {
       final docs = await _firestore.collection(collName).get();
@@ -398,20 +365,16 @@ class ConsolidateDeliveryCollectionsMigration {
         final data = doc.data();
         final deliveryId = data['deliveryId'] ?? doc.id;
 
-        batch.set(
-          _firestore.collection(FirestoreCollections.DELIVERY_TASKS).doc(deliveryId),
-          {
-            'preferences': {
-              'callBefore': data['callBefore'] ?? false,
-              'leaveAtDoor': data['leaveAtDoor'] ?? false,
-              'requireSignature': data['requireSignature'] ?? true,
-              'specialInstructions': data['specialInstructions'],
-            },
-            'migratedFrom_preferences': collName,
-            'migrationTimestamp': FieldValue.serverTimestamp(),
+        batch.set(_firestore.collection(FirestoreCollections.DELIVERY_TASKS).doc(deliveryId), {
+          'preferences': {
+            'callBefore': data['callBefore'] ?? false,
+            'leaveAtDoor': data['leaveAtDoor'] ?? false,
+            'requireSignature': data['requireSignature'] ?? true,
+            'specialInstructions': data['specialInstructions'],
           },
-          SetOptions(merge: true),
-        );
+          'migratedFrom_preferences': collName,
+          'migrationTimestamp': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
       }
 
       await batch.commit();
@@ -483,8 +446,7 @@ class ConsolidateDeliveryCollectionsMigration {
       debugPrint('$status $coll');
     }
 
-    final deliveryTasksCount =
-        await getDocumentCount(FirestoreCollections.DELIVERY_TASKS);
+    final deliveryTasksCount = await getDocumentCount(FirestoreCollections.DELIVERY_TASKS);
     debugPrint('');
     debugPrint('[$deliveryTasksCount docs] ${FirestoreCollections.DELIVERY_TASKS} (target)');
   }

@@ -54,10 +54,8 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
         _selectedStrategy = rules['strategy'] as String? ?? 'Match';
         _marginController.text = (rules['margin'] ?? 10).toString();
         _beatAmountController.text = (rules['beatAmount'] ?? 5).toString();
-        _premiumPercentageController.text = (rules['premiumPercentage'] ?? 10)
-            .toString();
-        _costPercentageController.text = (rules['costPercentage'] ?? 20)
-            .toString();
+        _premiumPercentageController.text = (rules['premiumPercentage'] ?? 10).toString();
+        _costPercentageController.text = (rules['costPercentage'] ?? 20).toString();
       });
 
       // Get pending changes count
@@ -65,9 +63,9 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
       setState(() => _pendingChangesCount = pendingChanges.length);
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading pricing rules: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading pricing rules: $e')));
       }
     } finally {
       setState(() => _isLoading = false);
@@ -110,7 +108,10 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Pricing Rules', style: TextStyle(fontWeight: FontWeight.w700)), elevation: 0),
+      appBar: AppBar(
+        title: const Text('Pricing Rules', style: TextStyle(fontWeight: FontWeight.w700)),
+        elevation: 0,
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent))
           : SingleChildScrollView(
@@ -152,10 +153,7 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
                             TextButton(
                               onPressed: () {
                                 // Navigate to pending changes screen
-                                Navigator.pushNamed(
-                                  context,
-                                  '/pending-price-changes',
-                                );
+                                Navigator.pushNamed(context, '/pending-price-changes');
                               },
                               child: const Text('View'),
                             ),
@@ -222,10 +220,7 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
                         children: [
                           const Text(
                             'Price Impact Preview',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 12),
                           _buildPriceImpactRow(
@@ -271,10 +266,7 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
                         children: [
                           const Text(
                             'Strategy Information',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 12),
                           _buildStrategyInfo(
@@ -357,18 +349,12 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
                       children: [
                         Text(
                           strategy,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           _getStrategyDescription(strategy),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
+                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                         ),
                       ],
                     ),
@@ -397,18 +383,11 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
     }
   }
 
-  Widget _buildParameterField(
-    String label,
-    TextEditingController controller,
-    String hint,
-  ) {
+  Widget _buildParameterField(String label, TextEditingController controller, String hint) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-        ),
+        Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
         TextField(
           controller: controller,
@@ -432,18 +411,12 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
           children: [
             Text(
               original,
-              style: const TextStyle(
-                decoration: TextDecoration.lineThrough,
-                color: Colors.grey,
-              ),
+              style: const TextStyle(decoration: TextDecoration.lineThrough, color: Colors.grey),
             ),
             const SizedBox(width: 8),
             Text(
               newPrice,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: AppTheme.success,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.success),
             ),
           ],
         ),
@@ -458,17 +431,11 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
         Container(
           width: 24,
           height: 24,
-          decoration: BoxDecoration(
-            color: AppTheme.info,
-            borderRadius: BorderRadius.circular(4),
-          ),
+          decoration: BoxDecoration(color: AppTheme.info, borderRadius: BorderRadius.circular(4)),
           child: const Center(
             child: Text(
               '•',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ),
         ),
@@ -477,17 +444,8 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                strategy,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                ),
-              ),
-              Text(
-                description,
-                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-              ),
+              Text(strategy, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+              Text(description, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
             ],
           ),
         ),
@@ -501,8 +459,7 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
         final beatAmount = double.tryParse(_beatAmountController.text) ?? 5;
         return basePrice - beatAmount;
       case 'Premium':
-        final premium =
-            double.tryParse(_premiumPercentageController.text) ?? 10;
+        final premium = double.tryParse(_premiumPercentageController.text) ?? 10;
         return basePrice * (1 + premium / 100);
       case 'Cost+':
         final markup = double.tryParse(_costPercentageController.text) ?? 20;

@@ -1,12 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-enum RiderShiftState {
-  offline,
-  available,
-  assigned,
-  busy,
-  on_break
-}
+enum RiderShiftState { offline, available, assigned, busy, on_break }
 
 class RiderShiftModel {
   final String id;
@@ -15,7 +9,7 @@ class RiderShiftModel {
   final RiderShiftState currentState;
   final DateTime startedAt;
   final DateTime? endedAt;
-  
+
   // Stats for the current shift
   final int totalDeliveries;
   final double totalEarnings;

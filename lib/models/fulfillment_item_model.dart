@@ -1,9 +1,5 @@
 /// Status enum for fulfillment items
-enum FulfillmentItemStatus {
-  pending,
-  packed,
-  verified,
-}
+enum FulfillmentItemStatus { pending, packed, verified }
 
 extension FulfillmentItemStatusExtension on FulfillmentItemStatus {
   String get displayName {
@@ -133,16 +129,15 @@ class FulfillmentItemModel {
       requiredQty: json['requiredQty'] as int? ?? 0,
       packedQty: json['packedQty'] as int? ?? 0,
       verifiedQty: json['verifiedQty'] as int? ?? 0,
-      status: FulfillmentItemStatusExtension.fromApiValue(
-        json['status'] as String? ?? 'PENDING',
-      ),
+      status: FulfillmentItemStatusExtension.fromApiValue(json['status'] as String? ?? 'PENDING'),
       warehouseLocation: json['warehouseLocation'] as String?,
       notes: json['notes'] as String?,
     );
   }
 
   @override
-  String toString() => 'FulfillmentItemModel(productId: $productId, '
+  String toString() =>
+      'FulfillmentItemModel(productId: $productId, '
       'required: $requiredQty, packed: $packedQty, verified: $verifiedQty, '
       'status: ${status.displayName})';
 }

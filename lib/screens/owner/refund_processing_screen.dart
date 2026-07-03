@@ -2,10 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../models/refund_request_model.dart';
 import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/admin_api_service.dart';
 import '../../services/refund_status_engine.dart';
 import '../../utils/app_theme.dart';
 
@@ -39,9 +41,7 @@ class _RefundProcessingScreenState extends State<RefundProcessingScreen> {
         .where('status', whereIn: ['pending', 'approved', 'processing'])
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs
-            .map((d) => RefundRequest.fromMap(d.data(), d.id))
-            .toList());
+        .map((snap) => snap.docs.map((d) => RefundRequest.fromMap(d.data(), d.id)).toList());
   }
 
   @override
@@ -50,7 +50,6 @@ class _RefundProcessingScreenState extends State<RefundProcessingScreen> {
     _reasonController.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -244,7 +243,11 @@ class _RefundProcessingScreenState extends State<RefundProcessingScreen> {
                   child: ElevatedButton.icon(
                     onPressed: isProcessing ? null : () => _advanceOne(refund),
                     icon: isProcessing
-                        ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.white))
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.white),
+                          )
                         : const Icon(Icons.arrow_forward),
                     label: Text(_advanceLabel(refund.status)),
                     style: ElevatedButton.styleFrom(
@@ -289,7 +292,12 @@ class _RefundProcessingScreenState extends State<RefundProcessingScreen> {
 
     setState(() => _processingIds.add(refund.id));
     try {
-      await _transitionRefund(refund: refund, newStatus: next, actorId: user.id, actorRole: _actorRole(user));
+      await _transitionRefund(
+        refund: refund,
+        newStatus: next,
+        actorId: user.id,
+        actorRole: _actorRole(user),
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -300,7 +308,9 @@ class _RefundProcessingScreenState extends State<RefundProcessingScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update refund: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to update refund: $e')));
       }
     } finally {
       if (mounted) setState(() => _processingIds.remove(refund.id));
@@ -325,13 +335,15 @@ class _RefundProcessingScreenState extends State<RefundProcessingScreen> {
         reason: reason.isEmpty ? null : reason,
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Refund marked failed.')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Refund marked failed.')));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update refund: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to update refund: $e')));
       }
     } finally {
       if (mounted) setState(() => _processingIds.remove(refund.id));
@@ -351,7 +363,12 @@ class _RefundProcessingScreenState extends State<RefundProcessingScreen> {
       final next = _nextStatus(refund.status);
       if (next == null) continue;
       try {
-        await _transitionRefund(refund: refund, newStatus: next, actorId: user.id, actorRole: _actorRole(user));
+        await _transitionRefund(
+          refund: refund,
+          newStatus: next,
+          actorId: user.id,
+          actorRole: _actorRole(user),
+        );
         succeeded++;
       } catch (_) {
         failed++;
@@ -365,9 +382,9 @@ class _RefundProcessingScreenState extends State<RefundProcessingScreen> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(failed == 0
-              ? '$succeeded refund(s) advanced.'
-              : '$succeeded advanced, $failed failed.'),
+          content: Text(
+            failed == 0 ? '$succeeded refund(s) advanced.' : '$succeeded advanced, $failed failed.',
+          ),
           backgroundColor: failed == 0 ? AppTheme.success : AppTheme.error,
         ),
       );
@@ -408,9 +425,11 @@ class _RefundProcessingScreenState extends State<RefundProcessingScreen> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(failed == 0
-              ? '$succeeded refund(s) marked failed.'
-              : '$succeeded marked failed, $failed failed to update.'),
+          content: Text(
+            failed == 0
+                ? '$succeeded refund(s) marked failed.'
+                : '$succeeded marked failed, $failed failed to update.',
+          ),
           backgroundColor: failed == 0 ? AppTheme.success : AppTheme.error,
         ),
       );
@@ -440,14 +459,15 @@ class _RefundProcessingScreenState extends State<RefundProcessingScreen> {
   }) async {
     RefundRequest current = refund;
 
-    if (current.refundMethod == RefundMethod.gateway &&
-        newStatus == RefundStatus.processing) {
+    if (current.refundMethod == RefundMethod.gateway && newStatus == RefundStatus.processing) {
       try {
-        await FirebaseFunctions.instance.httpsCallable('initiateRazorpayRefund').call(<String, dynamic>{
-          'orderId': current.orderId,
-          'refundId': current.id,
-          'amount': current.amount,
-        });
+        await FirebaseFunctions.instance.httpsCallable('initiateRazorpayRefund').call(
+          <String, dynamic>{
+            'orderId': current.orderId,
+            'refundId': current.id,
+            'amount': current.amount,
+          },
+        );
       } catch (e) {
         debugPrint('[RefundProcessing] Gateway refund call failed (non-blocking): $e');
       }
@@ -460,11 +480,27 @@ class _RefundProcessingScreenState extends State<RefundProcessingScreen> {
           if (details == null) {
             throw Exception('Bank details are required before processing this refund.');
           }
-          await FirebaseFirestore.instance.collection('refund_requests').doc(current.id).update({
-            'bankAccountHolderName': details['name'],
-            'bankAccountNumber': details['account'],
-            'bankIfsc': details['ifsc'],
-          });
+
+          // CRITICAL: Use backend API instead of direct Firestore writes
+          // Backend will:
+          // 1. Validate bank details
+          // 2. Update refund_requests atomically
+          // 3. Create audit log
+          // 4. Sync to Firestore eventually
+          try {
+            final apiService = AdminApiService();
+            await apiService.post('/admin/payments/${current.orderId}/refund', {
+              'reason': 'customer_requested',
+              'bankAccountHolderName': details['name'],
+              'bankAccountNumber': details['account'],
+              'bankIfsc': details['ifsc'],
+              'idempotencyKey': '${current.id}_bank_details_${const Uuid().v4()}',
+            });
+          } catch (e) {
+            debugPrint('[RefundProcessing] Failed to save bank details via backend: $e');
+            rethrow;
+          }
+
           current = current.copyWith(
             bankAccountHolderName: details['name'],
             bankAccountNumber: details['account'],
@@ -476,26 +512,33 @@ class _RefundProcessingScreenState extends State<RefundProcessingScreen> {
         // it fails, the owner can complete the transfer manually and record
         // a reference when advancing to `completed`.
         try {
-          final result = await FirebaseFunctions.instance.httpsCallable('initiateBankTransferRefund').call(<String, dynamic>{
-            'refundId': current.id,
-            'orderId': current.orderId,
-            'customerId': current.customerId,
-            'amount': current.amount,
-            'accountHolderName': current.bankAccountHolderName,
-            'accountNumber': current.bankAccountNumber,
-            'ifsc': current.bankIfsc,
-          });
+          final result = await FirebaseFunctions.instance
+              .httpsCallable('initiateBankTransferRefund')
+              .call(<String, dynamic>{
+                'refundId': current.id,
+                'orderId': current.orderId,
+                'customerId': current.customerId,
+                'amount': current.amount,
+                'accountHolderName': current.bankAccountHolderName,
+                'accountNumber': current.bankAccountNumber,
+                'ifsc': current.bankIfsc,
+              });
           final data = result.data;
           if (data is Map && data['success'] == true && data['payoutId'] != null) {
-            await FirebaseFirestore.instance.collection('refund_requests').doc(current.id).update({
-              'payoutId': data['payoutId'],
-            });
+            // CRITICAL: Do NOT write directly to Firestore
+            // The Cloud Function (initiateBankTransferRefund) has already initiated the payout
+            // Backend reconciliation will sync the payoutId to Firestore eventually
+            // DO NOT call Firestore.update() here — it bypasses backend validation
+
+            debugPrint('[RefundProcessing] Bank payout initiated with ID: ${data['payoutId']}');
             current = current.copyWith(payoutId: data['payoutId'] as String);
           } else if (data is Map) {
             debugPrint('[RefundProcessing] Bank transfer payout not automated: ${data['error']}');
           }
         } catch (e) {
-          debugPrint('[RefundProcessing] Bank transfer Cloud Function call failed (non-blocking): $e');
+          debugPrint(
+            '[RefundProcessing] Bank transfer Cloud Function call failed (non-blocking): $e',
+          );
         }
       } else if (newStatus == RefundStatus.completed) {
         if (current.payoutId == null || current.payoutId!.isEmpty) {
@@ -507,9 +550,24 @@ class _RefundProcessingScreenState extends State<RefundProcessingScreen> {
           if (ref == null || ref.isEmpty) {
             throw Exception('A transfer reference is required to mark this refund completed.');
           }
-          await FirebaseFirestore.instance.collection('refund_requests').doc(current.id).update({
-            'payoutId': ref,
-          });
+
+          // CRITICAL: Use backend API instead of direct Firestore writes
+          // Backend will:
+          // 1. Validate UTR format
+          // 2. Update refund_requests atomically
+          // 3. Create audit log with manual transfer reference
+          // 4. Sync to Firestore eventually
+          try {
+            final apiService = AdminApiService();
+            await apiService.post('/admin/payments/${current.orderId}/refund', {
+              'reason': 'manual_bank_transfer_confirmed',
+              'manualTransferReference': ref,
+              'idempotencyKey': '${current.id}_utr_${ref}',
+            });
+          } catch (e) {
+            debugPrint('[RefundProcessing] Failed to record transfer reference via backend: $e');
+            rethrow;
+          }
         }
       }
     }
@@ -529,7 +587,10 @@ class _RefundProcessingScreenState extends State<RefundProcessingScreen> {
     String account = '';
     String ifsc = '';
     try {
-      final userDoc = await FirebaseFirestore.instance.collection('users').doc(refund.customerId).get();
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(refund.customerId)
+          .get();
       final data = userDoc.data();
       if (data != null) {
         name = (data['name'] as String?) ?? (data['fullName'] as String?) ?? '';
@@ -572,10 +633,7 @@ class _RefundProcessingScreenState extends State<RefundProcessingScreen> {
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               if (nameCtrl.text.trim().isEmpty ||
@@ -589,7 +647,10 @@ class _RefundProcessingScreenState extends State<RefundProcessingScreen> {
                 'ifsc': ifscCtrl.text.trim().toUpperCase(),
               });
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.success, foregroundColor: AppTheme.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.success,
+              foregroundColor: AppTheme.white,
+            ),
             child: const Text('Save & Continue'),
           ),
         ],
@@ -615,13 +676,13 @@ class _RefundProcessingScreenState extends State<RefundProcessingScreen> {
           autofocus: true,
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(controller.text.trim()),
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.success, foregroundColor: AppTheme.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.success,
+              foregroundColor: AppTheme.white,
+            ),
             child: const Text('Confirm'),
           ),
         ],
@@ -634,7 +695,10 @@ class _RefundProcessingScreenState extends State<RefundProcessingScreen> {
     return showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Mark refund(s) as failed', style: TextStyle(fontWeight: FontWeight.w700)),
+        title: const Text(
+          'Mark refund(s) as failed',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
         content: TextField(
           controller: controller,
           decoration: const InputDecoration(
@@ -644,13 +708,13 @@ class _RefundProcessingScreenState extends State<RefundProcessingScreen> {
           maxLines: 3,
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(controller.text.trim()),
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.error, foregroundColor: AppTheme.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.error,
+              foregroundColor: AppTheme.white,
+            ),
             child: const Text('Mark Failed'),
           ),
         ],

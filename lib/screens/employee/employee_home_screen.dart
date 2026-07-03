@@ -71,8 +71,8 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
           .where('status', whereIn: ['confirmed', 'processing'])
           .snapshots()
           .listen((snap) {
-        if (mounted) setState(() => _pendingOrders = snap.docs.length);
-      }),
+            if (mounted) setState(() => _pendingOrders = snap.docs.length);
+          }),
     );
 
     // Assigned deliveries
@@ -83,8 +83,8 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
           .where('status', isEqualTo: 'dispatched')
           .snapshots()
           .listen((snap) {
-        if (mounted) setState(() => _assignedDeliveries = snap.docs.length);
-      }),
+            if (mounted) setState(() => _assignedDeliveries = snap.docs.length);
+          }),
     );
 
     // Low stock alerts
@@ -96,8 +96,8 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
           .where('stockQuantity', isLessThan: 10)
           .snapshots()
           .listen((snap) {
-        if (mounted) setState(() => _lowStockAlerts = snap.docs.length);
-      }),
+            if (mounted) setState(() => _lowStockAlerts = snap.docs.length);
+          }),
     );
 
     // Pending returns
@@ -108,8 +108,8 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
           .where('status', isEqualTo: 'pending')
           .snapshots()
           .listen((snap) {
-        if (mounted) setState(() => _pendingReturns = snap.docs.length);
-      }),
+            if (mounted) setState(() => _pendingReturns = snap.docs.length);
+          }),
     );
 
     // Attendance / check-in status (today)
@@ -124,13 +124,13 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
           .limit(1)
           .snapshots()
           .listen((snap) {
-        if (mounted) {
-          setState(() {
-            _isCheckedIn = snap.docs.isNotEmpty &&
-                snap.docs.first.data()['checkInTime'] != null;
-          });
-        }
-      }),
+            if (mounted) {
+              setState(() {
+                _isCheckedIn =
+                    snap.docs.isNotEmpty && snap.docs.first.data()['checkInTime'] != null;
+              });
+            }
+          }),
     );
   }
 
@@ -156,8 +156,8 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
     final greeting = now.hour < 12
         ? 'Good Morning'
         : now.hour < 17
-            ? 'Good Afternoon'
-            : 'Good Evening';
+        ? 'Good Afternoon'
+        : 'Good Evening';
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
@@ -213,12 +213,9 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                   children: [
                     CircleAvatar(
                       radius: 24,
-                      backgroundColor:
-                          const Color(0xFFFF5722).withValues(alpha: 0.12),
+                      backgroundColor: const Color(0xFFFF5722).withValues(alpha: 0.12),
                       child: Text(
-                        employeeName.isNotEmpty
-                            ? employeeName[0].toUpperCase()
-                            : 'E',
+                        employeeName.isNotEmpty ? employeeName[0].toUpperCase() : 'E',
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -233,25 +230,19 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                         children: [
                           Text(
                             '$greeting, $employeeName',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                           Row(
                             children: [
-                              const Icon(Icons.store_outlined,
-                                  size: 13, color: Colors.grey),
+                              const Icon(Icons.store_outlined, size: 13, color: Colors.grey),
                               const SizedBox(width: 4),
                               Text(
                                 branchName,
-                                style: const TextStyle(
-                                    color: Colors.grey, fontSize: 12),
+                                style: const TextStyle(color: Colors.grey, fontSize: 12),
                               ),
                               const SizedBox(width: 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 7, vertical: 2),
+                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                                 decoration: BoxDecoration(
                                   color: _isCheckedIn
                                       ? AppTheme.success.withValues(alpha: 0.1)
@@ -263,9 +254,7 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                                   style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
-                                    color: _isCheckedIn
-                                        ? AppTheme.success
-                                        : AppTheme.warning,
+                                    color: _isCheckedIn ? AppTheme.success : AppTheme.warning,
                                   ),
                                 ),
                               ),
@@ -292,8 +281,7 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                       color: const Color(0xFF6A1B9A),
                       onTap: () => Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (_) => const OrderPackingScreen()),
+                        MaterialPageRoute(builder: (_) => const OrderPackingScreen()),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -304,8 +292,7 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                       color: const Color(0xFF2E7D32),
                       onTap: () => Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (_) => const DeliveryScreen()),
+                        MaterialPageRoute(builder: (_) => const DeliveryScreen()),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -316,8 +303,7 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                       color: const Color(0xFFF57F17),
                       onTap: () => Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (_) => const ShelfRefillScreen()),
+                        MaterialPageRoute(builder: (_) => const ShelfRefillScreen()),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -328,8 +314,7 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                       color: const Color(0xFFB71C1C),
                       onTap: () => Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (_) => const ReturnsScreen()),
+                        MaterialPageRoute(builder: (_) => const ReturnsScreen()),
                       ),
                     ),
                   ],
@@ -354,8 +339,7 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                     labelHi: 'उत्पाद खोज',
                     icon: Icons.inventory_2_outlined,
                     color: AppTheme.info,
-                    onTap: () =>
-                        _openScanner(mode: ScanMode.productSearch),
+                    onTap: () => _openScanner(mode: ScanMode.productSearch),
                   ),
                   _QuickScanTile(
                     label: 'Pack Order',
@@ -363,32 +347,28 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                     icon: Icons.inventory_outlined,
                     color: const Color(0xFF6A1B9A),
                     badge: _pendingOrders,
-                    onTap: () =>
-                        _openScanner(mode: ScanMode.orderPacking),
+                    onTap: () => _openScanner(mode: ScanMode.orderPacking),
                   ),
                   _QuickScanTile(
                     label: 'Dispatch',
                     labelHi: 'डिस्पैच',
                     icon: Icons.local_shipping_outlined,
                     color: const Color(0xFFE65100),
-                    onTap: () =>
-                        _openScanner(mode: ScanMode.dispatch),
+                    onTap: () => _openScanner(mode: ScanMode.dispatch),
                   ),
                   _QuickScanTile(
                     label: 'Receive',
                     labelHi: 'स्टॉक प्राप्ति',
                     icon: Icons.move_to_inbox_outlined,
                     color: const Color(0xFF00695C),
-                    onTap: () =>
-                        _openScanner(mode: ScanMode.inventoryReceiving),
+                    onTap: () => _openScanner(mode: ScanMode.inventoryReceiving),
                   ),
                   _QuickScanTile(
                     label: 'Stock Audit',
                     labelHi: 'ऑडिट',
                     icon: Icons.assignment_outlined,
                     color: const Color(0xFF558B2F),
-                    onTap: () =>
-                        _openScanner(mode: ScanMode.inventoryAudit),
+                    onTap: () => _openScanner(mode: ScanMode.inventoryAudit),
                   ),
                   _QuickScanTile(
                     label: 'Shelf',
@@ -396,32 +376,28 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                     icon: Icons.shelves,
                     color: const Color(0xFFF57F17),
                     badge: _lowStockAlerts,
-                    onTap: () =>
-                        _openScanner(mode: ScanMode.shelfAudit),
+                    onTap: () => _openScanner(mode: ScanMode.shelfAudit),
                   ),
                   _QuickScanTile(
                     label: 'Member',
                     labelHi: 'सदस्य',
                     icon: Icons.card_membership_outlined,
                     color: const Color(0xFFAD1457),
-                    onTap: () =>
-                        _openScanner(mode: ScanMode.customerMembership),
+                    onTap: () => _openScanner(mode: ScanMode.customerMembership),
                   ),
                   _QuickScanTile(
                     label: 'Payment',
                     labelHi: 'भुगतान',
                     icon: Icons.qr_code_scanner,
                     color: const Color(0xFF4527A0),
-                    onTap: () =>
-                        _openScanner(mode: ScanMode.paymentQr),
+                    onTap: () => _openScanner(mode: ScanMode.paymentQr),
                   ),
                   _QuickScanTile(
                     label: 'Attendance',
                     labelHi: 'उपस्थिति',
                     icon: Icons.fingerprint,
                     color: const Color(0xFF37474F),
-                    onTap: () =>
-                        _openScanner(mode: ScanMode.attendance),
+                    onTap: () => _openScanner(mode: ScanMode.attendance),
                   ),
                 ],
               ),
@@ -442,8 +418,7 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                       color: AppTheme.error,
                       onTap: () => Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (_) => const ReturnsScreen()),
+                        MaterialPageRoute(builder: (_) => const ReturnsScreen()),
                       ),
                     ),
                     _TaskRow(
@@ -453,8 +428,7 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                       color: AppTheme.primary,
                       onTap: () => Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (_) => const DamageReportingScreen()),
+                        MaterialPageRoute(builder: (_) => const DamageReportingScreen()),
                       ),
                     ),
                     _TaskRow(
@@ -464,8 +438,7 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                       color: AppTheme.warning,
                       onTap: () => Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (_) => const ExpiryManagementScreen()),
+                        MaterialPageRoute(builder: (_) => const ExpiryManagementScreen()),
                       ),
                     ),
                     _TaskRow(
@@ -475,8 +448,7 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                       color: Colors.teal,
                       onTap: () => Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (_) => const InventoryTransferScreen()),
+                        MaterialPageRoute(builder: (_) => const InventoryTransferScreen()),
                       ),
                     ),
                     _TaskRow(
@@ -486,8 +458,7 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                       color: AppTheme.success,
                       onTap: () => Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (_) => const CashCollectionScreen()),
+                        MaterialPageRoute(builder: (_) => const CashCollectionScreen()),
                       ),
                     ),
                   ],
@@ -513,10 +484,7 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-      child: Text(
-        title,
-        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-      ),
+      child: Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
     );
   }
 }
@@ -558,18 +526,15 @@ class _CounterCard extends StatelessWidget {
             children: [
               if (value > 0)
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(10)),
                   child: Text(
                     '$value',
                     style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14),
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
                   ),
                 )
               else
@@ -577,8 +542,7 @@ class _CounterCard extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 label,
-                style:
-                    const TextStyle(fontSize: 11, color: Colors.grey),
+                style: const TextStyle(fontSize: 11, color: Colors.grey),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -640,16 +604,14 @@ class _QuickScanTile extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     label,
-                    style: const TextStyle(
-                        fontSize: 11, fontWeight: FontWeight.w600),
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
                     textAlign: TextAlign.center,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
                     labelHi,
-                    style:
-                        const TextStyle(fontSize: 9, color: Colors.grey),
+                    style: const TextStyle(fontSize: 9, color: Colors.grey),
                     textAlign: TextAlign.center,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -663,16 +625,14 @@ class _QuickScanTile extends StatelessWidget {
                 right: 6,
                 child: Container(
                   padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
-                  ),
+                  decoration: BoxDecoration(color: color, shape: BoxShape.circle),
                   child: Text(
                     '$badge',
                     style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -725,34 +685,23 @@ class _TaskRow extends StatelessWidget {
           ),
           child: Icon(icon, color: color, size: 20),
         ),
-        title: Text(
-          label,
-          style: const TextStyle(
-              fontSize: 14, fontWeight: FontWeight.w600),
-        ),
-        subtitle: Text(
-          labelHi,
-          style: const TextStyle(fontSize: 11, color: Colors.grey),
-        ),
+        title: Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+        subtitle: Text(labelHi, style: const TextStyle(fontSize: 11, color: Colors.grey)),
         trailing: badge > 0
             ? Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(10)),
                 child: Text(
                   '$badge',
                   style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12),
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
                 ),
               )
             : const Icon(Icons.chevron_right, color: Colors.grey),
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }

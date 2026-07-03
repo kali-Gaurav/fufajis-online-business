@@ -39,7 +39,9 @@ class InventoryRepository {
         final qty = item.quantity;
 
         if (available < qty) {
-          throw Exception('Insufficient available stock for ${item.productName}. (Available: $available, Requested: $qty)');
+          throw Exception(
+            'Insufficient available stock for ${item.productName}. (Available: $available, Requested: $qty)',
+          );
         }
 
         transaction.update(docRef, {
@@ -82,7 +84,7 @@ class InventoryRepository {
 
         // In edge cases where reserved < qty due to manual intervention, we cap it at 0
         final newReserved = (reserved - qty) >= 0 ? reserved - qty : 0;
-        
+
         transaction.update(docRef, {
           'reservedStock': newReserved,
           'committedStock': committed + qty,
@@ -104,9 +106,13 @@ class InventoryRepository {
     });
   }
 
-  /// Transactionally restores inventory. 
+  /// Transactionally restores inventory.
   /// Source defaults to 'reserved' but can be 'committed' if order was packed and then cancelled.
-  Future<void> restoreInventory(List<CartItem> items, {String branchId = 'default', String fromState = 'reserved'}) async {
+  Future<void> restoreInventory(
+    List<CartItem> items, {
+    String branchId = 'default',
+    String fromState = 'reserved',
+  }) async {
     await _firestore.runTransaction((transaction) async {
       for (final item in items) {
         final docId = '${item.productId}_$branchId';
@@ -144,7 +150,11 @@ class InventoryRepository {
   }
 
   /// Transactionally moves inventory to QC (from Committed to QCStock)
-  Future<void> qcInventory(List<CartItem> items, {String branchId = 'default', String fromState = 'committed'}) async {
+  Future<void> qcInventory(
+    List<CartItem> items, {
+    String branchId = 'default',
+    String fromState = 'committed',
+  }) async {
     await _firestore.runTransaction((transaction) async {
       for (final item in items) {
         final docId = '${item.productId}_$branchId';
@@ -182,7 +192,12 @@ class InventoryRepository {
   }
 
   /// Transactionally mark QC inventory as damaged
-  Future<void> markDamaged(String productId, int qty, {String branchId = 'default', String fromState = 'qc'}) async {
+  Future<void> markDamaged(
+    String productId,
+    int qty, {
+    String branchId = 'default',
+    String fromState = 'qc',
+  }) async {
     await _firestore.runTransaction((transaction) async {
       final docId = '${productId}_$branchId';
       final docRef = _inventoryRef.doc(docId);

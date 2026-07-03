@@ -29,7 +29,10 @@ class IdempotencyService {
   /// This should ideally be called inside a larger transaction, but since Flutter
   /// transactions wrap all reads before writes, we can use this as a standalone guard
   /// or integrate the logic directly into the business transaction.
-  Future<bool> checkAndReserveKey(String idempotencyKey, {Duration expiry = const Duration(days: 7)}) async {
+  Future<bool> checkAndReserveKey(
+    String idempotencyKey, {
+    Duration expiry = const Duration(days: 7),
+  }) async {
     final docRef = _db.collection('idempotency_keys').doc(idempotencyKey);
 
     try {

@@ -31,7 +31,6 @@ import 'payment_verification_dialog.dart';
 import '../../services/billing_service.dart';
 import '../../services/notification_retry_service.dart';
 import '../../widgets/trust/fj_trust_banner.dart';
-import '../../widgets/animated_widgets.dart';
 import '../../widgets/missing_animations.dart';
 
 class CheckoutScreen extends StatefulWidget {
@@ -110,20 +109,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         centerTitle: true,
       ),
       body: paymentProvider.isProcessing
-          ? Center(
+          ? const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  LiquidProgressBar(
-                    value: 0.6,
-                    width: 200,
-                    height: 12,
-                    color: AppTheme.primary,
-                  ),
-                  const SizedBox(height: 24),
-                  const CircularProgressIndicator(color: AppTheme.primary),
-                  const SizedBox(height: 20),
-                  const Text(
+                  LiquidProgressBar(value: 0.6, width: 200, height: 12, color: AppTheme.primary),
+                  SizedBox(height: 24),
+                  CircularProgressIndicator(color: AppTheme.primary),
+                  SizedBox(height: 20),
+                  Text(
                     'Processing Payment...',
                     style: TextStyle(
                       fontSize: 16,
@@ -131,8 +125,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       color: AppTheme.grey900,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
+                  SizedBox(height: 8),
+                  Text(
                     'Please do not press back',
                     style: TextStyle(color: AppTheme.grey500, fontSize: 13),
                   ),
@@ -183,8 +177,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Widget _buildWeatherWarningBanner() {
     final alert = _weatherAlert!;
-    final isExtreme =
-        alert.condition == 'Thunderstorm' || alert.condition == 'Tornado';
+    final isExtreme = alert.condition == 'Thunderstorm' || alert.condition == 'Tornado';
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -260,8 +253,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Weather warning
-        if (_weatherAlert != null && _weatherAlert!.hasWarning)
-          _buildWeatherWarningBanner(),
+        if (_weatherAlert != null && _weatherAlert!.hasWarning) _buildWeatherWarningBanner(),
 
         // Delivery type selector
         _buildDeliveryTypeSection(),
@@ -281,20 +273,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           },
           onContinue: () {
             if (_selectedAddress != null) {
-              final locationProvider = Provider.of<LocationProvider>(
-                context,
-                listen: false,
-              );
-              if (!locationProvider.isAddressWithinDeliveryRadius(
-                _selectedAddress!,
-              )) {
+              final locationProvider = Provider.of<LocationProvider>(context, listen: false);
+              if (!locationProvider.isAddressWithinDeliveryRadius(_selectedAddress!)) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(
-                      locationProvider.deliveryZoneMessageFor(
-                        _selectedAddress!,
-                      ),
-                    ),
+                    content: Text(locationProvider.deliveryZoneMessageFor(_selectedAddress!)),
                     backgroundColor: AppTheme.error,
                   ),
                 );
@@ -365,11 +348,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         children: [
           const Text(
             'Select Delivery Date & Time Slot',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.grey900,
-            ),
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.grey900),
           ),
           const SizedBox(height: 12),
           // Date selector row
@@ -447,9 +426,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(
-                    color: isSelected ? AppTheme.primary : AppTheme.grey300,
-                  ),
+                  side: BorderSide(color: isSelected ? AppTheme.primary : AppTheme.grey300),
                 ),
               );
             }).toList(),
@@ -482,7 +459,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final isExpress = _selectedDeliveryType == DeliveryType.express;
     final eta = isExpress ? '10–30 minutes' : '30–60 minutes';
     final cartProvider = Provider.of<CartProvider>(context);
-    final deliveryFee = cartProvider.deliveryCharge == 0 ? 'FREE' : '₹${cartProvider.deliveryCharge.round()}';
+    final deliveryFee = cartProvider.deliveryCharge == 0
+        ? 'FREE'
+        : '₹${cartProvider.deliveryCharge.round()}';
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -496,21 +475,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppTheme.success.withValues(alpha: 0.2),
-          width: 1.5,
-        ),
+        border: Border.all(color: AppTheme.success.withValues(alpha: 0.2), width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.local_shipping,
-                color: AppTheme.success,
-                size: 20,
-              ),
+              const Icon(Icons.local_shipping, color: AppTheme.success, size: 20),
               const SizedBox(width: 8),
               Text(
                 'Delivery Confidence',
@@ -533,18 +505,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   const SizedBox(width: 8),
                   Text(
                     'ETA',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppTheme.grey600,
-                    ),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.grey600),
                   ),
                 ],
               ),
               Text(
                 eta,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.grey900,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.w700, color: AppTheme.grey900),
               ),
             ],
           ),
@@ -560,9 +527,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   const SizedBox(width: 8),
                   Text(
                     'Delivery Fee',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppTheme.grey600,
-                    ),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.grey600),
                   ),
                 ],
               ),
@@ -586,11 +551,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
             child: const Row(
               children: [
-                Icon(
-                  Icons.verified_rounded,
-                  size: 16,
-                  color: AppTheme.success,
-                ),
+                Icon(Icons.verified_rounded, size: 16, color: AppTheme.success),
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -688,11 +649,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               SizedBox(width: 8),
               Text(
                 'Fufaji\'s Smart Grocery Assistant',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.teal,
-                ),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.teal),
               ),
             ],
           ),
@@ -708,7 +665,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Future<void> _placeOrder() async {
     if (_isPlacingOrder) return;
-    
+
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     if (!authProvider.isLoggedIn) {
       showModalBottomSheet(
@@ -734,10 +691,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
     final walletProvider = Provider.of<WalletProvider>(context, listen: false);
-    final paymentProvider = Provider.of<PaymentProvider>(
-      context,
-      listen: false,
-    );
+    final paymentProvider = Provider.of<PaymentProvider>(context, listen: false);
     final user = authProvider.currentUser;
 
     if (_selectedAddress == null) {
@@ -751,14 +705,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       _stableOrderId ??= 'ord_${userId}_$timestamp';
       _stableOrderNumber ??= 'ORD$timestamp';
 
-      final locationProvider = Provider.of<LocationProvider>(
-        context,
-        listen: false,
-      );
-      final configProvider = Provider.of<ShopConfigProvider>(
-        context,
-        listen: false,
-      );
+      final locationProvider = Provider.of<LocationProvider>(context, listen: false);
+      final configProvider = Provider.of<ShopConfigProvider>(context, listen: false);
 
       final distanceKm =
           locationProvider.distanceFromShopInMeters(
@@ -775,20 +723,24 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       );
 
       final billing = BillingService.calculateBill(
-        items: cartProvider.cartItems.map((item) => OrderItem(
-          id: item.id,
-          productId: item.productId,
-          productName: item.productName,
-          productImage: item.productImage,
-          unit: item.unit,
-          quantity: item.quantity,
-          price: item.price,
-          originalPrice: item.originalPrice,
-          discountPercentage: item.discountPercentage,
-          totalPrice: item.totalPrice,
-          shopId: item.shopId,
-          shopName: item.shopName,
-        )).toList(),
+        items: cartProvider.cartItems
+            .map(
+              (item) => OrderItem(
+                id: item.id,
+                productId: item.productId,
+                productName: item.productName,
+                productImage: item.productImage,
+                unit: item.unit,
+                quantity: item.quantity,
+                price: item.price,
+                originalPrice: item.originalPrice,
+                discountPercentage: item.discountPercentage,
+                totalPrice: item.totalPrice,
+                shopId: item.shopId,
+                shopName: item.shopName,
+              ),
+            )
+            .toList(),
         deliveryType: _selectedDeliveryType,
         config: configProvider.shopConfig!,
         branch: nearestBranch,
@@ -806,6 +758,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         subtotal: MonetaryValue(billing.subtotal),
         deliveryCharge: MonetaryValue(billing.deliveryCharge),
         tax: MonetaryValue(billing.tax),
+        // FIX (Module 6, P1-6.3): persist which coupon was used and how much
+        // it discounted — previously orders never recorded this, making
+        // coupon redemption untrackable and usage limits unenforceable.
+        discount: MonetaryValue(cartProvider.discount),
+        couponCode: cartProvider.appliedCoupon?.code,
+        couponDiscount: cartProvider.appliedCoupon != null
+            ? MonetaryValue(cartProvider.discount)
+            : null,
         walletAmountUsed: MonetaryValue(cartProvider.walletAmountUsed),
         totalAmount: MonetaryValue(billing.grandTotal),
         paymentMethod: _selectedPaymentMethod,
@@ -816,9 +776,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         scheduledDeliveryDate: _selectedDeliveryType == DeliveryType.scheduled
             ? _scheduledDeliveryDate
             : null,
-        timeSlot: _selectedDeliveryType == DeliveryType.scheduled
-            ? _selectedTimeSlot
-            : null,
+        timeSlot: _selectedDeliveryType == DeliveryType.scheduled ? _selectedTimeSlot : null,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
@@ -855,11 +813,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           if (mounted) {
             setState(() => _isPlacingOrder = false);
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  paymentProvider.errorMessage ?? 'Credit check failed',
-                ),
-              ),
+              SnackBar(content: Text(paymentProvider.errorMessage ?? 'Credit check failed')),
             );
           }
         }
@@ -931,20 +885,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         } else {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                  'Could not launch UPI app. Please try another method.',
-                ),
-              ),
+              const SnackBar(content: Text('Could not launch UPI app. Please try another method.')),
             );
           }
         }
       } else if (_selectedPaymentMethod == PaymentMethod.wallet) {
         if (walletProvider.walletBalance < order.totalAmount.toDouble()) {
           setState(() => _isPlacingOrder = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Insufficient wallet balance')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Insufficient wallet balance')));
           return;
         }
         // FIX (Module 7 P0): route through the canonical OrderService.createOrder
@@ -982,9 +932,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           if (mounted) {
             setState(() => _isPlacingOrder = false);
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Order creation failed. Please try again.'),
-              ),
+              const SnackBar(content: Text('Order creation failed. Please try again.')),
             );
           }
         }
@@ -992,9 +940,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isPlacingOrder = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
       }
     } finally {
       if (mounted) setState(() => _isPlacingOrder = false);

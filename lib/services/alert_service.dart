@@ -25,10 +25,7 @@ class AlertService {
           .get();
 
       final alerts = snapshot.docs
-          .map((doc) => AlertModel.fromJson({
-                ...doc.data(),
-                'alertId': doc.id,
-              }))
+          .map((doc) => AlertModel.fromJson({...doc.data(), 'alertId': doc.id}))
           .toList();
 
       debugPrint('[AlertService] Found ${alerts.length} active alerts');
@@ -47,13 +44,10 @@ class AlertService {
         .orderBy('timestamp', descending: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs
-          .map((doc) => AlertModel.fromJson({
-                ...doc.data(),
-                'alertId': doc.id,
-              }))
-          .toList();
-    });
+          return snapshot.docs
+              .map((doc) => AlertModel.fromJson({...doc.data(), 'alertId': doc.id}))
+              .toList();
+        });
   }
 
   /// Get all alerts (including resolved)
@@ -68,10 +62,7 @@ class AlertService {
           .get();
 
       return snapshot.docs
-          .map((doc) => AlertModel.fromJson({
-                ...doc.data(),
-                'alertId': doc.id,
-              }))
+          .map((doc) => AlertModel.fromJson({...doc.data(), 'alertId': doc.id}))
           .toList();
     } catch (e) {
       debugPrint('[AlertService] Error fetching all alerts: $e');
@@ -93,8 +84,7 @@ class AlertService {
           type: AlertType.lowStock,
           severity: currentStock == 0 ? AlertSeverity.critical : AlertSeverity.warning,
           title: 'Low Stock: $productName',
-          message:
-              'Product stock is at $currentStock units (min: $minStock). Consider restocking.',
+          message: 'Product stock is at $currentStock units (min: $minStock). Consider restocking.',
           action: 'Restock',
           timestamp: DateTime.now(),
           metadata: {
@@ -105,13 +95,11 @@ class AlertService {
           },
         );
 
-        await _firestore
-            .collection('alerts')
-            .doc(alert.alertId)
-            .set(alert.toJson());
+        await _firestore.collection('alerts').doc(alert.alertId).set(alert.toJson());
 
         debugPrint(
-            '[AlertService] Low stock alert created for $productName ($currentStock/$minStock)');
+          '[AlertService] Low stock alert created for $productName ($currentStock/$minStock)',
+        );
       }
     } catch (e) {
       debugPrint('[AlertService] Error generating low stock alert: $e');
@@ -135,20 +123,12 @@ class AlertService {
           message: 'Order #$orderId has been in $status status for $hoursWaiting hours.',
           action: 'View Order',
           timestamp: DateTime.now(),
-          metadata: {
-            'orderId': orderId,
-            'status': status,
-            'hoursWaiting': hoursWaiting,
-          },
+          metadata: {'orderId': orderId, 'status': status, 'hoursWaiting': hoursWaiting},
         );
 
-        await _firestore
-            .collection('alerts')
-            .doc(alert.alertId)
-            .set(alert.toJson());
+        await _firestore.collection('alerts').doc(alert.alertId).set(alert.toJson());
 
-        debugPrint(
-            '[AlertService] Order stuck alert created for order $orderId');
+        debugPrint('[AlertService] Order stuck alert created for order $orderId');
       }
     } catch (e) {
       debugPrint('[AlertService] Error generating order stuck alert: $e');
@@ -181,13 +161,9 @@ class AlertService {
         },
       );
 
-      await _firestore
-          .collection('alerts')
-          .doc(alert.alertId)
-          .set(alert.toJson());
+      await _firestore.collection('alerts').doc(alert.alertId).set(alert.toJson());
 
-      debugPrint(
-          '[AlertService] Payment failed alert created for order $orderId');
+      debugPrint('[AlertService] Payment failed alert created for order $orderId');
     } catch (e) {
       debugPrint('[AlertService] Error generating payment failed alert: $e');
       rethrow;
@@ -207,8 +183,7 @@ class AlertService {
         type: AlertType.deliveryFailed,
         severity: AlertSeverity.critical,
         title: 'Delivery Failed: Order #$orderId',
-        message:
-            'Delivery by $deliveryAgentName failed. Reason: $reason',
+        message: 'Delivery by $deliveryAgentName failed. Reason: $reason',
         action: 'Reschedule',
         timestamp: DateTime.now(),
         metadata: {
@@ -219,13 +194,9 @@ class AlertService {
         },
       );
 
-      await _firestore
-          .collection('alerts')
-          .doc(alert.alertId)
-          .set(alert.toJson());
+      await _firestore.collection('alerts').doc(alert.alertId).set(alert.toJson());
 
-      debugPrint(
-          '[AlertService] Delivery failed alert created for delivery $deliveryId');
+      debugPrint('[AlertService] Delivery failed alert created for delivery $deliveryId');
     } catch (e) {
       debugPrint('[AlertService] Error generating delivery failed alert: $e');
       rethrow;
@@ -245,8 +216,7 @@ class AlertService {
           type: AlertType.customerChurn,
           severity: daysSinceLastOrder > 90 ? AlertSeverity.critical : AlertSeverity.warning,
           title: 'Inactive Customer: $customerName',
-          message:
-              '$customerName hasn\'t placed an order in $daysSinceLastOrder days.',
+          message: '$customerName hasn\'t placed an order in $daysSinceLastOrder days.',
           action: 'Send Offer',
           timestamp: DateTime.now(),
           metadata: {
@@ -256,13 +226,9 @@ class AlertService {
           },
         );
 
-        await _firestore
-            .collection('alerts')
-            .doc(alert.alertId)
-            .set(alert.toJson());
+        await _firestore.collection('alerts').doc(alert.alertId).set(alert.toJson());
 
-        debugPrint(
-            '[AlertService] Customer churn alert created for $customerName');
+        debugPrint('[AlertService] Customer churn alert created for $customerName');
       }
     } catch (e) {
       debugPrint('[AlertService] Error generating customer churn alert: $e');
@@ -297,13 +263,9 @@ class AlertService {
           },
         );
 
-        await _firestore
-            .collection('alerts')
-            .doc(alert.alertId)
-            .set(alert.toJson());
+        await _firestore.collection('alerts').doc(alert.alertId).set(alert.toJson());
 
-        debugPrint(
-            '[AlertService] Low sales alert created for $periodName');
+        debugPrint('[AlertService] Low sales alert created for $periodName');
       }
     } catch (e) {
       debugPrint('[AlertService] Error generating low sales alert: $e');
@@ -325,10 +287,7 @@ class AlertService {
         message: 'Critical failure detected in $componentName: $errorMessage',
         action: 'View Logs',
         timestamp: DateTime.now(),
-        metadata: {
-          'component': componentName,
-          'error': errorMessage,
-        },
+        metadata: {'component': componentName, 'error': errorMessage},
       );
 
       await _firestore.collection('alerts').doc(alert.alertId).set(alert.toJson());
@@ -353,10 +312,7 @@ class AlertService {
         message: details,
         action: 'Review Audit Logs',
         timestamp: DateTime.now(),
-        metadata: {
-          'event': securityEvent,
-          'userId': userId,
-        },
+        metadata: {'event': securityEvent, 'userId': userId},
       );
 
       await _firestore.collection('alerts').doc(alert.alertId).set(alert.toJson());
@@ -367,10 +323,7 @@ class AlertService {
   }
 
   /// Resolve an alert (mark as resolved)
-  Future<void> resolveAlert({
-    required String alertId,
-    required String resolvedBy,
-  }) async {
+  Future<void> resolveAlert({required String alertId, required String resolvedBy}) async {
     try {
       await _firestore.collection('alerts').doc(alertId).update({
         'resolved': true,
@@ -388,10 +341,7 @@ class AlertService {
   /// Dismiss an alert (same as resolve for now)
   Future<void> dismissAlert({required String alertId}) async {
     try {
-      await resolveAlert(
-        alertId: alertId,
-        resolvedBy: 'owner_dismiss',
-      );
+      await resolveAlert(alertId: alertId, resolvedBy: 'owner_dismiss');
       debugPrint('[AlertService] Alert $alertId dismissed');
     } catch (e) {
       debugPrint('[AlertService] Error dismissing alert: $e');
@@ -422,10 +372,7 @@ class AlertService {
           .get();
 
       return snapshot.docs
-          .map((doc) => AlertModel.fromJson({
-                ...doc.data(),
-                'alertId': doc.id,
-              }))
+          .map((doc) => AlertModel.fromJson({...doc.data(), 'alertId': doc.id}))
           .toList();
     } catch (e) {
       debugPrint('[AlertService] Error fetching alerts by type: $e');
@@ -445,10 +392,7 @@ class AlertService {
           .get();
 
       return snapshot.docs
-          .map((doc) => AlertModel.fromJson({
-                ...doc.data(),
-                'alertId': doc.id,
-              }))
+          .map((doc) => AlertModel.fromJson({...doc.data(), 'alertId': doc.id}))
           .toList();
     } catch (e) {
       debugPrint('[AlertService] Error fetching alerts by severity: $e');

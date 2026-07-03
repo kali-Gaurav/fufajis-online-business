@@ -1,11 +1,11 @@
 class BusinessMemoryModel {
   final String id;
   final String memoryType; // e.g., 'IncidentResolution', 'RecommendationOutcome'
-  
+
   // Context
   final String description; // e.g., 'How we resolved Diwali surge delays'
   final String originalEntityId; // Link to the Incident or Recommendation
-  
+
   // Memory
   final String whatWorked;
   final String whatFailed;

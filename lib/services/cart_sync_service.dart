@@ -27,11 +27,7 @@ class CartSyncService {
   // Load verified user cart from Firestore
   Future<List<CartItem>> loadCloudCart(String uid) async {
     try {
-      final snapshot = await _firestore
-          .collection('users')
-          .doc(uid)
-          .collection('cart')
-          .get();
+      final snapshot = await _firestore.collection('users').doc(uid).collection('cart').get();
       return snapshot.docs.map((doc) => CartItem.fromMap(doc.data())).toList();
     } catch (e) {
       debugPrint('Error loading cloud cart: $e');
@@ -43,23 +39,23 @@ class CartSyncService {
   Future<void> syncToCloud(String uid, List<CartItem> cartItems) async {
     try {
       final cartRef = _firestore.collection('users').doc(uid).collection('cart');
-      
+
       // Get existing items to know what to delete
       final snapshot = await cartRef.get();
       final existingIds = snapshot.docs.map((doc) => doc.id).toSet();
-      
+
       final batch = _firestore.batch();
-      
+
       for (final item in cartItems) {
         batch.set(cartRef.doc(item.id), item.toMap());
         existingIds.remove(item.id);
       }
-      
+
       // Delete removed items
       for (final id in existingIds) {
         batch.delete(cartRef.doc(id));
       }
-      
+
       await batch.commit();
     } catch (e) {
       debugPrint('Error syncing cart to cloud: $e');
@@ -70,11 +66,11 @@ class CartSyncService {
   Future<List<CartItem>> mergeCarts(String uid) async {
     final localItems = await loadLocalCart();
     final cloudItems = await loadCloudCart(uid);
-    
+
     if (localItems.isEmpty) return cloudItems;
 
     final Map<String, CartItem> merged = {
-      for (var item in cloudItems) '${item.productId}_${item.selectedVariant}': item
+      for (var item in cloudItems) '${item.productId}_${item.selectedVariant}': item,
     };
 
     for (final localItem in localItems) {
@@ -90,16 +86,16 @@ class CartSyncService {
     }
 
     final mergedList = merged.values.toList();
-    
+
     // Save merged to cloud
     await syncToCloud(uid, mergedList);
-    
+
     // Also update local storage to match the merged cart
     await saveLocalCart(mergedList);
-    
+
     return mergedList;
   }
-  
+
   Future<void> saveLocalCart(List<CartItem> items) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -118,7 +114,7 @@ class CartSyncService {
       debugPrint('Error clearing local cart: $e');
     }
   }
-  
+
   Future<void> clearCloudCart(String uid) async {
     try {
       final snapshot = await _firestore.collection('users').doc(uid).collection('cart').get();

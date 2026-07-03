@@ -35,10 +35,7 @@ class VoiceNoteService {
       final dir = await getTemporaryDirectory();
       final path = '${dir.path}/voice_note_${DateTime.now().millisecondsSinceEpoch}.wav';
 
-      await _audioRecorder.start(
-        const RecordConfig(),
-        path: path,
-      );
+      await _audioRecorder.start(const RecordConfig(), path: path);
 
       _recordingPath = path;
       _isRecording = true;
@@ -115,11 +112,7 @@ class VoiceNoteService {
     required int durationSeconds,
   }) async {
     try {
-      await _firestore
-          .collection('chats')
-          .doc(chatId)
-          .collection('messages')
-          .add({
+      await _firestore.collection('chats').doc(chatId).collection('messages').add({
         'type': 'voice_note',
         'content': 'Voice message',
         'voiceNoteUrl': voiceNoteUrl,

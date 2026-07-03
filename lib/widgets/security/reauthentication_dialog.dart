@@ -37,7 +37,9 @@ class _ReauthenticationDialogState extends State<ReauthenticationDialog> {
   Future<void> _checkBiometrics() async {
     final canCheck = await DeviceSecurityService.canCheckBiometrics();
     if (canCheck) {
-      final success = await DeviceSecurityService.authenticateBiometrics('Verify identity for ${widget.actionDescription}');
+      final success = await DeviceSecurityService.authenticateBiometrics(
+        'Verify identity for ${widget.actionDescription}',
+      );
       if (success) {
         _logSuccess('biometrics');
         if (mounted) Navigator.pop(context, true);
@@ -75,10 +77,13 @@ class _ReauthenticationDialogState extends State<ReauthenticationDialog> {
         _errorText = 'Invalid PIN. Please try again.';
         _pinController.clear();
       });
-      
+
       final lockoutStatus = await DeviceSecurityService.getLockoutStatus();
       if (lockoutStatus.isLocked) {
-        setState(() => _errorText = 'Too many failed attempts. Locked for ${lockoutStatus.remainingMinutes} min.');
+        setState(
+          () => _errorText =
+              'Too many failed attempts. Locked for ${lockoutStatus.remainingMinutes} min.',
+        );
       }
     }
   }
@@ -105,7 +110,6 @@ class _ReauthenticationDialogState extends State<ReauthenticationDialog> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -113,7 +117,9 @@ class _ReauthenticationDialogState extends State<ReauthenticationDialog> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('You are about to ${widget.actionDescription}. Please verify your identity to continue.'),
+          Text(
+            'You are about to ${widget.actionDescription}. Please verify your identity to continue.',
+          ),
           const SizedBox(height: 20),
           TextField(
             controller: _pinController,
@@ -135,8 +141,12 @@ class _ReauthenticationDialogState extends State<ReauthenticationDialog> {
         ),
         ElevatedButton(
           onPressed: _isLoading ? null : _verifyPin,
-          child: _isLoading 
-              ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+          child: _isLoading
+              ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
               : const Text('Verify'),
         ),
       ],

@@ -31,16 +31,19 @@ class BroadcastProvider with ChangeNotifier {
         .orderBy('createdAt', descending: true)
         .limit(100)
         .snapshots()
-        .listen((snap) {
-      _broadcasts = snap.docs.map(BroadcastModel.fromFirestore).toList();
-      _isLoading = false;
-      _errorMessage = null;
-      notifyListeners();
-    }, onError: (err) {
-      _errorMessage = err.toString();
-      _isLoading = false;
-      notifyListeners();
-    });
+        .listen(
+          (snap) {
+            _broadcasts = snap.docs.map(BroadcastModel.fromFirestore).toList();
+            _isLoading = false;
+            _errorMessage = null;
+            notifyListeners();
+          },
+          onError: (err) {
+            _errorMessage = err.toString();
+            _isLoading = false;
+            notifyListeners();
+          },
+        );
   }
 
   /// Sends a broadcast immediately using the backend function.
@@ -76,10 +79,7 @@ class BroadcastProvider with ChangeNotifier {
         'body': body,
         'deepLink': deepLink,
         'imageUrl': imageUrl,
-        'audience': {
-          'type': type,
-          if (segmentId != null) 'segmentId': segmentId,
-        },
+        'audience': {'type': type, if (segmentId != null) 'segmentId': segmentId},
         'updatedAt': FieldValue.serverTimestamp(),
       };
 

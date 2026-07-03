@@ -27,8 +27,8 @@ class _RiderNavigationScreenState extends State<RiderNavigationScreen> {
   final MapController _mapController = MapController();
   LatLng? _currentLocation;
   List<LatLng> _routePoints = [];
-  StreamSubscription<Position>? _positionStream;
   bool _isLoadingRoute = false;
+  StreamSubscription<Position>? _positionStream;
 
   @override
   void initState() {
@@ -51,36 +51,38 @@ class _RiderNavigationScreenState extends State<RiderNavigationScreen> {
     setState(() {
       _currentLocation = LatLng(pos.latitude, pos.longitude);
     });
-    
+
     _fetchRoute();
 
-    _positionStream = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 10, // updates every 10 meters
-      ),
-    ).listen((Position pos) {
-      setState(() {
-        _currentLocation = LatLng(pos.latitude, pos.longitude);
-      });
-      _mapController.move(_currentLocation!, 16.0);
-    });
+    _positionStream =
+        Geolocator.getPositionStream(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+            distanceFilter: 10, // updates every 10 meters
+          ),
+        ).listen((Position pos) {
+          setState(() {
+            _currentLocation = LatLng(pos.latitude, pos.longitude);
+          });
+          _mapController.move(_currentLocation!, 16.0);
+        });
   }
 
   Future<void> _fetchRoute() async {
     if (_currentLocation == null) return;
-    
+
     setState(() => _isLoadingRoute = true);
-    
+
     try {
-      // Using OSRM public API for demo routing. 
+      // Using OSRM public API for demo routing.
       // In production, use your own GraphHopper or OSRM instance.
-      final url = 'https://router.project-osrm.org/route/v1/driving/'
+      final url =
+          'https://router.project-osrm.org/route/v1/driving/'
           '${_currentLocation!.longitude},${_currentLocation!.latitude};'
           '${widget.destLng},${widget.destLat}?overview=full&geometries=geojson';
-          
+
       final response = await http.get(Uri.parse(url));
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final routes = data['routes'] as List;
@@ -118,10 +120,7 @@ class _RiderNavigationScreenState extends State<RiderNavigationScreen> {
           ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : FlutterMap(
               mapController: _mapController,
-              options: MapOptions(
-                initialCenter: _currentLocation!,
-                initialZoom: 16.0,
-              ),
+              options: MapOptions(initialCenter: _currentLocation!, initialZoom: 16.0),
               children: [
                 TileLayer(
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -129,11 +128,7 @@ class _RiderNavigationScreenState extends State<RiderNavigationScreen> {
                 ),
                 PolylineLayer(
                   polylines: [
-                    Polyline(
-                      points: _routePoints,
-                      color: AppTheme.info,
-                      strokeWidth: 4.0,
-                    ),
+                    Polyline(points: _routePoints, color: AppTheme.info, strokeWidth: 4.0),
                   ],
                 ),
                 MarkerLayer(

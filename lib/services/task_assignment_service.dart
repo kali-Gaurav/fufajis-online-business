@@ -1,26 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
-enum EmployeeTaskType {
-  packing,
-  low_stock_audit,
-  return_processing,
-  delivery
-}
+enum EmployeeTaskType { packing, low_stock_audit, return_processing, delivery }
 
-enum EmployeeTaskPriority {
-  low,
-  medium,
-  high,
-  urgent
-}
+enum EmployeeTaskPriority { low, medium, high, urgent }
 
-enum EmployeeTaskStatus {
-  released,
-  assigned,
-  completed,
-  failed
-}
+enum EmployeeTaskStatus { released, assigned, completed, failed }
 
 class EmployeeTask {
   final String id;
@@ -58,49 +43,49 @@ class EmployeeTask {
   });
 
   Map<String, dynamic> toMap() => {
-        'id': id,
-        'title': title,
-        'description': description,
-        'type': type.name,
-        'priority': priority.name,
-        'status': status.name,
-        'assignedUserId': assignedUserId,
-        'assignedUserName': assignedUserName,
-        'branchId': branchId,
-        'shopId': shopId,
-        'referenceId': referenceId,
-        'createdAt': Timestamp.fromDate(createdAt),
-        'startedAt': startedAt != null ? Timestamp.fromDate(startedAt!) : null,
-        'completedAt': completedAt != null ? Timestamp.fromDate(completedAt!) : null,
-        'timeEstimateMinutes': timeEstimateMinutes,
-      };
+    'id': id,
+    'title': title,
+    'description': description,
+    'type': type.name,
+    'priority': priority.name,
+    'status': status.name,
+    'assignedUserId': assignedUserId,
+    'assignedUserName': assignedUserName,
+    'branchId': branchId,
+    'shopId': shopId,
+    'referenceId': referenceId,
+    'createdAt': Timestamp.fromDate(createdAt),
+    'startedAt': startedAt != null ? Timestamp.fromDate(startedAt!) : null,
+    'completedAt': completedAt != null ? Timestamp.fromDate(completedAt!) : null,
+    'timeEstimateMinutes': timeEstimateMinutes,
+  };
 
   factory EmployeeTask.fromMap(Map<String, dynamic> map) => EmployeeTask(
-        id: map['id'] as String? ?? '',
-        title: map['title'] as String? ?? '',
-        description: map['description'] as String? ?? '',
-        type: EmployeeTaskType.values.firstWhere(
-          (e) => e.name == (map['type'] as String? ?? ''),
-          orElse: () => EmployeeTaskType.packing,
-        ),
-        priority: EmployeeTaskPriority.values.firstWhere(
-          (e) => e.name == (map['priority'] as String? ?? ''),
-          orElse: () => EmployeeTaskPriority.medium,
-        ),
-        status: EmployeeTaskStatus.values.firstWhere(
-          (e) => e.name == (map['status'] as String? ?? ''),
-          orElse: () => EmployeeTaskStatus.released,
-        ),
-        assignedUserId: map['assignedUserId'] as String?,
-        assignedUserName: map['assignedUserName'] as String?,
-        branchId: map['branchId'] as String? ?? '',
-        shopId: map['shopId'] as String? ?? '',
-        referenceId: map['referenceId'] as String?,
-        createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-        startedAt: (map['startedAt'] as Timestamp?)?.toDate(),
-        completedAt: (map['completedAt'] as Timestamp?)?.toDate(),
-        timeEstimateMinutes: (map['timeEstimateMinutes'] as num? ?? 15).toInt(),
-      );
+    id: map['id'] as String? ?? '',
+    title: map['title'] as String? ?? '',
+    description: map['description'] as String? ?? '',
+    type: EmployeeTaskType.values.firstWhere(
+      (e) => e.name == (map['type'] as String? ?? ''),
+      orElse: () => EmployeeTaskType.packing,
+    ),
+    priority: EmployeeTaskPriority.values.firstWhere(
+      (e) => e.name == (map['priority'] as String? ?? ''),
+      orElse: () => EmployeeTaskPriority.medium,
+    ),
+    status: EmployeeTaskStatus.values.firstWhere(
+      (e) => e.name == (map['status'] as String? ?? ''),
+      orElse: () => EmployeeTaskStatus.released,
+    ),
+    assignedUserId: map['assignedUserId'] as String?,
+    assignedUserName: map['assignedUserName'] as String?,
+    branchId: map['branchId'] as String? ?? '',
+    shopId: map['shopId'] as String? ?? '',
+    referenceId: map['referenceId'] as String?,
+    createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+    startedAt: (map['startedAt'] as Timestamp?)?.toDate(),
+    completedAt: (map['completedAt'] as Timestamp?)?.toDate(),
+    timeEstimateMinutes: (map['timeEstimateMinutes'] as num? ?? 15).toInt(),
+  );
 }
 
 class TaskAssignmentService {
@@ -153,11 +138,7 @@ class TaskAssignmentService {
     required String employeeName,
   }) async {
     await _db.runTransaction((transaction) async {
-      final docRef = _db
-          .collection('shops')
-          .doc(shopId)
-          .collection('employee_tasks')
-          .doc(taskId);
+      final docRef = _db.collection('shops').doc(shopId).collection('employee_tasks').doc(taskId);
 
       final snapshot = await transaction.get(docRef);
       if (!snapshot.exists) throw Exception('Task not found');
@@ -177,16 +158,8 @@ class TaskAssignmentService {
   }
 
   /// Release/Unassign an assigned task back to the pool
-  Future<void> releaseTask({
-    required String shopId,
-    required String taskId,
-  }) async {
-    await _db
-        .collection('shops')
-        .doc(shopId)
-        .collection('employee_tasks')
-        .doc(taskId)
-        .update({
+  Future<void> releaseTask({required String shopId, required String taskId}) async {
+    await _db.collection('shops').doc(shopId).collection('employee_tasks').doc(taskId).update({
       'status': EmployeeTaskStatus.released.name,
       'assignedUserId': null,
       'assignedUserName': null,
@@ -195,16 +168,8 @@ class TaskAssignmentService {
   }
 
   /// Complete a task
-  Future<void> completeTask({
-    required String shopId,
-    required String taskId,
-  }) async {
-    await _db
-        .collection('shops')
-        .doc(shopId)
-        .collection('employee_tasks')
-        .doc(taskId)
-        .update({
+  Future<void> completeTask({required String shopId, required String taskId}) async {
+    await _db.collection('shops').doc(shopId).collection('employee_tasks').doc(taskId).update({
       'status': EmployeeTaskStatus.completed.name,
       'completedAt': FieldValue.serverTimestamp(),
     });
@@ -226,13 +191,13 @@ class TaskAssignmentService {
       final today = DateTime.now();
       final dayStr =
           '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
-      
+
       final attendanceSnap = await _db
           .collection('attendance')
           .where('branchId', isEqualTo: branchId)
           .where('date', isEqualTo: dayStr)
           .get();
-      
+
       final List<String> employeeIds = attendanceSnap.docs
           .map((d) => d.data()['employeeId'] as String?)
           .whereType<String>()
@@ -271,12 +236,13 @@ class TaskAssignmentService {
             .where('status', isEqualTo: EmployeeTaskStatus.assigned.name)
             .get();
         employeeLoads[employeeId] = activeTasksSnap.docs.length;
-        
+
         // Name & Success Rate from User profile
         final userDoc = await _db.collection('users').doc(employeeId).get();
         final userData = userDoc.data() ?? {};
         employeeNames[employeeId] = (userData['name'] as String?) ?? 'Employee';
-        employeeSuccessRates[employeeId] = (userData['deliverySuccessRate'] as num? ?? 90.0).toDouble();
+        employeeSuccessRates[employeeId] = (userData['deliverySuccessRate'] as num? ?? 90.0)
+            .toDouble();
 
         // Current Location (mocked or from last session if not live)
         if (userData['lastLatitude'] != null && userData['lastLongitude'] != null) {
@@ -299,7 +265,7 @@ class TaskAssignmentService {
         for (var empId in employeeIds) {
           // Task priority weight (Urgent tasks get assigned first by sorting, but also affect score)
           double priorityWeight = _getPriorityWeight(task.priority).toDouble();
-          
+
           // Current Load Penalty (Higher load = higher score = less likely to get task)
           int currentLoad = employeeLoads[empId] ?? 0;
           double loadPenalty = currentLoad * 2.0;
@@ -313,7 +279,7 @@ class TaskAssignmentService {
             // Simplified: distance from their last known position to the shop (to pick up)
             // Or if task has a location (for delivery), use that.
             // For now, use load-balancing as primary factor if distance not specific to task.
-            distanceFactor = 0.0; 
+            distanceFactor = 0.0;
           }
 
           double score = loadPenalty - successBonus - priorityWeight + distanceFactor;

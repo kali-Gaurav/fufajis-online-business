@@ -23,15 +23,15 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
   final List<CashCollection> _collections = [];
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: AppTheme.error));
   }
 
   void _showSuccess(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: AppTheme.success),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: AppTheme.success));
   }
 
   Future<void> _loadOrder(String orderId) async {
@@ -116,7 +116,6 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -141,10 +140,7 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Order Details',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
+                    Text('Order Details', style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 12),
                     if (_orderId != null)
                       Container(
@@ -163,11 +159,9 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
                                 children: [
                                   Text(
                                     'Order: $_orderId',
-                                    style:
-                                        const TextStyle(fontWeight: FontWeight.bold),
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
                                   ),
-                                  if (_order != null)
-                                    Text('Customer: ${_order!.customerName}'),
+                                  if (_order != null) Text('Customer: ${_order!.customerName}'),
                                 ],
                               ),
                             ),
@@ -194,16 +188,12 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Order Information',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
+                      Text('Order Information', style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 12),
                       _buildDetailRow('Order #', _order!.orderNumber),
                       _buildDetailRow('Customer', _order!.customerName),
                       _buildDetailRow('Phone', _order!.customerPhone),
-                      _buildDetailRow(
-                          'Total Amount', '₹${_order!.totalAmount}'),
+                      _buildDetailRow('Total Amount', '₹${_order!.totalAmount}'),
                       _buildDetailRow('Payment Method', _order!.paymentMethod.name),
                     ],
                   ),
@@ -219,10 +209,7 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Cash Collection',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
+                      Text('Cash Collection', style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 12),
                       TextField(
                         controller: _amountController,
@@ -266,10 +253,7 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
             // Recent Collections
             if (_collections.isNotEmpty) ...[
               const SizedBox(height: 24),
-              Text(
-                'Today\'s Collections',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
+              Text('Today\'s Collections', style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
               Card(
                 color: AppTheme.success.withValues(alpha: 0.1),
@@ -278,10 +262,7 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Total Collected',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                      const Text('Total Collected', style: TextStyle(fontWeight: FontWeight.bold)),
                       Text(
                         '₹${_collections.fold<double>(0, (sum, c) => sum + c.amount).toStringAsFixed(2)}',
                         style: const TextStyle(
@@ -295,23 +276,22 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              ..._collections.map((collection) => Card(
-                    child: ListTile(
-                      leading: const CircleAvatar(
-                        backgroundColor: AppTheme.ownerAccent,
-                        child: Icon(Icons.payments, color: Colors.white),
-                      ),
-                      title: Text('Order #${collection.orderId}'),
-                      subtitle: Text(collection.deliveryEmployeeName),
-                      trailing: Text(
-                        '₹${collection.amount.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.success,
-                        ),
-                      ),
+              ..._collections.map(
+                (collection) => Card(
+                  child: ListTile(
+                    leading: const CircleAvatar(
+                      backgroundColor: AppTheme.ownerAccent,
+                      child: Icon(Icons.payments, color: Colors.white),
                     ),
-                  )),
+                    title: Text('Order #${collection.orderId}'),
+                    subtitle: Text(collection.deliveryEmployeeName),
+                    trailing: Text(
+                      '₹${collection.amount.toStringAsFixed(2)}',
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.success),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ],
         ),
@@ -339,10 +319,7 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
         title: const Text('Enter Order ID', style: TextStyle(fontWeight: FontWeight.w700)),
         content: TextField(
           autofocus: true,
-          decoration: const InputDecoration(
-            labelText: 'Order ID',
-            border: OutlineInputBorder(),
-          ),
+          decoration: const InputDecoration(labelText: 'Order ID', border: OutlineInputBorder()),
           onSubmitted: (value) {
             if (value.isNotEmpty) {
               Navigator.pop(context);
@@ -350,12 +327,7 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
             }
           },
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-        ],
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel'))],
       ),
     );
   }

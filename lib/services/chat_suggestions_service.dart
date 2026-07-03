@@ -40,10 +40,9 @@ class ChatSuggestionsService {
           question: '✏️ Can I modify my order?',
           category: 'order_management',
           emoji: '✏️',
-          autoResponse:
-              order.status == OrderStatus.pending
-                  ? 'Yes, you can modify your order before confirmation. Click "Edit Order" to make changes.'
-                  : 'Sorry, your order is already confirmed and cannot be modified. You can place a new order.',
+          autoResponse: order.status == OrderStatus.pending
+              ? 'Yes, you can modify your order before confirmation. Click "Edit Order" to make changes.'
+              : 'Sorry, your order is already confirmed and cannot be modified. You can place a new order.',
         ),
       );
 
@@ -53,10 +52,9 @@ class ChatSuggestionsService {
           question: '❌ Can I cancel this order?',
           category: 'order_management',
           emoji: '❌',
-          autoResponse:
-              order.status == OrderStatus.pending
-                  ? 'Yes, you can cancel pending orders. Tap "Cancel Order" for a full refund.'
-                  : 'Your order is confirmed. To cancel, contact support and we\'ll process a refund.',
+          autoResponse: order.status == OrderStatus.pending
+              ? 'Yes, you can cancel pending orders. Tap "Cancel Order" for a full refund.'
+              : 'Your order is confirmed. To cancel, contact support and we\'ll process a refund.',
         ),
       );
     }
@@ -78,10 +76,9 @@ class ChatSuggestionsService {
           question: '📞 Can I contact the delivery person?',
           category: 'delivery',
           emoji: '📞',
-          autoResponse:
-              order.deliveryAgentPhone != null
-                  ? 'Yes! Your rider ${order.deliveryAgentName} can be reached at ${order.deliveryAgentPhone}'
-                  : 'The rider details will be updated once the package is picked up.',
+          autoResponse: order.deliveryAgentPhone != null
+              ? 'Yes! Your rider ${order.deliveryAgentName} can be reached at ${order.deliveryAgentPhone}'
+              : 'The rider details will be updated once the package is picked up.',
         ),
       );
     }
@@ -147,22 +144,26 @@ class ChatSuggestionsService {
       ),
       QuickReplyTemplate(
         id: 'delivery_issue',
-        text: 'We\'re sorry for the delivery issue. Let us know the problem and we\'ll resolve it immediately.',
+        text:
+            'We\'re sorry for the delivery issue. Let us know the problem and we\'ll resolve it immediately.',
         category: 'support',
       ),
       QuickReplyTemplate(
         id: 'refund_initiated',
-        text: 'Your refund has been initiated. The amount will be credited to your account within 3-5 business days.',
+        text:
+            'Your refund has been initiated. The amount will be credited to your account within 3-5 business days.',
         category: 'refund',
       ),
       QuickReplyTemplate(
         id: 'quality_issue',
-        text: 'We apologize for the quality issue. Please send us photos and we\'ll arrange a replacement or refund.',
+        text:
+            'We apologize for the quality issue. Please send us photos and we\'ll arrange a replacement or refund.',
         category: 'support',
       ),
       QuickReplyTemplate(
         id: 'apology',
-        text: 'We sincerely apologize for the inconvenience. We\'re committed to making this right.',
+        text:
+            'We sincerely apologize for the inconvenience. We\'re committed to making this right.',
         category: 'support',
       ),
     ];
@@ -193,7 +194,8 @@ class ChatSuggestionsService {
     faqs.add(
       FAQItem(
         question: 'Can I track my order?',
-        answer: 'Yes! Once your order is dispatched, you\'ll get a tracking link with real-time location updates.',
+        answer:
+            'Yes! Once your order is dispatched, you\'ll get a tracking link with real-time location updates.',
         category: 'tracking',
       ),
     );
@@ -221,7 +223,8 @@ class ChatSuggestionsService {
       faqs.add(
         FAQItem(
           question: 'Can I modify my order?',
-          answer: 'Pending orders can be modified until confirmation. Confirmed orders cannot be modified.',
+          answer:
+              'Pending orders can be modified until confirmation. Confirmed orders cannot be modified.',
           category: 'order_management',
         ),
       );
@@ -399,11 +402,7 @@ class QuickReplyTemplate {
   final String text;
   final String category; // greeting, status, support, refund
 
-  QuickReplyTemplate({
-    required this.id,
-    required this.text,
-    required this.category,
-  });
+  QuickReplyTemplate({required this.id, required this.text, required this.category});
 }
 
 class FAQItem {
@@ -411,9 +410,5 @@ class FAQItem {
   final String answer;
   final String category;
 
-  FAQItem({
-    required this.question,
-    required this.answer,
-    required this.category,
-  });
+  FAQItem({required this.question, required this.answer, required this.category});
 }

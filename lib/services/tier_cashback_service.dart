@@ -85,11 +85,7 @@ class TierCashbackService {
     // Restriction: COD cashback only after delivery
     if (paymentMethod == 'cod' && !isDelivered) {
       debugPrint('[TierCashback] COD order $orderId: cashback held until delivery.');
-      return const CashbackResult(
-        applied: false,
-        amount: 0,
-        reason: 'cod_pending_delivery',
-      );
+      return const CashbackResult(applied: false, amount: 0, reason: 'cod_pending_delivery');
     }
 
     // Check if cashback is enabled globally
@@ -184,30 +180,25 @@ class TierCashbackService {
     final balance = await _walletService.getWalletBalance(userId);
     final effectiveAmount = requestedAmount.clamp(0, balance).toDouble();
 
-    return WalletValidationResult(
-      isValid: true,
-      allowedAmount: effectiveAmount,
-      reason: 'ok',
-    );
+    return WalletValidationResult(isValid: true, allowedAmount: effectiveAmount, reason: 'ok');
   }
 
   // ─────────────── TIER CONFIG (FIRESTORE) ───────────────
 
   Future<_TierConfig> _loadTierConfig(MembershipTier tier) async {
     try {
-      final doc = await _firestore
-          .collection('settings')
-          .doc('tier_cashback_config')
-          .get();
+      final doc = await _firestore.collection('settings').doc('tier_cashback_config').get();
 
       if (doc.exists) {
         final data = doc.data()!;
         final tierData = data[tier.name] as Map<String, dynamic>?;
         if (tierData != null) {
           return _TierConfig(
-            cashbackPercent: ((tierData['cashbackPercent'] as num?) ?? _defaultCashbackRates[tier]!).toDouble(),
+            cashbackPercent: ((tierData['cashbackPercent'] as num?) ?? _defaultCashbackRates[tier]!)
+                .toDouble(),
             walletRedemptionCapPercent:
-                ((tierData['walletRedemptionCapPercent'] as num?) ?? _defaultWalletCap[tier]!).toDouble(),
+                ((tierData['walletRedemptionCapPercent'] as num?) ?? _defaultWalletCap[tier]!)
+                    .toDouble(),
           );
         }
       }
@@ -226,18 +217,14 @@ class TierCashbackService {
 
   Future<bool> _isCashbackAlreadyApplied(String orderId) async {
     try {
-      final doc = await _firestore
-          .collection('cashback_log')
-          .doc(orderId)
-          .get();
+      final doc = await _firestore.collection('cashback_log').doc(orderId).get();
       return doc.exists;
     } catch (_) {
       return false;
     }
   }
 
-  Future<void> _markCashbackApplied(
-      String orderId, String userId, double amount) async {
+  Future<void> _markCashbackApplied(String orderId, String userId, double amount) async {
     await _firestore.collection('cashback_log').doc(orderId).set({
       'orderId': orderId,
       'userId': userId,
@@ -291,12 +278,21 @@ class CashbackResult {
   final double amount;
   final String reason;
   final MembershipTier? tier;
-  const CashbackResult({required this.applied, required this.amount, required this.reason, this.tier});
+  const CashbackResult({
+    required this.applied,
+    required this.amount,
+    required this.reason,
+    this.tier,
+  });
 }
 
 class WalletValidationResult {
   final bool isValid;
   final double allowedAmount;
   final String reason;
-  const WalletValidationResult({required this.isValid, required this.allowedAmount, required this.reason});
+  const WalletValidationResult({
+    required this.isValid,
+    required this.allowedAmount,
+    required this.reason,
+  });
 }

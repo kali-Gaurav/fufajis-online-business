@@ -60,9 +60,9 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
           if (_selectedImages.length < 3) {
             _selectedImages.add(File(pickedFile.path));
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Maximum 3 images allowed')),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('Maximum 3 images allowed')));
           }
         });
       }
@@ -95,10 +95,7 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
               },
               child: const Text('Gallery'),
             ),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ],
         );
       },
@@ -211,12 +208,7 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
         return AlertDialog(
           title: const Text('Error'),
           content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            ),
-          ],
+          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
         );
       },
     );
@@ -229,10 +221,7 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Rate Your Delivery'),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text('Rate Your Delivery'), elevation: 0),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -313,9 +302,7 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
           children: [
             Text(
               'Delivery Details',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             Row(
@@ -323,10 +310,7 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
                 const Icon(Icons.person, size: 18, color: Colors.grey),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                    'Rider: ${widget.riderName}',
-                    style: const TextStyle(fontSize: 14),
-                  ),
+                  child: Text('Rider: ${widget.riderName}', style: const TextStyle(fontSize: 14)),
                 ),
               ],
             ),
@@ -363,16 +347,12 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
       children: [
         Text(
           title,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 4),
         Text(
           subtitle,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
-              ),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
         ),
         const SizedBox(height: 12),
         Center(
@@ -389,10 +369,7 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
         Center(
           child: Text(
             rating == 0 ? 'Tap to rate' : '${rating.toStringAsFixed(1)} / 5.0',
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 12,
-            ),
+            style: TextStyle(color: Colors.grey[600], fontSize: 12),
           ),
         ),
       ],
@@ -406,9 +383,7 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
       children: [
         Text(
           'Additional Comments',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         TextField(
@@ -417,9 +392,7 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
           maxLength: 500,
           decoration: InputDecoration(
             hintText: 'Share your experience (optional)',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             contentPadding: const EdgeInsets.all(12),
           ),
         ),
@@ -434,16 +407,12 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
       children: [
         Text(
           'Upload Photos',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         Text(
           'Share photos of your order (optional)',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
-              ),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
         ),
         const SizedBox(height: 12),
         if (_selectedImages.isEmpty)
@@ -461,10 +430,7 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
                 children: [
                   Icon(Icons.image, size: 40, color: Colors.grey[400]),
                   const SizedBox(height: 8),
-                  Text(
-                    'Tap to add photos',
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
+                  Text('Tap to add photos', style: TextStyle(color: Colors.grey[600])),
                 ],
               ),
             ),
@@ -510,16 +476,9 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
                     child: GestureDetector(
                       onTap: () => _removeImage(index),
                       child: Container(
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
+                        decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
                         padding: const EdgeInsets.all(4),
-                        child: const Icon(
-                          Icons.close,
-                          color: Colors.white,
-                          size: 16,
-                        ),
+                        child: const Icon(Icons.close, color: Colors.white, size: 16),
                       ),
                     ),
                   ),
@@ -548,10 +507,7 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
           Expanded(
             child: Text(
               'Report an issue with this delivery',
-              style: TextStyle(
-                color: Colors.red[700],
-                fontWeight: FontWeight.w500,
-              ),
+              style: TextStyle(color: Colors.red[700], fontWeight: FontWeight.w500),
             ),
           ),
           Icon(Icons.arrow_forward, color: Colors.red[700], size: 20),
@@ -569,9 +525,7 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
         onPressed: _isSubmitting ? null : _submitFeedback,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.green,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
         child: _isSubmitting
             ? const SizedBox(
@@ -584,11 +538,7 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
               )
             : const Text(
                 'Submit Feedback',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
               ),
       ),
     );
@@ -602,9 +552,7 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
       child: OutlinedButton(
         onPressed: () => Navigator.of(context).pop(false),
         style: OutlinedButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
         child: const Text('Skip for now'),
       ),
@@ -621,42 +569,28 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
             Container(
               width: 80,
               height: 80,
-              decoration: BoxDecoration(
-                color: Colors.green[100],
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.check_circle,
-                color: Colors.green[700],
-                size: 60,
-              ),
+              decoration: BoxDecoration(color: Colors.green[100], shape: BoxShape.circle),
+              child: Icon(Icons.check_circle, color: Colors.green[700], size: 60),
             ),
             const SizedBox(height: 24),
             Text(
               'Thank You!',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             Text(
               'Your feedback helps us improve',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
             ),
             const SizedBox(height: 32),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
               child: const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                child: Text(
-                  'Done',
-                  style: TextStyle(color: Colors.white),
-                ),
+                child: Text('Done', style: TextStyle(color: Colors.white)),
               ),
             ),
           ],

@@ -43,7 +43,6 @@ import '../../services/recommendation_service.dart';
 import '../../services/smart_kitchen_service.dart';
 import '../../widgets/quick_reorder_card.dart';
 import '../../widgets/smart_reorder_card.dart';
-import '../../widgets/voice_search_dialog.dart';
 import '../../widgets/countdown_timer.dart';
 import '../../widgets/update_announcement_banner.dart';
 import '../../product_card.dart';
@@ -146,33 +145,31 @@ class _HomeScreenState extends State<HomeScreen> {
                 delegate: _SearchPinnedDelegate(
                   hint: _getCurrentSearchHint(isHindi),
                   onSearchTap: () => context.push('/customer/search'),
-                  onVoiceTap: _openVoiceSearch,
+                  onVoiceTap: () => context.push('/customer/voice-order'),
                   isShopOpen: isShopOpen,
                   district: user?.district,
                   village: user?.village,
                   isElderly: isElderly,
+                  topPadding: MediaQuery.of(context).padding.top,
                 ),
               ),
 
               const SliverToBoxAdapter(child: UpdateAnnouncementBanner()),
 
-              if (!isShopOpen)
-                SliverToBoxAdapter(child: _ShopClosedBanner()),
+              if (!isShopOpen) SliverToBoxAdapter(child: _ShopClosedBanner()),
 
               // const SliverToBoxAdapter(child: VillageChaupalFeed()),
-
               if (isElderly) ...[
                 // ── Elderly / simple mode ─────────────────────────────
                 SliverToBoxAdapter(child: _buildSmartKitchenReminder(user?.uid)),
-                SliverToBoxAdapter(
-                    child: _buildLargeVoiceOrderButton(accessibility)),
+                SliverToBoxAdapter(child: _buildLargeVoiceOrderButton(accessibility)),
                 const SliverToBoxAdapter(child: SizedBox(height: 16)),
                 SliverToBoxAdapter(child: _buildSavedPresetsSection(user?.uid)),
-                SliverToBoxAdapter(
-                    child: _buildCategoriesSection(productProvider, isElderly)),
+                SliverToBoxAdapter(child: _buildCategoriesSection(productProvider, isElderly)),
                 const SliverToBoxAdapter(child: SizedBox(height: 16)),
                 SliverToBoxAdapter(
-                    child: _buildQuickReorderSection(orderProvider, productProvider)),
+                  child: _buildQuickReorderSection(orderProvider, productProvider),
+                ),
               ] else ...[
                 // ── Standard, full-featured mode ──────────────────────
                 const SliverToBoxAdapter(child: SizedBox(height: 12)),
@@ -268,8 +265,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-                SliverToBoxAdapter(
-                    child: _buildRecentlyViewed(productProvider)),
+                SliverToBoxAdapter(child: _buildRecentlyViewed(productProvider)),
 
                 // 8. Smart tools
                 const SliverToBoxAdapter(child: SizedBox(height: 8)),
@@ -295,9 +291,7 @@ class _HomeScreenState extends State<HomeScreen> {
   //  GREETING
   // ════════════════════════════════════════════════════════════════════════
   Widget _buildGreeting(String? name, bool isShopOpen) {
-    final first = (name != null && name.trim().isNotEmpty)
-        ? name.trim().split(' ').first
-        : null;
+    final first = (name != null && name.trim().isNotEmpty) ? name.trim().split(' ').first : null;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 10),
       child: Row(
@@ -361,10 +355,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Positioned.fill(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
-                child: const FloatingBubbles(
-                  color: Colors.white,
-                  count: 5,
-                ),
+                child: const FloatingBubbles(color: Colors.white, count: 5),
               ),
             ),
             Positioned(
@@ -393,9 +384,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        child: const Center(
-                          child: Text('🛒', style: TextStyle(fontSize: 26)),
-                        ),
+                        child: const Center(child: Text('🛒', style: TextStyle(fontSize: 26))),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -415,8 +404,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(height: 2),
                             const Row(
                               children: [
-                                Icon(Icons.verified_rounded,
-                                    size: 13, color: Colors.white),
+                                Icon(Icons.verified_rounded, size: 13, color: Colors.white),
                                 SizedBox(width: 4),
                                 Text(
                                   'Your trusted local store',
@@ -467,10 +455,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _statusPill(bool open) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-      ),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -516,23 +501,14 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           const SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 10,
-              color: Colors.white.withValues(alpha: 0.85),
-            ),
-          ),
+          Text(label, style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.85))),
         ],
       ),
     );
   }
 
-  Widget _heroDivider() => Container(
-        width: 1,
-        height: 28,
-        color: Colors.white.withValues(alpha: 0.25),
-      );
+  Widget _heroDivider() =>
+      Container(width: 1, height: 28, color: Colors.white.withValues(alpha: 0.25));
 
   Widget _heroChip(String text) {
     return Container(
@@ -544,11 +520,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: Text(
         text,
-        style: const TextStyle(
-          fontSize: 11.5,
-          fontWeight: FontWeight.w700,
-          color: Colors.white,
-        ),
+        style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Colors.white),
       ),
     );
   }
@@ -611,9 +583,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _offerCard(_Offer o) {
     return GestureDetector(
       onTap: () {
-        if (o.code == 'VOICE') {
-          _openVoiceSearch();
-        } else if (o.code == 'WALLET') {
+        if (o.code == 'WALLET') {
           context.push('/customer/wallet');
         } else {
           context.push('/customer/search');
@@ -663,10 +633,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     o.subtitle,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.white.withValues(alpha: 0.9),
-                    ),
+                    style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.9)),
                   ),
                 ],
               ),
@@ -698,9 +665,9 @@ class _HomeScreenState extends State<HomeScreen> {
         icon: Icons.kitchen_rounded,
         label: 'Smart Kitchen',
         color: const Color(0xFF2E7D32),
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const SmartKitchenScreen()),
-        ),
+        onTap: () => Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const SmartKitchenScreen())),
       ),
       _QuickAction(
         icon: Icons.account_balance_wallet_rounded,
@@ -770,8 +737,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return FutureBuilder<List<String>>(
       future: user != null
-          ? Future.value(RecommendationService.getFavoriteCategories(
-              orderProvider.orders, productProvider.products))
+          ? Future.value(
+              RecommendationService.getFavoriteCategories(
+                orderProvider.orders,
+                productProvider.products,
+              ),
+            )
           : Future.value(<String>[]),
       builder: (context, favSnapshot) {
         final favCategories = favSnapshot.data ?? [];
@@ -802,54 +773,57 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
               ),
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 14,
-                  crossAxisSpacing: 14,
-                  childAspectRatio: 1.5,
-                ),
-                itemCount: display.length,
-                itemBuilder: (context, index) {
-                  final cat = display[index];
-                  final selected =
-                      productProvider.selectedCategory == cat.name.toLowerCase();
-                  return GestureDetector(
-                    onTap: () => productProvider.setSelectedCategory(
-                        selected ? '' : cat.name.toLowerCase()),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: selected
-                            ? AppTheme.primary.withValues(alpha: 0.15)
-                            : _catColor(cat.color).withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(
-                          color: selected ? AppTheme.primary : AppTheme.grey300,
-                          width: selected ? 3 : 1.5,
+              SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 14,
+                    crossAxisSpacing: 14,
+                    childAspectRatio: 1.5,
+                  ),
+                  itemCount: display.length,
+                  itemBuilder: (context, index) {
+                    final cat = display[index];
+                    final selected = productProvider.selectedCategory == cat.name.toLowerCase();
+                    return GestureDetector(
+                      onTap: () =>
+                          productProvider.setSelectedCategory(selected ? '' : cat.name.toLowerCase()),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: selected
+                              ? AppTheme.primary.withValues(alpha: 0.15)
+                              : _catColor(cat.color).withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
+                            color: selected ? AppTheme.primary : AppTheme.grey300,
+                            width: selected ? 3 : 1.5,
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(cat.icon, style: const TextStyle(fontSize: 38)),
+                            const SizedBox(height: 6),
+                            Text(
+                              cat.name,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: selected ? AppTheme.primary : AppTheme.grey900,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(cat.icon, style: const TextStyle(fontSize: 38)),
-                          const SizedBox(height: 6),
-                          Text(
-                            cat.name,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: selected ? AppTheme.primary : AppTheme.grey900,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ],
           );
@@ -863,17 +837,21 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(AppLocalizations.of(context)!.translate('whatDoYouNeed'),
-                      style: const TextStyle(
-                          fontSize: 17, fontWeight: FontWeight.w800)),
+                  Text(
+                    AppLocalizations.of(context)!.translate('whatDoYouNeed'),
+                    style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+                  ),
                   if (productProvider.selectedCategory.isNotEmpty)
                     GestureDetector(
                       onTap: () => productProvider.setSelectedCategory(''),
-                      child: Text(AppLocalizations.of(context)!.translate('clear'),
-                          style: const TextStyle(
-                              color: AppTheme.primary,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 13)),
+                      child: Text(
+                        AppLocalizations.of(context)!.translate('clear'),
+                        style: const TextStyle(
+                          color: AppTheme.primary,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                        ),
+                      ),
                     ),
                 ],
               ),
@@ -884,8 +862,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: GridView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-                gridDelegate:
-                    const SliverGridDelegateWithFixedCrossAxisCount(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   mainAxisSpacing: 4,
                   crossAxisSpacing: 8,
@@ -900,11 +877,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            const WaveDivider(
-              color: AppTheme.primary,
-              height: 16,
-              speed: 0.6,
-            ),
+            const WaveDivider(color: AppTheme.primary, height: 16, speed: 0.6),
           ],
         );
       },
@@ -915,8 +888,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final selected = provider.selectedCategory == cat.id;
     final color = _catColor(cat.color);
     return GestureDetector(
-      onTap: () => provider
-          .setSelectedCategory(selected ? '' : cat.id),
+      onTap: () => provider.setSelectedCategory(selected ? '' : cat.id),
       child: SizedBox(
         width: 78,
         child: Column(
@@ -935,9 +907,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: 2,
                 ),
               ),
-              child: Center(
-                child: Text(cat.icon, style: const TextStyle(fontSize: 28)),
-              ),
+              child: Center(child: Text(cat.icon, style: const TextStyle(fontSize: 28))),
             ),
             const SizedBox(height: 6),
             Text(
@@ -1020,10 +990,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Positioned(
                 right: -16,
                 bottom: -16,
-                child: Opacity(
-                  opacity: 0.18,
-                  child: Icon(icon, size: 150, color: Colors.white),
-                ),
+                child: Opacity(opacity: 0.18, child: Icon(icon, size: 150, color: Colors.white)),
               ),
               Padding(
                 padding: const EdgeInsets.all(18),
@@ -1031,28 +998,31 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(title,
-                        style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white)),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                      ),
+                    ),
                     const SizedBox(height: 2),
-                    Text(subtitle,
-                        style: const TextStyle(
-                            fontSize: 13, color: Colors.white)),
+                    Text(subtitle, style: const TextStyle(fontSize: 13, color: Colors.white)),
                     const SizedBox(height: 12),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 7),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Text('Shop Now →',
-                          style: TextStyle(
-                              color: AppTheme.primary,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 13)),
+                      child: const Text(
+                        'Shop Now →',
+                        style: TextStyle(
+                          color: AppTheme.primary,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 13,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -1078,20 +1048,16 @@ class _HomeScreenState extends State<HomeScreen> {
       title: '⚡ Lightning Deals',
       subtitleWidget: Row(
         children: [
-          const PulsingLive(
-            color: Color(0xFFEF4444),
-            size: 8,
-            label: 'LIVE',
-          ),
+          const PulsingLive(color: Color(0xFFEF4444), size: 8, label: 'LIVE'),
           const SizedBox(width: 8),
-          const Text('Ends in ',
-              style: TextStyle(fontSize: 12, color: AppTheme.grey600)),
+          const Text('Ends in ', style: TextStyle(fontSize: 12, color: AppTheme.grey600)),
           CountdownTimer(
             endTime: endTime,
             style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.error),
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.error,
+            ),
           ),
         ],
       ),
@@ -1104,7 +1070,10 @@ class _HomeScreenState extends State<HomeScreen> {
   //  SMART PURCHASING  (buy again + saved lists + kitchen)
   // ════════════════════════════════════════════════════════════════════════
   Widget _buildSmartPurchasingSection(
-      OrderProvider orderProvider, ProductProvider productProvider, String? userId) {
+    OrderProvider orderProvider,
+    ProductProvider productProvider,
+    String? userId,
+  ) {
     final recentIds = orderProvider.getFrequentlyBoughtProductIds();
     if (recentIds.isEmpty && userId == null) return const SizedBox.shrink();
 
@@ -1112,8 +1081,7 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
         color: AppTheme.primary.withValues(alpha: 0.03),
-        border:
-            const Border.symmetric(horizontal: BorderSide(color: AppTheme.grey200)),
+        border: const Border.symmetric(horizontal: BorderSide(color: AppTheme.grey200)),
       ),
       child: Column(
         children: [
@@ -1125,8 +1093,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildQuickReorderSection(
-      OrderProvider orderProvider, ProductProvider productProvider) {
+  Widget _buildQuickReorderSection(OrderProvider orderProvider, ProductProvider productProvider) {
     final ap = Provider.of<AccessibilityProvider>(context, listen: false);
     final recentIds = orderProvider.getFrequentlyBoughtProductIds();
     if (recentIds.isEmpty) return const SizedBox.shrink();
@@ -1143,12 +1110,12 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
           child: Row(
             children: [
-              const Icon(Icons.history_rounded,
-                  size: 18, color: AppTheme.primary),
+              const Icon(Icons.history_rounded, size: 18, color: AppTheme.primary),
               const SizedBox(width: 6),
-              Text(ap.label(en: 'Buy Again', hi: 'दोबारा खरीदें'),
-                  style: const TextStyle(
-                      fontSize: 17, fontWeight: FontWeight.w800)),
+              Text(
+                ap.label(en: 'Buy Again', hi: 'दोबारा खरीदें'),
+                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+              ),
             ],
           ),
         ),
@@ -1159,8 +1126,7 @@ class _HomeScreenState extends State<HomeScreen> {
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 10),
             itemCount: products.length,
-            itemBuilder: (context, index) =>
-                QuickReorderCard(product: products[index]),
+            itemBuilder: (context, index) => QuickReorderCard(product: products[index]),
           ),
         ),
         const SizedBox(height: 8),
@@ -1187,9 +1153,10 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(ap.label(en: '📋 My Grocery Lists', hi: '📋 मेरी लिस्ट'),
-                      style: const TextStyle(
-                          fontSize: 17, fontWeight: FontWeight.w800)),
+                  Text(
+                    ap.label(en: '📋 My Grocery Lists', hi: '📋 मेरी लिस्ट'),
+                    style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+                  ),
                   TextButton(
                     onPressed: () => context.push('/customer/orders'),
                     child: Text(ap.label(en: 'Manage', hi: 'देखें')),
@@ -1204,8 +1171,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 itemCount: templates.length,
-                itemBuilder: (context, index) =>
-                    _presetCard(templates[index]),
+                itemBuilder: (context, index) => _presetCard(templates[index]),
               ),
             ),
             const SizedBox(height: 8),
@@ -1244,13 +1210,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 Row(
                   children: [
                     Icon(
-                      template.isAutoGenerated
-                          ? Icons.auto_awesome
-                          : Icons.bookmark,
+                      template.isAutoGenerated ? Icons.auto_awesome : Icons.bookmark,
                       size: 18,
-                      color: template.isAutoGenerated
-                          ? Colors.purple
-                          : AppTheme.success,
+                      color: template.isAutoGenerated ? Colors.purple : AppTheme.success,
                     ),
                     const SizedBox(width: 6),
                     Expanded(
@@ -1259,9 +1221,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.grey900),
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.grey900,
+                        ),
                       ),
                     ),
                   ],
@@ -1269,13 +1232,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 8),
                 Text(
                   '${template.itemCount} items • ₹${template.estimatedTotal.round()}',
-                  style:
-                      const TextStyle(fontSize: 12, color: AppTheme.grey600),
+                  style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
                 ),
                 const Spacer(),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.8),
                     borderRadius: BorderRadius.circular(8),
@@ -1285,11 +1246,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       const Icon(Icons.replay, size: 14, color: AppTheme.primary),
                       const SizedBox(width: 4),
-                      Text(ap.label(en: 'Reorder', hi: 'ऑर्डर करें'),
-                          style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.primary)),
+                      Text(
+                        ap.label(en: 'Reorder', hi: 'ऑर्डर करें'),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.primary,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -1318,8 +1282,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(result.summaryMessage),
-          backgroundColor:
-              result.hasUnavailableItems ? AppTheme.warning : AppTheme.success,
+          backgroundColor: result.hasUnavailableItems ? AppTheme.warning : AppTheme.success,
           duration: const Duration(seconds: 3),
           action: SnackBarAction(
             label: 'VIEW CART',
@@ -1331,9 +1294,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context.push('/customer/cart');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(result.summaryMessage),
-            backgroundColor: AppTheme.error),
+        SnackBar(content: Text(result.summaryMessage), backgroundColor: AppTheme.error),
       );
     }
   }
@@ -1351,8 +1312,9 @@ class _HomeScreenState extends State<HomeScreen> {
         return Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
           child: GestureDetector(
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => const SmartKitchenScreen())),
+            onTap: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const SmartKitchenScreen())),
             child: Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
@@ -1368,9 +1330,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Smart Kitchen Alert!',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 14)),
+                        const Text(
+                          'Smart Kitchen Alert!',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        ),
                         Text(
                           'Running low on ${low.length} staples like ${low.first.productName}.',
                           style: const TextStyle(fontSize: 12),
@@ -1392,18 +1355,18 @@ class _HomeScreenState extends State<HomeScreen> {
   //  PRODUCT RAILS
   // ════════════════════════════════════════════════════════════════════════
   Widget _buildBestSellers(ProductProvider p) => _productRail(
-        title: '🏆 Bestsellers at Fufaji’s',
-        subtitle: 'What the neighbourhood loves',
-        products: p.featuredProducts,
-        categoryFilter: p.selectedCategory,
-      );
+    title: '🏆 Bestsellers at Fufaji’s',
+    subtitle: 'What the neighbourhood loves',
+    products: p.featuredProducts,
+    categoryFilter: p.selectedCategory,
+  );
 
   Widget _buildTrending(ProductProvider p) => _productRail(
-        title: '🔥 Trending Now',
-        subtitle: 'Flying off the shelves',
-        products: p.trendingProducts,
-        categoryFilter: p.selectedCategory,
-      );
+    title: '🔥 Trending Now',
+    subtitle: 'Flying off the shelves',
+    products: p.trendingProducts,
+    categoryFilter: p.selectedCategory,
+  );
 
   Widget _buildLocalPicks(ProductProvider p, String? district, String? village) {
     final local = p.getLocalProducts(district: district, village: village);
@@ -1452,8 +1415,8 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
               child: FufajiSkeleton(width: 180, height: 18, borderRadius: 6),
             ),
             const SizedBox(height: 12),
@@ -1476,10 +1439,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final filtered = (categoryFilter != null && categoryFilter.isNotEmpty)
-        ? products
-            .where((p) =>
-                p.categoryId.toLowerCase() == categoryFilter.toLowerCase())
-            .toList()
+        ? products.where((p) => p.categoryId.toLowerCase() == categoryFilter.toLowerCase()).toList()
         : products;
 
     if (filtered.isEmpty) return const SizedBox.shrink();
@@ -1497,19 +1457,21 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                              fontSize: 17, fontWeight: FontWeight.w800)),
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+                      ),
                       if (subtitleWidget != null)
                         subtitleWidget
                       else if (subtitle != null)
-                        Text(subtitle,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                                fontSize: 12, color: AppTheme.grey600)),
+                        Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
+                        ),
                     ],
                   ),
                 ),
@@ -1522,7 +1484,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 8),
           SizedBox(
-            height: 262,
+            height: 320, // Increased from 262 to prevent bottom overflow
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -1553,25 +1515,20 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('🛠️ Smart Tools',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
+          const Text(
+            '🛠️ Smart Tools',
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+          ),
           const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
                 child: _smartToolCard(
-                  icon: Icons.mic_rounded,
-                  label: 'Voice Search',
-                  onTap: _openVoiceSearch,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _smartToolCard(
                   icon: Icons.kitchen_rounded,
                   label: 'Smart Kitchen',
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => const SmartKitchenScreen())),
+                  onTap: () => Navigator.of(
+                    context,
+                  ).push(MaterialPageRoute(builder: (_) => const SmartKitchenScreen())),
                 ),
               ),
               const SizedBox(width: 12),
@@ -1591,10 +1548,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     showDialog(
                       context: context,
                       builder: (ctx) => AlertDialog(
-                        title: const Text('Sign Out', style: TextStyle(fontWeight: FontWeight.w700)),
+                        title: const Text(
+                          'Sign Out',
+                          style: TextStyle(fontWeight: FontWeight.w700),
+                        ),
                         content: const Text('Are you sure you want to sign out?'),
                         actions: [
-                          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            child: const Text('Cancel'),
+                          ),
                           TextButton(
                             onPressed: () {
                               Navigator.pop(ctx);
@@ -1633,12 +1596,15 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Icon(icon, color: AppTheme.primary, size: 26),
             const SizedBox(height: 8),
-            Text(label,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.grey800)),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.grey800,
+              ),
+            ),
           ],
         ),
       ),
@@ -1646,7 +1612,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // ════════════════════════════════════════════════════════════════════════
-  //  WHY FUFAJI'S
+  //  WHY FUFAJI’S
   // ════════════════════════════════════════════════════════════════════════
   Widget _buildWhyFufajis() {
     final items = <List<dynamic>>[
@@ -1666,34 +1632,54 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         child: Column(
           children: [
-            const Text('Why shop at Fufaji’s?',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
+            const Text(
+              "Why shop at Fufaji's?",
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+            ),
             const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: items.map((it) {
-                return Column(
-                  children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: (it[2] as Color).withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(14),
+            SizedBox(
+              height: 100,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: items.map((it) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: (it[2] as Color).withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Icon(it[0] as IconData, color: it[2] as Color, size: 24),
+                          ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            width: 60,
+                            child: Text(
+                              it[1] as String,
+                              textAlign: TextAlign.center,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.grey800,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      child: Icon(it[0] as IconData,
-                          color: it[2] as Color, size: 24),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(it[1] as String,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.grey800)),
-                  ],
-                );
-              }).toList(),
+                    );
+                  }).toList(),
+                ),
+              ),
             ),
           ],
         ),
@@ -1707,7 +1693,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildStoreInfoFooter(bool isShopOpen) {
     final shop = Provider.of<ShopConfigProvider>(context, listen: false).shopConfig;
     final name = shop?.shopName ?? "Fufaji's Online Store";
-    final address = shop?.shopAddress ?? 'Jaipur, Rajasthan, India';
+    final address = shop?.shopAddress ?? 'Baran, Rajasthan, India';
     final phone = shop?.shopPhone ?? '';
 
     return Padding(
@@ -1727,25 +1713,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 const Icon(Icons.receipt_long_rounded, size: 20, color: AppTheme.primary),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(name,
-                      style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w800)),
+                  child: Text(
+                    name,
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppTheme.grey900),
+                  ),
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: (isShopOpen ? AppTheme.success : AppTheme.error)
-                        .withValues(alpha: 0.12),
+                    color: (isShopOpen ? AppTheme.success : AppTheme.error).withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Text(isShopOpen ? 'Open now' : 'Closed',
-                      style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: isShopOpen
-                              ? AppTheme.secondaryDark
-                              : AppTheme.error)),
+                  child: Text(
+                    isShopOpen ? 'Open now' : 'Closed',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: isShopOpen ? AppTheme.success : AppTheme.error,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -1816,8 +1802,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Icon(icon, size: 15, color: AppTheme.grey500),
         const SizedBox(width: 8),
         Expanded(
-          child: Text(text,
-              style: const TextStyle(fontSize: 12.5, color: AppTheme.grey700)),
+          child: Text(text, style: const TextStyle(fontSize: 12.5, color: AppTheme.grey700)),
         ),
       ],
     );
@@ -1830,10 +1815,10 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Text(
           'Made for our neighbourhood.\nFrom Fufaji’s, with ❤️',
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: AppTheme.grey400,
+            color: AppTheme.grey600,
             height: 1.4,
           ),
         ),
@@ -1888,9 +1873,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         Text(
                           ap.label(en: 'Speak to Order', hi: 'बोलकर ऑर्डर करें'),
                           style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.white),
+                            fontSize: 24,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                          ),
                         ),
                         const SizedBox(height: 6),
                         Text(
@@ -1899,9 +1885,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             hi: 'यहाँ दबाएं और बोलें जो भी सामान चाहिए',
                           ),
                           style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white.withValues(alpha: 0.8),
-                              fontWeight: FontWeight.bold),
+                            fontSize: 14,
+                            color: Colors.white.withValues(alpha: 0.8),
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
@@ -1918,15 +1905,6 @@ class _HomeScreenState extends State<HomeScreen> {
   // ════════════════════════════════════════════════════════════════════════
   //  HELPERS
   // ════════════════════════════════════════════════════════════════════════
-  Future<void> _openVoiceSearch() async {
-    final result = await showDialog<String>(
-      context: context,
-      builder: (ctx) => const VoiceSearchDialog(),
-    );
-    if (result != null && result.isNotEmpty && mounted) {
-      context.push('/customer/search?q=$result');
-    }
-  }
 
   Future<void> _call(String phone) async {
     final url = Uri.parse('tel:${phone.replaceAll(' ', '')}');
@@ -1936,12 +1914,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _openWhatsapp() async {
-    final phone = RemoteConfigService()
-        .supportPhone
-        .replaceAll('+', '')
-        .replaceAll(' ', '');
-    final url =
-        Uri.parse('https://wa.me/$phone?text=Hello Fufaji, I need help.');
+    final phone = RemoteConfigService().supportPhone.replaceAll('+', '').replaceAll(' ', '');
+    final url = Uri.parse('https://wa.me/$phone?text=Hello Fufaji, I need help.');
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     }
@@ -1966,10 +1940,7 @@ class _ShopClosedBanner extends StatelessWidget {
           Flexible(
             child: Text(
               'Shop is closed right now — browse freely, order when we reopen.',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12.5),
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.5),
             ),
           ),
         ],
@@ -1989,6 +1960,7 @@ class _SearchPinnedDelegate extends SliverPersistentHeaderDelegate {
   final String? district;
   final String? village;
   final bool isElderly;
+  final double topPadding;
 
   const _SearchPinnedDelegate({
     required this.hint,
@@ -1998,13 +1970,14 @@ class _SearchPinnedDelegate extends SliverPersistentHeaderDelegate {
     this.district,
     this.village,
     required this.isElderly,
+    required this.topPadding,
   });
 
   @override
-  double get minExtent => 64;
+  double get minExtent => 64 + topPadding;
 
   @override
-  double get maxExtent => 110;
+  double get maxExtent => 110 + topPadding;
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
@@ -2014,6 +1987,7 @@ class _SearchPinnedDelegate extends SliverPersistentHeaderDelegate {
     return Container(
       height: (maxExtent - shrinkOffset).clamp(minExtent, maxExtent),
       color: AppTheme.cream,
+      padding: EdgeInsets.only(top: topPadding),
       child: Column(
         children: [
           if (showLocation)
@@ -2071,7 +2045,8 @@ class _SearchPinnedDelegate extends SliverPersistentHeaderDelegate {
       old.district != district ||
       old.village != village ||
       old.hint != hint ||
-      old.isElderly != isElderly;
+      old.isElderly != isElderly ||
+      old.topPadding != topPadding;
 }
 
 class _LocationRow extends StatelessWidget {
@@ -2084,7 +2059,7 @@ class _LocationRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final location = (village != null && village!.isNotEmpty)
         ? '$village, ${district ?? ''}'
-        : (district ?? 'Jaipur');
+        : (district ?? 'Baran');
 
     return GestureDetector(
       onTap: () => context.push('/customer/addresses'),
@@ -2093,20 +2068,19 @@ class _LocationRow extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(14, 10, 14, 2),
         child: Row(
           children: [
-            const Icon(Icons.location_on_rounded,
-                size: 16, color: AppTheme.primary),
+            const Icon(Icons.location_on_rounded, size: 16, color: AppTheme.primary),
             const SizedBox(width: 4),
-            const Text('Deliver to ',
-                style: TextStyle(fontSize: 12, color: AppTheme.grey500)),
+            const Text('Deliver to ', style: TextStyle(fontSize: 12, color: AppTheme.grey500)),
             Flexible(
               child: Text(
                 location,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.grey900),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.grey900,
+                ),
               ),
             ),
           ],

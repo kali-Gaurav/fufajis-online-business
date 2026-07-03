@@ -126,34 +126,46 @@ class _NotificationAnalyticsScreenState extends State<NotificationAnalyticsScree
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent))
           : _error != null
-              ? Center(child: Text('Failed to load: $_error'))
-              : RefreshIndicator(
-                  onRefresh: _load,
-                  child: ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      _buildOverviewCard(),
-                      const SizedBox(height: 16),
-                      const Text('By Notification Type', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                      const SizedBox(height: 8),
-                      if (_typeStats.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8),
-                          child: Text('No notifications delivered yet.', style: TextStyle(color: Colors.grey)),
-                        )
-                      else
-                        ..._typeStats.map((s) => _TypeStatCard(stat: s)),
-                      const SizedBox(height: 16),
-                      const Text('Scheduled Notifications', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                      const SizedBox(height: 8),
-                      _buildStatusCard(_scheduledCounts, Icons.schedule_send_outlined),
-                      const SizedBox(height: 16),
-                      const Text('Broadcast Notifications', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                      const SizedBox(height: 8),
-                      _buildStatusCard(_broadcastCounts, Icons.campaign_outlined),
-                    ],
+          ? Center(child: Text('Failed to load: $_error'))
+          : RefreshIndicator(
+              onRefresh: _load,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  _buildOverviewCard(),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'By Notification Type',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  if (_typeStats.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      child: Text(
+                        'No notifications delivered yet.',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    )
+                  else
+                    ..._typeStats.map((s) => _TypeStatCard(stat: s)),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Scheduled Notifications',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildStatusCard(_scheduledCounts, Icons.schedule_send_outlined),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Broadcast Notifications',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildStatusCard(_broadcastCounts, Icons.campaign_outlined),
+                ],
+              ),
+            ),
     );
   }
 
@@ -167,8 +179,20 @@ class _NotificationAnalyticsScreenState extends State<NotificationAnalyticsScree
           const SizedBox(height: 12),
           Row(
             children: [
-              Expanded(child: _MetricBlock(label: 'Delivered', value: _totalDelivered.toString(), color: AppTheme.info)),
-              Expanded(child: _MetricBlock(label: 'Opened', value: _totalRead.toString(), color: AppTheme.success)),
+              Expanded(
+                child: _MetricBlock(
+                  label: 'Delivered',
+                  value: _totalDelivered.toString(),
+                  color: AppTheme.info,
+                ),
+              ),
+              Expanded(
+                child: _MetricBlock(
+                  label: 'Opened',
+                  value: _totalRead.toString(),
+                  color: AppTheme.success,
+                ),
+              ),
               Expanded(
                 child: _MetricBlock(
                   label: 'Open Rate',
@@ -200,9 +224,21 @@ class _NotificationAnalyticsScreenState extends State<NotificationAnalyticsScree
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _MetricBlock(label: 'Pending', value: (counts['pending'] ?? 0).toString(), color: AppTheme.warning),
-              _MetricBlock(label: 'Sent', value: (counts['sent'] ?? 0).toString(), color: AppTheme.success),
-              _MetricBlock(label: 'Failed', value: (counts['failed'] ?? 0).toString(), color: AppTheme.error),
+              _MetricBlock(
+                label: 'Pending',
+                value: (counts['pending'] ?? 0).toString(),
+                color: AppTheme.warning,
+              ),
+              _MetricBlock(
+                label: 'Sent',
+                value: (counts['sent'] ?? 0).toString(),
+                color: AppTheme.success,
+              ),
+              _MetricBlock(
+                label: 'Failed',
+                value: (counts['failed'] ?? 0).toString(),
+                color: AppTheme.error,
+              ),
             ],
           ),
         ],
@@ -221,7 +257,10 @@ class _MetricBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(value, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: color)),
+        Text(
+          value,
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: color),
+        ),
         const SizedBox(height: 2),
         Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
       ],
@@ -255,7 +294,10 @@ class _TypeStatCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-              Text('${pct.toStringAsFixed(1)}% opened', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+              Text(
+                '${pct.toStringAsFixed(1)}% opened',
+                style: TextStyle(color: Colors.grey[600], fontSize: 12),
+              ),
             ],
           ),
           const SizedBox(height: 8),
@@ -269,7 +311,10 @@ class _TypeStatCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          Text('${stat.read} of ${stat.total} opened', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+          Text(
+            '${stat.read} of ${stat.total} opened',
+            style: TextStyle(color: Colors.grey[600], fontSize: 12),
+          ),
         ],
       ),
     );

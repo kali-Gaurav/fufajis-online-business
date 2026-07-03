@@ -22,8 +22,7 @@ class InventoryServiceFixed {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseFunctions _functions = FirebaseFunctions.instance;
 
-  static final InventoryServiceFixed _instance =
-      InventoryServiceFixed._internal();
+  static final InventoryServiceFixed _instance = InventoryServiceFixed._internal();
 
   factory InventoryServiceFixed() => _instance;
   InventoryServiceFixed._internal();
@@ -66,19 +65,17 @@ class InventoryServiceFixed {
       debugPrint(
         '[InventoryServiceFixed] Stock deducted successfully. '
         'Product: $productId, Before: ${data['stockBefore']}, '
-        'After: ${data['stockAfter']}, Order: $orderId'
+        'After: ${data['stockAfter']}, Order: $orderId',
       );
 
       return data;
     } on FirebaseFunctionsException catch (e) {
-      debugPrint(
-        '[InventoryServiceFixed] CloudFunction error: ${e.code} - ${e.message}'
-      );
+      debugPrint('[InventoryServiceFixed] CloudFunction error: ${e.code} - ${e.message}');
 
       // User-friendly error messages
       if (e.code == 'resource-exhausted') {
         throw Exception(
-          'Product is being processed by another order. Please try again in a few seconds.'
+          'Product is being processed by another order. Please try again in a few seconds.',
         );
       } else if (e.code == 'failed-precondition') {
         throw Exception(e.message ?? 'Out of stock');
@@ -97,17 +94,11 @@ class InventoryServiceFixed {
   ///
   /// Use this ONLY if a transaction fails partway through and leaves
   /// a lock in place. Normal operations should not call this.
-  Future<void> releaseLock({
-    required String productId,
-    required String orderId,
-  }) async {
+  Future<void> releaseLock({required String productId, required String orderId}) async {
     try {
       final callable = _functions.httpsCallable('releaseInventoryLock');
 
-      await callable.call({
-        'productId': productId,
-        'orderId': orderId,
-      });
+      await callable.call({'productId': productId, 'orderId': orderId});
 
       debugPrint('[InventoryServiceFixed] Lock released for $productId');
     } catch (e) {
@@ -120,15 +111,9 @@ class InventoryServiceFixed {
   ///
   /// This is a lightweight check to display available stock to users.
   /// It does NOT reserve stock - use deductInventorySafe() for that.
-  Future<int> getAvailableStock({
-    required String productId,
-    required String shopId,
-  }) async {
+  Future<int> getAvailableStock({required String productId, required String shopId}) async {
     try {
-      final docSnapshot = await _firestore
-          .collection('products')
-          .doc(productId)
-          .get();
+      final docSnapshot = await _firestore.collection('products').doc(productId).get();
 
       if (!docSnapshot.exists) {
         return 0;
@@ -185,29 +170,22 @@ class InventoryServiceFixed {
   }
 
   /// Stream stock updates for a product (real-time UI updates)
-  Stream<int> watchStock({
-    required String productId,
-    required String shopId,
-  }) {
-    return _firestore
-        .collection('products')
-        .doc(productId)
-        .snapshots()
-        .map((snapshot) {
-          if (!snapshot.exists) return 0;
+  Stream<int> watchStock({required String productId, required String shopId}) {
+    return _firestore.collection('products').doc(productId).snapshots().map((snapshot) {
+      if (!snapshot.exists) return 0;
 
-          final data = snapshot.data()!;
-          final branchStockMap = data['branchStock'] as Map<String, dynamic>? ?? {};
+      final data = snapshot.data()!;
+      final branchStockMap = data['branchStock'] as Map<String, dynamic>? ?? {};
 
-          int stock = 0;
-          if (branchStockMap.containsKey(shopId)) {
-            stock = (branchStockMap[shopId] ?? 0) as int;
-          } else if (shopId == 'primary' || branchStockMap.isEmpty) {
-            stock = (data['stockQuantity'] ?? 0) as int;
-          }
+      int stock = 0;
+      if (branchStockMap.containsKey(shopId)) {
+        stock = (branchStockMap[shopId] ?? 0) as int;
+      } else if (shopId == 'primary' || branchStockMap.isEmpty) {
+        stock = (data['stockQuantity'] ?? 0) as int;
+      }
 
-          return stock;
-        });
+      return stock;
+    });
   }
 
   /// Check if stock is below low-stock threshold
@@ -216,10 +194,7 @@ class InventoryServiceFixed {
     required int lowStockThreshold,
     required String shopId,
   }) async {
-    final stock = await getAvailableStock(
-      productId: productId,
-      shopId: shopId,
-    );
+    final stock = await getAvailableStock(productId: productId, shopId: shopId);
     return stock < lowStockThreshold;
   }
 }

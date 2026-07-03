@@ -57,8 +57,8 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
   Widget build(BuildContext context) {
     final locationProvider = Provider.of<LocationProvider>(context, listen: false);
     final currentAddress = widget.selectedAddress;
-    final isInDeliveryZone = currentAddress != null &&
-        locationProvider.isAddressWithinDeliveryRadius(currentAddress);
+    final isInDeliveryZone =
+        currentAddress != null && locationProvider.isAddressWithinDeliveryRadius(currentAddress);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -69,11 +69,7 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
           children: [
             const Text(
               'Delivery Address',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.grey900,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey900),
             ),
             TextButton.icon(
               onPressed: () => context.go('/customer/addresses'),
@@ -89,10 +85,7 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
         if (_loadingAddresses)
           Container(
             padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
             child: const Center(child: CircularProgressIndicator(color: AppTheme.primary)),
           )
         else if (_addresses.isEmpty)
@@ -112,11 +105,7 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
             ),
             child: Column(
               children: [
-                const Icon(
-                  Icons.location_off,
-                  size: 48,
-                  color: AppTheme.grey400,
-                ),
+                const Icon(Icons.location_off, size: 48, color: AppTheme.grey400),
                 const SizedBox(height: 16),
                 const Text(
                   'No saved addresses',
@@ -152,9 +141,7 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
 
         // Voice Landmark Tagging
         if (widget.selectedAddress != null && isInDeliveryZone) ...[
-          VoiceLandmarkWidget(
-            onRecordingComplete: (path) => widget.onVoiceLandmarkRecorded(path),
-          ),
+          VoiceLandmarkWidget(onRecordingComplete: (path) => widget.onVoiceLandmarkRecorded(path)),
           const SizedBox(height: 16),
         ],
 
@@ -170,24 +157,17 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
 
         // Continue button
         ElevatedButton(
-          onPressed: widget.selectedAddress != null && isInDeliveryZone
-              ? widget.onContinue
-              : null,
+          onPressed: widget.selectedAddress != null && isInDeliveryZone ? widget.onContinue : null,
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.primary,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             disabledBackgroundColor: AppTheme.grey300,
           ),
           child: const Text(
             'Continue to Payment',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
       ],
@@ -240,9 +220,7 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
-                      address.label.toLowerCase() == 'home'
-                          ? Icons.home
-                          : Icons.business,
+                      address.label.toLowerCase() == 'home' ? Icons.home : Icons.business,
                       color: isSelected ? AppTheme.primary : AppTheme.grey600,
                     ),
                   ),
@@ -264,10 +242,7 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
                             if (address.isDefault) ...[
                               const SizedBox(width: 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
-                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
                                   color: AppTheme.success.withValues(alpha: 0.15),
                                   borderRadius: BorderRadius.circular(4),
@@ -286,18 +261,14 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
                         ),
                         Text(
                           address.fullAddress,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: AppTheme.grey600,
-                          ),
+                          style: const TextStyle(fontSize: 13, color: AppTheme.grey600),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
                   ),
-                  if (isSelected)
-                    const Icon(Icons.check_circle, color: AppTheme.primary),
+                  if (isSelected) const Icon(Icons.check_circle, color: AppTheme.primary),
                 ],
               ),
               if (!isInDeliveryZone) ...[
@@ -310,11 +281,7 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(
-                        Icons.block,
-                        color: AppTheme.error,
-                        size: 16,
-                      ),
+                      const Icon(Icons.block, color: AppTheme.error, size: 16),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -354,18 +321,11 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.map,
-                    size: 40,
-                    color: AppTheme.grey400,
-                  ),
+                  const Icon(Icons.map, size: 40, color: AppTheme.grey400),
                   const SizedBox(height: 8),
                   Text(
                     address.fullAddress,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.grey500,
-                    ),
+                    style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -440,8 +400,8 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
               isInDeliveryZone
                   ? 'Delivery available at this address'
                   : widget.selectedAddress != null
-                      ? locationProvider.deliveryZoneMessageFor(widget.selectedAddress!)
-                      : 'Please select a valid address',
+                  ? locationProvider.deliveryZoneMessageFor(widget.selectedAddress!)
+                  : 'Please select a valid address',
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -454,4 +414,3 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
     );
   }
 }
-

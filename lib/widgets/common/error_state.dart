@@ -5,11 +5,7 @@ class FjErrorState extends StatelessWidget {
   final String error;
   final VoidCallback onRetry;
 
-  const FjErrorState({
-    super.key,
-    required this.error,
-    required this.onRetry,
-  });
+  const FjErrorState({super.key, required this.error, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -23,11 +19,7 @@ class FjErrorState extends StatelessWidget {
             const SizedBox(height: 24),
             const Text(
               'Oops! Something went wrong',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.grey900,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey900),
             ),
             const SizedBox(height: 8),
             Text(

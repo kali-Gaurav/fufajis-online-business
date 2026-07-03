@@ -7,6 +7,7 @@ import '../providers/auth_provider.dart';
 import '../models/user_model.dart';
 import '../screens/splash_screen.dart';
 import '../screens/login_screen.dart';
+import '../screens/auth/email_login_screen.dart';
 import '../screens/otp_screen.dart';
 import '../screens/role_select_screen.dart';
 import '../screens/customer/customer_shell.dart';
@@ -109,6 +110,12 @@ import '../screens/customer/membership_screen.dart';
 import '../screens/rider/rider_map_screen.dart';
 import '../screens/admin/dead_letter_dashboard_screen.dart';
 import '../screens/owner/rider_pulse_heatmap_screen.dart';
+// FIX (Module 10, P0-10.4): these three finance screens were fully built
+// (real Razorpay/RazorpayX integration) but had zero router entries —
+// no owner could ever reach them.
+import '../screens/owner/refund_processing_screen.dart';
+import '../screens/owner/settlements_management.dart';
+import '../screens/owner/settlement_reporting_screen.dart';
 import '../screens/customer/wishlist_screen.dart';
 import '../screens/customer/loyalty_screen.dart';
 import '../screens/customer/family_management_screen.dart';
@@ -143,37 +150,29 @@ class AppRouter {
   static final GoRouter router = GoRouter(
     refreshListenable: _MultiListenable([
       AuthProvider.instance,
-      GuestProvider(),   // singleton — same instance as MultiProvider
+      GuestProvider(), // singleton — same instance as MultiProvider
     ]),
-    observers: [
-      FirebaseAnalyticsObserver(analytics: _analytics),
-    ],
+    observers: [FirebaseAnalyticsObserver(analytics: _analytics)],
     routes: [
       // Splash Screen — no transition (first frame)
       GoRoute(
         path: '/',
-        pageBuilder: (context, state) => FufajiNoTransition(
-          key: state.pageKey,
-          child: const SplashScreen(),
-        ),
+        pageBuilder: (context, state) =>
+            FufajiNoTransition(key: state.pageKey, child: const SplashScreen()),
       ),
 
       // Profile Creation — fade+scale (onboarding feel)
       GoRoute(
         path: '/profile-creation',
-        pageBuilder: (context, state) => FufajiFadeScaleTransition(
-          key: state.pageKey,
-          child: const ProfileCreationScreen(),
-        ),
+        pageBuilder: (context, state) =>
+            FufajiFadeScaleTransition(key: state.pageKey, child: const ProfileCreationScreen()),
       ),
 
       // Login Screen — fade+scale
       GoRoute(
         path: '/login',
-        pageBuilder: (context, state) => FufajiFadeScaleTransition(
-          key: state.pageKey,
-          child: const LoginScreen(),
-        ),
+        pageBuilder: (context, state) =>
+            FufajiFadeScaleTransition(key: state.pageKey, child: const LoginScreen()),
       ),
 
       // Verification Wall — slide up (it's an interruption)
@@ -191,16 +190,20 @@ class AppRouter {
       // Phone Auth — shared axis horizontal (wizard step)
       GoRoute(
         path: '/auth/phone-login',
-        pageBuilder: (context, state) => FufajiSharedAxisH(
-          key: state.pageKey,
-          child: const PhoneLoginScreen(),
-        ),
+        pageBuilder: (context, state) =>
+            FufajiSharedAxisH(key: state.pageKey, child: const PhoneLoginScreen()),
+      ),
+      // Email Auth
+      GoRoute(
+        path: '/auth/email-login',
+        pageBuilder: (context, state) =>
+            FufajiSharedAxisH(key: state.pageKey, child: const EmailLoginScreen()),
       ),
       GoRoute(
         path: '/auth/phone-verify',
         pageBuilder: (context, state) {
           final phone = state.uri.queryParameters['phone'] ?? '';
-          final role  = state.uri.queryParameters['role'];
+          final role = state.uri.queryParameters['role'];
           return FufajiSharedAxisH(
             key: state.pageKey,
             child: PhoneVerifyScreen(phoneNumber: phone, role: role),
@@ -211,19 +214,15 @@ class AppRouter {
       // Security PIN — slide up (gate/guard feel)
       GoRoute(
         path: '/security-pin',
-        pageBuilder: (context, state) => FufajiSlideUpTransition(
-          key: state.pageKey,
-          child: const SecurityPinScreen(),
-        ),
+        pageBuilder: (context, state) =>
+            FufajiSlideUpTransition(key: state.pageKey, child: const SecurityPinScreen()),
       ),
 
       // Account Picker — fade+scale
       GoRoute(
         path: '/account-picker',
-        pageBuilder: (context, state) => FufajiFadeScaleTransition(
-          key: state.pageKey,
-          child: const AccountPickerScreen(),
-        ),
+        pageBuilder: (context, state) =>
+            FufajiFadeScaleTransition(key: state.pageKey, child: const AccountPickerScreen()),
       ),
 
       // OTP Verification — shared axis (wizard step forward)
@@ -241,57 +240,37 @@ class AppRouter {
       // Role Selection — fade+scale (decision screen)
       GoRoute(
         path: '/role-select',
-        pageBuilder: (context, state) => FufajiFadeScaleTransition(
-          key: state.pageKey,
-          child: const RoleSelectScreen(),
-        ),
+        pageBuilder: (context, state) =>
+            FufajiFadeScaleTransition(key: state.pageKey, child: const RoleSelectScreen()),
       ),
 
       // Customer App Routes
       ShellRoute(
         builder: (context, state, child) => CustomerShell(child: child),
         routes: [
-          GoRoute(
-            path: '/customer/home',
-            builder: (context, state) => const HomeScreen(),
-          ),
+          GoRoute(path: '/customer/home', builder: (context, state) => const HomeScreen()),
           GoRoute(
             path: '/customer/search',
-            builder: (context, state) => SearchScreen(
-              initialQuery: state.uri.queryParameters['q'],
-            ),
+            builder: (context, state) => SearchScreen(initialQuery: state.uri.queryParameters['q']),
           ),
           GoRoute(
             path: '/customer/snap-to-shop',
             builder: (context, state) => const SnapToShopScreen(),
           ),
-          GoRoute(
-            path: '/customer/cart',
-            builder: (context, state) => const CartScreen(),
-          ),
-          GoRoute(
-            path: '/customer/profile',
-            builder: (context, state) => const ProfileScreen(),
-          ),
-          GoRoute(
-            path: '/customer/devices',
-            builder: (context, state) => const MyDevicesScreen(),
-          ),
+          GoRoute(path: '/customer/cart', builder: (context, state) => const CartScreen()),
+          GoRoute(path: '/customer/profile', builder: (context, state) => const ProfileScreen()),
+          GoRoute(path: '/customer/devices', builder: (context, state) => const MyDevicesScreen()),
           GoRoute(
             path: '/customer/product/:productId',
             pageBuilder: (context, state) => FufajiZoomTransition(
               key: state.pageKey,
-              child: ProductDetailScreen(
-                productId: state.pathParameters['productId'] ?? '',
-              ),
+              child: ProductDetailScreen(productId: state.pathParameters['productId'] ?? ''),
             ),
           ),
           GoRoute(
             path: '/customer/checkout',
-            pageBuilder: (context, state) => FufajiSlideUpTransition(
-              key: state.pageKey,
-              child: const CheckoutScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                FufajiSlideUpTransition(key: state.pageKey, child: const CheckoutScreen()),
           ),
           GoRoute(
             path: '/customer/order-confirmation',
@@ -305,47 +284,37 @@ class AppRouter {
           ),
           GoRoute(
             path: '/customer/orders',
-            pageBuilder: (context, state) => FufajiPageTransition(
-              key: state.pageKey,
-              child: const OrdersScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const OrdersScreen()),
           ),
           GoRoute(
             path: '/customer/order-detail/:orderId',
             pageBuilder: (context, state) => FufajiPageTransition(
               key: state.pageKey,
-              child: OrderDetailScreen(
-                orderId: state.pathParameters['orderId'] ?? '',
-              ),
+              child: OrderDetailScreen(orderId: state.pathParameters['orderId'] ?? ''),
             ),
           ),
           GoRoute(
             path: '/customer/dispute/:orderId',
             pageBuilder: (context, state) => FufajiSlideUpTransition(
               key: state.pageKey,
-              child: DisputeScreen(
-                orderId: state.pathParameters['orderId'] ?? '',
-              ),
+              child: DisputeScreen(orderId: state.pathParameters['orderId'] ?? ''),
             ),
           ),
           GoRoute(
             path: '/customer/addresses',
-            pageBuilder: (context, state) => FufajiSlideUpTransition(
-              key: state.pageKey,
-              child: const AddressScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                FufajiSlideUpTransition(key: state.pageKey, child: const AddressScreen()),
           ),
           GoRoute(
             path: '/customer/track/:orderId',
-            builder: (context, state) => DeliveryTrackingScreen(
-              orderId: state.pathParameters['orderId'] ?? '',
-            ),
+            builder: (context, state) =>
+                DeliveryTrackingScreen(orderId: state.pathParameters['orderId'] ?? ''),
           ),
           GoRoute(
             path: '/customer/support-chat/:orderId',
-            builder: (context, state) => SupportChatScreen(
-              orderId: state.pathParameters['orderId'],
-            ),
+            builder: (context, state) =>
+                SupportChatScreen(orderId: state.pathParameters['orderId']),
           ),
           GoRoute(
             path: '/customer/support',
@@ -355,18 +324,12 @@ class AppRouter {
             path: '/customer/wallet',
             builder: (context, state) => const WalletHistoryScreen(),
           ),
-          GoRoute(
-            path: '/customer/my-wallet',
-            builder: (context, state) => const WalletScreen(),
-          ),
+          GoRoute(path: '/customer/my-wallet', builder: (context, state) => const WalletScreen()),
           GoRoute(
             path: '/customer/membership',
             builder: (context, state) => const MembershipScreen(),
           ),
-          GoRoute(
-            path: '/customer/settings',
-            builder: (context, state) => const SettingsScreen(),
-          ),
+          GoRoute(path: '/customer/settings', builder: (context, state) => const SettingsScreen()),
           GoRoute(
             path: '/customer/notifications',
             builder: (context, state) => const NotificationCenter(),
@@ -378,52 +341,38 @@ class AppRouter {
           // ── Missing customer routes wired up ──────────────────────────────
           GoRoute(
             path: '/customer/wishlist',
-            pageBuilder: (context, state) => FufajiPageTransition(
-              key: state.pageKey,
-              child: const WishlistScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const WishlistScreen()),
           ),
           GoRoute(
             path: '/customer/loyalty',
-            pageBuilder: (context, state) => FufajiPageTransition(
-              key: state.pageKey,
-              child: const LoyaltyScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const LoyaltyScreen()),
           ),
           GoRoute(
             path: '/customer/family',
-            pageBuilder: (context, state) => FufajiPageTransition(
-              key: state.pageKey,
-              child: const FamilyManagementScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const FamilyManagementScreen()),
           ),
           GoRoute(
             path: '/customer/smart-kitchen',
-            pageBuilder: (context, state) => FufajiPageTransition(
-              key: state.pageKey,
-              child: const SmartKitchenScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const SmartKitchenScreen()),
           ),
           GoRoute(
             path: '/customer/subscriptions',
-            pageBuilder: (context, state) => FufajiPageTransition(
-              key: state.pageKey,
-              child: const SubscriptionScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const SubscriptionScreen()),
           ),
           GoRoute(
             path: '/customer/identity',
-            pageBuilder: (context, state) => FufajiPageTransition(
-              key: state.pageKey,
-              child: const IdentityContactsScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const IdentityContactsScreen()),
           ),
           GoRoute(
             path: '/customer/refer',
-            pageBuilder: (context, state) => FufajiPageTransition(
-              key: state.pageKey,
-              child: const ReferEarnScreen(),
-            ),
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const ReferEarnScreen()),
           ),
           GoRoute(
             path: '/customer/add-review/:productId',
@@ -444,7 +393,8 @@ class AppRouter {
         routes: [
           GoRoute(
             path: '/owner',
-            builder: (context, state) => const ProductsManagementScreen(), // Default dashboard content
+            builder: (context, state) =>
+                const ProductsManagementScreen(), // Default dashboard content
           ),
           GoRoute(
             path: '/owner/products',
@@ -465,10 +415,7 @@ class AppRouter {
             path: '/owner/orders',
             builder: (context, state) => const OrdersManagementScreen(),
           ),
-          GoRoute(
-            path: '/owner/inventory',
-            builder: (context, state) => const InventoryScreen(),
-          ),
+          GoRoute(path: '/owner/inventory', builder: (context, state) => const InventoryScreen()),
           GoRoute(
             path: '/owner/inventory-alerts',
             builder: (context, state) => const InventoryAlertsScreen(),
@@ -527,13 +474,22 @@ class AppRouter {
           ),
           GoRoute(
             path: '/owner/packing/:orderId',
-            builder: (context, state) => PackingTerminalScreen(
-              orderId: state.pathParameters['orderId'] ?? '',
-            ),
+            builder: (context, state) =>
+                PackingTerminalScreen(orderId: state.pathParameters['orderId'] ?? ''),
+          ),
+          GoRoute(path: '/owner/khata', builder: (context, state) => const BahiKhataScreen()),
+          // FIX (Module 10, P0-10.4): finance screens now reachable.
+          GoRoute(
+            path: '/owner/refunds',
+            builder: (context, state) => const RefundProcessingScreen(),
           ),
           GoRoute(
-            path: '/owner/khata',
-            builder: (context, state) => const BahiKhataScreen(),
+            path: '/owner/settlements',
+            builder: (context, state) => const SettlementsManagementScreen(),
+          ),
+          GoRoute(
+            path: '/owner/settlement-reports',
+            builder: (context, state) => const SettlementReportingScreen(),
           ),
           GoRoute(
             path: '/owner/whatsapp-sync',
@@ -583,10 +539,7 @@ class AppRouter {
             path: '/owner/scan-activity',
             builder: (context, state) => const ScanActivityScreen(),
           ),
-          GoRoute(
-            path: '/owner/chat',
-            builder: (context, state) => const OwnerChatCenterScreen(),
-          ),
+          GoRoute(path: '/owner/chat', builder: (context, state) => const OwnerChatCenterScreen()),
           GoRoute(
             path: '/owner/chat/:chatId',
             builder: (context, state) =>
@@ -638,10 +591,7 @@ class AppRouter {
       ShellRoute(
         builder: (context, state, child) => DeliveryDashboard(child: child),
         routes: [
-          GoRoute(
-            path: '/delivery',
-            builder: (context, state) => const DeliveryOrdersScreen(),
-          ),
+          GoRoute(path: '/delivery', builder: (context, state) => const DeliveryOrdersScreen()),
           GoRoute(
             path: '/delivery/orders',
             builder: (context, state) => const DeliveryOrdersScreen(),
@@ -715,26 +665,11 @@ class AppRouter {
               return AttendanceScreen(qrCodeId: qr);
             },
           ),
-          GoRoute(
-            path: 'cash',
-            builder: (context, state) => const CashCollectionScreen(),
-          ),
-          GoRoute(
-            path: 'returns',
-            builder: (context, state) => const ReturnsScreen(),
-          ),
-          GoRoute(
-            path: 'transfer',
-            builder: (context, state) => const InventoryTransferScreen(),
-          ),
-          GoRoute(
-            path: 'refill',
-            builder: (context, state) => const ShelfRefillScreen(),
-          ),
-          GoRoute(
-            path: 'expiry',
-            builder: (context, state) => const ExpiryManagementScreen(),
-          ),
+          GoRoute(path: 'cash', builder: (context, state) => const CashCollectionScreen()),
+          GoRoute(path: 'returns', builder: (context, state) => const ReturnsScreen()),
+          GoRoute(path: 'transfer', builder: (context, state) => const InventoryTransferScreen()),
+          GoRoute(path: 'refill', builder: (context, state) => const ShelfRefillScreen()),
+          GoRoute(path: 'expiry', builder: (context, state) => const ExpiryManagementScreen()),
 
           // ── New scanner screens ─────────────────────────────────────────────
           GoRoute(
@@ -762,36 +697,26 @@ class AppRouter {
             path: 'member',
             builder: (context, state) {
               final customerId = state.uri.queryParameters['customerId'];
-              return CustomerMembershipScannerScreen(
-                  customerId: customerId);
+              return CustomerMembershipScannerScreen(customerId: customerId);
             },
           ),
-          GoRoute(
-            path: 'return-hub',
-            builder: (context, state) => const ReturnDamageHubScreen(),
-          ),
+          GoRoute(path: 'return-hub', builder: (context, state) => const ReturnDamageHubScreen()),
         ],
       ),
 
       // Rider: Live Map screen
-      GoRoute(
-        path: '/rider/map',
-        builder: (context, state) => const RiderMapScreen(),
-      ),
+      GoRoute(path: '/rider/map', builder: (context, state) => const RiderMapScreen()),
 
       // Rider: Route History
-      GoRoute(
-        path: '/rider/history',
-        builder: (context, state) => const RiderRouteHistoryScreen(),
-      ),
+      GoRoute(path: '/rider/history', builder: (context, state) => const RiderRouteHistoryScreen()),
 
       // Delivery: Reschedule failed delivery
       GoRoute(
         path: '/delivery/reschedule/:orderId',
         builder: (context, state) {
-          final orderId     = state.pathParameters['orderId']!;
+          final orderId = state.pathParameters['orderId']!;
           final orderNumber = state.uri.queryParameters['orderNumber'] ?? orderId;
-          final customerId  = state.uri.queryParameters['customerId'] ?? '';
+          final customerId = state.uri.queryParameters['customerId'] ?? '';
           return DeliveryRescheduleScreen(
             orderId: orderId,
             orderNumber: orderNumber,
@@ -802,12 +727,12 @@ class AppRouter {
     ],
 
     redirect: (context, state) {
-      final authProvider  = Provider.of<AuthProvider>(context, listen: false);
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final guestProvider = Provider.of<GuestProvider>(context, listen: false);
-      final isLoggedIn    = authProvider.isLoggedIn;
-      final user          = authProvider.currentUser;
-      final isGuest       = guestProvider.isGuestMode;
-      final path          = state.uri.path;
+      final isLoggedIn = authProvider.isLoggedIn;
+      final user = authProvider.currentUser;
+      final isGuest = guestProvider.isGuestMode;
+      final path = state.uri.path;
 
       // ── Paths always accessible (no auth needed) ─────────────
       final isOpenPath =
@@ -865,7 +790,10 @@ class AppRouter {
         final path = state.uri.path;
 
         // Security Guard for Owner/Admin
-        if (user.role == UserRole.shopOwner || user.role == UserRole.admin || user.role == UserRole.owner || user.role == UserRole.superAdmin) {
+        if (user.role == UserRole.shopOwner ||
+            user.role == UserRole.admin ||
+            user.role == UserRole.owner ||
+            user.role == UserRole.superAdmin) {
           if (authProvider.isPinRequired && path != '/security-pin') {
             return '/security-pin';
           }
@@ -894,25 +822,41 @@ class AppRouter {
         // If on onboarding pages, redirect to dashboard
         if (isOnOnboarding && path != '/profile-creation') {
           switch (user.role) {
-            case UserRole.shopOwner: return '/owner';
-            case UserRole.owner: return '/owner';
-            case UserRole.superAdmin: return '/owner';
-            case UserRole.deliveryAgent: return '/delivery';
-            case UserRole.admin: return '/admin';
-            case UserRole.employee: return '/employee';
-            case UserRole.customer: return '/customer/home';
-            case UserRole.rider: return '/delivery';
-            case UserRole.dispatcher: return '/owner';
-            case UserRole.branchManager: return '/owner';
-            case UserRole.supplier: return '/owner';
-            case UserRole.franchiseOwner: return '/owner';
+            case UserRole.shopOwner:
+              return '/owner';
+            case UserRole.owner:
+              return '/owner';
+            case UserRole.superAdmin:
+              return '/owner';
+            case UserRole.deliveryAgent:
+              return '/delivery';
+            case UserRole.admin:
+              return '/admin';
+            case UserRole.employee:
+              return '/employee';
+            case UserRole.customer:
+              return '/customer/home';
+            case UserRole.rider:
+              return '/delivery';
+            case UserRole.dispatcher:
+              return '/owner';
+            case UserRole.branchManager:
+              return '/owner';
+            case UserRole.supplier:
+              return '/owner';
+            case UserRole.franchiseOwner:
+              return '/owner';
           }
         }
 
         // Dashboard Guard: Ensure user is in the correct section for their active role
         if (user.role == UserRole.shopOwner && !path.startsWith('/owner')) return '/owner';
-        if (user.role == UserRole.customer && !path.startsWith('/customer') && path != '/profile-creation') return '/customer/home';
-        if (user.role == UserRole.deliveryAgent && !path.startsWith('/delivery')) return '/delivery';
+        if (user.role == UserRole.customer &&
+            !path.startsWith('/customer') &&
+            path != '/profile-creation')
+          return '/customer/home';
+        if (user.role == UserRole.deliveryAgent && !path.startsWith('/delivery'))
+          return '/delivery';
         if (user.role == UserRole.employee && !path.startsWith('/employee')) return '/employee';
         if (user.role == UserRole.admin && !path.startsWith('/admin')) return '/admin';
       }

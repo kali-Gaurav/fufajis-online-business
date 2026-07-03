@@ -33,6 +33,7 @@ class LoyaltyMembershipService {
     MembershipTier.gold: 3,
     MembershipTier.platinum: 5,
   };
+
   /// Check if a delivery slot is available for a given tier
   Future<bool> isSlotAvailable({
     required String slotId,
@@ -59,7 +60,7 @@ class LoyaltyMembershipService {
     required String userId,
     required String orderId,
     required String slotId,
-    required String slotLabel,  // e.g., "2:00 PM - 4:00 PM"
+    required String slotLabel, // e.g., "2:00 PM - 4:00 PM"
     required DateTime slotDate,
   }) async {
     try {
@@ -70,7 +71,7 @@ class LoyaltyMembershipService {
 
       final result = await _firestore.runTransaction((transaction) async {
         final slotDoc = await transaction.get(slotRef);
-        
+
         int currentOrders = 0;
         int maxOrders = 10; // Default max orders per slot
 
@@ -139,7 +140,7 @@ class LoyaltyMembershipService {
   }) async {
     try {
       final dateStr = date.toIso8601String().split('T')[0];
-      
+
       // Generate time slots (10 AM to 9 PM, 2-hour windows)
       final slots = <Map<String, dynamic>>[];
       const startHour = 10;
@@ -277,11 +278,11 @@ class LoyaltyMembershipService {
 
   /// Get streak bonus multiplier
   double _getStreakMultiplier(int streak) {
-    if (streak >= 20) return 2.5;  // 150% bonus
-    if (streak >= 15) return 2.0;  // 100% bonus
+    if (streak >= 20) return 2.5; // 150% bonus
+    if (streak >= 15) return 2.0; // 100% bonus
     if (streak >= 10) return 1.75; // 75% bonus
-    if (streak >= 5) return 1.5;   // 50% bonus
-    if (streak >= 3) return 1.25;  // 25% bonus
+    if (streak >= 5) return 1.5; // 50% bonus
+    if (streak >= 3) return 1.25; // 25% bonus
     return 1.0; // No bonus
   }
 
@@ -355,10 +356,7 @@ class LoyaltyMembershipService {
           .doc(userId)
           .collection('loyalty_data')
           .doc('profile')
-          .set({
-        'birthday': birthday,
-        'updatedAt': DateTime.now(),
-      }, SetOptions(merge: true));
+          .set({'birthday': birthday, 'updatedAt': DateTime.now()}, SetOptions(merge: true));
     } catch (e) {
       debugPrint('Error setting birthday: $e');
     }
@@ -404,7 +402,8 @@ class LoyaltyMembershipService {
         if (phone != null) {
           WhatsAppNotificationService.sendOrderUpdate(
             phoneNumber: phone,
-            message: '🎂 Happy Birthday from Fufaji! You\'ve earned 200 bonus reward points as our gift. Enjoy shopping today!',
+            message:
+                '🎂 Happy Birthday from Fufaji! You\'ve earned 200 bonus reward points as our gift. Enjoy shopping today!',
           );
         }
       }
@@ -440,7 +439,10 @@ class LoyaltyMembershipService {
         snapshot = await _firestore
             .collection('exclusive_deals')
             .where('isActive', isEqualTo: true)
-            .where('minTier', whereIn: ['MembershipTier.gold', 'MembershipTier.silver', 'MembershipTier.bronze'])
+            .where(
+              'minTier',
+              whereIn: ['MembershipTier.gold', 'MembershipTier.silver', 'MembershipTier.bronze'],
+            )
             .limit(15)
             .get();
       } else {
@@ -467,12 +469,8 @@ class LoyaltyMembershipService {
     try {
       final tier = await _tierCalculator.getUserTier(userId);
       final benefits = _tierCalculator.getTierBenefits(tier);
-      final nextTierInfo = _tierCalculator.getNextTierInfo(
-        await _getLifetimeSpending(userId),
-      );
-      final progress = _tierCalculator.getTierProgress(
-        await _getLifetimeSpending(userId),
-      );
+      final nextTierInfo = _tierCalculator.getNextTierInfo(await _getLifetimeSpending(userId));
+      final progress = _tierCalculator.getTierProgress(await _getLifetimeSpending(userId));
       final streakData = await getStreakData(userId);
       final points = await _rewardSystem.getRewardPoints(userId);
 
@@ -515,7 +513,11 @@ class LoyaltyMembershipService {
   // ===== TIER NOTIFICATIONS =====
 
   /// Send tier upgrade celebration notification
-  Future<void> notifyTierUpgrade(String userId, MembershipTier oldTier, MembershipTier newTier) async {
+  Future<void> notifyTierUpgrade(
+    String userId,
+    MembershipTier oldTier,
+    MembershipTier newTier,
+  ) async {
     try {
       final userDoc = await _firestore.collection('users').doc(userId).get();
       final phone = userDoc.data()?['phoneNumber'] as String?;
@@ -525,7 +527,8 @@ class LoyaltyMembershipService {
       if (phone != null) {
         WhatsAppNotificationService.sendOrderUpdate(
           phoneNumber: phone,
-          message: '🎉 Congratulations $name! You\'ve been upgraded to $newTierName tier! '
+          message:
+              '🎉 Congratulations $name! You\'ve been upgraded to $newTierName tier! '
               'Enjoy enhanced benefits including higher cashback, priority delivery slots, and exclusive deals.',
         );
       }

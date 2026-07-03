@@ -93,10 +93,7 @@ class LoyaltyScreen extends StatelessWidget {
                     ),
                     Text(
                       '${user.rewardPoints} points',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white.withValues(alpha: 0.85),
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.85)),
                     ),
                   ],
                 ),
@@ -113,14 +110,15 @@ class LoyaltyScreen extends StatelessWidget {
                   children: [
                     Text(
                       'Progress to ${nextTierData['name']}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white.withValues(alpha: 0.8),
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.8)),
                     ),
                     Text(
                       '${(progress * 100).round()}%',
-                      style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -163,12 +161,12 @@ class LoyaltyScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Available Points', style: TextStyle(fontSize: 14, color: AppTheme.grey600)),
-                    SizedBox(height: 4),
                     Text(
-                      'Points value',
-                      style: TextStyle(fontSize: 12, color: AppTheme.grey400),
+                      'Available Points',
+                      style: TextStyle(fontSize: 14, color: AppTheme.grey600),
                     ),
+                    SizedBox(height: 4),
+                    Text('Points value', style: TextStyle(fontSize: 12, color: AppTheme.grey400)),
                   ],
                 ),
               ),
@@ -208,9 +206,7 @@ class LoyaltyScreen extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: user.rewardPoints >= 100
-                  ? () => _showRedeemDialog(context, user)
-                  : null,
+              onPressed: user.rewardPoints >= 100 ? () => _showRedeemDialog(context, user) : null,
               icon: const Icon(Icons.redeem),
               label: Text(
                 user.rewardPoints >= 100
@@ -249,7 +245,11 @@ class LoyaltyScreen extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 '${tierData['name']} Benefits',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.grey900),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.grey900,
+                ),
               ),
             ],
           ),
@@ -269,7 +269,10 @@ class LoyaltyScreen extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text(benefit, style: const TextStyle(fontSize: 14, color: AppTheme.grey700)),
+                    child: Text(
+                      benefit,
+                      style: const TextStyle(fontSize: 14, color: AppTheme.grey700),
+                    ),
                   ),
                 ],
               ),
@@ -284,7 +287,12 @@ class LoyaltyScreen extends StatelessWidget {
   }
 
   Widget _buildAllTiersBadges() {
-    final tiers = [MembershipTier.bronze, MembershipTier.silver, MembershipTier.gold, MembershipTier.platinum];
+    final tiers = [
+      MembershipTier.bronze,
+      MembershipTier.silver,
+      MembershipTier.gold,
+      MembershipTier.platinum,
+    ];
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: tiers.map((t) {
@@ -293,7 +301,10 @@ class LoyaltyScreen extends StatelessWidget {
           children: [
             Icon(data['icon'] as IconData, color: data['color'] as Color, size: 28),
             const SizedBox(height: 4),
-            Text(data['name'] as String, style: const TextStyle(fontSize: 10, color: AppTheme.grey600)),
+            Text(
+              data['name'] as String,
+              style: const TextStyle(fontSize: 10, color: AppTheme.grey600),
+            ),
           ],
         );
       }).toList(),
@@ -393,9 +404,7 @@ class LoyaltyScreen extends StatelessWidget {
                   final isEarned = points > 0;
                   final description = data['description'] as String? ?? 'Transaction';
                   final createdAt = data['createdAt'] as Timestamp?;
-                  final dateStr = createdAt != null
-                      ? _formatDate(createdAt.toDate())
-                      : '';
+                  final dateStr = createdAt != null ? _formatDate(createdAt.toDate()) : '';
 
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
@@ -404,7 +413,9 @@ class LoyaltyScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: (isEarned ? AppTheme.success : AppTheme.error).withValues(alpha: 0.1),
+                            color: (isEarned ? AppTheme.success : AppTheme.error).withValues(
+                              alpha: 0.1,
+                            ),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -418,11 +429,15 @@ class LoyaltyScreen extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(description,
-                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                              Text(
+                                description,
+                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                              ),
                               if (dateStr.isNotEmpty)
-                                Text(dateStr,
-                                    style: const TextStyle(fontSize: 11, color: AppTheme.grey500)),
+                                Text(
+                                  dateStr,
+                                  style: const TextStyle(fontSize: 11, color: AppTheme.grey500),
+                                ),
                             ],
                           ),
                         ),
@@ -479,10 +494,7 @@ class LoyaltyScreen extends StatelessWidget {
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               final amount = int.tryParse(controller.text) ?? 0;
@@ -496,7 +508,10 @@ class LoyaltyScreen extends StatelessWidget {
                 );
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primary,
+              foregroundColor: Colors.white,
+            ),
             child: const Text('Redeem'),
           ),
         ],
@@ -505,18 +520,22 @@ class LoyaltyScreen extends StatelessWidget {
   }
 
   void _shareReferral(BuildContext context, UserModel user) {
-    Share.share(
-      'Shop at Fufaji\'s Online — Baran\'s fastest grocery delivery! '
-      'Use my referral and get ₹50 off your first order. '
-      'Download the app and enter code: ${user.uid.substring(0, 8).toUpperCase()}',
+    SharePlus.instance.share(ShareParams(
+      text: 'Shop at Fufaji\'s Online — Baran\'s fastest grocery delivery! '
+          'Use my referral and get ₹50 off your first order. '
+          'Download the app and enter code: ${user.uid.substring(0, 8).toUpperCase()}',
       subject: 'Get ₹50 off at Fufaji\'s Online!',
-    );
+    ));
   }
 
   Map<String, dynamic> _getTierData(MembershipTier tier) {
     switch (tier) {
       case MembershipTier.bronze:
-        return {'name': 'Bronze', 'color': const Color(0xFFCD7F32), 'icon': Icons.workspace_premium};
+        return {
+          'name': 'Bronze',
+          'color': const Color(0xFFCD7F32),
+          'icon': Icons.workspace_premium,
+        };
       case MembershipTier.silver:
         return {'name': 'Silver', 'color': const Color(0xFF9E9E9E), 'icon': Icons.military_tech};
       case MembershipTier.gold:
@@ -604,7 +623,20 @@ class LoyaltyScreen extends StatelessWidget {
   }
 
   String _formatDate(DateTime date) {
-    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    final months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 }

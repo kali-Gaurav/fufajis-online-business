@@ -60,26 +60,18 @@ class PaymentMethodValidator {
   }
 
   /// Validate Credit (Khata)
-  static bool _validateCredit(
-    double orderTotal,
-    double creditLimit,
-    double creditBalance,
-  ) {
+  static bool _validateCredit(double orderTotal, double creditLimit, double creditBalance) {
     return creditBalance + orderTotal <= creditLimit;
   }
 
   /// Validate Wallet payment
   static bool _validateWallet(double orderTotal, double walletBalance) {
-    return walletBalance >= minimumWalletBalance &&
-        walletBalance > 0 &&
-        orderTotal > 0;
+    return walletBalance >= minimumWalletBalance && walletBalance > 0 && orderTotal > 0;
   }
 
   /// Validate Pay Later (BNPL)
   static bool _validatePayLater(double orderTotal, bool isEligible) {
-    return isEligible &&
-        orderTotal >= payLaterMinimumAmount &&
-        orderTotal <= payLaterMaximumAmount;
+    return isEligible && orderTotal >= payLaterMinimumAmount && orderTotal <= payLaterMaximumAmount;
   }
 
   /// Validate EMI
@@ -88,11 +80,7 @@ class PaymentMethodValidator {
   }
 
   /// Validate Loyalty Points
-  static bool _validateLoyaltyPoints(
-    double orderTotal,
-    int userPoints,
-    List<CartItem> cartItems,
-  ) {
+  static bool _validateLoyaltyPoints(double orderTotal, int userPoints, List<CartItem> cartItems) {
     if (userPoints <= 0 || orderTotal <= 0) return false;
     final hasDiscountedItem = cartItems.any(
       (item) => item.originalPrice != null && item.originalPrice! > item.price,
@@ -146,9 +134,7 @@ class PaymentMethodValidator {
 
       // Update wallet balance display
       if (option.method == PaymentMethod.wallet) {
-        return option
-            .withWalletBalance(walletBalance)
-            .copyWith(isAvailable: isAvailable);
+        return option.withWalletBalance(walletBalance).copyWith(isAvailable: isAvailable);
       }
 
       // Update Pay Later badge
@@ -224,8 +210,7 @@ class PaymentMethodValidator {
           return 'You have no loyalty points to redeem';
         }
         final hasDiscountedItem = cartItems.any(
-          (item) =>
-              item.originalPrice != null && item.originalPrice! > item.price,
+          (item) => item.originalPrice != null && item.originalPrice! > item.price,
         );
         if (hasDiscountedItem) {
           return 'Loyalty points cannot be redeemed on orders containing discounted items';
@@ -292,10 +277,7 @@ class PaymentMethodValidator {
   }
 
   /// Calculate maximum wallet amount that can be used
-  static double calculateMaxWalletAmount(
-    double orderTotal,
-    double walletBalance,
-  ) {
+  static double calculateMaxWalletAmount(double orderTotal, double walletBalance) {
     // Wallet limited to 50% of order value
     final maxWalletAllowed = orderTotal * 0.5;
     return walletBalance.clamp(0, maxWalletAllowed);

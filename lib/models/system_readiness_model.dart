@@ -1,6 +1,6 @@
 class SystemReadinessModel {
   final double workflowCoverage; // 0.0 - 100.0
-  final double auditCoverage; 
+  final double auditCoverage;
   final double offlineCoverage;
   final double permissionCoverage;
   final double testCoverage;
@@ -17,6 +17,11 @@ class SystemReadinessModel {
   });
 
   double get overallReadinessScore {
-    return (workflowCoverage + auditCoverage + offlineCoverage + permissionCoverage + testCoverage) / 5;
+    return (workflowCoverage +
+            auditCoverage +
+            offlineCoverage +
+            permissionCoverage +
+            testCoverage) /
+        5;
   }
 }

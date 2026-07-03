@@ -50,19 +50,13 @@ class _RiderManagementScreenState extends State<RiderManagementScreen> {
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () async {
               final phone = _phoneController.text.trim();
               final name = _nameController.text.trim();
               if (phone.isNotEmpty && name.isNotEmpty) {
-                final owner = Provider.of<AuthProvider>(
-                  context,
-                  listen: false,
-                ).currentUser;
+                final owner = Provider.of<AuthProvider>(context, listen: false).currentUser;
                 await _userService.authorizeUser(
                   phone,
                   UserRole.deliveryAgent,
@@ -73,11 +67,9 @@ class _RiderManagementScreenState extends State<RiderManagementScreen> {
                   Navigator.pop(context);
                   _phoneController.clear();
                   _nameController.clear();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Rider authorized successfully'),
-                    ),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('Rider authorized successfully')));
                 }
               }
             },
@@ -94,7 +86,6 @@ class _RiderManagementScreenState extends State<RiderManagementScreen> {
     _nameController.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -127,11 +118,7 @@ class _RiderManagementScreenState extends State<RiderManagementScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.delivery_dining,
-                    size: 64,
-                    color: AppTheme.grey300,
-                  ),
+                  const Icon(Icons.delivery_dining, size: 64, color: AppTheme.grey300),
                   const SizedBox(height: 16),
                   const Text('No riders authorized yet.'),
                   const SizedBox(height: 16),
@@ -159,15 +146,15 @@ class _RiderManagementScreenState extends State<RiderManagementScreen> {
                   title: Text(rider['name'] ?? 'Unknown'),
                   subtitle: Text(rider['phoneNumber'] ?? ''),
                   trailing: IconButton(
-                    icon: const Icon(
-                      Icons.delete_outline,
-                      color: AppTheme.error,
-                    ),
+                    icon: const Icon(Icons.delete_outline, color: AppTheme.error),
                     onPressed: () async {
                       final confirm = await showDialog<bool>(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: const Text('Deauthorize Rider?', style: TextStyle(fontWeight: FontWeight.w700)),
+                          title: const Text(
+                            'Deauthorize Rider?',
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
                           content: const Text(
                             'This rider will lose access to the Delivery Dashboard immediately.',
                           ),
@@ -184,9 +171,7 @@ class _RiderManagementScreenState extends State<RiderManagementScreen> {
                         ),
                       );
                       if (confirm == true) {
-                        await _userService.deauthorizeUser(
-                          rider['phoneNumber'],
-                        );
+                        await _userService.deauthorizeUser(rider['phoneNumber']);
                       }
                     },
                   ),

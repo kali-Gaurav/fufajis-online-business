@@ -38,9 +38,9 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: AppTheme.error));
   }
 
   ExpiryStatus _getExpiryStatus(ProductModel product) {
@@ -71,12 +71,7 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Expiry Management', style: TextStyle(fontWeight: FontWeight.w700)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadExpiringProducts,
-          ),
-        ],
+        actions: [IconButton(icon: const Icon(Icons.refresh), onPressed: _loadExpiringProducts)],
       ),
       body: Column(
         children: [
@@ -104,31 +99,27 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
                 : filteredProducts.isEmpty
-                    ? const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.check_circle,
-                                size: 64, color: AppTheme.success),
-                            SizedBox(height: 16),
-                            Text(
-                              'No products match filter',
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                          ],
-                        ),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: filteredProducts.length,
-                        itemBuilder: (context, index) {
-                          final product = filteredProducts[index];
-                          final status = _getExpiryStatus(product);
-                          final days = _getDaysUntilExpiry(product);
+                ? const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.check_circle, size: 64, color: AppTheme.success),
+                        SizedBox(height: 16),
+                        Text('No products match filter', style: TextStyle(color: Colors.grey)),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: filteredProducts.length,
+                    itemBuilder: (context, index) {
+                      final product = filteredProducts[index];
+                      final status = _getExpiryStatus(product);
+                      final days = _getDaysUntilExpiry(product);
 
-                          return _buildProductCard(product, status, days);
-                        },
-                      ),
+                      return _buildProductCard(product, status, days);
+                    },
+                  ),
           ),
         ],
       ),
@@ -183,22 +174,14 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
       children: [
         Text(
           count.toString(),
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color),
         ),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12, color: Colors.grey),
-        ),
+        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
       ],
     );
   }
 
-  Widget _buildProductCard(
-      ProductModel product, ExpiryStatus status, int days) {
+  Widget _buildProductCard(ProductModel product, ExpiryStatus status, int days) {
     final color = _getStatusColor(status);
     final markdownPercent = _calculateMarkdown(status);
 
@@ -222,24 +205,18 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
                   status == ExpiryStatus.expired
                       ? Icons.error
                       : status == ExpiryStatus.critical
-                          ? Icons.warning
-                          : Icons.info,
+                      ? Icons.warning
+                      : Icons.info,
                   color: color,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                    product.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  child: Text(product.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                 ),
                 Chip(
                   label: Text(
                     status == ExpiryStatus.expired ? 'EXPIRED' : '$days days',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                   backgroundColor: color,
                 ),
@@ -348,21 +325,14 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
   }
 
   void _markAsSold(ProductModel product) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Marked ${product.name} as sold')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Marked ${product.name} as sold')));
   }
 
   void _disposeExpired(ProductModel product) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Disposed ${product.name}')),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Disposed ${product.name}')));
   }
 }
 
-enum ExpiryStatus {
-  expired,
-  critical,
-  warning,
-  ok,
-}
+enum ExpiryStatus { expired, critical, warning, ok }

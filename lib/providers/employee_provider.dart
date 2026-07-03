@@ -8,14 +8,10 @@ class EmployeeProvider with ChangeNotifier {
   final String _branchId;
   final String _employeeId;
 
-  EmployeeProvider({
-    String? shopId,
-    String? branchId,
-    String? employeeId,
-    String? employeeName,
-  })  : _shopId = shopId ?? '',
-        _branchId = branchId ?? '',
-        _employeeId = employeeId ?? '';
+  EmployeeProvider({String? shopId, String? branchId, String? employeeId, String? employeeName})
+    : _shopId = shopId ?? '',
+      _branchId = branchId ?? '',
+      _employeeId = employeeId ?? '';
 
   final int _pendingTaskCount = 0;
   int get pendingTaskCount => _pendingTaskCount;
@@ -151,8 +147,8 @@ class EmployeeProvider with ChangeNotifier {
         .collection('branches')
         .doc(_branchId)
         .collection('inventory_transfers')
-        .where('status',
-            whereIn: ['pending', 'shipped', 'inTransit']).snapshots();
+        .where('status', whereIn: ['pending', 'shipped', 'inTransit'])
+        .snapshots();
   }
 
   // Audit History
@@ -185,8 +181,10 @@ class EmployeeProvider with ChangeNotifier {
         .where('collectionTime', isGreaterThan: startOfDay)
         .get();
 
-    stats['todayCollections'] = collections.docs
-        .fold(0.0, (total, doc) => total + (doc['amount'] as num).toDouble());
+    stats['todayCollections'] = collections.docs.fold(
+      0.0,
+      (total, doc) => total + (doc['amount'] as num).toDouble(),
+    );
     stats['collectionCount'] = collections.docs.length;
 
     // Pending deliveries
@@ -197,7 +195,8 @@ class EmployeeProvider with ChangeNotifier {
         .doc(_branchId)
         .collection('orders')
         .where('deliveryEmployeeId', isEqualTo: _employeeId)
-        .where('status', whereIn: ['assigned', 'out_for_delivery']).get();
+        .where('status', whereIn: ['assigned', 'out_for_delivery'])
+        .get();
 
     stats['pendingDeliveries'] = deliveries.docs.length;
 

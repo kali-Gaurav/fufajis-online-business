@@ -9,8 +9,7 @@ class PendingPriceChangesScreen extends StatefulWidget {
   const PendingPriceChangesScreen({super.key});
 
   @override
-  State<PendingPriceChangesScreen> createState() =>
-      _PendingPriceChangesScreenState();
+  State<PendingPriceChangesScreen> createState() => _PendingPriceChangesScreenState();
 }
 
 class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
@@ -37,9 +36,9 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
       });
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading changes: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading changes: $e')));
       }
     } finally {
       setState(() => _isLoading = false);
@@ -101,17 +100,17 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
     try {
       // Call provider to approve price change
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Price change approved')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Price change approved')));
       }
 
       await _loadPendingChanges();
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error approving change: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error approving change: $e')));
       }
     } finally {
       setState(() => _isLoading = false);
@@ -126,17 +125,17 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
     try {
       // Call provider to reject price change
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Price change rejected')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Price change rejected')));
       }
 
       await _loadPendingChanges();
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error rejecting change: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error rejecting change: $e')));
       }
     } finally {
       setState(() => _isLoading = false);
@@ -151,17 +150,17 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
       }
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('All price changes approved')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('All price changes approved')));
       }
 
       await _loadPendingChanges();
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error approving all changes: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error approving all changes: $e')));
       }
     } finally {
       setState(() => _isLoading = false);
@@ -183,10 +182,7 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
           maxLines: 3,
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, controller.text),
             child: const Text('Reject'),
@@ -195,9 +191,6 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
       ),
     );
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -222,10 +215,7 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
                             const Text('Pending'),
                             const SizedBox(width: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
                                 color: AppTheme.warning,
                                 borderRadius: BorderRadius.circular(12),
@@ -270,26 +260,14 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.check_circle,
-              size: 64,
-              color: AppTheme.success,
-            ),
+            const Icon(Icons.check_circle, size: 64, color: AppTheme.success),
             const SizedBox(height: 16),
             const Text(
               'No pending changes',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Text(
-              'All price changes have been reviewed',
-              style: TextStyle(
-                color: Colors.grey[600],
-              ),
-            ),
+            Text('All price changes have been reviewed', style: TextStyle(color: Colors.grey[600])),
           ],
         ),
       );
@@ -337,33 +315,22 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
                               children: [
                                 Text(
                                   change['productName'],
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   'SKU: ${change['productId']}',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[600],
-                                  ),
+                                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                                 ),
                               ],
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: priceChange > 0
-                                  ? AppTheme.error
-                                  : AppTheme.success,
+                              color: priceChange > 0 ? AppTheme.error : AppTheme.success,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
@@ -393,17 +360,11 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
                               children: [
                                 Text(
                                   'Current Price',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[600],
-                                  ),
+                                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                                 ),
                                 Text(
                                   '₹${change['oldPrice'].toStringAsFixed(2)}',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
@@ -413,10 +374,7 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
                               children: [
                                 Text(
                                   'New Price',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[600],
-                                  ),
+                                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                                 ),
                                 Text(
                                   '₹${change['newPrice'].toStringAsFixed(2)}',
@@ -443,27 +401,18 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
                               children: [
                                 Text(
                                   'Reason',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[600],
-                                  ),
+                                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                                 ),
                                 Text(
                                   change['reason'],
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
                                 ),
                               ],
                             ),
                           ),
                           Text(
                             DateFormat('MMM dd, HH:mm').format(change['createdAt']),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
+                            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                           ),
                         ],
                       ),
@@ -504,25 +453,13 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.history,
-              size: 64,
-              color: Colors.grey[300],
-            ),
+            Icon(Icons.history, size: 64, color: Colors.grey[300]),
             const SizedBox(height: 16),
-            const Text(
-              'No history',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            const Text('No history', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Text(
               'Price change history will appear here',
-              style: TextStyle(
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(color: Colors.grey[600]),
             ),
           ],
         ),
@@ -550,19 +487,13 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
                     Expanded(
                       child: Text(
                         item['productName'],
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: isApproved ? AppTheme.success : AppTheme.error,
                         borderRadius: BorderRadius.circular(20),
@@ -586,19 +517,11 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
                   children: [
                     Text(
                       '₹${item['oldPrice'].toStringAsFixed(2)} → ₹${item['newPrice'].toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                     ),
                     Text(
-                      DateFormat('MMM dd, yyyy').format(
-                        item['approvedAt'] ?? item['rejectedAt'],
-                      ),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      DateFormat('MMM dd, yyyy').format(item['approvedAt'] ?? item['rejectedAt']),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -607,10 +530,7 @@ class _PendingPriceChangesScreenState extends State<PendingPriceChangesScreen> {
                 // Reason
                 Text(
                   'Reason: ${item['reason']}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
               ],
             ),

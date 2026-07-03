@@ -40,9 +40,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   /// Load weight proofs once (one-time fetch)
   Future<void> _loadWeightProofs() async {
     try {
-      final proofs = await WeightVerificationService().getOrderWeightProofs(
-        widget.orderId,
-      );
+      final proofs = await WeightVerificationService().getOrderWeightProofs(widget.orderId);
       if (mounted) {
         setState(() {
           _weightProofs = proofs;
@@ -53,32 +51,22 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     }
   }
 
-
-
-
   @override
   Widget build(BuildContext context) {
     // StreamBuilder for real-time order updates from Firestore
     return StreamBuilder<DocumentSnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('orders')
-          .doc(widget.orderId)
-          .snapshots(),
+      stream: FirebaseFirestore.instance.collection('orders').doc(widget.orderId).snapshots(),
       builder: (context, orderSnapshot) {
         if (orderSnapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(color: AppTheme.primary),
-            ),
+            body: Center(child: CircularProgressIndicator(color: AppTheme.primary)),
           );
         }
 
         if (orderSnapshot.hasError) {
           return Scaffold(
             appBar: AppBar(title: const Text('Order Details')),
-            body: Center(
-              child: Text('Error: ${orderSnapshot.error}'),
-            ),
+            body: Center(child: Text('Error: ${orderSnapshot.error}')),
           );
         }
 
@@ -133,31 +121,19 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                       child: LivePackingTracker(orderId: _order!.id),
                     ),
                   ),
-                SpringCard(
-                  delay: const Duration(milliseconds: 100),
-                  child: _buildItemsList(),
-                ),
+                SpringCard(delay: const Duration(milliseconds: 100), child: _buildItemsList()),
                 SpringCard(
                   delay: const Duration(milliseconds: 150),
                   child: _buildPackingAndWeightProofSection(),
                 ),
-                SpringCard(
-                  delay: const Duration(milliseconds: 200),
-                  child: _buildShopSection(),
-                ),
+                SpringCard(delay: const Duration(milliseconds: 200), child: _buildShopSection()),
                 SpringCard(
                   delay: const Duration(milliseconds: 250),
                   child: _buildDeliverySection(),
                 ),
-                SpringCard(
-                  delay: const Duration(milliseconds: 300),
-                  child: _buildPriceDetails(),
-                ),
+                SpringCard(delay: const Duration(milliseconds: 300), child: _buildPriceDetails()),
                 const SizedBox(height: 24),
-                SpringCard(
-                  delay: const Duration(milliseconds: 350),
-                  child: _buildActionButtons(),
-                ),
+                SpringCard(delay: const Duration(milliseconds: 350), child: _buildActionButtons()),
                 const SizedBox(height: 40),
               ],
             ),
@@ -168,9 +144,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   Widget _buildStatusHeader() {
-    final canPayOnline = _order!.paymentStatus != 'paid' && 
-                         _order!.status != OrderStatus.cancelled &&
-                         _order!.status != OrderStatus.delivered;
+    final canPayOnline =
+        _order!.paymentStatus != 'paid' &&
+        _order!.status != OrderStatus.cancelled &&
+        _order!.status != OrderStatus.delivered;
     final canTrack = _order!.status == OrderStatus.outForDelivery;
 
     return Container(
@@ -207,7 +184,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 MaterialPageRoute(builder: (_) => TrackOrderScreen(orderId: _order!.id)),
               ),
               icon: const Icon(Icons.location_on, size: 20),
-              label: const Text('Track Order', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              label: const Text(
+                'Track Order',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.success,
                 foregroundColor: Colors.white,
@@ -221,7 +201,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             ElevatedButton.icon(
               onPressed: _handleOnlinePayment,
               icon: const Icon(Icons.payment, size: 20),
-              label: const Text('Pay Online Now', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              label: const Text(
+                'Pay Online Now',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primary,
                 foregroundColor: Colors.white,
@@ -243,22 +226,22 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   void _handleOnlinePayment() async {
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    
+
     await orderProvider.convertToOnlinePayment(
       order: _order!,
       email: authProvider.currentUser?.email ?? 'customer@fufaji.online',
       onPaymentStarted: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Opening secure payment gateway...')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Opening secure payment gateway...')));
       },
       onPaymentError: (error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error), backgroundColor: AppTheme.error),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(error), backgroundColor: AppTheme.error));
       },
     );
-    
+
     // Refresh order state
   }
 
@@ -266,10 +249,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -337,10 +317,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
       child: Column(
         children: [
           _buildPriceRow('Subtotal', _order!.subtotal.toDouble()),
@@ -363,10 +340,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
       child: Row(
         children: [
           const Icon(Icons.store, color: AppTheme.primary),
@@ -391,17 +365,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Delivery Address',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
+          const Text('Delivery Address', style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Text(
             _order!.deliveryAddress.fullAddress,
@@ -448,8 +416,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
-              onPressed: () =>
-                  context.push('/customer/support-chat/${_order!.id}'),
+              onPressed: () => context.push('/customer/support-chat/${_order!.id}'),
               child: const Text('Contact Support'),
             ),
           ),
@@ -465,10 +432,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         title: const Text('Cancel Order', style: TextStyle(fontWeight: FontWeight.w700)),
         content: const Text('Are you sure you want to cancel this order?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('No'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('No')),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
@@ -489,15 +453,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         title: const Text('Return Order', style: TextStyle(fontWeight: FontWeight.w700)),
         content: TextField(
           controller: reasonController,
-          decoration: const InputDecoration(
-            hintText: 'Enter reason for return',
-          ),
+          decoration: const InputDecoration(hintText: 'Enter reason for return'),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
@@ -527,10 +486,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             'Refund: ₹${feeResult.netRefund.toStringAsFixed(0)} will be credited to your wallet.',
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Go Back'),
-            ),
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Go Back')),
             TextButton(
               onPressed: () => Navigator.pop(ctx, true),
               style: TextButton.styleFrom(foregroundColor: AppTheme.error),
@@ -558,14 +514,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       debugPrint('[OrderDetail] Fee apply error: $e');
     }
 
-    final success = await orderProvider.cancelOrder(
-      _order!.id,
-      'Cancelled by user',
-    );
+    final success = await orderProvider.cancelOrder(_order!.id, 'Cancelled by user');
     if (mounted && success) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Order Cancelled')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Order Cancelled')));
       // StreamBuilder will automatically refresh when Firestore data changes
     }
   }
@@ -579,9 +530,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       itemIds: _order!.items.map((i) => i.id).toList(),
     );
     if (mounted && success) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Return Requested')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Return Requested')));
       // StreamBuilder will automatically refresh when Firestore data changes
     }
   }
@@ -604,11 +553,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(8),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
+          BoxShadow(color: Colors.black.withAlpha(8), blurRadius: 10, offset: const Offset(0, 4)),
         ],
       ),
       child: Column(
@@ -616,11 +561,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         children: [
           const Row(
             children: [
-              Icon(
-                Icons.verified_user_outlined,
-                color: AppTheme.primary,
-                size: 20,
-              ),
+              Icon(Icons.verified_user_outlined, color: AppTheme.primary, size: 20),
               SizedBox(width: 8),
               Text(
                 'Trust & Quality Proofs',
@@ -665,11 +606,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             const CircleAvatar(
               radius: 14,
               backgroundColor: Color(0xFFE8F5E9),
-              child: Icon(
-                Icons.inventory_2,
-                size: 14,
-                color: Color(0xFF2E7D32),
-              ),
+              child: Icon(Icons.inventory_2, size: 14, color: Color(0xFF2E7D32)),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -687,10 +624,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   if (timeStr.isNotEmpty)
                     Text(
                       'Time: $timeStr',
-                      style: const TextStyle(
-                        color: AppTheme.grey50,
-                        fontSize: 11,
-                      ),
+                      style: const TextStyle(color: AppTheme.grey50, fontSize: 11),
                     ),
                 ],
               ),
@@ -714,18 +648,13 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     placeholder: (_, __) => Container(
                       height: 140,
                       color: AppTheme.grey50,
-                      child: const Center(
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
+                      child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
                     ),
                     errorWidget: (_, __, ___) => const SizedBox.shrink(),
                   ),
                   Container(
                     margin: const EdgeInsets.all(8),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.black.withAlpha(150),
                       borderRadius: BorderRadius.circular(12),
@@ -769,11 +698,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             SizedBox(width: 10),
             Text(
               'Real Weight Guarantee',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-                color: AppTheme.grey900,
-              ),
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppTheme.grey900),
             ),
           ],
         ),
@@ -803,8 +728,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 break;
               case WeightOutcome.underPacked:
                 outcomeColor = const Color(0xFFE65100);
-                statusText =
-                    'Underweight (₹${proof.refundAmountIfAny.round()} refunded)';
+                statusText = 'Underweight (₹${proof.refundAmountIfAny.round()} refunded)';
                 statusIcon = Icons.monetization_on_outlined;
                 break;
             }
@@ -834,10 +758,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                         const SizedBox(height: 3),
                         Text(
                           'Ordered: ${proof.orderedWeightKg.toStringAsFixed(2)} kg  •  Packed: ${proof.packedWeightKg.toStringAsFixed(2)} kg',
-                          style: const TextStyle(
-                            color: AppTheme.grey600,
-                            fontSize: 11,
-                          ),
+                          style: const TextStyle(color: AppTheme.grey600, fontSize: 11),
                         ),
                       ],
                     ),
@@ -861,14 +782,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                           ),
                         ],
                       ),
-                      if (proof.photoUrl != null &&
-                          proof.photoUrl!.isNotEmpty) ...[
+                      if (proof.photoUrl != null && proof.photoUrl!.isNotEmpty) ...[
                         const SizedBox(height: 4),
                         GestureDetector(
-                          onTap: () => _viewFullPhoto(
-                            proof.photoUrl!,
-                            'Weight Proof: ${proof.productName}',
-                          ),
+                          onTap: () =>
+                              _viewFullPhoto(proof.photoUrl!, 'Weight Proof: ${proof.productName}'),
                           child: const Text(
                             'View Photo 📸',
                             style: TextStyle(
@@ -901,10 +819,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             AppBar(
-              title: Text(
-                title,
-                style: const TextStyle(color: Colors.white, fontSize: 15),
-              ),
+              title: Text(title, style: const TextStyle(color: Colors.white, fontSize: 15)),
               backgroundColor: Colors.black87,
               foregroundColor: Colors.white,
               elevation: 0,
@@ -925,9 +840,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   placeholder: (_, __) => Container(
                     height: 300,
                     color: Colors.black26,
-                    child: const Center(
-                      child: CircularProgressIndicator(color: Colors.white),
-                    ),
+                    child: const Center(child: CircularProgressIndicator(color: Colors.white)),
                   ),
                 ),
               ),
@@ -938,4 +851,3 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     );
   }
 }
-

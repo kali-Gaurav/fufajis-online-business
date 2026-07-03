@@ -2,13 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'fulfillment_item_model.dart';
 
 /// Status enum for fulfillment tasks
-enum FulfillmentTaskStatus {
-  new_,
-  inProgress,
-  qualityCheck,
-  completed,
-  rejected,
-}
+enum FulfillmentTaskStatus { new_, inProgress, qualityCheck, completed, rejected }
 
 extension FulfillmentTaskStatusExtension on FulfillmentTaskStatus {
   String get displayName {
@@ -65,8 +59,7 @@ extension FulfillmentTaskStatusExtension on FulfillmentTaskStatus {
   }
 
   bool get isTerminal {
-    return this == FulfillmentTaskStatus.completed ||
-        this == FulfillmentTaskStatus.rejected;
+    return this == FulfillmentTaskStatus.completed || this == FulfillmentTaskStatus.rejected;
   }
 }
 
@@ -105,16 +98,13 @@ class FulfillmentTaskModel {
   });
 
   /// Calculate total items required
-  int get totalItemsRequired =>
-      items.fold(0, (sum, item) => sum + item.requiredQty);
+  int get totalItemsRequired => items.fold(0, (sum, item) => sum + item.requiredQty);
 
   /// Calculate total items packed
-  int get totalItemsPacked =>
-      items.fold(0, (sum, item) => sum + item.packedQty);
+  int get totalItemsPacked => items.fold(0, (sum, item) => sum + item.packedQty);
 
   /// Calculate total items verified
-  int get totalItemsVerified =>
-      items.fold(0, (sum, item) => sum + item.verifiedQty);
+  int get totalItemsVerified => items.fold(0, (sum, item) => sum + item.verifiedQty);
 
   /// Check if all items are packed
   bool get allItemsPacked =>
@@ -199,34 +189,32 @@ class FulfillmentTaskModel {
       orderNumber: json['orderNumber'] as int? ?? 0,
       assignedToEmployeeId: json['assignedToEmployeeId'] as String?,
       assignedToEmployeeName: json['assignedToEmployeeName'] as String?,
-      items: (json['items'] as List<dynamic>?)
-              ?.map((item) => FulfillmentItemModel.fromJson(
-                  item as Map<String, dynamic>))
+      items:
+          (json['items'] as List<dynamic>?)
+              ?.map((item) => FulfillmentItemModel.fromJson(item as Map<String, dynamic>))
               .toList() ??
           [],
-      status: FulfillmentTaskStatusExtension.fromApiValue(
-        json['status'] as String? ?? 'NEW',
-      ),
+      status: FulfillmentTaskStatusExtension.fromApiValue(json['status'] as String? ?? 'NEW'),
       notes: json['notes'] as String?,
       assignedAt: json['assignedAt'] != null
           ? (json['assignedAt'] is Timestamp
-              ? (json['assignedAt'] as Timestamp).toDate()
-              : DateTime.parse(json['assignedAt'].toString()))
+                ? (json['assignedAt'] as Timestamp).toDate()
+                : DateTime.parse(json['assignedAt'].toString()))
           : null,
       packedAt: json['packedAt'] != null
           ? (json['packedAt'] is Timestamp
-              ? (json['packedAt'] as Timestamp).toDate()
-              : DateTime.parse(json['packedAt'].toString()))
+                ? (json['packedAt'] as Timestamp).toDate()
+                : DateTime.parse(json['packedAt'].toString()))
           : null,
       completedAt: json['completedAt'] != null
           ? (json['completedAt'] is Timestamp
-              ? (json['completedAt'] as Timestamp).toDate()
-              : DateTime.parse(json['completedAt'].toString()))
+                ? (json['completedAt'] as Timestamp).toDate()
+                : DateTime.parse(json['completedAt'].toString()))
           : null,
       createdAt: json['createdAt'] != null
           ? (json['createdAt'] is Timestamp
-              ? (json['createdAt'] as Timestamp).toDate()
-              : DateTime.parse(json['createdAt'].toString()))
+                ? (json['createdAt'] as Timestamp).toDate()
+                : DateTime.parse(json['createdAt'].toString()))
           : DateTime.now(),
       rejectionReason: json['rejectionReason'] as String?,
       shippingLabelUrl: json['shippingLabelUrl'] as String?,
@@ -239,7 +227,8 @@ class FulfillmentTaskModel {
   }
 
   @override
-  String toString() => 'FulfillmentTaskModel(taskId: $taskId, '
+  String toString() =>
+      'FulfillmentTaskModel(taskId: $taskId, '
       'orderId: $orderId, status: ${status.displayName}, '
       'assignedTo: $assignedToEmployeeId, '
       'items: ${items.length}, packed: $totalItemsPacked/$totalItemsRequired)';

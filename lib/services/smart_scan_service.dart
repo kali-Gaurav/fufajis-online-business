@@ -52,8 +52,7 @@ class SmartScanService {
 
       if (branchSnap.docs.isNotEmpty) {
         product = ProductModel.fromMap(
-          branchSnap.docs.first.data()
-            ..['id'] = branchSnap.docs.first.id,
+          branchSnap.docs.first.data()..['id'] = branchSnap.docs.first.id,
         );
         dbStock = (product.stockQuantity).toInt();
       } else {
@@ -68,8 +67,7 @@ class SmartScanService {
 
         if (shopSnap.docs.isNotEmpty) {
           product = ProductModel.fromMap(
-            shopSnap.docs.first.data()
-              ..['id'] = shopSnap.docs.first.id,
+            shopSnap.docs.first.data()..['id'] = shopSnap.docs.first.id,
           );
           dbStock = (product.stockQuantity).toInt();
         }
@@ -104,7 +102,9 @@ class SmartScanService {
           if (openPoLine != null) break;
         }
       }
-    } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
+    } catch (e, stack) {
+      LoggingService().error('Silent error caught', e, stack);
+    }
 
     return ProductScanResult(
       barcode: barcode,
@@ -149,8 +149,7 @@ class SmartScanService {
       updatedVerified.add(matchedProductId);
     }
 
-    final isOrderComplete =
-        updatedVerified.length == order.items.length;
+    final isOrderComplete = updatedVerified.length == order.items.length;
 
     // Next unverified item (to auto-highlight in UI)
     OrderItem? nextItem;
@@ -236,33 +235,22 @@ class SmartScanService {
           .get();
 
       if (!snap.exists) {
-        return DispatchReadyResult(
-          orderId: orderId,
-          isReady: false,
-          reason: 'Order not found',
-        );
+        return DispatchReadyResult(orderId: orderId, isReady: false, reason: 'Order not found');
       }
 
       final data = snap.data()!;
       final status = data['status'] as String? ?? '';
-      final isPacked =
-          status == 'packed' || status == 'ready_to_dispatch';
+      final isPacked = status == 'packed' || status == 'ready_to_dispatch';
 
       return DispatchReadyResult(
         orderId: orderId,
         orderData: data,
         isReady: isPacked,
         currentStatus: status,
-        reason: isPacked
-            ? 'Ready to dispatch'
-            : 'Cannot dispatch — status is "$status"',
+        reason: isPacked ? 'Ready to dispatch' : 'Cannot dispatch — status is "$status"',
       );
     } catch (e) {
-      return DispatchReadyResult(
-        orderId: orderId,
-        isReady: false,
-        reason: 'Error: $e',
-      );
+      return DispatchReadyResult(orderId: orderId, isReady: false, reason: 'Error: $e');
     }
   }
 
@@ -293,15 +281,13 @@ class SmartScanService {
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
 
-  double _haversineDistance(
-      double lat1, double lon1, double lat2, double lon2) {
+  double _haversineDistance(double lat1, double lon1, double lat2, double lon2) {
     const R = 6371000.0; // Earth radius in metres
     final phi1 = lat1 * pi / 180;
     final phi2 = lat2 * pi / 180;
     final dPhi = (lat2 - lat1) * pi / 180;
     final dLam = (lon2 - lon1) * pi / 180;
-    final a = sin(dPhi / 2) * sin(dPhi / 2) +
-        cos(phi1) * cos(phi2) * sin(dLam / 2) * sin(dLam / 2);
+    final a = sin(dPhi / 2) * sin(dPhi / 2) + cos(phi1) * cos(phi2) * sin(dLam / 2) * sin(dLam / 2);
     return R * 2 * atan2(sqrt(a), sqrt(1 - a));
   }
 }
@@ -356,8 +342,7 @@ class PackScanResult {
   final bool isOrderComplete;
   final OrderItem? nextItemToPack;
 
-  bool get success =>
-      matchedProductId != null && !wasAlreadyVerified;
+  bool get success => matchedProductId != null && !wasAlreadyVerified;
 
   const PackScanResult({
     required this.barcode,

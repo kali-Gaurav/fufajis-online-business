@@ -39,10 +39,7 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to load data: $e'),
-              backgroundColor: AppTheme.error,
-            ),
+            SnackBar(content: Text('Failed to load data: $e'), backgroundColor: AppTheme.error),
           );
         }
       }
@@ -63,9 +60,9 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
               // Header
               Text(
                 "Today's Orders",
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
 
@@ -77,9 +74,9 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
               // Quick stats
               Text(
                 'Quick Stats',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
 
@@ -90,9 +87,9 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
               // Action buttons
               Text(
                 'Quick Actions',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
 
@@ -179,10 +176,7 @@ class _StatusCard extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
             child: Icon(icon, color: Colors.white, size: 24),
           ),
           const SizedBox(width: 16),
@@ -191,17 +185,14 @@ class _StatusCard extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[600],
-                    ),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
               ),
               const SizedBox(height: 4),
               Text(
                 count.toString(),
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: color),
               ),
             ],
           ),
@@ -267,9 +258,7 @@ class _ActionButtons extends StatelessWidget {
           icon: Icons.add_circle_outline,
           color: AppTheme.info,
           onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const OrderQueueScreen()),
-            );
+            Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OrderQueueScreen()));
           },
         ),
         _ActionButton(
@@ -281,15 +270,13 @@ class _ActionButtons extends StatelessWidget {
             final fulfillment = context.read<FulfillmentProvider>();
             if (fulfillment.assignedOrders.isNotEmpty) {
               final order = fulfillment.assignedOrders.first;
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => PackingScreen(taskId: order.id),
-                ),
-              );
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => PackingScreen(taskId: order.id)));
             } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('No orders assigned')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('No orders assigned')));
             }
           },
         ),
@@ -299,9 +286,9 @@ class _ActionButtons extends StatelessWidget {
           icon: Icons.verified,
           color: AppTheme.success,
           onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const QualityCheckScreen()),
-            );
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const QualityCheckScreen()));
           },
         ),
       ],
@@ -336,9 +323,7 @@ class _ActionButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: isDark ? Colors.grey[800] : Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isDark ? Colors.grey[700]! : Colors.grey[200]!,
-          ),
+          border: Border.all(color: isDark ? Colors.grey[700]! : Colors.grey[200]!),
         ),
         child: Row(
           children: [
@@ -357,16 +342,14 @@ class _ActionButton extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
-                        ),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                   ),
                 ],
               ),

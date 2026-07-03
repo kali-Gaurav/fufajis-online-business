@@ -59,13 +59,15 @@ class _PaymentMethodStepState extends State<PaymentMethodStep> {
     if (_selectedMethod == PaymentMethod.wallet) {
       if (walletProvider.walletBalance < cartProvider.total) {
         isValid = false;
-        errorMessage = 'Insufficient wallet balance (Available: ₹${walletProvider.walletBalance.round()})';
+        errorMessage =
+            'Insufficient wallet balance (Available: ₹${walletProvider.walletBalance.round()})';
       }
     } else if (_selectedMethod == PaymentMethod.credit) {
       if (user != null) {
         if (user.creditBalance + cartProvider.total > user.creditLimit) {
           isValid = false;
-          errorMessage = 'Exceeds credit limit (Remaining: ₹${(user.creditLimit - user.creditBalance).round()})';
+          errorMessage =
+              'Exceeds credit limit (Remaining: ₹${(user.creditLimit - user.creditBalance).round()})';
         }
       } else {
         isValid = false;
@@ -95,12 +97,9 @@ class _PaymentMethodStepState extends State<PaymentMethodStep> {
     if (isValid) {
       widget.onContinue();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-          backgroundColor: AppTheme.error,
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(errorMessage), backgroundColor: AppTheme.error));
     }
   }
 
@@ -210,17 +209,12 @@ class _PaymentMethodStepState extends State<PaymentMethodStep> {
             backgroundColor: AppTheme.primary,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             disabledBackgroundColor: AppTheme.grey300,
           ),
           child: const Text(
             'Continue to Review',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
       ],
@@ -254,11 +248,7 @@ class CompactPaymentMethodStep extends StatelessWidget {
       children: [
         const Text(
           'Payment Method',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: AppTheme.grey900,
-          ),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.grey900),
         ),
         const SizedBox(height: 12),
         PaymentMethodSelector(
@@ -274,4 +264,3 @@ class CompactPaymentMethodStep extends StatelessWidget {
     );
   }
 }
-

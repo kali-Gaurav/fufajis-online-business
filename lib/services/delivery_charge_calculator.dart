@@ -75,8 +75,12 @@ class DeliveryChargeCalculator {
   /// Calculate standard delivery charge based on subtotal
   static double _calculateStandardDeliveryCharge(double subtotal, {bool isEmergency = false}) {
     final threshold = isEmergency ? freeDeliveryThreshold * 1.5 : freeDeliveryThreshold;
-    final chargeBelow500 = isEmergency ? standardDeliveryChargeBelow500 * 2.0 : standardDeliveryChargeBelow500;
-    final chargeBelow200 = isEmergency ? standardDeliveryChargeBelow200 * 2.0 : standardDeliveryChargeBelow200;
+    final chargeBelow500 = isEmergency
+        ? standardDeliveryChargeBelow500 * 2.0
+        : standardDeliveryChargeBelow500;
+    final chargeBelow200 = isEmergency
+        ? standardDeliveryChargeBelow200 * 2.0
+        : standardDeliveryChargeBelow200;
 
     if (subtotal >= threshold) {
       return 0.0;
@@ -93,10 +97,7 @@ class DeliveryChargeCalculator {
   /// [fromDate] - The starting date (defaults to now)
   ///
   /// Returns the estimated delivery date
-  static DateTime getEstimatedDeliveryDate(
-    DeliveryType type, {
-    DateTime? fromDate,
-  }) {
+  static DateTime getEstimatedDeliveryDate(DeliveryType type, {DateTime? fromDate}) {
     final now = fromDate ?? DateTime.now();
     final option = DeliveryTypeOption.fromType(type);
     return now.add(Duration(days: option.estimatedDays));
@@ -108,10 +109,7 @@ class DeliveryChargeCalculator {
   /// [fromDate] - The starting date (defaults to now)
   ///
   /// Returns a formatted string like "Tomorrow, 10 Jan" or "Within 8 hours"
-  static String getFormattedDeliveryDate(
-    DeliveryType type, {
-    DateTime? fromDate,
-  }) {
+  static String getFormattedDeliveryDate(DeliveryType type, {DateTime? fromDate}) {
     final now = fromDate ?? DateTime.now();
     final option = DeliveryTypeOption.fromType(type);
 
@@ -121,11 +119,7 @@ class DeliveryChargeCalculator {
 
     final estimatedDate = now.add(Duration(days: option.estimatedDays));
     final today = DateTime(now.year, now.month, now.day);
-    final estimatedDay = DateTime(
-      estimatedDate.year,
-      estimatedDate.month,
-      estimatedDate.day,
-    );
+    final estimatedDay = DateTime(estimatedDate.year, estimatedDate.month, estimatedDate.day);
 
     if (estimatedDay == today) {
       return 'Today';

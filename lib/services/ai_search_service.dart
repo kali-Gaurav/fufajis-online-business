@@ -46,8 +46,7 @@ class AISearchService {
     // 1. Upload compressed image to Firebase Storage (Step 8.2). This safely
     // degrades in offline/test paths because the upload helper catches errors.
     if (!kIsWeb && File(image.path).existsSync()) {
-      final fileName =
-          'ai_search/${DateTime.now().millisecondsSinceEpoch}_${image.name}';
+      final fileName = 'ai_search/${DateTime.now().millisecondsSinceEpoch}_${image.name}';
       await _imageService.uploadCompressedImage(image, fileName);
     }
 
@@ -68,19 +67,14 @@ class AISearchService {
     }
 
     if (aiKeyword == null || aiKeyword == 'unknown') {
-      return catalog.isEmpty
-          ? []
-          : [AISearchResult(product: catalog.first, confidence: 0.2)];
+      return catalog.isEmpty ? [] : [AISearchResult(product: catalog.first, confidence: 0.2)];
     }
 
     // 3. Confidence-based semantic matching (Step 8.4, 8.5)
     return _matchProductsWithConfidence(aiKeyword, catalog);
   }
 
-  List<AISearchResult> _matchProductsWithConfidence(
-    String keyword,
-    List<ProductModel> catalog,
-  ) {
+  List<AISearchResult> _matchProductsWithConfidence(String keyword, List<ProductModel> catalog) {
     if (!_isIndexBuilt && catalog.isNotEmpty) {
       _trieEngine.buildIndex(catalog);
       _isIndexBuilt = true;
@@ -109,15 +103,10 @@ class AISearchService {
 
     // Secondary: Apply Levenshtein fuzzy matching on trie if prefix matches are sparse
     if (results.length < 3) {
-      final fuzzyMatches = _trieEngine.searchFuzzy(
-        lowerKeyword,
-        maxDistance: 2,
-      );
+      final fuzzyMatches = _trieEngine.searchFuzzy(lowerKeyword, maxDistance: 2);
       for (final entry in fuzzyMatches) {
         if (!matchedIds.contains(entry.key.id)) {
-          results.add(
-            AISearchResult(product: entry.key, confidence: entry.value),
-          );
+          results.add(AISearchResult(product: entry.key, confidence: entry.value));
           matchedIds.add(entry.key.id);
         }
       }
@@ -148,9 +137,7 @@ class AISearchService {
   Future<List<Map<String, dynamic>>> parseHandwrittenList(XFile image) async {
     try {
       final imageBytes = await image.readAsBytes();
-      final String extractedText = await _geminiService.extractTextFromImage(
-        imageBytes,
-      );
+      final String extractedText = await _geminiService.extractTextFromImage(imageBytes);
       if (extractedText.isEmpty) return [];
       return await _geminiService.parseBillItems(extractedText);
     } catch (e) {

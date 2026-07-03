@@ -40,9 +40,9 @@ class _MyInvoicesScreenState extends State<MyInvoicesScreen> {
       await Printing.sharePdf(bytes: bytes, filename: '${invoice.invoiceNumber}.pdf');
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not open invoice: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Could not open invoice: $e')));
       }
     }
   }
@@ -74,10 +74,7 @@ class _MyInvoicesScreenState extends State<MyInvoicesScreen> {
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final invoice = provider.invoices[index];
-                return _InvoiceCard(
-                  invoice: invoice,
-                  onDownload: () => _downloadInvoice(invoice),
-                );
+                return _InvoiceCard(invoice: invoice, onDownload: () => _downloadInvoice(invoice));
               },
             ),
           );
@@ -119,7 +116,10 @@ class _InvoiceCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(invoice.invoiceNumber, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      Text(
+                        invoice.invoiceNumber,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
                       Text(dateStr, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
                     ],
                   ),
@@ -143,8 +143,14 @@ class _InvoiceCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Subtotal: ${GstFormat.currency(invoice.subtotal.toDouble())}', style: TextStyle(color: Colors.grey[700], fontSize: 13)),
-                Text('GST: ${GstFormat.currency(invoice.totalTax.toDouble())}', style: TextStyle(color: Colors.grey[700], fontSize: 13)),
+                Text(
+                  'Subtotal: ${GstFormat.currency(invoice.subtotal.toDouble())}',
+                  style: TextStyle(color: Colors.grey[700], fontSize: 13),
+                ),
+                Text(
+                  'GST: ${GstFormat.currency(invoice.totalTax.toDouble())}',
+                  style: TextStyle(color: Colors.grey[700], fontSize: 13),
+                ),
               ],
             ),
             const SizedBox(height: 4),
@@ -157,7 +163,10 @@ class _InvoiceCard extends StatelessWidget {
             ),
             if (invoice.gstNumber != null && invoice.gstNumber!.isNotEmpty) ...[
               const SizedBox(height: 4),
-              Text('GSTIN: ${invoice.gstNumber}', style: TextStyle(color: Colors.grey[500], fontSize: 11)),
+              Text(
+                'GSTIN: ${invoice.gstNumber}',
+                style: TextStyle(color: Colors.grey[500], fontSize: 11),
+              ),
             ],
           ],
         ),

@@ -25,11 +25,11 @@ class GuestProvider extends ChangeNotifier {
   GuestProvider._internal();
 
   // ── Storage keys ───────────────────────────────────────────
-  static const String _keyGuestId       = 'guest_id';
-  static const String _keyGuestCart     = 'guest_cart';
-  static const String _keyGuestLang     = 'guest_language';
-  static const String _keyGuestTheme    = 'guest_theme';
-  static const String _keyIsGuestMode   = 'guest_mode_active';
+  static const String _keyGuestId = 'guest_id';
+  static const String _keyGuestCart = 'guest_cart';
+  static const String _keyGuestLang = 'guest_language';
+  static const String _keyGuestTheme = 'guest_theme';
+  static const String _keyIsGuestMode = 'guest_mode_active';
 
   // ── State ──────────────────────────────────────────────────
   String? _guestId;
@@ -39,14 +39,13 @@ class GuestProvider extends ChangeNotifier {
   String _theme = 'Light';
 
   // ── Getters ────────────────────────────────────────────────
-  String? get guestId     => _guestId;
-  bool get isGuestMode    => _isGuestMode;
+  String? get guestId => _guestId;
+  bool get isGuestMode => _isGuestMode;
   List<CartItemModel> get guestCart => List.unmodifiable(_guestCart);
-  String get language     => _language;
-  String get theme        => _theme;
+  String get language => _language;
+  String get theme => _theme;
 
-  int get guestCartItemCount =>
-      _guestCart.fold(0, (sum, item) => sum + item.quantity);
+  int get guestCartItemCount => _guestCart.fold(0, (sum, item) => sum + item.quantity);
 
   double get guestCartTotal =>
       _guestCart.fold(0.0, (sum, item) => sum + item.totalPrice.toDouble());
@@ -79,7 +78,7 @@ class GuestProvider extends ChangeNotifier {
       }
 
       _language = prefs.getString(_keyGuestLang) ?? 'Hindi';
-      _theme    = prefs.getString(_keyGuestTheme) ?? 'Light';
+      _theme = prefs.getString(_keyGuestTheme) ?? 'Light';
     }
 
     notifyListeners();

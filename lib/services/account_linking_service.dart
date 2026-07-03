@@ -6,11 +6,7 @@ class AccountLinkResult {
   final bool merged;
   final String primaryUid;
 
-  AccountLinkResult({
-    required this.linked,
-    required this.merged,
-    required this.primaryUid,
-  });
+  AccountLinkResult({required this.linked, required this.merged, required this.primaryUid});
 }
 
 class AccountLinkingService {
@@ -23,7 +19,7 @@ class AccountLinkingService {
           .where('phoneNumber', isEqualTo: phone)
           .limit(1)
           .get();
-      
+
       if (snapshot.docs.isNotEmpty) {
         return snapshot.docs.first.id;
       }
@@ -40,7 +36,7 @@ class AccountLinkingService {
           .where('email', isEqualTo: email)
           .limit(1)
           .get();
-      
+
       if (snapshot.docs.isNotEmpty) {
         return snapshot.docs.first.id;
       }
@@ -53,28 +49,21 @@ class AccountLinkingService {
   Future<AccountLinkResult> linkCredentials(User user, AuthCredential credential) async {
     try {
       final updatedUser = await user.linkWithCredential(credential);
-      
+
       // Update linked providers list in firestore
-      final List<String> providers = updatedUser.user?.providerData.map((e) => e.providerId).toList() ?? ['phone'];
-      
+      final List<String> providers =
+          updatedUser.user?.providerData.map((e) => e.providerId).toList() ?? ['phone'];
+
       await _firestore.collection('users').doc(user.uid).update({
         'linkedProviders': providers,
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
-      return AccountLinkResult(
-        linked: true,
-        merged: false,
-        primaryUid: user.uid,
-      );
+      return AccountLinkResult(linked: true, merged: false, primaryUid: user.uid);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'credential-already-in-use') {
         // We need to merge accounts manually if already in use, or handle it in UI
-        return AccountLinkResult(
-          linked: false,
-          merged: false,
-          primaryUid: user.uid,
-        );
+        return AccountLinkResult(linked: false, merged: false, primaryUid: user.uid);
       }
       rethrow;
     }
@@ -83,7 +72,10 @@ class AccountLinkingService {
   // Merges secondaryUid data into primaryUid and deletes secondaryUid
   Future<void> mergeAccounts(String primaryUid, String secondaryUid) async {
     // 1. Move orders
-    final ordersSnapshot = await _firestore.collection('orders').where('customerId', isEqualTo: secondaryUid).get();
+    final ordersSnapshot = await _firestore
+        .collection('orders')
+        .where('customerId', isEqualTo: secondaryUid)
+        .get();
     for (var doc in ordersSnapshot.docs) {
       await doc.reference.update({'customerId': primaryUid});
     }
@@ -95,10 +87,10 @@ class AccountLinkingService {
     if (primaryDoc.exists && secondaryDoc.exists) {
       final pData = primaryDoc.data()!;
       final sData = secondaryDoc.data()!;
-      
+
       final pWallet = (pData['walletBalance'] ?? 0.0).toDouble();
       final sWallet = (sData['walletBalance'] ?? 0.0).toDouble();
-      
+
       final pPoints = pData['rewardPoints'] ?? 0;
       final sPoints = sData['rewardPoints'] ?? 0;
 

@@ -43,10 +43,7 @@ class _ScanActivityScreenState extends State<ScanActivityScreen> {
             tooltip: 'Filter',
             onPressed: () => _showFilterSheet(context),
           ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => setState(() {}),
-          ),
+          IconButton(icon: const Icon(Icons.refresh), onPressed: () => setState(() {})),
         ],
       ),
       body: Column(
@@ -55,24 +52,19 @@ class _ScanActivityScreenState extends State<ScanActivityScreen> {
           if (_filterMode != 'all' || _filterRole != 'all')
             Container(
               color: Colors.grey.shade100,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
-                  const Text('Filters: ',
-                      style: TextStyle(color: Colors.grey, fontSize: 12)),
+                  const Text('Filters: ', style: TextStyle(color: Colors.grey, fontSize: 12)),
                   if (_filterMode != 'all')
                     _FilterChip(
-                      label:
-                          ScanMode.find(_filterMode)?.label ?? _filterMode,
-                      onRemove: () =>
-                          setState(() => _filterMode = 'all'),
+                      label: ScanMode.find(_filterMode)?.label ?? _filterMode,
+                      onRemove: () => setState(() => _filterMode = 'all'),
                     ),
                   if (_filterRole != 'all')
                     _FilterChip(
                       label: _filterRole.toUpperCase(),
-                      onRemove: () =>
-                          setState(() => _filterRole = 'all'),
+                      onRemove: () => setState(() => _filterRole = 'all'),
                     ),
                 ],
               ),
@@ -81,20 +73,20 @@ class _ScanActivityScreenState extends State<ScanActivityScreen> {
           // Live stream
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream:
-                  _buildStream(shopId: shopId, branchId: branchId ?? ''),
+              stream: _buildStream(shopId: shopId, branchId: branchId ?? ''),
               builder: (context, snapshot) {
-                if (snapshot.connectionState ==
-                    ConnectionState.waiting) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
-                      child: CircularProgressIndicator(color: AppTheme.ownerAccent));
+                    child: CircularProgressIndicator(color: AppTheme.ownerAccent),
+                  );
                 }
 
                 if (snapshot.hasError) {
                   return Center(
                     child: Text(
-                        'Error: ${snapshot.error}',
-                        style: const TextStyle(color: AppTheme.error)),
+                      'Error: ${snapshot.error}',
+                      style: const TextStyle(color: AppTheme.error),
+                    ),
                   );
                 }
 
@@ -105,12 +97,10 @@ class _ScanActivityScreenState extends State<ScanActivityScreen> {
                 // for small result sets up to the limit).
                 final filtered = docs.where((d) {
                   final data = d.data() as Map<String, dynamic>;
-                  if (_filterMode != 'all' &&
-                      data['actionType'] != _filterMode) {
+                  if (_filterMode != 'all' && data['actionType'] != _filterMode) {
                     return false;
                   }
-                  if (_filterRole != 'all' &&
-                      data['employeeRole'] != _filterRole) {
+                  if (_filterRole != 'all' && data['employeeRole'] != _filterRole) {
                     return false;
                   }
                   return true;
@@ -121,11 +111,9 @@ class _ScanActivityScreenState extends State<ScanActivityScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.qr_code_scanner,
-                            size: 64, color: Colors.grey),
+                        Icon(Icons.qr_code_scanner, size: 64, color: Colors.grey),
                         SizedBox(height: 12),
-                        Text('No scan activity found',
-                            style: TextStyle(color: Colors.grey)),
+                        Text('No scan activity found', style: TextStyle(color: Colors.grey)),
                       ],
                     ),
                   );
@@ -134,11 +122,9 @@ class _ScanActivityScreenState extends State<ScanActivityScreen> {
                 return ListView.separated(
                   padding: const EdgeInsets.all(12),
                   itemCount: filtered.length,
-                  separatorBuilder: (_, __) =>
-                      const SizedBox(height: 6),
+                  separatorBuilder: (_, __) => const SizedBox(height: 6),
                   itemBuilder: (_, i) {
-                    final data = filtered[i].data()
-                        as Map<String, dynamic>;
+                    final data = filtered[i].data() as Map<String, dynamic>;
                     return _ScanLogTile(data: data);
                   },
                 );
@@ -150,8 +136,7 @@ class _ScanActivityScreenState extends State<ScanActivityScreen> {
     );
   }
 
-  Stream<QuerySnapshot> _buildStream(
-      {required String shopId, required String branchId}) {
+  Stream<QuerySnapshot> _buildStream({required String shopId, required String branchId}) {
     Query query = FirebaseFirestore.instance
         .collection('shops')
         .doc(shopId)
@@ -181,12 +166,10 @@ class _ScanActivityScreenState extends State<ScanActivityScreen> {
             children: [
               const Text(
                 'Filter Scan Activity',
-                style: TextStyle(
-                    fontSize: 17, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
-              const Text('Scan Mode',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
+              const Text('Scan Mode', style: TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
@@ -200,34 +183,35 @@ class _ScanActivityScreenState extends State<ScanActivityScreen> {
                       setState(() => _filterMode = 'all');
                     },
                   ),
-                  ...ScanMode.all.map((m) => _PickChip(
-                        label: m.label,
-                        color: m.color,
-                        selected: _filterMode == m.id,
-                        onTap: () {
-                          setModalState(() {});
-                          setState(() => _filterMode = m.id);
-                        },
-                      )),
+                  ...ScanMode.all.map(
+                    (m) => _PickChip(
+                      label: m.label,
+                      color: m.color,
+                      selected: _filterMode == m.id,
+                      onTap: () {
+                        setModalState(() {});
+                        setState(() => _filterMode = m.id);
+                      },
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
-              const Text('Role',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
+              const Text('Role', style: TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 children: ['all', 'owner', 'employee', 'delivery']
-                    .map((r) => _PickChip(
-                          label: r == 'all'
-                              ? 'All'
-                              : r.toUpperCase(),
-                          selected: _filterRole == r,
-                          onTap: () {
-                            setModalState(() {});
-                            setState(() => _filterRole = r);
-                          },
-                        ))
+                    .map(
+                      (r) => _PickChip(
+                        label: r == 'all' ? 'All' : r.toUpperCase(),
+                        selected: _filterRole == r,
+                        onTap: () {
+                          setModalState(() {});
+                          setState(() => _filterRole = r);
+                        },
+                      ),
+                    )
                     .toList(),
               ),
               const SizedBox(height: 20),
@@ -266,17 +250,14 @@ class _ScanLogTile extends StatelessWidget {
     final actionLabel = data['actionLabel'] as String? ?? actionType;
     final scanCode = data['scanCode'] as String? ?? '';
     final ts = (data['createdAt'] as Timestamp?)?.toDate();
-    final timeStr = ts != null
-        ? DateFormat('dd MMM, hh:mm a').format(ts)
-        : '—';
+    final timeStr = ts != null ? DateFormat('dd MMM, hh:mm a').format(ts) : '—';
 
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-            color: color.withValues(alpha: 0.2), width: 1),
+        border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -295,11 +276,7 @@ class _ScanLogTile extends StatelessWidget {
               color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(
-              modeConfig?.icon ?? Icons.qr_code,
-              color: color,
-              size: 20,
-            ),
+            child: Icon(modeConfig?.icon ?? Icons.qr_code, color: color, size: 20),
           ),
 
           const SizedBox(width: 12),
@@ -313,42 +290,32 @@ class _ScanLogTile extends StatelessWidget {
                   children: [
                     Text(
                       actionLabel,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                          color: color),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: color),
                     ),
                     const SizedBox(width: 6),
                     if (employeeRole.isNotEmpty)
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 5, vertical: 1),
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                         decoration: BoxDecoration(
-                          color: _roleColor(employeeRole)
-                              .withValues(alpha: 0.12),
+                          color: _roleColor(employeeRole).withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           employeeRole.toUpperCase(),
                           style: TextStyle(
-                              fontSize: 9,
-                              color: _roleColor(employeeRole),
-                              fontWeight: FontWeight.bold),
+                            fontSize: 9,
+                            color: _roleColor(employeeRole),
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                   ],
                 ),
                 const SizedBox(height: 2),
-                Text(
-                  employeeName,
-                  style: const TextStyle(fontSize: 12),
-                ),
+                Text(employeeName, style: const TextStyle(fontSize: 12)),
                 Text(
                   _truncate(scanCode, 30),
-                  style: const TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey,
-                      fontFamily: 'monospace'),
+                  style: const TextStyle(fontSize: 11, color: Colors.grey, fontFamily: 'monospace'),
                 ),
               ],
             ),
@@ -410,12 +377,7 @@ class _PickChip extends StatelessWidget {
   final Color? color;
   final VoidCallback onTap;
 
-  const _PickChip({
-    required this.label,
-    required this.selected,
-    this.color,
-    required this.onTap,
-  });
+  const _PickChip({required this.label, required this.selected, this.color, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -423,23 +385,18 @@ class _PickChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: selected ? c.withValues(alpha: 0.15) : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: selected ? c : Colors.grey.shade300,
-            width: selected ? 1.5 : 1,
-          ),
+          border: Border.all(color: selected ? c : Colors.grey.shade300, width: selected ? 1.5 : 1),
         ),
         child: Text(
           label,
           style: TextStyle(
             fontSize: 12,
             color: selected ? c : Colors.grey,
-            fontWeight:
-                selected ? FontWeight.bold : FontWeight.normal,
+            fontWeight: selected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
       ),

@@ -21,8 +21,7 @@ class ChatService {
         .where('chatChannelId', isEqualTo: customerId)
         .orderBy('timestamp', descending: false)
         .snapshots()
-        .map((snap) =>
-            snap.docs.map((d) => ChatMessageModel.fromMap(d.data())).toList());
+        .map((snap) => snap.docs.map((d) => ChatMessageModel.fromMap(d.data())).toList());
   }
 
   Future<void> markMessagesAsRead(String channelId, String readerId) async {
@@ -45,8 +44,7 @@ class ChatService {
         .collection('support_chats')
         .orderBy('timestamp', descending: true)
         .snapshots()
-        .map((snap) =>
-            snap.docs.map((d) => ChatMessageModel.fromMap(d.data())).toList());
+        .map((snap) => snap.docs.map((d) => ChatMessageModel.fromMap(d.data())).toList());
   }
 
   Stream<List<ChatMessageModel>> getRiderChatStream(String riderId) {
@@ -83,10 +81,7 @@ class ChatService {
     SenderRole? role,
   }) async {
     try {
-      await _db
-          .collection('support_chats')
-          .doc(chatId)
-          .set({
+      await _db.collection('support_chats').doc(chatId).set({
         'isTyping': isTyping,
         if (role != null) 'typingRole': role.name,
         'typingUpdatedAt': FieldValue.serverTimestamp(),
@@ -108,8 +103,7 @@ class SupportChatService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final SentimentService _sentiment = SentimentService();
 
-  CollectionReference<Map<String, dynamic>> get _convCol =>
-      _db.collection('support_conversations');
+  CollectionReference<Map<String, dynamic>> get _convCol => _db.collection('support_conversations');
 
   CollectionReference<Map<String, dynamic>> _msgCol(String chatId) =>
       _convCol.doc(chatId).collection('messages');
@@ -119,24 +113,21 @@ class SupportChatService {
     return _convCol
         .orderBy('lastUpdated', descending: true)
         .snapshots()
-        .map((snap) => snap.docs
-            .map((d) => ChatConversationModel.fromMap(d.id, d.data()))
-            .toList());
+        .map(
+          (snap) => snap.docs.map((d) => ChatConversationModel.fromMap(d.id, d.data())).toList(),
+        );
   }
 
   Stream<ChatConversationModel?> watchConversation(String chatId) {
-    return _convCol.doc(chatId).snapshots().map((snap) =>
-        snap.exists ? ChatConversationModel.fromMap(snap.id, snap.data()!) : null);
+    return _convCol
+        .doc(chatId)
+        .snapshots()
+        .map((snap) => snap.exists ? ChatConversationModel.fromMap(snap.id, snap.data()!) : null);
   }
 
-  Stream<List<ChatMessage>> watchMessages(String chatId,
-      {bool customerView = true}) {
-    return _msgCol(chatId)
-        .orderBy('timestamp', descending: false)
-        .snapshots()
-        .map((snap) {
-      final msgs =
-          snap.docs.map((d) => ChatMessage.fromMap(d.id, d.data())).toList();
+  Stream<List<ChatMessage>> watchMessages(String chatId, {bool customerView = true}) {
+    return _msgCol(chatId).orderBy('timestamp', descending: false).snapshots().map((snap) {
+      final msgs = snap.docs.map((d) => ChatMessage.fromMap(d.id, d.data())).toList();
       return customerView ? msgs.where((m) => !m.isInternalNote).toList() : msgs;
     });
   }
@@ -203,8 +194,10 @@ class SupportChatService {
     await batch.commit();
 
     if (labelVal == SentimentLabel.angry) {
-      await _sendSystemMessage(chatId,
-          'Sentiment Alert: Customer appears very frustrated. Consider escalating.');
+      await _sendSystemMessage(
+        chatId,
+        'Sentiment Alert: Customer appears very frustrated. Consider escalating.',
+      );
     }
   }
 
@@ -305,24 +298,20 @@ class SupportChatService {
   }
 
   Future<void> markAsRead(String chatId, SenderRole readerRole) async {
-    final field =
-        (readerRole == SenderRole.owner || readerRole == SenderRole.employee)
-            ? 'unreadCountOwner'
-            : 'unreadCountCustomer';
+    final field = (readerRole == SenderRole.owner || readerRole == SenderRole.employee)
+        ? 'unreadCountOwner'
+        : 'unreadCountCustomer';
     await _convCol.doc(chatId).update({field: 0});
   }
 
   Future<void> setTyping(String chatId, bool isTyping, SenderRole role) async {
-    final field =
-        role == SenderRole.customer ? 'isTypingCustomer' : 'isTypingStaff';
+    final field = role == SenderRole.customer ? 'isTypingCustomer' : 'isTypingStaff';
     await _convCol.doc(chatId).update({field: isTyping});
   }
 
   // Export (Task #70)
   Future<List<ChatMessage>> fetchAllMessages(String chatId) async {
-    final snap = await _msgCol(chatId)
-        .orderBy('timestamp', descending: false)
-        .get();
+    final snap = await _msgCol(chatId).orderBy('timestamp', descending: false).get();
     return snap.docs.map((d) => ChatMessage.fromMap(d.id, d.data())).toList();
   }
 

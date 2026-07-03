@@ -44,10 +44,7 @@ class WhatsAppNotificationService {
   /// Gets the active notification phase from Firestore (default is Phase 1)
   static Future<int> _getActivePhase() async {
     try {
-      final doc = await _db
-          .collection('settings')
-          .doc('whatsapp_config')
-          .get();
+      final doc = await _db.collection('settings').doc('whatsapp_config').get();
       if (doc.exists && doc.data() != null) {
         return doc.data()?['phase'] ?? 1;
       }
@@ -68,10 +65,7 @@ class WhatsAppNotificationService {
     try {
       final response = await http.post(
         Uri.parse(_baseUrl),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $_token",
-        },
+        headers: {"Content-Type": "application/json", "Authorization": "Bearer $_token"},
         body: jsonEncode({
           "messaging_product": "whatsapp",
           "to": cleanNumber,
@@ -118,15 +112,11 @@ class WhatsAppNotificationService {
           );
           break;
         case 'outfordelivery':
-          buffer.writeln(
-            'Great news! Your order *#$orderNumber* is out for delivery. 🚚',
-          );
+          buffer.writeln('Great news! Your order *#$orderNumber* is out for delivery. 🚚');
           if (otp != null) {
             buffer.writeln('');
             buffer.writeln('🔑 *Delivery OTP: $otp*');
-            buffer.writeln(
-              'Please share this code only with our delivery rider.',
-            );
+            buffer.writeln('Please share this code only with our delivery rider.');
           }
           break;
         case 'delivered':
@@ -135,17 +125,12 @@ class WhatsAppNotificationService {
           );
           break;
         default:
-          buffer.writeln(
-            'Status of your order *#$orderNumber* is now: *$status*.',
-          );
+          buffer.writeln('Status of your order *#$orderNumber* is now: *$status*.');
       }
 
       buffer.writeln('');
       buffer.writeln('Fixed pricing. Honest quality. Locally operated.');
-      return await sendOrderUpdate(
-        phoneNumber: cleanNumber,
-        message: buffer.toString(),
-      );
+      return await sendOrderUpdate(phoneNumber: cleanNumber, message: buffer.toString());
     }
 
     // ─── PHASE 3: INTERACTIVE BUTTONS ───
@@ -155,10 +140,7 @@ class WhatsAppNotificationService {
             "Namaste $customerName, your order #$orderNumber is $status. ${otp != null ? 'Your Delivery OTP is $otp.' : ''}";
         final response = await http.post(
           Uri.parse(_baseUrl),
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer $_token",
-          },
+          headers: {"Content-Type": "application/json", "Authorization": "Bearer $_token"},
           body: jsonEncode({
             "messaging_product": "whatsapp",
             "to": cleanNumber,
@@ -193,9 +175,7 @@ class WhatsAppNotificationService {
           phase == 1;
         }
       } catch (e) {
-        debugPrint(
-          "Phase 3 Interactive message exception: $e. Falling back to Phase 1.",
-        );
+        debugPrint("Phase 3 Interactive message exception: $e. Falling back to Phase 1.");
       }
     }
 
@@ -203,16 +183,11 @@ class WhatsAppNotificationService {
     final String templateName = _getTemplateName(status);
 
     try {
-      debugPrint(
-        "Attempting Meta WhatsApp API call to $cleanNumber using template: $templateName",
-      );
+      debugPrint("Attempting Meta WhatsApp API call to $cleanNumber using template: $templateName");
 
       final response = await http.post(
         Uri.parse(_baseUrl),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $_token",
-        },
+        headers: {"Content-Type": "application/json", "Authorization": "Bearer $_token"},
         body: jsonEncode({
           "messaging_product": "whatsapp",
           "to": cleanNumber,
@@ -223,12 +198,7 @@ class WhatsAppNotificationService {
             "components": [
               {
                 "type": "body",
-                "parameters": _getTemplateParameters(
-                  customerName,
-                  orderNumber,
-                  status,
-                  otp,
-                ),
+                "parameters": _getTemplateParameters(customerName, orderNumber, status, otp),
               },
             ],
           },
@@ -239,9 +209,7 @@ class WhatsAppNotificationService {
         debugPrint("WhatsApp Sent Successfully!");
         return true;
       } else {
-        debugPrint(
-          "WhatsApp API Failure: ${response.statusCode} - ${response.body}",
-        );
+        debugPrint("WhatsApp API Failure: ${response.statusCode} - ${response.body}");
         // If your custom templates aren't approved yet, try sending 'hello_world' to test connection
         if (templateName != 'hello_world') {
           debugPrint("Retrying with 'hello_world' test template...");
@@ -260,10 +228,7 @@ class WhatsAppNotificationService {
     try {
       final response = await http.post(
         Uri.parse(_baseUrl),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $_token",
-        },
+        headers: {"Content-Type": "application/json", "Authorization": "Bearer $_token"},
         body: jsonEncode({
           "messaging_product": "whatsapp",
           "to": cleanNumber,
@@ -373,10 +338,7 @@ class WhatsAppNotificationService {
     try {
       final response = await http.post(
         Uri.parse(_baseUrl),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $_token",
-        },
+        headers: {"Content-Type": "application/json", "Authorization": "Bearer $_token"},
         body: jsonEncode({
           "messaging_product": "whatsapp",
           "to": cleanNumber,
@@ -389,9 +351,7 @@ class WhatsAppNotificationService {
         debugPrint("[WhatsApp] Invoice sent to $cleanNumber");
         return true;
       } else {
-        debugPrint(
-          "[WhatsApp] Invoice failed: ${response.statusCode} - ${response.body}",
-        );
+        debugPrint("[WhatsApp] Invoice failed: ${response.statusCode} - ${response.body}");
         return false;
       }
     } catch (e) {
@@ -441,10 +401,7 @@ class WhatsAppNotificationService {
     try {
       final response = await http.post(
         Uri.parse(_baseUrl),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $_token",
-        },
+        headers: {"Content-Type": "application/json", "Authorization": "Bearer $_token"},
         body: jsonEncode({
           "messaging_product": "whatsapp",
           "to": cleanNumber,
@@ -490,10 +447,7 @@ class WhatsAppNotificationService {
     try {
       final response = await http.post(
         Uri.parse(_baseUrl),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $_token",
-        },
+        headers: {"Content-Type": "application/json", "Authorization": "Bearer $_token"},
         body: jsonEncode({
           "messaging_product": "whatsapp",
           "to": cleanNumber,
@@ -534,10 +488,7 @@ class WhatsAppNotificationService {
     try {
       final response = await http.post(
         Uri.parse(_baseUrl),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $_token",
-        },
+        headers: {"Content-Type": "application/json", "Authorization": "Bearer $_token"},
         body: jsonEncode({
           "messaging_product": "whatsapp",
           "to": cleanNumber,
@@ -576,10 +527,7 @@ class WhatsAppNotificationService {
     try {
       final response = await http.post(
         Uri.parse(_baseUrl),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $_token",
-        },
+        headers: {"Content-Type": "application/json", "Authorization": "Bearer $_token"},
         body: jsonEncode({
           "messaging_product": "whatsapp",
           "to": cleanNumber,
@@ -613,10 +561,7 @@ class WhatsAppNotificationService {
         'Please clear your dues at your convenience using cash, UPI, or by visiting the store. 🙏\n'
         'Thank you for your trust!';
 
-    return await sendOrderUpdate(
-      phoneNumber: cleanNumber,
-      message: message,
-    );
+    return await sendOrderUpdate(phoneNumber: cleanNumber, message: message);
   }
 
   /// Alias for sendStatusUpdate for compatibility with delivery verification
@@ -675,10 +620,7 @@ class WhatsAppNotificationService {
 
     // ── Attempt 1: WhatsApp ──
     try {
-      whatsappSent = await sendOrderUpdate(
-        phoneNumber: phoneNumber,
-        message: '$title\n\n$body',
-      );
+      whatsappSent = await sendOrderUpdate(phoneNumber: phoneNumber, message: '$title\n\n$body');
       if (whatsappSent) {
         channel = 'whatsapp';
       } else {
@@ -746,10 +688,7 @@ class WhatsAppNotificationService {
           title: title,
           body: body,
           channelUsed: 'in_app',
-          data: {
-            'orderId': orderId,
-            'type': notificationType ?? 'order_update',
-          },
+          data: {'orderId': orderId, 'type': notificationType ?? 'order_update'},
         );
         if (inAppSent) {
           channel = 'in_app';

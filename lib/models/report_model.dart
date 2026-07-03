@@ -98,7 +98,8 @@ class ReportModel {
     final chartData = data['chartData'] as Map<String, dynamic>? ?? const {};
     final deltas = metrics['deltas'] as Map<String, dynamic>? ?? const {};
 
-    final rawTopProducts = metrics['topProducts'] as List<dynamic>? ??
+    final rawTopProducts =
+        metrics['topProducts'] as List<dynamic>? ??
         (chartData['topProducts'] as List<dynamic>?) ??
         const [];
 
@@ -118,11 +119,13 @@ class ReportModel {
       narrativeEn: data['narrative_en']?.toString() ?? '',
       narrativeHi: data['narrative_hi']?.toString() ?? '',
       insights: rawInsights.map((e) => e.toString()).toList(),
-      revenue: (metrics['revenue'] as num?)?.toDouble() ??
+      revenue:
+          (metrics['revenue'] as num?)?.toDouble() ??
           (revenueChart?['current'] as num?)?.toDouble() ??
           0,
       previousRevenue: (revenueChart?['previous'] as num?)?.toDouble() ?? 0,
-      orderCount: (metrics['orderCount'] as num?)?.toInt() ??
+      orderCount:
+          (metrics['orderCount'] as num?)?.toInt() ??
           (orderCountChart?['current'] as num?)?.toInt() ??
           0,
       previousOrderCount: (orderCountChart?['previous'] as num?)?.toInt() ?? 0,

@@ -16,7 +16,8 @@ class AiCampaignGeneratorService {
     bool includeHindi = true,
   }) async {
     try {
-      final prompt = '''
+      final prompt =
+          '''
 You are an expert growth marketer for "Fufaji", an Indian hyperlocal grocery and fast-delivery app.
 I need 3 highly engaging, high-conversion push notification variations for a new marketing campaign.
 
@@ -39,22 +40,21 @@ Respond ONLY with a JSON array of objects. Format:
 ''';
 
       final responseText = await GeminiService.generateText(prompt);
-      
+
       if (responseText.isNotEmpty) {
         // Simple extraction of the JSON part if the model added conversational text
         final jsonStart = responseText.indexOf('[');
         final jsonEnd = responseText.lastIndexOf(']') + 1;
-        
+
         if (jsonStart != -1 && jsonEnd != -1) {
           final jsonString = responseText.substring(jsonStart, jsonEnd);
           final List<dynamic> parsedList = jsonDecode(jsonString) as List<dynamic>;
-          return parsedList.map((e) => {
-            'title': e['title'].toString(),
-            'body': e['body'].toString(),
-          }).toList();
+          return parsedList
+              .map((e) => {'title': e['title'].toString(), 'body': e['body'].toString()})
+              .toList();
         }
       }
-      
+
       throw Exception("Failed to parse AI response.");
     } catch (e) {
       debugPrint('[AiCampaignGeneratorService] Error generating copy: $e');
@@ -71,7 +71,7 @@ Respond ONLY with a JSON array of objects. Format:
         {
           'title': 'Offer Miss Mat Karna! 🎁',
           'body': 'Khaas aapke liye zabardast deals. Abhi order karein aur bachat paayein!',
-        }
+        },
       ];
     }
   }
@@ -79,7 +79,8 @@ Respond ONLY with a JSON array of objects. Format:
   /// Suggests the best audience segment based on the offer
   Future<List<String>> suggestAudienceSegment(String offerDetails) async {
     try {
-      final prompt = '''
+      final prompt =
+          '''
 You are an expert growth marketer. Based on this offer: "$offerDetails"
 Which of these customer segments is BEST to target? Pick up to 2.
 Available segments: ["all", "vip", "dormant", "new", "heavy_spenders", "deal_hunters"]
@@ -92,7 +93,8 @@ Respond ONLY with a JSON array of strings. Example: ["vip", "heavy_spenders"]
         final jsonStart = responseText.indexOf('[');
         final jsonEnd = responseText.lastIndexOf(']') + 1;
         if (jsonStart != -1 && jsonEnd != -1) {
-          final List<dynamic> parsedList = jsonDecode(responseText.substring(jsonStart, jsonEnd)) as List<dynamic>;
+          final List<dynamic> parsedList =
+              jsonDecode(responseText.substring(jsonStart, jsonEnd)) as List<dynamic>;
           return parsedList.map((e) => e.toString()).toList();
         }
       }

@@ -57,7 +57,8 @@ class _OwnerFirstLoginScreenState extends State<OwnerFirstLoginScreen> {
       biometricEnabled: enableBiometrics,
       pinHash: pinHash,
     );
-    
+
+    if (!mounted) return;
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (_) => OwnerDailyLoginScreen(owner: updatedOwner)),
     );
@@ -68,7 +69,6 @@ class _OwnerFirstLoginScreenState extends State<OwnerFirstLoginScreen> {
     _pinController.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -96,10 +96,7 @@ class _OwnerFirstLoginScreenState extends State<OwnerFirstLoginScreen> {
                 if (_isLoading)
                   const CircularProgressIndicator(color: AppTheme.primary)
                 else
-                  ElevatedButton(
-                    onPressed: _registerDevice,
-                    child: const Text('Register Device'),
-                  ),
+                  ElevatedButton(onPressed: _registerDevice, child: const Text('Register Device')),
               ] else if (_step == 1) ...[
                 const Icon(Icons.password, size: 64, color: AppTheme.info),
                 const SizedBox(height: 24),
@@ -141,8 +138,8 @@ class _OwnerFirstLoginScreenState extends State<OwnerFirstLoginScreen> {
                     TextButton(
                       onPressed: () => _finishSetup(false),
                       child: const Text('Skip for now'),
-                    )
-                  ]
+                    ),
+                  ],
                 ] else ...[
                   const Text('Biometrics are not supported on this device.'),
                   const SizedBox(height: 32),
@@ -150,8 +147,8 @@ class _OwnerFirstLoginScreenState extends State<OwnerFirstLoginScreen> {
                     onPressed: () => _finishSetup(false),
                     child: const Text('Complete Setup'),
                   ),
-                ]
-              ]
+                ],
+              ],
             ],
           ),
         ),

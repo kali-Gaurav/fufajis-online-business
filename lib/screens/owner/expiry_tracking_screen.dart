@@ -31,28 +31,24 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
     setState(() => _isLoading = true);
     try {
       final provider = context.read<ProductProvider>();
-      
+
       // Get expiring products
       final expiringProducts = await provider.getExpiringProducts();
       final expiredProducts = await provider.getExpiredProducts();
-      
+
       // Calculate stats
       _expiryStats = {
         'expiringToday': expiringProducts
             .where((p) => p.expiryDate?.difference(DateTime.now()).inDays == 0)
             .length,
-        'expiringThisWeek': expiringProducts
-            .where((p) {
-              final days = p.expiryDate?.difference(DateTime.now()).inDays ?? 0;
-              return days > 0 && days <= 7;
-            })
-            .length,
-        'expiringThisMonth': expiringProducts
-            .where((p) {
-              final days = p.expiryDate?.difference(DateTime.now()).inDays ?? 0;
-              return days > 7 && days <= 30;
-            })
-            .length,
+        'expiringThisWeek': expiringProducts.where((p) {
+          final days = p.expiryDate?.difference(DateTime.now()).inDays ?? 0;
+          return days > 0 && days <= 7;
+        }).length,
+        'expiringThisMonth': expiringProducts.where((p) {
+          final days = p.expiryDate?.difference(DateTime.now()).inDays ?? 0;
+          return days > 7 && days <= 30;
+        }).length,
         'expired': expiredProducts.length,
         'totalLoss': _calculateTotalLoss(expiredProducts),
       };
@@ -60,9 +56,9 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
       _filterProducts(expiringProducts, expiredProducts);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading expiry data: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading expiry data: $e')));
       }
     } finally {
       setState(() => _isLoading = false);
@@ -75,10 +71,7 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
     });
   }
 
-  void _filterProducts(
-    List<ProductModel> expiringProducts,
-    List<ProductModel> expiredProducts,
-  ) {
+  void _filterProducts(List<ProductModel> expiringProducts, List<ProductModel> expiredProducts) {
     List<ProductModel> filtered = [];
 
     switch (_selectedFilter) {
@@ -88,20 +81,16 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
             .toList();
         break;
       case 'This Week':
-        filtered = expiringProducts
-            .where((p) {
-              final days = p.expiryDate?.difference(DateTime.now()).inDays ?? 0;
-              return days > 0 && days <= 7;
-            })
-            .toList();
+        filtered = expiringProducts.where((p) {
+          final days = p.expiryDate?.difference(DateTime.now()).inDays ?? 0;
+          return days > 0 && days <= 7;
+        }).toList();
         break;
       case 'This Month':
-        filtered = expiringProducts
-            .where((p) {
-              final days = p.expiryDate?.difference(DateTime.now()).inDays ?? 0;
-              return days > 7 && days <= 30;
-            })
-            .toList();
+        filtered = expiringProducts.where((p) {
+          final days = p.expiryDate?.difference(DateTime.now()).inDays ?? 0;
+          return days > 7 && days <= 30;
+        }).toList();
         break;
       case 'Expired':
         filtered = expiredProducts;
@@ -124,19 +113,17 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
     try {
       final provider = context.read<ProductProvider>();
       await provider.markProductAsSold(product.id);
-      
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Product marked as sold')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Product marked as sold')));
       }
-      
+
       await _loadExpiryData();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -153,19 +140,17 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
       try {
         final provider = context.read<ProductProvider>();
         await provider.updateExpiryDate(product.id, newDate);
-        
+
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Expiry date updated')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Expiry date updated')));
         }
-        
+
         await _loadExpiryData();
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e')),
-          );
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
         }
       }
     }
@@ -274,24 +259,20 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      children: [
-                        'All',
-                        'Today',
-                        'This Week',
-                        'This Month',
-                        'Expired',
-                      ]
-                          .map((filter) => Padding(
-                                padding: const EdgeInsets.only(right: 8),
-                                child: FilterChip(
-                                  label: Text(filter),
-                                  selected: _selectedFilter == filter,
-                                  onSelected: (_) {
-                                    setState(() => _selectedFilter = filter);
-                                    _loadExpiryData();
-                                  },
-                                ),
-                              ))
+                      children: ['All', 'Today', 'This Week', 'This Month', 'Expired']
+                          .map(
+                            (filter) => Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: FilterChip(
+                                label: Text(filter),
+                                selected: _selectedFilter == filter,
+                                onSelected: (_) {
+                                  setState(() => _selectedFilter = filter);
+                                  _loadExpiryData();
+                                },
+                              ),
+                            ),
+                          )
                           .toList(),
                     ),
                   ),
@@ -305,25 +286,16 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(
-                                Icons.check_circle,
-                                size: 64,
-                                color: AppTheme.success,
-                              ),
+                              const Icon(Icons.check_circle, size: 64, color: AppTheme.success),
                               const SizedBox(height: 16),
                               const Text(
                                 'No products',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 8),
                               Text(
                                 'No expiring products in this category',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                ),
+                                style: TextStyle(color: Colors.grey[600]),
                               ),
                             ],
                           ),
@@ -333,12 +305,9 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
                           itemCount: _filteredProducts.length,
                           itemBuilder: (context, index) {
                             final product = _filteredProducts[index];
-                            final daysUntilExpiry =
-                                _getDaysUntilExpiry(product.expiryDate);
-                            final markdownPercentage =
-                                _getMarkdownPercentage(daysUntilExpiry);
-                            final markdownPrice = product.price *
-                                (1 - markdownPercentage / 100);
+                            final daysUntilExpiry = _getDaysUntilExpiry(product.expiryDate);
+                            final markdownPercentage = _getMarkdownPercentage(daysUntilExpiry);
+                            final markdownPrice = product.price * (1 - markdownPercentage / 100);
 
                             return Card(
                               margin: const EdgeInsets.only(bottom: 12),
@@ -349,13 +318,11 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
                                   children: [
                                     // Header
                                     Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Expanded(
                                           child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               Text(
                                                 product.name,
@@ -384,18 +351,16 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
                                           ),
                                           decoration: BoxDecoration(
                                             color: _getExpiryColor(
-                                                    daysUntilExpiry)
-                                                .withValues(alpha: 0.2),
-                                            borderRadius:
-                                                BorderRadius.circular(20),
+                                              daysUntilExpiry,
+                                            ).withValues(alpha: 0.2),
+                                            borderRadius: BorderRadius.circular(20),
                                           ),
                                           child: Text(
                                             daysUntilExpiry <= 0
                                                 ? 'Expired'
                                                 : '$daysUntilExpiry days',
                                             style: TextStyle(
-                                              color: _getExpiryColor(
-                                                  daysUntilExpiry),
+                                              color: _getExpiryColor(daysUntilExpiry),
                                               fontSize: 12,
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -416,10 +381,7 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
                                         const SizedBox(width: 8),
                                         Text(
                                           'Expires: ${DateFormat('MMM dd, yyyy').format(product.expiryDate ?? DateTime.now())}',
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            color: Colors.grey[600],
-                                          ),
+                                          style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                                         ),
                                       ],
                                     ),
@@ -431,16 +393,13 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
                                         padding: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
                                           color: AppTheme.warning,
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(8),
                                         ),
                                         child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Text(
                                                   'Original Price',
@@ -454,15 +413,13 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
                                                   style: const TextStyle(
                                                     fontSize: 14,
                                                     fontWeight: FontWeight.bold,
-                                                    decoration: TextDecoration
-                                                        .lineThrough,
+                                                    decoration: TextDecoration.lineThrough,
                                                   ),
                                                 ),
                                               ],
                                             ),
                                             Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
+                                              crossAxisAlignment: CrossAxisAlignment.end,
                                               children: [
                                                 Text(
                                                   'Markdown Price',
@@ -482,15 +439,13 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
                                               ],
                                             ),
                                             Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                 horizontal: 8,
                                                 vertical: 4,
                                               ),
                                               decoration: BoxDecoration(
                                                 color: AppTheme.error,
-                                                borderRadius:
-                                                    BorderRadius.circular(4),
+                                                borderRadius: BorderRadius.circular(4),
                                               ),
                                               child: Text(
                                                 '-${markdownPercentage.toStringAsFixed(0)}%',
@@ -519,16 +474,14 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
                                       children: [
                                         Expanded(
                                           child: OutlinedButton(
-                                            onPressed: () =>
-                                                _markAsSold(product),
+                                            onPressed: () => _markAsSold(product),
                                             child: const Text('Mark as Sold'),
                                           ),
                                         ),
                                         const SizedBox(width: 8),
                                         Expanded(
                                           child: ElevatedButton(
-                                            onPressed: () =>
-                                                _extendExpiry(product),
+                                            onPressed: () => _extendExpiry(product),
                                             child: const Text('Extend Expiry'),
                                           ),
                                         ),
@@ -556,21 +509,11 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
       ),
       child: Column(
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-            ),
-          ),
+          Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
           const SizedBox(height: 4),
           Text(
             value,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color),
           ),
         ],
       ),

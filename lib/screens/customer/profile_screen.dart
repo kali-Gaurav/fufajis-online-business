@@ -9,7 +9,6 @@ import '../../providers/order_provider.dart';
 import '../../models/user_model.dart';
 import '../../utils/app_theme.dart';
 
-
 import '../../models/product_model.dart';
 import '../../providers/product_provider.dart';
 import '../../services/customer_state.dart';
@@ -32,10 +31,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final productProvider = Provider.of<ProductProvider>(context);
     final user = authProvider.currentUser;
 
-    if (authProvider.customerState == CustomerState.guest || authProvider.customerState == CustomerState.guestWithCart) {
-      return const Scaffold(
-        body: GuestProfileScreen(),
-      );
+    if (authProvider.customerState == CustomerState.guest ||
+        authProvider.customerState == CustomerState.guestWithCart) {
+      return const Scaffold(body: GuestProfileScreen());
     }
 
     return Scaffold(
@@ -55,10 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 16),
             // Wallet & Rewards
-            SpringCard(
-              delay: const Duration(milliseconds: 140),
-              child: _buildWalletSection(user),
-            ),
+            SpringCard(delay: const Duration(milliseconds: 140), child: _buildWalletSection(user)),
             const SizedBox(height: 16),
             // Membership
             SpringCard(
@@ -73,10 +68,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 16),
             // Menu Items
-            SpringCard(
-              delay: const Duration(milliseconds: 320),
-              child: _buildMenuSection(),
-            ),
+            SpringCard(delay: const Duration(milliseconds: 320), child: _buildMenuSection()),
             const SizedBox(height: 24),
           ],
         ),
@@ -87,9 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildProfileHeader(UserModel? user) {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: AppTheme.primaryGradient,
-      ),
+      decoration: BoxDecoration(gradient: AppTheme.primaryGradient),
       child: Row(
         children: [
           // Profile Image
@@ -104,16 +94,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: user?.profileImage != null
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(40),
-                    child: Image.network(
-                      user!.profileImage!,
-                      fit: BoxFit.cover,
-                    ),
+                    child: Image.network(user!.profileImage!, fit: BoxFit.cover),
                   )
-                : const Icon(
-                    Icons.person,
-                    size: 40,
-                    color: Color(0xFFFF5722),
-                  ),
+                : const Icon(Icons.person, size: 40, color: Color(0xFFFF5722)),
           ),
           const SizedBox(width: 16),
           // User Info
@@ -134,17 +117,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 4),
                 Text(
                   user?.phoneNumber ?? '+91 XXXXXXXXXX',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white.withValues(alpha: 0.8),
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.8)),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 8),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
@@ -182,7 +161,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildBuyAgainSection(OrderProvider orderProvider, ProductProvider productProvider) {
     final recentIds = orderProvider.getFrequentlyBoughtProductIds();
     if (recentIds.isEmpty) return const SizedBox.shrink();
-    
+
     final products = recentIds
         .map((id) => productProvider.getProductById(id))
         .whereType<ProductModel>()
@@ -221,7 +200,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Expanded(
                           child: ClipRRect(
                             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                            child: Image.network(product.imageUrl, fit: BoxFit.cover, width: double.infinity),
+                            child: Image.network(
+                              product.imageUrl,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                            ),
                           ),
                         ),
                         Padding(
@@ -282,10 +265,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         color: AppTheme.grey900,
                       ),
                     ),
-                    const Text(
-                      'Wallet',
-                      style: TextStyle(fontSize: 12, color: AppTheme.grey500),
-                    ),
+                    const Text('Wallet', style: TextStyle(fontSize: 12, color: AppTheme.grey500)),
                   ],
                 ),
               ),
@@ -311,10 +291,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         color: AppTheme.grey900,
                       ),
                     ),
-                    const Text(
-                      'Points',
-                      style: TextStyle(fontSize: 12, color: AppTheme.grey500),
-                    ),
+                    const Text('Points', style: TextStyle(fontSize: 12, color: AppTheme.grey500)),
                   ],
                 ),
               ),
@@ -340,10 +317,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         color: AppTheme.grey900,
                       ),
                     ),
-                    const Text(
-                      'Cashback',
-                      style: TextStyle(fontSize: 12, color: AppTheme.grey500),
-                    ),
+                    const Text('Cashback', style: TextStyle(fontSize: 12, color: AppTheme.grey500)),
                   ],
                 ),
               ),
@@ -356,18 +330,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildMembershipSection(UserModel? user) {
     final points = user?.rewardPoints ?? 0;
-    final tier = points >= 10000 ? 'Platinum' 
-               : points >= 5000 ? 'Gold' 
-               : points >= 1000 ? 'Silver' 
-               : 'Bronze';
+    final tier = points >= 10000
+        ? 'Platinum'
+        : points >= 5000
+        ? 'Gold'
+        : points >= 1000
+        ? 'Silver'
+        : 'Bronze';
 
-    final tierColor = tier == 'Platinum' 
-        ? Colors.purple 
-        : tier == 'Gold' 
-            ? AppTheme.warning 
-            : tier == 'Silver' 
-                ? Colors.grey 
-                : AppTheme.info;
+    final tierColor = tier == 'Platinum'
+        ? Colors.purple
+        : tier == 'Gold'
+        ? AppTheme.warning
+        : tier == 'Silver'
+        ? Colors.grey
+        : AppTheme.info;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -381,10 +358,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: tierColor,
-              borderRadius: BorderRadius.circular(12),
-            ),
+            decoration: BoxDecoration(color: tierColor, borderRadius: BorderRadius.circular(12)),
             child: const Icon(Icons.workspace_premium, color: Colors.white),
           ),
           const SizedBox(width: 16),
@@ -414,6 +388,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildReferralCard(AuthProvider auth) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final code = auth.currentUser?.referralCode;
     final hasCode = code != null && code.isNotEmpty;
     final display = hasCode ? code : 'Tap to view';
@@ -437,7 +412,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Expanded(
                   child: Text(
                     'Refer & Earn ₹50',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.primary),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.primary,
+                    ),
                   ),
                 ),
                 Icon(Icons.chevron_right, color: AppTheme.primary),
@@ -452,24 +431,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: isDark ? AppTheme.grey800 : Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.grey200),
+                border: Border.all(color: isDark ? AppTheme.grey700 : AppTheme.grey200),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     display,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.5,
+                      color: isDark ? Colors.white : AppTheme.grey900,
+                    ),
                   ),
                   TextButton.icon(
                     onPressed: () {
                       if (hasCode) {
                         Clipboard.setData(ClipboardData(text: code));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Code copied to clipboard!')),
-                        );
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('Code copied to clipboard!')));
                       } else {
                         context.push('/customer/refer');
                       }
@@ -499,7 +483,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       {'icon': Icons.kitchen_outlined, 'title': 'Smart Kitchen', 'color': AppTheme.success},
       {'icon': Icons.notifications_outlined, 'title': 'Notifications', 'color': AppTheme.warning},
       {'icon': Icons.swap_horiz_outlined, 'title': 'Switch App Role', 'color': AppTheme.info},
-      {'icon': Icons.contact_phone_outlined, 'title': 'Identity & Contacts', 'color': AppTheme.primary},
+      {
+        'icon': Icons.contact_phone_outlined,
+        'title': 'Identity & Contacts',
+        'color': AppTheme.primary,
+      },
       {'icon': Icons.settings_outlined, 'title': 'Settings', 'color': AppTheme.grey600},
       {'icon': Icons.help_outline, 'title': 'Help & Support', 'color': AppTheme.primary},
       {'icon': Icons.info_outline, 'title': 'About App', 'color': AppTheme.grey600},
@@ -534,11 +522,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 color: (item['color'] as Color).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(
-                item['icon'] as IconData,
-                color: item['color'] as Color,
-                size: 22,
-              ),
+              child: Icon(item['icon'] as IconData, color: item['color'] as Color, size: 22),
             ),
             title: Text(
               item['title'] as String,
@@ -548,11 +532,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 color: AppTheme.grey900,
               ),
             ),
-            trailing: const Icon(
-              Icons.arrow_forward_ios,
-              size: 16,
-              color: AppTheme.grey400,
-            ),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.grey400),
             onTap: () {
               if (item['title'] == 'Help & Support') {
                 _openWhatsappSupport();
@@ -580,7 +560,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   context.push('/role-select');
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Access Denied: Only Authorized Staff can switch roles.')),
+                    const SnackBar(
+                      content: Text('Access Denied: Only Authorized Staff can switch roles.'),
+                    ),
                   );
                 }
               } else if (item['title'] == 'My Orders') {
@@ -619,31 +601,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (AppConfig.supportWhatsappNumber.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'WhatsApp support number is not configured for this build.',
-          ),
+          content: Text('WhatsApp support number is not configured for this build.'),
           backgroundColor: AppTheme.error,
         ),
       );
       return;
     }
 
-    final message = Uri.encodeComponent(
-      "Hello Fufaji's Online, I need help with my order.",
-    );
-    final uri = Uri.parse(
-      'https://wa.me/${AppConfig.supportWhatsappNumber}?text=$message',
-    );
+    final message = Uri.encodeComponent("Hello Fufaji's Online, I need help with my order.");
+    final uri = Uri.parse('https://wa.me/${AppConfig.supportWhatsappNumber}?text=$message');
 
     final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!mounted) return;
 
     if (!launched) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Unable to open WhatsApp.'),
-          backgroundColor: AppTheme.error,
-        ),
+        const SnackBar(content: Text('Unable to open WhatsApp.'), backgroundColor: AppTheme.error),
       );
     }
   }

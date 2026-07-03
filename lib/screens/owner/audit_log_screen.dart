@@ -25,10 +25,7 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
 
   Future<void> _loadLogs() async {
     setState(() => _isLoading = true);
-    final logs = await _auditService.getRecentLogs(
-      limit: 100,
-      filterType: _selectedFilter,
-    );
+    final logs = await _auditService.getRecentLogs(limit: 100, filterType: _selectedFilter);
     setState(() {
       _logs = logs;
       _isLoading = false;
@@ -111,68 +108,65 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
       appBar: AppBar(
         title: const Text('Audit Log Center', style: TextStyle(fontWeight: FontWeight.w700)),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: _showFilterDialog,
-          ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadLogs,
-          ),
+          IconButton(icon: const Icon(Icons.filter_list), onPressed: _showFilterDialog),
+          IconButton(icon: const Icon(Icons.refresh), onPressed: _loadLogs),
         ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent))
           : _logs.isEmpty
-              ? const Center(child: Text('No audit logs found'))
-              : ListView.builder(
-                  itemCount: _logs.length,
-                  itemBuilder: (context, index) {
-                    final log = _logs[index];
-                    return Card(
-                      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      color: _getLogColor(log.type),
-                      child: ExpansionTile(
-                        leading: Icon(_getLogIcon(log.type)),
-                        title: Text(log.action, style: const TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text(
-                          '${DateFormat('MMM dd, yyyy HH:mm').format(log.timestamp)} • User: ${log.userId}',
-                          style: const TextStyle(fontSize: 12),
+          ? const Center(child: Text('No audit logs found'))
+          : ListView.builder(
+              itemCount: _logs.length,
+              itemBuilder: (context, index) {
+                final log = _logs[index];
+                return Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  color: _getLogColor(log.type),
+                  child: ExpansionTile(
+                    leading: Icon(_getLogIcon(log.type)),
+                    title: Text(log.action, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text(
+                      '${DateFormat('MMM dd, yyyy HH:mm').format(log.timestamp)} • User: ${log.userId}',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildDetailRow('Role', log.role),
+                            _buildDetailRow('Branch ID', log.branchId ?? 'N/A'),
+                            _buildDetailRow('Device', log.deviceInfo),
+                            _buildDetailRow('IP Address', log.ipAddress ?? 'N/A'),
+                            if (log.metadata != null && log.metadata!.isNotEmpty) ...[
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Metadata:',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 4),
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.5),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  log.metadata.toString(),
+                                  style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildDetailRow('Role', log.role),
-                                _buildDetailRow('Branch ID', log.branchId ?? 'N/A'),
-                                _buildDetailRow('Device', log.deviceInfo),
-                                _buildDetailRow('IP Address', log.ipAddress ?? 'N/A'),
-                                if (log.metadata != null && log.metadata!.isNotEmpty) ...[
-                                  const SizedBox(height: 8),
-                                  const Text('Metadata:', style: TextStyle(fontWeight: FontWeight.bold)),
-                                  const SizedBox(height: 4),
-                                  Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.5),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      log.metadata.toString(),
-                                      style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ],
                       ),
-                    );
-                  },
-                ),
+                    ],
+                  ),
+                );
+              },
+            ),
     );
   }
 
@@ -184,11 +178,12 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
         children: [
           SizedBox(
             width: 80,
-            child: Text('$label:', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            child: Text(
+              '$label:',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            ),
           ),
-          Expanded(
-            child: Text(value, style: const TextStyle(fontSize: 13)),
-          ),
+          Expanded(child: Text(value, style: const TextStyle(fontSize: 13))),
         ],
       ),
     );

@@ -95,9 +95,13 @@ class SmartReorderCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     child: Text(
                       '+${lastOrder.items.length - 4} more',
-                      style: const TextStyle(fontSize: 11, color: AppTheme.primary, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppTheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  )
+                  ),
               ],
             ),
             const SizedBox(height: 20),

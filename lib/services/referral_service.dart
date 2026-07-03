@@ -17,8 +17,8 @@ import 'wallet_service.dart';
 /// surrounding flow (signup / order placement).
 class ReferralService {
   ReferralService({FirebaseFirestore? firestore, WalletService? walletService})
-      : _firestore = firestore ?? FirebaseFirestore.instance,
-        _wallet = walletService ?? WalletService();
+    : _firestore = firestore ?? FirebaseFirestore.instance,
+      _wallet = walletService ?? WalletService();
 
   final FirebaseFirestore _firestore;
   final WalletService _wallet;
@@ -29,24 +29,19 @@ class ReferralService {
   /// ₹ credited to the existing user who referred them (the referrer).
   static const double referrerReward = 50.0;
 
-  CollectionReference<Map<String, dynamic>> get _users =>
-      _firestore.collection('users');
+  CollectionReference<Map<String, dynamic>> get _users => _firestore.collection('users');
 
   // ── Code generation ────────────────────────────────────────────────────────
 
   /// Builds a deterministic, readable code from a name + uid, e.g. "RAVI4F9A".
   /// Derived from the (unique) uid, so practical collisions are negligible.
   static String buildCode({String? name, required String uid}) {
-    final alpha = (name ?? '')
-        .toUpperCase()
-        .replaceAll(RegExp(r'[^A-Z]'), '');
+    final alpha = (name ?? '').toUpperCase().replaceAll(RegExp(r'[^A-Z]'), '');
     final prefix = alpha.isNotEmpty
         ? alpha.substring(0, alpha.length >= 4 ? 4 : alpha.length)
         : 'FUFA';
     final clean = uid.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
-    final suffix = clean.length >= 4
-        ? clean.substring(clean.length - 4)
-        : clean.padLeft(4, '0');
+    final suffix = clean.length >= 4 ? clean.substring(clean.length - 4) : clean.padLeft(4, '0');
     return '$prefix$suffix';
   }
 
@@ -57,10 +52,10 @@ class ReferralService {
     }
     final code = buildCode(name: user.name, uid: user.id);
     try {
-      await _users.doc(user.id).set(
-        {'referralCode': code, 'updatedAt': DateTime.now()},
-        SetOptions(merge: true),
-      );
+      await _users.doc(user.id).set({
+        'referralCode': code,
+        'updatedAt': DateTime.now(),
+      }, SetOptions(merge: true));
     } catch (e) {
       debugPrint('[ReferralService] ensureReferralCode failed: $e');
     }
@@ -74,10 +69,7 @@ class ReferralService {
   Future<UserModel?> _findUserByCode(String code) async {
     final normalized = code.trim().toUpperCase();
     if (normalized.isEmpty) return null;
-    final snap = await _users
-        .where('referralCode', isEqualTo: normalized)
-        .limit(1)
-        .get();
+    final snap = await _users.where('referralCode', isEqualTo: normalized).limit(1).get();
     if (snap.docs.isEmpty) return null;
     return UserModel.fromMap({...snap.docs.first.data(), 'id': snap.docs.first.id});
   }
@@ -103,10 +95,10 @@ class ReferralService {
         return ReferralApplyResult(false, 'A referral code was already applied.');
       }
 
-      await meRef.set(
-        {'referredBy': referrer.id, 'updatedAt': DateTime.now()},
-        SetOptions(merge: true),
-      );
+      await meRef.set({
+        'referredBy': referrer.id,
+        'updatedAt': DateTime.now(),
+      }, SetOptions(merge: true));
       return ReferralApplyResult(
         true,
         'Code applied! You\'ll both get ₹${refereeReward.toStringAsFixed(0)} after your first order.',
@@ -139,10 +131,7 @@ class ReferralService {
       final claimed = await _firestore.runTransaction<bool>((txn) async {
         final fresh = await txn.get(_users.doc(userId));
         if (fresh.data()?['referralRedeemed'] == true) return false;
-        txn.update(_users.doc(userId), {
-          'referralRedeemed': true,
-          'updatedAt': DateTime.now(),
-        });
+        txn.update(_users.doc(userId), {'referralRedeemed': true, 'updatedAt': DateTime.now()});
         return true;
       });
       if (!claimed) return false;
@@ -184,23 +173,18 @@ class ReferralService {
   /// Friends this user has referred, newest first.
   Future<List<ReferredFriend>> getReferredFriends(String userId) async {
     try {
-      final snap = await _users
-          .where('referredBy', isEqualTo: userId)
-          .get();
+      final snap = await _users.where('referredBy', isEqualTo: userId).get();
       final list = snap.docs.map((d) {
         final m = d.data();
         return ReferredFriend(
           name: (m['name'] as String?)?.trim().isNotEmpty == true
               ? m['name'] as String
               : 'New friend',
-          joinedAt: (m['createdAt'] is Timestamp)
-              ? (m['createdAt'] as Timestamp).toDate()
-              : null,
+          joinedAt: (m['createdAt'] is Timestamp) ? (m['createdAt'] as Timestamp).toDate() : null,
           completed: m['referralRedeemed'] == true,
         );
       }).toList();
-      list.sort((a, b) =>
-          (b.joinedAt ?? DateTime(2000)).compareTo(a.joinedAt ?? DateTime(2000)));
+      list.sort((a, b) => (b.joinedAt ?? DateTime(2000)).compareTo(a.joinedAt ?? DateTime(2000)));
       return list;
     } catch (e) {
       debugPrint('[ReferralService] getReferredFriends failed: $e');

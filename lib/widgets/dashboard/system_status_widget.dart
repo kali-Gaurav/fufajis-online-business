@@ -69,34 +69,20 @@ class _SystemStatusWidgetState extends State<SystemStatusWidget> {
               ],
             ),
             const SizedBox(height: 16),
-            _buildStatusRow(
-              'Installed Version',
-              _currentVersion,
-              Icons.install_mobile,
-            ),
+            _buildStatusRow('Installed Version', _currentVersion, Icons.install_mobile),
             const Divider(),
-            _buildStatusRow(
-              'Min. Required',
-              _remoteConfig.minAppVersion,
-              Icons.warning_amber,
-            ),
+            _buildStatusRow('Min. Required', _remoteConfig.minAppVersion, Icons.warning_amber),
             const Divider(),
             _buildStatusRow(
               'Maintenance Mode',
               _remoteConfig.isMaintenanceMode ? 'ACTIVE' : 'Inactive',
               Icons.construction,
-              color: _remoteConfig.isMaintenanceMode
-                  ? AppTheme.error
-                  : AppTheme.success,
+              color: _remoteConfig.isMaintenanceMode ? AppTheme.error : AppTheme.success,
             ),
             const SizedBox(height: 12),
             const Text(
               'Manage these values in Firebase Remote Config to force updates or start maintenance.',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-                fontStyle: FontStyle.italic,
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic),
             ),
           ],
         ),
@@ -104,12 +90,7 @@ class _SystemStatusWidgetState extends State<SystemStatusWidget> {
     );
   }
 
-  Widget _buildStatusRow(
-    String label,
-    String value,
-    IconData icon, {
-    Color? color,
-  }) {
+  Widget _buildStatusRow(String label, String value, IconData icon, {Color? color}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -120,10 +101,7 @@ class _SystemStatusWidgetState extends State<SystemStatusWidget> {
           const Spacer(),
           Text(
             value,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: color ?? AppTheme.grey900,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, color: color ?? AppTheme.grey900),
           ),
         ],
       ),

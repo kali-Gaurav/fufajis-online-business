@@ -29,11 +29,9 @@ class CartProvider with ChangeNotifier {
   double get tipAmount => _tipAmount;
   DeliveryType get deliveryType => _deliveryType;
 
-  int get totalItems =>
-      _cartItems.fold(0, (total, item) => total + item.quantity);
+  int get totalItems => _cartItems.fold(0, (total, item) => total + item.quantity);
 
-  double get subtotal =>
-      _cartItems.fold(0.0, (total, item) => total + item.totalPrice.toDouble());
+  double get subtotal => _cartItems.fold(0.0, (total, item) => total + item.totalPrice.toDouble());
 
   double get discount {
     double discount = 0.0;
@@ -44,10 +42,7 @@ class CartProvider with ChangeNotifier {
   }
 
   double get deliveryCharge {
-    return DeliveryChargeCalculator.calculateDeliveryCharge(
-      _deliveryType,
-      subtotal,
-    );
+    return DeliveryChargeCalculator.calculateDeliveryCharge(_deliveryType, subtotal);
   }
 
   /// Get the delivery charge for the current delivery type
@@ -80,10 +75,7 @@ class CartProvider with ChangeNotifier {
 
   Future<void> _savePreferences() async {
     final prefs = await SharedPreferences.getInstance();
-    final prefsMap = {
-      'delivery_type': _deliveryType.toString(),
-      'tip_amount': _tipAmount,
-    };
+    final prefsMap = {'delivery_type': _deliveryType.toString(), 'tip_amount': _tipAmount};
     await prefs.setString('cart_preferences', jsonEncode(prefsMap));
   }
 
@@ -109,25 +101,18 @@ class CartProvider with ChangeNotifier {
   }
 
   double get total {
-    final total =
-        subtotal - discount + deliveryCharge + _tipAmount - _walletAmountUsed;
+    final total = subtotal - discount + deliveryCharge + _tipAmount - _walletAmountUsed;
     return total.clamp(0, total);
   }
 
   int get rewardPointsUsed => (discount * 10).floor();
 
   // Add item to cart
-  void addToCart(
-    ProductModel product, {
-    int quantity = 1,
-    ProductUnitOption? selectedUnit,
-  }) {
+  void addToCart(ProductModel product, {int quantity = 1, ProductUnitOption? selectedUnit}) {
     final unitId = selectedUnit?.id ?? 'default';
 
     final existingIndex = _cartItems.indexWhere(
-      (item) =>
-          item.productId == product.id &&
-          (item.selectedVariant ?? 'default') == unitId,
+      (item) => item.productId == product.id && (item.selectedVariant ?? 'default') == unitId,
     );
 
     if (existingIndex >= 0) {
@@ -135,9 +120,7 @@ class CartProvider with ChangeNotifier {
         1,
         selectedUnit?.stockQuantity ?? product.maxOrderQuantity,
       );
-      _cartItems[existingIndex] = _cartItems[existingIndex].copyWith(
-        quantity: newQuantity,
-      );
+      _cartItems[existingIndex] = _cartItems[existingIndex].copyWith(quantity: newQuantity);
     } else {
       final price = selectedUnit?.price ?? product.price;
       final originalPrice = selectedUnit?.originalPrice != null
@@ -242,10 +225,8 @@ class CartProvider with ChangeNotifier {
           discountType: data['discountType'] as String? ?? 'percentage',
           discountValue: MonetaryValue((data['discountValue'] as num? ?? 0).toDouble()),
           minimumOrderAmount: minimumOrder,
-          maximumDiscountAmount: (data['maximumDiscountAmount'] as num? ?? 0.0)
-              .toDouble(),
-          startDate:
-              startDate ?? DateTime.now().subtract(const Duration(days: 1)),
+          maximumDiscountAmount: (data['maximumDiscountAmount'] as num? ?? 0.0).toDouble(),
+          startDate: startDate ?? DateTime.now().subtract(const Duration(days: 1)),
           endDate: endDate ?? DateTime.now().add(const Duration(days: 365)),
         );
         notifyListeners();
@@ -253,9 +234,7 @@ class CartProvider with ChangeNotifier {
       }
     } catch (e) {
       if (e is Exception && e.toString().contains('coupon')) rethrow;
-      debugPrint(
-        '[CartProvider] Firestore coupon fetch failed, trying fallback: $e',
-      );
+      debugPrint('[CartProvider] Firestore coupon fetch failed, trying fallback: $e');
     }
 
     // 2. Fallback to hardcoded coupons (offline/demo mode)
@@ -409,37 +388,34 @@ class CartProvider with ChangeNotifier {
   ///  • If the product is already in cart → add quantities
   ///  • If not → insert as new item
   /// Saves locally and syncs to Firestore under the verified [userId].
-  Future<void> migrateGuestCart(
-      List<CartItemModel> guestItems, String userId) async {
+  Future<void> migrateGuestCart(List<CartItemModel> guestItems, String userId) async {
     if (guestItems.isEmpty) return;
 
     for (final guest in guestItems) {
-      final existingIdx = _cartItems.indexWhere(
-        (c) => c.productId == guest.productId,
-      );
+      final existingIdx = _cartItems.indexWhere((c) => c.productId == guest.productId);
 
       if (existingIdx >= 0) {
         // Merge quantity — cap at 99 to avoid insane quantities
-        final merged = (_cartItems[existingIdx].quantity + guest.quantity)
-            .clamp(1, 99);
-        _cartItems[existingIdx] =
-            _cartItems[existingIdx].copyWith(quantity: merged);
+        final merged = (_cartItems[existingIdx].quantity + guest.quantity).clamp(1, 99);
+        _cartItems[existingIdx] = _cartItems[existingIdx].copyWith(quantity: merged);
       } else {
         // Convert CartItemModel → CartItem
-        _cartItems.add(CartItem(
-          id: '${guest.productId}_${DateTime.now().millisecondsSinceEpoch}',
-          productId: guest.productId,
-          productName: guest.productName,
-          productImage: guest.imageUrl,
-          unit: guest.selectedUnit,
-          quantity: guest.quantity,
-          price: guest.price,
-          originalPrice: guest.originalPrice,
-          stockQuantity: 999, // unknown at migration time; refreshed on next load
-          shopId: guest.shopId,
-          shopName: '',       // refreshed from Firestore on next product load
-          addedAt: DateTime.now(),
-        ));
+        _cartItems.add(
+          CartItem(
+            id: '${guest.productId}_${DateTime.now().millisecondsSinceEpoch}',
+            productId: guest.productId,
+            productName: guest.productName,
+            productImage: guest.imageUrl,
+            unit: guest.selectedUnit,
+            quantity: guest.quantity,
+            price: guest.price,
+            originalPrice: guest.originalPrice,
+            stockQuantity: 999, // unknown at migration time; refreshed on next load
+            shopId: guest.shopId,
+            shopName: '', // refreshed from Firestore on next product load
+            addedAt: DateTime.now(),
+          ),
+        );
       }
     }
 
@@ -454,8 +430,7 @@ class CartProvider with ChangeNotifier {
     }
 
     notifyListeners();
-    debugPrint(
-        '[CartProvider] Migrated ${guestItems.length} guest item(s) into verified cart.');
+    debugPrint('[CartProvider] Migrated ${guestItems.length} guest item(s) into verified cart.');
   }
 
   // Clear cart
@@ -474,10 +449,10 @@ class CartProvider with ChangeNotifier {
     if (index >= 0) {
       final item = _cartItems.removeAt(index);
       _saveForLaterItems.add(item);
-      
+
       await _saveCart();
       await _saveSaveForLater();
-      
+
       if (userId != null) {
         await syncToCloud(userId);
         await syncSaveForLaterToCloud(userId);
@@ -491,10 +466,10 @@ class CartProvider with ChangeNotifier {
     if (index >= 0) {
       final item = _saveForLaterItems.removeAt(index);
       _cartItems.add(item);
-      
+
       await _saveCart();
       await _saveSaveForLater();
-      
+
       if (userId != null) {
         await syncToCloud(userId);
         await syncSaveForLaterToCloud(userId);
@@ -523,9 +498,7 @@ class CartProvider with ChangeNotifier {
   // Get quantity of product in cart
   int getQuantity(String productId) {
     try {
-      return _cartItems
-          .firstWhere((item) => item.productId == productId)
-          .quantity;
+      return _cartItems.firstWhere((item) => item.productId == productId).quantity;
     } catch (e) {
       return 0;
     }
@@ -557,9 +530,7 @@ class CartProvider with ChangeNotifier {
     try {
       return _cartItems
           .firstWhere(
-            (item) =>
-                item.productId == productId &&
-                item.selectedVariant == selectedVariant,
+            (item) => item.productId == productId && item.selectedVariant == selectedVariant,
           )
           .quantity;
     } catch (e) {
@@ -569,9 +540,7 @@ class CartProvider with ChangeNotifier {
 
   void incrementQuantityForVariant(String productId, String? selectedVariant) {
     final index = _cartItems.indexWhere(
-      (item) =>
-          item.productId == productId &&
-          item.selectedVariant == selectedVariant,
+      (item) => item.productId == productId && item.selectedVariant == selectedVariant,
     );
     if (index >= 0) {
       final currentQty = _cartItems[index].quantity;
@@ -581,9 +550,7 @@ class CartProvider with ChangeNotifier {
 
   void decrementQuantityForVariant(String productId, String? selectedVariant) {
     final index = _cartItems.indexWhere(
-      (item) =>
-          item.productId == productId &&
-          item.selectedVariant == selectedVariant,
+      (item) => item.productId == productId && item.selectedVariant == selectedVariant,
     );
     if (index >= 0) {
       final currentQty = _cartItems[index].quantity;
@@ -598,8 +565,7 @@ class CartProvider with ChangeNotifier {
   ) async {
     for (var item in items) {
       final String name = (item['name'] ?? '').toString().toLowerCase();
-      final double qty =
-          double.tryParse(item['quantity']?.toString() ?? '1.0') ?? 1.0;
+      final double qty = double.tryParse(item['quantity']?.toString() ?? '1.0') ?? 1.0;
       String unit = (item['unit'] ?? '').toString().toLowerCase();
 
       // Normalize Hindi voice quantities/units
@@ -608,14 +574,9 @@ class CartProvider with ChangeNotifier {
           unit == 'किलो' ||
           unit == 'किग्रा') {
         unit = 'kg';
-      } else if (unit.contains('gram') ||
-          unit == 'ग्राम' ||
-          unit == 'जी' ||
-          unit == 'g') {
+      } else if (unit.contains('gram') || unit == 'ग्राम' || unit == 'जी' || unit == 'g') {
         unit = 'g';
-      } else if (unit.contains('liter') ||
-          unit.contains('litre') ||
-          unit == 'लीटर') {
+      } else if (unit.contains('liter') || unit.contains('litre') || unit == 'लीटर') {
         unit = 'l';
       }
 
@@ -629,9 +590,7 @@ class CartProvider with ChangeNotifier {
         // 2. Contains match
         try {
           match = shopProducts.firstWhere(
-            (p) =>
-                p.name.toLowerCase().contains(name) ||
-                name.contains(p.name.toLowerCase()),
+            (p) => p.name.toLowerCase().contains(name) || name.contains(p.name.toLowerCase()),
           );
         } catch (_) {
           // 3. Tag match
@@ -650,9 +609,7 @@ class CartProvider with ChangeNotifier {
         ProductUnitOption? selectedUnit;
         if (match.unitOptions.isNotEmpty) {
           try {
-            selectedUnit = match.unitOptions.firstWhere(
-              (u) => u.name.toLowerCase().contains(unit),
-            );
+            selectedUnit = match.unitOptions.firstWhere((u) => u.name.toLowerCase().contains(unit));
           } catch (_) {
             selectedUnit = null;
           }

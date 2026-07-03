@@ -7,11 +7,11 @@ class DailyBriefingModel {
   final String? branchId; // null if network-wide
   final String? targetUserId; // null if role-wide
   final DateTime date;
-  
+
   final Map<String, dynamic> metrics; // e.g. {'revenueYesterday': 82500, 'ordersPending': 23}
   final List<String> urgentActionItems; // e.g. ['7 Low Stock Items', '4 Deliveries At Risk']
   final List<String> insights; // e.g. ['Surge pricing recommended for evening']
-  
+
   final DateTime createdAt;
   final bool isRead;
 

@@ -1,0 +1,3010 @@
+{
+  "vegetables_1": {
+    "name": "Potato",
+    "hindiName": "आलू",
+    "keywords": [
+      "aloo",
+      "alu",
+      "potato",
+      "आलू"
+    ],
+    "aliases": [
+      "aloo",
+      "alu",
+      "batata"
+    ],
+    "phonetics": [
+      "potato"
+    ],
+    "hindiKeywords": [
+      "आलू"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_1_sku1"
+    ]
+  },
+  "vegetables_2": {
+    "name": "Onion",
+    "hindiName": "प्याज",
+    "keywords": [
+      "pyas",
+      "प्याज",
+      "pyaz",
+      "onion"
+    ],
+    "aliases": [
+      "pyaz",
+      "pyas",
+      "kanda"
+    ],
+    "phonetics": [
+      "onion"
+    ],
+    "hindiKeywords": [
+      "प्याज"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_2_sku1"
+    ]
+  },
+  "vegetables_3": {
+    "name": "Tomato",
+    "hindiName": "टमाटर",
+    "keywords": [
+      "tomato",
+      "टमाटर",
+      "veg",
+      "tamatar"
+    ],
+    "aliases": [
+      "tamatar",
+      "tomato"
+    ],
+    "phonetics": [
+      "tomato"
+    ],
+    "hindiKeywords": [
+      "टमाटर"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_3_sku1"
+    ]
+  },
+  "vegetables_4": {
+    "name": "Carrot",
+    "hindiName": "गाजर",
+    "keywords": [
+      "carrot",
+      "gajar",
+      "गाजर",
+      "veg"
+    ],
+    "aliases": [
+      "gajar",
+      "carrot"
+    ],
+    "phonetics": [
+      "carrot"
+    ],
+    "hindiKeywords": [
+      "गाजर"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_4_sku1"
+    ]
+  },
+  "vegetables_5": {
+    "name": "Cabbage",
+    "hindiName": "पत्तागोभी",
+    "keywords": [
+      "cabbage",
+      "patta gobi",
+      "पत्तागोभी",
+      "veg"
+    ],
+    "aliases": [
+      "patta gobi",
+      "cabbage"
+    ],
+    "phonetics": [
+      "cabbage"
+    ],
+    "hindiKeywords": [
+      "पत्तागोभी"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_5_sku1"
+    ]
+  },
+  "vegetables_6": {
+    "name": "Cauliflower",
+    "hindiName": "फूलगोभी",
+    "keywords": [
+      "phool gobi",
+      "cauliflower",
+      "veg",
+      "फूलगोभी"
+    ],
+    "aliases": [
+      "phool gobi",
+      "cauliflower"
+    ],
+    "phonetics": [
+      "cauliflower"
+    ],
+    "hindiKeywords": [
+      "फूलगोभी"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_6_sku1"
+    ]
+  },
+  "vegetables_7": {
+    "name": "Brinjal",
+    "hindiName": "बैंगन",
+    "keywords": [
+      "brinjal",
+      "baigan",
+      "बैंगन",
+      "eggplant"
+    ],
+    "aliases": [
+      "baigan",
+      "eggplant"
+    ],
+    "phonetics": [
+      "brinjal"
+    ],
+    "hindiKeywords": [
+      "बैंगन"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_7_sku1"
+    ]
+  },
+  "vegetables_8": {
+    "name": "Cucumber",
+    "hindiName": "खीरा",
+    "keywords": [
+      "खीरा",
+      "veg",
+      "cucumber",
+      "khira"
+    ],
+    "aliases": [
+      "khira",
+      "cucumber"
+    ],
+    "phonetics": [
+      "cucumber"
+    ],
+    "hindiKeywords": [
+      "खीरा"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_8_sku1"
+    ]
+  },
+  "vegetables_9": {
+    "name": "Capsicum",
+    "hindiName": "शिमला मिर्च",
+    "keywords": [
+      "शिमला मिर्च",
+      "shimla mirch",
+      "bell pepper",
+      "capsicum"
+    ],
+    "aliases": [
+      "shimla mirch",
+      "bell pepper"
+    ],
+    "phonetics": [
+      "capsicum"
+    ],
+    "hindiKeywords": [
+      "शिमला मिर्च"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_9_sku1"
+    ]
+  },
+  "vegetables_10": {
+    "name": "Ladyfinger",
+    "hindiName": "भिंडी",
+    "keywords": [
+      "okra",
+      "ladyfinger",
+      "भिंडी",
+      "bhindi"
+    ],
+    "aliases": [
+      "bhindi",
+      "okra"
+    ],
+    "phonetics": [
+      "ladyfinger"
+    ],
+    "hindiKeywords": [
+      "भिंडी"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_10_sku1"
+    ]
+  },
+  "vegetables_11": {
+    "name": "Pumpkin",
+    "hindiName": "कद्दू",
+    "keywords": [
+      "kaddu",
+      "veg",
+      "pumpkin",
+      "कद्दू"
+    ],
+    "aliases": [
+      "kaddu",
+      "pumpkin"
+    ],
+    "phonetics": [
+      "pumpkin"
+    ],
+    "hindiKeywords": [
+      "कद्दू"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_11_sku1"
+    ]
+  },
+  "vegetables_12": {
+    "name": "Bottle Gourd",
+    "hindiName": "लौकी",
+    "keywords": [
+      "लौकी",
+      "lauki",
+      "veg",
+      "bottle"
+    ],
+    "aliases": [
+      "lauki",
+      "bottle gourd"
+    ],
+    "phonetics": [
+      "bottle"
+    ],
+    "hindiKeywords": [
+      "लौकी"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_12_sku1"
+    ]
+  },
+  "vegetables_13": {
+    "name": "Ridge Gourd",
+    "hindiName": "तुरई",
+    "keywords": [
+      "turei",
+      "तुरई",
+      "veg",
+      "ridge"
+    ],
+    "aliases": [
+      "turei",
+      "ridge gourd"
+    ],
+    "phonetics": [
+      "ridge"
+    ],
+    "hindiKeywords": [
+      "तुरई"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_13_sku1"
+    ]
+  },
+  "vegetables_14": {
+    "name": "Bitter Gourd",
+    "hindiName": "करेला",
+    "keywords": [
+      "करेला",
+      "bitter melon",
+      "karela",
+      "bitter"
+    ],
+    "aliases": [
+      "karela",
+      "bitter melon"
+    ],
+    "phonetics": [
+      "bitter"
+    ],
+    "hindiKeywords": [
+      "करेला"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_14_sku1"
+    ]
+  },
+  "vegetables_15": {
+    "name": "Spinach",
+    "hindiName": "पालक",
+    "keywords": [
+      "पालक",
+      "palak",
+      "spinach",
+      "veg"
+    ],
+    "aliases": [
+      "palak",
+      "spinach"
+    ],
+    "phonetics": [
+      "spinach"
+    ],
+    "hindiKeywords": [
+      "पालक"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_15_sku1"
+    ]
+  },
+  "vegetables_16": {
+    "name": "Coriander Leaves",
+    "hindiName": "धनिया पत्ता",
+    "keywords": [
+      "coriander",
+      "धनिया पत्ता",
+      "cilantro",
+      "dhanya patta"
+    ],
+    "aliases": [
+      "dhanya patta",
+      "cilantro"
+    ],
+    "phonetics": [
+      "coriander"
+    ],
+    "hindiKeywords": [
+      "धनिया पत्ता"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_16_sku1"
+    ]
+  },
+  "vegetables_17": {
+    "name": "Mint Leaves",
+    "hindiName": "पुदीना",
+    "keywords": [
+      "pudina",
+      "पुदीना",
+      "veg",
+      "mint"
+    ],
+    "aliases": [
+      "pudina",
+      "mint"
+    ],
+    "phonetics": [
+      "mint"
+    ],
+    "hindiKeywords": [
+      "पुदीना"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_17_sku1"
+    ]
+  },
+  "vegetables_18": {
+    "name": "Garlic",
+    "hindiName": "लहसुन",
+    "keywords": [
+      "लहसुन",
+      "garlic",
+      "veg",
+      "lahsun"
+    ],
+    "aliases": [
+      "lahsun",
+      "garlic"
+    ],
+    "phonetics": [
+      "garlic"
+    ],
+    "hindiKeywords": [
+      "लहसुन"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_18_sku1"
+    ]
+  },
+  "vegetables_19": {
+    "name": "Ginger",
+    "hindiName": "अदरक",
+    "keywords": [
+      "ginger",
+      "adrak",
+      "अदरक",
+      "veg"
+    ],
+    "aliases": [
+      "adrak",
+      "ginger"
+    ],
+    "phonetics": [
+      "ginger"
+    ],
+    "hindiKeywords": [
+      "अदरक"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_19_sku1"
+    ]
+  },
+  "vegetables_20": {
+    "name": "Green Chili",
+    "hindiName": "हरी मिर्च",
+    "keywords": [
+      "हरी मिर्च",
+      "green",
+      "hari mirch",
+      "veg"
+    ],
+    "aliases": [
+      "hari mirch",
+      "green chili"
+    ],
+    "phonetics": [
+      "green"
+    ],
+    "hindiKeywords": [
+      "हरी मिर्च"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_20_sku1"
+    ]
+  },
+  "vegetables_21": {
+    "name": "Beetroot",
+    "hindiName": "चुकंदर",
+    "keywords": [
+      "chukandar",
+      "चुकंदर",
+      "veg",
+      "beetroot"
+    ],
+    "aliases": [
+      "chukandar",
+      "beetroot"
+    ],
+    "phonetics": [
+      "beetroot"
+    ],
+    "hindiKeywords": [
+      "चुकंदर"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_21_sku1"
+    ]
+  },
+  "vegetables_22": {
+    "name": "Radish",
+    "hindiName": "मूली",
+    "keywords": [
+      "mooli",
+      "radish",
+      "मूली",
+      "veg"
+    ],
+    "aliases": [
+      "mooli",
+      "radish"
+    ],
+    "phonetics": [
+      "radish"
+    ],
+    "hindiKeywords": [
+      "मूली"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_22_sku1"
+    ]
+  },
+  "vegetables_23": {
+    "name": "Peas",
+    "hindiName": "मटर",
+    "keywords": [
+      "matar",
+      "मटर",
+      "veg",
+      "peas"
+    ],
+    "aliases": [
+      "matar",
+      "peas"
+    ],
+    "phonetics": [
+      "peas"
+    ],
+    "hindiKeywords": [
+      "मटर"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_23_sku1"
+    ]
+  },
+  "vegetables_24": {
+    "name": "Corn",
+    "hindiName": "मकई",
+    "keywords": [
+      "corn",
+      "मकई",
+      "veg",
+      "makkai"
+    ],
+    "aliases": [
+      "makkai",
+      "corn"
+    ],
+    "phonetics": [
+      "corn"
+    ],
+    "hindiKeywords": [
+      "मकई"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_24_sku1"
+    ]
+  },
+  "vegetables_25": {
+    "name": "Mushroom",
+    "hindiName": "मशरूम",
+    "keywords": [
+      "मशरूम",
+      "mushroom",
+      "कुक्कुरमुत्ता",
+      "veg"
+    ],
+    "aliases": [
+      "mushroom",
+      "कुक्कुरमुत्ता"
+    ],
+    "phonetics": [
+      "mushroom"
+    ],
+    "hindiKeywords": [
+      "मशरूम"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_25_sku1"
+    ]
+  },
+  "vegetables_26": {
+    "name": "Yam",
+    "hindiName": "जिमीकंद",
+    "keywords": [
+      "yam",
+      "जिमीकंद",
+      "jimikand",
+      "veg"
+    ],
+    "aliases": [
+      "jimikand",
+      "yam"
+    ],
+    "phonetics": [
+      "yam"
+    ],
+    "hindiKeywords": [
+      "जिमीकंद"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_26_sku1"
+    ]
+  },
+  "vegetables_27": {
+    "name": "Sweet Potato",
+    "hindiName": "शकरकंद",
+    "keywords": [
+      "sweet",
+      "veg",
+      "शकरकंद",
+      "shakarkand"
+    ],
+    "aliases": [
+      "shakarkand",
+      "sweet potato"
+    ],
+    "phonetics": [
+      "sweet"
+    ],
+    "hindiKeywords": [
+      "शकरकंद"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_27_sku1"
+    ]
+  },
+  "vegetables_28": {
+    "name": "Leek",
+    "hindiName": "प्याज का पौधा",
+    "keywords": [
+      "प्याज",
+      "veg",
+      "प्याज का पौधा",
+      "leek"
+    ],
+    "aliases": [
+      "leek",
+      "प्याज"
+    ],
+    "phonetics": [
+      "leek"
+    ],
+    "hindiKeywords": [
+      "प्याज का पौधा"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_28_sku1"
+    ]
+  },
+  "vegetables_29": {
+    "name": "Beet Greens",
+    "hindiName": "चुकंदर के पत्ते",
+    "keywords": [
+      "beet",
+      "चुकंदर के पत्ते",
+      "leafy",
+      "veg"
+    ],
+    "aliases": [
+      "beet greens",
+      "leafy"
+    ],
+    "phonetics": [
+      "beet"
+    ],
+    "hindiKeywords": [
+      "चुकंदर के पत्ते"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_29_sku1"
+    ]
+  },
+  "vegetables_30": {
+    "name": "Turnip",
+    "hindiName": "शलजम",
+    "keywords": [
+      "turnip",
+      "shalzam",
+      "veg",
+      "शलजम"
+    ],
+    "aliases": [
+      "shalzam",
+      "turnip"
+    ],
+    "phonetics": [
+      "turnip"
+    ],
+    "hindiKeywords": [
+      "शलजम"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_30_sku1"
+    ]
+  },
+  "fruits_31": {
+    "name": "Banana",
+    "hindiName": "केले",
+    "keywords": [
+      "kela",
+      "banana",
+      "केले",
+      "fru"
+    ],
+    "aliases": [
+      "kela",
+      "banana"
+    ],
+    "phonetics": [
+      "banana"
+    ],
+    "hindiKeywords": [
+      "केले"
+    ],
+    "brand": "Generic",
+    "category": "Fruits",
+    "skuIds": [
+      "fruits_31_sku1"
+    ]
+  },
+  "fruits_32": {
+    "name": "Apple",
+    "hindiName": "सेब",
+    "keywords": [
+      "fru",
+      "seb",
+      "सेब",
+      "apple"
+    ],
+    "aliases": [
+      "seb",
+      "apple"
+    ],
+    "phonetics": [
+      "apple"
+    ],
+    "hindiKeywords": [
+      "सेब"
+    ],
+    "brand": "Generic",
+    "category": "Fruits",
+    "skuIds": [
+      "fruits_32_sku1"
+    ]
+  },
+  "fruits_33": {
+    "name": "Orange",
+    "hindiName": "संतरा",
+    "keywords": [
+      "orange",
+      "संतरा",
+      "fru",
+      "santra"
+    ],
+    "aliases": [
+      "santra",
+      "orange"
+    ],
+    "phonetics": [
+      "orange"
+    ],
+    "hindiKeywords": [
+      "संतरा"
+    ],
+    "brand": "Generic",
+    "category": "Fruits",
+    "skuIds": [
+      "fruits_33_sku1"
+    ]
+  },
+  "fruits_34": {
+    "name": "Mango",
+    "hindiName": "आम",
+    "keywords": [
+      "mango",
+      "आम",
+      "aam",
+      "fru"
+    ],
+    "aliases": [
+      "aam",
+      "mango"
+    ],
+    "phonetics": [
+      "mango"
+    ],
+    "hindiKeywords": [
+      "आम"
+    ],
+    "brand": "Generic",
+    "category": "Fruits",
+    "skuIds": [
+      "fruits_34_sku1"
+    ]
+  },
+  "fruits_35": {
+    "name": "Papaya",
+    "hindiName": "पपीता",
+    "keywords": [
+      "papita",
+      "papaya",
+      "पपीता",
+      "fru"
+    ],
+    "aliases": [
+      "papita",
+      "papaya"
+    ],
+    "phonetics": [
+      "papaya"
+    ],
+    "hindiKeywords": [
+      "पपीता"
+    ],
+    "brand": "Generic",
+    "category": "Fruits",
+    "skuIds": [
+      "fruits_35_sku1"
+    ]
+  },
+  "fruits_36": {
+    "name": "Guava",
+    "hindiName": "अमरूद",
+    "keywords": [
+      "guava",
+      "अमरूद",
+      "fru",
+      "amrud"
+    ],
+    "aliases": [
+      "amrud",
+      "guava"
+    ],
+    "phonetics": [
+      "guava"
+    ],
+    "hindiKeywords": [
+      "अमरूद"
+    ],
+    "brand": "Generic",
+    "category": "Fruits",
+    "skuIds": [
+      "fruits_36_sku1"
+    ]
+  },
+  "fruits_37": {
+    "name": "Pomegranate",
+    "hindiName": "अनार",
+    "keywords": [
+      "anar",
+      "अनार",
+      "pomegranate",
+      "fru"
+    ],
+    "aliases": [
+      "anar",
+      "pomegranate"
+    ],
+    "phonetics": [
+      "pomegranate"
+    ],
+    "hindiKeywords": [
+      "अनार"
+    ],
+    "brand": "Generic",
+    "category": "Fruits",
+    "skuIds": [
+      "fruits_37_sku1"
+    ]
+  },
+  "fruits_38": {
+    "name": "Pineapple",
+    "hindiName": "अनन्नास",
+    "keywords": [
+      "ananas",
+      "pineapple",
+      "अनन्नास",
+      "fru"
+    ],
+    "aliases": [
+      "ananas",
+      "pineapple"
+    ],
+    "phonetics": [
+      "pineapple"
+    ],
+    "hindiKeywords": [
+      "अनन्नास"
+    ],
+    "brand": "Generic",
+    "category": "Fruits",
+    "skuIds": [
+      "fruits_38_sku1"
+    ]
+  },
+  "fruits_39": {
+    "name": "Watermelon",
+    "hindiName": "तरबूज",
+    "keywords": [
+      "tarbuj",
+      "तरबूज",
+      "watermelon",
+      "fru"
+    ],
+    "aliases": [
+      "tarbuj",
+      "watermelon"
+    ],
+    "phonetics": [
+      "watermelon"
+    ],
+    "hindiKeywords": [
+      "तरबूज"
+    ],
+    "brand": "Generic",
+    "category": "Fruits",
+    "skuIds": [
+      "fruits_39_sku1"
+    ]
+  },
+  "fruits_40": {
+    "name": "Muskmelon",
+    "hindiName": "खरबूजा",
+    "keywords": [
+      "kharbuja",
+      "खरबूजा",
+      "muskmelon",
+      "fru"
+    ],
+    "aliases": [
+      "kharbuja",
+      "muskmelon"
+    ],
+    "phonetics": [
+      "muskmelon"
+    ],
+    "hindiKeywords": [
+      "खरबूजा"
+    ],
+    "brand": "Generic",
+    "category": "Fruits",
+    "skuIds": [
+      "fruits_40_sku1"
+    ]
+  },
+  "fruits_41": {
+    "name": "Grapes",
+    "hindiName": "अंगूर",
+    "keywords": [
+      "angur",
+      "अंगूर",
+      "fru",
+      "grapes"
+    ],
+    "aliases": [
+      "angur",
+      "grapes"
+    ],
+    "phonetics": [
+      "grapes"
+    ],
+    "hindiKeywords": [
+      "अंगूर"
+    ],
+    "brand": "Generic",
+    "category": "Fruits",
+    "skuIds": [
+      "fruits_41_sku1"
+    ]
+  },
+  "fruits_42": {
+    "name": "Kiwi",
+    "hindiName": "कीवी",
+    "keywords": [
+      "kiwi",
+      "कीवी",
+      "फल",
+      "fru"
+    ],
+    "aliases": [
+      "kiwi",
+      "फल"
+    ],
+    "phonetics": [
+      "kiwi"
+    ],
+    "hindiKeywords": [
+      "कीवी"
+    ],
+    "brand": "Generic",
+    "category": "Fruits",
+    "skuIds": [
+      "fruits_42_sku1"
+    ]
+  },
+  "fruits_43": {
+    "name": "Coconut",
+    "hindiName": "नारियल",
+    "keywords": [
+      "coconut",
+      "nariyal",
+      "नारियल",
+      "fru"
+    ],
+    "aliases": [
+      "nariyal",
+      "coconut"
+    ],
+    "phonetics": [
+      "coconut"
+    ],
+    "hindiKeywords": [
+      "नारियल"
+    ],
+    "brand": "Generic",
+    "category": "Fruits",
+    "skuIds": [
+      "fruits_43_sku1"
+    ]
+  },
+  "fruits_44": {
+    "name": "Peach",
+    "hindiName": "आड़ू",
+    "keywords": [
+      "आड़ू",
+      "aadu",
+      "peach",
+      "fru"
+    ],
+    "aliases": [
+      "aadu",
+      "peach"
+    ],
+    "phonetics": [
+      "peach"
+    ],
+    "hindiKeywords": [
+      "आड़ू"
+    ],
+    "brand": "Generic",
+    "category": "Fruits",
+    "skuIds": [
+      "fruits_44_sku1"
+    ]
+  },
+  "fruits_45": {
+    "name": "Pear",
+    "hindiName": "नाशपाती",
+    "keywords": [
+      "नाशपाती",
+      "nashpati",
+      "pear",
+      "fru"
+    ],
+    "aliases": [
+      "nashpati",
+      "pear"
+    ],
+    "phonetics": [
+      "pear"
+    ],
+    "hindiKeywords": [
+      "नाशपाती"
+    ],
+    "brand": "Generic",
+    "category": "Fruits",
+    "skuIds": [
+      "fruits_45_sku1"
+    ]
+  },
+  "dairy_46": {
+    "name": "Amul Taaza Milk",
+    "hindiName": "अमूल ताज़ा दूध",
+    "keywords": [
+      "अमूल ताज़ा दूध",
+      "mother dairy",
+      "amul",
+      "taaza",
+      "milk"
+    ],
+    "aliases": [
+      "amul",
+      "taaza",
+      "milk"
+    ],
+    "phonetics": [
+      "amul"
+    ],
+    "hindiKeywords": [
+      "अमूल ताज़ा दूध",
+      "दूध"
+    ],
+    "brand": "Mother Dairy",
+    "category": "Dairy",
+    "skuIds": [
+      "dairy_46_sku1",
+      "dairy_46_sku2"
+    ]
+  },
+  "dairy_47": {
+    "name": "Mother Dairy Toned",
+    "hindiName": "मदर डेयरी दूध",
+    "keywords": [
+      "mother dairy",
+      "mother",
+      "मदर डेयरी दूध",
+      "dairy",
+      "toned"
+    ],
+    "aliases": [
+      "mother dairy",
+      "toned",
+      "milk"
+    ],
+    "phonetics": [
+      "mother"
+    ],
+    "hindiKeywords": [
+      "मदर डेयरी दूध",
+      "दूध"
+    ],
+    "brand": "Mother Dairy",
+    "category": "Dairy",
+    "skuIds": [
+      "dairy_47_sku1",
+      "dairy_47_sku2"
+    ]
+  },
+  "dairy_48": {
+    "name": "Nandini Milk",
+    "hindiName": "नंदिनी दूध",
+    "keywords": [
+      "milk",
+      "nandini",
+      "amul",
+      "नंदिनी दूध"
+    ],
+    "aliases": [
+      "nandini",
+      "milk"
+    ],
+    "phonetics": [
+      "nandini"
+    ],
+    "hindiKeywords": [
+      "नंदिनी दूध",
+      "दूध"
+    ],
+    "brand": "Amul",
+    "category": "Dairy",
+    "skuIds": [
+      "dairy_48_sku1",
+      "dairy_48_sku2"
+    ]
+  },
+  "dairy_49": {
+    "name": "Saras Milk",
+    "hindiName": "सारस दूध",
+    "keywords": [
+      "milk",
+      "dai",
+      "सारस दूध",
+      "saras"
+    ],
+    "aliases": [
+      "saras",
+      "milk"
+    ],
+    "phonetics": [
+      "saras"
+    ],
+    "hindiKeywords": [
+      "सारस दूध",
+      "दूध"
+    ],
+    "brand": "Saras",
+    "category": "Dairy",
+    "skuIds": [
+      "dairy_49_sku1",
+      "dairy_49_sku2"
+    ]
+  },
+  "dairy_50": {
+    "name": "Amul Ghee",
+    "hindiName": "अमूल घी",
+    "keywords": [
+      "amul",
+      "nandini",
+      "ghee",
+      "अमूल घी",
+      "dairy"
+    ],
+    "aliases": [
+      "amul",
+      "ghee",
+      "clarified butter"
+    ],
+    "phonetics": [
+      "amul"
+    ],
+    "hindiKeywords": [
+      "अमूल घी"
+    ],
+    "brand": "Nandini",
+    "category": "Dairy",
+    "skuIds": [
+      "dairy_50_sku1",
+      "dairy_50_sku2"
+    ]
+  },
+  "dairy_51": {
+    "name": "Amul Butter",
+    "hindiName": "अमूल मक्खन",
+    "keywords": [
+      "amul",
+      "अमूल मक्खन",
+      "butter",
+      "dairy",
+      "saras"
+    ],
+    "aliases": [
+      "amul",
+      "butter",
+      "makhan"
+    ],
+    "phonetics": [
+      "amul"
+    ],
+    "hindiKeywords": [
+      "अमूल मक्खन"
+    ],
+    "brand": "Saras",
+    "category": "Dairy",
+    "skuIds": [
+      "dairy_51_sku1"
+    ]
+  },
+  "dairy_52": {
+    "name": "Fresh Paneer",
+    "hindiName": "पनीर",
+    "keywords": [
+      "mother dairy",
+      "पनीर",
+      "cottage cheese",
+      "fresh",
+      "dairy"
+    ],
+    "aliases": [
+      "paneer",
+      "cottage cheese"
+    ],
+    "phonetics": [
+      "fresh"
+    ],
+    "hindiKeywords": [
+      "पनीर"
+    ],
+    "brand": "Mother Dairy",
+    "category": "Dairy",
+    "skuIds": [
+      "dairy_52_sku1"
+    ]
+  },
+  "dairy_53": {
+    "name": "Curd",
+    "hindiName": "दही",
+    "keywords": [
+      "amul",
+      "दही",
+      "curd",
+      "dairy",
+      "yogurt"
+    ],
+    "aliases": [
+      "dahi",
+      "curd",
+      "yogurt"
+    ],
+    "phonetics": [
+      "curd"
+    ],
+    "hindiKeywords": [
+      "दही"
+    ],
+    "brand": "Amul",
+    "category": "Dairy",
+    "skuIds": [
+      "dairy_53_sku1",
+      "dairy_53_sku2"
+    ]
+  },
+  "rice_54": {
+    "name": "Daawat Basmati",
+    "hindiName": "दावत बासमती चावल",
+    "keywords": [
+      "india gate",
+      "daawat",
+      "rice ric",
+      "basmati",
+      "दावत बासमती चावल"
+    ],
+    "aliases": [
+      "daawat",
+      "basmati",
+      "rice"
+    ],
+    "phonetics": [
+      "daawat"
+    ],
+    "hindiKeywords": [
+      "दावत बासमती चावल",
+      "चावल"
+    ],
+    "brand": "India Gate",
+    "category": "Rice",
+    "skuIds": [
+      "rice_54_sku1",
+      "rice_54_sku2"
+    ]
+  },
+  "rice_55": {
+    "name": "India Gate Basmati",
+    "hindiName": "इंडिया गेट बासमती",
+    "keywords": [
+      "tata",
+      "india gate",
+      "rice ric",
+      "india",
+      "इंडिया गेट बासमती"
+    ],
+    "aliases": [
+      "india gate",
+      "basmati",
+      "rice"
+    ],
+    "phonetics": [
+      "india"
+    ],
+    "hindiKeywords": [
+      "इंडिया गेट बासमती"
+    ],
+    "brand": "Tata",
+    "category": "Rice",
+    "skuIds": [
+      "rice_55_sku1",
+      "rice_55_sku2"
+    ]
+  },
+  "rice_56": {
+    "name": "Fortune Basmati",
+    "hindiName": "फॉर्चून बासमती",
+    "keywords": [
+      "tata",
+      "rice ric",
+      "फॉर्चून बासमती",
+      "basmati",
+      "fortune"
+    ],
+    "aliases": [
+      "fortune",
+      "basmati",
+      "rice"
+    ],
+    "phonetics": [
+      "fortune"
+    ],
+    "hindiKeywords": [
+      "फॉर्चून बासमती"
+    ],
+    "brand": "Tata",
+    "category": "Rice",
+    "skuIds": [
+      "rice_56_sku1"
+    ]
+  },
+  "rice_57": {
+    "name": "Tata Basmati",
+    "hindiName": "टाटा बासमती",
+    "keywords": [
+      "tata",
+      "टाटा बासमती",
+      "daawat",
+      "rice ric",
+      "basmati"
+    ],
+    "aliases": [
+      "tata",
+      "basmati",
+      "rice"
+    ],
+    "phonetics": [
+      "tata"
+    ],
+    "hindiKeywords": [
+      "टाटा बासमती"
+    ],
+    "brand": "Daawat",
+    "category": "Rice",
+    "skuIds": [
+      "rice_57_sku1"
+    ]
+  },
+  "rice_58": {
+    "name": "White Rice",
+    "hindiName": "सफेद चावल",
+    "keywords": [
+      "chawal",
+      "सफेद चावल",
+      "india gate",
+      "white",
+      "rice ric"
+    ],
+    "aliases": [
+      "white rice",
+      "chawal"
+    ],
+    "phonetics": [
+      "white"
+    ],
+    "hindiKeywords": [
+      "सफेद चावल",
+      "चावल"
+    ],
+    "brand": "India Gate",
+    "category": "Rice",
+    "skuIds": [
+      "rice_58_sku1"
+    ]
+  },
+  "rice_59": {
+    "name": "Sona Masoori",
+    "hindiName": "सोना मसूरी चावल",
+    "keywords": [
+      "सोना मसूरी चावल",
+      "tata",
+      "rice",
+      "rice ric",
+      "sona"
+    ],
+    "aliases": [
+      "sona masoori",
+      "rice"
+    ],
+    "phonetics": [
+      "sona"
+    ],
+    "hindiKeywords": [
+      "सोना मसूरी चावल",
+      "चावल"
+    ],
+    "brand": "Tata",
+    "category": "Rice",
+    "skuIds": [
+      "rice_59_sku1",
+      "rice_59_sku2"
+    ]
+  },
+  "rice_60": {
+    "name": "Jasmine Rice",
+    "hindiName": "जैस्मिन चावल",
+    "keywords": [
+      "jasmine",
+      "india gate",
+      "जैस्मिन चावल",
+      "rice",
+      "rice ric"
+    ],
+    "aliases": [
+      "jasmine",
+      "rice",
+      "चावल"
+    ],
+    "phonetics": [
+      "jasmine"
+    ],
+    "hindiKeywords": [
+      "जैस्मिन चावल",
+      "चावल"
+    ],
+    "brand": "India Gate",
+    "category": "Rice",
+    "skuIds": [
+      "rice_60_sku1"
+    ]
+  },
+  "rice_61": {
+    "name": "Brown Rice",
+    "hindiName": "भूरा चावल",
+    "keywords": [
+      "chawal",
+      "brown",
+      "भूरा चावल",
+      "rice ric",
+      "fortune"
+    ],
+    "aliases": [
+      "brown rice",
+      "chawal"
+    ],
+    "phonetics": [
+      "brown"
+    ],
+    "hindiKeywords": [
+      "भूरा चावल",
+      "चावल"
+    ],
+    "brand": "Fortune",
+    "category": "Rice",
+    "skuIds": [
+      "rice_61_sku1",
+      "rice_61_sku2"
+    ]
+  },
+  "flour_62": {
+    "name": "Aashirvaad Atta",
+    "hindiName": "आशीर्वाद आटा",
+    "keywords": [
+      "aashirvaad",
+      "atta",
+      "आशीर्वाद आटा",
+      "britannia",
+      "flour flou"
+    ],
+    "aliases": [
+      "aashirvaad",
+      "atta",
+      "flour"
+    ],
+    "phonetics": [
+      "aashirvaad"
+    ],
+    "hindiKeywords": [
+      "आशीर्वाद आटा",
+      "आटा"
+    ],
+    "brand": "Britannia",
+    "category": "Flour",
+    "skuIds": [
+      "flour_62_sku1",
+      "flour_62_sku2",
+      "flour_62_sku3"
+    ]
+  },
+  "flour_63": {
+    "name": "Pillsbury Atta",
+    "hindiName": "पिलसबरी आटा",
+    "keywords": [
+      "पिलसबरी आटा",
+      "atta",
+      "pillsbury",
+      "britannia",
+      "flour flou"
+    ],
+    "aliases": [
+      "pillsbury",
+      "atta",
+      "flour"
+    ],
+    "phonetics": [
+      "pillsbury"
+    ],
+    "hindiKeywords": [
+      "पिलसबरी आटा",
+      "आटा"
+    ],
+    "brand": "Britannia",
+    "category": "Flour",
+    "skuIds": [
+      "flour_63_sku1",
+      "flour_63_sku2"
+    ]
+  },
+  "flour_64": {
+    "name": "Britannia Maida",
+    "hindiName": "ब्रिटानिया मैदा",
+    "keywords": [
+      "ब्रिटानिया मैदा",
+      "pillsbury",
+      "britannia",
+      "maida",
+      "flour flou"
+    ],
+    "aliases": [
+      "britannia",
+      "maida",
+      "flour"
+    ],
+    "phonetics": [
+      "britannia"
+    ],
+    "hindiKeywords": [
+      "ब्रिटानिया मैदा"
+    ],
+    "brand": "Pillsbury",
+    "category": "Flour",
+    "skuIds": [
+      "flour_64_sku1",
+      "flour_64_sku2"
+    ]
+  },
+  "flour_65": {
+    "name": "Rice Flour",
+    "hindiName": "चावल का आटा",
+    "keywords": [
+      "chawal ka aata",
+      "चावल का आटा",
+      "rice",
+      "britannia",
+      "flour flou"
+    ],
+    "aliases": [
+      "rice flour",
+      "chawal ka aata"
+    ],
+    "phonetics": [
+      "rice"
+    ],
+    "hindiKeywords": [
+      "चावल का आटा",
+      "आटा",
+      "चावल"
+    ],
+    "brand": "Britannia",
+    "category": "Flour",
+    "skuIds": [
+      "flour_65_sku1"
+    ]
+  },
+  "flour_66": {
+    "name": "Corn Flour",
+    "hindiName": "मकई का आटा",
+    "keywords": [
+      "मकई का आटा",
+      "pillsbury",
+      "makkai ka aata",
+      "corn",
+      "flour flou"
+    ],
+    "aliases": [
+      "corn flour",
+      "makkai ka aata"
+    ],
+    "phonetics": [
+      "corn"
+    ],
+    "hindiKeywords": [
+      "मकई का आटा",
+      "आटा"
+    ],
+    "brand": "Pillsbury",
+    "category": "Flour",
+    "skuIds": [
+      "flour_66_sku1"
+    ]
+  },
+  "flour_67": {
+    "name": "Multigrain Flour",
+    "hindiName": "मल्टीग्रेन आटा",
+    "keywords": [
+      "atta",
+      "multigrain",
+      "britannia",
+      "flour flou",
+      "मल्टीग्रेन आटा"
+    ],
+    "aliases": [
+      "multigrain",
+      "atta",
+      "mixed flour"
+    ],
+    "phonetics": [
+      "multigrain"
+    ],
+    "hindiKeywords": [
+      "मल्टीग्रेन आटा",
+      "आटा"
+    ],
+    "brand": "Britannia",
+    "category": "Flour",
+    "skuIds": [
+      "flour_67_sku1",
+      "flour_67_sku2"
+    ]
+  },
+  "pulses_68": {
+    "name": "Moong Dal Dhuli",
+    "hindiName": "मूंग दाल धुली",
+    "keywords": [
+      "pulses pulse",
+      "moong",
+      "moong dal",
+      "मूंग दाल धुली",
+      "mung"
+    ],
+    "aliases": [
+      "moong dal",
+      "mung",
+      "dhuli"
+    ],
+    "phonetics": [
+      "moong"
+    ],
+    "hindiKeywords": [
+      "मूंग दाल धुली",
+      "दाल"
+    ],
+    "brand": "Generic",
+    "category": "Pulses",
+    "skuIds": [
+      "pulses_68_sku1",
+      "pulses_68_sku2",
+      "pulses_68_sku3"
+    ]
+  },
+  "pulses_69": {
+    "name": "Chana Dal",
+    "hindiName": "चना दाल",
+    "keywords": [
+      "chana",
+      "split chickpea",
+      "pulses pulse",
+      "चना दाल"
+    ],
+    "aliases": [
+      "chana dal",
+      "split chickpea"
+    ],
+    "phonetics": [
+      "chana"
+    ],
+    "hindiKeywords": [
+      "चना दाल",
+      "दाल"
+    ],
+    "brand": "Generic",
+    "category": "Pulses",
+    "skuIds": [
+      "pulses_69_sku1",
+      "pulses_69_sku2",
+      "pulses_69_sku3"
+    ]
+  },
+  "pulses_70": {
+    "name": "Arhar Dal",
+    "hindiName": "अरहर दाल",
+    "keywords": [
+      "tuvar",
+      "अरहर दाल",
+      "arhar",
+      "pulses pulse"
+    ],
+    "aliases": [
+      "arhar",
+      "tuvar",
+      "dal"
+    ],
+    "phonetics": [
+      "arhar"
+    ],
+    "hindiKeywords": [
+      "अरहर दाल",
+      "दाल"
+    ],
+    "brand": "Generic",
+    "category": "Pulses",
+    "skuIds": [
+      "pulses_70_sku1",
+      "pulses_70_sku2",
+      "pulses_70_sku3"
+    ]
+  },
+  "pulses_71": {
+    "name": "Urad Dal",
+    "hindiName": "उड़द दाल",
+    "keywords": [
+      "urad",
+      "उड़द दाल",
+      "pulses pulse",
+      "black gram"
+    ],
+    "aliases": [
+      "urad",
+      "black gram",
+      "dal"
+    ],
+    "phonetics": [
+      "urad"
+    ],
+    "hindiKeywords": [
+      "उड़द दाल",
+      "दाल"
+    ],
+    "brand": "Generic",
+    "category": "Pulses",
+    "skuIds": [
+      "pulses_71_sku1",
+      "pulses_71_sku2",
+      "pulses_71_sku3"
+    ]
+  },
+  "pulses_72": {
+    "name": "Masoor Dal",
+    "hindiName": "मसूर दाल",
+    "keywords": [
+      "मसूर दाल",
+      "masoor",
+      "pulses pulse",
+      "lentil"
+    ],
+    "aliases": [
+      "masoor",
+      "lentil",
+      "dal"
+    ],
+    "phonetics": [
+      "masoor"
+    ],
+    "hindiKeywords": [
+      "मसूर दाल",
+      "दाल"
+    ],
+    "brand": "Generic",
+    "category": "Pulses",
+    "skuIds": [
+      "pulses_72_sku1",
+      "pulses_72_sku2",
+      "pulses_72_sku3"
+    ]
+  },
+  "pulses_73": {
+    "name": "Chickpeas",
+    "hindiName": "छोले",
+    "keywords": [
+      "chickpeas",
+      "pulses pulse",
+      "chole",
+      "छोले",
+      "chickpea"
+    ],
+    "aliases": [
+      "chole",
+      "chickpea",
+      "गड़"
+    ],
+    "phonetics": [
+      "chickpeas"
+    ],
+    "hindiKeywords": [
+      "छोले"
+    ],
+    "brand": "Generic",
+    "category": "Pulses",
+    "skuIds": [
+      "pulses_73_sku1"
+    ]
+  },
+  "pulses_74": {
+    "name": "Kidney Beans",
+    "hindiName": "राजमा",
+    "keywords": [
+      "kidney bean",
+      "pulses pulse",
+      "rajma",
+      "kidney",
+      "राजमा"
+    ],
+    "aliases": [
+      "rajma",
+      "kidney bean",
+      "लाल"
+    ],
+    "phonetics": [
+      "kidney"
+    ],
+    "hindiKeywords": [
+      "राजमा"
+    ],
+    "brand": "Generic",
+    "category": "Pulses",
+    "skuIds": [
+      "pulses_74_sku1"
+    ]
+  },
+  "vegetables_75": {
+    "name": "Celery",
+    "hindiName": "अजवाइन",
+    "keywords": [
+      "ajwain",
+      "अजवाइन",
+      "celery",
+      "vegetables"
+    ],
+    "aliases": [
+      "celery",
+      "ajwain"
+    ],
+    "phonetics": [
+      "celery"
+    ],
+    "hindiKeywords": [
+      "अजवाइन"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_75_sku1"
+    ]
+  },
+  "vegetables_76": {
+    "name": "Green Beans",
+    "hindiName": "सेम",
+    "keywords": [
+      "सेम",
+      "green",
+      "green beans",
+      "beans"
+    ],
+    "aliases": [
+      "green beans",
+      "beans"
+    ],
+    "phonetics": [
+      "green"
+    ],
+    "hindiKeywords": [
+      "सेम"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_76_sku1"
+    ]
+  },
+  "vegetables_77": {
+    "name": "Peas Green",
+    "hindiName": "हरे मटर",
+    "keywords": [
+      "matar",
+      "हरे मटर",
+      "green peas",
+      "peas"
+    ],
+    "aliases": [
+      "green peas",
+      "matar"
+    ],
+    "phonetics": [
+      "peas"
+    ],
+    "hindiKeywords": [
+      "हरे मटर"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_77_sku1"
+    ]
+  },
+  "vegetables_78": {
+    "name": "Drumstick",
+    "hindiName": "सहजन",
+    "keywords": [
+      "सहजन",
+      "drumstick",
+      "moringa",
+      "vegetables"
+    ],
+    "aliases": [
+      "drumstick",
+      "moringa"
+    ],
+    "phonetics": [
+      "drumstick"
+    ],
+    "hindiKeywords": [
+      "सहजन"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_78_sku1"
+    ]
+  },
+  "vegetables_79": {
+    "name": "Arbi",
+    "hindiName": "अरबी",
+    "keywords": [
+      "अरबी",
+      "taro",
+      "arbi",
+      "vegetables"
+    ],
+    "aliases": [
+      "arbi",
+      "taro"
+    ],
+    "phonetics": [
+      "arbi"
+    ],
+    "hindiKeywords": [
+      "अरबी"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_79_sku1"
+    ]
+  },
+  "vegetables_80": {
+    "name": "Potato Chips",
+    "hindiName": "आलू के चिप्स",
+    "keywords": [
+      "chips",
+      "snack",
+      "potato",
+      "आलू के चिप्स"
+    ],
+    "aliases": [
+      "chips",
+      "snack"
+    ],
+    "phonetics": [
+      "potato"
+    ],
+    "hindiKeywords": [
+      "आलू के चिप्स"
+    ],
+    "brand": "Generic",
+    "category": "Vegetables",
+    "skuIds": [
+      "vegetables_80_sku1"
+    ]
+  },
+  "fruits_81": {
+    "name": "Avocado",
+    "hindiName": "एवोकाडो",
+    "keywords": [
+      "avocado",
+      "एवोकाडो",
+      "butter fruit",
+      "fruits"
+    ],
+    "aliases": [
+      "avocado",
+      "butter fruit"
+    ],
+    "phonetics": [
+      "avocado"
+    ],
+    "hindiKeywords": [
+      "एवोकाडो"
+    ],
+    "brand": "Generic",
+    "category": "Fruits",
+    "skuIds": [
+      "fruits_81_sku1"
+    ]
+  },
+  "fruits_82": {
+    "name": "Lemon",
+    "hindiName": "नींबू",
+    "keywords": [
+      "nimbu",
+      "नींबू",
+      "lemon",
+      "fruits"
+    ],
+    "aliases": [
+      "nimbu",
+      "lemon"
+    ],
+    "phonetics": [
+      "lemon"
+    ],
+    "hindiKeywords": [
+      "नींबू"
+    ],
+    "brand": "Generic",
+    "category": "Fruits",
+    "skuIds": [
+      "fruits_82_sku1"
+    ]
+  },
+  "fruits_83": {
+    "name": "Lime",
+    "hindiName": "नीबू",
+    "keywords": [
+      "sweet lime",
+      "lime",
+      "नीबू",
+      "fruits"
+    ],
+    "aliases": [
+      "lime",
+      "sweet lime"
+    ],
+    "phonetics": [
+      "lime"
+    ],
+    "hindiKeywords": [
+      "नीबू"
+    ],
+    "brand": "Generic",
+    "category": "Fruits",
+    "skuIds": [
+      "fruits_83_sku1"
+    ]
+  },
+  "fruits_84": {
+    "name": "Dragon Fruit",
+    "hindiName": "ड्रैगन फल",
+    "keywords": [
+      "ड्रैगन फल",
+      "dragon fruit",
+      "dragon",
+      "exotic"
+    ],
+    "aliases": [
+      "dragon fruit",
+      "exotic"
+    ],
+    "phonetics": [
+      "dragon"
+    ],
+    "hindiKeywords": [
+      "ड्रैगन फल"
+    ],
+    "brand": "Generic",
+    "category": "Fruits",
+    "skuIds": [
+      "fruits_84_sku1"
+    ]
+  },
+  "fruits_85": {
+    "name": "Blueberry",
+    "hindiName": "नीले अंगूर",
+    "keywords": [
+      "नीले अंगूर",
+      "berries",
+      "blueberry",
+      "fruits"
+    ],
+    "aliases": [
+      "blueberry",
+      "berries"
+    ],
+    "phonetics": [
+      "blueberry"
+    ],
+    "hindiKeywords": [
+      "नीले अंगूर"
+    ],
+    "brand": "Generic",
+    "category": "Fruits",
+    "skuIds": [
+      "fruits_85_sku1"
+    ]
+  },
+  "fruits_86": {
+    "name": "Strawberry",
+    "hindiName": "स्ट्रॉबेरी",
+    "keywords": [
+      "strawberry",
+      "स्ट्रॉबेरी",
+      "berries",
+      "fruits"
+    ],
+    "aliases": [
+      "strawberry",
+      "berries"
+    ],
+    "phonetics": [
+      "strawberry"
+    ],
+    "hindiKeywords": [
+      "स्ट्रॉबेरी"
+    ],
+    "brand": "Generic",
+    "category": "Fruits",
+    "skuIds": [
+      "fruits_86_sku1"
+    ]
+  },
+  "dairy_87": {
+    "name": "Paneer Blocks",
+    "hindiName": "पनीर ब्लॉक",
+    "keywords": [
+      "पनीर ब्लॉक",
+      "paneer",
+      "cheese",
+      "dairy"
+    ],
+    "aliases": [
+      "paneer",
+      "cheese"
+    ],
+    "phonetics": [
+      "paneer"
+    ],
+    "hindiKeywords": [
+      "पनीर ब्लॉक"
+    ],
+    "brand": "Mother Dairy",
+    "category": "Dairy",
+    "skuIds": [
+      "dairy_87_sku1",
+      "dairy_87_sku2"
+    ]
+  },
+  "dairy_88": {
+    "name": "Condensed Milk",
+    "hindiName": "डिब्बाबंद दूध",
+    "keywords": [
+      "डिब्बाबंद दूध",
+      "condensed milk",
+      "condensed",
+      "khoya"
+    ],
+    "aliases": [
+      "condensed milk",
+      "khoya"
+    ],
+    "phonetics": [
+      "condensed"
+    ],
+    "hindiKeywords": [
+      "डिब्बाबंद दूध",
+      "दूध"
+    ],
+    "brand": "Mother Dairy",
+    "category": "Dairy",
+    "skuIds": [
+      "dairy_88_sku1",
+      "dairy_88_sku2"
+    ]
+  },
+  "dairy_89": {
+    "name": "Amul Kool Shake",
+    "hindiName": "अमूल कूल शेक",
+    "keywords": [
+      "shake",
+      "अमूल कूल शेक",
+      "amul kool",
+      "amul"
+    ],
+    "aliases": [
+      "amul kool",
+      "shake"
+    ],
+    "phonetics": [
+      "amul"
+    ],
+    "hindiKeywords": [
+      "अमूल कूल शेक"
+    ],
+    "brand": "Amul",
+    "category": "Dairy",
+    "skuIds": [
+      "dairy_89_sku1"
+    ]
+  },
+  "rice_90": {
+    "name": "Arborio Rice",
+    "hindiName": "आर्बोरियो चावल",
+    "keywords": [
+      "risotto",
+      "आर्बोरियो चावल",
+      "arborio",
+      "rice"
+    ],
+    "aliases": [
+      "arborio",
+      "risotto"
+    ],
+    "phonetics": [
+      "arborio"
+    ],
+    "hindiKeywords": [
+      "आर्बोरियो चावल",
+      "चावल"
+    ],
+    "brand": "India Gate",
+    "category": "Rice",
+    "skuIds": [
+      "rice_90_sku1"
+    ]
+  },
+  "rice_91": {
+    "name": "Short Grain Rice",
+    "hindiName": "छोटे दाने वाले चावल",
+    "keywords": [
+      "short",
+      "short grain",
+      "rice",
+      "छोटे दाने वाले चावल"
+    ],
+    "aliases": [
+      "short grain",
+      "rice"
+    ],
+    "phonetics": [
+      "short"
+    ],
+    "hindiKeywords": [
+      "छोटे दाने वाले चावल",
+      "चावल"
+    ],
+    "brand": "India Gate",
+    "category": "Rice",
+    "skuIds": [
+      "rice_91_sku1",
+      "rice_91_sku2"
+    ]
+  },
+  "rice_92": {
+    "name": "Black Rice",
+    "hindiName": "काला चावल",
+    "keywords": [
+      "black rice",
+      "black",
+      "glutinous",
+      "काला चावल"
+    ],
+    "aliases": [
+      "black rice",
+      "glutinous"
+    ],
+    "phonetics": [
+      "black"
+    ],
+    "hindiKeywords": [
+      "काला चावल",
+      "चावल"
+    ],
+    "brand": "India Gate",
+    "category": "Rice",
+    "skuIds": [
+      "rice_92_sku1"
+    ]
+  },
+  "flour_93": {
+    "name": "Besan Flour",
+    "hindiName": "बेसन",
+    "keywords": [
+      "besan",
+      "बेसन",
+      "gram flour",
+      "flour"
+    ],
+    "aliases": [
+      "besan",
+      "gram flour"
+    ],
+    "phonetics": [
+      "besan"
+    ],
+    "hindiKeywords": [
+      "बेसन"
+    ],
+    "brand": "Pillsbury",
+    "category": "Flour",
+    "skuIds": [
+      "flour_93_sku1"
+    ]
+  },
+  "flour_94": {
+    "name": "Ragi Flour",
+    "hindiName": "रागी का आटा",
+    "keywords": [
+      "रागी का आटा",
+      "finger millet",
+      "ragi",
+      "flour"
+    ],
+    "aliases": [
+      "ragi",
+      "finger millet"
+    ],
+    "phonetics": [
+      "ragi"
+    ],
+    "hindiKeywords": [
+      "रागी का आटा",
+      "आटा"
+    ],
+    "brand": "Aashirvaad",
+    "category": "Flour",
+    "skuIds": [
+      "flour_94_sku1",
+      "flour_94_sku2"
+    ]
+  },
+  "flour_95": {
+    "name": "Semolina",
+    "hindiName": "सूजी",
+    "keywords": [
+      "सूजी",
+      "semolina",
+      "suji",
+      "flour"
+    ],
+    "aliases": [
+      "semolina",
+      "suji"
+    ],
+    "phonetics": [
+      "semolina"
+    ],
+    "hindiKeywords": [
+      "सूजी"
+    ],
+    "brand": "Aashirvaad",
+    "category": "Flour",
+    "skuIds": [
+      "flour_95_sku1"
+    ]
+  },
+  "flour_96": {
+    "name": "Coconut Flour",
+    "hindiName": "नारियल का आटा",
+    "keywords": [
+      "नारियल का आटा",
+      "coconut",
+      "coconut flour",
+      "powder"
+    ],
+    "aliases": [
+      "coconut flour",
+      "powder"
+    ],
+    "phonetics": [
+      "coconut"
+    ],
+    "hindiKeywords": [
+      "नारियल का आटा",
+      "आटा"
+    ],
+    "brand": "Pillsbury",
+    "category": "Flour",
+    "skuIds": [
+      "flour_96_sku1"
+    ]
+  },
+  "pulses_97": {
+    "name": "Gram Whole",
+    "hindiName": "काबुली चने",
+    "keywords": [
+      "chickpea",
+      "gram",
+      "काबुली चने",
+      "pulses"
+    ],
+    "aliases": [
+      "gram",
+      "chickpea"
+    ],
+    "phonetics": [
+      "gram"
+    ],
+    "hindiKeywords": [
+      "काबुली चने"
+    ],
+    "brand": "Generic",
+    "category": "Pulses",
+    "skuIds": [
+      "pulses_97_sku1"
+    ]
+  },
+  "pulses_98": {
+    "name": "Black Chickpea",
+    "hindiName": "काले चने",
+    "keywords": [
+      "काले चने",
+      "black chickpea",
+      "black",
+      "kala chana"
+    ],
+    "aliases": [
+      "black chickpea",
+      "kala chana"
+    ],
+    "phonetics": [
+      "black"
+    ],
+    "hindiKeywords": [
+      "काले चने"
+    ],
+    "brand": "Generic",
+    "category": "Pulses",
+    "skuIds": [
+      "pulses_98_sku1"
+    ]
+  },
+  "pulses_99": {
+    "name": "Red Lentils",
+    "hindiName": "लाल दाल",
+    "keywords": [
+      "red lentils",
+      "red",
+      "लाल दाल",
+      "masoor"
+    ],
+    "aliases": [
+      "red lentils",
+      "masoor"
+    ],
+    "phonetics": [
+      "red"
+    ],
+    "hindiKeywords": [
+      "लाल दाल",
+      "दाल"
+    ],
+    "brand": "Generic",
+    "category": "Pulses",
+    "skuIds": [
+      "pulses_99_sku1"
+    ]
+  },
+  "pulses_100": {
+    "name": "Fenugreek Seeds",
+    "hindiName": "मेथी के दाने",
+    "keywords": [
+      "fenugreek",
+      "methi",
+      "मेथी के दाने",
+      "pulses"
+    ],
+    "aliases": [
+      "fenugreek",
+      "methi"
+    ],
+    "phonetics": [
+      "fenugreek"
+    ],
+    "hindiKeywords": [
+      "मेथी के दाने"
+    ],
+    "brand": "Generic",
+    "category": "Pulses",
+    "skuIds": [
+      "pulses_100_sku1"
+    ]
+  },
+  "pulses_101": {
+    "name": "Sesame Seeds",
+    "hindiName": "तिल",
+    "keywords": [
+      "sesame",
+      "til",
+      "तिल",
+      "pulses"
+    ],
+    "aliases": [
+      "sesame",
+      "til"
+    ],
+    "phonetics": [
+      "sesame"
+    ],
+    "hindiKeywords": [
+      "तिल"
+    ],
+    "brand": "Generic",
+    "category": "Pulses",
+    "skuIds": [
+      "pulses_101_sku1"
+    ]
+  },
+  "spices_102": {
+    "name": "Turmeric Powder",
+    "hindiName": "हल्दी पाउडर",
+    "keywords": [
+      "turmeric",
+      "हल्दी पाउडर",
+      "haldi",
+      "spices"
+    ],
+    "aliases": [
+      "turmeric",
+      "haldi"
+    ],
+    "phonetics": [
+      "turmeric"
+    ],
+    "hindiKeywords": [
+      "हल्दी पाउडर"
+    ],
+    "brand": "Generic",
+    "category": "Spices",
+    "skuIds": [
+      "spices_102_sku1",
+      "spices_102_sku2"
+    ]
+  },
+  "spices_103": {
+    "name": "Coriander Powder",
+    "hindiName": "धनिया पाउडर",
+    "keywords": [
+      "dhanya",
+      "धनिया पाउडर",
+      "coriander",
+      "spices"
+    ],
+    "aliases": [
+      "coriander",
+      "dhanya"
+    ],
+    "phonetics": [
+      "coriander"
+    ],
+    "hindiKeywords": [
+      "धनिया पाउडर"
+    ],
+    "brand": "Generic",
+    "category": "Spices",
+    "skuIds": [
+      "spices_103_sku1",
+      "spices_103_sku2"
+    ]
+  },
+  "spices_104": {
+    "name": "Cumin Seeds",
+    "hindiName": "जीरा",
+    "keywords": [
+      "cumin",
+      "जीरा",
+      "jeera",
+      "spices"
+    ],
+    "aliases": [
+      "cumin",
+      "jeera"
+    ],
+    "phonetics": [
+      "cumin"
+    ],
+    "hindiKeywords": [
+      "जीरा"
+    ],
+    "brand": "Generic",
+    "category": "Spices",
+    "skuIds": [
+      "spices_104_sku1"
+    ]
+  },
+  "spices_105": {
+    "name": "Black Pepper",
+    "hindiName": "काली मिर्च",
+    "keywords": [
+      "pepper",
+      "mirch",
+      "काली मिर्च",
+      "black"
+    ],
+    "aliases": [
+      "pepper",
+      "mirch"
+    ],
+    "phonetics": [
+      "black"
+    ],
+    "hindiKeywords": [
+      "काली मिर्च"
+    ],
+    "brand": "Generic",
+    "category": "Spices",
+    "skuIds": [
+      "spices_105_sku1"
+    ]
+  },
+  "condiments_106": {
+    "name": "Salt",
+    "hindiName": "नमक",
+    "keywords": [
+      "नमक",
+      "namak",
+      "salt",
+      "condiments"
+    ],
+    "aliases": [
+      "salt",
+      "namak"
+    ],
+    "phonetics": [
+      "salt"
+    ],
+    "hindiKeywords": [
+      "नमक"
+    ],
+    "brand": "Generic",
+    "category": "Condiments",
+    "skuIds": [
+      "condiments_106_sku1",
+      "condiments_106_sku2"
+    ]
+  },
+  "condiments_107": {
+    "name": "Sugar",
+    "hindiName": "चीनी",
+    "keywords": [
+      "sugar",
+      "चीनी",
+      "cheeni",
+      "condiments"
+    ],
+    "aliases": [
+      "sugar",
+      "cheeni"
+    ],
+    "phonetics": [
+      "sugar"
+    ],
+    "hindiKeywords": [
+      "चीनी"
+    ],
+    "brand": "Generic",
+    "category": "Condiments",
+    "skuIds": [
+      "condiments_107_sku1",
+      "condiments_107_sku2"
+    ]
+  },
+  "condiments_108": {
+    "name": "Cooking Oil",
+    "hindiName": "तेल",
+    "keywords": [
+      "tel",
+      "oil",
+      "तेल",
+      "cooking"
+    ],
+    "aliases": [
+      "oil",
+      "tel"
+    ],
+    "phonetics": [
+      "cooking"
+    ],
+    "hindiKeywords": [
+      "तेल"
+    ],
+    "brand": "Generic",
+    "category": "Condiments",
+    "skuIds": [
+      "condiments_108_sku1"
+    ]
+  },
+  "condiments_109": {
+    "name": "Mustard Oil",
+    "hindiName": "सरसों का तेल",
+    "keywords": [
+      "सरसों का तेल",
+      "mustard oil",
+      "tel",
+      "mustard"
+    ],
+    "aliases": [
+      "mustard oil",
+      "tel"
+    ],
+    "phonetics": [
+      "mustard"
+    ],
+    "hindiKeywords": [
+      "सरसों का तेल"
+    ],
+    "brand": "Generic",
+    "category": "Condiments",
+    "skuIds": [
+      "condiments_109_sku1",
+      "condiments_109_sku2"
+    ]
+  },
+  "condiments_110": {
+    "name": "Coconut Oil",
+    "hindiName": "नारियल का तेल",
+    "keywords": [
+      "coconut",
+      "nariyal tel",
+      "नारियल का तेल",
+      "coconut oil"
+    ],
+    "aliases": [
+      "coconut oil",
+      "nariyal tel"
+    ],
+    "phonetics": [
+      "coconut"
+    ],
+    "hindiKeywords": [
+      "नारियल का तेल"
+    ],
+    "brand": "Generic",
+    "category": "Condiments",
+    "skuIds": [
+      "condiments_110_sku1"
+    ]
+  },
+  "snacks_111": {
+    "name": "Biscuits",
+    "hindiName": "बिस्किट",
+    "keywords": [
+      "बिस्किट",
+      "biscuits",
+      "cookies",
+      "snacks"
+    ],
+    "aliases": [
+      "biscuits",
+      "cookies"
+    ],
+    "phonetics": [
+      "biscuits"
+    ],
+    "hindiKeywords": [
+      "बिस्किट"
+    ],
+    "brand": "Britannia",
+    "category": "Snacks",
+    "skuIds": [
+      "snacks_111_sku1"
+    ]
+  },
+  "snacks_112": {
+    "name": "Wafers",
+    "hindiName": "वेफर्स",
+    "keywords": [
+      "वेफर्स",
+      "wafers",
+      "chips",
+      "snacks"
+    ],
+    "aliases": [
+      "wafers",
+      "chips"
+    ],
+    "phonetics": [
+      "wafers"
+    ],
+    "hindiKeywords": [
+      "वेफर्स"
+    ],
+    "brand": "Lays",
+    "category": "Snacks",
+    "skuIds": [
+      "snacks_112_sku1",
+      "snacks_112_sku2"
+    ]
+  },
+  "beverages_113": {
+    "name": "Tea",
+    "hindiName": "चाय",
+    "keywords": [
+      "चाय",
+      "chai",
+      "tea",
+      "beverages"
+    ],
+    "aliases": [
+      "tea",
+      "chai"
+    ],
+    "phonetics": [
+      "tea"
+    ],
+    "hindiKeywords": [
+      "चाय"
+    ],
+    "brand": "Tata",
+    "category": "Beverages",
+    "skuIds": [
+      "beverages_113_sku1"
+    ]
+  },
+  "beverages_114": {
+    "name": "Coffee",
+    "hindiName": "कॉफी",
+    "keywords": [
+      "kaafi",
+      "कॉफी",
+      "coffee",
+      "beverages"
+    ],
+    "aliases": [
+      "coffee",
+      "kaafi"
+    ],
+    "phonetics": [
+      "coffee"
+    ],
+    "hindiKeywords": [
+      "कॉफी"
+    ],
+    "brand": "Bru",
+    "category": "Beverages",
+    "skuIds": [
+      "beverages_114_sku1"
+    ]
+  },
+  "sweets_115": {
+    "name": "Jaggery",
+    "hindiName": "गुड़",
+    "keywords": [
+      "gud",
+      "गुड़",
+      "jaggery",
+      "sweets"
+    ],
+    "aliases": [
+      "jaggery",
+      "gud"
+    ],
+    "phonetics": [
+      "jaggery"
+    ],
+    "hindiKeywords": [
+      "गुड़"
+    ],
+    "brand": "Generic",
+    "category": "Sweets",
+    "skuIds": [
+      "sweets_115_sku1",
+      "sweets_115_sku2"
+    ]
+  },
+  "sweets_116": {
+    "name": "Honey",
+    "hindiName": "शहद",
+    "keywords": [
+      "शहद",
+      "honey",
+      "shahad",
+      "sweets"
+    ],
+    "aliases": [
+      "honey",
+      "shahad"
+    ],
+    "phonetics": [
+      "honey"
+    ],
+    "hindiKeywords": [
+      "शहद"
+    ],
+    "brand": "Generic",
+    "category": "Sweets",
+    "skuIds": [
+      "sweets_116_sku1"
+    ]
+  }
+}

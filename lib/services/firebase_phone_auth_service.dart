@@ -89,8 +89,7 @@ class FirebasePhoneAuthService extends ChangeNotifier {
         smsCode: otp,
       );
 
-      final UserCredential userCredential =
-          await _auth.signInWithCredential(credential);
+      final UserCredential userCredential = await _auth.signInWithCredential(credential);
 
       _isLoading = false;
       notifyListeners();
@@ -110,8 +109,7 @@ class FirebasePhoneAuthService extends ChangeNotifier {
   }
 
   /// Handle verification completed automatically
-  Future<void> _handleVerificationCompleted(
-      PhoneAuthCredential credential) async {
+  Future<void> _handleVerificationCompleted(PhoneAuthCredential credential) async {
     try {
       await _auth.signInWithCredential(credential);
       _isLoading = false;
@@ -258,20 +256,14 @@ class FirebasePhoneAuthService extends ChangeNotifier {
   Stream<User?> userChanges() => _auth.userChanges();
 
   /// Update user profile
-  Future<void> updateUserProfile({
-    String? displayName,
-    String? photoURL,
-  }) async {
+  Future<void> updateUserProfile({String? displayName, String? photoURL}) async {
     try {
       final user = _auth.currentUser;
       if (user == null) {
         throw Exception('No user is currently signed in');
       }
 
-      await user.updateProfile(
-        displayName: displayName,
-        photoURL: photoURL,
-      );
+      await user.updateProfile(displayName: displayName, photoURL: photoURL);
 
       // Update Firestore document
       await _firestore.collection('users').doc(user.uid).update({

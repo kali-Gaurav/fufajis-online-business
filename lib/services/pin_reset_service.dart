@@ -86,13 +86,15 @@ class PinResetService {
       await _emailService.sendEmail(
         to: email,
         subject: 'Fufaji Business — Reset your security PIN',
-        html: '''
+        html:
+            '''
           <p>Hi $ownerName,</p>
           <p>We received a request to reset the security PIN for your Fufaji Business owner account.</p>
           <p style="font-size:28px;font-weight:bold;letter-spacing:4px;">$otp</p>
           <p>This code is valid for ${OTPService.otpValidityMinutes} minutes. If you didn't request this, you can safely ignore this email — your PIN will not change.</p>
         ''',
-        text: 'Your Fufaji Business PIN reset code is $otp. It is valid for '
+        text:
+            'Your Fufaji Business PIN reset code is $otp. It is valid for '
             '${OTPService.otpValidityMinutes} minutes.',
         categories: const ['pin_reset'],
       );
@@ -123,7 +125,10 @@ class PinResetService {
     try {
       final ownerDoc = await _findOwnerDoc(email);
       if (ownerDoc == null) {
-        return const PinResetResult(success: false, message: 'No owner account found for this email.');
+        return const PinResetResult(
+          success: false,
+          message: 'No owner account found for this email.',
+        );
       }
 
       final data = ownerDoc.data();
@@ -197,7 +202,10 @@ class PinResetService {
     try {
       final ownerDoc = await _findOwnerDoc(email);
       if (ownerDoc == null) {
-        return const PinResetResult(success: false, message: 'No owner account found for this email.');
+        return const PinResetResult(
+          success: false,
+          message: 'No owner account found for this email.',
+        );
       }
 
       final newPinHash = DeviceSecurityService.hashPin(newPin);
@@ -217,10 +225,7 @@ class PinResetService {
 
       await _emailService.sendPasswordChangedEmail(email: email, name: ownerName);
 
-      await SecurityEventService().logEvent(
-        event: SecurityEventType.pinResetSuccess,
-        email: email,
-      );
+      await SecurityEventService().logEvent(event: SecurityEventType.pinResetSuccess, email: email);
 
       return const PinResetResult(success: true, message: 'Your security PIN has been reset.');
     } catch (e) {

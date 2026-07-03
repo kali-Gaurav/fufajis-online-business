@@ -82,22 +82,19 @@ class RefundInventoryService {
 
         // Record wallet transaction
         final walletTxnId = 'txn_refund_$refundId';
-        transaction.set(
-          userRef.collection('wallet_transactions').doc(walletTxnId),
-          {
-            'id': walletTxnId,
-            'userId': customerId,
-            'type': 'WalletTransactionType.refund',
-            'amount': refundAmount,
-            'orderReference': orderId,
-            'refundId': refundId,
-            'timestamp': FieldValue.serverTimestamp(),
-            'description': 'Refund for order #${orderData['orderNumber'] ?? orderId}',
-            'reason': reason,
-            'balanceAfter': newBalance,
-            'sequenceNumber': newSeqNum,
-          },
-        );
+        transaction.set(userRef.collection('wallet_transactions').doc(walletTxnId), {
+          'id': walletTxnId,
+          'userId': customerId,
+          'type': 'WalletTransactionType.refund',
+          'amount': refundAmount,
+          'orderReference': orderId,
+          'refundId': refundId,
+          'timestamp': FieldValue.serverTimestamp(),
+          'description': 'Refund for order #${orderData['orderNumber'] ?? orderId}',
+          'reason': reason,
+          'balanceAfter': newBalance,
+          'sequenceNumber': newSeqNum,
+        });
 
         // ─────────────────────────────────────────────────
         // 2. INVENTORY RESTORATION (CRITICAL FIX)
@@ -130,7 +127,7 @@ class RefundInventoryService {
 
             debugPrint(
               '[RefundInventoryService] Restored $quantity units of $productId '
-              '(reserved: $currentReserved→$newReserved, available: $currentAvailable→$newAvailable)'
+              '(reserved: $currentReserved→$newReserved, available: $currentAvailable→$newAvailable)',
             );
           }
         }
@@ -158,10 +155,9 @@ class RefundInventoryService {
           'customerId': customerId,
           'status': 'completed',
           'refundAmount': refundAmount,
-          'itemsRestored': items.map((i) => {
-            'productId': i['productId'],
-            'quantity': i['quantity'],
-          }).toList(),
+          'itemsRestored': items
+              .map((i) => {'productId': i['productId'], 'quantity': i['quantity']})
+              .toList(),
           'reason': reason,
           'processedBy': processedBy ?? 'system',
           'processedAt': FieldValue.serverTimestamp(),
@@ -173,7 +169,7 @@ class RefundInventoryService {
 
       debugPrint(
         '[RefundInventoryService] Refund $refundId processed successfully '
-        '(amount: ₹$refundAmount, items: ${items.length})'
+        '(amount: ₹$refundAmount, items: ${items.length})',
       );
 
       return true;

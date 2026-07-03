@@ -34,8 +34,7 @@ import 'package:fufajis_online/utils/monetary_value.dart';
 //
 // ════════════════════════════════════════════════════════════════════════════
 
-class MockOrderNotificationService extends Mock
-    implements OrderNotificationService {}
+class MockOrderNotificationService extends Mock implements OrderNotificationService {}
 
 class MockRazorpayService extends Mock {
   String? lastPaymentId;
@@ -78,9 +77,9 @@ class MockRazorpayService extends Mock {
             'status': 'captured',
             'amount': 50000, // 500 INR in paise
             'currency': 'INR',
-          }
-        }
-      }
+          },
+        },
+      },
     };
   }
 
@@ -98,9 +97,9 @@ class MockRazorpayService extends Mock {
             'currency': 'INR',
             'error_code': 'BAD_REQUEST_ERROR',
             'error_description': 'Payment declined by bank',
-          }
-        }
-      }
+          },
+        },
+      },
     };
   }
 }
@@ -129,11 +128,7 @@ class MockShopConfigService extends Mock {
     return true; // Mock always approves delivery area
   }
 
-  Map<String, dynamic>? getNearestBranch(
-    double lat,
-    double lon,
-    List<dynamic> branches,
-  ) {
+  Map<String, dynamic>? getNearestBranch(double lat, double lon, List<dynamic> branches) {
     return null; // No specific branch needed for these tests
   }
 }
@@ -185,8 +180,8 @@ void main() {
         'latitude': 28.6139,
         'longitude': 77.2090,
         'pincode': '110001',
-      }
-    ]
+      },
+    ],
   };
 
   setUp(() async {
@@ -239,8 +234,9 @@ void main() {
     // ────────────────────────────────────────────────────────────────────────
     // TEST 1: Happy Path - Complete Order Successfully
     // ────────────────────────────────────────────────────────────────────────
-    testWidgets('Happy Path: Complete order from browse → checkout → payment → confirm',
-        (WidgetTester tester) async {
+    testWidgets('Happy Path: Complete order from browse → checkout → payment → confirm', (
+      WidgetTester tester,
+    ) async {
       // ARRANGE: Create order with 2 items and calculate totals
       final items = [
         OrderItem(
@@ -343,8 +339,7 @@ void main() {
       );
 
       // ASSERT: Verify inventory was decremented
-      final prod1Snapshot =
-          await fakeDb.collection('products').doc(testProduct1['id']).get();
+      final prod1Snapshot = await fakeDb.collection('products').doc(testProduct1['id']).get();
       final prod1Data = prod1Snapshot.data()!;
       final prod1NewStock = prod1Data['branchStock']['primary'] as int;
 
@@ -354,8 +349,7 @@ void main() {
         reason: 'Product 1 stock should be decremented by 2 (from 100 to 98)',
       );
 
-      final prod2Snapshot =
-          await fakeDb.collection('products').doc(testProduct2['id']).get();
+      final prod2Snapshot = await fakeDb.collection('products').doc(testProduct2['id']).get();
       final prod2Data = prod2Snapshot.data()!;
       final prod2NewStock = prod2Data['branchStock']['primary'] as int;
 
@@ -378,8 +372,9 @@ void main() {
     // ────────────────────────────────────────────────────────────────────────
     // TEST 2: Edge Case - Insufficient Inventory
     // ────────────────────────────────────────────────────────────────────────
-    testWidgets('Edge Case: Insufficient inventory should fail order creation',
-        (WidgetTester tester) async {
+    testWidgets('Edge Case: Insufficient inventory should fail order creation', (
+      WidgetTester tester,
+    ) async {
       // ARRANGE: Try to order more than available stock
       final items = [
         OrderItem(
@@ -427,23 +422,19 @@ void main() {
       );
 
       // Verify inventory wasn't changed
-      final prod1Snapshot =
-          await fakeDb.collection('products').doc(testProduct1['id']).get();
+      final prod1Snapshot = await fakeDb.collection('products').doc(testProduct1['id']).get();
       final prod1Data = prod1Snapshot.data()!;
       final prod1Stock = prod1Data['branchStock']['primary'] as int;
 
-      expect(
-        prod1Stock,
-        equals(100),
-        reason: 'Stock should remain unchanged after failed order',
-      );
+      expect(prod1Stock, equals(100), reason: 'Stock should remain unchanged after failed order');
     });
 
     // ────────────────────────────────────────────────────────────────────────
     // TEST 3: Edge Case - Coupon Applied Correctly
     // ────────────────────────────────────────────────────────────────────────
-    testWidgets('Edge Case: Coupon discount applied correctly to order total',
-        (WidgetTester tester) async {
+    testWidgets('Edge Case: Coupon discount applied correctly to order total', (
+      WidgetTester tester,
+    ) async {
       // ARRANGE: Setup coupon in Firestore
       await fakeDb.collection('coupons').doc('coupon_save10').set({
         'code': 'SAVE10',
@@ -510,18 +501,13 @@ void main() {
       await orderService.createOrder(order);
 
       // ASSERT
-      final savedOrderDoc =
-          await fakeDb.collection('orders').doc('order_coupon_test').get();
+      final savedOrderDoc = await fakeDb.collection('orders').doc('order_coupon_test').get();
       expect(savedOrderDoc.exists, isTrue);
 
       final savedOrder = OrderModel.fromMap(savedOrderDoc.data()!);
 
       // Verify coupon was applied
-      expect(
-        savedOrder.couponCode,
-        equals('SAVE10'),
-        reason: 'Coupon code should be saved',
-      );
+      expect(savedOrder.couponCode, equals('SAVE10'), reason: 'Coupon code should be saved');
 
       expect(
         savedOrder.couponDiscount?.toDouble() ?? 0.0,
@@ -541,8 +527,7 @@ void main() {
     // ────────────────────────────────────────────────────────────────────────
     // TEST 4: Edge Case - Payment Failure Handling
     // ────────────────────────────────────────────────────────────────────────
-    testWidgets('Edge Case: Payment failure captured in webhook',
-        (WidgetTester tester) async {
+    testWidgets('Edge Case: Payment failure captured in webhook', (WidgetTester tester) async {
       // ARRANGE
       final items = [
         OrderItem(
@@ -621,8 +606,9 @@ void main() {
     // ────────────────────────────────────────────────────────────────────────
     // TEST 5: Edge Case - Idempotency (Duplicate Webhook)
     // ────────────────────────────────────────────────────────────────────────
-    testWidgets('Edge Case: Duplicate webhook does not duplicate order',
-        (WidgetTester tester) async {
+    testWidgets('Edge Case: Duplicate webhook does not duplicate order', (
+      WidgetTester tester,
+    ) async {
       // ARRANGE
       final items = [
         OrderItem(
@@ -673,8 +659,7 @@ void main() {
       expect(
         () => orderService.createOrder(order),
         throwsA(isA<Exception>()),
-        reason:
-            'Creating duplicate order with same details should fail due to idempotency guard',
+        reason: 'Creating duplicate order with same details should fail due to idempotency guard',
       );
 
       // ASSERT: Only one order should exist
@@ -704,8 +689,9 @@ void main() {
     // ────────────────────────────────────────────────────────────────────────
     // TEST 6: Order Status Progression
     // ────────────────────────────────────────────────────────────────────────
-    testWidgets('Order status progresses correctly: pending → confirmed → processing',
-        (WidgetTester tester) async {
+    testWidgets('Order status progresses correctly: pending → confirmed → processing', (
+      WidgetTester tester,
+    ) async {
       // ARRANGE
       final items = [
         OrderItem(
@@ -749,10 +735,7 @@ void main() {
       await orderService.createOrder(order);
 
       // Verify order starts in pending
-      var savedOrder = (await fakeDb
-              .collection('orders')
-              .doc('order_status_progression')
-              .get())
+      var savedOrder = (await fakeDb.collection('orders').doc('order_status_progression').get())
           .data()!;
       expect(savedOrder['status'], equals('pending'));
 
@@ -764,15 +747,10 @@ void main() {
       );
       await fakeDb.collection('orders').doc('order_status_progression').update({
         'status': confirmedOrder.status.firestoreValue,
-        'statusHistory': [
-          ...?savedOrder['statusHistory'],
-        ],
+        'statusHistory': [...?savedOrder['statusHistory']],
       });
 
-      savedOrder = (await fakeDb
-              .collection('orders')
-              .doc('order_status_progression')
-              .get())
+      savedOrder = (await fakeDb.collection('orders').doc('order_status_progression').get())
           .data()!;
       expect(savedOrder['status'], equals('confirmed'));
 
@@ -787,8 +765,9 @@ void main() {
     // ────────────────────────────────────────────────────────────────────────
     // TEST 7: Customer Receives Notification on Order Confirmation
     // ────────────────────────────────────────────────────────────────────────
-    testWidgets('Customer receives push notification on order confirmation',
-        (WidgetTester tester) async {
+    testWidgets('Customer receives push notification on order confirmation', (
+      WidgetTester tester,
+    ) async {
       // ARRANGE
       final items = [
         OrderItem(
@@ -831,10 +810,7 @@ void main() {
 
       // ACT: Mock the notification being sent (in real scenario, OrderService does this)
       // Store notification record in Firestore for verification
-      await fakeDb
-          .collection('notifications')
-          .doc('notif_${order.id}')
-          .set({
+      await fakeDb.collection('notifications').doc('notif_${order.id}').set({
         'orderId': order.id,
         'customerId': testCustomerId,
         'type': 'order_confirmed',
@@ -845,8 +821,7 @@ void main() {
       });
 
       // ASSERT: Verify notification was recorded
-      final notifDoc =
-          await fakeDb.collection('notifications').doc('notif_${order.id}').get();
+      final notifDoc = await fakeDb.collection('notifications').doc('notif_${order.id}').get();
       expect(notifDoc.exists, isTrue);
       expect(notifDoc['type'], equals('order_confirmed'));
       expect(notifDoc['customerId'], equals(testCustomerId));
@@ -855,8 +830,7 @@ void main() {
     // ────────────────────────────────────────────────────────────────────────
     // TEST 8: Shop Owner Dashboard Receives New Order
     // ────────────────────────────────────────────────────────────────────────
-    testWidgets('Shop owner can see new order in dashboard',
-        (WidgetTester tester) async {
+    testWidgets('Shop owner can see new order in dashboard', (WidgetTester tester) async {
       // ARRANGE
       final items = [
         OrderItem(
@@ -914,8 +888,7 @@ void main() {
         reason: 'Shop owner dashboard should display confirmed orders',
       );
 
-      final dashboardOrder = shopOrders.docs
-          .firstWhere((doc) => doc.id == 'order_dashboard_test');
+      final dashboardOrder = shopOrders.docs.firstWhere((doc) => doc.id == 'order_dashboard_test');
       expect(dashboardOrder.exists, isTrue);
       expect(dashboardOrder['customerName'], equals('Test Customer'));
       expect(dashboardOrder['items'].length, equals(1));
@@ -924,8 +897,7 @@ void main() {
     // ────────────────────────────────────────────────────────────────────────
     // TEST 9: Order Data Consistency Between Firestore and PostgreSQL
     // ────────────────────────────────────────────────────────────────────────
-    testWidgets('Order data synced between Firestore and PostgreSQL',
-        (WidgetTester tester) async {
+    testWidgets('Order data synced between Firestore and PostgreSQL', (WidgetTester tester) async {
       // ARRANGE
       final items = [
         OrderItem(
@@ -982,14 +954,12 @@ void main() {
       });
 
       // ASSERT: Verify order is in Firestore
-      final firestoreOrder =
-          await fakeDb.collection('orders').doc('order_sync_test').get();
+      final firestoreOrder = await fakeDb.collection('orders').doc('order_sync_test').get();
       expect(firestoreOrder.exists, isTrue);
       expect(firestoreOrder['orderNumber'], equals('ORD-SYNC-12345'));
 
       // Verify sync log was created
-      final syncLog =
-          await fakeDb.collection('order_sync_logs').doc('sync_order_sync_test').get();
+      final syncLog = await fakeDb.collection('order_sync_logs').doc('sync_order_sync_test').get();
       expect(syncLog.exists, isTrue);
       expect(syncLog['syncStatus'], equals('pending'));
 

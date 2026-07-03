@@ -45,15 +45,15 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: AppTheme.error));
   }
 
   void _showSuccess(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: AppTheme.success),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: AppTheme.success));
   }
 
   Future<void> _verifyDelivery() async {
@@ -100,7 +100,6 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -116,8 +115,8 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : _currentOrder == null
-              ? _buildNoDeliveryView()
-              : _buildDeliveryView(),
+          ? _buildNoDeliveryView()
+          : _buildDeliveryView(),
     );
   }
 
@@ -128,10 +127,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
         children: [
           const Icon(Icons.delivery_dining, size: 64, color: Colors.grey),
           const SizedBox(height: 16),
-          Text(
-            'No Delivery Assigned',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          Text('No Delivery Assigned', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
           const Text(
             'Scan a parcel QR code to start delivery',
@@ -159,7 +155,9 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
         children: [
           // Delivery Status Card
           Card(
-            color: isDelivered ? AppTheme.success.withValues(alpha: 0.1) : AppTheme.info.withValues(alpha: 0.1),
+            color: isDelivered
+                ? AppTheme.success.withValues(alpha: 0.1)
+                : AppTheme.info.withValues(alpha: 0.1),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -173,8 +171,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       Chip(
-                        label: Text(
-                            order.status.name.replaceAll('_', ' ').toUpperCase()),
+                        label: Text(order.status.name.replaceAll('_', ' ').toUpperCase()),
                         color: WidgetStateProperty.all(
                           isDelivered ? AppTheme.success : AppTheme.info,
                         ),
@@ -184,8 +181,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
                   const SizedBox(height: 12),
                   _buildInfoRow(Icons.person, 'Customer', order.customerName),
                   _buildInfoRow(Icons.phone, 'Phone', order.customerPhone),
-                  _buildInfoRow(
-                      Icons.location_on, 'Address', order.deliveryAddress.fullAddress),
+                  _buildInfoRow(Icons.location_on, 'Address', order.deliveryAddress.fullAddress),
                 ],
               ),
             ),
@@ -200,25 +196,24 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Items to Deliver',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
+                  Text('Items to Deliver', style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 8),
-                  ...order.items.map((item) => ListTile(
-                        title: Text(item.productName),
-                        subtitle: Text('Qty: ${item.quantity}'),
-                        trailing: Text('₹${item.price * item.quantity}'),
-                      )),
+                  ...order.items.map(
+                    (item) => ListTile(
+                      title: Text(item.productName),
+                      subtitle: Text('Qty: ${item.quantity}'),
+                      trailing: Text('₹${item.price * item.quantity}'),
+                    ),
+                  ),
                   const Divider(),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Total',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text('₹${order.totalAmount}',
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18)),
+                      const Text('Total', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                        '₹${order.totalAmount}',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      ),
                     ],
                   ),
                 ],
@@ -288,10 +283,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
                   children: [
                     const Icon(Icons.check_circle, size: 64, color: AppTheme.success),
                     const SizedBox(height: 16),
-                    Text(
-                      'Delivery Completed!',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
+                    Text('Delivery Completed!', style: Theme.of(context).textTheme.titleLarge),
                     const SizedBox(height: 8),
                     const Text(
                       'Stock finalized, loyalty points awarded, invoice finalized',
@@ -343,12 +335,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
             }
           },
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-        ],
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel'))],
       ),
     );
   }

@@ -105,10 +105,7 @@ class DeliveryTaskCard extends StatelessWidget {
                 children: [
                   Text(
                     'Order #${delivery.orderNumber}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -132,19 +129,10 @@ class DeliveryTaskCard extends StatelessWidget {
               // Customer name and phone
               Text(
                 delivery.customerName,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 4),
-              Text(
-                delivery.customerPhone,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
-              ),
+              Text(delivery.customerPhone, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
               const SizedBox(height: 12),
 
               // Address (truncated)
@@ -152,10 +140,7 @@ class DeliveryTaskCard extends StatelessWidget {
                 delivery.customerAddress,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[700],
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey[700]),
               ),
               const SizedBox(height: 12),
 
@@ -166,27 +151,16 @@ class DeliveryTaskCard extends StatelessWidget {
                   if (estimatedMinutesToArrival != null)
                     Row(
                       children: [
-                        Icon(
-                          Icons.schedule,
-                          size: 16,
-                          color: Colors.grey[600],
-                        ),
+                        Icon(Icons.schedule, size: 16, color: Colors.grey[600]),
                         const SizedBox(width: 4),
                         Text(
                           '$estimatedMinutesToArrival mins away',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
+                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                         ),
                       ],
                     ),
                   const Spacer(),
-                  Icon(
-                    Icons.arrow_forward,
-                    size: 18,
-                    color: Colors.grey[400],
-                  ),
+                  Icon(Icons.arrow_forward, size: 18, color: Colors.grey[400]),
                 ],
               ),
             ],

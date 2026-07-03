@@ -6,21 +6,13 @@ class QuickAction {
   final VoidCallback onTap;
   final Color? color;
 
-  QuickAction({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    this.color,
-  });
+  QuickAction({required this.icon, required this.label, required this.onTap, this.color});
 }
 
 class QuickActionFramework extends StatelessWidget {
   final List<QuickAction> actions;
 
-  const QuickActionFramework({
-    super.key,
-    required this.actions,
-  });
+  const QuickActionFramework({super.key, required this.actions});
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +21,7 @@ class QuickActionFramework extends StatelessWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Row(
-        children: actions.map((action) => _buildActionPill(context, action)).toList(),
-      ),
+      child: Row(children: actions.map((action) => _buildActionPill(context, action)).toList()),
     );
   }
 
@@ -56,11 +46,7 @@ class QuickActionFramework extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 action.label,
-                style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 14),
               ),
             ],
           ),

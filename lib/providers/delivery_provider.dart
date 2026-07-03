@@ -101,10 +101,9 @@ class DeliveryProvider with ChangeNotifier {
         .where('deliveryAgentId', isNull: true)
         .snapshots()
         .listen((snapshot) {
-      _availableOrders =
-          snapshot.docs.map((doc) => OrderModel.fromMap(doc.data())).toList();
-      notifyListeners();
-    });
+          _availableOrders = snapshot.docs.map((doc) => OrderModel.fromMap(doc.data())).toList();
+          notifyListeners();
+        });
   }
 
   void _listenToAssignedOrders(String riderId) {
@@ -117,9 +116,7 @@ class DeliveryProvider with ChangeNotifier {
         .where('status', whereIn: ['OrderStatus.outForDelivery', 'OrderStatus.packed'])
         .snapshots()
         .listen((snapshot) {
-          _assignedOrders = snapshot.docs
-              .map((doc) => OrderModel.fromMap(doc.data()))
-              .toList();
+          _assignedOrders = snapshot.docs.map((doc) => OrderModel.fromMap(doc.data())).toList();
           notifyListeners();
         });
   }
@@ -135,11 +132,10 @@ class DeliveryProvider with ChangeNotifier {
         .limit(100)
         .snapshots()
         .listen((snapshot) {
-      _completedOrders =
-          snapshot.docs.map((doc) => OrderModel.fromMap(doc.data())).toList();
-      _calculateStats();
-      notifyListeners();
-    });
+          _completedOrders = snapshot.docs.map((doc) => OrderModel.fromMap(doc.data())).toList();
+          _calculateStats();
+          notifyListeners();
+        });
   }
 
   Future<void> _loadEarningsData(String riderId) async {
@@ -147,12 +143,9 @@ class DeliveryProvider with ChangeNotifier {
       // Load total earnings from Firestore
       final doc = await _db.collection('deliveryAgents').doc(riderId).get();
       if (doc.exists) {
-        _totalEarnings =
-            (doc.data()?['totalEarnings'] as num?)?.toDouble() ?? 0.0;
-        _averageRating =
-            (doc.data()?['averageRating'] as num?)?.toDouble() ?? 0.0;
-        _totalDeliveries =
-            (doc.data()?['totalDeliveries'] as num?)?.toInt() ?? 0;
+        _totalEarnings = (doc.data()?['totalEarnings'] as num?)?.toDouble() ?? 0.0;
+        _averageRating = (doc.data()?['averageRating'] as num?)?.toDouble() ?? 0.0;
+        _totalDeliveries = (doc.data()?['totalDeliveries'] as num?)?.toInt() ?? 0;
       }
       notifyListeners();
     } catch (e) {
@@ -176,15 +169,17 @@ class DeliveryProvider with ChangeNotifier {
     }).length;
 
     // Calculate today's earnings
-    _todayEarnings = _completedOrders.where((order) {
-      if (order.deliveredAt == null) return false;
-      final deliveredDate = DateTime(
-        order.deliveredAt!.year,
-        order.deliveredAt!.month,
-        order.deliveredAt!.day,
-      );
-      return deliveredDate == today;
-    }).fold(0.0, (total, order) => total + (order.deliveryFee?.toDouble() ?? 0.0));
+    _todayEarnings = _completedOrders
+        .where((order) {
+          if (order.deliveredAt == null) return false;
+          final deliveredDate = DateTime(
+            order.deliveredAt!.year,
+            order.deliveredAt!.month,
+            order.deliveredAt!.day,
+          );
+          return deliveredDate == today;
+        })
+        .fold(0.0, (total, order) => total + (order.deliveryFee?.toDouble() ?? 0.0));
   }
 
   Future<bool> acceptOrder(String orderId, UserModel rider) async {
@@ -249,7 +244,10 @@ class DeliveryProvider with ChangeNotifier {
 
   /// Task 9.3: Verify OTP and complete delivery
   Future<bool> verifyAndCompleteDelivery(
-      String orderId, String inputOtp, {Position? currentPosition}) async {
+    String orderId,
+    String inputOtp, {
+    Position? currentPosition,
+  }) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -284,9 +282,18 @@ class DeliveryProvider with ChangeNotifier {
     notifyListeners();
 
     try {
+      // FIX (Module 9 follow-up): previously wrote status 'failedDelivery',
+      // which is not a valid OrderStatus value — parsers fell back to
+      // 'pending' and the escalation screen (which queried yet another
+      // never-written string) never saw failed deliveries at all.
+      // Design: a failed attempt returns the order to 'packed' (qualified
+      // form, matching what live packing writes) so it can be re-dispatched,
+      // and sets a dedicated deliveryFailed flag for the escalation screen.
       await _db.collection('orders').doc(orderId).update({
-        'status': 'failedDelivery',
+        'status': 'OrderStatus.packed',
+        'deliveryFailed': true,
         'failureReason': reason,
+        'deliveryFailedAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
@@ -302,8 +309,7 @@ class DeliveryProvider with ChangeNotifier {
     }
   }
 
-  Future<void> updateRiderLocation(
-      String orderId, double lat, double lng) async {
+  Future<void> updateRiderLocation(String orderId, double lat, double lng) async {
     await _orderService.updateOrderLiveLocation(orderId, lat, lng);
 
     // Feature 56: Trip Distance Tracking
@@ -325,17 +331,20 @@ class DeliveryProvider with ChangeNotifier {
       const double earthRadius = 6371; // km
       final dLat = _deg2rad(lat - _lastPosition!.latitude);
       final dLon = _deg2rad(lng - _lastPosition!.longitude);
-      
-      final a = sin(dLat / 2) * sin(dLat / 2) +
-          cos(_deg2rad(_lastPosition!.latitude)) * cos(_deg2rad(lat)) *
-          sin(dLon / 2) * sin(dLon / 2);
+
+      final a =
+          sin(dLat / 2) * sin(dLat / 2) +
+          cos(_deg2rad(_lastPosition!.latitude)) *
+              cos(_deg2rad(lat)) *
+              sin(dLon / 2) *
+              sin(dLon / 2);
       final c = 2 * atan2(sqrt(a), sqrt(1 - a));
       final distance = earthRadius * c;
-      
+
       _todayDistance += distance;
       notifyListeners();
     }
-    
+
     _lastPosition = newPosition;
   }
 
@@ -344,8 +353,11 @@ class DeliveryProvider with ChangeNotifier {
   }
 
   /// Task 9.6: Get earnings history with pagination
-  Future<List<OrderModel>> getEarningsHistory(String riderId,
-      {int limit = 10, DocumentSnapshot? startAfter}) async {
+  Future<List<OrderModel>> getEarningsHistory(
+    String riderId, {
+    int limit = 10,
+    DocumentSnapshot? startAfter,
+  }) async {
     try {
       Query query = _db
           .collection('orders')
@@ -425,11 +437,7 @@ class DeliveryProvider with ChangeNotifier {
       _currentLocation = LatLng(latitude, longitude);
 
       if (_currentDelivery != null) {
-        await _deliveryService.updateLocation(
-          _currentDelivery!.id,
-          latitude,
-          longitude,
-        );
+        await _deliveryService.updateLocation(_currentDelivery!.id, latitude, longitude);
       }
 
       notifyListeners();
@@ -548,10 +556,7 @@ class DeliveryProvider with ChangeNotifier {
   }
 
   /// Reschedule delivery
-  Future<void> rescheduleDeliveryTask(
-    String deliveryId,
-    DateTime newDate,
-  ) async {
+  Future<void> rescheduleDeliveryTask(String deliveryId, DateTime newDate) async {
     try {
       _isLoading = true;
       notifyListeners();
@@ -571,11 +576,7 @@ class DeliveryProvider with ChangeNotifier {
   }
 
   /// Rate delivery
-  Future<void> rateDeliveryTask(
-    String deliveryId,
-    double rating,
-    String? feedback,
-  ) async {
+  Future<void> rateDeliveryTask(String deliveryId, double rating, String? feedback) async {
     try {
       _isLoading = true;
       notifyListeners();
@@ -634,8 +635,7 @@ class DeliveryProvider with ChangeNotifier {
 
   /// Sort deliveries by time
   void sortDeliveriesByTime() {
-    _assignedDeliveries.sort((a, b) =>
-        a.estimatedDeliveryTime.compareTo(b.estimatedDeliveryTime));
+    _assignedDeliveries.sort((a, b) => a.estimatedDeliveryTime.compareTo(b.estimatedDeliveryTime));
     notifyListeners();
   }
 
@@ -645,21 +645,14 @@ class DeliveryProvider with ChangeNotifier {
   }
 
   /// Helper: Calculate distance using Haversine formula
-  double _calculateDistance(
-    double lat1,
-    double lng1,
-    double lat2,
-    double lng2,
-  ) {
+  double _calculateDistance(double lat1, double lng1, double lat2, double lng2) {
     const double R = 6371; // Earth radius in km
     final double dLat = (lat2 - lat1) * pi / 180;
     final double dLng = (lng2 - lng1) * pi / 180;
 
-    final double a = sin(dLat / 2) * sin(dLat / 2) +
-        cos(lat1 * pi / 180) *
-            cos(lat2 * pi / 180) *
-            sin(dLng / 2) *
-            sin(dLng / 2);
+    final double a =
+        sin(dLat / 2) * sin(dLat / 2) +
+        cos(lat1 * pi / 180) * cos(lat2 * pi / 180) * sin(dLng / 2) * sin(dLng / 2);
 
     final double c = 2 * atan2(sqrt(a), sqrt(1 - a));
     return R * c;

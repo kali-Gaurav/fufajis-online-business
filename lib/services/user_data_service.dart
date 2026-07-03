@@ -187,11 +187,7 @@ class UserDataService {
   }
 
   /// Update an existing address
-  Future<void> updateAddress(
-    String uid,
-    String addressId,
-    AddressModel address,
-  ) async {
+  Future<void> updateAddress(String uid, String addressId, AddressModel address) async {
     try {
       debugPrint('[UserDataService] Updating address: $addressId for user: $uid');
 
@@ -200,10 +196,7 @@ class UserDataService {
           .doc(uid)
           .collection(_addressesSubcollection)
           .doc(addressId)
-          .update({
-        ...address.toFirestore(),
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+          .update({...address.toFirestore(), 'updatedAt': FieldValue.serverTimestamp()});
 
       debugPrint('[UserDataService] Address updated: $addressId');
 
@@ -258,15 +251,15 @@ class UserDataService {
           .get();
 
       final addresses = snapshot.docs
-          .map((doc) => AddressModel.fromFirestore({
-                'id': doc.id,
-                ...doc.data(),
-              }))
+          .map((doc) => AddressModel.fromFirestore({'id': doc.id, ...doc.data()}))
           .toList();
 
       // Cache addresses
-      await _localStorage.saveToHive('profile', 'addresses_$uid',
-        addresses.map((a) => a.toMap()).toList());
+      await _localStorage.saveToHive(
+        'profile',
+        'addresses_$uid',
+        addresses.map((a) => a.toMap()).toList(),
+      );
 
       debugPrint('[UserDataService] Fetched ${addresses.length} addresses');
       _addressesController.add(addresses);
@@ -279,7 +272,12 @@ class UserDataService {
       final cached = _localStorage.getFromHive('profile', 'addresses_$uid');
       if (cached != null && cached is List) {
         return cached
-            .map((a) => AddressModel.fromFirestore({'id': (a as Map)['id'], ...Map<String, dynamic>.from(a)}))
+            .map(
+              (a) => AddressModel.fromFirestore({
+                'id': (a as Map)['id'],
+                ...Map<String, dynamic>.from(a),
+              }),
+            )
             .toList();
       }
 
@@ -307,19 +305,23 @@ class UserDataService {
         .collection(_addressesSubcollection)
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => AddressModel.fromFirestore({
-                  'id': doc.id,
-                  ...doc.data(),
-                }))
-            .toList())
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => AddressModel.fromFirestore({'id': doc.id, ...doc.data()}))
+              .toList(),
+        )
         .handleError((error) {
           debugPrint('[UserDataService] Error watching addresses: $error');
           // Return cached addresses on error
           final cached = _localStorage.getFromHive('profile', 'addresses_$uid');
           if (cached != null && cached is List) {
             return cached
-                .map((a) => AddressModel.fromFirestore({'id': (a as Map)['id'], ...Map<String, dynamic>.from(a)}))
+                .map(
+                  (a) => AddressModel.fromFirestore({
+                    'id': (a as Map)['id'],
+                    ...Map<String, dynamic>.from(a),
+                  }),
+                )
                 .toList();
           }
           throw error as Object;
@@ -351,11 +353,7 @@ class UserDataService {
       }
 
       // Cache preferences
-      await _localStorage.saveToHive(
-        'profile',
-        'preferences_$uid',
-        preferences.toMap(),
-      );
+      await _localStorage.saveToHive('profile', 'preferences_$uid', preferences.toMap());
 
       _preferencesController.add(preferences);
       return preferences;
@@ -383,10 +381,7 @@ class UserDataService {
   }
 
   /// Update user preferences
-  Future<void> updatePreferences(
-    String uid,
-    PreferencesModel preferences,
-  ) async {
+  Future<void> updatePreferences(String uid, PreferencesModel preferences) async {
     try {
       debugPrint('[UserDataService] Updating preferences for user: $uid');
 
@@ -395,20 +390,13 @@ class UserDataService {
           .doc(uid)
           .collection('metadata')
           .doc(_preferencesDoc)
-          .set(
-            {
-              ...preferences.toFirestore(),
-              'updatedAt': FieldValue.serverTimestamp(),
-            },
-            SetOptions(merge: true),
-          );
+          .set({
+            ...preferences.toFirestore(),
+            'updatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
 
       // Cache preferences
-      await _localStorage.saveToHive(
-        'profile',
-        'preferences_$uid',
-        preferences.toMap(),
-      );
+      await _localStorage.saveToHive('profile', 'preferences_$uid', preferences.toMap());
 
       _preferencesController.add(preferences);
       debugPrint('[UserDataService] Preferences updated for: $uid');

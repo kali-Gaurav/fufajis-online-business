@@ -66,7 +66,9 @@ class _ExpiryTrackingWidgetState extends State<ExpiryTrackingWidget> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: (hasAlerts ? AppTheme.error : AppTheme.success).withValues(alpha: 0.1),
+                        color: (hasAlerts ? AppTheme.error : AppTheme.success).withValues(
+                          alpha: 0.1,
+                        ),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
@@ -78,19 +80,13 @@ class _ExpiryTrackingWidgetState extends State<ExpiryTrackingWidget> {
                     const SizedBox(width: 12),
                     const Text(
                       'Expiry Tracking',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
                 GestureDetector(
                   onTap: _loadExpiryData,
-                  child: Icon(
-                    Icons.refresh,
-                    color: Colors.grey[600],
-                  ),
+                  child: Icon(Icons.refresh, color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -154,21 +150,9 @@ class _ExpiryTrackingWidgetState extends State<ExpiryTrackingWidget> {
               mainAxisSpacing: 8,
               crossAxisSpacing: 8,
               children: [
-                _buildStatTile(
-                  'Today',
-                  expiringToday.toString(),
-                  AppTheme.error,
-                ),
-                _buildStatTile(
-                  'This Week',
-                  expiringThisWeek.toString(),
-                  AppTheme.warning,
-                ),
-                _buildStatTile(
-                  'Expired',
-                  expired.toString(),
-                  Colors.grey,
-                ),
+                _buildStatTile('Today', expiringToday.toString(), AppTheme.error),
+                _buildStatTile('This Week', expiringThisWeek.toString(), AppTheme.warning),
+                _buildStatTile('Expired', expired.toString(), Colors.grey),
               ],
             ),
             const SizedBox(height: 12),
@@ -200,19 +184,12 @@ class _ExpiryTrackingWidgetState extends State<ExpiryTrackingWidget> {
         children: [
           Text(
             value,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color),
           ),
           const SizedBox(height: 4),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 11, color: Colors.grey[600]),
             textAlign: TextAlign.center,
           ),
         ],

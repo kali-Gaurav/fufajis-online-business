@@ -31,10 +31,13 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
     if (location.startsWith('/owner/analytics')) return 4;
     if (location.startsWith('/owner/whatsapp-sync')) return 5;
     if (location.startsWith('/owner/settlements')) return 6;
-    if (location.startsWith('/owner/riders') || location.startsWith('/owner/fleet-tracking')) return 7;
+    if (location.startsWith('/owner/riders') || location.startsWith('/owner/fleet-tracking'))
+      return 7;
     if (location.startsWith('/owner/attendance')) return 8;
     if (location.startsWith('/owner/rider-support')) return 9;
-    if (location.startsWith('/owner/pricing-rules') || location.startsWith('/owner/pending-price-changes')) return 10;
+    if (location.startsWith('/owner/pricing-rules') ||
+        location.startsWith('/owner/pending-price-changes'))
+      return 10;
     if (location.startsWith('/owner/reviews')) return 11;
     if (location.startsWith('/owner/vendor-request')) return 12;
     if (location.startsWith('/owner/khata')) return 13;
@@ -51,39 +54,103 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
     if (location.startsWith('/owner/logistics-command-center')) return 24;
     if (location.startsWith('/owner/failed-deliveries')) return 26;
     if (location.startsWith('/owner/mission-control')) return 27;
+    if (location.startsWith('/owner/refunds')) return 28;
+    if (location.startsWith('/owner/settlement-reports')) return 29;
     return 0;
   }
 
   void _onItemTapped(int index, BuildContext context) {
     switch (index) {
-      case 0: context.go('/owner'); break;
-      case 1: context.go('/owner/products'); break;
-      case 2: context.go('/owner/orders'); break;
-      case 3: context.go('/owner/inventory'); break;
-      case 4: context.go('/owner/analytics'); break;
-      case 5: context.go('/owner/whatsapp-sync'); break;
-      case 6: context.go('/owner/settlements'); break;
-      case 7: context.go('/owner/fleet-tracking'); break;
-      case 8: context.go('/owner/attendance'); break;
-      case 9: context.go('/owner/rider-support'); break;
-      case 10: context.go('/owner/pricing-rules'); break;
-      case 11: context.go('/owner/reviews'); break;
-      case 12: context.go('/owner/vendor-request'); break;
-      case 13: context.go('/owner/khata'); break;
-      case 14: context.go('/owner/devices'); break;
-      case 15: context.go('/owner/scan-activity'); break;
-      case 16: context.go('/owner/releases'); break;
-      case 17: context.go('/owner/shop-settings'); break;
-      case 18: context.go('/owner/broadcast'); break;
-      case 19: context.go('/owner/mandi-pricing'); break;
-      case 20: context.go('/owner/smart-dispatch'); break;
-      case 21: context.go('/owner/barcode-inventory'); break;
-      case 22: context.go('/owner/campaigns'); break;
-      case 23: context.go('/owner/retention'); break;
-      case 24: context.go('/owner/logistics-command-center'); break;
-      case 25: context.go('/owner/bi/decision-center'); break;
-      case 26: context.go('/owner/failed-deliveries'); break;
-      case 27: context.go('/owner/mission-control'); break;
+      case 0:
+        context.go('/owner');
+        break;
+      case 1:
+        context.go('/owner/products');
+        break;
+      case 2:
+        context.go('/owner/orders');
+        break;
+      case 3:
+        context.go('/owner/inventory');
+        break;
+      case 4:
+        context.go('/owner/analytics');
+        break;
+      case 5:
+        context.go('/owner/whatsapp-sync');
+        break;
+      case 6:
+        context.go('/owner/settlements');
+        break;
+      case 7:
+        context.go('/owner/fleet-tracking');
+        break;
+      case 8:
+        context.go('/owner/attendance');
+        break;
+      case 9:
+        context.go('/owner/rider-support');
+        break;
+      case 10:
+        context.go('/owner/pricing-rules');
+        break;
+      case 11:
+        context.go('/owner/reviews');
+        break;
+      case 12:
+        context.go('/owner/vendor-request');
+        break;
+      case 13:
+        context.go('/owner/khata');
+        break;
+      case 14:
+        context.go('/owner/devices');
+        break;
+      case 15:
+        context.go('/owner/scan-activity');
+        break;
+      case 16:
+        context.go('/owner/releases');
+        break;
+      case 17:
+        context.go('/owner/shop-settings');
+        break;
+      case 18:
+        context.go('/owner/broadcast');
+        break;
+      case 19:
+        context.go('/owner/mandi-pricing');
+        break;
+      case 20:
+        context.go('/owner/smart-dispatch');
+        break;
+      case 21:
+        context.go('/owner/barcode-inventory');
+        break;
+      case 22:
+        context.go('/owner/campaigns');
+        break;
+      case 23:
+        context.go('/owner/retention');
+        break;
+      case 24:
+        context.go('/owner/logistics-command-center');
+        break;
+      case 25:
+        context.go('/owner/bi/decision-center');
+        break;
+      case 26:
+        context.go('/owner/failed-deliveries');
+        break;
+      case 27:
+        context.go('/owner/mission-control');
+        break;
+      case 28:
+        context.go('/owner/refunds');
+        break;
+      case 29:
+        context.go('/owner/settlement-reports');
+        break;
     }
   }
 
@@ -125,39 +192,74 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
     'AI Decision Center',
     'Failed Deliveries',
     'Mission Control',
+    'Refunds',
+    'Settlement Reports',
   ];
 
   IconData _getIconForIndex(int index, bool isSelected) {
     switch (index) {
-      case 0: return isSelected ? Icons.dashboard : Icons.dashboard_outlined;
-      case 1: return isSelected ? Icons.inventory_2 : Icons.inventory_2_outlined;
-      case 2: return isSelected ? Icons.shopping_bag : Icons.shopping_bag_outlined;
-      case 3: return isSelected ? Icons.warehouse : Icons.warehouse_outlined;
-      case 4: return isSelected ? Icons.analytics : Icons.analytics_outlined;
-      case 5: return isSelected ? Icons.message : Icons.message_outlined;
-      case 6: return isSelected ? Icons.handshake : Icons.handshake_outlined;
-      case 7: return isSelected ? Icons.delivery_dining : Icons.delivery_dining_outlined;
-      case 8: return isSelected ? Icons.people : Icons.people_outline;
-      case 9: return isSelected ? Icons.chat : Icons.chat_outlined;
-      case 10: return isSelected ? Icons.currency_rupee : Icons.currency_rupee_outlined;
-      case 11: return isSelected ? Icons.rate_review : Icons.rate_review_outlined;
-      case 12: return isSelected ? Icons.local_shipping : Icons.local_shipping_outlined;
-      case 13: return isSelected ? Icons.menu_book : Icons.menu_book_outlined;
-      case 14: return isSelected ? Icons.security : Icons.security_outlined;
-      case 15: return isSelected ? Icons.qr_code_scanner : Icons.qr_code_scanner_outlined;
-      case 16: return isSelected ? Icons.system_update : Icons.system_update_outlined;
-      case 17: return isSelected ? Icons.settings : Icons.settings_outlined;
-      case 18: return isSelected ? Icons.podcasts : Icons.podcasts_outlined;
-      case 19: return isSelected ? Icons.trending_up : Icons.trending_up_outlined;
-      case 20: return isSelected ? Icons.route : Icons.route_outlined;
-      case 21: return isSelected ? Icons.document_scanner : Icons.document_scanner_outlined;
-      case 22: return isSelected ? Icons.campaign : Icons.campaign_outlined;
-      case 23: return isSelected ? Icons.favorite : Icons.favorite_outline;
-      case 24: return isSelected ? Icons.flight_takeoff : Icons.flight_takeoff_outlined;
-      case 25: return isSelected ? Icons.gavel : Icons.gavel_outlined;
-      case 26: return isSelected ? Icons.report_problem : Icons.report_problem_outlined;
-      case 27: return isSelected ? Icons.rocket_launch : Icons.rocket_launch_outlined;
-      default: return Icons.circle;
+      case 0:
+        return isSelected ? Icons.dashboard : Icons.dashboard_outlined;
+      case 1:
+        return isSelected ? Icons.inventory_2 : Icons.inventory_2_outlined;
+      case 2:
+        return isSelected ? Icons.shopping_bag : Icons.shopping_bag_outlined;
+      case 3:
+        return isSelected ? Icons.warehouse : Icons.warehouse_outlined;
+      case 4:
+        return isSelected ? Icons.analytics : Icons.analytics_outlined;
+      case 5:
+        return isSelected ? Icons.message : Icons.message_outlined;
+      case 6:
+        return isSelected ? Icons.handshake : Icons.handshake_outlined;
+      case 7:
+        return isSelected ? Icons.delivery_dining : Icons.delivery_dining_outlined;
+      case 8:
+        return isSelected ? Icons.people : Icons.people_outline;
+      case 9:
+        return isSelected ? Icons.chat : Icons.chat_outlined;
+      case 10:
+        return isSelected ? Icons.currency_rupee : Icons.currency_rupee_outlined;
+      case 11:
+        return isSelected ? Icons.rate_review : Icons.rate_review_outlined;
+      case 12:
+        return isSelected ? Icons.local_shipping : Icons.local_shipping_outlined;
+      case 13:
+        return isSelected ? Icons.menu_book : Icons.menu_book_outlined;
+      case 14:
+        return isSelected ? Icons.security : Icons.security_outlined;
+      case 15:
+        return isSelected ? Icons.qr_code_scanner : Icons.qr_code_scanner_outlined;
+      case 16:
+        return isSelected ? Icons.system_update : Icons.system_update_outlined;
+      case 17:
+        return isSelected ? Icons.settings : Icons.settings_outlined;
+      case 18:
+        return isSelected ? Icons.podcasts : Icons.podcasts_outlined;
+      case 19:
+        return isSelected ? Icons.trending_up : Icons.trending_up_outlined;
+      case 20:
+        return isSelected ? Icons.route : Icons.route_outlined;
+      case 21:
+        return isSelected ? Icons.document_scanner : Icons.document_scanner_outlined;
+      case 22:
+        return isSelected ? Icons.campaign : Icons.campaign_outlined;
+      case 23:
+        return isSelected ? Icons.favorite : Icons.favorite_outline;
+      case 24:
+        return isSelected ? Icons.flight_takeoff : Icons.flight_takeoff_outlined;
+      case 25:
+        return isSelected ? Icons.gavel : Icons.gavel_outlined;
+      case 26:
+        return isSelected ? Icons.report_problem : Icons.report_problem_outlined;
+      case 27:
+        return isSelected ? Icons.rocket_launch : Icons.rocket_launch_outlined;
+      case 28:
+        return Icons.currency_exchange;
+      case 29:
+        return isSelected ? Icons.receipt_long : Icons.receipt_long_outlined;
+      default:
+        return Icons.circle;
     }
   }
 
@@ -173,7 +275,10 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
       appBar: AppBar(
         backgroundColor: AppTheme.cream,
         elevation: 0,
-        title: Text(_titles[selectedIndex], style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        title: Text(
+          _titles[selectedIndex],
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
         actions: [
           // More compact shop status
           Container(
@@ -211,7 +316,7 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
               ],
             ),
           ),
-          
+
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
             onSelected: (value) {
@@ -241,78 +346,110 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
             itemBuilder: (context) => [
               const PopupMenuItem(
                 value: 'whatsapp',
-                child: Row(children: [Icon(Icons.message, color: AppTheme.success, size: 20), SizedBox(width: 8), Text('WhatsApp Sim')]),
+                child: Row(
+                  children: [
+                    Icon(Icons.message, color: AppTheme.success, size: 20),
+                    SizedBox(width: 8),
+                    Text('WhatsApp Sim'),
+                  ],
+                ),
               ),
               const PopupMenuItem(
                 value: 'role',
-                child: Row(children: [Icon(Icons.swap_horiz, size: 20), SizedBox(width: 8), Text('Switch Role')]),
+                child: Row(
+                  children: [
+                    Icon(Icons.swap_horiz, size: 20),
+                    SizedBox(width: 8),
+                    Text('Switch Role'),
+                  ],
+                ),
               ),
               const PopupMenuItem(
                 value: 'notifications',
-                child: Row(children: [Icon(Icons.notifications_outlined, size: 20), SizedBox(width: 8), Text('Notifications')]),
+                child: Row(
+                  children: [
+                    Icon(Icons.notifications_outlined, size: 20),
+                    SizedBox(width: 8),
+                    Text('Notifications'),
+                  ],
+                ),
               ),
               const PopupMenuItem(
                 value: 'logout',
-                child: Row(children: [Icon(Icons.logout, color: AppTheme.error, size: 20), SizedBox(width: 8), Text('Logout')]),
+                child: Row(
+                  children: [
+                    Icon(Icons.logout, color: AppTheme.error, size: 20),
+                    SizedBox(width: 8),
+                    Text('Logout'),
+                  ],
+                ),
               ),
             ],
           ),
         ],
       ),
-      drawer: useRail ? null : Drawer(
-        backgroundColor: AppTheme.cream,
-        child: Column(
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                gradient: AppTheme.heroGradient,
-              ),
-              child: const Center(
-                child: Text(
-                  'Owner Dashboard',
-                  style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                itemCount: _titles.length,
-                itemBuilder: (context, index) {
-                  final isSelected = selectedIndex == index;
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: isSelected ? AppTheme.primary.withValues(alpha: 0.1) : Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: ListTile(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        leading: Icon(
-                          _getIconForIndex(index, isSelected),
-                          color: isSelected ? AppTheme.primary : AppTheme.grey600,
+      drawer: useRail
+          ? null
+          : Drawer(
+              backgroundColor: AppTheme.cream,
+              child: Column(
+                children: [
+                  DrawerHeader(
+                    decoration: BoxDecoration(gradient: AppTheme.heroGradient),
+                    child: const Center(
+                      child: Text(
+                        'Owner Dashboard',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
                         ),
-                        title: Text(
-                          _titles[index],
-                          style: TextStyle(
-                            color: isSelected ? AppTheme.primary : AppTheme.grey800,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          ),
-                        ),
-                        onTap: () {
-                          _onItemTapped(index, context);
-                          Navigator.pop(context);
-                        },
                       ),
                     ),
-                  );
-                },
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      itemCount: _titles.length,
+                      itemBuilder: (context, index) {
+                        final isSelected = selectedIndex == index;
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppTheme.primary.withValues(alpha: 0.1)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: ListTile(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              leading: Icon(
+                                _getIconForIndex(index, isSelected),
+                                color: isSelected ? AppTheme.primary : AppTheme.grey600,
+                              ),
+                              title: Text(
+                                _titles[index],
+                                style: TextStyle(
+                                  color: isSelected ? AppTheme.primary : AppTheme.grey800,
+                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                ),
+                              ),
+                              onTap: () {
+                                _onItemTapped(index, context);
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => showVoiceCommandSheet(context),
         backgroundColor: AppTheme.primary,
@@ -334,151 +471,173 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                     child: IntrinsicHeight(
                       child: NavigationRail(
                         selectedIndex: selectedIndex,
-                      onDestinationSelected: (index) {
-                        _onItemTapped(index, context);
-                      },
-                      labelType: NavigationRailLabelType.all,
-                      destinations: const [
-                        NavigationRailDestination(
-                          icon: Icon(Icons.dashboard_outlined),
-                          selectedIcon: Icon(Icons.dashboard),
-                          label: Text('Dashboard'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.inventory_2_outlined),
-                          selectedIcon: Icon(Icons.inventory_2),
-                          label: Text('Products'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.shopping_bag_outlined),
-                          selectedIcon: Icon(Icons.shopping_bag),
-                          label: Text('Orders'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.warehouse_outlined),
-                          selectedIcon: Icon(Icons.warehouse),
-                          label: Text('Inventory'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.analytics_outlined),
-                          selectedIcon: Icon(Icons.analytics),
-                          label: Text('Analytics'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.message_outlined),
-                          selectedIcon: Icon(Icons.message),
-                          label: Text('WhatsApp'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.handshake_outlined),
-                          selectedIcon: Icon(Icons.handshake),
-                          label: Text('Settlements'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.delivery_dining_outlined),
-                          selectedIcon: Icon(Icons.delivery_dining),
-                          label: Text('Fleet'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.people_outline),
-                          selectedIcon: Icon(Icons.people),
-                          label: Text('Attendance'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.chat_outlined),
-                          selectedIcon: Icon(Icons.chat),
-                          label: Text('Support'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.currency_rupee_outlined),
-                          selectedIcon: Icon(Icons.currency_rupee),
-                          label: Text('Pricing'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.rate_review_outlined),
-                          selectedIcon: Icon(Icons.rate_review),
-                          label: Text('Reviews'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.local_shipping_outlined),
-                          selectedIcon: Icon(Icons.local_shipping),
-                          label: Text('Vendors'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.menu_book_outlined),
-                          selectedIcon: Icon(Icons.menu_book),
-                          label: Text('Khata'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.security_outlined),
-                          selectedIcon: Icon(Icons.security),
-                          label: Text('Devices'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.qr_code_scanner_outlined),
-                          selectedIcon: Icon(Icons.qr_code_scanner),
-                          label: Text('Scan Log'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.system_update_outlined),
-                          selectedIcon: Icon(Icons.system_update),
-                          label: Text('Releases'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.settings_outlined),
-                          selectedIcon: Icon(Icons.settings),
-                          label: Text('Settings'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.podcasts_outlined),
-                          selectedIcon: Icon(Icons.podcasts),
-                          label: Text('Broadcast'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.trending_up_outlined),
-                          selectedIcon: Icon(Icons.trending_up),
-                          label: Text('Mandi Price'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.route_outlined),
-                          selectedIcon: Icon(Icons.route),
-                          label: Text('Dispatch'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.document_scanner_outlined),
-                          selectedIcon: Icon(Icons.document_scanner),
-                          label: Text('Barcode'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.campaign_outlined),
-                          selectedIcon: Icon(Icons.campaign),
-                          label: Text('Campaigns'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.favorite_outline),
-                          selectedIcon: Icon(Icons.favorite),
-                          label: Text('Retention'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.gavel_outlined),
-                          selectedIcon: Icon(Icons.gavel),
-                          label: Text('AI Decisions'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.rocket_launch_outlined),
-                          selectedIcon: Icon(Icons.rocket_launch),
-                          label: Text('Mission Control'),
-                        ),
-                      ],
-
-                    ),
+                        onDestinationSelected: (index) {
+                          _onItemTapped(index, context);
+                        },
+                        labelType: NavigationRailLabelType.all,
+                        destinations: const [
+                          NavigationRailDestination(
+                            icon: Icon(Icons.dashboard_outlined),
+                            selectedIcon: Icon(Icons.dashboard),
+                            label: Text('Dashboard'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.inventory_2_outlined),
+                            selectedIcon: Icon(Icons.inventory_2),
+                            label: Text('Products'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.shopping_bag_outlined),
+                            selectedIcon: Icon(Icons.shopping_bag),
+                            label: Text('Orders'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.warehouse_outlined),
+                            selectedIcon: Icon(Icons.warehouse),
+                            label: Text('Inventory'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.analytics_outlined),
+                            selectedIcon: Icon(Icons.analytics),
+                            label: Text('Analytics'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.message_outlined),
+                            selectedIcon: Icon(Icons.message),
+                            label: Text('WhatsApp'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.handshake_outlined),
+                            selectedIcon: Icon(Icons.handshake),
+                            label: Text('Settlements'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.delivery_dining_outlined),
+                            selectedIcon: Icon(Icons.delivery_dining),
+                            label: Text('Fleet'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.people_outline),
+                            selectedIcon: Icon(Icons.people),
+                            label: Text('Attendance'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.chat_outlined),
+                            selectedIcon: Icon(Icons.chat),
+                            label: Text('Support'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.currency_rupee_outlined),
+                            selectedIcon: Icon(Icons.currency_rupee),
+                            label: Text('Pricing'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.rate_review_outlined),
+                            selectedIcon: Icon(Icons.rate_review),
+                            label: Text('Reviews'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.local_shipping_outlined),
+                            selectedIcon: Icon(Icons.local_shipping),
+                            label: Text('Vendors'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.menu_book_outlined),
+                            selectedIcon: Icon(Icons.menu_book),
+                            label: Text('Khata'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.security_outlined),
+                            selectedIcon: Icon(Icons.security),
+                            label: Text('Devices'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.qr_code_scanner_outlined),
+                            selectedIcon: Icon(Icons.qr_code_scanner),
+                            label: Text('Scan Log'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.system_update_outlined),
+                            selectedIcon: Icon(Icons.system_update),
+                            label: Text('Releases'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.settings_outlined),
+                            selectedIcon: Icon(Icons.settings),
+                            label: Text('Settings'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.podcasts_outlined),
+                            selectedIcon: Icon(Icons.podcasts),
+                            label: Text('Broadcast'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.trending_up_outlined),
+                            selectedIcon: Icon(Icons.trending_up),
+                            label: Text('Mandi Price'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.route_outlined),
+                            selectedIcon: Icon(Icons.route),
+                            label: Text('Dispatch'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.document_scanner_outlined),
+                            selectedIcon: Icon(Icons.document_scanner),
+                            label: Text('Barcode'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.campaign_outlined),
+                            selectedIcon: Icon(Icons.campaign),
+                            label: Text('Campaigns'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.favorite_outline),
+                            selectedIcon: Icon(Icons.favorite),
+                            label: Text('Retention'),
+                          ),
+                          // BUG FIX: the rail list was missing 'Logistics' and
+                          // 'Failed Deliveries', so every rail tap after
+                          // 'Retention' navigated to the WRONG screen (indexes
+                          // were shifted by up to 2 vs _onItemTapped).
+                          NavigationRailDestination(
+                            icon: Icon(Icons.flight_takeoff_outlined),
+                            selectedIcon: Icon(Icons.flight_takeoff),
+                            label: Text('Logistics'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.gavel_outlined),
+                            selectedIcon: Icon(Icons.gavel),
+                            label: Text('AI Decisions'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.report_problem_outlined),
+                            selectedIcon: Icon(Icons.report_problem),
+                            label: Text('Failed Deliveries'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.rocket_launch_outlined),
+                            selectedIcon: Icon(Icons.rocket_launch),
+                            label: Text('Mission Control'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.currency_exchange),
+                            selectedIcon: Icon(Icons.currency_exchange),
+                            label: Text('Refunds'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.receipt_long_outlined),
+                            selectedIcon: Icon(Icons.receipt_long),
+                            label: Text('Settlement Reports'),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
               },
             ),
-          if (useRail)
-            const VerticalDivider(thickness: 1, width: 1),
+          if (useRail) const VerticalDivider(thickness: 1, width: 1),
           Expanded(child: widget.child),
         ],
       ),
@@ -555,17 +714,16 @@ class OwnerHomePage extends StatelessWidget {
               children: [
                 Text(
                   'Welcome back!',
-                  style: AppTheme.headlineSmall(context).copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: AppTheme.headlineSmall(
+                    context,
+                  ).copyWith(color: Colors.white, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   "Here's your shop status today",
-                  style: AppTheme.bodyMedium(context).copyWith(
-                    color: Colors.white.withValues(alpha: 0.85),
-                  ),
+                  style: AppTheme.bodyMedium(
+                    context,
+                  ).copyWith(color: Colors.white.withValues(alpha: 0.85)),
                 ),
               ],
             ),
@@ -704,11 +862,7 @@ class OwnerHomePage extends StatelessWidget {
               child: AnimatedCounter(
                 value: value,
                 prefix: prefix,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color),
               ),
             ),
             const SizedBox(height: 2),
@@ -751,8 +905,7 @@ class OwnerHomePage extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppTheme.success.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                  color: AppTheme.success.withValues(alpha: 0.2), width: 1),
+              border: Border.all(color: AppTheme.success.withValues(alpha: 0.2), width: 1),
             ),
             child: const Row(
               children: [
@@ -799,20 +952,12 @@ class OwnerHomePage extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      Icon(
-                        isWarning ? Icons.warning : Icons.error,
-                        color: color,
-                        size: 20,
-                      ),
+                      Icon(isWarning ? Icons.warning : Icons.error, color: color, size: 20),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           alert['message'] as String,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: color,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: TextStyle(fontSize: 13, color: color, fontWeight: FontWeight.w500),
                         ),
                       ),
                       Icon(Icons.arrow_forward_ios, size: 14, color: color),
@@ -977,8 +1122,7 @@ class OwnerHomePage extends StatelessWidget {
         StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
               .collection('orders')
-              .where('createdAt',
-                  isGreaterThanOrEqualTo: Timestamp.fromDate(oneWeekAgo))
+              .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(oneWeekAgo))
               .snapshots(),
           builder: (context, snapshot) {
             int weekOrders = 0;
@@ -1032,11 +1176,7 @@ class OwnerHomePage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  Container(
-                    width: 1,
-                    height: 50,
-                    color: AppTheme.grey200,
-                  ),
+                  Container(width: 1, height: 50, color: AppTheme.grey200),
                   Column(
                     children: [
                       const Text(
@@ -1058,11 +1198,7 @@ class OwnerHomePage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  Container(
-                    width: 1,
-                    height: 50,
-                    color: AppTheme.grey200,
-                  ),
+                  Container(width: 1, height: 50, color: AppTheme.grey200),
                   Column(
                     children: [
                       const Text(
@@ -1129,10 +1265,7 @@ class OwnerHomePage extends StatelessWidget {
           if (recentOrders.isEmpty)
             const Padding(
               padding: EdgeInsets.all(20),
-              child: Text(
-                'No orders yet today.',
-                style: TextStyle(color: AppTheme.grey500),
-              ),
+              child: Text('No orders yet today.', style: TextStyle(color: AppTheme.grey500)),
             )
           else
             ...recentOrders.map((order) {
@@ -1147,8 +1280,7 @@ class OwnerHomePage extends StatelessWidget {
                         color: AppTheme.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(Icons.shopping_bag,
-                          color: AppTheme.primary),
+                      child: const Icon(Icons.shopping_bag, color: AppTheme.primary),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -1164,10 +1296,7 @@ class OwnerHomePage extends StatelessWidget {
                           ),
                           Text(
                             '${order.customerName} • ${order.items.length} items',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppTheme.grey600,
-                            ),
+                            style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
                           ),
                         ],
                       ),
@@ -1183,11 +1312,9 @@ class OwnerHomePage extends StatelessWidget {
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: _getStatusColor(order.status.displayName)
-                                .withValues(alpha: 0.1),
+                            color: _getStatusColor(order.status.displayName).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(

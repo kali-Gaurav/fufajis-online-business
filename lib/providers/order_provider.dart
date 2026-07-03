@@ -47,15 +47,15 @@ class ReturnRequest {
       itemIds: List<String>.from(map['itemIds'] ?? []),
       createdAt: map['createdAt'] != null
           ? (map['createdAt'] is DateTime
-              ? map['createdAt']
-              : (map['createdAt'] as Timestamp).toDate())
+                ? map['createdAt']
+                : (map['createdAt'] as Timestamp).toDate())
           : DateTime.now(),
       status: map['status'] ?? 'pending',
       shopResponse: map['shopResponse'],
       processedAt: map['processedAt'] != null
           ? (map['processedAt'] is DateTime
-              ? map['processedAt']
-              : (map['processedAt'] as Timestamp).toDate())
+                ? map['processedAt']
+                : (map['processedAt'] as Timestamp).toDate())
           : null,
     );
   }
@@ -180,14 +180,19 @@ class OrderProvider with ChangeNotifier {
       );
 
       final dynamic connRes = await _connectivity.checkConnectivity();
-      bool isOffline = (connRes is List) ? connRes.contains(ConnectivityResult.none) : connRes == ConnectivityResult.none;
+      bool isOffline = (connRes is List)
+          ? connRes.contains(ConnectivityResult.none)
+          : connRes == ConnectivityResult.none;
 
       if (isOffline) {
         await OfflineManager().queueOrder(newOrder);
         _orders.insert(0, newOrder);
         _isLoading = false;
         notifyListeners();
-        _notificationService.triggerLocalOrderStatusNotification(orderNumber, 'Order Queued (Offline)');
+        _notificationService.triggerLocalOrderStatusNotification(
+          orderNumber,
+          'Order Queued (Offline)',
+        );
         return newOrder;
       }
 
@@ -208,7 +213,7 @@ class OrderProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
       _notificationService.triggerLocalOrderStatusNotification(orderNumber, 'Order Placed');
-      
+
       // In-App Notification
       if (newOrder.customerId.isNotEmpty) {
         _notificationService.sendNotificationToUser(
@@ -218,7 +223,7 @@ class OrderProvider with ChangeNotifier {
           data: {'type': 'orderUpdate', 'orderId': newOrder.id},
         );
       }
-      
+
       return newOrder;
     } catch (e) {
       _errorMessage = e.toString();
@@ -321,7 +326,7 @@ class OrderProvider with ChangeNotifier {
             paymentConvertedFrom: order.paymentMethod.toString().split('.').last,
             status: order.status == OrderStatus.pending ? OrderStatus.confirmed : order.status,
           );
-          
+
           await _orderService.updateOrder(order.id, {
             'paymentMethod': updatedOrder.paymentMethod.toString(),
             'paymentId': updatedOrder.paymentId,
@@ -421,10 +426,7 @@ class OrderProvider with ChangeNotifier {
           // Award cashback on delivery (not placement) — anti-abuse
           final deliveredOrder = _orders[index];
           try {
-            await _firestore
-                .collection('cashback_triggers')
-                .doc(orderId)
-                .set({
+            await _firestore.collection('cashback_triggers').doc(orderId).set({
               'orderId': orderId,
               'customerId': deliveredOrder.customerId,
               'orderTotal': deliveredOrder.totalAmount,
@@ -462,13 +464,14 @@ class OrderProvider with ChangeNotifier {
       final order = _orders[index];
       final actualMethod = method ?? order.paymentMethod.toString().split('.').last;
 
-      final OrderModel updatedOrder = order.updateStatus(
-        OrderStatus.confirmed, 
-        note: 'Payment and Order Approved',
-      ).copyWith(
-        paymentStatus: 'paid',
-        paymentMethod: method != null ? PaymentMethod.values.firstWhere((e) => e.toString().contains(method)) : order.paymentMethod,
-      );
+      final OrderModel updatedOrder = order
+          .updateStatus(OrderStatus.confirmed, note: 'Payment and Order Approved')
+          .copyWith(
+            paymentStatus: 'paid',
+            paymentMethod: method != null
+                ? PaymentMethod.values.firstWhere((e) => e.toString().contains(method))
+                : order.paymentMethod,
+          );
 
       await FirebaseFirestore.instance.collection('orders').doc(orderId).update({
         'status': updatedOrder.status.toString(),
@@ -490,7 +493,7 @@ class OrderProvider with ChangeNotifier {
       if (_currentOrder?.id == orderId) _currentOrder = updatedOrder;
       _isLoading = false;
       notifyListeners();
-      
+
       if (updatedOrder.customerId.isNotEmpty) {
         _notificationService.sendNotificationToUser(
           userId: updatedOrder.customerId,
@@ -499,7 +502,7 @@ class OrderProvider with ChangeNotifier {
           data: {'type': 'orderUpdate', 'orderId': orderId},
         );
       }
-      
+
       return true;
     } catch (e) {
       _errorMessage = e.toString();
@@ -520,10 +523,12 @@ class OrderProvider with ChangeNotifier {
     }
 
     try {
-      Query<Map<String, dynamic>> query = FirebaseFirestore.instance.collection('orders').orderBy('createdAt', descending: true);
+      Query<Map<String, dynamic>> query = FirebaseFirestore.instance
+          .collection('orders')
+          .orderBy('createdAt', descending: true);
       if (customerId != null) query = query.where('customerId', isEqualTo: customerId);
       if (_lastOrderDoc != null) query = query.startAfterDocument(_lastOrderDoc!);
-      
+
       final snapshot = await query.limit(limit).get();
       if (snapshot.docs.isNotEmpty) {
         _lastOrderDoc = snapshot.docs.last;
@@ -557,11 +562,10 @@ class OrderProvider with ChangeNotifier {
       final index = _orders.indexWhere((o) => o.id == orderId);
       if (index != -1) {
         // This will throw StateError if transition is invalid
-        final cancelledOrder = _orders[index].updateStatus(
-          OrderStatus.cancelled, 
-          note: reason,
-        ).copyWith(cancellationReason: reason);
-        
+        final cancelledOrder = _orders[index]
+            .updateStatus(OrderStatus.cancelled, note: reason)
+            .copyWith(cancellationReason: reason);
+
         await _orderService.updateOrderStatus(orderId, 'cancelled');
         _orders[index] = cancelledOrder;
       }
@@ -577,7 +581,12 @@ class OrderProvider with ChangeNotifier {
   }
 
   /// Safely update an order's status enforcing state machine rules
-  Future<bool> updateOrderStatusSafe(String orderId, OrderStatus newStatus, {String? note, bool force = false}) async {
+  Future<bool> updateOrderStatusSafe(
+    String orderId,
+    OrderStatus newStatus, {
+    String? note,
+    bool force = false,
+  }) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -587,7 +596,7 @@ class OrderProvider with ChangeNotifier {
       if (index == -1) return false;
 
       final currentOrder = _orders[index];
-      
+
       // 1. Enforce State Machine Validation
       final updatedOrder = currentOrder.updateStatus(newStatus, note: note, force: force);
 
@@ -601,10 +610,10 @@ class OrderProvider with ChangeNotifier {
       // 3. Update Local State
       _orders[index] = updatedOrder;
       if (_currentOrder?.id == orderId) _currentOrder = updatedOrder;
-      
+
       _isLoading = false;
       notifyListeners();
-      
+
       // Send In-App notification for status change
       if (updatedOrder.customerId.isNotEmpty) {
         if (newStatus == OrderStatus.cancelled) {
@@ -668,7 +677,9 @@ class OrderProvider with ChangeNotifier {
   }
 
   bool hasPurchasedProduct(String productId) {
-    return _orders.any((o) => o.status == OrderStatus.delivered && o.items.any((i) => i.productId == productId));
+    return _orders.any(
+      (o) => o.status == OrderStatus.delivered && o.items.any((i) => i.productId == productId),
+    );
   }
 
   List<String> getFrequentlyBoughtProductIds() {
@@ -705,9 +716,9 @@ class OrderProvider with ChangeNotifier {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .listen((snapshot) {
-      _orders = snapshot.docs.map((d) => OrderModel.fromMap(d.data())).toList();
-      notifyListeners();
-    });
+          _orders = snapshot.docs.map((d) => OrderModel.fromMap(d.data())).toList();
+          notifyListeners();
+        });
     _subscriptions.add(sub);
   }
 
@@ -718,9 +729,9 @@ class OrderProvider with ChangeNotifier {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .listen((snapshot) {
-      _orders = snapshot.docs.map((d) => OrderModel.fromMap(d.data())).toList();
-      notifyListeners();
-    });
+          _orders = snapshot.docs.map((d) => OrderModel.fromMap(d.data())).toList();
+          notifyListeners();
+        });
     _subscriptions.add(sub);
   }
 

@@ -20,12 +20,12 @@ import 'wallet_service.dart';
 /// - completed: mark order eligible for reorder
 
 enum ReturnWorkflowStatus {
-  requested,        // Customer initiated return
-  approved,         // Shop owner approved
+  requested, // Customer initiated return
+  approved, // Shop owner approved
   refund_initiated, // Refund being processed
   refund_completed, // Refund paid
-  completed,        // Fully resolved
-  rejected,         // Denied
+  completed, // Fully resolved
+  rejected, // Denied
 }
 
 class ReturnsWorkflowService {
@@ -95,14 +95,19 @@ class ReturnsWorkflowService {
 
       final daysSinceDelivery = DateTime.now().difference(deliveredAt.toDate()).inDays;
       if (daysSinceDelivery > returnWindowDays) {
-        throw Exception('Return window expired. Orders can only be returned within $returnWindowDays days.');
+        throw Exception(
+          'Return window expired. Orders can only be returned within $returnWindowDays days.',
+        );
       }
 
       // Check for existing return
       final existingReturns = await _db
           .collection('returns')
           .where('orderId', isEqualTo: orderId)
-          .where('status', whereIn: ['requested', 'approved', 'refund_initiated', 'refund_completed', 'completed'])
+          .where(
+            'status',
+            whereIn: ['requested', 'approved', 'refund_initiated', 'refund_completed', 'completed'],
+          )
           .limit(1)
           .get();
 
@@ -131,7 +136,7 @@ class ReturnsWorkflowService {
             'timestamp': Timestamp.fromDate(now),
             'changedBy': customerId,
             'reason': 'customer_requested_return',
-          }
+          },
         ],
         'refundAmount': null,
         'refundProcessedAt': null,
@@ -217,21 +222,16 @@ class ReturnsWorkflowService {
             'timestamp': Timestamp.fromDate(now),
             'changedBy': approvedBy ?? 'shop',
             'reason': 'return_approved_refund_initiated',
-          }
-        ])
+          },
+        ]),
       });
 
       // Process refund to wallet
-      await _wallet.creditBalance(
-        customerId,
-        refundAmount,
-        'return_refund',
-        {
-          'returnId': returnId,
-          'orderId': orderId,
-          'refundAmount': refundAmount,
-        },
-      );
+      await _wallet.creditBalance(customerId, refundAmount, 'return_refund', {
+        'returnId': returnId,
+        'orderId': orderId,
+        'refundAmount': refundAmount,
+      });
 
       // Restore inventory for each item
       for (final item in items) {
@@ -254,8 +254,8 @@ class ReturnsWorkflowService {
             'timestamp': Timestamp.fromDate(now),
             'changedBy': 'system',
             'reason': 'refund_processed',
-          }
-        ])
+          },
+        ]),
       });
 
       // Update order
@@ -270,11 +270,7 @@ class ReturnsWorkflowService {
       await _notifications.notifyCustomer(
         customerId,
         'Return approved! Refund of ₹$refundAmount processed to your wallet.',
-        {
-          'returnId': returnId,
-          'orderId': orderId,
-          'refundAmount': refundAmount,
-        },
+        {'returnId': returnId, 'orderId': orderId, 'refundAmount': refundAmount},
       );
 
       await _audit.log('return_approved', {
@@ -286,7 +282,9 @@ class ReturnsWorkflowService {
         'approvedBy': approvedBy,
       });
 
-      debugPrint('[ReturnsWorkflowService] Approved return $returnId with refund of ₹$refundAmount');
+      debugPrint(
+        '[ReturnsWorkflowService] Approved return $returnId with refund of ₹$refundAmount',
+      );
     } catch (e) {
       debugPrint('[ReturnsWorkflowService] Failed to approve return: $e');
       rethrow;
@@ -329,8 +327,8 @@ class ReturnsWorkflowService {
             'timestamp': Timestamp.fromDate(now),
             'changedBy': rejectedBy ?? 'shop',
             'reason': rejectionReason,
-          }
-        ])
+          },
+        ]),
       });
 
       // Update order
@@ -339,15 +337,11 @@ class ReturnsWorkflowService {
       });
 
       // Notify customer
-      await _notifications.notifyCustomer(
-        customerId,
-        'Return request rejected: $rejectionReason',
-        {
-          'returnId': returnId,
-          'orderId': orderId,
-          'rejectionReason': rejectionReason,
-        },
-      );
+      await _notifications.notifyCustomer(customerId, 'Return request rejected: $rejectionReason', {
+        'returnId': returnId,
+        'orderId': orderId,
+        'rejectionReason': rejectionReason,
+      });
 
       await _audit.log('return_rejected', {
         'returnId': returnId,
@@ -365,11 +359,7 @@ class ReturnsWorkflowService {
   }
 
   /// Mark return as completed (after receiving returned goods)
-  Future<void> markCompleted({
-    required String returnId,
-    String? receivedBy,
-    String? notes,
-  }) async {
+  Future<void> markCompleted({required String returnId, String? receivedBy, String? notes}) async {
     try {
       final returnSnap = await _db.collection('returns').doc(returnId).get();
       final returnData = returnSnap.data();
@@ -397,14 +387,11 @@ class ReturnsWorkflowService {
             'timestamp': Timestamp.fromDate(now),
             'changedBy': receivedBy ?? 'shop',
             'reason': 'return_completed',
-          }
-        ])
+          },
+        ]),
       });
 
-      await _audit.log('return_completed', {
-        'returnId': returnId,
-        'receivedBy': receivedBy,
-      });
+      await _audit.log('return_completed', {'returnId': returnId, 'receivedBy': receivedBy});
 
       debugPrint('[ReturnsWorkflowService] Marked return $returnId as completed');
     } catch (e) {
@@ -495,10 +482,7 @@ class ReturnsWorkflowService {
   }
 
   /// Stream returns for shop dashboard
-  Stream<List<Map<String, dynamic>>> watchShopReturns(
-    String shopId, {
-    String? statusFilter,
-  }) {
+  Stream<List<Map<String, dynamic>>> watchShopReturns(String shopId, {String? statusFilter}) {
     var query = _db
         .collection('returns')
         .where('shopId', isEqualTo: shopId)
@@ -508,8 +492,6 @@ class ReturnsWorkflowService {
       query = query.where('status', isEqualTo: statusFilter);
     }
 
-    return query.snapshots().map(
-      (snap) => snap.docs.map((doc) => doc.data()).toList(),
-    );
+    return query.snapshots().map((snap) => snap.docs.map((doc) => doc.data()).toList());
   }
 }

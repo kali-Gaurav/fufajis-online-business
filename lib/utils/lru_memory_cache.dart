@@ -7,11 +7,7 @@ class _LruNode<K, V> {
   _LruNode<K, V>? prev;
   _LruNode<K, V>? next;
 
-  _LruNode({
-    required this.key,
-    required this.value,
-    required this.expiryTime,
-  });
+  _LruNode({required this.key, required this.value, required this.expiryTime});
 
   bool get isExpired => DateTime.now().isAfter(expiryTime);
 }
@@ -22,14 +18,11 @@ class LruMemoryCache<K, V> {
   final int capacity;
   final Duration ttl;
   final Map<K, _LruNode<K, V>> _map = {};
-  
+
   _LruNode<K, V>? _head;
   _LruNode<K, V>? _tail;
 
-  LruMemoryCache({
-    required this.capacity,
-    this.ttl = const Duration(minutes: 30),
-  }) {
+  LruMemoryCache({required this.capacity, this.ttl = const Duration(minutes: 30)}) {
     assert(capacity > 0);
   }
 

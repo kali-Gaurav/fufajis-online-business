@@ -12,8 +12,7 @@ class OrdersManagementEnhanced extends StatefulWidget {
   const OrdersManagementEnhanced({super.key});
 
   @override
-  State<OrdersManagementEnhanced> createState() =>
-      _OrdersManagementEnhancedState();
+  State<OrdersManagementEnhanced> createState() => _OrdersManagementEnhancedState();
 }
 
 class _OrdersManagementEnhancedState extends State<OrdersManagementEnhanced> {
@@ -54,10 +53,7 @@ class _OrdersManagementEnhancedState extends State<OrdersManagementEnhanced> {
               );
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.file_download),
-            onPressed: _exportOrders,
-          ),
+          IconButton(icon: const Icon(Icons.file_download), onPressed: _exportOrders),
         ],
       ),
       body: Column(
@@ -66,9 +62,7 @@ class _OrdersManagementEnhancedState extends State<OrdersManagementEnhanced> {
           _buildFiltersSection(),
 
           // Orders List
-          Expanded(
-            child: _buildOrdersList(),
-          ),
+          Expanded(child: _buildOrdersList()),
         ],
       ),
     );
@@ -81,11 +75,7 @@ class _OrdersManagementEnhancedState extends State<OrdersManagementEnhanced> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: isDark ? Colors.grey[900] : Colors.white,
-        border: Border(
-          bottom: BorderSide(
-            color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
-          ),
-        ),
+        border: Border(bottom: BorderSide(color: isDark ? Colors.grey[800]! : Colors.grey[200]!)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,9 +138,7 @@ class _OrdersManagementEnhancedState extends State<OrdersManagementEnhanced> {
                     hintText: 'Search orders...',
                     prefixIcon: const Icon(Icons.search),
                     isDense: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                   ),
                   onChanged: (value) {
                     setState(() => _searchQuery = value);
@@ -163,10 +151,7 @@ class _OrdersManagementEnhancedState extends State<OrdersManagementEnhanced> {
                   value: _selectedAmount,
                   isExpanded: true,
                   items: _amountRanges
-                      .map((range) => DropdownMenuItem(
-                            value: range,
-                            child: Text(range),
-                          ))
+                      .map((range) => DropdownMenuItem(value: range, child: Text(range)))
                       .toList(),
                   onChanged: (value) {
                     setState(() => _selectedAmount = value ?? 'All');
@@ -186,9 +171,7 @@ class _OrdersManagementEnhancedState extends State<OrdersManagementEnhanced> {
         final orders = orderProvider.orders;
 
         if (orderProvider.isLoading) {
-          return const Center(
-            child: CircularProgressIndicator(color: AppTheme.ownerAccent),
-          );
+          return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
         }
 
         if (orders.isEmpty) {
@@ -224,8 +207,7 @@ class _OrdersManagementEnhancedState extends State<OrdersManagementEnhanced> {
 
       // Search filter
       if (_searchQuery.isNotEmpty) {
-        if (!order.id.contains(_searchQuery) &&
-            !order.customerPhone.contains(_searchQuery)) {
+        if (!order.id.contains(_searchQuery) && !order.customerPhone.contains(_searchQuery)) {
           return false;
         }
       }
@@ -253,10 +235,7 @@ class _OrdersManagementEnhancedState extends State<OrdersManagementEnhanced> {
   Widget _buildOrderCard(OrderModel order) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final dateFormatter = DateFormat('MMM dd, hh:mm a');
-    final currencyFormatter = NumberFormat.currency(
-      symbol: '₹',
-      decimalDigits: 0,
-    );
+    final currencyFormatter = NumberFormat.currency(symbol: '₹', decimalDigits: 0);
 
     return GestureDetector(
       onTap: () {
@@ -268,15 +247,8 @@ class _OrdersManagementEnhancedState extends State<OrdersManagementEnhanced> {
         decoration: BoxDecoration(
           color: isDark ? Colors.grey[850] : Colors.white,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 4,
-            ),
-          ],
+          border: Border.all(color: isDark ? Colors.grey[700]! : Colors.grey[300]!),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4)],
         ),
         child: Column(
           children: [
@@ -289,10 +261,7 @@ class _OrdersManagementEnhancedState extends State<OrdersManagementEnhanced> {
                   children: [
                     Text(
                       'Order #${order.orderNumber}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -305,10 +274,7 @@ class _OrdersManagementEnhancedState extends State<OrdersManagementEnhanced> {
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
                     color: order.status.color.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(6),
@@ -343,10 +309,7 @@ class _OrdersManagementEnhancedState extends State<OrdersManagementEnhanced> {
                     const SizedBox(height: 4),
                     Text(
                       currencyFormatter.format(order.totalAmount),
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
@@ -363,10 +326,7 @@ class _OrdersManagementEnhancedState extends State<OrdersManagementEnhanced> {
                     const SizedBox(height: 4),
                     Text(
                       '${order.items.length} items',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
@@ -383,10 +343,7 @@ class _OrdersManagementEnhancedState extends State<OrdersManagementEnhanced> {
                     const SizedBox(height: 4),
                     Text(
                       dateFormatter.format(order.createdAt),
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
@@ -429,10 +386,7 @@ class _OrdersManagementEnhancedState extends State<OrdersManagementEnhanced> {
   }
 
   void _showOrderDetails(OrderModel order) {
-    final currencyFormatter = NumberFormat.currency(
-      symbol: '₹',
-      decimalDigits: 0,
-    );
+    final currencyFormatter = NumberFormat.currency(symbol: '₹', decimalDigits: 0);
 
     showModalBottomSheet(
       context: context,
@@ -450,10 +404,7 @@ class _OrdersManagementEnhancedState extends State<OrdersManagementEnhanced> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Order Details',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
+                    Text('Order Details', style: Theme.of(context).textTheme.titleLarge),
                     IconButton(
                       icon: const Icon(Icons.close),
                       onPressed: () => Navigator.pop(context),
@@ -463,47 +414,41 @@ class _OrdersManagementEnhancedState extends State<OrdersManagementEnhanced> {
                 const SizedBox(height: 16),
                 StatRow(label: 'Order ID', value: order.id),
                 StatRow(label: 'Order Number', value: order.orderNumber),
-                StatRow(
-                  label: 'Customer',
-                  value: order.customerPhone,
-                ),
+                StatRow(label: 'Customer', value: order.customerPhone),
                 StatRow(
                   label: 'Status',
                   value: order.status.displayName,
                   valueColor: order.status.color,
                 ),
                 const SizedBox(height: 16),
-                Text(
-                  'Items',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+                Text('Items', style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 8),
-                ...order.items.map((item) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(item.productName),
-                            Text(
-                              '${item.price.toDisplayString()} x ${item.quantity}',
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
+                ...order.items.map(
+                  (item) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(item.productName),
+                              Text(
+                                '${item.price.toDisplayString()} x ${item.quantity}',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      Text(
-                        currencyFormatter.format(
-                          (item.price * item.quantity).toDouble(),
+                        Text(
+                          currencyFormatter.format((item.price * item.quantity).toDouble()),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                )),
+                ),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -511,10 +456,7 @@ class _OrdersManagementEnhancedState extends State<OrdersManagementEnhanced> {
                     const Text('Total Amount:'),
                     Text(
                       currencyFormatter.format(order.totalAmount),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -535,10 +477,8 @@ class _OrdersManagementEnhancedState extends State<OrdersManagementEnhanced> {
   }
 
   void _exportOrders() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Export feature coming soon!'),
-      ),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Export feature coming soon!')));
   }
 }

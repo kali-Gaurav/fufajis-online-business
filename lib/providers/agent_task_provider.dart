@@ -19,8 +19,7 @@ class AgentTaskProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  List<AgentTaskModel> get awaitingApproval =>
-      _tasks.where((t) => t.isAwaitingApproval).toList();
+  List<AgentTaskModel> get awaitingApproval => _tasks.where((t) => t.isAwaitingApproval).toList();
 
   bool isActingOn(String taskId) => _actingOnTaskIds.contains(taskId);
 
@@ -34,15 +33,18 @@ class AgentTaskProvider with ChangeNotifier {
         .orderBy('createdAt', descending: true)
         .limit(200)
         .snapshots()
-        .listen((snap) {
-      _tasks = snap.docs.map(AgentTaskModel.fromFirestore).toList();
-      _isLoading = false;
-      notifyListeners();
-    }, onError: (err) {
-      _errorMessage = err.toString();
-      _isLoading = false;
-      notifyListeners();
-    });
+        .listen(
+          (snap) {
+            _tasks = snap.docs.map(AgentTaskModel.fromFirestore).toList();
+            _isLoading = false;
+            notifyListeners();
+          },
+          onError: (err) {
+            _errorMessage = err.toString();
+            _isLoading = false;
+            notifyListeners();
+          },
+        );
   }
 
   List<AgentTaskModel> tasksForAgent(String agentId) =>

@@ -2,13 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../utils/app_theme.dart';
 
-enum InboxCategory {
-  tasks,
-  approvals,
-  alerts,
-  messages,
-  system_events
-}
+enum InboxCategory { tasks, approvals, alerts, messages, system_events }
 
 class InboxItem {
   final String id;
@@ -32,11 +26,7 @@ class OperationalInbox extends StatefulWidget {
   final List<InboxItem> items;
   final Function(InboxItem) onItemTap;
 
-  const OperationalInbox({
-    super.key,
-    required this.items,
-    required this.onItemTap,
-  });
+  const OperationalInbox({super.key, required this.items, required this.onItemTap});
 
   @override
   State<OperationalInbox> createState() => _OperationalInboxState();
@@ -96,7 +86,9 @@ class _OperationalInboxState extends State<OperationalInbox> {
                   style: TextStyle(fontWeight: item.isRead ? FontWeight.normal : FontWeight.bold),
                 ),
                 subtitle: Text(item.subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
-                trailing: !item.isRead ? const CircleAvatar(radius: 4, backgroundColor: AppTheme.info) : null,
+                trailing: !item.isRead
+                    ? const CircleAvatar(radius: 4, backgroundColor: AppTheme.info)
+                    : null,
                 onTap: () => widget.onItemTap(item),
               );
             },
@@ -111,11 +103,16 @@ class _OperationalInboxState extends State<OperationalInbox> {
 
   Widget _getCategoryIcon(InboxCategory cat) {
     switch (cat) {
-      case InboxCategory.tasks: return const Icon(Icons.check_box, color: AppTheme.info);
-      case InboxCategory.approvals: return const Icon(Icons.fact_check, color: AppTheme.warning);
-      case InboxCategory.alerts: return const Icon(Icons.warning, color: AppTheme.error);
-      case InboxCategory.messages: return const Icon(Icons.message, color: AppTheme.success);
-      case InboxCategory.system_events: return const Icon(Icons.info, color: Colors.grey);
+      case InboxCategory.tasks:
+        return const Icon(Icons.check_box, color: AppTheme.info);
+      case InboxCategory.approvals:
+        return const Icon(Icons.fact_check, color: AppTheme.warning);
+      case InboxCategory.alerts:
+        return const Icon(Icons.warning, color: AppTheme.error);
+      case InboxCategory.messages:
+        return const Icon(Icons.message, color: AppTheme.success);
+      case InboxCategory.system_events:
+        return const Icon(Icons.info, color: Colors.grey);
     }
   }
 }

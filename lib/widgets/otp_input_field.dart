@@ -101,10 +101,7 @@ class _OTPInputFieldState extends State<OTPInputField> {
               ),
               contentPadding: const EdgeInsets.symmetric(vertical: 15),
             ),
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
         ),
       ),

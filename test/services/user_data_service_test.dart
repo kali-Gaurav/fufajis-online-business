@@ -85,10 +85,7 @@ void main() {
       });
 
       test('updatePreferences saves preferences', () async {
-        final prefs = PreferencesModel.defaults().copyWith(
-          language: 'hi',
-          theme: ThemeMode.dark,
-        );
+        final prefs = PreferencesModel.defaults().copyWith(language: 'hi', theme: ThemeMode.dark);
 
         expect(prefs.language, 'hi');
         expect(prefs.theme, ThemeMode.dark);

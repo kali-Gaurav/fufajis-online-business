@@ -32,11 +32,7 @@ class GroupBuyService {
   }
 
   /// Joins an existing pool
-  Future<void> joinPool(
-    String poolId,
-    String userId,
-    double contribution,
-  ) async {
+  Future<void> joinPool(String poolId, String userId, double contribution) async {
     final docRef = _firestore.collection('group_pools').doc(poolId);
 
     await _firestore.runTransaction((transaction) async {
@@ -50,11 +46,8 @@ class GroupBuyService {
       final newMemberIds = [...pool.memberIds];
       if (!newMemberIds.contains(userId)) newMemberIds.add(userId);
 
-      final newContributions = Map<String, double>.from(
-        pool.memberContributions,
-      );
-      newContributions[userId] =
-          (newContributions[userId] ?? 0.0) + contribution;
+      final newContributions = Map<String, double>.from(pool.memberContributions);
+      newContributions[userId] = (newContributions[userId] ?? 0.0) + contribution;
 
       final newTotal = pool.totalAmount + contribution;
       final isCompleted = newTotal >= pool.goalAmount;
@@ -69,10 +62,7 @@ class GroupBuyService {
   }
 
   /// Streams active pools for a specific village
-  Stream<List<GroupOrderModel>> getVillagePools(
-    String district,
-    String village,
-  ) {
+  Stream<List<GroupOrderModel>> getVillagePools(String district, String village) {
     return _firestore
         .collection('group_pools')
         .where('district', isEqualTo: district)

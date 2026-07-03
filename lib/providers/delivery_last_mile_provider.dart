@@ -213,10 +213,7 @@ class DeliveryLastMileProvider extends ChangeNotifier {
   }
 
   /// Complete delivery
-  Future<bool> completeDelivery(
-    String deliveryId,
-    VerificationMethod verificationMethod,
-  ) async {
+  Future<bool> completeDelivery(String deliveryId, VerificationMethod verificationMethod) async {
     isLoading = true;
     error = null;
     notifyListeners();
@@ -247,21 +244,13 @@ class DeliveryLastMileProvider extends ChangeNotifier {
   }
 
   /// Mark delivery as failed
-  Future<bool> failDelivery(
-    String deliveryId,
-    String reason, {
-    String? notes,
-  }) async {
+  Future<bool> failDelivery(String deliveryId, String reason, {String? notes}) async {
     isLoading = true;
     error = null;
     notifyListeners();
 
     try {
-      await _deliveryService.failDelivery(
-        deliveryId: deliveryId,
-        reason: reason,
-        notes: notes,
-      );
+      await _deliveryService.failDelivery(deliveryId: deliveryId, reason: reason, notes: notes);
 
       currentDelivery = currentDelivery?.copyWith(
         status: DeliveryTaskStatus.failed,

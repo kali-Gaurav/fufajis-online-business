@@ -35,8 +35,12 @@ class _AttendanceManagementScreenState extends State<AttendanceManagementScreen>
           }
 
           final List<AttendanceModel> allShifts = snapshot.data ?? [];
-          final List<AttendanceModel> activeShifts = allShifts.where((s) => s.status == 'active').toList();
-          final List<AttendanceModel> completedShifts = allShifts.where((s) => s.status == 'completed').toList();
+          final List<AttendanceModel> activeShifts = allShifts
+              .where((s) => s.status == 'active')
+              .toList();
+          final List<AttendanceModel> completedShifts = allShifts
+              .where((s) => s.status == 'completed')
+              .toList();
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(24),
@@ -68,16 +72,10 @@ class _AttendanceManagementScreenState extends State<AttendanceManagementScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Active Riders Panel
-                    Expanded(
-                      flex: 4,
-                      child: _buildActiveRidersPanel(activeShifts),
-                    ),
+                    Expanded(flex: 4, child: _buildActiveRidersPanel(activeShifts)),
                     const SizedBox(width: 24),
                     // Shift History Panel
-                    Expanded(
-                      flex: 6,
-                      child: _buildShiftHistoryPanel(completedShifts),
-                    ),
+                    Expanded(flex: 6, child: _buildShiftHistoryPanel(completedShifts)),
                   ],
                 ),
               ],
@@ -345,11 +343,7 @@ class _AttendanceManagementScreenState extends State<AttendanceManagementScreen>
         children: [
           const Text(
             'Shift History Logs',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.grey900,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey900),
           ),
           const SizedBox(height: 16),
           if (completedShifts.isEmpty)
@@ -387,7 +381,11 @@ class _AttendanceManagementScreenState extends State<AttendanceManagementScreen>
                           color: AppTheme.grey100,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.history_toggle_off, color: AppTheme.grey600, size: 20),
+                        child: const Icon(
+                          Icons.history_toggle_off,
+                          color: AppTheme.grey600,
+                          size: 20,
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -422,7 +420,7 @@ class _AttendanceManagementScreenState extends State<AttendanceManagementScreen>
                                 'Out Coords: (${shift.clockOutLatitude!.toStringAsFixed(4)}, ${shift.clockOutLongitude!.toStringAsFixed(4)})',
                                 style: const TextStyle(fontSize: 11, color: AppTheme.grey500),
                               ),
-                            ]
+                            ],
                           ],
                         ),
                       ),
@@ -462,4 +460,3 @@ class _AttendanceManagementScreenState extends State<AttendanceManagementScreen>
     );
   }
 }
-

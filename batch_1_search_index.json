@@ -1,0 +1,1925 @@
+{
+  "searchIndex": {
+    "VEGETABLES_001": {
+      "productId": "VEGETABLES_001",
+      "name": "Potato",
+      "hindiName": "आलू",
+      "category": "vegetables",
+      "searchTokens": [
+        "potato",
+        "आलू",
+        "aloo"
+      ],
+      "variants": 4,
+      "brand": "Generic"
+    },
+    "VEGETABLES_002": {
+      "productId": "VEGETABLES_002",
+      "name": "Onion",
+      "hindiName": "प्याज",
+      "category": "vegetables",
+      "searchTokens": [
+        "प्याज",
+        "onion",
+        "pyaz"
+      ],
+      "variants": 3,
+      "brand": "Generic"
+    },
+    "VEGETABLES_003": {
+      "productId": "VEGETABLES_003",
+      "name": "Tomato",
+      "hindiName": "टमाटर",
+      "category": "vegetables",
+      "searchTokens": [
+        "tomato",
+        "tamatar",
+        "टमाटर"
+      ],
+      "variants": 3,
+      "brand": "Generic"
+    },
+    "VEGETABLES_004": {
+      "productId": "VEGETABLES_004",
+      "name": "Carrot",
+      "hindiName": "गाजर",
+      "category": "vegetables",
+      "searchTokens": [
+        "गाजर",
+        "gajar",
+        "carrot"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "VEGETABLES_005": {
+      "productId": "VEGETABLES_005",
+      "name": "Cabbage",
+      "hindiName": "पत्तागोभी",
+      "category": "vegetables",
+      "searchTokens": [
+        "cabbage",
+        "पत्तागोभी",
+        "patta_gobhi"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "VEGETABLES_006": {
+      "productId": "VEGETABLES_006",
+      "name": "Cauliflower",
+      "hindiName": "फूलगोभी",
+      "category": "vegetables",
+      "searchTokens": [
+        "फूलगोभी",
+        "phul_gobhi",
+        "cauliflower"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEGETABLES_007": {
+      "productId": "VEGETABLES_007",
+      "name": "Spinach",
+      "hindiName": "पालक",
+      "category": "vegetables",
+      "searchTokens": [
+        "पालक",
+        "palak",
+        "spinach"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEGETABLES_008": {
+      "productId": "VEGETABLES_008",
+      "name": "Brinjal",
+      "hindiName": "बैंगन",
+      "category": "vegetables",
+      "searchTokens": [
+        "brinjal",
+        "बैंगन",
+        "baingan"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "VEGETABLES_009": {
+      "productId": "VEGETABLES_009",
+      "name": "Bell Pepper",
+      "hindiName": "शिमला मिर्च",
+      "category": "vegetables",
+      "searchTokens": [
+        "bell pepper",
+        "शिमला मिर्च",
+        "shimla_mirch"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEGETABLES_010": {
+      "productId": "VEGETABLES_010",
+      "name": "Cucumber",
+      "hindiName": "खीरा",
+      "category": "vegetables",
+      "searchTokens": [
+        "खीरा",
+        "khira",
+        "cucumber"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEGETABLES_011": {
+      "productId": "VEGETABLES_011",
+      "name": "Radish",
+      "hindiName": "मूली",
+      "category": "vegetables",
+      "searchTokens": [
+        "mooli",
+        "मूली",
+        "radish"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "VEGETABLES_012": {
+      "productId": "VEGETABLES_012",
+      "name": "Bottle Gourd",
+      "hindiName": "लौकी",
+      "category": "vegetables",
+      "searchTokens": [
+        "bottle gourd",
+        "lauki",
+        "लौकी"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEGETABLES_013": {
+      "productId": "VEGETABLES_013",
+      "name": "Fenugreek Leaves",
+      "hindiName": "मेथी",
+      "category": "vegetables",
+      "searchTokens": [
+        "fenugreek leaves",
+        "मेथी",
+        "methi"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEGETABLES_014": {
+      "productId": "VEGETABLES_014",
+      "name": "Okra",
+      "hindiName": "भिंडी",
+      "category": "vegetables",
+      "searchTokens": [
+        "भिंडी",
+        "okra",
+        "bhindi"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "VEGETABLES_015": {
+      "productId": "VEGETABLES_015",
+      "name": "Green Beans",
+      "hindiName": "सेम",
+      "category": "vegetables",
+      "searchTokens": [
+        "sem",
+        "green beans",
+        "सेम"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "VEGETABLES_016": {
+      "productId": "VEGETABLES_016",
+      "name": "Green Chilli",
+      "hindiName": "हरी मिर्च",
+      "category": "vegetables",
+      "searchTokens": [
+        "हरी मिर्च",
+        "green chilli",
+        "mirch"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "VEGETABLES_017": {
+      "productId": "VEGETABLES_017",
+      "name": "Ginger",
+      "hindiName": "अदरक",
+      "category": "vegetables",
+      "searchTokens": [
+        "ginger",
+        "adrak",
+        "अदरक"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "VEGETABLES_018": {
+      "productId": "VEGETABLES_018",
+      "name": "Garlic",
+      "hindiName": "लहसुन",
+      "category": "vegetables",
+      "searchTokens": [
+        "लहसुन",
+        "lehsun",
+        "garlic"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "VEGETABLES_019": {
+      "productId": "VEGETABLES_019",
+      "name": "Peas",
+      "hindiName": "मटर",
+      "category": "vegetables",
+      "searchTokens": [
+        "मटर",
+        "peas",
+        "matar"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEGETABLES_020": {
+      "productId": "VEGETABLES_020",
+      "name": "Yam",
+      "hindiName": "सूरन",
+      "category": "vegetables",
+      "searchTokens": [
+        "suran",
+        "yam",
+        "सूरन"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "VEGETABLES_021": {
+      "productId": "VEGETABLES_021",
+      "name": "Taro Root",
+      "hindiName": "अरबी",
+      "category": "vegetables",
+      "searchTokens": [
+        "taro root",
+        "अरबी",
+        "arbi"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "VEGETABLES_022": {
+      "productId": "VEGETABLES_022",
+      "name": "Sweet Potato",
+      "hindiName": "शकरकंद",
+      "category": "vegetables",
+      "searchTokens": [
+        "shakarkand",
+        "शकरकंद",
+        "sweet potato"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "VEGETABLES_023": {
+      "productId": "VEGETABLES_023",
+      "name": "Beetroot",
+      "hindiName": "चुकंदर",
+      "category": "vegetables",
+      "searchTokens": [
+        "beetroot",
+        "beet",
+        "चुकंदर"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "VEGETABLES_024": {
+      "productId": "VEGETABLES_024",
+      "name": "White Radish",
+      "hindiName": "सफेद मूली",
+      "category": "vegetables",
+      "searchTokens": [
+        "white radish",
+        "muli_safed",
+        "सफेद मूली"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "VEGETABLES_025": {
+      "productId": "VEGETABLES_025",
+      "name": "Onion & Garlic Mix",
+      "hindiName": "प्याज लहसुन",
+      "category": "vegetables",
+      "searchTokens": [
+        "kanda_lasun",
+        "प्याज लहसुन",
+        "onion & garlic mix"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEGETABLES_026": {
+      "productId": "VEGETABLES_026",
+      "name": "Drumstick",
+      "hindiName": "सहजन",
+      "category": "vegetables",
+      "searchTokens": [
+        "सहजन",
+        "drumstick"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEGETABLES_027": {
+      "productId": "VEGETABLES_027",
+      "name": "Pumpkin",
+      "hindiName": "कद्दू",
+      "category": "vegetables",
+      "searchTokens": [
+        "pumpkin",
+        "कद्दू"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "VEGETABLES_028": {
+      "productId": "VEGETABLES_028",
+      "name": "Prune Plum",
+      "hindiName": "आलूबुखारा",
+      "category": "vegetables",
+      "searchTokens": [
+        "aloo_bukhara",
+        "prune plum",
+        "आलूबुखारा"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEGETABLES_029": {
+      "productId": "VEGETABLES_029",
+      "name": "Ash Gourd",
+      "hindiName": "पेठा",
+      "category": "vegetables",
+      "searchTokens": [
+        "chikhalwali",
+        "पेठा",
+        "ash gourd"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "VEGETABLES_030": {
+      "productId": "VEGETABLES_030",
+      "name": "Turnip",
+      "hindiName": "शलजम",
+      "category": "vegetables",
+      "searchTokens": [
+        "शलजम",
+        "turnip"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEGETABLES_031": {
+      "productId": "VEGETABLES_031",
+      "name": "Long Beans",
+      "hindiName": "लौकी की फली",
+      "category": "vegetables",
+      "searchTokens": [
+        "लौकी की फली",
+        "long beans",
+        "beans"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEGETABLES_032": {
+      "productId": "VEGETABLES_032",
+      "name": "Lady Finger",
+      "hindiName": "भिंडी",
+      "category": "vegetables",
+      "searchTokens": [
+        "भिंडी",
+        "lady finger",
+        "lady_finger"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEGETABLES_033": {
+      "productId": "VEGETABLES_033",
+      "name": "Corn",
+      "hindiName": "मक्का",
+      "category": "vegetables",
+      "searchTokens": [
+        "corn",
+        "मक्का"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEGETABLES_034": {
+      "productId": "VEGETABLES_034",
+      "name": "Mushroom",
+      "hindiName": "मशरूम",
+      "category": "vegetables",
+      "searchTokens": [
+        "mushroom",
+        "मशरूम"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "VEGETABLES_035": {
+      "productId": "VEGETABLES_035",
+      "name": "Red Capsicum",
+      "hindiName": "लाल शिमला मिर्च",
+      "category": "vegetables",
+      "searchTokens": [
+        "red capsicum",
+        "capsicum_red",
+        "लाल शिमला मिर्च"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEGETABLES_036": {
+      "productId": "VEGETABLES_036",
+      "name": "Yellow Capsicum",
+      "hindiName": "पीला शिमला मिर्च",
+      "category": "vegetables",
+      "searchTokens": [
+        "पीला शिमला मिर्च",
+        "yellow capsicum",
+        "capsicum_yellow"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEGETABLES_037": {
+      "productId": "VEGETABLES_037",
+      "name": "Broccoli",
+      "hindiName": "ब्रोकली",
+      "category": "vegetables",
+      "searchTokens": [
+        "ब्रोकली",
+        "broccoli"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEGETABLES_038": {
+      "productId": "VEGETABLES_038",
+      "name": "Red Cabbage",
+      "hindiName": "लाल पत्तागोभी",
+      "category": "vegetables",
+      "searchTokens": [
+        "red cabbage",
+        "cabbage_red",
+        "लाल पत्तागोभी"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEGETABLES_039": {
+      "productId": "VEGETABLES_039",
+      "name": "Lettuce",
+      "hindiName": "लेटिस",
+      "category": "vegetables",
+      "searchTokens": [
+        "lettuce",
+        "लेटिस"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEGETABLES_040": {
+      "productId": "VEGETABLES_040",
+      "name": "Bottle Gourd Small",
+      "hindiName": "छोटी लौकी",
+      "category": "vegetables",
+      "searchTokens": [
+        "chikhalwali_bottle",
+        "छोटी लौकी",
+        "bottle gourd small"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEGETABLES_041": {
+      "productId": "VEGETABLES_041",
+      "name": "Small Pumpkin",
+      "hindiName": "छोटा कद्दू",
+      "category": "vegetables",
+      "searchTokens": [
+        "small pumpkin",
+        "pumpkin_small",
+        "छोटा कद्दू"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEGETABLES_042": {
+      "productId": "VEGETABLES_042",
+      "name": "Leek",
+      "hindiName": "प्याज पत्ती",
+      "category": "vegetables",
+      "searchTokens": [
+        "प्याज पत्ती",
+        "leek"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEGETABLES_043": {
+      "productId": "VEGETABLES_043",
+      "name": "Spring Onion",
+      "hindiName": "हरी प्याज",
+      "category": "vegetables",
+      "searchTokens": [
+        "हरी प्याज",
+        "spring onion",
+        "spring_onion"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEGETABLES_044": {
+      "productId": "VEGETABLES_044",
+      "name": "Coriander Leaves",
+      "hindiName": "हरा धनिया",
+      "category": "vegetables",
+      "searchTokens": [
+        "हरा धनिया",
+        "coriander",
+        "coriander leaves"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_045": {
+      "productId": "FRUITS_045",
+      "name": "Banana",
+      "hindiName": "केला",
+      "category": "fruits",
+      "searchTokens": [
+        "banana",
+        "केला",
+        "kela"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "FRUITS_046": {
+      "productId": "FRUITS_046",
+      "name": "Apple",
+      "hindiName": "सेब",
+      "category": "fruits",
+      "searchTokens": [
+        "apple",
+        "सेब",
+        "seb"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "FRUITS_047": {
+      "productId": "FRUITS_047",
+      "name": "Orange",
+      "hindiName": "संतरा",
+      "category": "fruits",
+      "searchTokens": [
+        "संतरा",
+        "orange",
+        "santra"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_048": {
+      "productId": "FRUITS_048",
+      "name": "Mango",
+      "hindiName": "आम",
+      "category": "fruits",
+      "searchTokens": [
+        "mango",
+        "aam",
+        "आम"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "FRUITS_049": {
+      "productId": "FRUITS_049",
+      "name": "Papaya",
+      "hindiName": "पपीता",
+      "category": "fruits",
+      "searchTokens": [
+        "पपीता",
+        "papaya",
+        "papita"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_050": {
+      "productId": "FRUITS_050",
+      "name": "Guava",
+      "hindiName": "अमरूद",
+      "category": "fruits",
+      "searchTokens": [
+        "guava",
+        "amrud",
+        "अमरूद"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_051": {
+      "productId": "FRUITS_051",
+      "name": "Pomegranate",
+      "hindiName": "अनार",
+      "category": "fruits",
+      "searchTokens": [
+        "pomegranate",
+        "अनार",
+        "anar"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_052": {
+      "productId": "FRUITS_052",
+      "name": "Watermelon",
+      "hindiName": "तरबूज",
+      "category": "fruits",
+      "searchTokens": [
+        "watermelon",
+        "तरबूज",
+        "tarbooz"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_053": {
+      "productId": "FRUITS_053",
+      "name": "Muskmelon",
+      "hindiName": "खरबूजा",
+      "category": "fruits",
+      "searchTokens": [
+        "खरबूजा",
+        "muskmelon",
+        "kharbuja"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_054": {
+      "productId": "FRUITS_054",
+      "name": "Sweet Lime",
+      "hindiName": "मोसंबी",
+      "category": "fruits",
+      "searchTokens": [
+        "मोसंबी",
+        "mosambi",
+        "sweet lime"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_055": {
+      "productId": "FRUITS_055",
+      "name": "Grapes",
+      "hindiName": "अंगूर",
+      "category": "fruits",
+      "searchTokens": [
+        "अंगूर",
+        "grapes"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "FRUITS_056": {
+      "productId": "FRUITS_056",
+      "name": "Pineapple",
+      "hindiName": "अनन्नास",
+      "category": "fruits",
+      "searchTokens": [
+        "pineapple",
+        "अनन्नास"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_057": {
+      "productId": "FRUITS_057",
+      "name": "Kiwi",
+      "hindiName": "कीवी",
+      "category": "fruits",
+      "searchTokens": [
+        "kiwi",
+        "कीवी"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_058": {
+      "productId": "FRUITS_058",
+      "name": "Strawberry",
+      "hindiName": "स्ट्रॉबेरी",
+      "category": "fruits",
+      "searchTokens": [
+        "strawberry",
+        "स्ट्रॉबेरी"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_059": {
+      "productId": "FRUITS_059",
+      "name": "Coconut",
+      "hindiName": "नारियल",
+      "category": "fruits",
+      "searchTokens": [
+        "coconut",
+        "नारियल"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_060": {
+      "productId": "FRUITS_060",
+      "name": "Sapota",
+      "hindiName": "चीकू",
+      "category": "fruits",
+      "searchTokens": [
+        "चीकू",
+        "chikoo",
+        "sapota"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_061": {
+      "productId": "FRUITS_061",
+      "name": "Litchi",
+      "hindiName": "लीची",
+      "category": "fruits",
+      "searchTokens": [
+        "लीची",
+        "litchi",
+        "leechi"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_062": {
+      "productId": "FRUITS_062",
+      "name": "Tamarind",
+      "hindiName": "इमली",
+      "category": "fruits",
+      "searchTokens": [
+        "tamarind",
+        "imli",
+        "इमली"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_063": {
+      "productId": "FRUITS_063",
+      "name": "Java Plum",
+      "hindiName": "जामुन",
+      "category": "fruits",
+      "searchTokens": [
+        "java plum",
+        "jamun",
+        "जामुन"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_064": {
+      "productId": "FRUITS_064",
+      "name": "Jujube",
+      "hindiName": "बेर",
+      "category": "fruits",
+      "searchTokens": [
+        "jujube",
+        "बेर",
+        "ber"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_065": {
+      "productId": "FRUITS_065",
+      "name": "Pomegranate Hybrid",
+      "hindiName": "शर्बती अनार",
+      "category": "fruits",
+      "searchTokens": [
+        "pomegranate hybrid",
+        "शर्बती अनार",
+        "sharbati_anar"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_066": {
+      "productId": "FRUITS_066",
+      "name": "Langda Mango",
+      "hindiName": "लंगड़ा आम",
+      "category": "fruits",
+      "searchTokens": [
+        "langda mango",
+        "लंगड़ा आम",
+        "langda_mango"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_067": {
+      "productId": "FRUITS_067",
+      "name": "Alphonso Mango",
+      "hindiName": "अल्फांसो",
+      "category": "fruits",
+      "searchTokens": [
+        "alphonso mango",
+        "alphonso",
+        "अल्फांसो"
+      ],
+      "variants": 1,
+      "brand": "Mahindra"
+    },
+    "FRUITS_068": {
+      "productId": "FRUITS_068",
+      "name": "Fig",
+      "hindiName": "अंजीर",
+      "category": "fruits",
+      "searchTokens": [
+        "अंजीर",
+        "fig"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_069": {
+      "productId": "FRUITS_069",
+      "name": "Peach",
+      "hindiName": "आड़ू",
+      "category": "fruits",
+      "searchTokens": [
+        "peach",
+        "आड़ू"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_070": {
+      "productId": "FRUITS_070",
+      "name": "Apricot",
+      "hindiName": "खूबानी",
+      "category": "fruits",
+      "searchTokens": [
+        "खूबानी",
+        "apricot"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_071": {
+      "productId": "FRUITS_071",
+      "name": "Blueberry",
+      "hindiName": "ब्लूबेरी",
+      "category": "fruits",
+      "searchTokens": [
+        "ब्लूबेरी",
+        "blueberry"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_072": {
+      "productId": "FRUITS_072",
+      "name": "Pear",
+      "hindiName": "नाशपाती",
+      "category": "fruits",
+      "searchTokens": [
+        "pear",
+        "नाशपाती"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_073": {
+      "productId": "FRUITS_073",
+      "name": "Persimmon",
+      "hindiName": "तेंदु फल",
+      "category": "fruits",
+      "searchTokens": [
+        "persimmon",
+        "तेंदु फल"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_074": {
+      "productId": "FRUITS_074",
+      "name": "Plum",
+      "hindiName": "आलूबुखारा",
+      "category": "fruits",
+      "searchTokens": [
+        "आलूबुखारा",
+        "plum"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_075": {
+      "productId": "FRUITS_075",
+      "name": "Cherry",
+      "hindiName": "चेरी",
+      "category": "fruits",
+      "searchTokens": [
+        "चेरी",
+        "cherry"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_076": {
+      "productId": "FRUITS_076",
+      "name": "Dates",
+      "hindiName": "खजूर",
+      "category": "fruits",
+      "searchTokens": [
+        "dates",
+        "खजूर"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_077": {
+      "productId": "FRUITS_077",
+      "name": "Raisins",
+      "hindiName": "किसमिस",
+      "category": "fruits",
+      "searchTokens": [
+        "raisins",
+        "किसमिस",
+        "raisin"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FRUITS_078": {
+      "productId": "FRUITS_078",
+      "name": "White Pomegranate",
+      "hindiName": "सफेद अनार",
+      "category": "fruits",
+      "searchTokens": [
+        "pomegranate_white",
+        "सफेद अनार",
+        "white pomegranate"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "DAIRY_079": {
+      "productId": "DAIRY_079",
+      "name": "Amul Milk",
+      "hindiName": "अमूल दूध",
+      "category": "dairy",
+      "searchTokens": [
+        "amul_milk",
+        "अमूल दूध",
+        "amul milk"
+      ],
+      "variants": 3,
+      "brand": "Amul"
+    },
+    "DAIRY_080": {
+      "productId": "DAIRY_080",
+      "name": "Ghee",
+      "hindiName": "घी",
+      "category": "dairy",
+      "searchTokens": [
+        "ghee",
+        "घी"
+      ],
+      "variants": 3,
+      "brand": "Amul"
+    },
+    "DAIRY_081": {
+      "productId": "DAIRY_081",
+      "name": "Butter",
+      "hindiName": "मक्खन",
+      "category": "dairy",
+      "searchTokens": [
+        "मक्खन",
+        "butter"
+      ],
+      "variants": 3,
+      "brand": "Amul"
+    },
+    "DAIRY_082": {
+      "productId": "DAIRY_082",
+      "name": "Curd",
+      "hindiName": "दही",
+      "category": "dairy",
+      "searchTokens": [
+        "dahi",
+        "दही",
+        "curd"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "DAIRY_083": {
+      "productId": "DAIRY_083",
+      "name": "Paneer",
+      "hindiName": "पनीर",
+      "category": "dairy",
+      "searchTokens": [
+        "paneer",
+        "पनीर"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "DAIRY_084": {
+      "productId": "DAIRY_084",
+      "name": "Lassi",
+      "hindiName": "लस्सी",
+      "category": "dairy",
+      "searchTokens": [
+        "लस्सी",
+        "lassi"
+      ],
+      "variants": 1,
+      "brand": "Amul"
+    },
+    "DAIRY_085": {
+      "productId": "DAIRY_085",
+      "name": "Cheese",
+      "hindiName": "चीज़",
+      "category": "dairy",
+      "searchTokens": [
+        "चीज़",
+        "cheese"
+      ],
+      "variants": 1,
+      "brand": "Amul"
+    },
+    "DAIRY_086": {
+      "productId": "DAIRY_086",
+      "name": "Mozzarella",
+      "hindiName": "मोजेरेला",
+      "category": "dairy",
+      "searchTokens": [
+        "mozzarella",
+        "मोजेरेला"
+      ],
+      "variants": 1,
+      "brand": "Amul"
+    },
+    "DAIRY_087": {
+      "productId": "DAIRY_087",
+      "name": "Condensed Milk",
+      "hindiName": "मीठा दूध",
+      "category": "dairy",
+      "searchTokens": [
+        "condensed_milk",
+        "condensed milk",
+        "मीठा दूध"
+      ],
+      "variants": 1,
+      "brand": "Amul"
+    },
+    "DAIRY_088": {
+      "productId": "DAIRY_088",
+      "name": "Milk Powder",
+      "hindiName": "दूध पाउडर",
+      "category": "dairy",
+      "searchTokens": [
+        "milk_powder",
+        "milk powder",
+        "दूध पाउडर"
+      ],
+      "variants": 1,
+      "brand": "Amul"
+    },
+    "DAIRY_089": {
+      "productId": "DAIRY_089",
+      "name": "Paneer Mayo",
+      "hindiName": "पनीर मयोनेज़",
+      "category": "dairy",
+      "searchTokens": [
+        "पनीर मयोनेज़",
+        "paneer_mayo",
+        "paneer mayo"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "DAIRY_090": {
+      "productId": "DAIRY_090",
+      "name": "Cream",
+      "hindiName": "मलाई",
+      "category": "dairy",
+      "searchTokens": [
+        "मलाई",
+        "cream"
+      ],
+      "variants": 1,
+      "brand": "Amul"
+    },
+    "DAIRY_091": {
+      "productId": "DAIRY_091",
+      "name": "Shrikhand",
+      "hindiName": "श्रीखंड",
+      "category": "dairy",
+      "searchTokens": [
+        "श्रीखंड",
+        "shrikhand"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "DAIRY_092": {
+      "productId": "DAIRY_092",
+      "name": "Flavored Curd",
+      "hindiName": "फ्लेवर्ड दही",
+      "category": "dairy",
+      "searchTokens": [
+        "flavored_dahi",
+        "फ्लेवर्ड दही",
+        "flavored curd"
+      ],
+      "variants": 1,
+      "brand": "Amul"
+    },
+    "DAIRY_093": {
+      "productId": "DAIRY_093",
+      "name": "Greek Yogurt",
+      "hindiName": "ग्रीक योगर्ट",
+      "category": "dairy",
+      "searchTokens": [
+        "ग्रीक योगर्ट",
+        "greek yogurt",
+        "greek_yogurt"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "DAIRY_094": {
+      "productId": "DAIRY_094",
+      "name": "Whipped Cream",
+      "hindiName": "क्रीम",
+      "category": "dairy",
+      "searchTokens": [
+        "क्रीम",
+        "whipped_cream",
+        "whipped cream"
+      ],
+      "variants": 1,
+      "brand": "Amul"
+    },
+    "DAIRY_095": {
+      "productId": "DAIRY_095",
+      "name": "Cottage Cheese",
+      "hindiName": "पनीर",
+      "category": "dairy",
+      "searchTokens": [
+        "cottage_cheese",
+        "पनीर",
+        "cottage cheese"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "DAIRY_096": {
+      "productId": "DAIRY_096",
+      "name": "Flavored Milk",
+      "hindiName": "फ्लेवर्ड दूध",
+      "category": "dairy",
+      "searchTokens": [
+        "फ्लेवर्ड दूध",
+        "flavored milk",
+        "flavored_milk"
+      ],
+      "variants": 1,
+      "brand": "Amul"
+    },
+    "DAIRY_097": {
+      "productId": "DAIRY_097",
+      "name": "Premium Butter",
+      "hindiName": "प्रीमियम मक्खन",
+      "category": "dairy",
+      "searchTokens": [
+        "premium butter",
+        "butter_premium",
+        "प्रीमियम मक्खन"
+      ],
+      "variants": 1,
+      "brand": "Amul"
+    },
+    "DAIRY_098": {
+      "productId": "DAIRY_098",
+      "name": "Premium Ghee",
+      "hindiName": "प्रीमियम घी",
+      "category": "dairy",
+      "searchTokens": [
+        "premium ghee",
+        "प्रीमियम घी",
+        "ghee_premium"
+      ],
+      "variants": 1,
+      "brand": "Amul"
+    },
+    "DAIRY_099": {
+      "productId": "DAIRY_099",
+      "name": "Fresh Paneer",
+      "hindiName": "ताज़ा पनीर",
+      "category": "dairy",
+      "searchTokens": [
+        "ताज़ा पनीर",
+        "paneer_fresh",
+        "fresh paneer"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "DAIRY_100": {
+      "productId": "DAIRY_100",
+      "name": "Premium Paneer",
+      "hindiName": "प्रीमियम पनीर",
+      "category": "dairy",
+      "searchTokens": [
+        "प्रीमियम पनीर",
+        "premium paneer",
+        "paneer_premium"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "DAIRY_101": {
+      "productId": "DAIRY_101",
+      "name": "Toned Milk",
+      "hindiName": "टोन्ड दूध",
+      "category": "dairy",
+      "searchTokens": [
+        "toned milk",
+        "टोन्ड दूध",
+        "toned_milk"
+      ],
+      "variants": 1,
+      "brand": "Amul"
+    },
+    "DAIRY_102": {
+      "productId": "DAIRY_102",
+      "name": "Double Toned Milk",
+      "hindiName": "डबल टोन्ड दूध",
+      "category": "dairy",
+      "searchTokens": [
+        "double_toned_milk",
+        "double toned milk",
+        "डबल टोन्ड दूध"
+      ],
+      "variants": 1,
+      "brand": "Amul"
+    },
+    "DAIRY_103": {
+      "productId": "DAIRY_103",
+      "name": "Buffalo Milk",
+      "hindiName": "भैंस का दूध",
+      "category": "dairy",
+      "searchTokens": [
+        "buffalo milk",
+        "buffalo_milk",
+        "भैंस का दूध"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "RICE_GRAINS_104": {
+      "productId": "RICE_GRAINS_104",
+      "name": "Basmati Rice",
+      "hindiName": "बासमती चावल",
+      "category": "rice_grains",
+      "searchTokens": [
+        "basmati rice",
+        "basmati",
+        "बासमती चावल"
+      ],
+      "variants": 3,
+      "brand": "Aashirvaad"
+    },
+    "RICE_GRAINS_105": {
+      "productId": "RICE_GRAINS_105",
+      "name": "White Rice",
+      "hindiName": "सफेद चावल",
+      "category": "rice_grains",
+      "searchTokens": [
+        "white rice",
+        "सफेद चावल",
+        "white_rice"
+      ],
+      "variants": 3,
+      "brand": "Generic"
+    },
+    "RICE_GRAINS_106": {
+      "productId": "RICE_GRAINS_106",
+      "name": "Jasmine Rice",
+      "hindiName": "चमेली चावल",
+      "category": "rice_grains",
+      "searchTokens": [
+        "चमेली चावल",
+        "jasmine rice",
+        "jasmine_rice"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "RICE_GRAINS_107": {
+      "productId": "RICE_GRAINS_107",
+      "name": "Sona Masoori",
+      "hindiName": "सोना मसूरी",
+      "category": "rice_grains",
+      "searchTokens": [
+        "sona_masoori",
+        "सोना मसूरी",
+        "sona masoori"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "RICE_GRAINS_108": {
+      "productId": "RICE_GRAINS_108",
+      "name": "Broken Rice",
+      "hindiName": "टूटा हुआ चावल",
+      "category": "rice_grains",
+      "searchTokens": [
+        "broken_rice",
+        "broken rice",
+        "टूटा हुआ चावल"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "RICE_GRAINS_109": {
+      "productId": "RICE_GRAINS_109",
+      "name": "Brown Rice",
+      "hindiName": "भूरा चावल",
+      "category": "rice_grains",
+      "searchTokens": [
+        "brown rice",
+        "brown_rice",
+        "भूरा चावल"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "RICE_GRAINS_110": {
+      "productId": "RICE_GRAINS_110",
+      "name": "Parboiled Rice",
+      "hindiName": "उबला चावल",
+      "category": "rice_grains",
+      "searchTokens": [
+        "parboiled rice",
+        "parboiled_rice",
+        "उबला चावल"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "RICE_GRAINS_111": {
+      "productId": "RICE_GRAINS_111",
+      "name": "Premium Basmati",
+      "hindiName": "प्रीमियम बासमती",
+      "category": "rice_grains",
+      "searchTokens": [
+        "premium basmati",
+        "प्रीमियम बासमती",
+        "basmati_premium"
+      ],
+      "variants": 2,
+      "brand": "Tata"
+    },
+    "RICE_GRAINS_112": {
+      "productId": "RICE_GRAINS_112",
+      "name": "Gobindobhog",
+      "hindiName": "गोबिंदोभोग",
+      "category": "rice_grains",
+      "searchTokens": [
+        "गोबिंदोभोग",
+        "gobindobhog"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "RICE_GRAINS_113": {
+      "productId": "RICE_GRAINS_113",
+      "name": "Khichdi Rice",
+      "hindiName": "खिचड़ी चावल",
+      "category": "rice_grains",
+      "searchTokens": [
+        "khichdi rice",
+        "khichdi_rice",
+        "खिचड़ी चावल"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "RICE_GRAINS_114": {
+      "productId": "RICE_GRAINS_114",
+      "name": "Ponni Rice",
+      "hindiName": "पन्नी चावल",
+      "category": "rice_grains",
+      "searchTokens": [
+        "ponni_rice",
+        "पन्नी चावल",
+        "ponni rice"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "RICE_GRAINS_115": {
+      "productId": "RICE_GRAINS_115",
+      "name": "Kolam Rice",
+      "hindiName": "कोलम चावल",
+      "category": "rice_grains",
+      "searchTokens": [
+        "कोलम चावल",
+        "kolam rice",
+        "kolam_rice"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "RICE_GRAINS_116": {
+      "productId": "RICE_GRAINS_116",
+      "name": "Black Rice",
+      "hindiName": "काला चावल",
+      "category": "rice_grains",
+      "searchTokens": [
+        "black rice",
+        "black_rice",
+        "काला चावल"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "RICE_GRAINS_117": {
+      "productId": "RICE_GRAINS_117",
+      "name": "Red Rice",
+      "hindiName": "लाल चावल",
+      "category": "rice_grains",
+      "searchTokens": [
+        "लाल चावल",
+        "red rice",
+        "red_rice"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "RICE_GRAINS_118": {
+      "productId": "RICE_GRAINS_118",
+      "name": "Arborio Rice",
+      "hindiName": "अर्बोरियो चावल",
+      "category": "rice_grains",
+      "searchTokens": [
+        "अर्बोरियो चावल",
+        "arborio rice",
+        "arborio_rice"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "RICE_GRAINS_119": {
+      "productId": "RICE_GRAINS_119",
+      "name": "Organic Rice",
+      "hindiName": "जैविक चावल",
+      "category": "rice_grains",
+      "searchTokens": [
+        "organic_rice",
+        "जैविक चावल",
+        "organic rice"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "RICE_GRAINS_120": {
+      "productId": "RICE_GRAINS_120",
+      "name": "Glutinous Rice",
+      "hindiName": "चिपचिपा चावल",
+      "category": "rice_grains",
+      "searchTokens": [
+        "चिपचिपा चावल",
+        "glutinous_rice",
+        "glutinous rice"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "RICE_GRAINS_121": {
+      "productId": "RICE_GRAINS_121",
+      "name": "Wild Rice",
+      "hindiName": "जंगली चावल",
+      "category": "rice_grains",
+      "searchTokens": [
+        "wild_rice",
+        "जंगली चावल",
+        "wild rice"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "RICE_GRAINS_122": {
+      "productId": "RICE_GRAINS_122",
+      "name": "Sticky Rice",
+      "hindiName": "चिपचिपा चावल",
+      "category": "rice_grains",
+      "searchTokens": [
+        "sticky_rice",
+        "चिपचिपा चावल",
+        "sticky rice"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "RICE_GRAINS_123": {
+      "productId": "RICE_GRAINS_123",
+      "name": "Short Grain Rice",
+      "hindiName": "छोटा दाना चावल",
+      "category": "rice_grains",
+      "searchTokens": [
+        "short_grain_rice",
+        "short grain rice",
+        "छोटा दाना चावल"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FLOUR_ATTA_124": {
+      "productId": "FLOUR_ATTA_124",
+      "name": "Wheat Flour",
+      "hindiName": "मैदा",
+      "category": "flour_atta",
+      "searchTokens": [
+        "maida",
+        "मैदा",
+        "wheat flour"
+      ],
+      "variants": 2,
+      "brand": "Aashirvaad"
+    },
+    "FLOUR_ATTA_125": {
+      "productId": "FLOUR_ATTA_125",
+      "name": "Whole Wheat Flour",
+      "hindiName": "आटा",
+      "category": "flour_atta",
+      "searchTokens": [
+        "whole wheat flour",
+        "atta",
+        "आटा"
+      ],
+      "variants": 2,
+      "brand": "Aashirvaad"
+    },
+    "FLOUR_ATTA_126": {
+      "productId": "FLOUR_ATTA_126",
+      "name": "Gram Flour",
+      "hindiName": "बेसन",
+      "category": "flour_atta",
+      "searchTokens": [
+        "बेसन",
+        "besan",
+        "gram flour"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "FLOUR_ATTA_127": {
+      "productId": "FLOUR_ATTA_127",
+      "name": "Rice Flour",
+      "hindiName": "चावल का आटा",
+      "category": "flour_atta",
+      "searchTokens": [
+        "चावल का आटा",
+        "rice flour",
+        "rice_flour"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FLOUR_ATTA_128": {
+      "productId": "FLOUR_ATTA_128",
+      "name": "Corn Flour",
+      "hindiName": "मक्का का आटा",
+      "category": "flour_atta",
+      "searchTokens": [
+        "corn_flour",
+        "corn flour",
+        "मक्का का आटा"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FLOUR_ATTA_129": {
+      "productId": "FLOUR_ATTA_129",
+      "name": "Ragi Flour",
+      "hindiName": "राई का आटा",
+      "category": "flour_atta",
+      "searchTokens": [
+        "राई का आटा",
+        "ragi flour",
+        "ragi_flour"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FLOUR_ATTA_130": {
+      "productId": "FLOUR_ATTA_130",
+      "name": "Semolina",
+      "hindiName": "सूजी",
+      "category": "flour_atta",
+      "searchTokens": [
+        "सूजी",
+        "semolina"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FLOUR_ATTA_131": {
+      "productId": "FLOUR_ATTA_131",
+      "name": "Oats",
+      "hindiName": "जई",
+      "category": "flour_atta",
+      "searchTokens": [
+        "oats",
+        "जई"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "FLOUR_ATTA_132": {
+      "productId": "FLOUR_ATTA_132",
+      "name": "Multi Mix Flour",
+      "hindiName": "मिक्स आटा",
+      "category": "flour_atta",
+      "searchTokens": [
+        "multimix_flour",
+        "मिक्स आटा",
+        "multi mix flour"
+      ],
+      "variants": 1,
+      "brand": "Aashirvaad"
+    },
+    "FLOUR_ATTA_133": {
+      "productId": "FLOUR_ATTA_133",
+      "name": "Buckwheat Flour",
+      "hindiName": "कुट्टु का आटा",
+      "category": "flour_atta",
+      "searchTokens": [
+        "buckwheat flour",
+        "buckwheat_flour",
+        "कुट्टु का आटा"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "PULSES_134": {
+      "productId": "PULSES_134",
+      "name": "Arhar Dal",
+      "hindiName": "अरहर दाल",
+      "category": "pulses",
+      "searchTokens": [
+        "अरहर दाल",
+        "arhar dal",
+        "arhar_dal"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "PULSES_135": {
+      "productId": "PULSES_135",
+      "name": "Moong Dal",
+      "hindiName": "मूंग दाल",
+      "category": "pulses",
+      "searchTokens": [
+        "मूंग दाल",
+        "moong dal",
+        "moong_dal"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "PULSES_136": {
+      "productId": "PULSES_136",
+      "name": "Masoor Dal",
+      "hindiName": "मसूर दाल",
+      "category": "pulses",
+      "searchTokens": [
+        "मसूर दाल",
+        "masoor dal",
+        "masoor_dal"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "PULSES_137": {
+      "productId": "PULSES_137",
+      "name": "Urad Dal",
+      "hindiName": "उड़द दाल",
+      "category": "pulses",
+      "searchTokens": [
+        "उड़द दाल",
+        "urad dal",
+        "urad_dal"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "PULSES_138": {
+      "productId": "PULSES_138",
+      "name": "Chana Dal",
+      "hindiName": "चना दाल",
+      "category": "pulses",
+      "searchTokens": [
+        "chana_dal",
+        "चना दाल",
+        "chana dal"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    },
+    "PULSES_139": {
+      "productId": "PULSES_139",
+      "name": "Chickpea",
+      "hindiName": "चना",
+      "category": "pulses",
+      "searchTokens": [
+        "chickpea",
+        "चना"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "PULSES_140": {
+      "productId": "PULSES_140",
+      "name": "Kidney Bean",
+      "hindiName": "राजमा",
+      "category": "pulses",
+      "searchTokens": [
+        "राजमा",
+        "kidney bean",
+        "kidney_bean"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "PULSES_141": {
+      "productId": "PULSES_141",
+      "name": "Black Eyed Pea",
+      "hindiName": "लोबिया",
+      "category": "pulses",
+      "searchTokens": [
+        "लोबिया",
+        "black eyed pea",
+        "black_eyed_pea"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "PULSES_142": {
+      "productId": "PULSES_142",
+      "name": "Green Lentil",
+      "hindiName": "हरी दाल",
+      "category": "pulses",
+      "searchTokens": [
+        "green lentil",
+        "green_lentil",
+        "हरी दाल"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "PULSES_143": {
+      "productId": "PULSES_143",
+      "name": "Split Pea",
+      "hindiName": "मटर की दाल",
+      "category": "pulses",
+      "searchTokens": [
+        "split_pea",
+        "मटर की दाल",
+        "split pea"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "PULSES_144": {
+      "productId": "PULSES_144",
+      "name": "Pinto Bean",
+      "hindiName": "पिंटो दाल",
+      "category": "pulses",
+      "searchTokens": [
+        "पिंटो दाल",
+        "pinto_bean",
+        "pinto bean"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "PULSES_145": {
+      "productId": "PULSES_145",
+      "name": "Moth Bean",
+      "hindiName": "मठ की दाल",
+      "category": "pulses",
+      "searchTokens": [
+        "moth bean",
+        "moth_bean",
+        "मठ की दाल"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "PULSES_146": {
+      "productId": "PULSES_146",
+      "name": "Bengal Gram",
+      "hindiName": "चना सुखा",
+      "category": "pulses",
+      "searchTokens": [
+        "gram",
+        "चना सुखा",
+        "bengal gram"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "PULSES_147": {
+      "productId": "PULSES_147",
+      "name": "Black Gram",
+      "hindiName": "काली दाल",
+      "category": "pulses",
+      "searchTokens": [
+        "black_gram",
+        "black gram",
+        "काली दाल"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "PULSES_148": {
+      "productId": "PULSES_148",
+      "name": "Mixed Dal",
+      "hindiName": "मिक्स दाल",
+      "category": "pulses",
+      "searchTokens": [
+        "mixed dal",
+        "मिक्स दाल",
+        "mixed_dal"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "VEG_046": {
+      "productId": "VEG_046",
+      "name": "Bottle Gourd Leaves",
+      "hindiName": "लौकी के पत्ते",
+      "category": "vegetables",
+      "searchTokens": [
+        "lauki patte",
+        "bottle gourd leaves",
+        "लौकी के पत्ते",
+        "lauki ke patte"
+      ],
+      "variants": 1,
+      "brand": "Generic"
+    },
+    "PULSE_016": {
+      "productId": "PULSE_016",
+      "name": "Fenugreek Seeds",
+      "hindiName": "मेथी के दाने",
+      "category": "pulses",
+      "searchTokens": [
+        "hulba",
+        "methi",
+        "मेथी के दाने",
+        "fenugreek",
+        "methee",
+        "fenugreek seeds",
+        "मेथी"
+      ],
+      "variants": 2,
+      "brand": "Generic"
+    }
+  }
+}

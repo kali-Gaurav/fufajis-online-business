@@ -39,7 +39,8 @@ class OrderNotificationService {
       await _sendNotification(
         userId: order.customerId,
         title: '✅ Order #${order.orderNumber.toUpperCase()} Confirmed',
-        body: 'We received your order. Expected delivery: ${_formatDate(order.scheduledDeliveryDate)}',
+        body:
+            'We received your order. Expected delivery: ${_formatDate(order.scheduledDeliveryDate)}',
         type: 'orderConfirmed',
         orderId: order.id,
         data: {
@@ -88,10 +89,7 @@ class OrderNotificationService {
   //  ORDER STATUS UPDATES
   // ════════════════════════════════════════════════════════════════════════
 
-  Future<void> notifyOrderStatusChanged(
-    OrderModel order,
-    OrderStatus previousStatus,
-  ) async {
+  Future<void> notifyOrderStatusChanged(OrderModel order, OrderStatus previousStatus) async {
     try {
       debugPrint('[OrderNotification] Order status changed: ${order.id} → ${order.status}');
 
@@ -105,10 +103,7 @@ class OrderNotificationService {
         body: notification['body']!,
         type: notification['type']!,
         orderId: order.id,
-        data: {
-          'status': order.status.toString(),
-          'previousStatus': previousStatus.toString(),
-        },
+        data: {'status': order.status.toString(), 'previousStatus': previousStatus.toString()},
       );
 
       // 2. Add system message to chat
@@ -222,16 +217,13 @@ class OrderNotificationService {
   //  PAYMENT RECEIVED
   // ════════════════════════════════════════════════════════════════════════
 
-  Future<void> notifyPaymentReceived(
-    String orderId,
-    String customerId,
-    double amount,
-  ) async {
+  Future<void> notifyPaymentReceived(String orderId, String customerId, double amount) async {
     try {
       await _sendNotification(
         userId: customerId,
         title: '💳 Payment Received',
-        body: 'We received your payment of ₹${amount.toStringAsFixed(0)}. Your order will be processed soon.',
+        body:
+            'We received your payment of ₹${amount.toStringAsFixed(0)}. Your order will be processed soon.',
         type: 'paymentReceived',
         orderId: orderId,
         data: {'amount': amount.toString()},
@@ -263,10 +255,7 @@ class OrderNotificationService {
         title: '🛒 Smart Kitchen: $productName running low?',
         body: 'You usually buy $productName every few days. Last purchase was $daysAgo days ago.',
         type: 'reorderSuggestion',
-        data: {
-          'productId': productId,
-          'suggestionType': 'stapleRefill',
-        },
+        data: {'productId': productId, 'suggestionType': 'stapleRefill'},
       );
     } catch (e) {
       debugPrint('[OrderNotification] Error suggesting reorder: $e');
@@ -285,7 +274,8 @@ class OrderNotificationService {
       await _sendNotification(
         userId: customerId,
         title: '💰 Price Drop: $productName!',
-        body: 'Was ₹${oldPrice.toStringAsFixed(0)}, now ₹${newPrice.toStringAsFixed(0)} ($discount% off)',
+        body:
+            'Was ₹${oldPrice.toStringAsFixed(0)}, now ₹${newPrice.toStringAsFixed(0)} ($discount% off)',
         type: 'priceDrop',
         data: {
           'oldPrice': oldPrice.toString(),
@@ -368,11 +358,7 @@ class OrderNotificationService {
     Map<String, dynamic>? data,
   }) async {
     try {
-      final docRef = _firestore
-          .collection('users')
-          .doc(userId)
-          .collection('notifications')
-          .doc();
+      final docRef = _firestore.collection('users').doc(userId).collection('notifications').doc();
 
       await docRef.set({
         'id': docRef.id,
@@ -434,17 +420,10 @@ class OrderNotificationService {
   }
 
   /// Add system message to order chat
-  Future<void> _addSystemMessage({
-    required String orderId,
-    required String message,
-  }) async {
+  Future<void> _addSystemMessage({required String orderId, required String message}) async {
     try {
       final chatId = 'order_$orderId';
-      await _firestore
-          .collection('chats')
-          .doc(chatId)
-          .collection('messages')
-          .add({
+      await _firestore.collection('chats').doc(chatId).collection('messages').add({
         'type': 'systemMessage',
         'content': message,
         'senderId': 'system',
@@ -466,11 +445,7 @@ class OrderNotificationService {
       // ✅ FIXED: Generate invoice PDF
       final invoice = await InvoiceService().generateInvoice(order);
 
-      await _firestore
-          .collection('chats')
-          .doc(chatId)
-          .collection('messages')
-          .add({
+      await _firestore.collection('chats').doc(chatId).collection('messages').add({
         'type': 'invoice',
         'content': 'Your invoice #${invoice.invoiceNumber} is ready!',
         'senderId': 'system',
@@ -550,9 +525,7 @@ class OrderNotificationService {
     final today = DateTime.now();
     final tomorrow = today.add(const Duration(days: 1));
 
-    if (date.year == today.year &&
-        date.month == today.month &&
-        date.day == today.day) {
+    if (date.year == today.year && date.month == today.month && date.day == today.day) {
       return 'today by 10 PM';
     } else if (date.year == tomorrow.year &&
         date.month == tomorrow.month &&

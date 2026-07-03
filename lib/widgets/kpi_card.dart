@@ -39,9 +39,7 @@ class KPICard extends StatelessWidget {
       onTap: onTap,
       child: Card(
         elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         color: bgColor,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -57,9 +55,9 @@ class KPICard extends StatelessWidget {
                     child: Text(
                       title,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey[600],
-                            fontWeight: FontWeight.w500,
-                          ),
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -70,11 +68,7 @@ class KPICard extends StatelessWidget {
                       color: accentCol.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(
-                      icon,
-                      color: accentCol,
-                      size: 20,
-                    ),
+                    child: Icon(icon, color: accentCol, size: 20),
                   ),
                 ],
               ),
@@ -88,16 +82,14 @@ class KPICard extends StatelessWidget {
                   Text(
                     value,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
                   ),
                   const SizedBox(width: 4),
                   Text(
                     unit,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[500],
-                        ),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
                   ),
                 ],
               ),
@@ -116,17 +108,16 @@ class KPICard extends StatelessWidget {
                     Text(
                       '${changePercent!.abs().toStringAsFixed(1)}%',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: accentCol,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        color: accentCol,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(width: 4),
                     Text(
                       'vs yesterday',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[500],
-                            fontSize: 11,
-                          ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[500], fontSize: 11),
                     ),
                   ],
                 ),
@@ -137,10 +128,7 @@ class KPICard extends StatelessWidget {
                 Container(
                   height: 30,
                   color: Colors.transparent,
-                  child: _MiniSparkline(
-                    data: sparklineData!,
-                    color: accentCol,
-                  ),
+                  child: _MiniSparkline(data: sparklineData!, color: accentCol),
                 ),
               ],
             ],
@@ -156,10 +144,7 @@ class _MiniSparkline extends StatelessWidget {
   final List<double> data;
   final Color color;
 
-  const _MiniSparkline({
-    required this.data,
-    required this.color,
-  });
+  const _MiniSparkline({required this.data, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -214,9 +199,7 @@ class _SparklinePainter extends CustomPainter {
 
     for (int i = 0; i < data.length; i++) {
       final x = i * xStep;
-      final normalizedY = range > 0
-          ? (maxValue - data[i]) / range
-          : 0;
+      final normalizedY = range > 0 ? (maxValue - data[i]) / range : 0;
       final y = normalizedY * size.height;
 
       if (i == 0) {

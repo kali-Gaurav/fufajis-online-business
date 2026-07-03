@@ -20,8 +20,7 @@ class PaymentSuccessAnimation extends StatefulWidget {
   });
 
   @override
-  State<PaymentSuccessAnimation> createState() =>
-      _PaymentSuccessAnimationState();
+  State<PaymentSuccessAnimation> createState() => _PaymentSuccessAnimationState();
 }
 
 class _PaymentSuccessAnimationState extends State<PaymentSuccessAnimation>
@@ -36,10 +35,7 @@ class _PaymentSuccessAnimationState extends State<PaymentSuccessAnimation>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
 
     _scaleAnimation = CurvedAnimation(
       parent: _controller,
@@ -84,18 +80,10 @@ class _PaymentSuccessAnimationState extends State<PaymentSuccessAnimation>
               shape: BoxShape.circle,
               color: _green.withValues(alpha: 0.12),
               boxShadow: [
-                BoxShadow(
-                  color: _green.withValues(alpha: 0.25),
-                  blurRadius: 28,
-                  spreadRadius: 6,
-                ),
+                BoxShadow(color: _green.withValues(alpha: 0.25), blurRadius: 28, spreadRadius: 6),
               ],
             ),
-            child: const Icon(
-              Icons.check_circle_rounded,
-              color: _green,
-              size: 80,
-            ),
+            child: const Icon(Icons.check_circle_rounded, color: _green, size: 80),
           ),
         ),
 
@@ -106,29 +94,19 @@ class _PaymentSuccessAnimationState extends State<PaymentSuccessAnimation>
           animation: _controller,
           builder: (context, child) => Opacity(
             opacity: _fadeAnimation.value,
-            child: Transform.translate(
-              offset: Offset(0, _slideAnimation.value),
-              child: child,
-            ),
+            child: Transform.translate(offset: Offset(0, _slideAnimation.value), child: child),
           ),
           child: const Column(
             children: [
               Text(
                 'Payment Successful!',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: _green,
-                ),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: _green),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 8),
               Text(
                 'Your order has been confirmed.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppTheme.grey600,
-                ),
+                style: TextStyle(fontSize: 14, color: AppTheme.grey600),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -141,8 +119,7 @@ class _PaymentSuccessAnimationState extends State<PaymentSuccessAnimation>
         FadeTransition(
           opacity: _fadeAnimation,
           child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
               color: _green.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
@@ -151,18 +128,14 @@ class _PaymentSuccessAnimationState extends State<PaymentSuccessAnimation>
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.receipt_long,
-                    color: _green, size: 20),
+                const Icon(Icons.receipt_long, color: _green, size: 20),
                 const SizedBox(width: 10),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
                       'Order Number',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: AppTheme.grey500,
-                      ),
+                      style: TextStyle(fontSize: 11, color: AppTheme.grey500),
                     ),
                     Text(
                       '#${widget.orderNumber}',
@@ -185,29 +158,23 @@ class _PaymentSuccessAnimationState extends State<PaymentSuccessAnimation>
         FadeTransition(
           opacity: _fadeAnimation,
           child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
               color: AppTheme.primary.withValues(alpha: 0.07),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                  color: AppTheme.primary.withValues(alpha: 0.25)),
+              border: Border.all(color: AppTheme.primary.withValues(alpha: 0.25)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.local_shipping,
-                    color: AppTheme.primary, size: 20),
+                const Icon(Icons.local_shipping, color: AppTheme.primary, size: 20),
                 const SizedBox(width: 10),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
                       'Estimated Delivery',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: AppTheme.grey500,
-                      ),
+                      style: TextStyle(fontSize: 11, color: AppTheme.grey500),
                     ),
                     Text(
                       widget.estimatedDelivery,
@@ -239,36 +206,28 @@ class _PaymentSuccessAnimationState extends State<PaymentSuccessAnimation>
                   icon: const Icon(Icons.visibility_outlined, size: 18),
                   label: const Text(
                     'View Order',
-                    style: TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _green,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton.icon(
                   onPressed: widget.onContinueShopping,
-                  icon: const Icon(
-                      Icons.shopping_bag_outlined,
-                      size: 18),
+                  icon: const Icon(Icons.shopping_bag_outlined, size: 18),
                   label: const Text(
                     'Continue Shopping',
-                    style: TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppTheme.primary,
                     side: const BorderSide(color: AppTheme.primary),
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
               ],

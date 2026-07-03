@@ -28,7 +28,7 @@ class _SecurityHealthDashboardState extends State<SecurityHealthDashboard> {
   Future<void> _loadRiskScore() async {
     setState(() => _isLoadingScore = true);
     final score = await _riskService.calculateSystemRiskScore(hours: 24);
-    
+
     int anomalies = 0;
     try {
       final snap = await FirebaseFirestore.instance
@@ -65,12 +65,7 @@ class _SecurityHealthDashboardState extends State<SecurityHealthDashboard> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Security Health NOC', style: TextStyle(fontWeight: FontWeight.w700)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadRiskScore,
-          )
-        ],
+        actions: [IconButton(icon: const Icon(Icons.refresh), onPressed: _loadRiskScore)],
       ),
       body: Column(
         children: [
@@ -83,9 +78,7 @@ class _SecurityHealthDashboardState extends State<SecurityHealthDashboard> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
-          Expanded(
-            child: _buildEventsList(),
-          ),
+          Expanded(child: _buildEventsList()),
         ],
       ),
     );
@@ -126,14 +119,17 @@ class _SecurityHealthDashboardState extends State<SecurityHealthDashboard> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.warning_amber_rounded, color: _transactionAnomaliesCount > 0 ? AppTheme.error : Colors.grey),
+                      Icon(
+                        Icons.warning_amber_rounded,
+                        color: _transactionAnomaliesCount > 0 ? AppTheme.error : Colors.grey,
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         '$_transactionAnomaliesCount Unresolved Transaction Anomalies',
                         style: TextStyle(
-                           fontSize: 16,
-                           color: _transactionAnomaliesCount > 0 ? AppTheme.error : Colors.grey,
-                           fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: _transactionAnomaliesCount > 0 ? AppTheme.error : Colors.grey,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
@@ -165,19 +161,16 @@ class _SecurityHealthDashboardState extends State<SecurityHealthDashboard> {
             final userId = event['userId'] as String? ?? 'Unknown User';
             final deviceName = event['deviceName'] as String? ?? 'Unknown Device';
             final timestamp = event['timestamp'];
-            
+
             DateTime dt = DateTime.now();
             if (timestamp != null && timestamp is Timestamp) {
-               try {
-                 dt = timestamp.toDate();
-               } catch (_) {}
+              try {
+                dt = timestamp.toDate();
+              } catch (_) {}
             }
 
             return ListTile(
-              leading: Icon(
-                _getEventIcon(eventType),
-                color: _getEventColor(eventType),
-              ),
+              leading: Icon(_getEventIcon(eventType), color: _getEventColor(eventType)),
               title: Text(eventType),
               subtitle: Text('User: $userId\nDevice: $deviceName'),
               trailing: Text(
@@ -203,7 +196,8 @@ class _SecurityHealthDashboardState extends State<SecurityHealthDashboard> {
 
   Color _getEventColor(String type) {
     if (type.contains('root') || type.contains('Lockout')) return AppTheme.error;
-    if (type.contains('failed') || type.contains('Failure') || type.contains('Revoked')) return AppTheme.warning;
+    if (type.contains('failed') || type.contains('Failure') || type.contains('Revoked'))
+      return AppTheme.warning;
     if (type.contains('Success')) return AppTheme.success;
     return AppTheme.adminAccent;
   }

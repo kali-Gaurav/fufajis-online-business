@@ -1,0 +1,235 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =====================================================
+    // HELPER FUNCTIONS
+    // =====================================================
+
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if user is owner/admin
+    function isAdmin() {
+      return isAuthenticated() &&
+             (request.auth.token.role == 'owner' || request.auth.token.role == 'admin');
+    }
+
+    // Check if user is staff (owner/admin/manager/employee)
+    function isStaff() {
+      return isAuthenticated() &&
+             (request.auth.token.role == 'owner' ||
+              request.auth.token.role == 'admin' ||
+              request.auth.token.role == 'manager' ||
+              request.auth.token.role == 'employee');
+    }
+
+    // Check if user is rider
+    function isRider() {
+      return isAuthenticated() && request.auth.token.role == 'rider';
+    }
+
+    // Check if user is customer
+    function isCustomer() {
+      return isAuthenticated() && request.auth.token.role == 'customer';
+    }
+
+    // Get current user ID from auth token
+    function currentUserId() {
+      return request.auth.uid;
+    }
+
+    // Check if user owns this resource
+    function isOwner(userId) {
+      return isAuthenticated() && currentUserId() == userId;
+    }
+
+    // =====================================================
+    // COLLECTION: catalog_products
+    // Authority: Supabase canonical (read-only in Firestore)
+    // =====================================================
+
+    match /catalog_products/{productId} {
+      // Public read access
+      allow read: if true;
+
+      // Backend/admin writes only
+      allow write: if isAdmin();
+
+      // =====================================================
+      // SUBCOLLECTION: variants
+      // =====================================================
+
+      match /variants/{variantId} {
+        // Public read access
+        allow read: if true;
+
+        // Backend/admin writes only
+        allow write: if isAdmin();
+      }
+    }
+
+    // =====================================================
+    // COLLECTION: shops/{shopId}/inventory
+    // Authority: Supabase canonical (realtime read-only)
+    // =====================================================
+
+    match /shops/{shopId} {
+      // Allow shop document read (needed for subcollection access)
+      allow read: if true;
+
+      match /inventory/{variantId} {
+        // Public read access (customers see stock for browsing)
+        allow read: if true;
+
+        // Staff can read with more detail (includes buy_price)
+        allow read: if isStaff();
+
+        // Backend/admin writes only (Supabase sync)
+        allow write: if isAdmin();
+
+        // Block direct client writes (no exceptions)
+        allow create, update, delete: if false;
+      }
+    }
+
+    // =====================================================
+    // COLLECTION: carts
+    // Authority: Firestore (client + app writes)
+    // =====================================================
+
+    match /carts/{userId} {
+      // Owner can read own cart
+      allow read: if isOwner(userId);
+
+      // Owner can create own cart
+      allow create: if isOwner(userId) &&
+                       isAuthenticated() &&
+                       request.resource.data.userId == currentUserId() &&
+                       request.resource.data.items is list &&
+                       request.resource.data.cartStatus in ['active', 'abandoned'] &&
+                       request.resource.data.reservedUntil is timestamp;
+
+      // Owner can update own cart
+      allow update: if isOwner(userId) &&
+                       isAuthenticated() &&
+                       resource.data.userId == currentUserId() &&
+                       request.resource.data.userId == resource.data.userId &&
+                       request.resource.data.items is list &&
+                       request.resource.data.cartStatus in ['active', 'checkout', 'abandoned'] &&
+                       request.resource.data.reservedUntil is timestamp;
+
+      // Owner can delete own cart
+      allow delete: if isOwner(userId) && isAuthenticated();
+
+      // Backend can read/write all carts (for sync/monitoring)
+      allow read, write: if isAdmin();
+
+      // Block all other access
+      allow read, write: if false;
+    }
+
+    // =====================================================
+    // COLLECTION: orders
+    // Authority: Firestore canonical (Firebase Functions only)
+    // =====================================================
+
+    match /orders/{orderId} {
+      // Customer can read own orders
+      allow read: if isAuthenticated() &&
+                     request.auth.uid == resource.data.userId &&
+                     isCustomer();
+
+      // Rider can read assigned orders
+      allow read: if isRider() &&
+                     isAuthenticated() &&
+                     request.auth.uid == resource.data.rider.riderId;
+
+      // Staff/Admin can read all orders
+      allow read: if isStaff() || isAdmin();
+
+      // NO DIRECT CLIENT WRITES - Orders created via Firebase Functions only
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+
+      // Admin can manage orders (for manual interventions only)
+      allow write: if isAdmin();
+
+      // Backend/Functions can write (via custom claims or service account)
+      // This is handled via Firebase Functions with elevated privileges
+      // The rule above allows admin writes; Functions get elevated access
+    }
+
+    // =====================================================
+    // COLLECTION: search_cache
+    // Authority: Supabase canonical (read-only in Firestore)
+    // =====================================================
+
+    match /search_cache/{cacheId} {
+      // Public read access (no auth required)
+      allow read: if true;
+
+      // Backend/admin writes only
+      allow write: if isAdmin();
+
+      // Block direct client writes
+      allow create, update, delete: if false;
+    }
+
+    // =====================================================
+    // DEFAULT DENY
+    // =====================================================
+
+    // Catch-all: deny everything not explicitly allowed
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
+// =====================================================
+// DEPLOYMENT NOTES
+// =====================================================
+//
+// 1. JWT Claims Setup
+//    Firestore rules read from request.auth.token.role
+//    This must be set in Firebase Auth custom claims:
+//
+//    admin_sdk.auth.set_custom_claims(uid, {
+//      'role': 'customer' | 'owner' | 'admin' | 'manager' | 'employee' | 'rider'
+//    })
+//
+// 2. Firebase Functions Elevated Privileges
+//    Functions that create/update orders must run with elevated privileges.
+//    Initialize Firebase Admin SDK:
+//
+//    const admin = require('firebase-admin');
+//    admin.initializeApp();
+//
+//    // Admin SDK bypasses security rules
+//    await admin.firestore().collection('orders').doc(orderId).set(orderData);
+//
+// 3. Role Mapping
+//    owner      → Full system access
+//    admin      → Full operational access (can write all collections)
+//    manager    → Can read inventory, see all orders
+//    employee   → Can read inventory, see assigned orders
+//    rider      → Can read assigned orders, update delivery status
+//    customer   → Can read products, manage own cart, read own orders
+//
+// 4. Test Rules (in Firebase Console)
+//    - Test as unauthenticated: should only access catalog_products, search_cache
+//    - Test as customer: should access own cart, own orders, catalog
+//    - Test as rider: should access assigned orders only
+//    - Test as admin: should access all collections
+//
+// 5. Critical Denials
+//    ❌ No direct client writes to: carts (except own), orders, inventory
+//    ❌ No public writes to: catalog_products, search_cache
+//    ✅ Only backend (admin SDK) can create/update orders
+//    ✅ Only owner/admin can write inventory
+//
+// =====================================================

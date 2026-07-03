@@ -11,8 +11,7 @@ class CountdownTimer extends StatefulWidget {
   State<CountdownTimer> createState() => _CountdownTimerState();
 }
 
-class _CountdownTimerState extends State<CountdownTimer>
-    with SingleTickerProviderStateMixin {
+class _CountdownTimerState extends State<CountdownTimer> with SingleTickerProviderStateMixin {
   late Timer _timer;
   late Duration _duration;
   late AnimationController _pulseController;

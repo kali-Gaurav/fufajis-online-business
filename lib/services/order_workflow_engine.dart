@@ -39,19 +39,19 @@ class OrderWorkflowEngine {
   /// Map of order_status -> set of statuses it may transition to.
   /// Any transition not listed here is rejected.
   static const Map<String, Set<String>> validTransitions = {
-    'pending':              {'confirmed', 'cancelled', 'on_hold'},
-    'confirmed':            {'preparing', 'cancelled', 'on_hold'},
-    'preparing':            {'ready_for_pickup', 'cancelled', 'partially_fulfilled', 'on_hold'},
-    'ready_for_pickup':     {'out_for_delivery', 'cancelled'},
-    'out_for_delivery':     {'delivered', 'delivery_failed', 'cancelled'},
-    'delivery_failed':      {'out_for_delivery', 'cancelled', 'return_initiated'},
-    'partially_fulfilled':  {'preparing', 'out_for_delivery', 'cancelled'},
-    'on_hold':              {'confirmed', 'cancelled'},
-    'return_initiated':     {'returned', 'cancelled'},
-    'returned':             {'refunded'},
-    'delivered':            {'refunded', 'return_initiated'},
-    'cancelled':            <String>{},
-    'refunded':             <String>{},
+    'pending': {'confirmed', 'cancelled', 'on_hold'},
+    'confirmed': {'preparing', 'cancelled', 'on_hold'},
+    'preparing': {'ready_for_pickup', 'cancelled', 'partially_fulfilled', 'on_hold'},
+    'ready_for_pickup': {'out_for_delivery', 'cancelled'},
+    'out_for_delivery': {'delivered', 'delivery_failed', 'cancelled'},
+    'delivery_failed': {'out_for_delivery', 'cancelled', 'return_initiated'},
+    'partially_fulfilled': {'preparing', 'out_for_delivery', 'cancelled'},
+    'on_hold': {'confirmed', 'cancelled'},
+    'return_initiated': {'returned', 'cancelled'},
+    'returned': {'refunded'},
+    'delivered': {'refunded', 'return_initiated'},
+    'cancelled': <String>{},
+    'refunded': <String>{},
   };
 
   /// All terminal statuses — no further transitions allowed.
@@ -76,8 +76,7 @@ class OrderWorkflowEngine {
     String? reason,
   }) async {
     if (!canTransition(fromStatus, toStatus)) {
-      final msg =
-          'Invalid order transition: $fromStatus -> $toStatus (order $orderId)';
+      final msg = 'Invalid order transition: $fromStatus -> $toStatus (order $orderId)';
       debugPrint('[OrderWorkflowEngine] $msg');
       return OrderTransitionResult.failure(msg);
     }
@@ -90,8 +89,7 @@ class OrderWorkflowEngine {
         if (reason != null) 'reason': reason,
       });
     } catch (e) {
-      return OrderTransitionResult.failure(
-          'Failed to persist order status change: $e');
+      return OrderTransitionResult.failure('Failed to persist order status change: $e');
     }
 
     // Automatic inventory sync: the moment an order enters 'preparing'

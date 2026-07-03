@@ -12,11 +12,7 @@ class OrderCard extends StatelessWidget {
   final OrderModel order;
   final VoidCallback? onTap;
 
-  const OrderCard({
-    super.key,
-    required this.order,
-    this.onTap,
-  });
+  const OrderCard({super.key, required this.order, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -61,10 +57,7 @@ class OrderCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         formatDateTime(order.createdAt),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.grey500,
-                        ),
+                        style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
                       ),
                     ],
                   ),
@@ -87,18 +80,11 @@ class OrderCard extends StatelessWidget {
                   // Item count
                   Row(
                     children: [
-                      const Icon(
-                        Icons.shopping_bag_outlined,
-                        size: 16,
-                        color: AppTheme.grey500,
-                      ),
+                      const Icon(Icons.shopping_bag_outlined, size: 16, color: AppTheme.grey500),
                       const SizedBox(width: 4),
                       Text(
                         '$itemCount ${itemCount == 1 ? 'item' : 'items'}',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: AppTheme.grey600,
-                        ),
+                        style: const TextStyle(fontSize: 13, color: AppTheme.grey600),
                       ),
                     ],
                   ),
@@ -122,10 +108,7 @@ class OrderCard extends StatelessWidget {
                         icon: const Icon(Icons.location_on_outlined, size: 14),
                         label: const Text(
                           'Track',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primary,
@@ -139,11 +122,7 @@ class OrderCard extends StatelessWidget {
                       ),
                     )
                   else
-                    const Icon(
-                      Icons.arrow_forward_ios,
-                      size: 16,
-                      color: AppTheme.grey400,
-                    ),
+                    const Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.grey400),
                 ],
               ),
             ],
@@ -159,11 +138,7 @@ class _StatusBadge extends StatelessWidget {
   final Color color;
   final IconData icon;
 
-  const _StatusBadge({
-    required this.label,
-    required this.color,
-    required this.icon,
-  });
+  const _StatusBadge({required this.label, required this.color, required this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -181,11 +156,7 @@ class _StatusBadge extends StatelessWidget {
           const SizedBox(width: 4),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: color),
           ),
         ],
       ),

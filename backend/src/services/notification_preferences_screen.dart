@@ -54,7 +54,7 @@ class _NotificationPreferencesScreenState
         _isLoading = false;
       });
     } catch (error) {
-      print('Error loading preferences: $error');
+      debugPrint('Error loading preferences: $error');
       setState(() => _isLoading = false);
     }
   }
@@ -105,10 +105,12 @@ class _NotificationPreferencesScreenState
           .doc('notification_preferences')
           .set(preferences, SetOptions(merge: true));
 
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Preferences saved')),
       );
     } catch (error) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error saving: $error')),
       );

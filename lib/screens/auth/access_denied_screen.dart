@@ -3,7 +3,7 @@ import '../../utils/app_theme.dart';
 
 class AccessDeniedScreen extends StatelessWidget {
   final String message;
-  
+
   const AccessDeniedScreen({super.key, required this.message});
 
   @override
@@ -29,7 +29,7 @@ class AccessDeniedScreen extends StatelessWidget {
                   Navigator.of(context).pop(); // Go back to login screen
                 },
                 child: const Text('Back to Login'),
-              )
+              ),
             ],
           ),
         ),

@@ -17,10 +17,7 @@ class MaintenanceOverlay extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Colors.white,
-              AppTheme.primaryColor.withValues(alpha: 0.05),
-            ],
+            colors: [Colors.white, AppTheme.primaryColor.withValues(alpha: 0.05)],
           ),
         ),
         child: Column(
@@ -50,9 +47,7 @@ class MaintenanceOverlay extends StatelessWidget {
             Text(
               "Fufaji is currently polishing the shop to serve you better. We'll be back online in a few minutes.",
               textAlign: TextAlign.center,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
             ),
             const SizedBox(height: 48),
             ElevatedButton(
@@ -60,28 +55,17 @@ class MaintenanceOverlay extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryColor,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 48,
-                  vertical: 16,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text(
-                "Check Status",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              child: const Text("Check Status", style: TextStyle(fontWeight: FontWeight.bold)),
             ),
             const SizedBox(height: 24),
             TextButton(
               onPressed: () {
                 // Potential WhatsApp support link
               },
-              child: const Text(
-                "Contact Support",
-                style: TextStyle(color: Colors.grey),
-              ),
+              child: const Text("Contact Support", style: TextStyle(color: Colors.grey)),
             ),
           ],
         ),

@@ -22,15 +22,24 @@ import 'package:firebase_performance/firebase_performance.dart';
 class PerformanceMonitor {
   static final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
   static final FirebasePerformance _firebasePerf = FirebasePerformance.instance;
-  static final Map<String, Stopwatch> _activeStopwatches = {};
-  static final Map<String, Trace> _activeTraces = {};
-  static final DateTime _appStartTime = DateTime.now();
+  static Map<String, Stopwatch> _activeStopwatches = {};
+  static Map<String, Trace> _activeTraces = {};
+  static DateTime? _appStartTime;
+
+  /// Sets the application start time as early as possible in main()
+  static void setAppStartTime(DateTime startTime) {
+    _appStartTime = startTime;
+  }
 
   /// Logs the initial application startup duration
   /// Target: <2 seconds for app launch
   static Future<void> recordAppStartupTime() async {
+    if (_appStartTime == null) {
+      debugPrint('[PerformanceMonitor] Warning: App Start Time not set. Using current time.');
+      _appStartTime = DateTime.now();
+    }
     final now = DateTime.now();
-    final durationMs = now.difference(_appStartTime).inMilliseconds;
+    final durationMs = now.difference(_appStartTime!).inMilliseconds;
     debugPrint('[PerformanceMonitor] App Startup Time: ${durationMs}ms');
 
     try {
@@ -59,9 +68,7 @@ class PerformanceMonitor {
   /// Name should follow pattern: 'service_operation' (e.g., 'order_creation', 'payment_webhook')
   static void startTrace(String name) {
     if (_activeStopwatches.containsKey(name)) {
-      debugPrint(
-        '[PerformanceMonitor] Warning: Trace "$name" is already running. Restarting.',
-      );
+      debugPrint('[PerformanceMonitor] Warning: Trace "$name" is already running. Restarting.');
       _activeStopwatches[name]!.reset();
     } else {
       _activeStopwatches[name] = Stopwatch();
@@ -82,31 +89,21 @@ class PerformanceMonitor {
 
   /// Stops the metric trace and records duration to both Firebase Analytics and Performance Monitoring
   /// Returns duration in milliseconds
-  static Future<int?> stopTrace(
-    String name, {
-    Map<String, dynamic>? additionalParameters,
-  }) async {
+  static Future<int?> stopTrace(String name, {Map<String, dynamic>? additionalParameters}) async {
     final stopwatch = _activeStopwatches[name];
     if (stopwatch == null) {
-      debugPrint(
-        '[PerformanceMonitor] Error: Trace "$name" was never started.',
-      );
+      debugPrint('[PerformanceMonitor] Error: Trace "$name" was never started.');
       return null;
     }
 
     stopwatch.stop();
     final durationMs = stopwatch.elapsedMilliseconds;
     _activeStopwatches.remove(name);
-    debugPrint(
-      '[PerformanceMonitor] Trace finished: "$name" took ${durationMs}ms',
-    );
+    debugPrint('[PerformanceMonitor] Trace finished: "$name" took ${durationMs}ms');
 
     try {
       // Log to Firebase Analytics
-      final Map<String, Object> params = {
-        'trace_name': name,
-        'duration_ms': durationMs,
-      };
+      final Map<String, Object> params = {'trace_name': name, 'duration_ms': durationMs};
       if (additionalParameters != null) {
         additionalParameters.forEach((key, value) {
           params[key] = value.toString();
@@ -168,10 +165,7 @@ class PerformanceMonitor {
     startTrace(name);
     try {
       final result = await asyncFunction();
-      await stopTrace(
-        name,
-        additionalParameters: {...?additionalParameters, 'status': 'success'},
-      );
+      await stopTrace(name, additionalParameters: {...?additionalParameters, 'status': 'success'});
       return result;
     } catch (e) {
       await stopTrace(

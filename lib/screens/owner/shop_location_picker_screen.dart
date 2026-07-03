@@ -78,8 +78,10 @@ class _ShopLocationPickerScreenState extends State<ShopLocationPickerScreen> {
           if (p.street != null && p.street!.isNotEmpty) p.street,
           if (p.subLocality != null && p.subLocality!.isNotEmpty) p.subLocality,
           if (p.locality != null && p.locality!.isNotEmpty) p.locality,
-          if (p.subAdministrativeArea != null && p.subAdministrativeArea!.isNotEmpty) p.subAdministrativeArea,
-          if (p.administrativeArea != null && p.administrativeArea!.isNotEmpty) p.administrativeArea,
+          if (p.subAdministrativeArea != null && p.subAdministrativeArea!.isNotEmpty)
+            p.subAdministrativeArea,
+          if (p.administrativeArea != null && p.administrativeArea!.isNotEmpty)
+            p.administrativeArea,
           if (p.postalCode != null && p.postalCode!.isNotEmpty) p.postalCode,
         ].join(', ');
 
@@ -130,7 +132,6 @@ class _ShopLocationPickerScreenState extends State<ShopLocationPickerScreen> {
     _searchController.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -261,7 +262,7 @@ class _ShopLocationPickerScreenState extends State<ShopLocationPickerScreen> {
                     color: Colors.black.withValues(alpha: 0.15),
                     blurRadius: 20,
                     offset: const Offset(0, -5),
-                  )
+                  ),
                 ],
               ),
               child: Column(
@@ -359,13 +360,17 @@ class _ShopLocationPickerScreenState extends State<ShopLocationPickerScreen> {
                     ),
                     child: const Text(
                       'Confirm Location & Zone',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );

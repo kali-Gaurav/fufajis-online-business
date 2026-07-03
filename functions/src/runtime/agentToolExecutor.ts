@@ -97,6 +97,10 @@ export async function executeAgentTool(
       return runUpdateProduct(args, ctx); // same transactional path as update_product
     case 'set_stock_status':
       return runSetStockStatus(args, ctx);
+    case 'apply_price':
+      return runApplyPrice(args, ctx);
+    case 'create_coupon':
+      return runCreateCoupon(args, ctx);
     case 'draft_broadcast':
       return runDraftBroadcast(args, ctx);
     case 'send_broadcast':
@@ -246,6 +250,19 @@ async function runUpdateProduct(
     let before: Record<string, unknown> | null = null;
 
     if (productId) {
+      // 1. Check/Acquire Product Lock (Spec §10/C2)
+      const lockRef = db.collection('product_locks').doc(productId);
+      const lockSnap = await txn.get(lockRef);
+      if (lockSnap.exists) {
+        const lockData = lockSnap.data();
+        // If lock is older than 5 minutes, consider it stale and override
+        const lockTime = (lockData?.lockedAt as admin.firestore.Timestamp)?.toMillis() ?? 0;
+        if (Date.now() - lockTime < 5 * 60 * 1000 && lockData?.agentId !== ctx.agentId) {
+          throw new functions.https.HttpsError('aborted', `Product ${productId} is currently locked by ${lockData?.agentId}`);
+        }
+      }
+      txn.set(lockRef, { agentId: ctx.agentId, lockedAt: admin.firestore.FieldValue.serverTimestamp() });
+
       ref = db.collection('products').doc(productId);
       const snap = await txn.get(ref);
       if (!snap.exists) {
@@ -253,6 +270,9 @@ async function runUpdateProduct(
       }
       before = snap.data() as Record<string, unknown>;
       txn.update(ref, { ...diff, updatedAt: admin.firestore.FieldValue.serverTimestamp() });
+
+      // Release lock after update (will be part of atomic txn)
+      txn.delete(lockRef);
     } else {
       // New product (from a draft_product task)
       ref = db.collection('products').doc();
@@ -297,6 +317,58 @@ async function runSetStockStatus(
     { productId: args.productId, diff: { inStock: !!args.inStock } },
     ctx
   );
+}
+
+async function runApplyPrice(
+  args: Record<string, unknown>,
+  ctx: ToolExecutionContext
+): Promise<ToolExecutionResult> {
+  const productId = args.productId as string;
+  const newPrice = Number(args.price);
+
+  if (!productId || isNaN(newPrice)) {
+    throw new functions.https.HttpsError('invalid-argument', 'apply_price requires productId and valid price.');
+  }
+
+  return runUpdateProduct(
+    { productId, diff: { price: newPrice } },
+    { ...ctx, reasoning: args.rationale as string ?? ctx.reasoning }
+  );
+}
+
+async function runCreateCoupon(
+  args: Record<string, unknown>,
+  ctx: ToolExecutionContext
+): Promise<ToolExecutionResult> {
+  const code = (args.code as string) ?? `AI-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+  const discount = Number(args.discount ?? 10);
+  const ref = db.collection('coupons').doc();
+
+  const couponDoc = {
+    code,
+    discountAmount: discount,
+    discountType: 'percentage',
+    isActive: true,
+    minOrderAmount: Number(args.minOrder ?? 500),
+    maxDiscount: Number(args.maxDiscount ?? 200),
+    expiryDate: admin.firestore.Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)), // 7 days
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    createdBy: ctx.agentId,
+  };
+
+  await ref.set(couponDoc);
+
+  await logAgentAction({
+    agentId: ctx.agentId,
+    taskId: ctx.taskId,
+    tool: 'create_coupon',
+    description: `Created coupon ${code} (${discount}%)`,
+    reasoning: ctx.reasoning,
+    targetId: ref.id,
+    after: couponDoc,
+  });
+
+  return { result: { couponId: ref.id, code }, description: `Coupon ${code} created`, targetId: ref.id };
 }
 
 async function runDraftBroadcast(

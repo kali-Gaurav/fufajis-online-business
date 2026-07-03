@@ -50,7 +50,8 @@ class SupplierQuoteModel {
       productId: map['productId'] as String? ?? '',
       requestedQuantity: map['requestedQuantity'] as int? ?? 0,
       quotedPricePerUnit: (map['quotedPricePerUnit'] as num? ?? 0.0).toDouble(),
-      estimatedDeliveryDate: (map['estimatedDeliveryDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      estimatedDeliveryDate:
+          (map['estimatedDeliveryDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
       notes: map['notes'] as String?,
       status: SupplierQuoteStatus.values.firstWhere(
         (e) => e.name == map['status'] as String?,

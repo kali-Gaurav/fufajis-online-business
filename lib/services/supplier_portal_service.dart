@@ -29,10 +29,13 @@ class SupplierPortalService {
     try {
       final quoteSnap = await _firestore.collection('supplier_quotes').doc(quoteId).get();
       if (!quoteSnap.exists) return;
-      
+
       final quote = SupplierQuoteModel.fromMap(quoteSnap.data()!, quoteSnap.id);
-      
-      final prSnap = await _firestore.collection('purchase_requests').doc(quote.purchaseRequestId).get();
+
+      final prSnap = await _firestore
+          .collection('purchase_requests')
+          .doc(quote.purchaseRequestId)
+          .get();
       if (!prSnap.exists) return;
 
       final pr = PurchaseRequestModel.fromMap(prSnap.data()!, prSnap.id);
@@ -43,11 +46,12 @@ class SupplierPortalService {
       batch.update(quoteSnap.reference, {'status': SupplierQuoteStatus.accepted.name});
 
       // 2. Reject all other quotes for this PR
-      final otherQuotesSnap = await _firestore.collection('supplier_quotes')
+      final otherQuotesSnap = await _firestore
+          .collection('supplier_quotes')
           .where('purchaseRequestId', isEqualTo: pr.id)
           .where('status', isEqualTo: SupplierQuoteStatus.pending.name)
           .get();
-      
+
       for (var doc in otherQuotesSnap.docs) {
         if (doc.id != quoteId) {
           batch.update(doc.reference, {'status': SupplierQuoteStatus.rejected.name});
@@ -101,9 +105,12 @@ class SupplierPortalService {
   /// Owner/Warehouse logs received goods, updates inventory
   Future<void> receiveGoods(GoodsReceiptModel receipt, String ownerId) async {
     try {
-      final poSnap = await _firestore.collection('purchase_orders').doc(receipt.purchaseOrderId).get();
+      final poSnap = await _firestore
+          .collection('purchase_orders')
+          .doc(receipt.purchaseOrderId)
+          .get();
       if (!poSnap.exists) return;
-      
+
       final po = PurchaseOrderModel.fromMap(poSnap.data()!, poSnap.id);
 
       final batch = _firestore.batch();
@@ -113,17 +120,15 @@ class SupplierPortalService {
       batch.set(receiptRef, receipt.toMap());
 
       // 2. Update PO status
-      final newPoStatus = (receipt.acceptedQuantity >= po.quantity) 
-          ? PurchaseOrderStatus.fully_received.name 
+      final newPoStatus = (receipt.acceptedQuantity >= po.quantity)
+          ? PurchaseOrderStatus.fully_received.name
           : PurchaseOrderStatus.partially_received.name;
-      
+
       batch.update(poSnap.reference, {'status': newPoStatus});
 
       // 3. Update Product Inventory
       final productRef = _firestore.collection('products').doc(po.productId);
-      batch.update(productRef, {
-        'stockQuantity': FieldValue.increment(receipt.acceptedQuantity),
-      });
+      batch.update(productRef, {'stockQuantity': FieldValue.increment(receipt.acceptedQuantity)});
 
       // 4. Update PR status if PO completed
       if (newPoStatus == PurchaseOrderStatus.fully_received.name) {
@@ -147,21 +152,24 @@ class SupplierPortalService {
       // --- Supplier Scorecard Generation ---
       final scorecardRef = _firestore.collection('supplier_scorecards').doc(po.supplierId);
       final scorecardSnap = await scorecardRef.get();
-      
+
       SupplierScorecardModel scorecard;
       if (scorecardSnap.exists) {
         final existing = SupplierScorecardModel.fromMap(scorecardSnap.data()!, scorecardSnap.id);
-        
+
         // Simple moving average mock logic for update
         final newTotal = existing.totalOrders + 1;
         final damageRate = (receipt.damagedQuantity / receipt.receivedQuantity) * 100;
         final fulfillment = (receipt.acceptedQuantity / po.quantity) * 100;
-        
+
         scorecard = SupplierScorecardModel(
           supplierId: existing.supplierId,
           onTimeDeliveryPercentage: existing.onTimeDeliveryPercentage, // Assume 100% for now
-          damageRatePercentage: ((existing.damageRatePercentage * existing.totalOrders) + damageRate) / newTotal,
-          orderFulfillmentPercentage: ((existing.orderFulfillmentPercentage * existing.totalOrders) + fulfillment) / newTotal,
+          damageRatePercentage:
+              ((existing.damageRatePercentage * existing.totalOrders) + damageRate) / newTotal,
+          orderFulfillmentPercentage:
+              ((existing.orderFulfillmentPercentage * existing.totalOrders) + fulfillment) /
+              newTotal,
           priceCompetitiveness: existing.priceCompetitiveness,
           overallQualityRating: existing.overallQualityRating,
           totalOrders: newTotal,
@@ -178,7 +186,7 @@ class SupplierPortalService {
           lastUpdated: DateTime.now(),
         );
       }
-      
+
       await scorecardRef.set(scorecard.toMap(), SetOptions(merge: true));
 
       debugPrint('[SupplierPortal] Goods received for PO: ${po.id}');
@@ -195,22 +203,26 @@ class SupplierPortalService {
       if (!invoiceSnap.exists) return false;
       final invoice = SupplierInvoiceModel.fromMap(invoiceSnap.data()!, invoiceSnap.id);
 
-      final poSnap = await _firestore.collection('purchase_orders').doc(invoice.purchaseOrderId).get();
+      final poSnap = await _firestore
+          .collection('purchase_orders')
+          .doc(invoice.purchaseOrderId)
+          .get();
       if (!poSnap.exists) return false;
       final po = PurchaseOrderModel.fromMap(poSnap.data()!, poSnap.id);
 
       // Aggregate all goods receipts for this PO
-      final receiptsSnap = await _firestore.collection('goods_receipts')
+      final receiptsSnap = await _firestore
+          .collection('goods_receipts')
           .where('purchaseOrderId', isEqualTo: po.id)
           .get();
-      
+
       int totalAccepted = 0;
       for (var doc in receiptsSnap.docs) {
         totalAccepted += (doc.data()['acceptedQuantity'] as int? ?? 0);
       }
 
       final expectedValue = totalAccepted * po.agreedPricePerUnit;
-      
+
       // Allow a small threshold difference e.g., rounding
       final isMatched = (invoice.billedAmount - expectedValue).abs() < 1.0;
 

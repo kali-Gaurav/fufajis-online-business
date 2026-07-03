@@ -73,7 +73,10 @@ class _CheckoutScreenExampleState extends State<CheckoutScreenExample> {
           Divider(),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [Text('Total:'), Text('₹550', style: TextStyle(fontWeight: FontWeight.bold))],
+            children: [
+              Text('Total:'),
+              Text('₹550', style: TextStyle(fontWeight: FontWeight.bold)),
+            ],
           ),
         ],
       ),
@@ -109,9 +112,9 @@ class _CheckoutScreenExampleState extends State<CheckoutScreenExample> {
     final result = await orderProvider.createOrder(order);
 
     if (result != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Order ${result.orderNumber} placed successfully!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Order ${result.orderNumber} placed successfully!')));
       Navigator.pop(context);
     }
   }
@@ -128,10 +131,7 @@ class HomeScreenExample extends StatelessWidget {
       body: Column(
         children: [
           // Queue status banner at top
-          OfflineQueueStatusWidget(
-            showDetails: true,
-            onRetryTap: () => _handleRetry(context),
-          ),
+          OfflineQueueStatusWidget(showDetails: true, onRetryTap: () => _handleRetry(context)),
 
           // Main content
           Expanded(
@@ -173,9 +173,7 @@ class HomeScreenExample extends StatelessWidget {
   Future<void> _handleRetry(BuildContext context) async {
     final queueService = OfflineOrderQueueService();
     await queueService.syncQueuedOrders();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Syncing orders...')),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Syncing orders...')));
   }
 }
 
@@ -186,14 +184,7 @@ class OrdersScreenExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Stack(
-          children: [
-            Text('My Orders'),
-            OfflineOrderBadge(),
-          ],
-        ),
-      ),
+      appBar: AppBar(title: const Stack(children: [Text('My Orders'), OfflineOrderBadge()])),
       body: Consumer<OrderProvider>(
         builder: (context, orderProvider, _) {
           return Column(
@@ -253,9 +244,9 @@ class OrdersScreenExample extends StatelessWidget {
           backgroundColor: order.status.color.withValues(alpha: 0.2),
         ),
         onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Order details: ${order.id}')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Order details: ${order.id}')));
         },
       ),
     );
@@ -272,9 +263,7 @@ class OrdersScreenExample extends StatelessWidget {
   Future<void> _manualSync(BuildContext context) async {
     final orderProvider = context.read<OrderProvider>();
     await orderProvider.syncOfflineOrders();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Sync triggered')),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Sync triggered')));
   }
 }
 
@@ -288,19 +277,13 @@ class SettingsScreenExample extends StatelessWidget {
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         children: [
-          ListTile(
-            title: const Text('Offline Orders'),
-            onTap: () => _showQueueManager(context),
-          ),
+          ListTile(title: const Text('Offline Orders'), onTap: () => _showQueueManager(context)),
           ListTile(
             title: const Text('Clear Queue'),
             subtitle: const Text('Delete all offline orders'),
             onTap: () => _showClearConfirmation(context),
           ),
-          ListTile(
-            title: const Text('Sync Now'),
-            onTap: () => _triggerSync(context),
-          ),
+          ListTile(title: const Text('Sync Now'), onTap: () => _triggerSync(context)),
         ],
       ),
     );
@@ -324,9 +307,7 @@ class SettingsScreenExample extends StatelessWidget {
             Text('Size: ${(stats.totalSize / 1024).toStringAsFixed(2)} KB'),
           ],
         ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(_), child: const Text('Close')),
-        ],
+        actions: [TextButton(onPressed: () => Navigator.pop(_), child: const Text('Close'))],
       ),
     );
   }
@@ -344,9 +325,9 @@ class SettingsScreenExample extends StatelessWidget {
               final queueService = OfflineOrderQueueService();
               await queueService.clearQueue();
               Navigator.pop(_);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Queue cleared')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Queue cleared')));
             },
             child: const Text('Clear'),
           ),
@@ -358,9 +339,7 @@ class SettingsScreenExample extends StatelessWidget {
   Future<void> _triggerSync(BuildContext context) async {
     final orderProvider = context.read<OrderProvider>();
     await orderProvider.syncOfflineOrders();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Sync triggered')),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Sync triggered')));
   }
 }
 

@@ -54,24 +54,16 @@ class Button extends StatelessWidget {
                     valueColor: AlwaysStoppedAnimation(AppTheme.primary),
                   ),
                 )
-              : (icon != null
-                  ? Icon(icon, size: 20, color: txtColor)
-                  : const SizedBox.shrink()),
+              : (icon != null ? Icon(icon, size: 20, color: txtColor) : const SizedBox.shrink()),
           label: Text(
             title,
-            style: textStyle ??
-                TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: txtColor,
-                ),
+            style:
+                textStyle ?? TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: txtColor),
           ),
           style: OutlinedButton.styleFrom(
             side: const BorderSide(color: AppTheme.primary, width: 2),
             foregroundColor: txtColor,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
         ),
       );
@@ -91,25 +83,18 @@ class Button extends StatelessWidget {
                   valueColor: AlwaysStoppedAnimation(Colors.white),
                 ),
               )
-            : (icon != null
-                ? Icon(icon, size: 20, color: Colors.white)
-                : const SizedBox.shrink()),
+            : (icon != null ? Icon(icon, size: 20, color: Colors.white) : const SizedBox.shrink()),
         label: Text(
           title,
-          style: textStyle ??
-              const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
+          style:
+              textStyle ??
+              const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: isLoading ? AppTheme.grey500 : bgColor,
           foregroundColor: Colors.white,
           disabledBackgroundColor: AppTheme.grey500,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
     );
@@ -136,16 +121,9 @@ class IconButtonSmall extends StatelessWidget {
     return Container(
       width: 44,
       height: 44,
-      decoration: BoxDecoration(
-        color: backgroundColor ?? AppTheme.grey100,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: backgroundColor ?? AppTheme.grey100, shape: BoxShape.circle),
       child: IconButton(
-        icon: Icon(
-          icon,
-          color: color ?? AppTheme.grey900,
-          size: 20,
-        ),
+        icon: Icon(icon, color: color ?? AppTheme.grey900, size: 20),
         onPressed: onPressed,
         splashRadius: 20,
       ),

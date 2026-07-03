@@ -7,12 +7,7 @@ class PieChartData {
   final Color color;
   final String? percentage;
 
-  PieChartData({
-    required this.label,
-    required this.value,
-    required this.color,
-    this.percentage,
-  });
+  PieChartData({required this.label, required this.value, required this.color, this.percentage});
 }
 
 /// A simple pie chart widget for displaying categorical data
@@ -42,12 +37,7 @@ class _PieChartWidgetState extends State<PieChartWidget> {
   @override
   Widget build(BuildContext context) {
     if (widget.data.isEmpty) {
-      return Center(
-        child: Text(
-          'No data available',
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-      );
+      return Center(child: Text('No data available', style: Theme.of(context).textTheme.bodySmall));
     }
 
     final total = widget.data.fold<double>(0, (sum, item) => sum + item.value);
@@ -57,9 +47,7 @@ class _PieChartWidgetState extends State<PieChartWidget> {
       children: [
         Text(
           widget.title,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 16),
         Center(
@@ -73,65 +61,54 @@ class _PieChartWidgetState extends State<PieChartWidget> {
           ),
         ),
         const SizedBox(height: 16),
-        if (widget.showLegend)
-          _buildLegend(total),
+        if (widget.showLegend) _buildLegend(total),
       ],
     );
   }
 
   Widget _buildLegend(double total) {
     return Column(
-      children: List.generate(
-        widget.data.length,
-        (index) {
-          final item = widget.data[index];
-          final percentage = total > 0 ? (item.value / total) * 100 : 0.0;
+      children: List.generate(widget.data.length, (index) {
+        final item = widget.data[index];
+        final percentage = total > 0 ? (item.value / total) * 100 : 0.0;
 
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                _selectedIndex = _selectedIndex == index ? null : index;
-              });
-              widget.onSegmentTap?.call(index);
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Row(
-                children: [
-                  Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: item.color,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              _selectedIndex = _selectedIndex == index ? null : index;
+            });
+            widget.onSegmentTap?.call(index);
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Row(
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: item.color,
+                    borderRadius: BorderRadius.circular(2),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      item.label,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ),
-                  Text(
-                    '${percentage.toStringAsFixed(1)}%',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '(${item.value.toInt()})',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: Colors.grey[600],
-                        ),
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(child: Text(item.label, style: Theme.of(context).textTheme.bodySmall)),
+                Text(
+                  '${percentage.toStringAsFixed(1)}%',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '(${item.value.toInt()})',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.grey[600]),
+                ),
+              ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      }),
     );
   }
 }
@@ -142,11 +119,7 @@ class _PieChartPainter extends CustomPainter {
   final double total;
   final int? selectedIndex;
 
-  _PieChartPainter({
-    required this.data,
-    required this.total,
-    this.selectedIndex,
-  });
+  _PieChartPainter({required this.data, required this.total, this.selectedIndex});
 
   @override
   void paint(Canvas canvas, Size size) {

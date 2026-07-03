@@ -119,9 +119,9 @@ class GlobalCatalogService {
     if (query.isEmpty) return [];
     final q = query.toLowerCase();
     return universalProducts.where((p) {
-      return p.name.toLowerCase().contains(q) || 
-             p.brand.toLowerCase().contains(q) ||
-             p.tags.any((t) => t.toLowerCase().contains(q));
+      return p.name.toLowerCase().contains(q) ||
+          p.brand.toLowerCase().contains(q) ||
+          p.tags.any((t) => t.toLowerCase().contains(q));
     }).toList();
   }
 }

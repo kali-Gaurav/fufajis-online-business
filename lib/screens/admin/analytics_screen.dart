@@ -34,12 +34,18 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Global System Analytics', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Global System Analytics',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
                 ElevatedButton.icon(
                   onPressed: () => adminProvider.fetchDashboardMetrics(),
                   icon: const Icon(Icons.refresh),
                   label: const Text('Refresh Statistics'),
-                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, foregroundColor: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primary,
+                    foregroundColor: Colors.white,
+                  ),
                 ),
               ],
             ),
@@ -47,11 +53,26 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             // Metrics Row
             Row(
               children: [
-                _buildMetricsCard('System Revenue', '₹${adminProvider.totalRevenue.toStringAsFixed(0)}', AppTheme.success, Icons.monetization_on),
+                _buildMetricsCard(
+                  'System Revenue',
+                  '₹${adminProvider.totalRevenue.toStringAsFixed(0)}',
+                  AppTheme.success,
+                  Icons.monetization_on,
+                ),
                 const SizedBox(width: 16),
-                _buildMetricsCard('Active Shops', '${adminProvider.totalShops}', AppTheme.warning, Icons.store),
+                _buildMetricsCard(
+                  'Active Shops',
+                  '${adminProvider.totalShops}',
+                  AppTheme.warning,
+                  Icons.store,
+                ),
                 const SizedBox(width: 16),
-                _buildMetricsCard('Registered Users', '${adminProvider.totalUsers}', AppTheme.info, Icons.people),
+                _buildMetricsCard(
+                  'Registered Users',
+                  '${adminProvider.totalUsers}',
+                  AppTheme.info,
+                  Icons.people,
+                ),
               ],
             ),
             const SizedBox(height: 24),
@@ -59,15 +80,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  flex: 2,
-                  child: _buildRevenueChart(),
-                ),
+                Expanded(flex: 2, child: _buildRevenueChart()),
                 const SizedBox(width: 16),
-                Expanded(
-                  flex: 1,
-                  child: _buildCategoryDistributionCard(),
-                ),
+                Expanded(flex: 1, child: _buildCategoryDistributionCard()),
               ],
             ),
             const SizedBox(height: 24),
@@ -121,7 +136,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('System Revenue Trend (Monthly)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const Text(
+            'System Revenue Trend (Monthly)',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 24),
           Expanded(
             child: LineChart(
@@ -129,8 +147,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 gridData: FlGridData(
                   show: true,
                   drawVerticalLine: true,
-                  getDrawingHorizontalLine: (value) => const FlLine(color: AppTheme.grey100, strokeWidth: 1),
-                  getDrawingVerticalLine: (value) => const FlLine(color: AppTheme.grey100, strokeWidth: 1),
+                  getDrawingHorizontalLine: (value) =>
+                      const FlLine(color: AppTheme.grey100, strokeWidth: 1),
+                  getDrawingVerticalLine: (value) =>
+                      const FlLine(color: AppTheme.grey100, strokeWidth: 1),
                 ),
                 borderData: FlBorderData(show: false),
                 lineBarsData: [
@@ -147,7 +167,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     color: AppTheme.primary,
                     barWidth: 4,
                     dotData: const FlDotData(show: true),
-                    belowBarData: BarAreaData(show: true, color: AppTheme.primary.withValues(alpha: 0.1)),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      color: AppTheme.primary.withValues(alpha: 0.1),
+                    ),
                   ),
                 ],
               ),
@@ -170,7 +193,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Category Sales Share', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const Text(
+            'Category Sales Share',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 24),
           Expanded(
             child: PieChart(
@@ -178,10 +204,34 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 sectionsSpace: 4,
                 centerSpaceRadius: 40,
                 sections: [
-                  PieChartSectionData(color: AppTheme.success, value: 40, title: '40%', radius: 50, titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  PieChartSectionData(color: AppTheme.warning, value: 30, title: '30%', radius: 50, titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  PieChartSectionData(color: AppTheme.info, value: 15, title: '15%', radius: 50, titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  PieChartSectionData(color: Colors.purple, value: 15, title: '15%', radius: 50, titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  PieChartSectionData(
+                    color: AppTheme.success,
+                    value: 40,
+                    title: '40%',
+                    radius: 50,
+                    titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                  PieChartSectionData(
+                    color: AppTheme.warning,
+                    value: 30,
+                    title: '30%',
+                    radius: 50,
+                    titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                  PieChartSectionData(
+                    color: AppTheme.info,
+                    value: 15,
+                    title: '15%',
+                    radius: 50,
+                    titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                  PieChartSectionData(
+                    color: Colors.purple,
+                    value: 15,
+                    title: '15%',
+                    radius: 50,
+                    titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
                 ],
               ),
             ),
@@ -201,7 +251,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       padding: const EdgeInsets.only(bottom: 6.0),
       child: Row(
         children: [
-          Container(width: 12, height: 12, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+          Container(
+            width: 12,
+            height: 12,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
           const SizedBox(width: 8),
           Text(label, style: const TextStyle(fontSize: 12, color: AppTheme.grey700)),
         ],
@@ -221,7 +275,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Top Performing Vendors', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const Text(
+            'Top Performing Vendors',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 16),
           Table(
             columnWidths: const {
@@ -245,7 +302,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
   TableRow _buildTableHeader() {
     return TableRow(
-      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppTheme.grey200, width: 1))),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppTheme.grey200, width: 1)),
+      ),
       children: [
         _buildTableCell('Rank', isHeader: true),
         _buildTableCell('Shop Name', isHeader: true),
@@ -257,12 +316,17 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
   TableRow _buildTableRow(String rank, String name, String location, String sales) {
     return TableRow(
-      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: AppTheme.grey100, width: 1))),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppTheme.grey100, width: 1)),
+      ),
       children: [
         _buildTableCell(rank),
         _buildTableCell(name),
         _buildTableCell(location),
-        _buildTableCell(sales, textStyle: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.success)),
+        _buildTableCell(
+          sales,
+          textStyle: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.success),
+        ),
       ],
     );
   }
@@ -272,10 +336,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Text(
         text,
-        style: textStyle ?? TextStyle(
-          fontWeight: isHeader ? FontWeight.bold : FontWeight.normal,
-          color: isHeader ? AppTheme.grey900 : AppTheme.grey700,
-        ),
+        style:
+            textStyle ??
+            TextStyle(
+              fontWeight: isHeader ? FontWeight.bold : FontWeight.normal,
+              color: isHeader ? AppTheme.grey900 : AppTheme.grey700,
+            ),
       ),
     );
   }

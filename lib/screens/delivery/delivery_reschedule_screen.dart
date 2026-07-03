@@ -69,8 +69,9 @@ class _DeliveryRescheduleScreenState extends State<DeliveryRescheduleScreen> {
 
   Future<void> _submit() async {
     if (_rescheduledFor == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select a rescheduled delivery time')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select a rescheduled delivery time')));
       return;
     }
 
@@ -102,23 +103,25 @@ class _DeliveryRescheduleScreenState extends State<DeliveryRescheduleScreen> {
         orderId: widget.orderId,
         orderNumber: widget.orderNumber,
         status: 'delivery_failed',
-        message: 'Delivery of order #${widget.orderNumber} was unsuccessful. '
+        message:
+            'Delivery of order #${widget.orderNumber} was unsuccessful. '
             'Rescheduled for ${DateFormat("dd MMM 'at' HH:mm").format(_rescheduledFor!)}.',
       );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Delivery failure recorded & customer notified'),
-              backgroundColor: AppTheme.success),
+            content: Text('Delivery failure recorded & customer notified'),
+            backgroundColor: AppTheme.success,
+          ),
         );
         Navigator.of(context).pop(true);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -128,26 +131,27 @@ class _DeliveryRescheduleScreenState extends State<DeliveryRescheduleScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Reschedule #${widget.orderNumber}'),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: Text('Reschedule #${widget.orderNumber}'), elevation: 0),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Why did the delivery fail?',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+            const Text(
+              'Why did the delivery fail?',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+            ),
             const SizedBox(height: 8),
-            ...(_failureReasons.map((r) => RadioListTile<String>(
-                  title: Text(r, style: const TextStyle(fontSize: 14)),
-                  value: r,
-                  groupValue: _selectedReason,
-                  contentPadding: EdgeInsets.zero,
-                  dense: true,
-                  onChanged: (v) => setState(() => _selectedReason = v!),
-                ))),
+            ...(_failureReasons.map(
+              (r) => RadioListTile<String>(
+                title: Text(r, style: const TextStyle(fontSize: 14)),
+                value: r,
+                groupValue: _selectedReason,
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+                onChanged: (v) => setState(() => _selectedReason = v!),
+              ),
+            )),
             if (_selectedReason == 'Other') ...[
               const SizedBox(height: 8),
               TextField(
@@ -160,8 +164,10 @@ class _DeliveryRescheduleScreenState extends State<DeliveryRescheduleScreen> {
               ),
             ],
             const SizedBox(height: 24),
-            const Text('Rescheduled Delivery Time',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+            const Text(
+              'Rescheduled Delivery Time',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+            ),
             const SizedBox(height: 8),
             InkWell(
               onTap: _selectDateTime,
@@ -200,8 +206,10 @@ class _DeliveryRescheduleScreenState extends State<DeliveryRescheduleScreen> {
                 ),
                 child: _isSaving
                     ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
-                    : const Text('Record Failure & Reschedule',
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                    : const Text(
+                        'Record Failure & Reschedule',
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                      ),
               ),
             ),
           ],

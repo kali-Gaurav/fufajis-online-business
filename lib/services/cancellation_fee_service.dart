@@ -20,15 +20,15 @@ class CancellationFeeService {
   final _db = FirebaseFirestore.instance;
 
   static const Map<String, double> _feeRates = {
-    'pending':          0.00,
-    'confirmed':        0.00,
-    'preparing':        0.05,
+    'pending': 0.00,
+    'confirmed': 0.00,
+    'preparing': 0.05,
     'ready_for_pickup': 0.10,
     'out_for_delivery': 0.15,
   };
 
   static const Map<String, double> _minimumFees = {
-    'preparing':        10.0,
+    'preparing': 10.0,
     'ready_for_pickup': 20.0,
     'out_for_delivery': 30.0,
   };
@@ -66,50 +66,103 @@ class CancellationFeeService {
     final actualRefund = order.totalAmount.toDouble() - actualFee;
 
     try {
-      final ledgerRef = _db.collection('cancellation_fee_ledger').doc('cancellation_fee_${order.id}');
-      final ledgerSnap = await ledgerRef.get();
-      if (ledgerSnap.exists) {
-        debugPrint('[CancellationFee] Cancellation fee already applied for order ${order.id}. Skipping.');
-        return true;
+      final ledgerRef = _db
+          .collection('cancellation_fee_ledger')
+          .doc('cancellation_fee_${order.id}');
+
+      // FIX (Module 10, P0-10.3): stock was NEVER restored on cancellation —
+      // OrderService.createOrder deducts branchStock at order placement, but
+      // the cancel flow only refunded the wallet, causing permanent phantom
+      // stock loss on every cancelled order. The transaction below restores
+      // stock atomically WITH the idempotency-ledger write, so a retry can
+      // neither double-restore stock nor skip restoration.
+      final branchId = order.branchId ?? 'primary';
+
+      // Aggregate quantities per product (an order can contain the same
+      // product in multiple lines).
+      final Map<String, int> qtyByProduct = {};
+      for (final item in order.items) {
+        qtyByProduct.update(
+          item.productId,
+          (q) => q + item.quantity,
+          ifAbsent: () => item.quantity,
+        );
       }
 
-      final batch = _db.batch();
+      final ledgerData = <String, dynamic>{
+        'orderId': order.id,
+        'orderNumber': order.orderNumber,
+        'customerId': order.customerId,
+        'orderTotal': order.totalAmount.toDouble(),
+        'feeRate': actualFee > 0 ? result.feeRate : 0.0,
+        'feeAmount': actualFee,
+        'netRefund': actualRefund,
+        'statusAtCancellation': result.status,
+        'cancelledBy': cancelledBy,
+        'reason': reason,
+        'waivedByAdmin': actualFee > 0 ? waiveFee : true,
+        'stockRestored': true,
+        'createdAt': FieldValue.serverTimestamp(),
+      };
 
-      // Record the fee in ledger
-      if (actualFee > 0) {
-        batch.set(ledgerRef, {
-          'orderId': order.id,
-          'orderNumber': order.orderNumber,
-          'customerId': order.customerId,
-          'orderTotal': order.totalAmount.toDouble(),
-          'feeRate': result.feeRate,
-          'feeAmount': actualFee,
-          'netRefund': actualRefund,
-          'statusAtCancellation': result.status,
-          'cancelledBy': cancelledBy,
-          'reason': reason,
-          'waivedByAdmin': waiveFee,
-          'createdAt': FieldValue.serverTimestamp(),
-        });
-      } else {
-        // Record zero fee as well to act as an idempotency marker
-        batch.set(ledgerRef, {
-          'orderId': order.id,
-          'orderNumber': order.orderNumber,
-          'customerId': order.customerId,
-          'orderTotal': order.totalAmount.toDouble(),
-          'feeRate': 0.0,
-          'feeAmount': 0.0,
-          'netRefund': actualRefund,
-          'statusAtCancellation': result.status,
-          'cancelledBy': cancelledBy,
-          'reason': reason,
-          'waivedByAdmin': true,
-          'createdAt': FieldValue.serverTimestamp(),
-        });
-      }
+      await _db.runTransaction((txn) async {
+        // 1. Idempotency gate (read must precede all writes in a txn).
+        final ledgerSnap = await txn.get(ledgerRef);
+        if (ledgerSnap.exists) {
+          debugPrint(
+            '[CancellationFee] Cancellation fee already applied for order ${order.id}. Skipping.',
+          );
+          return;
+        }
 
-      await batch.commit();
+        // 2. Read all product docs first.
+        final productReads = <String, DocumentSnapshot<Map<String, dynamic>>>{};
+        for (final productId in qtyByProduct.keys) {
+          final snap = await txn.get(_db.collection('products').doc(productId));
+          if (snap.exists) productReads[productId] = snap;
+          // A deleted product simply can't have its stock restored — log and
+          // continue rather than failing the whole cancellation.
+        }
+
+        // 3. Write ledger (idempotency marker) + restored stock together.
+        txn.set(ledgerRef, ledgerData);
+
+        productReads.forEach((productId, snap) {
+          final data = snap.data()!;
+          final qty = qtyByProduct[productId]!;
+          final Map<dynamic, dynamic> rawBranchStock = data['branchStock'] as Map? ?? {};
+          final Map<String, int> branchStock = rawBranchStock.map(
+            (k, v) => MapEntry(k.toString(), (v as num).toInt()),
+          );
+
+          // Mirror OrderService.createOrder's deduction logic in reverse:
+          // restore to the branch the order deducted from (falling back to
+          // the same 'primary'/global seed rule it uses).
+          final current = branchStock[branchId] ??
+              ((branchId == 'primary' || branchStock.isEmpty)
+                  ? ((data['stockQuantity'] ?? 0) as num).toInt()
+                  : 0);
+          branchStock[branchId] = current + qty;
+
+          // Recompute global stock the same way OrderService does.
+          final int newGlobalStock = branchStock.containsKey('primary')
+              ? branchStock['primary']!
+              : branchStock.values.fold(0, (total, v) => total + v);
+
+          txn.update(snap.reference, {
+            'branchStock': branchStock,
+            'stockQuantity': newGlobalStock,
+            'isAvailable': newGlobalStock > 0 || branchStock.values.any((v) => v > 0),
+          });
+        });
+
+        final missing = qtyByProduct.keys.where((id) => !productReads.containsKey(id));
+        for (final id in missing) {
+          debugPrint(
+            '[CancellationFee] Product $id from order ${order.id} no longer exists — stock not restored for it.',
+          );
+        }
+      });
 
       // Wallet refund for net amount (if order was paid)
       if (order.paymentStatus == 'paid' && actualRefund > 0) {

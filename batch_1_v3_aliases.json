@@ -1,0 +1,1245 @@
+{
+  "vegetables_1": {
+    "product": "Potato",
+    "category": "Vegetables",
+    "terms": [
+      "potato",
+      "aloo",
+      "batata",
+      "alu",
+      "आलू"
+    ]
+  },
+  "vegetables_2": {
+    "product": "Onion",
+    "category": "Vegetables",
+    "terms": [
+      "pyaz",
+      "pyas",
+      "kanda",
+      "onion",
+      "प्याज"
+    ]
+  },
+  "vegetables_3": {
+    "product": "Tomato",
+    "category": "Vegetables",
+    "terms": [
+      "टमाटर",
+      "tamatar",
+      "tomato",
+      "veg"
+    ]
+  },
+  "vegetables_4": {
+    "product": "Carrot",
+    "category": "Vegetables",
+    "terms": [
+      "गाजर",
+      "gajar",
+      "veg",
+      "carrot"
+    ]
+  },
+  "vegetables_5": {
+    "product": "Cabbage",
+    "category": "Vegetables",
+    "terms": [
+      "patta gobi",
+      "पत्तागोभी",
+      "cabbage",
+      "veg"
+    ]
+  },
+  "vegetables_6": {
+    "product": "Cauliflower",
+    "category": "Vegetables",
+    "terms": [
+      "cauliflower",
+      "फूलगोभी",
+      "phool gobi",
+      "veg"
+    ]
+  },
+  "vegetables_7": {
+    "product": "Brinjal",
+    "category": "Vegetables",
+    "terms": [
+      "बैंगन",
+      "brinjal",
+      "baigan",
+      "eggplant"
+    ]
+  },
+  "vegetables_8": {
+    "product": "Cucumber",
+    "category": "Vegetables",
+    "terms": [
+      "cucumber",
+      "खीरा",
+      "khira",
+      "veg"
+    ]
+  },
+  "vegetables_9": {
+    "product": "Capsicum",
+    "category": "Vegetables",
+    "terms": [
+      "bell pepper",
+      "shimla mirch",
+      "capsicum",
+      "शिमला मिर्च"
+    ]
+  },
+  "vegetables_10": {
+    "product": "Ladyfinger",
+    "category": "Vegetables",
+    "terms": [
+      "भिंडी",
+      "okra",
+      "bhindi",
+      "ladyfinger"
+    ]
+  },
+  "vegetables_11": {
+    "product": "Pumpkin",
+    "category": "Vegetables",
+    "terms": [
+      "pumpkin",
+      "kaddu",
+      "कद्दू",
+      "veg"
+    ]
+  },
+  "vegetables_12": {
+    "product": "Bottle Gourd",
+    "category": "Vegetables",
+    "terms": [
+      "bottle gourd",
+      "lauki",
+      "bottle",
+      "veg",
+      "लौकी"
+    ]
+  },
+  "vegetables_13": {
+    "product": "Ridge Gourd",
+    "category": "Vegetables",
+    "terms": [
+      "तुरई",
+      "ridge",
+      "veg",
+      "ridge gourd",
+      "turei"
+    ]
+  },
+  "vegetables_14": {
+    "product": "Bitter Gourd",
+    "category": "Vegetables",
+    "terms": [
+      "bitter",
+      "bitter melon",
+      "karela",
+      "करेला"
+    ]
+  },
+  "vegetables_15": {
+    "product": "Spinach",
+    "category": "Vegetables",
+    "terms": [
+      "spinach",
+      "veg",
+      "पालक",
+      "palak"
+    ]
+  },
+  "vegetables_16": {
+    "product": "Coriander Leaves",
+    "category": "Vegetables",
+    "terms": [
+      "dhanya patta",
+      "coriander",
+      "cilantro",
+      "धनिया पत्ता"
+    ]
+  },
+  "vegetables_17": {
+    "product": "Mint Leaves",
+    "category": "Vegetables",
+    "terms": [
+      "pudina",
+      "पुदीना",
+      "mint",
+      "veg"
+    ]
+  },
+  "vegetables_18": {
+    "product": "Garlic",
+    "category": "Vegetables",
+    "terms": [
+      "लहसुन",
+      "garlic",
+      "lahsun",
+      "veg"
+    ]
+  },
+  "vegetables_19": {
+    "product": "Ginger",
+    "category": "Vegetables",
+    "terms": [
+      "अदरक",
+      "ginger",
+      "veg",
+      "adrak"
+    ]
+  },
+  "vegetables_20": {
+    "product": "Green Chili",
+    "category": "Vegetables",
+    "terms": [
+      "green",
+      "green chili",
+      "veg",
+      "hari mirch",
+      "हरी मिर्च"
+    ]
+  },
+  "vegetables_21": {
+    "product": "Beetroot",
+    "category": "Vegetables",
+    "terms": [
+      "चुकंदर",
+      "beetroot",
+      "veg",
+      "chukandar"
+    ]
+  },
+  "vegetables_22": {
+    "product": "Radish",
+    "category": "Vegetables",
+    "terms": [
+      "मूली",
+      "radish",
+      "veg",
+      "mooli"
+    ]
+  },
+  "vegetables_23": {
+    "product": "Peas",
+    "category": "Vegetables",
+    "terms": [
+      "peas",
+      "matar",
+      "मटर",
+      "veg"
+    ]
+  },
+  "vegetables_24": {
+    "product": "Corn",
+    "category": "Vegetables",
+    "terms": [
+      "मकई",
+      "makkai",
+      "corn",
+      "veg"
+    ]
+  },
+  "vegetables_25": {
+    "product": "Mushroom",
+    "category": "Vegetables",
+    "terms": [
+      "कुक्कुरमुत्ता",
+      "mushroom",
+      "veg",
+      "मशरूम"
+    ]
+  },
+  "vegetables_26": {
+    "product": "Yam",
+    "category": "Vegetables",
+    "terms": [
+      "yam",
+      "जिमीकंद",
+      "veg",
+      "jimikand"
+    ]
+  },
+  "vegetables_27": {
+    "product": "Sweet Potato",
+    "category": "Vegetables",
+    "terms": [
+      "शकरकंद",
+      "sweet potato",
+      "shakarkand",
+      "veg",
+      "sweet"
+    ]
+  },
+  "vegetables_28": {
+    "product": "Leek",
+    "category": "Vegetables",
+    "terms": [
+      "leek",
+      "प्याज का पौधा",
+      "प्याज",
+      "veg"
+    ]
+  },
+  "vegetables_29": {
+    "product": "Beet Greens",
+    "category": "Vegetables",
+    "terms": [
+      "leafy",
+      "beet greens",
+      "चुकंदर के पत्ते",
+      "veg",
+      "beet"
+    ]
+  },
+  "vegetables_30": {
+    "product": "Turnip",
+    "category": "Vegetables",
+    "terms": [
+      "shalzam",
+      "शलजम",
+      "veg",
+      "turnip"
+    ]
+  },
+  "fruits_31": {
+    "product": "Banana",
+    "category": "Fruits",
+    "terms": [
+      "banana",
+      "fru",
+      "केले",
+      "kela"
+    ]
+  },
+  "fruits_32": {
+    "product": "Apple",
+    "category": "Fruits",
+    "terms": [
+      "सेब",
+      "fru",
+      "apple",
+      "seb"
+    ]
+  },
+  "fruits_33": {
+    "product": "Orange",
+    "category": "Fruits",
+    "terms": [
+      "orange",
+      "santra",
+      "fru",
+      "संतरा"
+    ]
+  },
+  "fruits_34": {
+    "product": "Mango",
+    "category": "Fruits",
+    "terms": [
+      "fru",
+      "mango",
+      "aam",
+      "आम"
+    ]
+  },
+  "fruits_35": {
+    "product": "Papaya",
+    "category": "Fruits",
+    "terms": [
+      "fru",
+      "पपीता",
+      "papaya",
+      "papita"
+    ]
+  },
+  "fruits_36": {
+    "product": "Guava",
+    "category": "Fruits",
+    "terms": [
+      "amrud",
+      "fru",
+      "अमरूद",
+      "guava"
+    ]
+  },
+  "fruits_37": {
+    "product": "Pomegranate",
+    "category": "Fruits",
+    "terms": [
+      "अनार",
+      "fru",
+      "anar",
+      "pomegranate"
+    ]
+  },
+  "fruits_38": {
+    "product": "Pineapple",
+    "category": "Fruits",
+    "terms": [
+      "fru",
+      "ananas",
+      "अनन्नास",
+      "pineapple"
+    ]
+  },
+  "fruits_39": {
+    "product": "Watermelon",
+    "category": "Fruits",
+    "terms": [
+      "fru",
+      "tarbuj",
+      "watermelon",
+      "तरबूज"
+    ]
+  },
+  "fruits_40": {
+    "product": "Muskmelon",
+    "category": "Fruits",
+    "terms": [
+      "kharbuja",
+      "fru",
+      "muskmelon",
+      "खरबूजा"
+    ]
+  },
+  "fruits_41": {
+    "product": "Grapes",
+    "category": "Fruits",
+    "terms": [
+      "fru",
+      "grapes",
+      "angur",
+      "अंगूर"
+    ]
+  },
+  "fruits_42": {
+    "product": "Kiwi",
+    "category": "Fruits",
+    "terms": [
+      "fru",
+      "फल",
+      "कीवी",
+      "kiwi"
+    ]
+  },
+  "fruits_43": {
+    "product": "Coconut",
+    "category": "Fruits",
+    "terms": [
+      "नारियल",
+      "coconut",
+      "fru",
+      "nariyal"
+    ]
+  },
+  "fruits_44": {
+    "product": "Peach",
+    "category": "Fruits",
+    "terms": [
+      "fru",
+      "आड़ू",
+      "peach",
+      "aadu"
+    ]
+  },
+  "fruits_45": {
+    "product": "Pear",
+    "category": "Fruits",
+    "terms": [
+      "नाशपाती",
+      "fru",
+      "pear",
+      "nashpati"
+    ]
+  },
+  "dairy_46": {
+    "product": "Amul Taaza Milk",
+    "category": "Dairy",
+    "terms": [
+      "taaza",
+      "दूध",
+      "amul",
+      "mother dairy",
+      "milk",
+      "अमूल ताज़ा दूध"
+    ]
+  },
+  "dairy_47": {
+    "product": "Mother Dairy Toned",
+    "category": "Dairy",
+    "terms": [
+      "मदर डेयरी दूध",
+      "mother",
+      "दूध",
+      "mother dairy",
+      "toned",
+      "milk",
+      "dairy"
+    ]
+  },
+  "dairy_48": {
+    "product": "Nandini Milk",
+    "category": "Dairy",
+    "terms": [
+      "दूध",
+      "amul",
+      "nandini",
+      "नंदिनी दूध",
+      "milk"
+    ]
+  },
+  "dairy_49": {
+    "product": "Saras Milk",
+    "category": "Dairy",
+    "terms": [
+      "सारस दूध",
+      "दूध",
+      "dai",
+      "saras",
+      "milk"
+    ]
+  },
+  "dairy_50": {
+    "product": "Amul Ghee",
+    "category": "Dairy",
+    "terms": [
+      "अमूल घी",
+      "clarified butter",
+      "amul",
+      "nandini",
+      "ghee",
+      "dairy"
+    ]
+  },
+  "dairy_51": {
+    "product": "Amul Butter",
+    "category": "Dairy",
+    "terms": [
+      "अमूल मक्खन",
+      "makhan",
+      "amul",
+      "butter",
+      "saras",
+      "dairy"
+    ]
+  },
+  "dairy_52": {
+    "product": "Fresh Paneer",
+    "category": "Dairy",
+    "terms": [
+      "paneer",
+      "cottage cheese",
+      "fresh",
+      "mother dairy",
+      "पनीर",
+      "dairy"
+    ]
+  },
+  "dairy_53": {
+    "product": "Curd",
+    "category": "Dairy",
+    "terms": [
+      "curd",
+      "amul",
+      "yogurt",
+      "dahi",
+      "दही",
+      "dairy"
+    ]
+  },
+  "rice_54": {
+    "product": "Daawat Basmati",
+    "category": "Rice",
+    "terms": [
+      "basmati",
+      "चावल",
+      "rice ric",
+      "daawat",
+      "दावत बासमती चावल",
+      "rice",
+      "india gate"
+    ]
+  },
+  "rice_55": {
+    "product": "India Gate Basmati",
+    "category": "Rice",
+    "terms": [
+      "tata",
+      "basmati",
+      "rice ric",
+      "india",
+      "rice",
+      "इंडिया गेट बासमती",
+      "india gate"
+    ]
+  },
+  "rice_56": {
+    "product": "Fortune Basmati",
+    "category": "Rice",
+    "terms": [
+      "tata",
+      "फॉर्चून बासमती",
+      "basmati",
+      "fortune",
+      "rice ric",
+      "rice"
+    ]
+  },
+  "rice_57": {
+    "product": "Tata Basmati",
+    "category": "Rice",
+    "terms": [
+      "tata",
+      "टाटा बासमती",
+      "basmati",
+      "rice ric",
+      "daawat",
+      "rice"
+    ]
+  },
+  "rice_58": {
+    "product": "White Rice",
+    "category": "Rice",
+    "terms": [
+      "chawal",
+      "सफेद चावल",
+      "white rice",
+      "rice ric",
+      "चावल",
+      "white",
+      "india gate"
+    ]
+  },
+  "rice_59": {
+    "product": "Sona Masoori",
+    "category": "Rice",
+    "terms": [
+      "tata",
+      "sona masoori",
+      "sona",
+      "चावल",
+      "rice ric",
+      "सोना मसूरी चावल",
+      "rice"
+    ]
+  },
+  "rice_60": {
+    "product": "Jasmine Rice",
+    "category": "Rice",
+    "terms": [
+      "चावल",
+      "जैस्मिन चावल",
+      "jasmine",
+      "rice ric",
+      "rice",
+      "india gate"
+    ]
+  },
+  "rice_61": {
+    "product": "Brown Rice",
+    "category": "Rice",
+    "terms": [
+      "chawal",
+      "भूरा चावल",
+      "brown",
+      "rice ric",
+      "fortune",
+      "brown rice",
+      "चावल"
+    ]
+  },
+  "flour_62": {
+    "product": "Aashirvaad Atta",
+    "category": "Flour",
+    "terms": [
+      "flour",
+      "britannia",
+      "aashirvaad",
+      "flour flou",
+      "atta",
+      "आटा",
+      "आशीर्वाद आटा"
+    ]
+  },
+  "flour_63": {
+    "product": "Pillsbury Atta",
+    "category": "Flour",
+    "terms": [
+      "flour",
+      "britannia",
+      "pillsbury",
+      "flour flou",
+      "पिलसबरी आटा",
+      "आटा",
+      "atta"
+    ]
+  },
+  "flour_64": {
+    "product": "Britannia Maida",
+    "category": "Flour",
+    "terms": [
+      "flour",
+      "britannia",
+      "pillsbury",
+      "flour flou",
+      "ब्रिटानिया मैदा",
+      "maida"
+    ]
+  },
+  "flour_65": {
+    "product": "Rice Flour",
+    "category": "Flour",
+    "terms": [
+      "rice flour",
+      "britannia",
+      "rice",
+      "चावल",
+      "flour flou",
+      "chawal ka aata",
+      "आटा",
+      "चावल का आटा"
+    ]
+  },
+  "flour_66": {
+    "product": "Corn Flour",
+    "category": "Flour",
+    "terms": [
+      "makkai ka aata",
+      "pillsbury",
+      "मकई का आटा",
+      "flour flou",
+      "corn",
+      "आटा",
+      "corn flour"
+    ]
+  },
+  "flour_67": {
+    "product": "Multigrain Flour",
+    "category": "Flour",
+    "terms": [
+      "मल्टीग्रेन आटा",
+      "britannia",
+      "flour flou",
+      "mixed flour",
+      "multigrain",
+      "आटा",
+      "atta"
+    ]
+  },
+  "pulses_68": {
+    "product": "Moong Dal Dhuli",
+    "category": "Pulses",
+    "terms": [
+      "moong",
+      "दाल",
+      "mung",
+      "moong dal",
+      "pulses pulse",
+      "dhuli",
+      "मूंग दाल धुली"
+    ]
+  },
+  "pulses_69": {
+    "product": "Chana Dal",
+    "category": "Pulses",
+    "terms": [
+      "चना दाल",
+      "chana",
+      "split chickpea",
+      "दाल",
+      "pulses pulse",
+      "chana dal"
+    ]
+  },
+  "pulses_70": {
+    "product": "Arhar Dal",
+    "category": "Pulses",
+    "terms": [
+      "arhar",
+      "tuvar",
+      "दाल",
+      "अरहर दाल",
+      "dal",
+      "pulses pulse"
+    ]
+  },
+  "pulses_71": {
+    "product": "Urad Dal",
+    "category": "Pulses",
+    "terms": [
+      "urad",
+      "उड़द दाल",
+      "दाल",
+      "dal",
+      "pulses pulse",
+      "black gram"
+    ]
+  },
+  "pulses_72": {
+    "product": "Masoor Dal",
+    "category": "Pulses",
+    "terms": [
+      "masoor",
+      "मसूर दाल",
+      "दाल",
+      "dal",
+      "pulses pulse",
+      "lentil"
+    ]
+  },
+  "pulses_73": {
+    "product": "Chickpeas",
+    "category": "Pulses",
+    "terms": [
+      "chickpeas",
+      "गड़",
+      "pulses pulse",
+      "chole",
+      "chickpea",
+      "छोले"
+    ]
+  },
+  "pulses_74": {
+    "product": "Kidney Beans",
+    "category": "Pulses",
+    "terms": [
+      "लाल",
+      "pulses pulse",
+      "राजमा",
+      "kidney",
+      "rajma",
+      "kidney bean"
+    ]
+  },
+  "vegetables_75": {
+    "product": "Celery",
+    "category": "Vegetables",
+    "terms": [
+      "ajwain",
+      "अजवाइन",
+      "celery",
+      "vegetables"
+    ]
+  },
+  "vegetables_76": {
+    "product": "Green Beans",
+    "category": "Vegetables",
+    "terms": [
+      "green",
+      "सेम",
+      "beans",
+      "green beans"
+    ]
+  },
+  "vegetables_77": {
+    "product": "Peas Green",
+    "category": "Vegetables",
+    "terms": [
+      "peas",
+      "matar",
+      "green peas",
+      "हरे मटर"
+    ]
+  },
+  "vegetables_78": {
+    "product": "Drumstick",
+    "category": "Vegetables",
+    "terms": [
+      "vegetables",
+      "सहजन",
+      "moringa",
+      "drumstick"
+    ]
+  },
+  "vegetables_79": {
+    "product": "Arbi",
+    "category": "Vegetables",
+    "terms": [
+      "vegetables",
+      "taro",
+      "arbi",
+      "अरबी"
+    ]
+  },
+  "vegetables_80": {
+    "product": "Potato Chips",
+    "category": "Vegetables",
+    "terms": [
+      "potato",
+      "आलू के चिप्स",
+      "snack",
+      "chips"
+    ]
+  },
+  "fruits_81": {
+    "product": "Avocado",
+    "category": "Fruits",
+    "terms": [
+      "fruits",
+      "एवोकाडो",
+      "butter fruit",
+      "avocado"
+    ]
+  },
+  "fruits_82": {
+    "product": "Lemon",
+    "category": "Fruits",
+    "terms": [
+      "nimbu",
+      "नींबू",
+      "fruits",
+      "lemon"
+    ]
+  },
+  "fruits_83": {
+    "product": "Lime",
+    "category": "Fruits",
+    "terms": [
+      "fruits",
+      "sweet lime",
+      "lime",
+      "नीबू"
+    ]
+  },
+  "fruits_84": {
+    "product": "Dragon Fruit",
+    "category": "Fruits",
+    "terms": [
+      "exotic",
+      "ड्रैगन फल",
+      "dragon fruit",
+      "dragon"
+    ]
+  },
+  "fruits_85": {
+    "product": "Blueberry",
+    "category": "Fruits",
+    "terms": [
+      "fruits",
+      "नीले अंगूर",
+      "berries",
+      "blueberry"
+    ]
+  },
+  "fruits_86": {
+    "product": "Strawberry",
+    "category": "Fruits",
+    "terms": [
+      "fruits",
+      "strawberry",
+      "berries",
+      "स्ट्रॉबेरी"
+    ]
+  },
+  "dairy_87": {
+    "product": "Paneer Blocks",
+    "category": "Dairy",
+    "terms": [
+      "पनीर ब्लॉक",
+      "cheese",
+      "paneer",
+      "dairy"
+    ]
+  },
+  "dairy_88": {
+    "product": "Condensed Milk",
+    "category": "Dairy",
+    "terms": [
+      "दूध",
+      "condensed",
+      "condensed milk",
+      "khoya",
+      "डिब्बाबंद दूध"
+    ]
+  },
+  "dairy_89": {
+    "product": "Amul Kool Shake",
+    "category": "Dairy",
+    "terms": [
+      "amul",
+      "amul kool",
+      "shake",
+      "अमूल कूल शेक"
+    ]
+  },
+  "rice_90": {
+    "product": "Arborio Rice",
+    "category": "Rice",
+    "terms": [
+      "चावल",
+      "आर्बोरियो चावल",
+      "risotto",
+      "rice",
+      "arborio"
+    ]
+  },
+  "rice_91": {
+    "product": "Short Grain Rice",
+    "category": "Rice",
+    "terms": [
+      "short",
+      "छोटे दाने वाले चावल",
+      "चावल",
+      "short grain",
+      "rice"
+    ]
+  },
+  "rice_92": {
+    "product": "Black Rice",
+    "category": "Rice",
+    "terms": [
+      "black rice",
+      "glutinous",
+      "black",
+      "चावल",
+      "काला चावल"
+    ]
+  },
+  "flour_93": {
+    "product": "Besan Flour",
+    "category": "Flour",
+    "terms": [
+      "besan",
+      "बेसन",
+      "gram flour",
+      "flour"
+    ]
+  },
+  "flour_94": {
+    "product": "Ragi Flour",
+    "category": "Flour",
+    "terms": [
+      "flour",
+      "ragi",
+      "finger millet",
+      "रागी का आटा",
+      "आटा"
+    ]
+  },
+  "flour_95": {
+    "product": "Semolina",
+    "category": "Flour",
+    "terms": [
+      "flour",
+      "semolina",
+      "suji",
+      "सूजी"
+    ]
+  },
+  "flour_96": {
+    "product": "Coconut Flour",
+    "category": "Flour",
+    "terms": [
+      "नारियल का आटा",
+      "coconut flour",
+      "coconut",
+      "powder",
+      "आटा"
+    ]
+  },
+  "pulses_97": {
+    "product": "Gram Whole",
+    "category": "Pulses",
+    "terms": [
+      "chickpea",
+      "काबुली चने",
+      "gram",
+      "pulses"
+    ]
+  },
+  "pulses_98": {
+    "product": "Black Chickpea",
+    "category": "Pulses",
+    "terms": [
+      "kala chana",
+      "काले चने",
+      "black",
+      "black chickpea"
+    ]
+  },
+  "pulses_99": {
+    "product": "Red Lentils",
+    "category": "Pulses",
+    "terms": [
+      "red lentils",
+      "masoor",
+      "दाल",
+      "लाल दाल",
+      "red"
+    ]
+  },
+  "pulses_100": {
+    "product": "Fenugreek Seeds",
+    "category": "Pulses",
+    "terms": [
+      "methi",
+      "pulses",
+      "fenugreek",
+      "मेथी के दाने"
+    ]
+  },
+  "pulses_101": {
+    "product": "Sesame Seeds",
+    "category": "Pulses",
+    "terms": [
+      "pulses",
+      "तिल",
+      "sesame",
+      "til"
+    ]
+  },
+  "spices_102": {
+    "product": "Turmeric Powder",
+    "category": "Spices",
+    "terms": [
+      "हल्दी पाउडर",
+      "spices",
+      "haldi",
+      "turmeric"
+    ]
+  },
+  "spices_103": {
+    "product": "Coriander Powder",
+    "category": "Spices",
+    "terms": [
+      "spices",
+      "धनिया पाउडर",
+      "coriander",
+      "dhanya"
+    ]
+  },
+  "spices_104": {
+    "product": "Cumin Seeds",
+    "category": "Spices",
+    "terms": [
+      "jeera",
+      "cumin",
+      "spices",
+      "जीरा"
+    ]
+  },
+  "spices_105": {
+    "product": "Black Pepper",
+    "category": "Spices",
+    "terms": [
+      "pepper",
+      "black",
+      "काली मिर्च",
+      "mirch"
+    ]
+  },
+  "condiments_106": {
+    "product": "Salt",
+    "category": "Condiments",
+    "terms": [
+      "condiments",
+      "salt",
+      "namak",
+      "नमक"
+    ]
+  },
+  "condiments_107": {
+    "product": "Sugar",
+    "category": "Condiments",
+    "terms": [
+      "condiments",
+      "चीनी",
+      "cheeni",
+      "sugar"
+    ]
+  },
+  "condiments_108": {
+    "product": "Cooking Oil",
+    "category": "Condiments",
+    "terms": [
+      "तेल",
+      "tel",
+      "cooking",
+      "oil"
+    ]
+  },
+  "condiments_109": {
+    "product": "Mustard Oil",
+    "category": "Condiments",
+    "terms": [
+      "tel",
+      "mustard oil",
+      "सरसों का तेल",
+      "mustard"
+    ]
+  },
+  "condiments_110": {
+    "product": "Coconut Oil",
+    "category": "Condiments",
+    "terms": [
+      "nariyal tel",
+      "coconut oil",
+      "coconut",
+      "नारियल का तेल"
+    ]
+  },
+  "snacks_111": {
+    "product": "Biscuits",
+    "category": "Snacks",
+    "terms": [
+      "biscuits",
+      "snacks",
+      "cookies",
+      "बिस्किट"
+    ]
+  },
+  "snacks_112": {
+    "product": "Wafers",
+    "category": "Snacks",
+    "terms": [
+      "snacks",
+      "wafers",
+      "वेफर्स",
+      "chips"
+    ]
+  },
+  "beverages_113": {
+    "product": "Tea",
+    "category": "Beverages",
+    "terms": [
+      "chai",
+      "tea",
+      "चाय",
+      "beverages"
+    ]
+  },
+  "beverages_114": {
+    "product": "Coffee",
+    "category": "Beverages",
+    "terms": [
+      "beverages",
+      "coffee",
+      "kaafi",
+      "कॉफी"
+    ]
+  },
+  "sweets_115": {
+    "product": "Jaggery",
+    "category": "Sweets",
+    "terms": [
+      "gud",
+      "गुड़",
+      "jaggery",
+      "sweets"
+    ]
+  },
+  "sweets_116": {
+    "product": "Honey",
+    "category": "Sweets",
+    "terms": [
+      "honey",
+      "sweets",
+      "shahad",
+      "शहद"
+    ]
+  }
+}

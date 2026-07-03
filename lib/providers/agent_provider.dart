@@ -34,27 +34,35 @@ class AgentProvider with ChangeNotifier {
         .collection('agents')
         .orderBy('name')
         .snapshots()
-        .listen((snap) {
-      _agents = snap.docs.map(AgentModel.fromFirestore).toList();
-      _isLoading = false;
-      notifyListeners();
-    }, onError: (err) {
-      _errorMessage = err.toString();
-      _isLoading = false;
-      notifyListeners();
-    });
+        .listen(
+          (snap) {
+            _agents = snap.docs.map(AgentModel.fromFirestore).toList();
+            _isLoading = false;
+            notifyListeners();
+          },
+          onError: (err) {
+            _errorMessage = err.toString();
+            _isLoading = false;
+            notifyListeners();
+          },
+        );
 
     _configSub = _firestore
         .collection('agent_config')
         .doc('global')
         .snapshots()
-        .listen((snap) {
-      _config = snap.exists ? AgentGlobalConfig.fromFirestore(snap) : AgentGlobalConfig.empty();
-      notifyListeners();
-    }, onError: (err) {
-      _errorMessage = err.toString();
-      notifyListeners();
-    });
+        .listen(
+          (snap) {
+            _config = snap.exists
+                ? AgentGlobalConfig.fromFirestore(snap)
+                : AgentGlobalConfig.empty();
+            notifyListeners();
+          },
+          onError: (err) {
+            _errorMessage = err.toString();
+            notifyListeners();
+          },
+        );
   }
 
   /// Flips the Mission Control master kill switch via direct Firestore write.

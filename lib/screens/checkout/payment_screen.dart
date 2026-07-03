@@ -13,10 +13,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Select Payment Method'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Select Payment Method'), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -139,10 +136,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           children: [
             Row(
               children: [
-                Text(
-                  icon,
-                  style: const TextStyle(fontSize: 24),
-                ),
+                Text(icon, style: const TextStyle(fontSize: 24)),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -152,10 +146,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         title,
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                       ),
-                      Text(
-                        subtitle,
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                      ),
+                      Text(subtitle, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                     ],
                   ),
                 ),
@@ -189,13 +180,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
               Wrap(
                 spacing: 8,
                 children: badges
-                    .map((badge) => Chip(
-                          label: Text(
-                            badge,
-                            style: const TextStyle(fontSize: 10),
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        ))
+                    .map(
+                      (badge) => Chip(
+                        label: Text(badge, style: const TextStyle(fontSize: 10)),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      ),
+                    )
                     .toList(),
               ),
             ],
@@ -206,8 +196,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   void _processPayment() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Processing payment via $selectedMethod')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Processing payment via $selectedMethod')));
   }
 }

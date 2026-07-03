@@ -75,13 +75,11 @@ class MfaService {
 
   /// Generates a TOTP secret and returns the otpauth:// URI for QR display.
   /// Does NOT commit to Firestore until [confirmTOTPSetup] succeeds.
-  Future<MfaResult> initiateTOTPSetup({
-    required String userId,
-    required String userEmail,
-  }) async {
+  Future<MfaResult> initiateTOTPSetup({required String userId, required String userEmail}) async {
     try {
       final secret = OTP.randomSecret();
-      final uri = 'otpauth://totp/${Uri.encodeComponent(_issuer)}'
+      final uri =
+          'otpauth://totp/${Uri.encodeComponent(_issuer)}'
           ':${Uri.encodeComponent(userEmail)}'
           '?secret=$secret'
           '&issuer=${Uri.encodeComponent(_issuer)}'
@@ -137,10 +135,7 @@ class MfaService {
   }
 
   /// Verify a TOTP code (or backup code) at login time.
-  Future<MfaResult> verifyTOTPChallenge({
-    required UserModel user,
-    required String code,
-  }) async {
+  Future<MfaResult> verifyTOTPChallenge({required UserModel user, required String code}) async {
     try {
       final doc = await _firestore.collection('users').doc(user.id).get();
       final data = doc.data() ?? {};
@@ -173,9 +168,12 @@ class MfaService {
     for (final offset in [-1, 0, 1]) {
       final ts = nowSec + offset * _totpInterval;
       final expected = OTP.generateTOTPCodeString(
-        secret, ts,
-        interval: _totpInterval, length: _totpDigits,
-        algorithm: Algorithm.SHA1, isGoogle: true,
+        secret,
+        ts,
+        interval: _totpInterval,
+        length: _totpDigits,
+        algorithm: Algorithm.SHA1,
+        isGoogle: true,
       );
       if (expected == code.trim()) return true;
     }
@@ -191,8 +189,7 @@ class MfaService {
     });
   }
 
-  String _hashCode(String code) =>
-      sha256.convert(utf8.encode(code.trim())).toString();
+  String _hashCode(String code) => sha256.convert(utf8.encode(code.trim())).toString();
 
   /// Enable email-based 2FA for [user]. Writes mfaEnabled=true to
   /// `users/{id}` and (for owner/superAdmin) to their `owners` doc.
@@ -216,7 +213,10 @@ class MfaService {
       return const MfaResult(success: true, message: 'Two-factor authentication enabled.');
     } catch (e) {
       debugPrint('[MfaService] enableMfa error: $e');
-      return const MfaResult(success: false, message: 'Failed to enable two-factor authentication.');
+      return const MfaResult(
+        success: false,
+        message: 'Failed to enable two-factor authentication.',
+      );
     }
   }
 
@@ -241,7 +241,10 @@ class MfaService {
       return const MfaResult(success: true, message: 'Two-factor authentication disabled.');
     } catch (e) {
       debugPrint('[MfaService] disableMfa error: $e');
-      return const MfaResult(success: false, message: 'Failed to disable two-factor authentication.');
+      return const MfaResult(
+        success: false,
+        message: 'Failed to disable two-factor authentication.',
+      );
     }
   }
 
@@ -284,13 +287,15 @@ class MfaService {
         await _emailService.sendEmail(
           to: email,
           subject: 'Fufaji Business — Your sign-in verification code',
-          html: '''
+          html:
+              '''
             <p>Hi ${user.name ?? 'there'},</p>
             <p>Use the code below to finish signing in to your Fufaji Business account.</p>
             <p style="font-size:28px;font-weight:bold;letter-spacing:4px;">$otp</p>
             <p>This code is valid for ${OTPService.otpValidityMinutes} minutes. If you didn't try to sign in, you can ignore this email and consider changing your PIN.</p>
           ''',
-          text: 'Your Fufaji Business sign-in verification code is $otp. '
+          text:
+              'Your Fufaji Business sign-in verification code is $otp. '
               'It is valid for ${OTPService.otpValidityMinutes} minutes.',
           categories: const ['mfa_challenge'],
         );
@@ -305,7 +310,10 @@ class MfaService {
       return const MfaResult(success: true, message: 'Verification code sent to your email.');
     } catch (e) {
       debugPrint('[MfaService] sendChallenge error: $e');
-      return const MfaResult(success: false, message: 'Failed to send verification code. Try again.');
+      return const MfaResult(
+        success: false,
+        message: 'Failed to send verification code. Try again.',
+      );
     }
   }
 

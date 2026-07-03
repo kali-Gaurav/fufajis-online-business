@@ -9,12 +9,15 @@ class PriceOptimizerService {
   PriceOptimizerService._internal();
 
   /// Suggests an optimized price based on competitor data (Data Science Optimization)
-  MonetaryValue suggestPrice(ProductModel product, {PricingStrategy strategy = PricingStrategy.undercut}) {
+  MonetaryValue suggestPrice(
+    ProductModel product, {
+    PricingStrategy strategy = PricingStrategy.undercut,
+  }) {
     if (product.competitorPrices.isEmpty) return product.price;
 
     final competitorPrices = product.competitorPrices.map((p) => p.price).toList();
     competitorPrices.sort();
-    
+
     final minPrice = competitorPrices.first;
     final sumPrice = competitorPrices.reduce((a, b) => a + b);
     final avgPrice = sumPrice / competitorPrices.length;
@@ -26,7 +29,9 @@ class PriceOptimizerService {
         // Suggest 2% lower than the cheapest competitor, but not below cost if available
         final suggested = minPrice * 0.98;
         if (product.costPrice != null && suggested < MonetaryValue(product.costPrice!)) {
-          return MonetaryValue(product.costPrice! * 1.05); // Maintain 5% margin if undercut is too deep
+          return MonetaryValue(
+            product.costPrice! * 1.05,
+          ); // Maintain 5% margin if undercut is too deep
         }
         return suggested;
       case PricingStrategy.premium:

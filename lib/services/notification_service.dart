@@ -84,7 +84,9 @@ class NotificationService {
     // 5. Handle App opening from terminated state via push notification
     RemoteMessage? initialMessage = await _fcm.getInitialMessage();
     if (initialMessage != null) {
-      debugPrint("App launched from terminated state via notification: ${initialMessage.messageId}");
+      debugPrint(
+        "App launched from terminated state via notification: ${initialMessage.messageId}",
+      );
     }
 
     // 6. Handle App opening from background state via push notification
@@ -152,8 +154,7 @@ class NotificationService {
     String? payload,
     String? type,
   }) async {
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
+    const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
       'fufajis_high_importance_channel',
       'Fufaji\'s Core Notifications',
       channelDescription: 'Highly important alerts regarding order lifecycle and operations.',
@@ -243,7 +244,6 @@ class NotificationService {
     showLocalNotification(title, body, type: 'stapleRefill');
   }
 
-
   /// Send notification to a specific user by saving it to Firestore
   /// Enforces quiet hours, rate limits (frequency limit per hour), and mirrors to RDS.
   Future<bool> sendNotificationToUser({
@@ -254,7 +254,12 @@ class NotificationService {
     String? channelUsed,
   }) async {
     final String type = data?['type'] ?? 'systemMessage';
-    final bool isTransactional = type == 'orderUpdate' || type == 'auth' || type == 'otp' || type == 'paymentReceived' || type == 'systemAlert';
+    final bool isTransactional =
+        type == 'orderUpdate' ||
+        type == 'auth' ||
+        type == 'otp' ||
+        type == 'paymentReceived' ||
+        type == 'systemAlert';
 
     try {
       // 1. Load User Settings for Quiet Hours & Frequency Limit
@@ -312,7 +317,9 @@ class NotificationService {
         }
 
         if (inQuietHours) {
-          debugPrint('[NotificationService] Quiet Hours active. Buffering non-essential notification: $title');
+          debugPrint(
+            '[NotificationService] Quiet Hours active. Buffering non-essential notification: $title',
+          );
           // Buffer it for tomorrow morning (8:00 AM)
           final docId = 'buf_${DateTime.now().millisecondsSinceEpoch}';
           await NotificationRetryService().handleFailure(
@@ -349,17 +356,15 @@ class NotificationService {
         }).length;
 
         if (nonEssentialCount >= frequencyLimit) {
-          debugPrint('[NotificationService] Frequency limit exceeded ($nonEssentialCount/$frequencyLimit per hour) for user $userId. Discarding: $title');
+          debugPrint(
+            '[NotificationService] Frequency limit exceeded ($nonEssentialCount/$frequencyLimit per hour) for user $userId. Discarding: $title',
+          );
           return false;
         }
       }
 
       // 4. Save to Firestore
-      final docRef = _db
-          .collection('users')
-          .doc(userId)
-          .collection('notifications')
-          .doc();
+      final docRef = _db.collection('users').doc(userId).collection('notifications').doc();
 
       final notification = {
         'id': docRef.id,
@@ -398,12 +403,7 @@ class NotificationService {
           INSERT INTO notification_logs (notification_id, recipient_id, channel, status, response_payload)
           VALUES (\$1, \$2, \$3, 'delivered', \$4)
           ''',
-          params: [
-            docRef.id,
-            userId,
-            channelUsed ?? 'in_app',
-            jsonEncode(data ?? {}),
-          ],
+          params: [docRef.id, userId, channelUsed ?? 'in_app', jsonEncode(data ?? {})],
           allowWrite: true,
         );
       } catch (rdsError) {
@@ -444,11 +444,7 @@ class NotificationService {
       title: 'Order $orderNumber Update',
       body: message,
       channelUsed: 'in_app',
-      data: {
-        'type': 'orderUpdate',
-        'orderId': orderId,
-        'status': status,
-      },
+      data: {'type': 'orderUpdate', 'orderId': orderId, 'status': status},
     );
   }
 

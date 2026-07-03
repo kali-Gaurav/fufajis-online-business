@@ -1,0 +1,356 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "catalog_products",
+      "queryScope": "Collection",
+      "fields": [
+        {
+          "fieldPath": "isActive",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "updatedAt",
+          "order": "DESCENDING"
+        }
+      ],
+      "status": "ENABLED",
+      "name": "projects/fufaji-store/databases/(default)/collectionGroups/catalog_products/indexes/active_products_by_updated"
+    },
+    {
+      "collectionGroup": "catalog_products",
+      "queryScope": "Collection",
+      "fields": [
+        {
+          "fieldPath": "category",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "isActive",
+          "order": "DESCENDING"
+        }
+      ],
+      "status": "ENABLED",
+      "name": "projects/fufaji-store/databases/(default)/collectionGroups/catalog_products/indexes/by_category_active"
+    },
+    {
+      "collectionGroup": "catalog_products",
+      "queryScope": "Collection",
+      "fields": [
+        {
+          "fieldPath": "brand",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "isActive",
+          "order": "DESCENDING"
+        }
+      ],
+      "status": "ENABLED",
+      "name": "projects/fufaji-store/databases/(default)/collectionGroups/catalog_products/indexes/by_brand_active"
+    },
+    {
+      "collectionGroup": "catalog_products",
+      "queryScope": "Collection",
+      "fields": [
+        {
+          "fieldPath": "lowestPrice",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "isActive",
+          "order": "DESCENDING"
+        }
+      ],
+      "status": "ENABLED",
+      "name": "projects/fufaji-store/databases/(default)/collectionGroups/catalog_products/indexes/by_price_active"
+    },
+    {
+      "collectionGroup": "variants",
+      "queryScope": "Collection",
+      "fields": [
+        {
+          "fieldPath": "productId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "isActive",
+          "order": "DESCENDING"
+        }
+      ],
+      "status": "ENABLED",
+      "name": "projects/fufaji-store/databases/(default)/collectionGroups/variants/indexes/by_product_active"
+    },
+    {
+      "collectionGroup": "inventory",
+      "queryScope": "Collection",
+      "fields": [
+        {
+          "fieldPath": "shopId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "stockAvailable",
+          "order": "DESCENDING"
+        }
+      ],
+      "status": "ENABLED",
+      "name": "projects/fufaji-store/databases/(default)/collectionGroups/inventory/indexes/by_shop_stock"
+    },
+    {
+      "collectionGroup": "inventory",
+      "queryScope": "Collection",
+      "fields": [
+        {
+          "fieldPath": "shopId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "isLowStock",
+          "order": "DESCENDING"
+        }
+      ],
+      "status": "ENABLED",
+      "name": "projects/fufaji-store/databases/(default)/collectionGroups/inventory/indexes/by_shop_low_stock"
+    },
+    {
+      "collectionGroup": "inventory",
+      "queryScope": "Collection",
+      "fields": [
+        {
+          "fieldPath": "variantId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "updatedAt",
+          "order": "DESCENDING"
+        }
+      ],
+      "status": "ENABLED",
+      "name": "projects/fufaji-store/databases/(default)/collectionGroups/inventory/indexes/by_variant_updated"
+    },
+    {
+      "collectionGroup": "carts",
+      "queryScope": "Collection",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "cartStatus",
+          "order": "ASCENDING"
+        }
+      ],
+      "status": "ENABLED",
+      "name": "projects/fufaji-store/databases/(default)/collectionGroups/carts/indexes/by_user_status"
+    },
+    {
+      "collectionGroup": "carts",
+      "queryScope": "Collection",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "expiresAt",
+          "order": "ASCENDING"
+        }
+      ],
+      "status": "ENABLED",
+      "name": "projects/fufaji-store/databases/(default)/collectionGroups/carts/indexes/by_user_expires"
+    },
+    {
+      "collectionGroup": "carts",
+      "queryScope": "Collection",
+      "fields": [
+        {
+          "fieldPath": "cartStatus",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "expiresAt",
+          "order": "ASCENDING"
+        }
+      ],
+      "status": "ENABLED",
+      "name": "projects/fufaji-store/databases/(default)/collectionGroups/carts/indexes/by_status_expires"
+    },
+    {
+      "collectionGroup": "orders",
+      "queryScope": "Collection",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ],
+      "status": "ENABLED",
+      "name": "projects/fufaji-store/databases/(default)/collectionGroups/orders/indexes/by_user_created"
+    },
+    {
+      "collectionGroup": "orders",
+      "queryScope": "Collection",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "orderStatus",
+          "order": "ASCENDING"
+        }
+      ],
+      "status": "ENABLED",
+      "name": "projects/fufaji-store/databases/(default)/collectionGroups/orders/indexes/by_user_status"
+    },
+    {
+      "collectionGroup": "orders",
+      "queryScope": "Collection",
+      "fields": [
+        {
+          "fieldPath": "orderStatus",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ],
+      "status": "ENABLED",
+      "name": "projects/fufaji-store/databases/(default)/collectionGroups/orders/indexes/by_status_created"
+    },
+    {
+      "collectionGroup": "orders",
+      "queryScope": "Collection",
+      "fields": [
+        {
+          "fieldPath": "rider.riderId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "orderStatus",
+          "order": "ASCENDING"
+        }
+      ],
+      "status": "ENABLED",
+      "name": "projects/fufaji-store/databases/(default)/collectionGroups/orders/indexes/by_rider_status"
+    },
+    {
+      "collectionGroup": "orders",
+      "queryScope": "Collection",
+      "fields": [
+        {
+          "fieldPath": "rider.riderId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "updatedAt",
+          "order": "DESCENDING"
+        }
+      ],
+      "status": "ENABLED",
+      "name": "projects/fufaji-store/databases/(default)/collectionGroups/orders/indexes/by_rider_updated"
+    },
+    {
+      "collectionGroup": "orders",
+      "queryScope": "Collection",
+      "fields": [
+        {
+          "fieldPath": "paymentStatus",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ],
+      "status": "ENABLED",
+      "name": "projects/fufaji-store/databases/(default)/collectionGroups/orders/indexes/by_payment_created"
+    },
+    {
+      "collectionGroup": "orders",
+      "queryScope": "Collection",
+      "fields": [
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ],
+      "status": "ENABLED",
+      "name": "projects/fufaji-store/databases/(default)/collectionGroups/orders/indexes/by_created_desc"
+    },
+    {
+      "collectionGroup": "search_cache",
+      "queryScope": "Collection",
+      "fields": [
+        {
+          "fieldPath": "category",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "type",
+          "order": "ASCENDING"
+        }
+      ],
+      "status": "ENABLED",
+      "name": "projects/fufaji-store/databases/(default)/collectionGroups/search_cache/indexes/by_category_type"
+    },
+    {
+      "collectionGroup": "search_cache",
+      "queryScope": "Collection",
+      "fields": [
+        {
+          "fieldPath": "type",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "lastUpdatedAt",
+          "order": "DESCENDING"
+        }
+      ],
+      "status": "ENABLED",
+      "name": "projects/fufaji-store/databases/(default)/collectionGroups/search_cache/indexes/by_type_updated"
+    }
+  ],
+  "fieldOverrides": [
+    {
+      "collectionGroup": "catalog_products",
+      "fieldPath": "name",
+      "indexes": [
+        {
+          "order": "ASCENDING",
+          "queryScope": "Collection"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "orders",
+      "fieldPath": "updatedAt",
+      "indexes": [
+        {
+          "order": "DESCENDING",
+          "queryScope": "Collection"
+        }
+      ]
+    }
+  ],
+  "deploymentNotes": {
+    "indexCount": 20,
+    "purpose": "LOOP 2 Phase B — Firestore Index Optimization",
+    "costOptimization": "Indexes are compound only for frequently queried combinations. Single-field indexes auto-created by Firestore.",
+    "hotPaths": [
+      "Owner Dashboard: orders by userId + status",
+      "Rider App: orders by riderId + status",
+      "Inventory Admin: inventory by shopId + low stock",
+      "Customer Orders: orders by userId + createdAt",
+      "Product Browse: catalog_products by category + active",
+      "Cart Cleanup: carts by status + expiresAt",
+      "Search Suggestions: search_cache by category + type"
+    ]
+  }
+}

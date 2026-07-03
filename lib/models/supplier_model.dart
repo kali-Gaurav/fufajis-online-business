@@ -14,13 +14,7 @@ class SupplierModel {
   });
 
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': name,
-      'phone': phone,
-      'email': email,
-      'products': products,
-    };
+    return {'id': id, 'name': name, 'phone': phone, 'email': email, 'products': products};
   }
 
   factory SupplierModel.fromMap(Map<String, dynamic> map, String docId) {

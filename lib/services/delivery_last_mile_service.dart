@@ -29,7 +29,17 @@ class DeliveryLastMileService {
       final snapshot = await _db
           .collection('deliveries')
           .where('deliveryAgentId', isEqualTo: deliveryAgentId)
-          .where('status', whereIn: ['assigned', 'accepted', 'picked_up', 'out_for_delivery', 'inTransit', 'arrived'])
+          .where(
+            'status',
+            whereIn: [
+              'assigned',
+              'accepted',
+              'picked_up',
+              'out_for_delivery',
+              'inTransit',
+              'arrived',
+            ],
+          )
           .orderBy('estimatedArrivalAt')
           .get();
 
@@ -151,10 +161,7 @@ class DeliveryLastMileService {
       );
 
       // Save to Firestore
-      await _db
-          .collection('delivery_locations')
-          .doc(location.locationId)
-          .set(location.toJson());
+      await _db.collection('delivery_locations').doc(location.locationId).set(location.toJson());
 
       // Check if agent is near (within 5 minutes)
       final eta = await _locationService.calculateETA(
@@ -313,8 +320,7 @@ class DeliveryLastMileService {
 
       ProofOfDeliveryModel proof;
       if (proofSnapshot.docs.isNotEmpty) {
-        final existingProof =
-            ProofOfDeliveryModel.fromJson({...proofSnapshot.docs.first.data()});
+        final existingProof = ProofOfDeliveryModel.fromJson({...proofSnapshot.docs.first.data()});
         proof = existingProof.copyWith(
           photoAfterUrl: photoUrl ?? existingProof.photoAfterUrl,
           signatureUrl: signatureUrl ?? existingProof.signatureUrl,
@@ -407,9 +413,17 @@ class DeliveryLastMileService {
         'failureNotes': notes,
       });
 
-      // Update order status back to READY
+      // FIX (Module 9 follow-up): previously wrote status 'READY', which is
+      // not in the OrderStatus vocabulary (parsers fell back to 'pending').
+      // Failed delivery now returns the order to 'packed' (qualified form,
+      // matching live packing) and flags it for the escalation screen —
+      // same design as DeliveryProvider.markDeliveryFailed.
       await _db.collection('orders').doc(task.orderId).update({
-        'status': 'READY',
+        'status': 'OrderStatus.packed',
+        'deliveryFailed': true,
+        'failureReason': reason,
+        'deliveryFailedAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
       });
 
       // Stop location tracking
@@ -533,9 +547,7 @@ class DeliveryLastMileService {
           .orderBy('timestamp', descending: true)
           .get();
 
-      return snapshot.docs
-          .map((doc) => DeliveryLocationModel.fromJson(doc.data()))
-          .toList();
+      return snapshot.docs.map((doc) => DeliveryLocationModel.fromJson(doc.data())).toList();
     } catch (e) {
       debugPrint('Error getting location history: $e');
       return [];
@@ -544,19 +556,14 @@ class DeliveryLastMileService {
 
   // Private helper methods
 
-  Future<void> _sendAssignmentNotifications(
-      DeliveryTaskModel task, String deliveryAgentId) async {
+  Future<void> _sendAssignmentNotifications(DeliveryTaskModel task, String deliveryAgentId) async {
     try {
       // Notify rider
       await NotificationService().sendNotificationToUser(
         userId: deliveryAgentId,
         title: '🏍️ New Delivery Assignment',
         body: 'You have been assigned to deliver Order #${task.orderNumber}.',
-        data: {
-          'type': 'systemMessage',
-          'deliveryId': task.deliveryId,
-          'orderId': task.orderId,
-        },
+        data: {'type': 'systemMessage', 'deliveryId': task.deliveryId, 'orderId': task.orderId},
       );
 
       // Notify customer via fallback channel routing
@@ -564,7 +571,8 @@ class DeliveryLastMileService {
         customerId: task.customerId,
         phoneNumber: task.customerPhone,
         title: '🏍️ Delivery Partner Assigned',
-        body: 'Namaste ${task.customerName}, a delivery partner has been assigned to your order. We are preparing it for delivery.',
+        body:
+            'Namaste ${task.customerName}, a delivery partner has been assigned to your order. We are preparing it for delivery.',
         orderId: task.orderId,
         notificationType: 'orderUpdate',
       );
@@ -580,7 +588,8 @@ class DeliveryLastMileService {
         customerId: task.customerId,
         phoneNumber: task.customerPhone,
         title: '🚚 Order Out for Delivery',
-        body: 'Namaste ${task.customerName}, your Order #${task.orderNumber} is out for delivery! Track your rider live: $trackingLink',
+        body:
+            'Namaste ${task.customerName}, your Order #${task.orderNumber} is out for delivery! Track your rider live: $trackingLink',
         orderId: task.orderId,
         notificationType: 'orderUpdate',
       );
@@ -595,7 +604,8 @@ class DeliveryLastMileService {
         customerId: task.customerId,
         phoneNumber: task.customerPhone,
         title: '🛵 Delivery Arriving Soon',
-        body: 'Namaste ${task.customerName}, our delivery partner is arriving in approximately 5 minutes. Please be ready with your verification OTP.',
+        body:
+            'Namaste ${task.customerName}, our delivery partner is arriving in approximately 5 minutes. Please be ready with your verification OTP.',
         orderId: task.orderId,
         notificationType: 'orderUpdate',
       );
@@ -613,7 +623,7 @@ class DeliveryLastMileService {
         otp: otp,
         orderId: task.orderId,
       );
-      
+
       if (!success) {
         await WhatsAppNotificationService.sendWithFallback(
           customerId: task.customerId,
@@ -646,11 +656,9 @@ class DeliveryLastMileService {
       await NotificationService().sendNotificationToUser(
         userId: task.customerId,
         title: '⚠️ Delivery Unsuccessful',
-        body: 'Namaste, our delivery partner could not complete the delivery of Order #${task.orderNumber}. Reason: $reason. We will contact you to reschedule.',
-        data: {
-          'type': 'systemAlert',
-          'orderId': task.orderId,
-        },
+        body:
+            'Namaste, our delivery partner could not complete the delivery of Order #${task.orderNumber}. Reason: $reason. We will contact you to reschedule.',
+        data: {'type': 'systemAlert', 'orderId': task.orderId},
       );
 
       await NotificationRetryService().triggerAdminAlert(

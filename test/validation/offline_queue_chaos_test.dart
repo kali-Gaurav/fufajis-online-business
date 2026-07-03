@@ -20,8 +20,12 @@ class MockDatabase extends Mock implements Database {
   final Map<String, List<Map<String, dynamic>>> _tables = {};
 
   @override
-  Future<int> insert(String table, Map<String, dynamic> values,
-      {String? nullColumnHack, ConflictAlgorithm? conflictAlgorithm}) async {
+  Future<int> insert(
+    String table,
+    Map<String, dynamic> values, {
+    String? nullColumnHack,
+    ConflictAlgorithm? conflictAlgorithm,
+  }) async {
     if (!_tables.containsKey(table)) {
       _tables[table] = [];
     }
@@ -93,11 +97,7 @@ class MockDatabase extends Mock implements Database {
   }
 
   @override
-  Future<int> delete(
-    String table, {
-    String? where,
-    List<dynamic>? whereArgs,
-  }) async {
+  Future<int> delete(String table, {String? where, List<dynamic>? whereArgs}) async {
     if (!_tables.containsKey(table)) {
       return 0;
     }
@@ -119,19 +119,16 @@ class MockDatabase extends Mock implements Database {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> rawQuery(String sql,
-      [List<dynamic>? arguments]) async {
+  Future<List<Map<String, dynamic>>> rawQuery(String sql, [List<dynamic>? arguments]) async {
     // Mock count queries
     if (sql.contains('COUNT(*)')) {
       int count = 0;
       if (sql.contains("status = ?") && arguments != null) {
         final status = arguments.first;
-        count = (_tables['offline_orders'] ?? [])
-            .where((row) => row['status'] == status)
-            .length;
+        count = (_tables['offline_orders'] ?? []).where((row) => row['status'] == status).length;
       }
       return [
-        {'count': count}
+        {'count': count},
       ];
     }
 
@@ -139,14 +136,13 @@ class MockDatabase extends Mock implements Database {
     if (sql.contains('SUM(LENGTH')) {
       int totalSize = 0;
       if (_tables.containsKey('offline_orders')) {
-        totalSize = _tables['offline_orders']!
-            .fold(0, (sum, row) {
-              final json = row['order_json'] as String?;
-              return sum + (json?.length ?? 0);
-            });
+        totalSize = _tables['offline_orders']!.fold(0, (sum, row) {
+          final json = row['order_json'] as String?;
+          return sum + (json?.length ?? 0);
+        });
       }
       return [
-        {'total': totalSize}
+        {'total': totalSize},
       ];
     }
 
@@ -179,8 +175,7 @@ class MockFirebaseFirestore extends Mock implements FirebaseFirestore {
   }
 }
 
-class MockCollectionReference extends Mock
-    implements CollectionReference<Map<String, dynamic>> {
+class MockCollectionReference extends Mock implements CollectionReference<Map<String, dynamic>> {
   final Map<String, MockDocumentReference> _docs = {};
 
   @override
@@ -190,8 +185,7 @@ class MockCollectionReference extends Mock
   }
 }
 
-class MockDocumentReference extends Mock
-    implements DocumentReference<Map<String, dynamic>> {
+class MockDocumentReference extends Mock implements DocumentReference<Map<String, dynamic>> {
   final String _id;
   final Map<String, dynamic> _data = {};
   bool _exists = false;
@@ -219,14 +213,13 @@ class MockDocumentReference extends Mock
   }
 }
 
-class MockDocumentSnapshot extends Mock
-    implements DocumentSnapshot<Map<String, dynamic>> {
+class MockDocumentSnapshot extends Mock implements DocumentSnapshot<Map<String, dynamic>> {
   final Map<String, dynamic>? _data;
   final bool _exists;
 
   MockDocumentSnapshot({Map<String, dynamic>? data, bool exists = false})
-      : _data = data,
-        _exists = exists;
+    : _data = data,
+      _exists = exists;
 
   @override
   bool get exists => _exists;
@@ -237,8 +230,7 @@ class MockDocumentSnapshot extends Mock
 
 class MockConnectivity extends Mock implements Connectivity {
   ConnectivityResult _currentResult = ConnectivityResult.wifi;
-  final _connectivityController =
-      StreamController<List<ConnectivityResult>>.broadcast();
+  final _connectivityController = StreamController<List<ConnectivityResult>>.broadcast();
 
   @override
   Stream<List<ConnectivityResult>> get onConnectivityChanged => _connectivityController.stream;
@@ -402,10 +394,12 @@ void main() {
         }
 
         // Verify all 10 orders queued
-        final queued = await mockDb.query('offline_orders',
-            where: 'status = ?', whereArgs: ['queued']);
-        expect(queued.length, equals(10),
-            reason: 'Should have 10 queued orders');
+        final queued = await mockDb.query(
+          'offline_orders',
+          where: 'status = ?',
+          whereArgs: ['queued'],
+        );
+        expect(queued.length, equals(10), reason: 'Should have 10 queued orders');
         expect(orders.length, equals(10), reason: 'Should have 10 order IDs');
       });
 
@@ -426,19 +420,18 @@ void main() {
         // Crash simulation: app terminates abruptly
         // On recovery, check queue state
         final allOrders = await mockDb.query('offline_orders');
-        expect(allOrders.length, equals(5),
-            reason: 'All orders should still be in queue after crash');
+        expect(
+          allOrders.length,
+          equals(5),
+          reason: 'All orders should still be in queue after crash',
+        );
 
         // Verify no duplicate syncing states
-        final syncingOrders = allOrders
-            .where((o) => o['status'] == 'syncing')
-            .toList();
-        expect(syncingOrders.length, equals(2),
-            reason: 'Should have 2 orders in syncing state');
+        final syncingOrders = allOrders.where((o) => o['status'] == 'syncing').toList();
+        expect(syncingOrders.length, equals(2), reason: 'Should have 2 orders in syncing state');
       });
 
-      test('Scenario 1.3: Reopen app and verify no duplicates in Firestore',
-          () async {
+      test('Scenario 1.3: Reopen app and verify no duplicates in Firestore', () async {
         // Simulate app reopening
         // Add orders to queue
         final testOrders = <String>[];
@@ -457,15 +450,16 @@ void main() {
 
         // Verify queue recovered all items
         final recovered = await mockDb.query('offline_orders');
-        expect(recovered.length, equals(10),
-            reason: 'Queue should have recovered all 10 orders');
+        expect(recovered.length, equals(10), reason: 'Queue should have recovered all 10 orders');
 
         // Verify no duplicate order IDs
         final ids = recovered.map((r) => r['id']).toSet();
-        expect(ids.length, equals(10),
-            reason: 'All order IDs should be unique');
-        expect(ids.intersection(testOrders.toSet()).length, equals(10),
-            reason: 'All orders should be recoverable');
+        expect(ids.length, equals(10), reason: 'All order IDs should be unique');
+        expect(
+          ids.intersection(testOrders.toSet()).length,
+          equals(10),
+          reason: 'All orders should be recoverable',
+        );
       });
 
       test('Scenario 1.4: Sync completes cleanly after recovery', () async {
@@ -498,10 +492,12 @@ void main() {
         }
 
         // Verify all synced
-        final synced = await mockDb.query('offline_orders',
-            where: 'status = ?', whereArgs: ['synced']);
-        expect(synced.length, equals(10),
-            reason: 'All 10 orders should be synced');
+        final synced = await mockDb.query(
+          'offline_orders',
+          where: 'status = ?',
+          whereArgs: ['synced'],
+        );
+        expect(synced.length, equals(10), reason: 'All 10 orders should be synced');
       });
     });
 
@@ -581,39 +577,36 @@ void main() {
           'updated_at': DateTime.now().millisecondsSinceEpoch,
         });
 
-        final queued = await mockDb.query('offline_orders',
-            where: 'id = ?', whereArgs: [order.id]);
-        expect(queued.length, equals(1),
-            reason: 'Order should be queued successfully');
+        final queued = await mockDb.query('offline_orders', where: 'id = ?', whereArgs: [order.id]);
+        expect(queued.length, equals(1), reason: 'Order should be queued successfully');
 
         // Verify order quantity
         final queuedData = queued.first;
-        final decodedOrder =
-            OrderModel.fromMap(jsonDecode(queuedData['order_json'] as String) as Map<String, dynamic>);
-        expect(decodedOrder.items.first.quantity, equals(3),
-            reason: 'Order should request 3 units');
+        final decodedOrder = OrderModel.fromMap(
+          jsonDecode(queuedData['order_json'] as String) as Map<String, dynamic>,
+        );
+        expect(
+          decodedOrder.items.first.quantity,
+          equals(3),
+          reason: 'Order should request 3 units',
+        );
       });
 
-      test(
-          'Scenario 2.2: Stock changes to 1 on another device while queued',
-          () async {
+      test('Scenario 2.2: Stock changes to 1 on another device while queued', () async {
         // This simulates another customer buying 4 units
         // reducing stock from 5 to 1
         const originalStock = 5;
         const soldElsewhere = 4;
         const remainingStock = originalStock - soldElsewhere;
 
-        expect(remainingStock, equals(1),
-            reason: 'Stock should be reduced to 1 unit');
+        expect(remainingStock, equals(1), reason: 'Stock should be reduced to 1 unit');
 
         // Order in queue still requests 3 units
         final order = _createTestOrder(id: 'inv_conflict_test');
-        expect(order.items.first.quantity, equals(1),
-            reason: 'Test order should have 1 item');
+        expect(order.items.first.quantity, equals(1), reason: 'Test order should have 1 item');
       });
 
-      test('Scenario 2.3: Stock validation catches oversell on sync',
-          () async {
+      test('Scenario 2.3: Stock validation catches oversell on sync', () async {
         // Create order requesting more than available stock
         final orderWithOversell = OrderModel(
           id: 'oversell_test',
@@ -660,14 +653,15 @@ void main() {
         );
 
         // Validate order against available stock
-        final requestedQuantity =
-            orderWithOversell.items.first.quantity; // 10
+        final requestedQuantity = orderWithOversell.items.first.quantity; // 10
         const availableStock = 1;
         final isValidStock = requestedQuantity <= availableStock;
 
-        expect(isValidStock, isFalse,
-            reason:
-                'Validation should catch oversell (10 > 1 available)');
+        expect(
+          isValidStock,
+          isFalse,
+          reason: 'Validation should catch oversell (10 > 1 available)',
+        );
       });
 
       test('Scenario 2.4: Order rejected or adjusted by server', () async {
@@ -682,10 +676,12 @@ void main() {
           'updated_at': DateTime.now().millisecondsSinceEpoch,
         });
 
-        final failed = await mockDb.query('offline_orders',
-            where: 'status = ?', whereArgs: ['failed']);
-        expect(failed.length, equals(1),
-            reason: 'Order should be marked as failed');
+        final failed = await mockDb.query(
+          'offline_orders',
+          where: 'status = ?',
+          whereArgs: ['failed'],
+        );
+        expect(failed.length, equals(1), reason: 'Order should be marked as failed');
 
         // Case 2: Order adjusted by server (e.g., quantity reduced)
         final adjustedOrder = _createTestOrder(id: 'adjusted_order');
@@ -700,10 +696,12 @@ void main() {
           'updated_at': DateTime.now().millisecondsSinceEpoch,
         });
 
-        final synced = await mockDb.query('offline_orders',
-            where: 'id = ?', whereArgs: [adjustedOrder.id]);
-        expect(synced.length, equals(1),
-            reason: 'Adjusted order should be synced');
+        final synced = await mockDb.query(
+          'offline_orders',
+          where: 'id = ?',
+          whereArgs: [adjustedOrder.id],
+        );
+        expect(synced.length, equals(1), reason: 'Adjusted order should be synced');
       });
 
       test('Scenario 2.5: Customer notified of inventory issue', () async {
@@ -711,15 +709,20 @@ void main() {
         final notification = {
           'orderId': 'inv_notify_test',
           'type': 'inventory_adjustment',
-          'message':
-              'Some items in your order are out of stock and have been adjusted',
+          'message': 'Some items in your order are out of stock and have been adjusted',
           'timestamp': DateTime.now(),
         };
 
-        expect(notification['type'], equals('inventory_adjustment'),
-            reason: 'Notification should indicate inventory change');
-        expect(notification['message'], isNotEmpty,
-            reason: 'Notification message should be present');
+        expect(
+          notification['type'],
+          equals('inventory_adjustment'),
+          reason: 'Notification should indicate inventory change',
+        );
+        expect(
+          notification['message'],
+          isNotEmpty,
+          reason: 'Notification message should be present',
+        );
       });
 
       test('Scenario 2.6: Stock never goes negative', () async {
@@ -730,20 +733,17 @@ void main() {
 
         // First order reduces stock
         currentStock -= orderQuantity;
-        expect(currentStock, equals(5),
-            reason: 'Stock should be 5 after first order');
+        expect(currentStock, equals(5), reason: 'Stock should be 5 after first order');
 
         // Second order should be rejected if it would go negative
         final willGoNegative = (currentStock - otherOrderQuantity) < 0;
-        expect(willGoNegative, isTrue,
-            reason: 'Calculation should show stock would go negative');
+        expect(willGoNegative, isTrue, reason: 'Calculation should show stock would go negative');
 
         // Prevent the negative stock
         if (willGoNegative) {
           otherOrderQuantity; // Order rejected
         }
-        expect(currentStock, greaterThanOrEqualTo(0),
-            reason: 'Stock should never be negative');
+        expect(currentStock, greaterThanOrEqualTo(0), reason: 'Stock should never be negative');
       });
     });
 
@@ -774,10 +774,7 @@ void main() {
         stopwatch.start();
 
         for (int i = 0; i < 500; i++) {
-          final order = _createTestOrder(
-            id: 'bulk_order_$i',
-            itemCount: 5,
-          );
+          final order = _createTestOrder(id: 'bulk_order_$i', itemCount: 5);
 
           await mockDb.insert('offline_orders', {
             'id': order.id,
@@ -792,14 +789,12 @@ void main() {
         stopwatch.stop();
 
         final allOrders = await mockDb.query('offline_orders');
-        expect(allOrders.length, equals(500),
-            reason: 'Should have exactly 500 orders');
+        expect(allOrders.length, equals(500), reason: 'Should have exactly 500 orders');
 
         print('Added 500 orders in ${stopwatch.elapsedMilliseconds}ms');
       });
 
-      test('Scenario 3.2: SQLite handles 500 orders without crash',
-          () async {
+      test('Scenario 3.2: SQLite handles 500 orders without crash', () async {
         // Add 500 orders
         for (int i = 0; i < 500; i++) {
           final order = _createTestOrder(id: 'stress_order_$i');
@@ -815,10 +810,8 @@ void main() {
 
         // Query all orders - should not crash
         final allOrders = await mockDb.query('offline_orders');
-        expect(allOrders.isNotEmpty, isTrue,
-            reason: 'Should retrieve orders without crashing');
-        expect(allOrders.length, equals(500),
-            reason: 'Should retrieve all 500 orders');
+        expect(allOrders.isNotEmpty, isTrue, reason: 'Should retrieve orders without crashing');
+        expect(allOrders.length, equals(500), reason: 'Should retrieve all 500 orders');
       });
 
       test('Scenario 3.3: Memory usage stays under 50MB', () async {
@@ -846,12 +839,10 @@ void main() {
         final memoryEstimateMB = totalJsonSize / (1024 * 1024);
         print('Estimated memory usage: ${memoryEstimateMB.toStringAsFixed(2)}MB');
 
-        expect(memoryEstimateMB, lessThan(50),
-            reason: 'Memory usage should stay under 50MB');
+        expect(memoryEstimateMB, lessThan(50), reason: 'Memory usage should stay under 50MB');
       });
 
-      test('Scenario 3.4: Sync completes without timeout (2 sec per 100)',
-          () async {
+      test('Scenario 3.4: Sync completes without timeout (2 sec per 100)', () async {
         // Add 500 orders
         final orders = <String>[];
         for (int i = 0; i < 500; i++) {
@@ -875,12 +866,10 @@ void main() {
         const batchSize = 100;
         int syncedCount = 0;
 
-        for (int batch = 0; batch < (allOrders.length / batchSize).ceil();
-            batch++) {
+        for (int batch = 0; batch < (allOrders.length / batchSize).ceil(); batch++) {
           final batchStart = batch * batchSize;
           final batchEnd = (batch + 1) * batchSize;
-          final batchOrders =
-              allOrders.sublist(batchStart, batchEnd.clamp(0, allOrders.length));
+          final batchOrders = allOrders.sublist(batchStart, batchEnd.clamp(0, allOrders.length));
 
           // Simulate syncing batch
           for (final order in batchOrders) {
@@ -897,29 +886,33 @@ void main() {
           if ((batch + 1) % 1 == 0) {
             final elapsed = stopwatch.elapsedMilliseconds;
             final expectedMax = ((batch + 1) * 100 / 50) * 1000; // 2s per 100
-            print(
-                'Batch ${batch + 1}: $elapsed ms (max allowed: ${expectedMax.toInt()}ms)');
+            print('Batch ${batch + 1}: $elapsed ms (max allowed: ${expectedMax.toInt()}ms)');
           }
         }
 
         stopwatch.stop();
 
-        final finalSynced = await mockDb.query('offline_orders',
-            where: 'status = ?', whereArgs: ['synced']);
-        expect(finalSynced.length, equals(500),
-            reason: 'All 500 orders should be synced');
+        final finalSynced = await mockDb.query(
+          'offline_orders',
+          where: 'status = ?',
+          whereArgs: ['synced'],
+        );
+        expect(finalSynced.length, equals(500), reason: 'All 500 orders should be synced');
 
         final elapsedSeconds = stopwatch.elapsedMilliseconds / 1000;
         const expectedMaxSeconds = (500 / 100) * 2; // 10 seconds for 500 orders
         print(
-            'Sync completed in ${elapsedSeconds.toStringAsFixed(2)}s (max: ${expectedMaxSeconds}s)');
+          'Sync completed in ${elapsedSeconds.toStringAsFixed(2)}s (max: ${expectedMaxSeconds}s)',
+        );
 
-        expect(elapsedSeconds, lessThan(expectedMaxSeconds + 5),
-            reason: 'Sync should complete within reasonable timeout');
+        expect(
+          elapsedSeconds,
+          lessThan(expectedMaxSeconds + 5),
+          reason: 'Sync should complete within reasonable timeout',
+        );
       });
 
-      test('Scenario 3.5: Firestore batch operations work correctly',
-          () async {
+      test('Scenario 3.5: Firestore batch operations work correctly', () async {
         // Verify batch operation structure for 500 orders
         final orders = <Map<String, dynamic>>[];
         for (int i = 0; i < 500; i++) {
@@ -931,19 +924,16 @@ void main() {
         const batchSize = 500;
         int batches = (orders.length / batchSize).ceil();
 
-        expect(batches, equals(1),
-            reason: 'Should fit in 1 batch (500 orders = 500 writes)');
+        expect(batches, equals(1), reason: 'Should fit in 1 batch (500 orders = 500 writes)');
 
         // Verify batch payload isn't too large
         final totalSize = _encodeJson(orders).length;
         const maxBatchSize = 10 * 1024 * 1024; // 10MB limit
 
-        expect(totalSize, lessThan(maxBatchSize),
-            reason: 'Batch payload should be under 10MB');
+        expect(totalSize, lessThan(maxBatchSize), reason: 'Batch payload should be under 10MB');
       });
 
-      test('Scenario 3.6: No out-of-memory errors with 500 orders',
-          () async {
+      test('Scenario 3.6: No out-of-memory errors with 500 orders', () async {
         bool outOfMemoryError = false;
 
         try {
@@ -953,19 +943,16 @@ void main() {
             expect(json.isNotEmpty, isTrue);
           }
         } catch (e) {
-          if (e.toString().contains('OutOfMemoryError') ||
-              e.toString().contains('Memory')) {
+          if (e.toString().contains('OutOfMemoryError') || e.toString().contains('Memory')) {
             outOfMemoryError = true;
           }
           rethrow;
         }
 
-        expect(outOfMemoryError, isFalse,
-            reason: 'Should not encounter out-of-memory errors');
+        expect(outOfMemoryError, isFalse, reason: 'Should not encounter out-of-memory errors');
       });
 
-      test('Scenario 3.7: Performance stays acceptable (< 2 sec per 100)',
-          () async {
+      test('Scenario 3.7: Performance stays acceptable (< 2 sec per 100)', () async {
         for (int i = 0; i < 500; i++) {
           final order = _createTestOrder(id: 'perf_order_$i');
           stopwatch.reset();
@@ -983,8 +970,11 @@ void main() {
           stopwatch.stop();
 
           // Allow ~4ms per insert for 500 orders = 2 seconds total
-          expect(stopwatch.elapsedMilliseconds, lessThan(5),
-              reason: 'Each insert should complete quickly');
+          expect(
+            stopwatch.elapsedMilliseconds,
+            lessThan(5),
+            reason: 'Each insert should complete quickly',
+          );
         }
       });
     });
@@ -1033,13 +1023,10 @@ void main() {
         );
 
         final queued = await mockDb.query('offline_orders');
-        expect(queued.length, equals(1),
-            reason: 'Order should be queued while offline');
+        expect(queued.length, equals(1), reason: 'Order should be queued while offline');
       });
 
-      test(
-          'Scenario 4.2: Network flaps (ON -> OFF -> ON -> OFF -> ON)',
-          () async {
+      test('Scenario 4.2: Network flaps (ON -> OFF -> ON -> OFF -> ON)', () async {
         // Add initial order
         final order = _createTestOrder(id: 'flap_order_2');
         await mockDb.insert('offline_orders', {
@@ -1063,8 +1050,7 @@ void main() {
         for (final (result, label) in transitions) {
           mockConnectivity.setConnectivity(result);
           final current = await mockConnectivity.checkConnectivity();
-          expect(current, contains(result),
-              reason: 'Network should be $label');
+          expect(current, contains(result), reason: 'Network should be $label');
         }
 
         // Final state should be online
@@ -1117,10 +1103,16 @@ void main() {
           whereArgs: [orderIds[0]],
         );
 
-        final queuedOrders = await mockDb.query('offline_orders',
-            where: 'status = ?', whereArgs: ['queued']);
-        expect(queuedOrders.length, equals(3),
-            reason: 'All 3 orders should be queued (no partial sync)');
+        final queuedOrders = await mockDb.query(
+          'offline_orders',
+          where: 'status = ?',
+          whereArgs: ['queued'],
+        );
+        expect(
+          queuedOrders.length,
+          equals(3),
+          reason: 'All 3 orders should be queued (no partial sync)',
+        );
       });
 
       test('Scenario 4.4: No lost data during network transitions', () async {
@@ -1141,26 +1133,25 @@ void main() {
 
         // Network flapping
         for (int flap = 0; flap < 5; flap++) {
-          mockConnectivity.setConnectivity(flap.isEven
-              ? ConnectivityResult.wifi
-              : ConnectivityResult.none);
+          mockConnectivity.setConnectivity(
+            flap.isEven ? ConnectivityResult.wifi : ConnectivityResult.none,
+          );
 
           // Verify all orders still exist
           final allOrders = await mockDb.query('offline_orders');
-          expect(allOrders.length, equals(5),
-              reason:
-                  'All 5 orders should persist during network flap $flap');
+          expect(
+            allOrders.length,
+            equals(5),
+            reason: 'All 5 orders should persist during network flap $flap',
+          );
 
           // Verify order IDs haven't changed
-          final currentIds =
-              allOrders.map((o) => o['id']).cast<String>().toSet();
-          expect(currentIds, equals(orderIds.toSet()),
-              reason: 'Order IDs should not change');
+          final currentIds = allOrders.map((o) => o['id']).cast<String>().toSet();
+          expect(currentIds, equals(orderIds.toSet()), reason: 'Order IDs should not change');
         }
       });
 
-      test('Scenario 4.5: Auto-retry works correctly after flapping',
-          () async {
+      test('Scenario 4.5: Auto-retry works correctly after flapping', () async {
         final order = _createTestOrder(id: 'retry_flap_order');
 
         // Initial queue
@@ -1186,29 +1177,26 @@ void main() {
         mockConnectivity.setConnectivity(ConnectivityResult.wifi);
 
         // On online, attempt sync
-        final isOnline = await mockConnectivity.checkConnectivity() !=
-            ConnectivityResult.none;
+        final isOnline = await mockConnectivity.checkConnectivity() != ConnectivityResult.none;
         expect(isOnline, isTrue, reason: 'Should be online for retry');
 
         // Mark order as synced after successful retry
         await mockDb.update(
           'offline_orders',
-          {
-            'status': 'synced',
-            'synced_at': DateTime.now().millisecondsSinceEpoch,
-          },
+          {'status': 'synced', 'synced_at': DateTime.now().millisecondsSinceEpoch},
           where: 'id = ?',
           whereArgs: [order.id],
         );
 
-        final synced = await mockDb.query('offline_orders',
-            where: 'status = ?', whereArgs: ['synced']);
-        expect(synced.length, equals(1),
-            reason: 'Order should be synced after network stabilizes');
+        final synced = await mockDb.query(
+          'offline_orders',
+          where: 'status = ?',
+          whereArgs: ['synced'],
+        );
+        expect(synced.length, equals(1), reason: 'Order should be synced after network stabilizes');
       });
 
-      test('Scenario 4.6: Sync status UI updated during transitions',
-          () async {
+      test('Scenario 4.6: Sync status UI updated during transitions', () async {
         // Simulate UI state changes
         bool isSyncing = false;
         String? lastSyncError;
@@ -1232,10 +1220,8 @@ void main() {
         // Network goes offline
         mockConnectivity.setConnectivity(ConnectivityResult.none);
         isSyncing = false;
-        lastSyncError =
-            'Network unavailable'; // UI should show this error
-        expect(lastSyncError, isNotEmpty,
-            reason: 'UI should display error message');
+        lastSyncError = 'Network unavailable'; // UI should show this error
+        expect(lastSyncError, isNotEmpty, reason: 'UI should display error message');
 
         // Network back online
         mockConnectivity.setConnectivity(ConnectivityResult.wifi);
@@ -1246,10 +1232,8 @@ void main() {
         // Sync completes
         isSyncing = false;
         lastSyncError = null;
-        expect(lastSyncError, isNull,
-            reason: 'Error should be cleared on success');
-        expect(isSyncing, isFalse,
-            reason: 'Should not be syncing after completion');
+        expect(lastSyncError, isNull, reason: 'Error should be cleared on success');
+        expect(isSyncing, isFalse, reason: 'Should not be syncing after completion');
       });
     });
 
@@ -1273,8 +1257,7 @@ void main() {
         ''');
       });
 
-      test('All four scenarios can run sequentially without interference',
-          () async {
+      test('All four scenarios can run sequentially without interference', () async {
         // Scenario 1 data
         for (int i = 0; i < 3; i++) {
           final order = _createTestOrder(id: 'seq_s1_$i');
@@ -1291,8 +1274,7 @@ void main() {
         // Clear and test scenario 2 data
         await mockDb.delete('offline_orders');
         final s2Orders = await mockDb.query('offline_orders');
-        expect(s2Orders.isEmpty, isTrue,
-            reason: 'Should clear queue between scenarios');
+        expect(s2Orders.isEmpty, isTrue, reason: 'Should clear queue between scenarios');
 
         // Add scenario 2 data
         final order = _createTestOrder(id: 'seq_s2_1');
@@ -1306,18 +1288,11 @@ void main() {
         });
 
         final finalOrders = await mockDb.query('offline_orders');
-        expect(finalOrders.length, equals(1),
-            reason: 'Should have only scenario 2 data');
+        expect(finalOrders.length, equals(1), reason: 'Should have only scenario 2 data');
       });
 
       test('Queue handles mixed statuses correctly', () async {
-        final statuses = [
-          'queued',
-          'syncing',
-          'synced',
-          'failed',
-          'conflicted'
-        ];
+        final statuses = ['queued', 'syncing', 'synced', 'failed', 'conflicted'];
 
         for (int i = 0; i < statuses.length; i++) {
           final order = _createTestOrder(id: 'mixed_status_$i');
@@ -1332,14 +1307,15 @@ void main() {
         }
 
         final allOrders = await mockDb.query('offline_orders');
-        expect(allOrders.length, equals(5),
-            reason: 'Should handle all status types');
+        expect(allOrders.length, equals(5), reason: 'Should handle all status types');
 
         for (final status in statuses) {
-          final withStatus = await mockDb.query('offline_orders',
-              where: 'status = ?', whereArgs: [status]);
-          expect(withStatus.length, equals(1),
-              reason: 'Should find orders with status $status');
+          final withStatus = await mockDb.query(
+            'offline_orders',
+            where: 'status = ?',
+            whereArgs: [status],
+          );
+          expect(withStatus.length, equals(1), reason: 'Should find orders with status $status');
         }
       });
 
@@ -1358,35 +1334,46 @@ void main() {
         });
 
         // Retrieve and restore
-        final retrieved = await mockDb.query('offline_orders',
-            where: 'id = ?', whereArgs: [original.id]);
-        expect(retrieved.length, equals(1),
-            reason: 'Should retrieve queued order');
+        final retrieved = await mockDb.query(
+          'offline_orders',
+          where: 'id = ?',
+          whereArgs: [original.id],
+        );
+        expect(retrieved.length, equals(1), reason: 'Should retrieve queued order');
 
         final retrievedJson = retrieved.first['order_json'] as String;
         final restored = OrderModel.fromMap(jsonDecode(retrievedJson) as Map<String, dynamic>);
 
         // Verify all fields match
-        expect(restored.id, equals(original.id),
-            reason: 'ID should match');
-        expect(restored.customerId, equals(original.customerId),
-            reason: 'Customer ID should match');
-        expect(restored.totalAmount, equals(original.totalAmount),
-            reason: 'Total amount should match');
-        expect(restored.items.length, equals(original.items.length),
-            reason: 'Item count should match');
+        expect(restored.id, equals(original.id), reason: 'ID should match');
+        expect(
+          restored.customerId,
+          equals(original.customerId),
+          reason: 'Customer ID should match',
+        );
+        expect(
+          restored.totalAmount,
+          equals(original.totalAmount),
+          reason: 'Total amount should match',
+        );
+        expect(
+          restored.items.length,
+          equals(original.items.length),
+          reason: 'Item count should match',
+        );
       });
     });
   });
-
 }
 
-
 String _encodeJson(dynamic obj) {
-  return jsonEncode(obj, toEncodable: (val) {
-    if (val is DateTime) return val.toIso8601String();
-    if (val is Timestamp) return val.toDate().toIso8601String();
-    if (val is OrderModel) return val.toMap();
-    return val.toString();
-  });
+  return jsonEncode(
+    obj,
+    toEncodable: (val) {
+      if (val is DateTime) return val.toIso8601String();
+      if (val is Timestamp) return val.toDate().toIso8601String();
+      if (val is OrderModel) return val.toMap();
+      return val.toString();
+    },
+  );
 }

@@ -4,7 +4,7 @@ import '../services/campaign_service.dart';
 
 class CampaignProvider with ChangeNotifier {
   final CampaignService _service = CampaignService();
-  
+
   List<CampaignModel> _campaigns = [];
   bool _isLoading = false;
   String? _error;
@@ -12,11 +12,16 @@ class CampaignProvider with ChangeNotifier {
   List<CampaignModel> get campaigns => _campaigns;
   bool get isLoading => _isLoading;
   String? get error => _error;
-  
-  List<CampaignModel> get activeCampaigns => _campaigns.where((c) => c.status == CampaignStatus.active).toList();
-  List<CampaignModel> get scheduledCampaigns => _campaigns.where((c) => c.status == CampaignStatus.scheduled).toList();
-  List<CampaignModel> get draftCampaigns => _campaigns.where((c) => c.status == CampaignStatus.draft).toList();
-  List<CampaignModel> get pastCampaigns => _campaigns.where((c) => c.status == CampaignStatus.completed || c.status == CampaignStatus.cancelled).toList();
+
+  List<CampaignModel> get activeCampaigns =>
+      _campaigns.where((c) => c.status == CampaignStatus.active).toList();
+  List<CampaignModel> get scheduledCampaigns =>
+      _campaigns.where((c) => c.status == CampaignStatus.scheduled).toList();
+  List<CampaignModel> get draftCampaigns =>
+      _campaigns.where((c) => c.status == CampaignStatus.draft).toList();
+  List<CampaignModel> get pastCampaigns => _campaigns
+      .where((c) => c.status == CampaignStatus.completed || c.status == CampaignStatus.cancelled)
+      .toList();
 
   CampaignProvider() {
     _init();
@@ -25,7 +30,7 @@ class CampaignProvider with ChangeNotifier {
   void _init() {
     _isLoading = true;
     notifyListeners();
-    
+
     _service.watchCampaigns().listen(
       (data) {
         _campaigns = data;
@@ -37,7 +42,7 @@ class CampaignProvider with ChangeNotifier {
         _error = e.toString();
         _isLoading = false;
         notifyListeners();
-      }
+      },
     );
   }
 
@@ -60,7 +65,7 @@ class CampaignProvider with ChangeNotifier {
       rethrow;
     }
   }
-  
+
   Future<void> launchCampaign(String campaignId, String adminId, String adminName) async {
     try {
       await _service.launchCampaign(campaignId, adminId, adminName);
@@ -70,7 +75,7 @@ class CampaignProvider with ChangeNotifier {
       rethrow;
     }
   }
-  
+
   Future<void> cancelCampaign(String campaignId, String adminId, String adminName) async {
     try {
       await _service.cancelCampaign(campaignId, adminId, adminName);
@@ -80,7 +85,7 @@ class CampaignProvider with ChangeNotifier {
       rethrow;
     }
   }
-  
+
   Future<void> deleteCampaign(String campaignId, String adminId, String adminName) async {
     try {
       await _service.deleteCampaign(campaignId, adminId, adminName);

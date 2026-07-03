@@ -132,9 +132,7 @@ class ProductProvider with ChangeNotifier {
         _products.sort((a, b) => b.createdAt.compareTo(a.createdAt));
         break;
       case 'popularity':
-        _products.sort(
-          (a, b) => (b.isTrending ? 1 : 0).compareTo(a.isTrending ? 1 : 0),
-        );
+        _products.sort((a, b) => (b.isTrending ? 1 : 0).compareTo(a.isTrending ? 1 : 0));
         break;
     }
     notifyListeners();
@@ -162,9 +160,7 @@ class ProductProvider with ChangeNotifier {
 
   Future<void> _updateInventoryHealth() async {
     if (_shopId == null) return;
-    _inventoryHealth = await _inventoryAlertService.getInventoryHealthScore(
-      _shopId!,
-    );
+    _inventoryHealth = await _inventoryAlertService.getInventoryHealthScore(_shopId!);
     notifyListeners();
   }
 
@@ -194,8 +190,7 @@ class ProductProvider with ChangeNotifier {
         if (product.stockQuantity < product.minimumStock) {
           await _productService.createLowStockAlert(product);
         } else {
-          final velocityData = await alertService
-              .calculateSalesVelocityWithTrend(product.id);
+          final velocityData = await alertService.calculateSalesVelocityWithTrend(product.id);
           final daysUntilStockout = await alertService.predictDaysUntilStockout(
             product.id,
             product.stockQuantity,
@@ -219,10 +214,7 @@ class ProductProvider with ChangeNotifier {
   bool _hasMoreProducts = true;
   bool get hasMoreProducts => _hasMoreProducts;
 
-  Future<void> fetchProductsPaged({
-    int limit = 20,
-    bool isRefresh = false,
-  }) async {
+  Future<void> fetchProductsPaged({int limit = 20, bool isRefresh = false}) async {
     if (_isLoading) return;
     if (!isRefresh && !_hasMoreProducts) return;
 
@@ -235,10 +227,7 @@ class ProductProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      Query query = _db
-          .collection('products')
-          .orderBy('createdAt', descending: true)
-          .limit(limit);
+      Query query = _db.collection('products').orderBy('createdAt', descending: true).limit(limit);
       if (_lastProductDoc != null) {
         query = query.startAfterDocument(_lastProductDoc!);
       }
@@ -247,9 +236,7 @@ class ProductProvider with ChangeNotifier {
       if (snapshot.docs.isNotEmpty) {
         _lastProductDoc = snapshot.docs.last;
         final newProducts = snapshot.docs
-            .map(
-              (doc) => ProductModel.fromMap(doc.data() as Map<String, dynamic>),
-            )
+            .map((doc) => ProductModel.fromMap(doc.data() as Map<String, dynamic>))
             .toList();
         _products.addAll(newProducts);
         _hasMoreProducts = newProducts.length == limit;
@@ -295,7 +282,7 @@ class ProductProvider with ChangeNotifier {
   void _updateCategoriesFromProducts() {
     // Phase 1 Audit Upgrade: Decouple Logic ID from Localized Display
     final Map<String, CategoryModel> uniqueCats = {};
-    
+
     // Add "All" static category
     uniqueCats['all'] = CategoryModel(
       id: 'all',
@@ -309,7 +296,7 @@ class ProductProvider with ChangeNotifier {
     for (final cat in ProductCategory.values) {
       uniqueCats[cat.name] = CategoryModel.fromEnum(cat);
     }
-    
+
     _categories = uniqueCats.values.toList();
   }
 
@@ -374,8 +361,7 @@ class ProductProvider with ChangeNotifier {
         categoryId: 'vegetables',
         shopId: 'shop_001',
         shopName: 'Fufaji Online',
-        imageUrl:
-            'https://images.unsplash.com/photo-1518977676601-b53f02ac6d31?w=400',
+        imageUrl: 'https://images.unsplash.com/photo-1518977676601-b53f02ac6d31?w=400',
         stockQuantity: 100,
         district: 'Jaipur',
         barcode: '8901234567001',
@@ -393,8 +379,7 @@ class ProductProvider with ChangeNotifier {
         categoryId: 'dairy',
         shopId: 'shop_001',
         shopName: 'Fufaji Online',
-        imageUrl:
-            'https://images.unsplash.com/photo-1563636619-e910ef2a844b?w=400',
+        imageUrl: 'https://images.unsplash.com/photo-1563636619-e910ef2a844b?w=400',
         stockQuantity: 50,
         district: 'Jaipur',
         barcode: '8901234567004',
@@ -412,18 +397,11 @@ class ProductProvider with ChangeNotifier {
         categoryId: 'vegetables',
         shopId: 'shop_001',
         shopName: 'Fufaji Online',
-        imageUrl:
-            'https://images.unsplash.com/photo-1546470427-e26264be0b0d?w=400',
+        imageUrl: 'https://images.unsplash.com/photo-1546470427-e26264be0b0d?w=400',
         stockQuantity: 80,
         district: 'Jaipur',
         barcode: '8901234567002',
-        tags: const [
-          'tomato',
-          'tomatoes',
-          'tamatar',
-          'टमाटर',
-          'à¤Ÿà¤®à¤¾à¤Ÿà¤°',
-        ],
+        tags: const ['tomato', 'tomatoes', 'tamatar', 'टमाटर', 'à¤Ÿà¤®à¤¾à¤Ÿà¤°'],
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       ),
@@ -437,8 +415,7 @@ class ProductProvider with ChangeNotifier {
         categoryId: 'vegetables',
         shopId: 'shop_001',
         shopName: 'Fufaji Online',
-        imageUrl:
-            'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=400',
+        imageUrl: 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=400',
         stockQuantity: 90,
         district: 'Jaipur',
         barcode: '8901234567003',
@@ -449,17 +426,13 @@ class ProductProvider with ChangeNotifier {
     ];
   }
 
-
-
   // Search products with fuzzy matching
   List<ProductModel> searchProducts(String query) {
     final normalizedQuery = _normalizeSearchQuery(query);
     if (normalizedQuery.isEmpty) return [];
 
     if (RegExp(r'^\d{8,}$').hasMatch(normalizedQuery)) {
-      return _products
-          .where((p) => p.barcode.trim() == normalizedQuery)
-          .toList();
+      return _products.where((p) => p.barcode.trim() == normalizedQuery).toList();
     }
 
     final expandedTokens = normalizedQuery
@@ -508,9 +481,7 @@ class ProductProvider with ChangeNotifier {
 
   List<ProductModel> getProductsByCategory(String catId) {
     if (catId.toLowerCase() == 'all') return _products;
-    return _products
-        .where((p) => p.categoryId.toLowerCase() == catId.toLowerCase())
-        .toList();
+    return _products.where((p) => p.categoryId.toLowerCase() == catId.toLowerCase()).toList();
   }
 
   Future<void> _applyLightningDeals() async {
@@ -592,9 +563,7 @@ class ProductProvider with ChangeNotifier {
   }
 
   List<ProductModel> getLocalProducts({String? district, String? village}) {
-    return _products
-        .where((p) => p.district == (district ?? 'Jaipur'))
-        .toList();
+    return _products.where((p) => p.district == (district ?? 'Jaipur')).toList();
   }
 
   List<ProductModel> getNearbyProducts({double? lat, double? lng}) {
@@ -695,17 +664,18 @@ class ProductProvider with ChangeNotifier {
       // Cancel existing subscription
       await _allProductsSubscription?.cancel();
 
-      _allProductsSubscription =
-          _inventorySyncService.watchAllProducts(shopId: shopId).listen(
-        (products) {
-          _handleProductsUpdate(products);
-        },
-        onError: (Object error, StackTrace stackTrace) {
-          debugPrint('Error in all products subscription: $error');
-          debugPrintStack(stackTrace: stackTrace);
-        },
-        cancelOnError: false,
-      );
+      _allProductsSubscription = _inventorySyncService
+          .watchAllProducts(shopId: shopId)
+          .listen(
+            (products) {
+              _handleProductsUpdate(products);
+            },
+            onError: (Object error, StackTrace stackTrace) {
+              debugPrint('Error in all products subscription: $error');
+              debugPrintStack(stackTrace: stackTrace);
+            },
+            cancelOnError: false,
+          );
 
       debugPrint('Subscribed to all products for shop: $shopId');
     } catch (e) {
@@ -719,19 +689,20 @@ class ProductProvider with ChangeNotifier {
       // Cancel existing subscription
       await _singleProductSubscription?.cancel();
 
-      _singleProductSubscription =
-          _inventorySyncService.watchProductById(productId).listen(
-        (product) {
-          if (product != null) {
-            _handleProductStockUpdate(product);
-          }
-        },
-        onError: (Object error, StackTrace stackTrace) {
-          debugPrint('Error in single product subscription: $error');
-          debugPrintStack(stackTrace: stackTrace);
-        },
-        cancelOnError: false,
-      );
+      _singleProductSubscription = _inventorySyncService
+          .watchProductById(productId)
+          .listen(
+            (product) {
+              if (product != null) {
+                _handleProductStockUpdate(product);
+              }
+            },
+            onError: (Object error, StackTrace stackTrace) {
+              debugPrint('Error in single product subscription: $error');
+              debugPrintStack(stackTrace: stackTrace);
+            },
+            cancelOnError: false,
+          );
 
       debugPrint('Subscribed to product: $productId');
     } catch (e) {
@@ -740,10 +711,7 @@ class ProductProvider with ChangeNotifier {
   }
 
   /// Subscribe to real-time updates for products in a category
-  Future<void> subscribeToCategory({
-    required String shopId,
-    required String category,
-  }) async {
+  Future<void> subscribeToCategory({required String shopId, required String category}) async {
     try {
       // Cancel existing subscription
       await _categoryProductsSubscription?.cancel();
@@ -751,15 +719,15 @@ class ProductProvider with ChangeNotifier {
       _categoryProductsSubscription = _inventorySyncService
           .watchProductsByCategory(shopId: shopId, category: category)
           .listen(
-        (products) {
-          _handleProductsUpdate(products);
-        },
-        onError: (Object error, StackTrace stackTrace) {
-          debugPrint('Error in category subscription: $error');
-          debugPrintStack(stackTrace: stackTrace);
-        },
-        cancelOnError: false,
-      );
+            (products) {
+              _handleProductsUpdate(products);
+            },
+            onError: (Object error, StackTrace stackTrace) {
+              debugPrint('Error in category subscription: $error');
+              debugPrintStack(stackTrace: stackTrace);
+            },
+            cancelOnError: false,
+          );
 
       debugPrint('Subscribed to category: $category for shop: $shopId');
     } catch (e) {
@@ -776,31 +744,33 @@ class ProductProvider with ChangeNotifier {
       _lowStockProductsSubscription = _inventorySyncService
           .watchLowStockProducts(shopId: shopId)
           .listen(
-        (products) {
-          // Update the low stock alerts list
-          try {
-            _lowStockAlerts = products
-                .map((p) => LowStockAlert(
-                      id: '${p.id}_alert',
-                      productId: p.id,
-                      productName: p.name,
-                      currentStock: p.stockQuantity,
-                      minimumStock: p.minimumStock,
-                      createdAt: DateTime.now(),
-                    ))
-                .toList();
-            notifyListeners();
-            debugPrint('Low stock products updated: ${products.length} items');
-          } catch (e) {
-            debugPrint('Error processing low stock products: $e');
-          }
-        },
-        onError: (Object error, StackTrace stackTrace) {
-          debugPrint('Error in low stock subscription: $error');
-          debugPrintStack(stackTrace: stackTrace);
-        },
-        cancelOnError: false,
-      );
+            (products) {
+              // Update the low stock alerts list
+              try {
+                _lowStockAlerts = products
+                    .map(
+                      (p) => LowStockAlert(
+                        id: '${p.id}_alert',
+                        productId: p.id,
+                        productName: p.name,
+                        currentStock: p.stockQuantity,
+                        minimumStock: p.minimumStock,
+                        createdAt: DateTime.now(),
+                      ),
+                    )
+                    .toList();
+                notifyListeners();
+                debugPrint('Low stock products updated: ${products.length} items');
+              } catch (e) {
+                debugPrint('Error processing low stock products: $e');
+              }
+            },
+            onError: (Object error, StackTrace stackTrace) {
+              debugPrint('Error in low stock subscription: $error');
+              debugPrintStack(stackTrace: stackTrace);
+            },
+            cancelOnError: false,
+          );
 
       debugPrint('Subscribed to low stock products for shop: $shopId');
     } catch (e) {

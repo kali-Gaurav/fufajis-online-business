@@ -2,12 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../utils/app_theme.dart';
 
-enum OperationalStatus {
-  healthy,
-  warning,
-  critical,
-  blocked
-}
+enum OperationalStatus { healthy, warning, critical, blocked }
 
 extension OperationalStatusExtension on OperationalStatus {
   Color get color {

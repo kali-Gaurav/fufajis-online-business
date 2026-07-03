@@ -32,13 +32,16 @@ class CircuitBreaker {
   /// Executes an async task, applying circuit breaker rules
   Future<T> execute<T>(Future<T> Function() task, {FutureOr<T> Function(dynamic)? fallback}) async {
     if (_state == CircuitState.open) {
-      if (_lastFailureTime != null && DateTime.now().difference(_lastFailureTime!) > config.resetTimeout) {
+      if (_lastFailureTime != null &&
+          DateTime.now().difference(_lastFailureTime!) > config.resetTimeout) {
         // Transition to half-open to test if the service is back
         _transitionTo(CircuitState.halfOpen);
       } else {
         if (fallback != null) {
           debugPrint('[$serviceName] Circuit OPEN. Executing fallback.');
-          return fallback(CircuitBreakerOpenError(serviceName, '$serviceName circuit is currently open'));
+          return fallback(
+            CircuitBreakerOpenError(serviceName, '$serviceName circuit is currently open'),
+          );
         }
         throw CircuitBreakerOpenError(serviceName, '$serviceName circuit is currently open');
       }
@@ -46,7 +49,7 @@ class CircuitBreaker {
 
     try {
       final result = await task();
-      
+
       if (_state == CircuitState.halfOpen) {
         // Success while half-open -> service recovered
         _transitionTo(CircuitState.closed);
@@ -54,7 +57,7 @@ class CircuitBreaker {
         // Success while closed -> reset failure count
         _failureCount = 0;
       }
-      
+
       return result;
     } catch (e, stackTrace) {
       _recordFailure();
@@ -63,7 +66,7 @@ class CircuitBreaker {
         debugPrint('[$serviceName] Task failed. Executing fallback. Error: $e');
         return fallback(e);
       }
-      
+
       throw ErrorMapper.map(e, stackTrace);
     }
   }
@@ -84,7 +87,9 @@ class CircuitBreaker {
     if (newState == CircuitState.open) {
       _resetTimer?.cancel();
       _resetTimer = Timer(config.resetTimeout, () {
-        debugPrint('[$serviceName] Reset timeout reached. Transitioning to half-open on next request.');
+        debugPrint(
+          '[$serviceName] Reset timeout reached. Transitioning to half-open on next request.',
+        );
       });
     } else if (newState == CircuitState.closed) {
       _failureCount = 0;
@@ -99,7 +104,10 @@ class CircuitBreakerRegistry {
 
   static CircuitBreaker get(String serviceName, {CircuitBreakerConfig? config}) {
     if (!_breakers.containsKey(serviceName)) {
-      _breakers[serviceName] = CircuitBreaker(serviceName, config: config ?? const CircuitBreakerConfig());
+      _breakers[serviceName] = CircuitBreaker(
+        serviceName,
+        config: config ?? const CircuitBreakerConfig(),
+      );
     }
     return _breakers[serviceName]!;
   }

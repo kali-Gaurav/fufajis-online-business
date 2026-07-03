@@ -20,7 +20,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     super.initState();
     final provider = Provider.of<NotificationProvider>(context, listen: false);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    
+
     _settings = NotificationSettings(
       orderUpdates: provider.settings.orderUpdates,
       promotions: provider.settings.promotions,
@@ -132,19 +132,15 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                         ),
                         const SizedBox(width: 16),
                         Expanded(
-                          child: _buildTimePickerButton(
-                            'To',
-                            _settings.quietHoursEnd,
-                            () async {
-                              final time = await showTimePicker(
-                                context: context,
-                                initialTime: _settings.quietHoursEnd,
-                              );
-                              if (time != null) {
-                                setState(() => _settings.quietHoursEnd = time);
-                              }
-                            },
-                          ),
+                          child: _buildTimePickerButton('To', _settings.quietHoursEnd, () async {
+                            final time = await showTimePicker(
+                              context: context,
+                              initialTime: _settings.quietHoursEnd,
+                            );
+                            if (time != null) {
+                              setState(() => _settings.quietHoursEnd = time);
+                            }
+                          }),
                         ),
                       ],
                     ),
@@ -203,7 +199,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                     ? const SizedBox(
                         height: 20,
                         width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation(Colors.white),
+                        ),
                       )
                     : const Text(
                         'Save Settings',
@@ -240,16 +239,16 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       await notificationProvider.saveSettings(user.id);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Settings saved successfully')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Settings saved successfully')));
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving settings: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error saving settings: $e')));
       }
     } finally {
       if (mounted) {
@@ -301,8 +300,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
           activeThumbColor: AppTheme.primary,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         ),
-        if (title != 'System Messages')
-          const Divider(height: 1, indent: 16, endIndent: 16),
+        if (title != 'System Messages') const Divider(height: 1, indent: 16, endIndent: 16),
       ],
     );
   }
@@ -313,7 +311,11 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: AppTheme.grey600, fontWeight: FontWeight.w500),
+          style: const TextStyle(
+            fontSize: 12,
+            color: AppTheme.grey600,
+            fontWeight: FontWeight.w500,
+          ),
         ),
         const SizedBox(height: 8),
         InkWell(
@@ -340,4 +342,3 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     );
   }
 }
-

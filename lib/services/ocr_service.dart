@@ -31,8 +31,8 @@ class BillScanItem {
       name: map['name']?.toString() ?? 'Unknown',
       quantity: (map['quantity'] as num?)?.toDouble() ?? 1.0,
       unit: map['unit']?.toString() ?? 'kg',
-      pricePerUnit: (map['pricePerUnit'] as num?)?.toDouble() ??
-          (map['price'] as num?)?.toDouble() ?? 0.0,
+      pricePerUnit:
+          (map['pricePerUnit'] as num?)?.toDouble() ?? (map['price'] as num?)?.toDouble() ?? 0.0,
       total: (map['total'] as num?)?.toDouble() ?? 0.0,
     );
   }
@@ -51,9 +51,7 @@ class BillScanResult {
     required this.items,
   });
 
-  double get totalAmount => items
-      .where((i) => i.isSelected)
-      .fold(0.0, (sum, i) => sum + i.total);
+  double get totalAmount => items.where((i) => i.isSelected).fold(0.0, (sum, i) => sum + i.total);
 
   int get selectedCount => items.where((i) => i.isSelected).length;
   int get matchedCount => items.where((i) => i.isMatched).length;
@@ -72,10 +70,10 @@ class BillOCRService {
   Future<List<Map<String, dynamic>>> scanBill(Uint8List imageBytes) async {
     try {
       debugPrint('[BillOCRService] Starting OCR scan for bill...');
-      
+
       // 1. Extract raw text from image
       final rawText = await _geminiService.extractTextFromImage(imageBytes);
-      
+
       if (rawText.isEmpty) {
         debugPrint('[BillOCRService] No text extracted from image.');
         return [];
@@ -83,7 +81,7 @@ class BillOCRService {
 
       // 2. Parse items from text
       final items = await _geminiService.parseBillItems(rawText);
-      
+
       debugPrint('[BillOCRService] Successfully parsed ${items.length} items from bill.');
       return items;
     } catch (e) {
@@ -101,9 +99,7 @@ class BillOCRService {
 
       final rawItems = result['items'] as List? ?? [];
       final items = rawItems.map((m) {
-        final map = m is Map<String, dynamic> 
-            ? m 
-            : Map<String, dynamic>.from(m as Map);
+        final map = m is Map<String, dynamic> ? m : Map<String, dynamic>.from(m as Map);
         return BillScanItem.fromMap(map);
       }).toList();
 
@@ -114,7 +110,9 @@ class BillOCRService {
         }
       }
 
-      debugPrint('[BillOCRService] Structured scan: ${items.length} items from ${result['supplier']}');
+      debugPrint(
+        '[BillOCRService] Structured scan: ${items.length} items from ${result['supplier']}',
+      );
 
       return BillScanResult(
         supplierName: result['supplier']?.toString() ?? 'Unknown',
@@ -165,6 +163,8 @@ class BillOCRService {
       }
     }
 
-    debugPrint('[BillOCRService] Matched ${result.matchedCount}/${result.items.length} items to existing products');
+    debugPrint(
+      '[BillOCRService] Matched ${result.matchedCount}/${result.items.length} items to existing products',
+    );
   }
 }

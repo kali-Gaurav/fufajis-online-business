@@ -176,9 +176,7 @@ class UnifiedPackingWorkflow {
         );
 
         // Link delivery ID back to order
-        transaction.update(orderRef, {
-          'deliveryId': deliveryId,
-        });
+        transaction.update(orderRef, {'deliveryId': deliveryId});
 
         _createAuditLog(
           transaction,
@@ -192,7 +190,7 @@ class UnifiedPackingWorkflow {
 
       debugPrint(
         '[UnifiedPackingWorkflow] Packing approved for order $orderId by $approverName. '
-        'Delivery document synchronized.'
+        'Delivery document synchronized.',
       );
     } catch (e) {
       debugPrint('[UnifiedPackingWorkflow] Approve packing failed: $e');
@@ -234,14 +232,7 @@ class UnifiedPackingWorkflow {
           'updatedAt': FieldValue.serverTimestamp(),
         });
 
-        _createAuditLog(
-          transaction,
-          orderId,
-          'packing_rejected',
-          rejectorId,
-          rejectorName,
-          reason,
-        );
+        _createAuditLog(transaction, orderId, 'packing_rejected', rejectorId, rejectorName, reason);
       });
 
       debugPrint('[UnifiedPackingWorkflow] Packing rejected for order $orderId. Reason: $reason');
@@ -289,13 +280,7 @@ class UnifiedPackingWorkflow {
           'updatedAt': FieldValue.serverTimestamp(),
         });
 
-        _createAuditLog(
-          transaction,
-          orderId,
-          'picked_up',
-          riderId,
-          riderName,
-        );
+        _createAuditLog(transaction, orderId, 'picked_up', riderId, riderName);
       });
 
       debugPrint('[UnifiedPackingWorkflow] Order $orderId picked up by $riderName');

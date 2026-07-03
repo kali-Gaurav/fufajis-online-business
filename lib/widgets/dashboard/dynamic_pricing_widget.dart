@@ -80,28 +80,18 @@ class _DynamicPricingWidgetState extends State<DynamicPricingWidget> {
                         color: _getStrategyColor(strategy).withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Icon(
-                        Icons.trending_up,
-                        color: _getStrategyColor(strategy),
-                        size: 24,
-                      ),
+                      child: Icon(Icons.trending_up, color: _getStrategyColor(strategy), size: 24),
                     ),
                     const SizedBox(width: 12),
                     const Text(
                       'Dynamic Pricing',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
                 GestureDetector(
                   onTap: _loadPricingData,
-                  child: Icon(
-                    Icons.refresh,
-                    color: Colors.grey[600],
-                  ),
+                  child: Icon(Icons.refresh, color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -109,10 +99,7 @@ class _DynamicPricingWidgetState extends State<DynamicPricingWidget> {
 
             // Current Strategy
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 color: _getStrategyColor(strategy).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
@@ -151,31 +138,19 @@ class _DynamicPricingWidgetState extends State<DynamicPricingWidget> {
                   children: [
                     Text(
                       'Pending Changes',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       pendingChanges.toString(),
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      'Revenue Impact',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                    ),
+                    Text('Revenue Impact', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                     const SizedBox(height: 4),
                     Text(
                       '${revenueImpact > 0 ? '+' : ''}${revenueImpact.toStringAsFixed(1)}%',

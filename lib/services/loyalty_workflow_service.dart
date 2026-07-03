@@ -27,15 +27,15 @@ class LoyaltyWorkflowService {
 
   // Tier definitions (based on lifetime points)
   static const Map<String, int> tierThresholds = {
-    'bronze': 0,      // 0+ points
-    'silver': 2000,   // 2000+ points
-    'gold': 5000,     // 5000+ points
+    'bronze': 0, // 0+ points
+    'silver': 2000, // 2000+ points
+    'gold': 5000, // 5000+ points
   };
 
   static const Map<String, double> tierMultipliers = {
-    'bronze': 1.0,    // 1 point per ₹10
-    'silver': 1.25,   // 1.25 points per ₹10
-    'gold': 1.5,      // 1.5 points per ₹10
+    'bronze': 1.0, // 1 point per ₹10
+    'silver': 1.25, // 1.25 points per ₹10
+    'gold': 1.5, // 1.5 points per ₹10
   };
 
   /// Initialize loyalty account for new customer
@@ -55,19 +55,13 @@ class LoyaltyWorkflowService {
         'updatedAt': Timestamp.fromDate(now),
         'lastPointsAwarded': null,
         'tierUpgradeHistory': [
-          {
-            'tier': 'bronze',
-            'timestamp': Timestamp.fromDate(now),
-            'reason': 'account_created',
-          }
+          {'tier': 'bronze', 'timestamp': Timestamp.fromDate(now), 'reason': 'account_created'},
         ],
       };
 
       await docRef.set(loyaltyData);
 
-      await _audit.log('loyalty_account_created', {
-        'userId': userId,
-      });
+      await _audit.log('loyalty_account_created', {'userId': userId});
 
       debugPrint('[LoyaltyWorkflowService] Initialized loyalty account for $userId');
       return loyaltyData;
@@ -136,7 +130,9 @@ class LoyaltyWorkflowService {
         'tier': currentTier,
       });
 
-      debugPrint('[LoyaltyWorkflowService] Awarded $totalPoints points to $userId for order $orderId');
+      debugPrint(
+        '[LoyaltyWorkflowService] Awarded $totalPoints points to $userId for order $orderId',
+      );
       return totalPoints;
     } catch (e) {
       debugPrint('[LoyaltyWorkflowService] Failed to award points: $e');
@@ -146,11 +142,7 @@ class LoyaltyWorkflowService {
 
   /// Redeem loyalty points for wallet credit
   /// 100 points = ₹100
-  Future<double> redeemPoints({
-    required String userId,
-    required int points,
-    String? reason,
-  }) async {
+  Future<double> redeemPoints({required String userId, required int points, String? reason}) async {
     try {
       final loyaltySnap = await _db.collection('loyalty').doc(userId).get();
       final loyaltyData = loyaltySnap.data();
@@ -161,7 +153,9 @@ class LoyaltyWorkflowService {
 
       final currentBalance = (loyaltyData['balance'] as num?)?.toInt() ?? 0;
       if (currentBalance < points) {
-        throw Exception('Insufficient loyalty points. Balance: $currentBalance, Requested: $points');
+        throw Exception(
+          'Insufficient loyalty points. Balance: $currentBalance, Requested: $points',
+        );
       }
 
       // 100 points = ₹100
@@ -176,15 +170,10 @@ class LoyaltyWorkflowService {
       });
 
       // Credit wallet
-      await _wallet.creditBalance(
-        userId,
-        redeemAmount,
-        'loyalty_redemption',
-        {
-          'points': points,
-          'reason': reason,
-        },
-      );
+      await _wallet.creditBalance(userId, redeemAmount, 'loyalty_redemption', {
+        'points': points,
+        'reason': reason,
+      });
 
       // Log transaction
       await _db.collection('loyalty_transactions').add({
@@ -200,10 +189,7 @@ class LoyaltyWorkflowService {
       await _notifications.notifyCustomer(
         userId,
         'Redeemed $points loyalty points! ₹$redeemAmount added to wallet.',
-        {
-          'points': points,
-          'amount': redeemAmount,
-        },
+        {'points': points, 'amount': redeemAmount},
       );
 
       await _audit.log('loyalty_points_redeemed', {
@@ -212,7 +198,9 @@ class LoyaltyWorkflowService {
         'amount': redeemAmount,
       });
 
-      debugPrint('[LoyaltyWorkflowService] Redeemed $points points for ₹$redeemAmount for user $userId');
+      debugPrint(
+        '[LoyaltyWorkflowService] Redeemed $points points for ₹$redeemAmount for user $userId',
+      );
       return redeemAmount;
     } catch (e) {
       debugPrint('[LoyaltyWorkflowService] Failed to redeem points: $e');
@@ -242,34 +230,20 @@ class LoyaltyWorkflowService {
       const bonusPoints = 250;
 
       // Award to referrer
-      await _wallet.creditBalance(
-        referrerId,
-        bonusAmount,
-        'referral_bonus',
-        {'referredUserId': referredUserId},
-      );
+      await _wallet.creditBalance(referrerId, bonusAmount, 'referral_bonus', {
+        'referredUserId': referredUserId,
+      });
 
-      await awardPoints(
-        referrerId,
-        bonusPoints,
-        'referral_bonus',
-        {'referredUserId': referredUserId},
-      );
+      await awardPoints(referrerId, bonusPoints, 'referral_bonus', {
+        'referredUserId': referredUserId,
+      });
 
       // Award to referred
-      await _wallet.creditBalance(
-        referredUserId,
-        bonusAmount,
-        'referral_signup',
-        {'referrerId': referrerId},
-      );
+      await _wallet.creditBalance(referredUserId, bonusAmount, 'referral_signup', {
+        'referrerId': referrerId,
+      });
 
-      await awardPoints(
-        referredUserId,
-        bonusPoints,
-        'referral_signup',
-        {'referrerId': referrerId},
-      );
+      await awardPoints(referredUserId, bonusPoints, 'referral_signup', {'referrerId': referrerId});
 
       // Log referral
       await _db.collection('referrals').add({
@@ -283,21 +257,13 @@ class LoyaltyWorkflowService {
       await _notifications.notifyCustomer(
         referrerId,
         'Referral bonus: ₹$bonusAmount + $bonusPoints points!',
-        {
-          'referredUserId': referredUserId,
-          'bonusAmount': bonusAmount,
-          'bonusPoints': bonusPoints,
-        },
+        {'referredUserId': referredUserId, 'bonusAmount': bonusAmount, 'bonusPoints': bonusPoints},
       );
 
       await _notifications.notifyCustomer(
         referredUserId,
         'Welcome! Referral bonus: ₹$bonusAmount + $bonusPoints points!',
-        {
-          'referrerId': referrerId,
-          'bonusAmount': bonusAmount,
-          'bonusPoints': bonusPoints,
-        },
+        {'referrerId': referrerId, 'bonusAmount': bonusAmount, 'bonusPoints': bonusPoints},
       );
 
       await _audit.log('referral_bonus_processed', {
@@ -307,7 +273,9 @@ class LoyaltyWorkflowService {
         'bonusPoints': bonusPoints,
       });
 
-      debugPrint('[LoyaltyWorkflowService] Processed referral bonus for $referrerId → $referredUserId');
+      debugPrint(
+        '[LoyaltyWorkflowService] Processed referral bonus for $referrerId → $referredUserId',
+      );
     } catch (e) {
       debugPrint('[LoyaltyWorkflowService] Failed to process referral: $e');
       rethrow;
@@ -373,7 +341,8 @@ class LoyaltyWorkflowService {
       String newTier = 'bronze';
       if (lifetime >= 5000) {
         newTier = 'gold';
-      } else if (lifetime >= 2000) newTier = 'silver';
+      } else if (lifetime >= 2000)
+        newTier = 'silver';
 
       // If tier changed, update and notify
       if (newTier != currentTier) {
@@ -387,7 +356,7 @@ class LoyaltyWorkflowService {
               'timestamp': Timestamp.fromDate(now),
               'reason': 'lifetime_threshold_reached',
               'lifetimePoints': lifetime,
-            }
+            },
           ]),
           'updatedAt': Timestamp.fromDate(now),
         });
@@ -398,11 +367,7 @@ class LoyaltyWorkflowService {
         await _notifications.notifyCustomer(
           userId,
           'Congratulations! You\'ve reached $newTier tier! Earn $multiplierPercent% bonus points now.',
-          {
-            'tier': newTier,
-            'lifetimePoints': lifetime,
-            'multiplier': multiplier,
-          },
+          {'tier': newTier, 'lifetimePoints': lifetime, 'multiplier': multiplier},
         );
 
         await _audit.log('loyalty_tier_upgraded', {
@@ -412,7 +377,9 @@ class LoyaltyWorkflowService {
           'lifetimePoints': lifetime,
         });
 
-        debugPrint('[LoyaltyWorkflowService] Upgraded $userId to $newTier tier (lifetime: $lifetime points)');
+        debugPrint(
+          '[LoyaltyWorkflowService] Upgraded $userId to $newTier tier (lifetime: $lifetime points)',
+        );
       }
     } catch (e) {
       debugPrint('[LoyaltyWorkflowService] Failed to check tier upgrade: $e');
@@ -427,10 +394,7 @@ class LoyaltyWorkflowService {
   }
 
   /// Get loyalty transaction history
-  Future<List<Map<String, dynamic>>> getTransactionHistory(
-    String userId, {
-    int limit = 50,
-  }) async {
+  Future<List<Map<String, dynamic>>> getTransactionHistory(String userId, {int limit = 50}) async {
     final snap = await _db
         .collection('loyalty_transactions')
         .where('userId', isEqualTo: userId)

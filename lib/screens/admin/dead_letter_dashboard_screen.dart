@@ -17,11 +17,7 @@ class DeadLetterDashboardScreen extends StatelessWidget {
         backgroundColor: AppTheme.error,
         foregroundColor: Colors.white,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Refresh',
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.refresh), tooltip: 'Refresh', onPressed: () {}),
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
@@ -41,8 +37,10 @@ class DeadLetterDashboardScreen extends StatelessWidget {
                 children: [
                   Icon(Icons.check_circle_outline, color: AppTheme.success, size: 64),
                   SizedBox(height: 16),
-                  Text('No pending RDS sync failures',
-                      style: TextStyle(fontSize: 16, color: Colors.grey)),
+                  Text(
+                    'No pending RDS sync failures',
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
                 ],
               ),
             );
@@ -71,26 +69,38 @@ class DeadLetterDashboardScreen extends StatelessWidget {
                       child: ListTile(
                         leading: CircleAvatar(
                           backgroundColor: retryCount >= 4 ? AppTheme.error : AppTheme.warning,
-                          child: Text('$retryCount',
-                              style: const TextStyle(color: Colors.white, fontSize: 12)),
+                          child: Text(
+                            '$retryCount',
+                            style: const TextStyle(color: Colors.white, fontSize: 12),
+                          ),
                         ),
-                        title: Text('Order #${d['orderNumber'] ?? d['orderId']}',
-                            style: const TextStyle(fontWeight: FontWeight.w600)),
+                        title: Text(
+                          'Order #${d['orderNumber'] ?? d['orderId']}',
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('Status: ${d['status']} | ₹${d['totalAmount']}'),
-                            Text(d['error'] ?? 'Unknown error',
-                                style: const TextStyle(color: AppTheme.error, fontSize: 11),
-                                maxLines: 2, overflow: TextOverflow.ellipsis),
+                            Text(
+                              d['error'] ?? 'Unknown error',
+                              style: const TextStyle(color: AppTheme.error, fontSize: 11),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                             if (failedAt != null)
-                              Text('Failed: ${DateFormat('dd MMM HH:mm').format(failedAt)}',
-                                  style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                              Text(
+                                'Failed: ${DateFormat('dd MMM HH:mm').format(failedAt)}',
+                                style: const TextStyle(fontSize: 11, color: Colors.grey),
+                              ),
                           ],
                         ),
                         trailing: retryCount >= 5
-                            ? const Chip(label: Text('Exhausted'),
-                                backgroundColor: AppTheme.error, labelStyle: TextStyle(color: Colors.white))
+                            ? const Chip(
+                                label: Text('Exhausted'),
+                                backgroundColor: AppTheme.error,
+                                labelStyle: TextStyle(color: Colors.white),
+                              )
                             : null,
                         isThreeLine: true,
                       ),

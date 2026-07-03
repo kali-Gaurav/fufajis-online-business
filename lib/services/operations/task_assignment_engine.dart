@@ -5,10 +5,7 @@ class TaskAssignmentEngine {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   /// Creates a new task and attempts to auto-assign it
-  Future<String> createTask({
-    required EnterpriseTaskModel task,
-    bool autoAssign = true,
-  }) async {
+  Future<String> createTask({required EnterpriseTaskModel task, bool autoAssign = true}) async {
     final docRef = _db
         .collection('shops')
         .doc(task.shopId)
@@ -52,7 +49,7 @@ class TaskAssignmentEngine {
       final data = doc.data();
       final employeeId = doc.id;
       final role = data['role'] as String? ?? '';
-      
+
       // Basic Role filtering
       if (task.category == TaskCategory.delivery && role != 'delivery') continue;
       if (task.category == TaskCategory.warehouse && role == 'delivery') continue;
@@ -66,21 +63,17 @@ class TaskAssignmentEngine {
           .where('assignedTo', isEqualTo: employeeId)
           .where('status', whereIn: [TaskStatus.assigned.name, TaskStatus.inProgress.name])
           .get();
-      
+
       final currentLoad = activeTasksSnap.docs.length;
 
-      // Scoring: 
+      // Scoring:
       // Base score is current load.
       // If skills match, we deduct points (better score).
       double score = currentLoad.toDouble() * 10;
-      
+
       // TODO: Include physical location proximity if available
-      
-      candidates.add({
-        'employeeId': employeeId,
-        'score': score,
-        'role': role,
-      });
+
+      candidates.add({'employeeId': employeeId, 'score': score, 'role': role});
     }
 
     if (candidates.isEmpty) return null;

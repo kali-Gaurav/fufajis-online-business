@@ -19,16 +19,9 @@ class FufajiLogo extends StatelessWidget {
   final double size;
   final bool onDark;
 
-  const FufajiLogo({
-    super.key,
-    this.size = 120,
-    this.onDark = false,
-  });
+  const FufajiLogo({super.key, this.size = 120, this.onDark = false});
 
-  const FufajiLogo.onDark({
-    super.key,
-    this.size = 120,
-  }) : onDark = true;
+  const FufajiLogo.onDark({super.key, this.size = 120}) : onDark = true;
 
   @override
   Widget build(BuildContext context) {
@@ -48,10 +41,7 @@ class FufajiLogo extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(size * 0.22),
-        child: CustomPaint(
-          painter: _ShopPainter(),
-          size: Size(size, size),
-        ),
+        child: CustomPaint(painter: _ShopPainter(), size: Size(size, size)),
       ),
     );
   }
@@ -101,13 +91,13 @@ class FufajiLogoBadge extends StatelessWidget {
 // ── Custom painter — kirana shop facade ───────────────────
 
 class _ShopPainter extends CustomPainter {
-  static const _primary      = Color(0xFFFF5722);
-  static const _primaryDark  = Color(0xFFE64A19);
+  static const _primary = Color(0xFFFF5722);
+  static const _primaryDark = Color(0xFFE64A19);
   static const _primaryLight = Color(0xFFFF8A65);
-  static const _accent       = Color(0xFFFFB300);
-  static const _sky          = Color(0xFFE3F2FD);
-  static const _wall         = Color(0xFFFFF8F2);
-  static const _wallEdge     = Color(0xFFFFE0CC);
+  static const _accent = Color(0xFFFFB300);
+  static const _sky = Color(0xFFE3F2FD);
+  static const _wall = Color(0xFFFFF8F2);
+  static const _wallEdge = Color(0xFFFFE0CC);
 
   @override
   void paint(Canvas canvas, Size s) {
@@ -195,12 +185,7 @@ class _ShopPainter extends CustomPainter {
       end: Alignment.centerRight,
     );
     p.shader = signGrad.createShader(Rect.fromLTWH(w * 0.15, h * 0.355, w * 0.70, h * 0.115));
-    _drawRounded(
-      canvas,
-      Rect.fromLTWH(w * 0.15, h * 0.355, w * 0.70, h * 0.115),
-      5,
-      p,
-    );
+    _drawRounded(canvas, Rect.fromLTWH(w * 0.15, h * 0.355, w * 0.70, h * 0.115), 5, p);
     p.shader = null;
 
     // Sign border
@@ -211,8 +196,15 @@ class _ShopPainter extends CustomPainter {
     p.style = PaintingStyle.fill;
 
     // "फुफाजी" text on sign
-    _drawText(canvas, 'फुफाजी', Offset(w * 0.5, h * 0.397),
-        fontSize: w * 0.145, color: Colors.white, bold: true, centerX: true);
+    _drawText(
+      canvas,
+      'फुफाजी',
+      Offset(w * 0.5, h * 0.397),
+      fontSize: w * 0.145,
+      color: Colors.white,
+      bold: true,
+      centerX: true,
+    );
 
     // ── Left window ────────────────────────────────────────
     _drawWindow(canvas, Rect.fromLTWH(w * 0.11, h * 0.49, w * 0.23, h * 0.20), w);
@@ -245,11 +237,7 @@ class _ShopPainter extends CustomPainter {
     p.color = _primaryDark.withValues(alpha: 0.35);
     p.style = PaintingStyle.stroke;
     p.strokeWidth = 1.0;
-    canvas.drawLine(
-      Offset(w * 0.5, h * 0.50),
-      Offset(w * 0.5, h * 0.87),
-      p,
-    );
+    canvas.drawLine(Offset(w * 0.5, h * 0.50), Offset(w * 0.5, h * 0.87), p);
     p.style = PaintingStyle.fill;
 
     // Door handle
@@ -272,7 +260,7 @@ class _ShopPainter extends CustomPainter {
     // ── Stars / sparkles ───────────────────────────────────
     _drawSparkle(canvas, Offset(w * 0.14, h * 0.22), w * 0.026);
     _drawSparkle(canvas, Offset(w * 0.84, h * 0.18), w * 0.020);
-    _drawSparkle(canvas, Offset(w * 0.5,  h * 0.045), w * 0.016);
+    _drawSparkle(canvas, Offset(w * 0.5, h * 0.045), w * 0.016);
   }
 
   void _drawRounded(Canvas c, Rect r, double radius, Paint p) {
@@ -293,12 +281,7 @@ class _ShopPainter extends CustomPainter {
 
     // Pane (glass tint)
     p.color = const Color(0xFFB3E5FC).withValues(alpha: 0.55);
-    _drawRounded(
-      canvas,
-      rect.deflate(3),
-      3,
-      p,
-    );
+    _drawRounded(canvas, rect.deflate(3), 3, p);
 
     // Cross divider
     p.color = _primary.withValues(alpha: 0.40);
@@ -327,16 +310,22 @@ class _ShopPainter extends CustomPainter {
     // Tiny product dots on shelf
     p.color = const Color(0xFFFFB300).withValues(alpha: 0.70);
     canvas.drawCircle(
-        Offset(rect.center.dx - rect.width * 0.2, rect.center.dy + rect.height * 0.10),
-        rect.width * 0.09, p);
+      Offset(rect.center.dx - rect.width * 0.2, rect.center.dy + rect.height * 0.10),
+      rect.width * 0.09,
+      p,
+    );
     p.color = const Color(0xFF4CAF50).withValues(alpha: 0.70);
     canvas.drawCircle(
-        Offset(rect.center.dx + rect.width * 0.05, rect.center.dy + rect.height * 0.10),
-        rect.width * 0.09, p);
+      Offset(rect.center.dx + rect.width * 0.05, rect.center.dy + rect.height * 0.10),
+      rect.width * 0.09,
+      p,
+    );
     p.color = const Color(0xFFE53935).withValues(alpha: 0.70);
     canvas.drawCircle(
-        Offset(rect.center.dx + rect.width * 0.28, rect.center.dy + rect.height * 0.10),
-        rect.width * 0.08, p);
+      Offset(rect.center.dx + rect.width * 0.28, rect.center.dy + rect.height * 0.10),
+      rect.width * 0.08,
+      p,
+    );
   }
 
   void _drawStringLights(Canvas canvas, double w, double h) {
@@ -369,9 +358,19 @@ class _ShopPainter extends CustomPainter {
       final by = h * 0.42 + h * sag;
 
       p.color = bulbColors[i].withValues(alpha: 0.85);
-      canvas.drawOval(Rect.fromCenter(center: Offset(bx, by + h * 0.018), width: w * 0.035, height: h * 0.028), p);
+      canvas.drawOval(
+        Rect.fromCenter(center: Offset(bx, by + h * 0.018), width: w * 0.035, height: h * 0.028),
+        p,
+      );
       p.color = Colors.white.withValues(alpha: 0.55);
-      canvas.drawOval(Rect.fromCenter(center: Offset(bx - w * 0.005, by + h * 0.014), width: w * 0.010, height: h * 0.008), p);
+      canvas.drawOval(
+        Rect.fromCenter(
+          center: Offset(bx - w * 0.005, by + h * 0.014),
+          width: w * 0.010,
+          height: h * 0.008,
+        ),
+        p,
+      );
     }
   }
 
@@ -383,11 +382,10 @@ class _ShopPainter extends CustomPainter {
       final angle = i * math.pi / 2;
       canvas.drawLine(
         center,
-        Offset(
-          center.dx + math.cos(angle) * radius,
-          center.dy + math.sin(angle) * radius,
-        ),
-        p..strokeWidth = 1.5..style = PaintingStyle.stroke,
+        Offset(center.dx + math.cos(angle) * radius, center.dy + math.sin(angle) * radius),
+        p
+          ..strokeWidth = 1.5
+          ..style = PaintingStyle.stroke,
       );
     }
     canvas.drawCircle(center, radius * 0.35, p..style = PaintingStyle.fill);

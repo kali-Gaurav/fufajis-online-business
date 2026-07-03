@@ -17,18 +17,13 @@ import 'package:url_launcher/url_launcher.dart';
 class DeliveryTrackingScreenEnhanced extends StatefulWidget {
   final String orderId;
 
-  const DeliveryTrackingScreenEnhanced({
-    super.key,
-    required this.orderId,
-  });
+  const DeliveryTrackingScreenEnhanced({super.key, required this.orderId});
 
   @override
-  State<DeliveryTrackingScreenEnhanced> createState() =>
-      _DeliveryTrackingScreenEnhancedState();
+  State<DeliveryTrackingScreenEnhanced> createState() => _DeliveryTrackingScreenEnhancedState();
 }
 
-class _DeliveryTrackingScreenEnhancedState
-    extends State<DeliveryTrackingScreenEnhanced> {
+class _DeliveryTrackingScreenEnhancedState extends State<DeliveryTrackingScreenEnhanced> {
   GoogleMapController? _mapController;
   LatLng? _riderLocation;
   LatLng? _deliveryLocation;
@@ -37,10 +32,7 @@ class _DeliveryTrackingScreenEnhancedState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Track Delivery',
-          style: TextStyle(fontWeight: FontWeight.w700),
-        ),
+        title: const Text('Track Delivery', style: TextStyle(fontWeight: FontWeight.w700)),
         backgroundColor: AppTheme.primary,
         foregroundColor: Colors.white,
         leading: IconButton(
@@ -49,86 +41,60 @@ class _DeliveryTrackingScreenEnhancedState
         ),
       ),
       body: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('orders')
-            .doc(widget.orderId)
-            .snapshots(),
+        stream: FirebaseFirestore.instance.collection('orders').doc(widget.orderId).snapshots(),
         builder: (context, orderSnapshot) {
           if (orderSnapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppTheme.primary),
-            );
+            return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
           }
 
           if (orderSnapshot.hasError) {
-            return Center(
-              child: Text('Error: ${orderSnapshot.error}'),
-            );
+            return Center(child: Text('Error: ${orderSnapshot.error}'));
           }
 
           if (!orderSnapshot.hasData || !orderSnapshot.data!.exists) {
             return const Center(child: Text('Order not found'));
           }
 
-          final orderData =
-              orderSnapshot.data!.data() as Map<String, dynamic>;
+          final orderData = orderSnapshot.data!.data() as Map<String, dynamic>;
           final deliveryId = orderData['deliveryId'] as String?;
 
           if (deliveryId == null) {
-            return const Center(
-              child: Text('Delivery not yet assigned'),
-            );
+            return const Center(child: Text('Delivery not yet assigned'));
           }
 
           // Listen to delivery real-time updates
           return StreamBuilder<DocumentSnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('deliveries')
-                .doc(deliveryId)
-                .snapshots(),
+            stream: FirebaseFirestore.instance.collection('deliveries').doc(deliveryId).snapshots(),
             builder: (context, deliverySnapshot) {
-              if (deliverySnapshot.connectionState ==
-                  ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    color: AppTheme.primary,
-                  ),
-                );
+              if (deliverySnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
               }
 
               if (deliverySnapshot.hasError) {
-                return Center(
-                  child: Text('Error: ${deliverySnapshot.error}'),
-                );
+                return Center(child: Text('Error: ${deliverySnapshot.error}'));
               }
 
-              if (!deliverySnapshot.hasData ||
-                  !deliverySnapshot.data!.exists) {
+              if (!deliverySnapshot.hasData || !deliverySnapshot.data!.exists) {
                 return const Center(child: Text('Delivery not found'));
               }
 
-              final deliveryData =
-                  deliverySnapshot.data!.data() as Map<String, dynamic>;
+              final deliveryData = deliverySnapshot.data!.data() as Map<String, dynamic>;
 
               // Parse delivery information
               final status = deliveryData['status'] as String? ?? 'pending';
               final riderLocationData = deliveryData['riderLocation'];
-              final estimatedDeliveryTime =
-                  deliveryData['estimatedDeliveryTime'];
+              final estimatedDeliveryTime = deliveryData['estimatedDeliveryTime'];
               final riderName = deliveryData['riderName'] as String?;
               final riderPhone = deliveryData['riderPhone'] as String?;
               final riderRating = deliveryData['riderRating'] as num?;
 
               // Update rider location from Firestore GeoPoint
-              if (riderLocationData != null &&
-                  riderLocationData is GeoPoint) {
-                _riderLocation =
-                    LatLng(riderLocationData.latitude, riderLocationData.longitude);
+              if (riderLocationData != null && riderLocationData is GeoPoint) {
+                _riderLocation = LatLng(riderLocationData.latitude, riderLocationData.longitude);
               }
 
               // Parse delivery location
-              final deliveryAddressData =
-                  deliveryData['deliveryLocation'] as Map<String, dynamic>?;
+              final deliveryAddressData = deliveryData['deliveryLocation'] as Map<String, dynamic>?;
               if (deliveryAddressData != null) {
                 final lat = deliveryAddressData['latitude'] as num?;
                 final lng = deliveryAddressData['longitude'] as num?;
@@ -143,8 +109,7 @@ class _DeliveryTrackingScreenEnhancedState
                   _buildStatusCard(status),
 
                   // Map view (if rider location available)
-                  if (_riderLocation != null && _deliveryLocation != null)
-                    _buildMapView(),
+                  if (_riderLocation != null && _deliveryLocation != null) _buildMapView(),
 
                   // ETA and delivery info
                   _buildDeliveryInfoCard(
@@ -232,11 +197,7 @@ class _DeliveryTrackingScreenEnhancedState
           const SizedBox(height: 12),
           Text(
             statusText.toUpperCase(),
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
         ],
@@ -267,9 +228,7 @@ class _DeliveryTrackingScreenEnhancedState
               markerId: const MarkerId('rider'),
               position: _riderLocation!,
               infoWindow: const InfoWindow(title: 'Rider Location'),
-              icon: BitmapDescriptor.defaultMarkerWithHue(
-                BitmapDescriptor.hueBlue,
-              ),
+              icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
             ),
           // Delivery marker
           if (_deliveryLocation != null)
@@ -277,19 +236,14 @@ class _DeliveryTrackingScreenEnhancedState
               markerId: const MarkerId('delivery'),
               position: _deliveryLocation!,
               infoWindow: const InfoWindow(title: 'Delivery Location'),
-              icon: BitmapDescriptor.defaultMarkerWithHue(
-                BitmapDescriptor.hueGreen,
-              ),
+              icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
             ),
         },
       ),
     );
   }
 
-  Widget _buildDeliveryInfoCard({
-    required dynamic estimatedDeliveryTime,
-    required String status,
-  }) {
+  Widget _buildDeliveryInfoCard({required dynamic estimatedDeliveryTime, required String status}) {
     String etaText = 'Calculating...';
     if (estimatedDeliveryTime is Timestamp) {
       final eta = estimatedDeliveryTime.toDate();
@@ -297,8 +251,7 @@ class _DeliveryTrackingScreenEnhancedState
       if (eta.isAfter(now)) {
         final diff = eta.difference(now);
         if (diff.inMinutes > 0) {
-          etaText =
-              '${diff.inMinutes} min • ${DateFormat('h:mm a').format(eta)}';
+          etaText = '${diff.inMinutes} min • ${DateFormat('h:mm a').format(eta)}';
         }
       }
     }
@@ -314,13 +267,7 @@ class _DeliveryTrackingScreenEnhancedState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Estimated Arrival',
-            style: TextStyle(
-              color: AppTheme.grey600,
-              fontSize: 12,
-            ),
-          ),
+          const Text('Estimated Arrival', style: TextStyle(color: AppTheme.grey600, fontSize: 12)),
           const SizedBox(height: 8),
           Text(
             etaText,
@@ -333,10 +280,7 @@ class _DeliveryTrackingScreenEnhancedState
           const SizedBox(height: 12),
           Text(
             'Status: ${status.replaceAll('_', ' ').toUpperCase()}',
-            style: const TextStyle(
-              color: AppTheme.grey700,
-              fontSize: 13,
-            ),
+            style: const TextStyle(color: AppTheme.grey700, fontSize: 13),
           ),
         ],
       ),
@@ -375,13 +319,7 @@ class _DeliveryTrackingScreenEnhancedState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  riderName,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Text(riderName, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                 if (riderRating != null)
                   Row(
                     children: [
@@ -389,10 +327,7 @@ class _DeliveryTrackingScreenEnhancedState
                       const SizedBox(width: 4),
                       Text(
                         riderRating.toStringAsFixed(1),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.grey700,
-                        ),
+                        style: const TextStyle(fontSize: 12, color: AppTheme.grey700),
                       ),
                     ],
                   ),
@@ -440,13 +375,7 @@ class _DeliveryTrackingScreenEnhancedState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Order Progress',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
-          ),
+          const Text('Order Progress', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
           const SizedBox(height: 16),
           ...steps.indexed.map((entry) {
             final i = entry.$1;
@@ -461,22 +390,14 @@ class _DeliveryTrackingScreenEnhancedState
                   children: [
                     CircleAvatar(
                       radius: 14,
-                      backgroundColor: isCompleted
-                          ? AppTheme.primary
-                          : AppTheme.grey300,
-                      child: Icon(
-                        step.$3,
-                        size: 12,
-                        color: Colors.white,
-                      ),
+                      backgroundColor: isCompleted ? AppTheme.primary : AppTheme.grey300,
+                      child: Icon(step.$3, size: 12, color: Colors.white),
                     ),
                     if (!isLast)
                       Container(
                         width: 2,
                         height: 30,
-                        color: isCompleted
-                            ? AppTheme.primary
-                            : AppTheme.grey300,
+                        color: isCompleted ? AppTheme.primary : AppTheme.grey300,
                       ),
                   ],
                 ),
@@ -487,12 +408,8 @@ class _DeliveryTrackingScreenEnhancedState
                     step.$1,
                     style: TextStyle(
                       fontSize: 13,
-                      fontWeight: isCompleted
-                          ? FontWeight.bold
-                          : FontWeight.w500,
-                      color: isCompleted
-                          ? AppTheme.primary
-                          : AppTheme.grey600,
+                      fontWeight: isCompleted ? FontWeight.bold : FontWeight.w500,
+                      color: isCompleted ? AppTheme.primary : AppTheme.grey600,
                     ),
                   ),
                 ),

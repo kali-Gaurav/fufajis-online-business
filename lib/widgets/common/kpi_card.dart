@@ -36,11 +36,7 @@ class KpiCard extends StatelessWidget {
     this.trendPositive = true,
   });
 
-  factory KpiCard.revenue({
-    required String value,
-    String? trend,
-    VoidCallback? onTap,
-  }) {
+  factory KpiCard.revenue({required String value, String? trend, VoidCallback? onTap}) {
     return KpiCard(
       value: value,
       label: 'Revenue Today',
@@ -53,11 +49,7 @@ class KpiCard extends StatelessWidget {
     );
   }
 
-  factory KpiCard.orders({
-    required String value,
-    String? trend,
-    VoidCallback? onTap,
-  }) {
+  factory KpiCard.orders({required String value, String? trend, VoidCallback? onTap}) {
     return KpiCard(
       value: value,
       label: 'Orders Today',
@@ -86,10 +78,7 @@ class KpiCard extends StatelessWidget {
     );
   }
 
-  factory KpiCard.pending({
-    required String value,
-    VoidCallback? onTap,
-  }) {
+  factory KpiCard.pending({required String value, VoidCallback? onTap}) {
     return KpiCard(
       value: value,
       label: 'Pending',
@@ -100,10 +89,7 @@ class KpiCard extends StatelessWidget {
     );
   }
 
-  factory KpiCard.delivered({
-    required String value,
-    VoidCallback? onTap,
-  }) {
+  factory KpiCard.delivered({required String value, VoidCallback? onTap}) {
     return KpiCard(
       value: value,
       label: 'Delivered',
@@ -142,10 +128,7 @@ class KpiCard extends StatelessWidget {
             Container(
               width: compact ? 32 : 38,
               height: compact ? 32 : 38,
-              decoration: BoxDecoration(
-                color: bg,
-                borderRadius: BorderRadius.circular(10),
-              ),
+              decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(10)),
               child: Icon(icon, color: color, size: compact ? 16 : 20),
             ),
             SizedBox(height: compact ? 8 : 10),
@@ -168,22 +151,16 @@ class KpiCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    trendPositive
-                        ? Icons.arrow_upward_rounded
-                        : Icons.arrow_downward_rounded,
+                    trendPositive ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
                     size: 11,
-                    color: trendPositive
-                        ? AppTheme.info
-                        : AppTheme.error,
+                    color: trendPositive ? AppTheme.info : AppTheme.error,
                   ),
                   Text(
                     trend!,
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: trendPositive
-                          ? AppTheme.info
-                          : AppTheme.error,
+                      color: trendPositive ? AppTheme.info : AppTheme.error,
                     ),
                   ),
                 ],
@@ -216,11 +193,7 @@ class KpiRow extends StatelessWidget {
   final List<KpiCard> cards;
   final EdgeInsetsGeometry? padding;
 
-  const KpiRow({
-    super.key,
-    required this.cards,
-    this.padding,
-  });
+  const KpiRow({super.key, required this.cards, this.padding});
 
   @override
   Widget build(BuildContext context) {
@@ -231,10 +204,7 @@ class KpiRow extends StatelessWidget {
         padding: padding ?? const EdgeInsets.symmetric(horizontal: 16),
         itemCount: cards.length,
         separatorBuilder: (_, __) => const SizedBox(width: 10),
-        itemBuilder: (context, index) => SizedBox(
-          width: 115,
-          child: cards[index],
-        ),
+        itemBuilder: (context, index) => SizedBox(width: 115, child: cards[index]),
       ),
     );
   }

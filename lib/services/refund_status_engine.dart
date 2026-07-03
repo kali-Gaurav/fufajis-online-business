@@ -8,11 +8,8 @@ class InvalidRefundTransitionException implements Exception {
   final String to;
   final String message;
 
-  InvalidRefundTransitionException({
-    required this.from,
-    required this.to,
-    String? customMessage,
-  }) : message = customMessage ?? 'Invalid transition from $from to $to';
+  InvalidRefundTransitionException({required this.from, required this.to, String? customMessage})
+    : message = customMessage ?? 'Invalid transition from $from to $to';
 
   @override
   String toString() => message;
@@ -40,9 +37,19 @@ class RefundStatusEngine {
   // ROLE-BASED ACCESS CONTROL (RBAC) RULES
   // ──────────────────────────────────────────────────────────────
   static final Map<RefundStatus, List<String>> _allowedRolesForState = {
-    RefundStatus.pending: ['customer', 'admin', 'manager', 'support'], // Anyone can create a pending refund
+    RefundStatus.pending: [
+      'customer',
+      'admin',
+      'manager',
+      'support',
+    ], // Anyone can create a pending refund
     RefundStatus.approved: ['admin', 'manager'], // Only manager/admin can approve
-    RefundStatus.processing: ['admin', 'manager', 'finance', 'system'], // Finance or system picks it up
+    RefundStatus.processing: [
+      'admin',
+      'manager',
+      'finance',
+      'system',
+    ], // Finance or system picks it up
     RefundStatus.completed: ['admin', 'finance', 'system'], // System/Finance finalizes
     RefundStatus.failed: ['admin', 'system', 'finance'],
   };
@@ -57,8 +64,8 @@ class RefundStatusEngine {
     }
 
     final allowedRoles = _allowedRolesForState[to] ?? [];
-    if (!allowedRoles.contains(actorRole.toLowerCase()) && 
-        actorRole.toLowerCase() != 'admin' && 
+    if (!allowedRoles.contains(actorRole.toLowerCase()) &&
+        actorRole.toLowerCase() != 'admin' &&
         actorRole.toLowerCase() != 'super_admin') {
       throw UnauthorizedWorkflowException(
         role: actorRole,
@@ -123,7 +130,9 @@ class RefundStatusEngine {
         });
       });
 
-      debugPrint('[RefundStatusEngine] Refund $refundId transitioned to ${newStatus.name} by $actorRole');
+      debugPrint(
+        '[RefundStatusEngine] Refund $refundId transitioned to ${newStatus.name} by $actorRole',
+      );
     } catch (e) {
       debugPrint('[RefundStatusEngine] Transition failed: $e');
       rethrow;

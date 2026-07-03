@@ -14,7 +14,7 @@ class RiderPulseHeatmapScreen extends StatefulWidget {
 
 class _RiderPulseHeatmapScreenState extends State<RiderPulseHeatmapScreen> {
   final MapController _mapController = MapController();
-  
+
   // Default store location (Jaipur)
   final LatLng _storeLocation = const LatLng(26.9124, 75.7873);
 
@@ -37,10 +37,7 @@ class _RiderPulseHeatmapScreenState extends State<RiderPulseHeatmapScreen> {
         children: [
           FlutterMap(
             mapController: _mapController,
-            options: MapOptions(
-              initialCenter: _storeLocation,
-              initialZoom: 13.0,
-            ),
+            options: MapOptions(initialCenter: _storeLocation, initialZoom: 13.0),
             children: [
               TileLayer(
                 urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -55,7 +52,9 @@ class _RiderPulseHeatmapScreenState extends State<RiderPulseHeatmapScreen> {
                     return const SizedBox.shrink();
                   }
 
-                  final ridersData = Map<String, dynamic>.from(snapshot.data!.snapshot.value as Map);
+                  final ridersData = Map<String, dynamic>.from(
+                    snapshot.data!.snapshot.value as Map,
+                  );
                   final markers = <Marker>[];
                   final circles = <CircleMarker>[];
 
@@ -64,7 +63,7 @@ class _RiderPulseHeatmapScreenState extends State<RiderPulseHeatmapScreen> {
                     final lat = (riderMap['lat'] as num).toDouble();
                     final lng = (riderMap['lng'] as num).toDouble();
                     final pos = LatLng(lat, lng);
-                    
+
                     // Simulate load (in production, fetch from active orders RTDB path)
                     final activeOrders = (riderMap['active_orders'] ?? 0) as int;
                     final Color pulseColor = _getRiderColor(activeOrders);
@@ -117,20 +116,12 @@ class _RiderPulseHeatmapScreenState extends State<RiderPulseHeatmapScreen> {
               ),
             ],
           ),
-          
+
           // Legend
-          Positioned(
-            bottom: 20,
-            left: 20,
-            child: _buildLegend(),
-          ),
+          Positioned(bottom: 20, left: 20, child: _buildLegend()),
 
           // Statistics Overlay
-          Positioned(
-            top: 20,
-            right: 20,
-            child: _buildStatsOverlay(),
-          ),
+          Positioned(top: 20, right: 20, child: _buildStatsOverlay()),
         ],
       ),
     );
@@ -169,7 +160,11 @@ class _RiderPulseHeatmapScreenState extends State<RiderPulseHeatmapScreen> {
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         children: [
-          Container(width: 12, height: 12, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+          Container(
+            width: 12,
+            height: 12,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
           const SizedBox(width: 8),
           Text(label, style: const TextStyle(fontSize: 10)),
         ],
@@ -186,7 +181,9 @@ class _RiderPulseHeatmapScreenState extends State<RiderPulseHeatmapScreen> {
         if (snapshot.hasData && snapshot.data?.snapshot.value != null) {
           final data = Map<String, dynamic>.from(snapshot.data!.snapshot.value as Map);
           active = data.length;
-          idle = data.values.where((v) => (v as Map)['active_orders'] == 0 || v['active_orders'] == null).length;
+          idle = data.values
+              .where((v) => (v as Map)['active_orders'] == 0 || v['active_orders'] == null)
+              .length;
         }
 
         return Container(
@@ -198,10 +195,24 @@ class _RiderPulseHeatmapScreenState extends State<RiderPulseHeatmapScreen> {
           ),
           child: Column(
             children: [
-              Text('$active', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
+              Text(
+                '$active',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
               const Text('Riders Online', style: TextStyle(color: Colors.white70, fontSize: 10)),
               const Divider(color: Colors.white24),
-              Text('$idle', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(
+                '$idle',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
               const Text('Idle', style: TextStyle(color: Colors.white70, fontSize: 10)),
             ],
           ),
@@ -226,16 +237,14 @@ class _RiderMarkerWidget extends StatefulWidget {
   State<_RiderMarkerWidget> createState() => _RiderMarkerWidgetState();
 }
 
-class _RiderMarkerWidgetState extends State<_RiderMarkerWidget> with SingleTickerProviderStateMixin {
+class _RiderMarkerWidgetState extends State<_RiderMarkerWidget>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat();
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat();
   }
 
   @override
@@ -284,7 +293,11 @@ class _RiderMarkerWidgetState extends State<_RiderMarkerWidget> with SingleTicke
                   decoration: const BoxDecoration(color: Colors.black, shape: BoxShape.circle),
                   child: Text(
                     '${widget.activeOrders}',
-                    style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 8,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),

@@ -1,0 +1,3564 @@
+[
+  {
+    "familyId": "household_1",
+    "name": "Laundry Detergent Powder",
+    "hindiName": "कपड़े धोने का पाउडर",
+    "category": "Household & Cleaning",
+    "brand": "Surf",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "detergent",
+        "कपड़े धोने का पाउडर",
+        "laundry powder",
+        "wash"
+      ],
+      "aliases": [
+        "detergent",
+        "kapde ki powder",
+        "washing powder"
+      ],
+      "phonetics": [
+        "detergent",
+        "kapde dhone ka powder"
+      ],
+      "regional": [
+        "kapde dhone ka powder"
+      ],
+      "hindiKeywords": [
+        "कपड़े धोने का पाउडर",
+        "डिटर्जेंट"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "household_1_sku1",
+        "familyId": "household_1",
+        "displayName": "Surf Excel Laundry Detergent 500g",
+        "hindiName": "Surf Excel कपड़े धोने का पाउडर 500g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 500,
+        "unit": "g",
+        "pricing": {
+          "mrp": 125,
+          "sellingPrice": 99
+        },
+        "inventory": {
+          "totalStock": 300,
+          "reservedStock": 25,
+          "availableStock": 275
+        }
+      },
+      {
+        "skuId": "household_1_sku2",
+        "familyId": "household_1",
+        "displayName": "Surf Excel Laundry Detergent 1kg",
+        "hindiName": "Surf Excel कपड़े धोने का पाउडर 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1000,
+        "unit": "g",
+        "pricing": {
+          "mrp": 225,
+          "sellingPrice": 180
+        },
+        "inventory": {
+          "totalStock": 250,
+          "reservedStock": 20,
+          "availableStock": 230
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "household_2",
+    "name": "Dish Wash Liquid",
+    "hindiName": "बर्तन धोने का साबुन",
+    "category": "Household & Cleaning",
+    "brand": "Vim",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "dish wash",
+        "बर्तन धोने का साबुन",
+        "utensil cleaner",
+        "liquid soap"
+      ],
+      "aliases": [
+        "bartan ke sabun",
+        "dish soap",
+        "bartan ke tel"
+      ],
+      "phonetics": [
+        "dish wash",
+        "bartan dhone ka tel"
+      ],
+      "regional": [
+        "bartan dhone ka tel"
+      ],
+      "hindiKeywords": [
+        "बर्तन धोने का साबुन",
+        "डिशवॉश"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "household_2_sku1",
+        "familyId": "household_2",
+        "displayName": "Vim Dish Wash Liquid 500ml",
+        "hindiName": "Vim बर्तन धोने का साबुन 500ml",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 500,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 60,
+          "sellingPrice": 48
+        },
+        "inventory": {
+          "totalStock": 350,
+          "reservedStock": 30,
+          "availableStock": 320
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "household_3",
+    "name": "Floor Cleaner",
+    "hindiName": "फर्श साफ करने का द्रव",
+    "category": "Household & Cleaning",
+    "brand": "Godrej",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "floor cleaner",
+        "फर्श साफ करने का द्रव",
+        "ground cleaner",
+        "mopping liquid"
+      ],
+      "aliases": [
+        "farsh ka tel",
+        "floor liquid",
+        "mopping solution"
+      ],
+      "phonetics": [
+        "farsh cleaner"
+      ],
+      "regional": [
+        "farsh dhone ka tel"
+      ],
+      "hindiKeywords": [
+        "फर्श साफ करने का द्रव",
+        "फर्श क्लीनर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "household_3_sku1",
+        "familyId": "household_3",
+        "displayName": "Godrej Phenyle Floor Cleaner 500ml",
+        "hindiName": "Godrej फेनाइल 500ml",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 500,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 55,
+          "sellingPrice": 45
+        },
+        "inventory": {
+          "totalStock": 280,
+          "reservedStock": 22,
+          "availableStock": 258
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "household_4",
+    "name": "All Purpose Surface Cleaner",
+    "hindiName": "सर्व उद्देश्य सफाई द्रव",
+    "category": "Household & Cleaning",
+    "brand": "Lizol",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "surface cleaner",
+        "सर्व उद्देश्य सफाई",
+        "all purpose",
+        "multi cleaner"
+      ],
+      "aliases": [
+        "lizol",
+        "sarv uddeshya tel",
+        "surface liquid"
+      ],
+      "phonetics": [
+        "lizol"
+      ],
+      "regional": [
+        "sarv uddeshya saaf karne ka tel"
+      ],
+      "hindiKeywords": [
+        "सर्व उद्देश्य सफाई द्रव",
+        "लिज़ोल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "household_4_sku1",
+        "familyId": "household_4",
+        "displayName": "Lizol All Purpose Cleaner 1L",
+        "hindiName": "Lizol सर्व उद्देश्य क्लीनर 1L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 1000,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 110,
+          "sellingPrice": 89
+        },
+        "inventory": {
+          "totalStock": 220,
+          "reservedStock": 18,
+          "availableStock": 202
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "household_5",
+    "name": "Bathroom Cleaner",
+    "hindiName": "बाथरूम क्लीनर",
+    "category": "Household & Cleaning",
+    "brand": "Harpic",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "bathroom cleaner",
+        "बाथरूम क्लीनर",
+        "toilet cleaner",
+        "WC cleaner"
+      ],
+      "aliases": [
+        "harpic",
+        "bathroom liquid",
+        "toilet liquid"
+      ],
+      "phonetics": [
+        "bathroom cleaner"
+      ],
+      "regional": [
+        "bathroom saaf karne ka tel"
+      ],
+      "hindiKeywords": [
+        "बाथरूम क्लीनर",
+        "टॉयलेट क्लीनर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "household_5_sku1",
+        "familyId": "household_5",
+        "displayName": "Harpic Toilet Cleaner 500ml",
+        "hindiName": "Harpic टॉयलेट क्लीनर 500ml",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 500,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 85,
+          "sellingPrice": 68
+        },
+        "inventory": {
+          "totalStock": 240,
+          "reservedStock": 20,
+          "availableStock": 220
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "household_6",
+    "name": "Disinfectant Spray",
+    "hindiName": "कीटाणुनाशक स्प्रे",
+    "category": "Household & Cleaning",
+    "brand": "Lysol",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "disinfectant",
+        "कीटाणुनाशक स्प्रे",
+        "spray cleaner",
+        "antibacterial"
+      ],
+      "aliases": [
+        "lysol",
+        "jantunashak",
+        "sanitizer spray"
+      ],
+      "phonetics": [
+        "disinfectant"
+      ],
+      "regional": [
+        "jantunashak spray"
+      ],
+      "hindiKeywords": [
+        "कीटाणुनाशक स्प्रे",
+        "डिसइंफेक्टेंट"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "household_6_sku1",
+        "familyId": "household_6",
+        "displayName": "Lysol Disinfectant Spray 400ml",
+        "hindiName": "Lysol कीटाणुनाशक स्प्रे 400ml",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 400,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 155,
+          "sellingPrice": 125
+        },
+        "inventory": {
+          "totalStock": 180,
+          "reservedStock": 15,
+          "availableStock": 165
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "household_7",
+    "name": "Sponge & Scrub Pads",
+    "hindiName": "स्पंज और स्क्रब पैड",
+    "category": "Household & Cleaning",
+    "brand": "3M",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "sponge",
+        "स्पंज",
+        "scrub pad",
+        "cleaning pad"
+      ],
+      "aliases": [
+        "sponge",
+        "padi",
+        "scrubber"
+      ],
+      "phonetics": [
+        "sponge"
+      ],
+      "regional": [
+        "sponge"
+      ],
+      "hindiKeywords": [
+        "स्पंज",
+        "स्क्रब पैड"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "household_7_sku1",
+        "familyId": "household_7",
+        "displayName": "3M Scotch-Brite Sponge 3 Pack",
+        "hindiName": "3M Scotch-Brite स्पंज 3 पीस",
+        "productType": "packaged",
+        "unitType": "count",
+        "quantity": 3,
+        "unit": "pcs",
+        "pricing": {
+          "mrp": 65,
+          "sellingPrice": 52
+        },
+        "inventory": {
+          "totalStock": 300,
+          "reservedStock": 25,
+          "availableStock": 275
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "household_8",
+    "name": "Trash Bags",
+    "hindiName": "कूड़े की थैली",
+    "category": "Household & Cleaning",
+    "brand": "Freshpak",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "trash bag",
+        "कूड़े की थैली",
+        "garbage bag",
+        "waste bag"
+      ],
+      "aliases": [
+        "kude ki thali",
+        "garbage bag",
+        "refuse bag"
+      ],
+      "phonetics": [
+        "trash bag"
+      ],
+      "regional": [
+        "kude ki thali"
+      ],
+      "hindiKeywords": [
+        "कूड़े की थैली",
+        "ट्रैश बैग"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "household_8_sku1",
+        "familyId": "household_8",
+        "displayName": "Freshpak Garbage Bags 30 Litre 15 Pc",
+        "hindiName": "Freshpak कूड़े की थैली 30 लीटर 15 पीस",
+        "productType": "packaged",
+        "unitType": "count",
+        "quantity": 15,
+        "unit": "pcs",
+        "pricing": {
+          "mrp": 95,
+          "sellingPrice": 76
+        },
+        "inventory": {
+          "totalStock": 200,
+          "reservedStock": 16,
+          "availableStock": 184
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "household_9",
+    "name": "Air Freshener",
+    "hindiName": "हवा सुगंधी",
+    "category": "Household & Cleaning",
+    "brand": "Godrej",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "air freshener",
+        "हवा सुगंधी",
+        "room spray",
+        "fragrance"
+      ],
+      "aliases": [
+        "hawa sugandhit",
+        "spray",
+        "perfume spray"
+      ],
+      "phonetics": [
+        "air freshener"
+      ],
+      "regional": [
+        "hawa sugandhit"
+      ],
+      "hindiKeywords": [
+        "हवा सुगंधी",
+        "एयर फ्रेशनर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "household_9_sku1",
+        "familyId": "household_9",
+        "displayName": "Godrej aer Room Freshener 240ml",
+        "hindiName": "Godrej aer हवा सुगंधी 240ml",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 240,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 120,
+          "sellingPrice": 95
+        },
+        "inventory": {
+          "totalStock": 220,
+          "reservedStock": 18,
+          "availableStock": 202
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "household_10",
+    "name": "Steel Wool Scrubber",
+    "hindiName": "स्टील वूल स्क्रबर",
+    "category": "Household & Cleaning",
+    "brand": "Generic",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "steel wool",
+        "स्टील वूल",
+        "scrubber",
+        "scouring"
+      ],
+      "aliases": [
+        "loha ki padi",
+        "scrubber",
+        "steel scrub"
+      ],
+      "phonetics": [
+        "steel wool"
+      ],
+      "regional": [
+        "loha ki padi"
+      ],
+      "hindiKeywords": [
+        "स्टील वूल",
+        "स्क्रबर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "household_10_sku1",
+        "familyId": "household_10",
+        "displayName": "Steel Wool Scrubber 2 Pack",
+        "hindiName": "स्टील वूल स्क्रबर 2 पीस",
+        "productType": "packaged",
+        "unitType": "count",
+        "quantity": 2,
+        "unit": "pcs",
+        "pricing": {
+          "mrp": 35,
+          "sellingPrice": 28
+        },
+        "inventory": {
+          "totalStock": 400,
+          "reservedStock": 35,
+          "availableStock": 365
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "personalcare_1",
+    "name": "Shampoo",
+    "hindiName": "शैम्पू",
+    "category": "Personal Care",
+    "brand": "Himalaya",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "shampoo",
+        "शैम्पू",
+        "hair wash",
+        "hair cleaner"
+      ],
+      "aliases": [
+        "shampo",
+        "baal dhone ka tel",
+        "hair shampoo"
+      ],
+      "phonetics": [
+        "shampoo"
+      ],
+      "regional": [
+        "shampo"
+      ],
+      "hindiKeywords": [
+        "शैम्पू",
+        "बाल धोने का तेल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "personalcare_1_sku1",
+        "familyId": "personalcare_1",
+        "displayName": "Himalaya Anti-Dandruff Shampoo 200ml",
+        "hindiName": "Himalaya एंटी-डैंड्रफ शैम्पू 200ml",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 200,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 95,
+          "sellingPrice": 76
+        },
+        "inventory": {
+          "totalStock": 300,
+          "reservedStock": 25,
+          "availableStock": 275
+        }
+      },
+      {
+        "skuId": "personalcare_1_sku2",
+        "familyId": "personalcare_1",
+        "displayName": "Himalaya Anti-Dandruff Shampoo 400ml",
+        "hindiName": "Himalaya एंटी-डैंड्रफ शैम्पू 400ml",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 400,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 165,
+          "sellingPrice": 132
+        },
+        "inventory": {
+          "totalStock": 250,
+          "reservedStock": 20,
+          "availableStock": 230
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "personalcare_2",
+    "name": "Conditioner",
+    "hindiName": "कंडीशनर",
+    "category": "Personal Care",
+    "brand": "Dove",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "conditioner",
+        "कंडीशनर",
+        "hair conditioner",
+        "conditioning"
+      ],
+      "aliases": [
+        "conditioner",
+        "baal ka tel",
+        "hair softener"
+      ],
+      "phonetics": [
+        "conditioner"
+      ],
+      "regional": [
+        "conditioner"
+      ],
+      "hindiKeywords": [
+        "कंडीशनर",
+        "बालों के लिए"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "personalcare_2_sku1",
+        "familyId": "personalcare_2",
+        "displayName": "Dove Hair Conditioner 180ml",
+        "hindiName": "Dove हेयर कंडीशनर 180ml",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 180,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 110,
+          "sellingPrice": 88
+        },
+        "inventory": {
+          "totalStock": 280,
+          "reservedStock": 22,
+          "availableStock": 258
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "personalcare_3",
+    "name": "Toothpaste",
+    "hindiName": "दांतों का पेस्ट",
+    "category": "Personal Care",
+    "brand": "Colgate",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "toothpaste",
+        "दांतों का पेस्ट",
+        "dental paste",
+        "tooth powder"
+      ],
+      "aliases": [
+        "danto ka pasta",
+        "tooth paste",
+        "dental cream"
+      ],
+      "phonetics": [
+        "toothpaste"
+      ],
+      "regional": [
+        "danto ka pasta"
+      ],
+      "hindiKeywords": [
+        "दांतों का पेस्ट",
+        "दंत पेस्ट"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "personalcare_3_sku1",
+        "familyId": "personalcare_3",
+        "displayName": "Colgate Total Advanced 150g",
+        "hindiName": "Colgate Total Advanced 150g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 150,
+        "unit": "g",
+        "pricing": {
+          "mrp": 85,
+          "sellingPrice": 68
+        },
+        "inventory": {
+          "totalStock": 350,
+          "reservedStock": 30,
+          "availableStock": 320
+        }
+      },
+      {
+        "skuId": "personalcare_3_sku2",
+        "familyId": "personalcare_3",
+        "displayName": "Colgate Total Advanced 200g",
+        "hindiName": "Colgate Total Advanced 200g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 200,
+        "unit": "g",
+        "pricing": {
+          "mrp": 110,
+          "sellingPrice": 88
+        },
+        "inventory": {
+          "totalStock": 300,
+          "reservedStock": 25,
+          "availableStock": 275
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "personalcare_4",
+    "name": "Deodorant",
+    "hindiName": "डिओडोरेंट",
+    "category": "Personal Care",
+    "brand": "Old Spice",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "deodorant",
+        "डिओडोरेंट",
+        "body spray",
+        "antiperspirant"
+      ],
+      "aliases": [
+        "deodorant",
+        "spray",
+        "body fragrance"
+      ],
+      "phonetics": [
+        "deodorant"
+      ],
+      "regional": [
+        "deodorant"
+      ],
+      "hindiKeywords": [
+        "डिओडोरेंट",
+        "दुर्गंध निवारक"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "personalcare_4_sku1",
+        "familyId": "personalcare_4",
+        "displayName": "Old Spice Deodorant 150ml",
+        "hindiName": "Old Spice डिओडोरेंट 150ml",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 150,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 140,
+          "sellingPrice": 112
+        },
+        "inventory": {
+          "totalStock": 200,
+          "reservedStock": 16,
+          "availableStock": 184
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "personalcare_5",
+    "name": "Hair Oil",
+    "hindiName": "बाल का तेल",
+    "category": "Personal Care",
+    "brand": "Parachute",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "hair oil",
+        "बाल का तेल",
+        "coconut oil",
+        "oil"
+      ],
+      "aliases": [
+        "baal ka tel",
+        "parachute oil",
+        "nariyal ka tel"
+      ],
+      "phonetics": [
+        "hair oil"
+      ],
+      "regional": [
+        "baal ka tel"
+      ],
+      "hindiKeywords": [
+        "बाल का तेल",
+        "नारियल तेल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "personalcare_5_sku1",
+        "familyId": "personalcare_5",
+        "displayName": "Parachute Hair Oil 200ml",
+        "hindiName": "Parachute बाल का तेल 200ml",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 200,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 120,
+          "sellingPrice": 96
+        },
+        "inventory": {
+          "totalStock": 280,
+          "reservedStock": 22,
+          "availableStock": 258
+        }
+      },
+      {
+        "skuId": "personalcare_5_sku2",
+        "familyId": "personalcare_5",
+        "displayName": "Parachute Hair Oil 400ml",
+        "hindiName": "Parachute बाल का तेल 400ml",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 400,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 210,
+          "sellingPrice": 168
+        },
+        "inventory": {
+          "totalStock": 250,
+          "reservedStock": 20,
+          "availableStock": 230
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "personalcare_6",
+    "name": "Face Cream",
+    "hindiName": "चेहरे का क्रीम",
+    "category": "Personal Care",
+    "brand": "Neutrogena",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "face cream",
+        "चेहरे का क्रीम",
+        "moisturizer",
+        "skin cream"
+      ],
+      "aliases": [
+        "mukh ka cream",
+        "face moisturizer",
+        "skin moisturizer"
+      ],
+      "phonetics": [
+        "face cream"
+      ],
+      "regional": [
+        "mukh ka cream"
+      ],
+      "hindiKeywords": [
+        "चेहरे का क्रीम",
+        "मॉइश्चराइजर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "personalcare_6_sku1",
+        "familyId": "personalcare_6",
+        "displayName": "Neutrogena Oil-Free Face Moisturizer 100ml",
+        "hindiName": "Neutrogena चेहरे का क्रीम 100ml",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 100,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 185,
+          "sellingPrice": 148
+        },
+        "inventory": {
+          "totalStock": 180,
+          "reservedStock": 15,
+          "availableStock": 165
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "personalcare_7",
+    "name": "Body Soap",
+    "hindiName": "शरीर का साबुन",
+    "category": "Personal Care",
+    "brand": "Dove",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "body soap",
+        "शरीर का साबुन",
+        "bathing soap",
+        "toilet soap"
+      ],
+      "aliases": [
+        "shareer ka sabun",
+        "body bar",
+        "bathing bar"
+      ],
+      "phonetics": [
+        "body soap"
+      ],
+      "regional": [
+        "shareer ka sabun"
+      ],
+      "hindiKeywords": [
+        "शरीर का साबुन",
+        "नहाने का साबुन"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "personalcare_7_sku1",
+        "familyId": "personalcare_7",
+        "displayName": "Dove Body Soap 75g",
+        "hindiName": "Dove शरीर का साबुन 75g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 75,
+        "unit": "g",
+        "pricing": {
+          "mrp": 45,
+          "sellingPrice": 36
+        },
+        "inventory": {
+          "totalStock": 400,
+          "reservedStock": 35,
+          "availableStock": 365
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "personalcare_8",
+    "name": "Sunscreen",
+    "hindiName": "सनस्क्रीन",
+    "category": "Personal Care",
+    "brand": "Lotus",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "sunscreen",
+        "सनस्क्रीन",
+        "SPF cream",
+        "sun protection"
+      ],
+      "aliases": [
+        "sunscreen",
+        "dhoop se bachne ka cream",
+        "SPF cream"
+      ],
+      "phonetics": [
+        "sunscreen"
+      ],
+      "regional": [
+        "dhoop se bachne ka cream"
+      ],
+      "hindiKeywords": [
+        "सनस्क्रीन",
+        "सूरज से सुरक्षा"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "personalcare_8_sku1",
+        "familyId": "personalcare_8",
+        "displayName": "Lotus Sunscreen SPF 50 100ml",
+        "hindiName": "Lotus सनस्क्रीन SPF 50 100ml",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 100,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 220,
+          "sellingPrice": 176
+        },
+        "inventory": {
+          "totalStock": 150,
+          "reservedStock": 12,
+          "availableStock": 138
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "personalcare_9",
+    "name": "Hand Sanitizer",
+    "hindiName": "हाथ कीटाणुनाशक",
+    "category": "Personal Care",
+    "brand": "Dettol",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "hand sanitizer",
+        "हाथ कीटाणुनाशक",
+        "antibacterial gel",
+        "germ killer"
+      ],
+      "aliases": [
+        "hath ka jel",
+        "sanitizer",
+        "disinfectant gel"
+      ],
+      "phonetics": [
+        "hand sanitizer"
+      ],
+      "regional": [
+        "hath kee sanitizer"
+      ],
+      "hindiKeywords": [
+        "हाथ कीटाणुनाशक",
+        "सेनिटाइजर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "personalcare_9_sku1",
+        "familyId": "personalcare_9",
+        "displayName": "Dettol Hand Sanitizer 100ml",
+        "hindiName": "Dettol हाथ कीटाणुनाशक 100ml",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 100,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 75,
+          "sellingPrice": 60
+        },
+        "inventory": {
+          "totalStock": 350,
+          "reservedStock": 30,
+          "availableStock": 320
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "personalcare_10",
+    "name": "Lip Balm",
+    "hindiName": "होंठ की मरहम",
+    "category": "Personal Care",
+    "brand": "Burt's Bees",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "lip balm",
+        "होंठ की मरहम",
+        "lip care",
+        "moisturizing balm"
+      ],
+      "aliases": [
+        "honth ka maram",
+        "lip cream",
+        "lip moisturizer"
+      ],
+      "phonetics": [
+        "lip balm"
+      ],
+      "regional": [
+        "honth ki maram"
+      ],
+      "hindiKeywords": [
+        "होंठ की मरहम",
+        "होंठ की देखभाल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "personalcare_10_sku1",
+        "familyId": "personalcare_10",
+        "displayName": "Burt's Bees Lip Balm 4.25g",
+        "hindiName": "Burt's Bees होंठ की मरहम 4.25g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 4.25,
+        "unit": "g",
+        "pricing": {
+          "mrp": 120,
+          "sellingPrice": 96
+        },
+        "inventory": {
+          "totalStock": 220,
+          "reservedStock": 18,
+          "availableStock": 202
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "health_1",
+    "name": "Multivitamin Supplement",
+    "hindiName": "मल्टीविटामिन सप्लीमेंट",
+    "category": "Health & Wellness",
+    "brand": "Himalaya",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "multivitamin",
+        "मल्टीविटामिन",
+        "vitamin supplement",
+        "health supplement"
+      ],
+      "aliases": [
+        "vitamin",
+        "multivitamin tablet",
+        "supplement"
+      ],
+      "phonetics": [
+        "multivitamin"
+      ],
+      "regional": [
+        "multivitamin"
+      ],
+      "hindiKeywords": [
+        "मल्टीविटामिन",
+        "विटामिन"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "health_1_sku1",
+        "familyId": "health_1",
+        "displayName": "Himalaya Multivitamin Tablet 60 Tab",
+        "hindiName": "Himalaya मल्टीविटामिन 60 टैबलेट",
+        "productType": "packaged",
+        "unitType": "count",
+        "quantity": 60,
+        "unit": "tabs",
+        "pricing": {
+          "mrp": 280,
+          "sellingPrice": 224
+        },
+        "inventory": {
+          "totalStock": 180,
+          "reservedStock": 15,
+          "availableStock": 165
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "health_2",
+    "name": "Vitamin C Tablets",
+    "hindiName": "विटामिन सी गोली",
+    "category": "Health & Wellness",
+    "brand": "Patanjali",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "vitamin c",
+        "विटामिन सी",
+        "ascorbic acid",
+        "immune booster"
+      ],
+      "aliases": [
+        "vitamin c",
+        "Vitamin C tablet",
+        "immunity booster"
+      ],
+      "phonetics": [
+        "vitamin c"
+      ],
+      "regional": [
+        "vitamin c"
+      ],
+      "hindiKeywords": [
+        "विटामिन सी",
+        "सी विटामिन"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "health_2_sku1",
+        "familyId": "health_2",
+        "displayName": "Patanjali Vitamin C 60 Tablet",
+        "hindiName": "Patanjali विटामिन सी 60 गोली",
+        "productType": "packaged",
+        "unitType": "count",
+        "quantity": 60,
+        "unit": "tabs",
+        "pricing": {
+          "mrp": 180,
+          "sellingPrice": 144
+        },
+        "inventory": {
+          "totalStock": 200,
+          "reservedStock": 16,
+          "availableStock": 184
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "health_3",
+    "name": "Calcium Supplement",
+    "hindiName": "कैल्शियम सप्लीमेंट",
+    "category": "Health & Wellness",
+    "brand": "Himalaya",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "calcium",
+        "कैल्शियम",
+        "bone health",
+        "calcium tablet"
+      ],
+      "aliases": [
+        "calcium",
+        "haddion ki shakti",
+        "bone supplement"
+      ],
+      "phonetics": [
+        "calcium"
+      ],
+      "regional": [
+        "calcium"
+      ],
+      "hindiKeywords": [
+        "कैल्शियम",
+        "हड्डी का दवा"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "health_3_sku1",
+        "familyId": "health_3",
+        "displayName": "Himalaya Calcium Tablet 60 Tab",
+        "hindiName": "Himalaya कैल्शियम 60 टैबलेट",
+        "productType": "packaged",
+        "unitType": "count",
+        "quantity": 60,
+        "unit": "tabs",
+        "pricing": {
+          "mrp": 250,
+          "sellingPrice": 200
+        },
+        "inventory": {
+          "totalStock": 160,
+          "reservedStock": 13,
+          "availableStock": 147
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "health_4",
+    "name": "Digestive Aid",
+    "hindiName": "पाचन सहायक",
+    "category": "Health & Wellness",
+    "brand": "Dabur",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "digestive",
+        "पाचन सहायक",
+        "digestion",
+        "stomach aid"
+      ],
+      "aliases": [
+        "digest medicine",
+        "pet ka dard",
+        "digestion tablet"
+      ],
+      "phonetics": [
+        "digestive"
+      ],
+      "regional": [
+        "pachan sahayak"
+      ],
+      "hindiKeywords": [
+        "पाचन सहायक",
+        "पाचन"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "health_4_sku1",
+        "familyId": "health_4",
+        "displayName": "Dabur Hajmola Tablet 120 Tab",
+        "hindiName": "Dabur हजमोला 120 गोली",
+        "productType": "packaged",
+        "unitType": "count",
+        "quantity": 120,
+        "unit": "tabs",
+        "pricing": {
+          "mrp": 150,
+          "sellingPrice": 120
+        },
+        "inventory": {
+          "totalStock": 240,
+          "reservedStock": 19,
+          "availableStock": 221
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "health_5",
+    "name": "Pain Relief Gel",
+    "hindiName": "दर्द निवारक जेल",
+    "category": "Health & Wellness",
+    "brand": "Iodex",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "pain relief",
+        "दर्द निवारक",
+        "muscle pain",
+        "joint pain"
+      ],
+      "aliases": [
+        "dard ka gel",
+        "pain gel",
+        "muscle rub"
+      ],
+      "phonetics": [
+        "pain relief"
+      ],
+      "regional": [
+        "dard nivaarak gel"
+      ],
+      "hindiKeywords": [
+        "दर्द निवारक जेल",
+        "दर्द का दवा"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "health_5_sku1",
+        "familyId": "health_5",
+        "displayName": "Iodex Pain Relief Gel 50g",
+        "hindiName": "Iodex दर्द निवारक जेल 50g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 50,
+        "unit": "g",
+        "pricing": {
+          "mrp": 95,
+          "sellingPrice": 76
+        },
+        "inventory": {
+          "totalStock": 220,
+          "reservedStock": 18,
+          "availableStock": 202
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "specialty_grains_1",
+    "name": "Quinoa",
+    "hindiName": "क्विनोआ",
+    "category": "Specialty Grains",
+    "brand": "Nutiva",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "quinoa",
+        "क्विनोआ",
+        "superfood",
+        "healthy grain"
+      ],
+      "aliases": [
+        "quinoa",
+        "superfood grain",
+        "health grain"
+      ],
+      "phonetics": [
+        "quinoa"
+      ],
+      "regional": [
+        "quinoa"
+      ],
+      "hindiKeywords": [
+        "क्विनोआ",
+        "सुपर अनाज"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "specialty_grains_1_sku1",
+        "familyId": "specialty_grains_1",
+        "displayName": "Nutiva Organic Quinoa 500g",
+        "hindiName": "Nutiva ऑर्गेनिक क्विनोआ 500g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 500,
+        "unit": "g",
+        "pricing": {
+          "mrp": 420,
+          "sellingPrice": 336
+        },
+        "inventory": {
+          "totalStock": 120,
+          "reservedStock": 10,
+          "availableStock": 110
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "specialty_grains_2",
+    "name": "Foxtail Millet",
+    "hindiName": "कंगनी का अनाज",
+    "category": "Specialty Grains",
+    "brand": "Organic Brands",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "foxtail millet",
+        "कंगनी का अनाज",
+        "millets",
+        "healthy grain"
+      ],
+      "aliases": [
+        "kangni",
+        "foxtail millet",
+        "miller grain"
+      ],
+      "phonetics": [
+        "kangni"
+      ],
+      "regional": [
+        "kangni"
+      ],
+      "hindiKeywords": [
+        "कंगनी",
+        "कंगनी अनाज"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "specialty_grains_2_sku1",
+        "familyId": "specialty_grains_2",
+        "displayName": "Foxtail Millet 500g",
+        "hindiName": "कंगनी का अनाज 500g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 500,
+        "unit": "g",
+        "pricing": {
+          "mrp": 180,
+          "sellingPrice": 144
+        },
+        "inventory": {
+          "totalStock": 150,
+          "reservedStock": 12,
+          "availableStock": 138
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "specialty_grains_3",
+    "name": "Pearl Millet",
+    "hindiName": "बाजरा",
+    "category": "Specialty Grains",
+    "brand": "Organic Brands",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "pearl millet",
+        "बाजरा",
+        "bajra",
+        "healthy grain"
+      ],
+      "aliases": [
+        "bajra",
+        "pearl millet",
+        "millet"
+      ],
+      "phonetics": [
+        "bajra"
+      ],
+      "regional": [
+        "bajra"
+      ],
+      "hindiKeywords": [
+        "बाजरा",
+        "मोती बाजरा"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "specialty_grains_3_sku1",
+        "familyId": "specialty_grains_3",
+        "displayName": "Pearl Millet 500g",
+        "hindiName": "बाजरा 500g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 500,
+        "unit": "g",
+        "pricing": {
+          "mrp": 140,
+          "sellingPrice": 112
+        },
+        "inventory": {
+          "totalStock": 180,
+          "reservedStock": 14,
+          "availableStock": 166
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "dryfruits_1",
+    "name": "Almonds",
+    "hindiName": "बादाम",
+    "category": "Dry Fruits & Nuts",
+    "brand": "Organic Brands",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "almonds",
+        "बादाम",
+        "badam",
+        "dry fruit"
+      ],
+      "aliases": [
+        "badam",
+        "almonds",
+        "almond nut"
+      ],
+      "phonetics": [
+        "badam"
+      ],
+      "regional": [
+        "badam"
+      ],
+      "hindiKeywords": [
+        "बादाम",
+        "ड्राई फ्रूट"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "dryfruits_1_sku1",
+        "familyId": "dryfruits_1",
+        "displayName": "Organic Almonds 250g",
+        "hindiName": "ऑर्गेनिक बादाम 250g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 250,
+        "unit": "g",
+        "pricing": {
+          "mrp": 450,
+          "sellingPrice": 360
+        },
+        "inventory": {
+          "totalStock": 140,
+          "reservedStock": 11,
+          "availableStock": 129
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "dryfruits_2",
+    "name": "Cashews",
+    "hindiName": "काजू",
+    "category": "Dry Fruits & Nuts",
+    "brand": "Organic Brands",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "cashews",
+        "काजू",
+        "kaju",
+        "dry fruit"
+      ],
+      "aliases": [
+        "kaju",
+        "cashew nut",
+        "cashews"
+      ],
+      "phonetics": [
+        "kaju"
+      ],
+      "regional": [
+        "kaju"
+      ],
+      "hindiKeywords": [
+        "काजू",
+        "ड्राई फ्रूट"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "dryfruits_2_sku1",
+        "familyId": "dryfruits_2",
+        "displayName": "Premium Cashews 250g",
+        "hindiName": "प्रीमियम काजू 250g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 250,
+        "unit": "g",
+        "pricing": {
+          "mrp": 520,
+          "sellingPrice": 416
+        },
+        "inventory": {
+          "totalStock": 130,
+          "reservedStock": 10,
+          "availableStock": 120
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "dryfruits_3",
+    "name": "Walnuts",
+    "hindiName": "अखरोट",
+    "category": "Dry Fruits & Nuts",
+    "brand": "Organic Brands",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "walnuts",
+        "अखरोट",
+        "akhrot",
+        "dry fruit"
+      ],
+      "aliases": [
+        "akhrot",
+        "walnut",
+        "walnuts"
+      ],
+      "phonetics": [
+        "akhrot"
+      ],
+      "regional": [
+        "akhrot"
+      ],
+      "hindiKeywords": [
+        "अखरोट",
+        "ड्राई फ्रूट"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "dryfruits_3_sku1",
+        "familyId": "dryfruits_3",
+        "displayName": "Premium Walnuts 250g",
+        "hindiName": "प्रीमियम अखरोट 250g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 250,
+        "unit": "g",
+        "pricing": {
+          "mrp": 480,
+          "sellingPrice": 384
+        },
+        "inventory": {
+          "totalStock": 120,
+          "reservedStock": 9,
+          "availableStock": 111
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "dryfruits_4",
+    "name": "Raisins",
+    "hindiName": "किशमिश",
+    "category": "Dry Fruits & Nuts",
+    "brand": "Organic Brands",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "raisins",
+        "किशमिश",
+        "kishmish",
+        "dry fruit"
+      ],
+      "aliases": [
+        "kishmish",
+        "raisin",
+        "dried grapes"
+      ],
+      "phonetics": [
+        "kishmish"
+      ],
+      "regional": [
+        "kishmish"
+      ],
+      "hindiKeywords": [
+        "किशमिश",
+        "सूखी अंगूर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "dryfruits_4_sku1",
+        "familyId": "dryfruits_4",
+        "displayName": "Premium Raisins 250g",
+        "hindiName": "प्रीमियम किशमिश 250g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 250,
+        "unit": "g",
+        "pricing": {
+          "mrp": 350,
+          "sellingPrice": 280
+        },
+        "inventory": {
+          "totalStock": 160,
+          "reservedStock": 13,
+          "availableStock": 147
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "baking_1",
+    "name": "Baking Powder",
+    "hindiName": "बेकिंग पाउडर",
+    "category": "Baking & Cooking Essentials",
+    "brand": "Everest",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "baking powder",
+        "बेकिंग पाउडर",
+        "baking agent",
+        "leavening agent"
+      ],
+      "aliases": [
+        "baking powder",
+        "meida uthane ka powder",
+        "baking soda"
+      ],
+      "phonetics": [
+        "baking powder"
+      ],
+      "regional": [
+        "baking powder"
+      ],
+      "hindiKeywords": [
+        "बेकिंग पाउडर",
+        "मैदा के लिए"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "baking_1_sku1",
+        "familyId": "baking_1",
+        "displayName": "Everest Baking Powder 100g",
+        "hindiName": "Everest बेकिंग पाउडर 100g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 100,
+        "unit": "g",
+        "pricing": {
+          "mrp": 45,
+          "sellingPrice": 36
+        },
+        "inventory": {
+          "totalStock": 280,
+          "reservedStock": 22,
+          "availableStock": 258
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "baking_2",
+    "name": "Vanilla Extract",
+    "hindiName": "वेनिला निकास",
+    "category": "Baking & Cooking Essentials",
+    "brand": "McCormick",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "vanilla extract",
+        "वेनिला निकास",
+        "vanilla flavor",
+        "flavoring"
+      ],
+      "aliases": [
+        "vanilla",
+        "vanilla flavoring",
+        "vanilla essence"
+      ],
+      "phonetics": [
+        "vanilla"
+      ],
+      "regional": [
+        "vanilla"
+      ],
+      "hindiKeywords": [
+        "वेनिला निकास",
+        "वेनिला"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "baking_2_sku1",
+        "familyId": "baking_2",
+        "displayName": "McCormick Vanilla Extract 29ml",
+        "hindiName": "McCormick वेनिला निकास 29ml",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 29,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 185,
+          "sellingPrice": 148
+        },
+        "inventory": {
+          "totalStock": 100,
+          "reservedStock": 8,
+          "availableStock": 92
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "baking_3",
+    "name": "Cocoa Powder",
+    "hindiName": "कोकोआ पाउडर",
+    "category": "Baking & Cooking Essentials",
+    "brand": "Nescafe",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "cocoa powder",
+        "कोकोआ पाउडर",
+        "chocolate powder",
+        "baking ingredient"
+      ],
+      "aliases": [
+        "cocoa",
+        "chocolate powder",
+        "kakao"
+      ],
+      "phonetics": [
+        "cocoa"
+      ],
+      "regional": [
+        "cocoa powder"
+      ],
+      "hindiKeywords": [
+        "कोकोआ पाउडर",
+        "चॉकलेट पाउडर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "baking_3_sku1",
+        "familyId": "baking_3",
+        "displayName": "Nescafe Cocoa Powder 100g",
+        "hindiName": "Nescafe कोकोआ पाउडर 100g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 100,
+        "unit": "g",
+        "pricing": {
+          "mrp": 120,
+          "sellingPrice": 96
+        },
+        "inventory": {
+          "totalStock": 200,
+          "reservedStock": 16,
+          "availableStock": 184
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "canned_1",
+    "name": "Coconut Milk",
+    "hindiName": "नारियल का दूध",
+    "category": "Canned & Jarred",
+    "brand": "Aroy-D",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "coconut milk",
+        "नारियल का दूध",
+        "cooking milk",
+        "canned milk"
+      ],
+      "aliases": [
+        "nariyal ka doodh",
+        "coconut cream",
+        "cooking milk"
+      ],
+      "phonetics": [
+        "coconut milk"
+      ],
+      "regional": [
+        "nariyal ka doodh"
+      ],
+      "hindiKeywords": [
+        "नारियल का दूध",
+        "कोकोनट मिल्क"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "canned_1_sku1",
+        "familyId": "canned_1",
+        "displayName": "Aroy-D Coconut Milk 400ml",
+        "hindiName": "Aroy-D नारियल का दूध 400ml",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 400,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 95,
+          "sellingPrice": 76
+        },
+        "inventory": {
+          "totalStock": 220,
+          "reservedStock": 18,
+          "availableStock": 202
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "canned_2",
+    "name": "Tomato Paste",
+    "hindiName": "टमाटर का पेस्ट",
+    "category": "Canned & Jarred",
+    "brand": "Heinz",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "tomato paste",
+        "टमाटर का पेस्ट",
+        "tomato concentrate",
+        "cooking paste"
+      ],
+      "aliases": [
+        "tamatar ka paste",
+        "tomato sauce",
+        "tomato concentrate"
+      ],
+      "phonetics": [
+        "tomato paste"
+      ],
+      "regional": [
+        "tamatar ka paste"
+      ],
+      "hindiKeywords": [
+        "टमाटर का पेस्ट",
+        "टमाटर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "canned_2_sku1",
+        "familyId": "canned_2",
+        "displayName": "Heinz Tomato Paste 200g",
+        "hindiName": "Heinz टमाटर का पेस्ट 200g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 200,
+        "unit": "g",
+        "pricing": {
+          "mrp": 65,
+          "sellingPrice": 52
+        },
+        "inventory": {
+          "totalStock": 280,
+          "reservedStock": 22,
+          "availableStock": 258
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "canned_3",
+    "name": "Canned Peas",
+    "hindiName": "डिब्बाबंद मटर",
+    "category": "Canned & Jarred",
+    "brand": "Green Giant",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "canned peas",
+        "डिब्बाबंद मटर",
+        "peas",
+        "vegetables"
+      ],
+      "aliases": [
+        "matar",
+        "canned vegetables",
+        "peas"
+      ],
+      "phonetics": [
+        "peas"
+      ],
+      "regional": [
+        "matar"
+      ],
+      "hindiKeywords": [
+        "डिब्बाबंद मटर",
+        "मटर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "canned_3_sku1",
+        "familyId": "canned_3",
+        "displayName": "Green Giant Canned Peas 400g",
+        "hindiName": "Green Giant डिब्बाबंद मटर 400g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 400,
+        "unit": "g",
+        "pricing": {
+          "mrp": 55,
+          "sellingPrice": 44
+        },
+        "inventory": {
+          "totalStock": 250,
+          "reservedStock": 20,
+          "availableStock": 230
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "frozen_1",
+    "name": "Frozen Vegetables Mix",
+    "hindiName": "जमी हुई सब्जियां",
+    "category": "Frozen & Specialty",
+    "brand": "McCain",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "frozen vegetables",
+        "जमी हुई सब्जियां",
+        "mixed vegetables",
+        "frozen mix"
+      ],
+      "aliases": [
+        "jami hui sabji",
+        "frozen mix",
+        "vegetable mix"
+      ],
+      "phonetics": [
+        "frozen vegetables"
+      ],
+      "regional": [
+        "jami hui sabji"
+      ],
+      "hindiKeywords": [
+        "जमी हुई सब्जियां",
+        "फ्रोजन सब्जियां"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "frozen_1_sku1",
+        "familyId": "frozen_1",
+        "displayName": "McCain Mixed Vegetables 450g",
+        "hindiName": "McCain मिक्स सब्जियां 450g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 450,
+        "unit": "g",
+        "pricing": {
+          "mrp": 120,
+          "sellingPrice": 96
+        },
+        "inventory": {
+          "totalStock": 180,
+          "reservedStock": 14,
+          "availableStock": 166
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "pet_1",
+    "name": "Dog Food",
+    "hindiName": "कुत्ते का खाना",
+    "category": "Pet Supplies",
+    "brand": "Pedigree",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "dog food",
+        "कुत्ते का खाना",
+        "pet food",
+        "dog nutrition"
+      ],
+      "aliases": [
+        "kutty ka khana",
+        "dog feed",
+        "pet food"
+      ],
+      "phonetics": [
+        "dog food"
+      ],
+      "regional": [
+        "kutty ka khana"
+      ],
+      "hindiKeywords": [
+        "कुत्ते का खाना",
+        "डॉग फूड"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "pet_1_sku1",
+        "familyId": "pet_1",
+        "displayName": "Pedigree Dog Food 400g",
+        "hindiName": "Pedigree कुत्ते का खाना 400g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 400,
+        "unit": "g",
+        "pricing": {
+          "mrp": 150,
+          "sellingPrice": 120
+        },
+        "inventory": {
+          "totalStock": 140,
+          "reservedStock": 11,
+          "availableStock": 129
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "household_11",
+    "name": "Laundry Detergent Liquid",
+    "hindiName": "तरल कपड़े धोने का साबुन",
+    "category": "Household & Cleaning",
+    "brand": "Ariel",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "liquid detergent",
+        "तरल कपड़े धोने का साबुन",
+        "laundry liquid",
+        "washing liquid"
+      ],
+      "aliases": [
+        "liquid detergent",
+        "kapde ka tel",
+        "wash liquid"
+      ],
+      "phonetics": [
+        "liquid detergent"
+      ],
+      "regional": [
+        "liquid detergent"
+      ],
+      "hindiKeywords": [
+        "तरल कपड़े धोने का साबुन",
+        "डिटर्जेंट लिक्विड"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "household_11_sku1",
+        "familyId": "household_11",
+        "displayName": "Ariel Liquid Detergent 1L",
+        "hindiName": "Ariel तरल डिटर्जेंट 1L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 1000,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 210,
+          "sellingPrice": 168
+        },
+        "inventory": {
+          "totalStock": 200,
+          "reservedStock": 16,
+          "availableStock": 184
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "household_12",
+    "name": "Glass Cleaner",
+    "hindiName": "शीशे के लिए क्लीनर",
+    "category": "Household & Cleaning",
+    "brand": "Windolene",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "glass cleaner",
+        "शीशे के लिए क्लीनर",
+        "window cleaner",
+        "mirror cleaner"
+      ],
+      "aliases": [
+        "sheesh ka cleaner",
+        "glass spray",
+        "window spray"
+      ],
+      "phonetics": [
+        "glass cleaner"
+      ],
+      "regional": [
+        "sheesh ka cleaner"
+      ],
+      "hindiKeywords": [
+        "शीशे के लिए क्लीनर",
+        "गिलास क्लीनर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "household_12_sku1",
+        "familyId": "household_12",
+        "displayName": "Windolene Glass Cleaner 500ml",
+        "hindiName": "Windolene शीशे की सफाई 500ml",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 500,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 75,
+          "sellingPrice": 60
+        },
+        "inventory": {
+          "totalStock": 220,
+          "reservedStock": 18,
+          "availableStock": 202
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "household_13",
+    "name": "Bleach",
+    "hindiName": "ब्लीच",
+    "category": "Household & Cleaning",
+    "brand": "Clorox",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "bleach",
+        "ब्लीच",
+        "whitening agent",
+        "disinfectant"
+      ],
+      "aliases": [
+        "bleach",
+        "white ka chemical",
+        "disinfectant"
+      ],
+      "phonetics": [
+        "bleach"
+      ],
+      "regional": [
+        "bleach"
+      ],
+      "hindiKeywords": [
+        "ब्लीच",
+        "सफेदी का रसायन"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "household_13_sku1",
+        "familyId": "household_13",
+        "displayName": "Clorox Bleach 500ml",
+        "hindiName": "Clorox ब्लीच 500ml",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 500,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 85,
+          "sellingPrice": 68
+        },
+        "inventory": {
+          "totalStock": 240,
+          "reservedStock": 19,
+          "availableStock": 221
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "household_14",
+    "name": "Fabric Softener",
+    "hindiName": "कपड़े का नरम करने वाला",
+    "category": "Household & Cleaning",
+    "brand": "Comfort",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "fabric softener",
+        "कपड़े का नरम करने वाला",
+        "softener",
+        "laundry softener"
+      ],
+      "aliases": [
+        "fabric softener",
+        "kapde soft karne ka tel",
+        "softening liquid"
+      ],
+      "phonetics": [
+        "fabric softener"
+      ],
+      "regional": [
+        "fabric softener"
+      ],
+      "hindiKeywords": [
+        "कपड़े का नरम करने वाला",
+        "फैब्रिक सॉफ्टनर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "household_14_sku1",
+        "familyId": "household_14",
+        "displayName": "Comfort Fabric Softener 400ml",
+        "hindiName": "Comfort फैब्रिक सॉफ्टनर 400ml",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 400,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 110,
+          "sellingPrice": 88
+        },
+        "inventory": {
+          "totalStock": 210,
+          "reservedStock": 17,
+          "availableStock": 193
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "household_15",
+    "name": "Mosquito Repellent",
+    "hindiName": "मच्छर भगाने वाली",
+    "category": "Household & Cleaning",
+    "brand": "Mortein",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "mosquito repellent",
+        "मच्छर भगाने वाली",
+        "insect spray",
+        "repellent"
+      ],
+      "aliases": [
+        "macchar na khel",
+        "mosquito spray",
+        "insect repellent"
+      ],
+      "phonetics": [
+        "mosquito repellent"
+      ],
+      "regional": [
+        "macchar bhagane ka spray"
+      ],
+      "hindiKeywords": [
+        "मच्छर भगाने वाली",
+        "कीटनाशक स्प्रे"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "household_15_sku1",
+        "familyId": "household_15",
+        "displayName": "Mortein Mosquito Repellent 450ml",
+        "hindiName": "Mortein मच्छर भगाने वाली 450ml",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 450,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 130,
+          "sellingPrice": 104
+        },
+        "inventory": {
+          "totalStock": 190,
+          "reservedStock": 15,
+          "availableStock": 175
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "personalcare_11",
+    "name": "Body Lotion",
+    "hindiName": "शरीर की लोशन",
+    "category": "Personal Care",
+    "brand": "Nivea",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "body lotion",
+        "शरीर की लोशन",
+        "moisturizing lotion",
+        "skin lotion"
+      ],
+      "aliases": [
+        "body lotion",
+        "shareer ki lotion",
+        "moisturizer"
+      ],
+      "phonetics": [
+        "body lotion"
+      ],
+      "regional": [
+        "body lotion"
+      ],
+      "hindiKeywords": [
+        "शरीर की लोशन",
+        "बॉडी लोशन"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "personalcare_11_sku1",
+        "familyId": "personalcare_11",
+        "displayName": "Nivea Body Lotion 200ml",
+        "hindiName": "Nivea शरीर की लोशन 200ml",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 200,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 145,
+          "sellingPrice": 116
+        },
+        "inventory": {
+          "totalStock": 200,
+          "reservedStock": 16,
+          "availableStock": 184
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "personalcare_12",
+    "name": "Face Wash",
+    "hindiName": "चेहरे को धोने का साबुन",
+    "category": "Personal Care",
+    "brand": "Neutrogena",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "face wash",
+        "चेहरे को धोने का साबुन",
+        "facial cleanser",
+        "face cleaner"
+      ],
+      "aliases": [
+        "mukh dhone ka sabun",
+        "face cleanser",
+        "facial wash"
+      ],
+      "phonetics": [
+        "face wash"
+      ],
+      "regional": [
+        "mukh dhone ka sabun"
+      ],
+      "hindiKeywords": [
+        "चेहरे को धोने का साबुन",
+        "फेस वॉश"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "personalcare_12_sku1",
+        "familyId": "personalcare_12",
+        "displayName": "Neutrogena Face Wash 150ml",
+        "hindiName": "Neutrogena चेहरे का क्लीनर 150ml",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 150,
+        "unit": "ml",
+        "pricing": {
+          "mrp": 140,
+          "sellingPrice": 112
+        },
+        "inventory": {
+          "totalStock": 220,
+          "reservedStock": 18,
+          "availableStock": 202
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "personalcare_13",
+    "name": "Talcum Powder",
+    "hindiName": "टैल्क पाउडर",
+    "category": "Personal Care",
+    "brand": "Johnson's",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "talcum powder",
+        "टैल्क पाउडर",
+        "body powder",
+        "talc"
+      ],
+      "aliases": [
+        "talc powder",
+        "shareer ka powder",
+        "body powder"
+      ],
+      "phonetics": [
+        "talc powder"
+      ],
+      "regional": [
+        "talc powder"
+      ],
+      "hindiKeywords": [
+        "टैल्क पाउडर",
+        "शरीर का पाउडर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "personalcare_13_sku1",
+        "familyId": "personalcare_13",
+        "displayName": "Johnson's Talcum Powder 100g",
+        "hindiName": "Johnson's टैल्क पाउडर 100g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 100,
+        "unit": "g",
+        "pricing": {
+          "mrp": 85,
+          "sellingPrice": 68
+        },
+        "inventory": {
+          "totalStock": 280,
+          "reservedStock": 22,
+          "availableStock": 258
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "personalcare_14",
+    "name": "Hair Dryer",
+    "hindiName": "बाल सुखाने की मशीन",
+    "category": "Personal Care",
+    "brand": "Philips",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "hair dryer",
+        "बाल सुखाने की मशीन",
+        "dryer",
+        "hair appliance"
+      ],
+      "aliases": [
+        "hair dryer",
+        "baal sukha ne ka machine",
+        "dryer"
+      ],
+      "phonetics": [
+        "hair dryer"
+      ],
+      "regional": [
+        "hair dryer"
+      ],
+      "hindiKeywords": [
+        "बाल सुखाने की मशीन",
+        "हेयर ड्रायर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "personalcare_14_sku1",
+        "familyId": "personalcare_14",
+        "displayName": "Philips Hair Dryer 2000W",
+        "hindiName": "Philips हेयर ड्रायर 2000W",
+        "productType": "packaged",
+        "unitType": "count",
+        "quantity": 1,
+        "unit": "pc",
+        "pricing": {
+          "mrp": 2500,
+          "sellingPrice": 2000
+        },
+        "inventory": {
+          "totalStock": 60,
+          "reservedStock": 5,
+          "availableStock": 55
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "personalcare_15",
+    "name": "Nail Cutter",
+    "hindiName": "नाखूनों की कतरनी",
+    "category": "Personal Care",
+    "brand": "Generic",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "nail cutter",
+        "नाखूनों की कतरनी",
+        "nail trimmer",
+        "nail clipper"
+      ],
+      "aliases": [
+        "nail cutter",
+        "nakhun katni",
+        "nail clipper"
+      ],
+      "phonetics": [
+        "nail cutter"
+      ],
+      "regional": [
+        "nakhun katni"
+      ],
+      "hindiKeywords": [
+        "नाखूनों की कतरनी",
+        "नेल कटर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "personalcare_15_sku1",
+        "familyId": "personalcare_15",
+        "displayName": "Nail Cutter Set 3 Pc",
+        "hindiName": "नेल कटर सेट 3 पीस",
+        "productType": "packaged",
+        "unitType": "count",
+        "quantity": 3,
+        "unit": "pcs",
+        "pricing": {
+          "mrp": 95,
+          "sellingPrice": 76
+        },
+        "inventory": {
+          "totalStock": 300,
+          "reservedStock": 25,
+          "availableStock": 275
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "health_6",
+    "name": "Iron Supplement",
+    "hindiName": "आयरन सप्लीमेंट",
+    "category": "Health & Wellness",
+    "brand": "Himalaya",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "iron supplement",
+        "आयरन सप्लीमेंट",
+        "iron tablet",
+        "blood builder"
+      ],
+      "aliases": [
+        "iron",
+        "loha ka dava",
+        "iron tablet"
+      ],
+      "phonetics": [
+        "iron"
+      ],
+      "regional": [
+        "iron supplement"
+      ],
+      "hindiKeywords": [
+        "आयरन सप्लीमेंट",
+        "आयरन गोली"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "health_6_sku1",
+        "familyId": "health_6",
+        "displayName": "Himalaya Iron Supplement 60 Tab",
+        "hindiName": "Himalaya आयरन 60 टैबलेट",
+        "productType": "packaged",
+        "unitType": "count",
+        "quantity": 60,
+        "unit": "tabs",
+        "pricing": {
+          "mrp": 220,
+          "sellingPrice": 176
+        },
+        "inventory": {
+          "totalStock": 180,
+          "reservedStock": 14,
+          "availableStock": 166
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "health_7",
+    "name": "Magnesium Supplement",
+    "hindiName": "मैग्नीशियम सप्लीमेंट",
+    "category": "Health & Wellness",
+    "brand": "Nature's Way",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "magnesium",
+        "मैग्नीशियम",
+        "mineral supplement",
+        "health aid"
+      ],
+      "aliases": [
+        "magnesium",
+        "mag supplement",
+        "mineral tablet"
+      ],
+      "phonetics": [
+        "magnesium"
+      ],
+      "regional": [
+        "magnesium"
+      ],
+      "hindiKeywords": [
+        "मैग्नीशियम",
+        "मिनरल सप्लीमेंट"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "health_7_sku1",
+        "familyId": "health_7",
+        "displayName": "Nature's Way Magnesium 100 Cap",
+        "hindiName": "Nature's Way मैग्नीशियम 100 कैप",
+        "productType": "packaged",
+        "unitType": "count",
+        "quantity": 100,
+        "unit": "caps",
+        "pricing": {
+          "mrp": 380,
+          "sellingPrice": 304
+        },
+        "inventory": {
+          "totalStock": 120,
+          "reservedStock": 9,
+          "availableStock": 111
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "health_8",
+    "name": "Zinc Supplement",
+    "hindiName": "जिंक सप्लीमेंट",
+    "category": "Health & Wellness",
+    "brand": "Patanjali",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "zinc",
+        "जिंक",
+        "immune booster",
+        "mineral supplement"
+      ],
+      "aliases": [
+        "zinc",
+        "zinc tablet",
+        "immunity booster"
+      ],
+      "phonetics": [
+        "zinc"
+      ],
+      "regional": [
+        "zinc"
+      ],
+      "hindiKeywords": [
+        "जिंक",
+        "प्रतिरक्षा बूस्टर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "health_8_sku1",
+        "familyId": "health_8",
+        "displayName": "Patanjali Zinc 60 Tablet",
+        "hindiName": "Patanjali जिंक 60 टैबलेट",
+        "productType": "packaged",
+        "unitType": "count",
+        "quantity": 60,
+        "unit": "tabs",
+        "pricing": {
+          "mrp": 200,
+          "sellingPrice": 160
+        },
+        "inventory": {
+          "totalStock": 200,
+          "reservedStock": 16,
+          "availableStock": 184
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "health_9",
+    "name": "Omega-3 Supplement",
+    "hindiName": "ओमेगा-3 सप्लीमेंट",
+    "category": "Health & Wellness",
+    "brand": "Nature's Way",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "omega-3",
+        "ओमेगा-3",
+        "fish oil",
+        "health supplement"
+      ],
+      "aliases": [
+        "omega 3",
+        "fish oil",
+        "heart supplement"
+      ],
+      "phonetics": [
+        "omega three"
+      ],
+      "regional": [
+        "omega three"
+      ],
+      "hindiKeywords": [
+        "ओमेगा-3",
+        "मछली का तेल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "health_9_sku1",
+        "familyId": "health_9",
+        "displayName": "Nature's Way Omega-3 100 Cap",
+        "hindiName": "Nature's Way ओमेगा-3 100 कैप",
+        "productType": "packaged",
+        "unitType": "count",
+        "quantity": 100,
+        "unit": "caps",
+        "pricing": {
+          "mrp": 520,
+          "sellingPrice": 416
+        },
+        "inventory": {
+          "totalStock": 100,
+          "reservedStock": 8,
+          "availableStock": 92
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "health_10",
+    "name": "Ayurvedic Immune Booster",
+    "hindiName": "आयुर्वेदिक प्रतिरक्षा बूस्टर",
+    "category": "Health & Wellness",
+    "brand": "Patanjali",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "immune booster",
+        "आयुर्वेदिक प्रतिरक्षा",
+        "immunity",
+        "ayurvedic"
+      ],
+      "aliases": [
+        "immunity booster",
+        "ayurvedic medicine",
+        "health tonic"
+      ],
+      "phonetics": [
+        "immune booster"
+      ],
+      "regional": [
+        "ayurvedic immune"
+      ],
+      "hindiKeywords": [
+        "आयुर्वेदिक प्रतिरक्षा",
+        "प्रतिरक्षा बूस्टर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "health_10_sku1",
+        "familyId": "health_10",
+        "displayName": "Patanjali Immunity Booster 60 Tab",
+        "hindiName": "Patanjali इम्यूनिटी बूस्टर 60 टैब",
+        "productType": "packaged",
+        "unitType": "count",
+        "quantity": 60,
+        "unit": "tabs",
+        "pricing": {
+          "mrp": 240,
+          "sellingPrice": 192
+        },
+        "inventory": {
+          "totalStock": 220,
+          "reservedStock": 18,
+          "availableStock": 202
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "specialty_grains_4",
+    "name": "Amaranth",
+    "hindiName": "राजगीरा",
+    "category": "Specialty Grains",
+    "brand": "Organic Brands",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "amaranth",
+        "राजगीरा",
+        "rajgira",
+        "grain"
+      ],
+      "aliases": [
+        "rajgira",
+        "amaranth",
+        "ramdana"
+      ],
+      "phonetics": [
+        "rajgira"
+      ],
+      "regional": [
+        "rajgira"
+      ],
+      "hindiKeywords": [
+        "राजगीरा",
+        "अमरेथ"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "specialty_grains_4_sku1",
+        "familyId": "specialty_grains_4",
+        "displayName": "Amaranth 500g",
+        "hindiName": "राजगीरा 500g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 500,
+        "unit": "g",
+        "pricing": {
+          "mrp": 200,
+          "sellingPrice": 160
+        },
+        "inventory": {
+          "totalStock": 140,
+          "reservedStock": 11,
+          "availableStock": 129
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "specialty_grains_5",
+    "name": "Buckwheat",
+    "hindiName": "कुट्टू",
+    "category": "Specialty Grains",
+    "brand": "Organic Brands",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "buckwheat",
+        "कुट्टू",
+        "kuttu",
+        "grain"
+      ],
+      "aliases": [
+        "kuttu",
+        "buckwheat",
+        "grain"
+      ],
+      "phonetics": [
+        "kuttu"
+      ],
+      "regional": [
+        "kuttu"
+      ],
+      "hindiKeywords": [
+        "कुट्टू",
+        "बकव्हीट"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "specialty_grains_5_sku1",
+        "familyId": "specialty_grains_5",
+        "displayName": "Buckwheat 500g",
+        "hindiName": "कुट्टू 500g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 500,
+        "unit": "g",
+        "pricing": {
+          "mrp": 220,
+          "sellingPrice": 176
+        },
+        "inventory": {
+          "totalStock": 130,
+          "reservedStock": 10,
+          "availableStock": 120
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "dryfruits_5",
+    "name": "Pistachios",
+    "hindiName": "पिस्ता",
+    "category": "Dry Fruits & Nuts",
+    "brand": "Organic Brands",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "pistachios",
+        "पिस्ता",
+        "pista",
+        "dry fruit"
+      ],
+      "aliases": [
+        "pista",
+        "pistachio",
+        "pistachios"
+      ],
+      "phonetics": [
+        "pista"
+      ],
+      "regional": [
+        "pista"
+      ],
+      "hindiKeywords": [
+        "पिस्ता",
+        "ड्राई फ्रूट"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "dryfruits_5_sku1",
+        "familyId": "dryfruits_5",
+        "displayName": "Premium Pistachios 250g",
+        "hindiName": "प्रीमियम पिस्ता 250g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 250,
+        "unit": "g",
+        "pricing": {
+          "mrp": 580,
+          "sellingPrice": 464
+        },
+        "inventory": {
+          "totalStock": 110,
+          "reservedStock": 8,
+          "availableStock": 102
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "dryfruits_6",
+    "name": "Dates",
+    "hindiName": "खजूर",
+    "category": "Dry Fruits & Nuts",
+    "brand": "Organic Brands",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "dates",
+        "खजूर",
+        "khajur",
+        "dry fruit"
+      ],
+      "aliases": [
+        "khajur",
+        "dates",
+        "date palm"
+      ],
+      "phonetics": [
+        "khajur"
+      ],
+      "regional": [
+        "khajur"
+      ],
+      "hindiKeywords": [
+        "खजूर",
+        "ड्राई फ्रूट"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "dryfruits_6_sku1",
+        "familyId": "dryfruits_6",
+        "displayName": "Premium Dates 500g",
+        "hindiName": "प्रीमियम खजूर 500g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 500,
+        "unit": "g",
+        "pricing": {
+          "mrp": 420,
+          "sellingPrice": 336
+        },
+        "inventory": {
+          "totalStock": 150,
+          "reservedStock": 12,
+          "availableStock": 138
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "dryfruits_7",
+    "name": "Figs",
+    "hindiName": "अंजीर",
+    "category": "Dry Fruits & Nuts",
+    "brand": "Organic Brands",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "figs",
+        "अंजीर",
+        "anjeer",
+        "dry fruit"
+      ],
+      "aliases": [
+        "anjeer",
+        "figs",
+        "fig fruit"
+      ],
+      "phonetics": [
+        "anjeer"
+      ],
+      "regional": [
+        "anjeer"
+      ],
+      "hindiKeywords": [
+        "अंजीर",
+        "ड्राई फ्रूट"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "dryfruits_7_sku1",
+        "familyId": "dryfruits_7",
+        "displayName": "Premium Figs 250g",
+        "hindiName": "प्रीमियम अंजीर 250g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 250,
+        "unit": "g",
+        "pricing": {
+          "mrp": 380,
+          "sellingPrice": 304
+        },
+        "inventory": {
+          "totalStock": 120,
+          "reservedStock": 9,
+          "availableStock": 111
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "dryfruits_8",
+    "name": "Apricots",
+    "hindiName": "खुबानी",
+    "category": "Dry Fruits & Nuts",
+    "brand": "Organic Brands",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "apricots",
+        "खुबानी",
+        "khubani",
+        "dry fruit"
+      ],
+      "aliases": [
+        "khubani",
+        "apricot",
+        "apricots"
+      ],
+      "phonetics": [
+        "khubani"
+      ],
+      "regional": [
+        "khubani"
+      ],
+      "hindiKeywords": [
+        "खुबानी",
+        "ड्राई फ्रूट"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "dryfruits_8_sku1",
+        "familyId": "dryfruits_8",
+        "displayName": "Premium Apricots 250g",
+        "hindiName": "प्रीमियम खुबानी 250g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 250,
+        "unit": "g",
+        "pricing": {
+          "mrp": 360,
+          "sellingPrice": 288
+        },
+        "inventory": {
+          "totalStock": 130,
+          "reservedStock": 10,
+          "availableStock": 120
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "baking_4",
+    "name": "Baking Soda",
+    "hindiName": "खाने का सोडा",
+    "category": "Baking & Cooking Essentials",
+    "brand": "Everest",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "baking soda",
+        "खाने का सोडा",
+        "sodium bicarbonate",
+        "leavening"
+      ],
+      "aliases": [
+        "baking soda",
+        "khane ka soda",
+        "soda bicarbonate"
+      ],
+      "phonetics": [
+        "baking soda"
+      ],
+      "regional": [
+        "khane ka soda"
+      ],
+      "hindiKeywords": [
+        "खाने का सोडा",
+        "बेकिंग सोडा"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "baking_4_sku1",
+        "familyId": "baking_4",
+        "displayName": "Everest Baking Soda 100g",
+        "hindiName": "Everest खाने का सोडा 100g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 100,
+        "unit": "g",
+        "pricing": {
+          "mrp": 35,
+          "sellingPrice": 28
+        },
+        "inventory": {
+          "totalStock": 320,
+          "reservedStock": 26,
+          "availableStock": 294
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "baking_5",
+    "name": "Chocolate Chips",
+    "hindiName": "चॉकलेट चिप्स",
+    "category": "Baking & Cooking Essentials",
+    "brand": "Nestlé",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "chocolate chips",
+        "चॉकलेट चिप्स",
+        "baking chocolate",
+        "chocolate"
+      ],
+      "aliases": [
+        "chocolate chips",
+        "choco chips",
+        "baking chocolate"
+      ],
+      "phonetics": [
+        "chocolate chips"
+      ],
+      "regional": [
+        "chocolate chips"
+      ],
+      "hindiKeywords": [
+        "चॉकलेट चिप्स",
+        "चॉकलेट"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "baking_5_sku1",
+        "familyId": "baking_5",
+        "displayName": "Nestlé Chocolate Chips 100g",
+        "hindiName": "Nestlé चॉकलेट चिप्स 100g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 100,
+        "unit": "g",
+        "pricing": {
+          "mrp": 140,
+          "sellingPrice": 112
+        },
+        "inventory": {
+          "totalStock": 200,
+          "reservedStock": 16,
+          "availableStock": 184
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "canned_4",
+    "name": "Canned Corn",
+    "hindiName": "डिब्बाबंद मक्का",
+    "category": "Canned & Jarred",
+    "brand": "Green Giant",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "canned corn",
+        "डिब्बाबंद मक्का",
+        "corn",
+        "vegetables"
+      ],
+      "aliases": [
+        "makka",
+        "canned vegetables",
+        "corn"
+      ],
+      "phonetics": [
+        "corn"
+      ],
+      "regional": [
+        "makka"
+      ],
+      "hindiKeywords": [
+        "डिब्बाबंद मक्का",
+        "मक्का"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "canned_4_sku1",
+        "familyId": "canned_4",
+        "displayName": "Green Giant Canned Corn 400g",
+        "hindiName": "Green Giant डिब्बाबंद मक्का 400g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 400,
+        "unit": "g",
+        "pricing": {
+          "mrp": 55,
+          "sellingPrice": 44
+        },
+        "inventory": {
+          "totalStock": 260,
+          "reservedStock": 21,
+          "availableStock": 239
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "canned_5",
+    "name": "Jam",
+    "hindiName": "जैम",
+    "category": "Canned & Jarred",
+    "brand": "Kissan",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "jam",
+        "जैम",
+        "fruit preserve",
+        "spread"
+      ],
+      "aliases": [
+        "jam",
+        "fruit jam",
+        "spread"
+      ],
+      "phonetics": [
+        "jam"
+      ],
+      "regional": [
+        "jam"
+      ],
+      "hindiKeywords": [
+        "जैम",
+        "फल का जैम"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "canned_5_sku1",
+        "familyId": "canned_5",
+        "displayName": "Kissan Mixed Fruit Jam 500g",
+        "hindiName": "Kissan मिक्स फ्रूट जैम 500g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 500,
+        "unit": "g",
+        "pricing": {
+          "mrp": 145,
+          "sellingPrice": 116
+        },
+        "inventory": {
+          "totalStock": 210,
+          "reservedStock": 17,
+          "availableStock": 193
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "frozen_2",
+    "name": "Frozen Momos",
+    "hindiName": "जमी हुई मोमो",
+    "category": "Frozen & Specialty",
+    "brand": "Schezwan",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "frozen momos",
+        "जमी हुई मोमो",
+        "momos",
+        "snack"
+      ],
+      "aliases": [
+        "momos",
+        "jami hui momos",
+        "frozen dumplings"
+      ],
+      "phonetics": [
+        "momos"
+      ],
+      "regional": [
+        "momos"
+      ],
+      "hindiKeywords": [
+        "जमी हुई मोमो",
+        "मोमो"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "frozen_2_sku1",
+        "familyId": "frozen_2",
+        "displayName": "Schezwan Chicken Momos 300g",
+        "hindiName": "Schezwan चिकन मोमो 300g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 300,
+        "unit": "g",
+        "pricing": {
+          "mrp": 185,
+          "sellingPrice": 148
+        },
+        "inventory": {
+          "totalStock": 140,
+          "reservedStock": 11,
+          "availableStock": 129
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "pet_2",
+    "name": "Cat Food",
+    "hindiName": "बिल्ली का खाना",
+    "category": "Pet Supplies",
+    "brand": "Whiskas",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "cat food",
+        "बिल्ली का खाना",
+        "pet food",
+        "cat nutrition"
+      ],
+      "aliases": [
+        "billee ka khana",
+        "cat feed",
+        "pet food"
+      ],
+      "phonetics": [
+        "cat food"
+      ],
+      "regional": [
+        "billee ka khana"
+      ],
+      "hindiKeywords": [
+        "बिल्ली का खाना",
+        "कैट फूड"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "pet_2_sku1",
+        "familyId": "pet_2",
+        "displayName": "Whiskas Cat Food 400g",
+        "hindiName": "Whiskas बिल्ली का खाना 400g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 400,
+        "unit": "g",
+        "pricing": {
+          "mrp": 165,
+          "sellingPrice": 132
+        },
+        "inventory": {
+          "totalStock": 130,
+          "reservedStock": 10,
+          "availableStock": 120
+        }
+      }
+    ]
+  }
+]

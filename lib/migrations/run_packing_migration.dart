@@ -54,8 +54,7 @@ class PackingMigrationRunner {
       print('  Errors: ${migrationResult['errorCount']}');
       print('  Message: ${migrationResult['message']}');
 
-      if (migrationResult['errors'] != null &&
-          (migrationResult['errors'] as List).isNotEmpty) {
+      if (migrationResult['errors'] != null && (migrationResult['errors'] as List).isNotEmpty) {
         print('  Errors:');
         for (final error in migrationResult['errors'] as List) {
           print('    - $error');
@@ -92,8 +91,7 @@ class PackingMigrationRunner {
       print('');
 
       if (!validationResult['isValid']) {
-        throw Exception(
-            'Validation failed: ${validationResult['message']}');
+        throw Exception('Validation failed: ${validationResult['message']}');
       }
 
       // ─────────────────────────────────────────────────────────────────

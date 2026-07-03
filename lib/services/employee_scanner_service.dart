@@ -27,6 +27,29 @@ class EmployeeScannerService {
        _employeeId = employeeId,
        _employeeName = employeeName;
 
+  // ==================== AUTHORIZATION ====================
+
+  /// FIX (Module 3, P1-3.3): stock-mutating scanner operations previously had
+  /// NO authorization check (unlike receiveTransfer's manager gate below).
+  /// This gate requires the acting user to be an active staff member.
+  /// Throws if unauthorized.
+  Future<void> _ensureActiveStaff(String operation) async {
+    final userDoc = await _firestore.collection('users').doc(_employeeId).get();
+    if (!userDoc.exists) {
+      throw Exception('Unauthorized: user record not found for $operation.');
+    }
+    final data = userDoc.data()!;
+    // Role may be stored bare ('employee') or qualified ('UserRole.employee').
+    final role = (data['role']?.toString() ?? '').replaceFirst('UserRole.', '');
+    const allowedRoles = {'employee', 'branchManager', 'owner', 'superAdmin', 'admin'};
+    final isActive = data['isActive'] != false; // default true when absent
+    if (!allowedRoles.contains(role) || !isActive) {
+      throw Exception(
+        'Unauthorized: only active staff can perform $operation (role: $role).',
+      );
+    }
+  }
+
   // ==================== INVENTORY RECEIVING ====================
 
   /// Receive new inventory
@@ -40,6 +63,7 @@ class EmployeeScannerService {
     String? supplier,
     double? costPrice,
   }) async {
+    await _ensureActiveStaff('inventory receiving');
     final String actualBatchId = batchNumber ?? 'BATCH-${const Uuid().v4()}';
     final bool isOffline = !OfflineSyncService().isOnline.value;
     if (isOffline) {
@@ -57,12 +81,7 @@ class EmployeeScannerService {
         shopId: _shopId,
         branchId: _branchId,
         documentId: actualBatchId,
-        data: {
-          ...newBatch.toMap(),
-          'barcode': barcode,
-          'notes': notes,
-          'supplier': supplier,
-        },
+        data: {...newBatch.toMap(), 'barcode': barcode, 'notes': notes, 'supplier': supplier},
       );
       return;
     }
@@ -140,7 +159,10 @@ class EmployeeScannerService {
     return _firestore
         .collection('orders')
         .where('shopId', isEqualTo: _branchId)
-        .where('status', whereIn: ['OrderStatus.confirmed', 'OrderStatus.processing', 'OrderStatus.packed'])
+        .where(
+          'status',
+          whereIn: ['OrderStatus.confirmed', 'OrderStatus.processing', 'OrderStatus.packed'],
+        )
         .snapshots();
   }
 
@@ -285,13 +307,10 @@ class EmployeeScannerService {
   // ==================== DELIVERY ====================
 
   /// Assign delivery to employee
-  Future<void> assignDelivery({
-    required String orderId,
-    required String parcelId,
-  }) async {
+  Future<void> assignDelivery({required String orderId, required String parcelId}) async {
     final orderRef = _firestore.collection('orders').doc(orderId);
     final snapshot = await orderRef.get();
-    
+
     await orderRef.update({
       'status': 'OrderStatus.outForDelivery',
       'deliveryEmployeeId': _employeeId,
@@ -304,12 +323,13 @@ class EmployeeScannerService {
       final customerId = data['customerId']?.toString() ?? '';
       final orderNumber = data['orderNumber']?.toString() ?? orderId;
       final otp = data['otp']?.toString() ?? 'N/A';
-      
+
       if (customerId.isNotEmpty) {
         NotificationService().sendNotificationToUser(
           userId: customerId,
           title: 'Out for Delivery 🚚',
-          body: 'Order #$orderNumber is on the way! Your delivery OTP is $otp. Rider: $_employeeName.',
+          body:
+              'Order #$orderNumber is on the way! Your delivery OTP is $otp. Rider: $_employeeName.',
           data: {'type': 'orderUpdate', 'orderId': orderId},
         );
       }
@@ -350,7 +370,7 @@ class EmployeeScannerService {
       final data = snapshot.data()!;
       final customerId = data['customerId']?.toString() ?? '';
       final orderNumber = data['orderNumber']?.toString() ?? orderId;
-      
+
       if (customerId.isNotEmpty) {
         NotificationService().sendNotificationToUser(
           userId: customerId,
@@ -451,6 +471,7 @@ class EmployeeScannerService {
     required DamageType damageType,
     String? reason,
   }) async {
+    await _ensureActiveStaff('damage reporting');
     final reportId = const Uuid().v4();
     final bool isOffline = !OfflineSyncService().isOnline.value;
     if (isOffline) {
@@ -583,10 +604,7 @@ class EmployeeScannerService {
   // ==================== ATTENDANCE ====================
 
   /// Check in for work
-  Future<String> checkIn({
-    required String qrCodeId,
-    LocationData? location,
-  }) async {
+  Future<String> checkIn({required String qrCodeId, LocationData? location}) async {
     final today = DateTime.now();
     final attendanceId = const Uuid().v4();
     final bool isOffline = !OfflineSyncService().isOnline.value;
@@ -680,10 +698,7 @@ class EmployeeScannerService {
     return attendanceId;
   }
 
-  Future<void> _notifyManagerGpsVariance(
-    double accuracy,
-    double distance,
-  ) async {
+  Future<void> _notifyManagerGpsVariance(double accuracy, double distance) async {
     try {
       final branchSnapshot = await _firestore
           .collection('shops')
@@ -699,17 +714,13 @@ class EmployeeScannerService {
         final branchData = branchSnapshot.data();
         if (branchData != null) {
           final managerId = branchData['managerId'] as String?;
-          final assistantManagerId =
-              branchData['assistantManagerId'] as String?;
+          final assistantManagerId = branchData['assistantManagerId'] as String?;
           final contactPhone = branchData['contactPhone'] as String?;
           final escalationPhone = branchData['escalationPhone'] as String?;
 
           // 1. Fetch Manager
           if (managerId != null && managerId.isNotEmpty) {
-            final managerDoc = await _firestore
-                .collection('users')
-                .doc(managerId)
-                .get();
+            final managerDoc = await _firestore.collection('users').doc(managerId).get();
             if (managerDoc.exists) {
               targetPhone = managerDoc.data()?['phoneNumber'] as String? ?? '';
               targetName = managerDoc.data()?['name'] as String? ?? 'Manager';
@@ -717,13 +728,8 @@ class EmployeeScannerService {
           }
 
           // 2. Fetch Assistant Manager
-          if (targetPhone.isEmpty &&
-              assistantManagerId != null &&
-              assistantManagerId.isNotEmpty) {
-            final assistantDoc = await _firestore
-                .collection('users')
-                .doc(assistantManagerId)
-                .get();
+          if (targetPhone.isEmpty && assistantManagerId != null && assistantManagerId.isNotEmpty) {
+            final assistantDoc = await _firestore.collection('users').doc(assistantManagerId).get();
             if (assistantDoc.exists) {
               targetPhone = assistantDoc.data()?['phoneNumber'] as String? ?? '';
               targetName = assistantDoc.data()?['name'] as String? ?? 'Assistant Manager';
@@ -731,17 +737,13 @@ class EmployeeScannerService {
           }
 
           // 3. Fallback to Branch Contact Phone
-          if (targetPhone.isEmpty &&
-              contactPhone != null &&
-              contactPhone.isNotEmpty) {
+          if (targetPhone.isEmpty && contactPhone != null && contactPhone.isNotEmpty) {
             targetPhone = contactPhone;
             targetName = branchData['branchName'] as String? ?? 'Branch Manager';
           }
 
           // 4. Fallback to Escalation Phone
-          if (targetPhone.isEmpty &&
-              escalationPhone != null &&
-              escalationPhone.isNotEmpty) {
+          if (targetPhone.isEmpty && escalationPhone != null && escalationPhone.isNotEmpty) {
             targetPhone = escalationPhone;
             targetName = 'Operations Escalation Desk';
           }
@@ -771,10 +773,7 @@ class EmployeeScannerService {
   }
 
   /// Check out from work
-  Future<void> checkOut({
-    required String attendanceId,
-    LocationData? location,
-  }) async {
+  Future<void> checkOut({required String attendanceId, LocationData? location}) async {
     final attendanceRef = _firestore
         .collection('shops')
         .doc(_shopId)
@@ -808,10 +807,7 @@ class EmployeeScannerService {
         .doc(_branchId)
         .collection('attendance')
         .where('employeeId', isEqualTo: _employeeId)
-        .where(
-          'date',
-          isGreaterThanOrEqualTo: DateTime(today.year, today.month, today.day),
-        )
+        .where('date', isGreaterThanOrEqualTo: DateTime(today.year, today.month, today.day))
         .limit(1)
         .get();
 
@@ -823,7 +819,8 @@ class EmployeeScannerService {
   /// Record cash collection
   Future<void> recordCashCollection({
     required String orderId,
-    required double amount, String? notes,
+    required double amount,
+    String? notes,
   }) async {
     final collectionId = const Uuid().v4();
 
@@ -848,14 +845,11 @@ class EmployeeScannerService {
         });
 
     // Update order
-    await _firestore
-        .collection('orders')
-        .doc(orderId)
-        .update({
-          'paymentStatus': 'cod_collected',
-          'codCollectedBy': _employeeId,
-          'codCollectedAt': DateTime.now(),
-        });
+    await _firestore.collection('orders').doc(orderId).update({
+      'paymentStatus': 'cod_collected',
+      'codCollectedBy': _employeeId,
+      'codCollectedAt': DateTime.now(),
+    });
   }
 
   // ==================== RETURNS ====================
@@ -955,10 +949,7 @@ class EmployeeScannerService {
   }
 
   /// Receive inventory transfer
-  Future<void> receiveTransfer({
-    required String transferId,
-    required String trackingNumber,
-  }) async {
+  Future<void> receiveTransfer({required String transferId, required String trackingNumber}) async {
     // Authorization Check: Only Managers, Assistant Managers, Shop Owners, or Admins can receive transfers
     final userDoc = await _firestore.collection('users').doc(_employeeId).get();
     final branchDoc = await _firestore
@@ -971,16 +962,14 @@ class EmployeeScannerService {
     bool isAuthorized = false;
     if (userDoc.exists) {
       final userRoleStr = userDoc.data()?['role'] ?? '';
-      if (userRoleStr == 'UserRole.owner' ||
-          userRoleStr == 'UserRole.superAdmin') {
+      if (userRoleStr == 'UserRole.owner' || userRoleStr == 'UserRole.superAdmin') {
         isAuthorized = true;
       }
     }
 
     if (!isAuthorized && branchDoc.exists) {
       final managerId = branchDoc.data()?['managerId'] as String?;
-      final assistantManagerId =
-          branchDoc.data()?['assistantManagerId'] as String?;
+      final assistantManagerId = branchDoc.data()?['assistantManagerId'] as String?;
       if (_employeeId == managerId || _employeeId == assistantManagerId) {
         isAuthorized = true;
       }
@@ -1108,17 +1097,17 @@ class EmployeeScannerService {
         .collection('shelf_refills')
         .doc(refillId)
         .set({
-      'id': refillId,
-      'shopId': _shopId,
-      'branchId': _branchId,
-      'productId': productId,
-      'barcode': barcode,
-      'quantity': quantity,
-      'employeeId': _employeeId,
-      'employeeName': _employeeName,
-      'timestamp': FieldValue.serverTimestamp(),
-      'notes': notes,
-    });
+          'id': refillId,
+          'shopId': _shopId,
+          'branchId': _branchId,
+          'productId': productId,
+          'barcode': barcode,
+          'quantity': quantity,
+          'employeeId': _employeeId,
+          'employeeName': _employeeName,
+          'timestamp': FieldValue.serverTimestamp(),
+          'notes': notes,
+        });
   }
 
   /// Get shelf refill alerts

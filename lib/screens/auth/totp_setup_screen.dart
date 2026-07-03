@@ -43,10 +43,7 @@ class _TotpSetupScreenState extends State<TotpSetupScreen> {
     final user = context.read<AuthProvider>().currentUser;
     if (user == null) return;
 
-    final result = await _mfa.initiateTOTPSetup(
-      userId: user.id,
-      userEmail: user.email ?? '',
-    );
+    final result = await _mfa.initiateTOTPSetup(userId: user.id, userEmail: user.email ?? '');
 
     if (!mounted) return;
     if (result.success) {
@@ -67,7 +64,10 @@ class _TotpSetupScreenState extends State<TotpSetupScreen> {
       return;
     }
 
-    setState(() { _submitting = true; _error = null; });
+    setState(() {
+      _submitting = true;
+      _error = null;
+    });
 
     final user = context.read<AuthProvider>().currentUser;
     if (user == null) return;
@@ -97,16 +97,16 @@ class _TotpSetupScreenState extends State<TotpSetupScreen> {
     return Scaffold(
       backgroundColor: AppTheme.cream,
       appBar: AppBar(
-        title: const Text('Set Up Authenticator App', style: TextStyle(fontWeight: FontWeight.w700)),
+        title: const Text(
+          'Set Up Authenticator App',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
         backgroundColor: AppTheme.primary,
         foregroundColor: Colors.white,
         elevation: 0,
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: _buildBody(),
-        ),
+        child: SingleChildScrollView(padding: const EdgeInsets.all(24), child: _buildBody()),
       ),
     );
   }
@@ -142,9 +142,9 @@ class _TotpSetupScreenState extends State<TotpSetupScreen> {
         const SizedBox(height: 24),
         Text(
           'Scan with Authenticator App',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold, color: AppTheme.grey900,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: AppTheme.grey900),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 12),
@@ -166,10 +166,7 @@ class _TotpSetupScreenState extends State<TotpSetupScreen> {
               data: _otpauthUri!,
               version: QrVersions.auto,
               size: 220,
-              eyeStyle: const QrEyeStyle(
-                eyeShape: QrEyeShape.square,
-                color: Color(0xFF1F2937),
-              ),
+              eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Color(0xFF1F2937)),
               dataModuleStyle: const QrDataModuleStyle(
                 dataModuleShape: QrDataModuleShape.square,
                 color: Color(0xFF1F2937),
@@ -182,9 +179,9 @@ class _TotpSetupScreenState extends State<TotpSetupScreen> {
           GestureDetector(
             onTap: () {
               Clipboard.setData(ClipboardData(text: _secret ?? ''));
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Secret copied to clipboard')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Secret copied to clipboard')));
             },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -236,7 +233,8 @@ class _TotpSetupScreenState extends State<TotpSetupScreen> {
 
   Widget _buildVerifyStep() {
     final defaultPinTheme = PinTheme(
-      width: 56, height: 56,
+      width: 56,
+      height: 56,
       textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -253,9 +251,9 @@ class _TotpSetupScreenState extends State<TotpSetupScreen> {
         const SizedBox(height: 24),
         Text(
           'Enter the 6-digit code',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold, color: AppTheme.grey900,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: AppTheme.grey900),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 12),
@@ -279,7 +277,11 @@ class _TotpSetupScreenState extends State<TotpSetupScreen> {
         ),
         if (_error != null) ...[
           const SizedBox(height: 16),
-          Text(_error!, style: const TextStyle(color: AppTheme.error), textAlign: TextAlign.center),
+          Text(
+            _error!,
+            style: const TextStyle(color: AppTheme.error),
+            textAlign: TextAlign.center,
+          ),
         ],
         const SizedBox(height: 32),
         SizedBox(
@@ -293,8 +295,11 @@ class _TotpSetupScreenState extends State<TotpSetupScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             child: _submitting
-                ? const SizedBox(height: 20, width: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
                 : const Text('Verify', style: TextStyle(fontSize: 16)),
           ),
         ),
@@ -316,9 +321,9 @@ class _TotpSetupScreenState extends State<TotpSetupScreen> {
         const SizedBox(height: 24),
         Text(
           'Save Your Backup Codes',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold, color: AppTheme.grey900,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: AppTheme.grey900),
         ),
         const SizedBox(height: 12),
         Container(
@@ -343,40 +348,46 @@ class _TotpSetupScreenState extends State<TotpSetupScreen> {
         ),
         const SizedBox(height: 20),
         if (_backupCodes != null) ...[
-          ...List.generate(_backupCodes!.length, (i) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              decoration: BoxDecoration(
-                color: AppTheme.grey100,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppTheme.grey300),
-              ),
-              child: Row(
-                children: [
-                  Text('${i + 1}. ', style: const TextStyle(color: AppTheme.grey500, fontSize: 13)),
-                  Expanded(
-                    child: Text(
-                      _backupCodes![i],
-                      style: const TextStyle(
-                        fontFamily: 'monospace',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                        letterSpacing: 1,
+          ...List.generate(
+            _backupCodes!.length,
+            (i) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: AppTheme.grey100,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppTheme.grey300),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      '${i + 1}. ',
+                      style: const TextStyle(color: AppTheme.grey500, fontSize: 13),
+                    ),
+                    Expanded(
+                      child: Text(
+                        _backupCodes![i],
+                        style: const TextStyle(
+                          fontFamily: 'monospace',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          letterSpacing: 1,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          )),
+          ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
             onPressed: () {
               Clipboard.setData(ClipboardData(text: _backupCodes!.join('\n')));
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Backup codes copied to clipboard')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Backup codes copied to clipboard')));
             },
             icon: const Icon(Icons.copy),
             label: const Text('Copy All'),
@@ -413,8 +424,8 @@ class _TotpSetupScreenState extends State<TotpSetupScreen> {
               backgroundColor: done
                   ? AppTheme.success
                   : active
-                      ? AppTheme.primary
-                      : AppTheme.grey300,
+                  ? AppTheme.primary
+                  : AppTheme.grey300,
               child: done
                   ? const Icon(Icons.check, size: 14, color: Colors.white)
                   : Text(
@@ -427,10 +438,7 @@ class _TotpSetupScreenState extends State<TotpSetupScreen> {
                     ),
             ),
             if (step < 3)
-              Container(
-                width: 40, height: 2,
-                color: done ? AppTheme.success : AppTheme.grey300,
-              ),
+              Container(width: 40, height: 2, color: done ? AppTheme.success : AppTheme.grey300),
           ],
         );
       }).toList(),

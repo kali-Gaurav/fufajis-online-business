@@ -1,12 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// The event/schedule that causes a rule to be evaluated.
-enum AutomationTriggerType {
-  orderStatusChanged,
-  lowStock,
-  cartAbandoned,
-  customerInactive,
-}
+enum AutomationTriggerType { orderStatusChanged, lowStock, cartAbandoned, customerInactive }
 
 extension AutomationTriggerTypeX on AutomationTriggerType {
   /// Wire value stored in Firestore (must match functions/automation_rules_engine.js).
@@ -52,13 +47,7 @@ extension AutomationTriggerTypeX on AutomationTriggerType {
 }
 
 /// The effect a rule has when it matches.
-enum AutomationActionType {
-  sendPush,
-  sendEmail,
-  applyCoupon,
-  addUserTag,
-  notifyOwner,
-}
+enum AutomationActionType { sendPush, sendEmail, applyCoupon, addUserTag, notifyOwner }
 
 extension AutomationActionTypeX on AutomationActionType {
   String get wireValue {
@@ -114,11 +103,7 @@ class AutomationCondition {
   final String operator; // ==, !=, >, >=, <, <=, contains, exists, not_exists
   final String value;
 
-  const AutomationCondition({
-    required this.field,
-    required this.operator,
-    this.value = '',
-  });
+  const AutomationCondition({required this.field, required this.operator, this.value = ''});
 
   factory AutomationCondition.fromMap(Map<String, dynamic> map) {
     return AutomationCondition(
@@ -128,11 +113,7 @@ class AutomationCondition {
     );
   }
 
-  Map<String, dynamic> toMap() => {
-        'field': field,
-        'operator': operator,
-        'value': value,
-      };
+  Map<String, dynamic> toMap() => {'field': field, 'operator': operator, 'value': value};
 
   AutomationCondition copyWith({String? field, String? operator, String? value}) {
     return AutomationCondition(
@@ -159,16 +140,10 @@ class AutomationAction {
     );
   }
 
-  Map<String, dynamic> toMap() => {
-        'type': type.wireValue,
-        'config': config,
-      };
+  Map<String, dynamic> toMap() => {'type': type.wireValue, 'config': config};
 
   AutomationAction copyWith({AutomationActionType? type, Map<String, dynamic>? config}) {
-    return AutomationAction(
-      type: type ?? this.type,
-      config: config ?? this.config,
-    );
+    return AutomationAction(type: type ?? this.type, config: config ?? this.config);
   }
 }
 
@@ -210,7 +185,9 @@ class AutomationRuleModel {
       description: map['description'] as String? ?? '',
       enabled: map['enabled'] as bool? ?? true,
       triggerType: AutomationTriggerTypeX.fromWire(trigger['type'] as String?),
-      triggerConfig: trigger['config'] != null ? Map<String, dynamic>.from(trigger['config'] as Map) : {},
+      triggerConfig: trigger['config'] != null
+          ? Map<String, dynamic>.from(trigger['config'] as Map)
+          : {},
       conditions: (map['conditions'] as List? ?? [])
           .map((c) => AutomationCondition.fromMap(Map<String, dynamic>.from(c as Map)))
           .toList(),
@@ -224,18 +201,15 @@ class AutomationRuleModel {
   }
 
   Map<String, dynamic> toMap() => {
-        'name': name,
-        'description': description,
-        'enabled': enabled,
-        'trigger': {
-          'type': triggerType.wireValue,
-          'config': triggerConfig,
-        },
-        'conditions': conditions.map((c) => c.toMap()).toList(),
-        'actions': actions.map((a) => a.toMap()).toList(),
-        if (createdAt == null) 'createdAt': FieldValue.serverTimestamp(),
-        if (id.isEmpty) 'stats': {'triggeredCount': 0, 'lastTriggeredAt': null},
-      };
+    'name': name,
+    'description': description,
+    'enabled': enabled,
+    'trigger': {'type': triggerType.wireValue, 'config': triggerConfig},
+    'conditions': conditions.map((c) => c.toMap()).toList(),
+    'actions': actions.map((a) => a.toMap()).toList(),
+    if (createdAt == null) 'createdAt': FieldValue.serverTimestamp(),
+    if (id.isEmpty) 'stats': {'triggeredCount': 0, 'lastTriggeredAt': null},
+  };
 
   AutomationRuleModel copyWith({
     String? name,

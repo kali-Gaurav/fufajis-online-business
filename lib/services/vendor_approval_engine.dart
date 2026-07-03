@@ -39,7 +39,7 @@ class VendorApprovalEngine {
   // ROLE-BASED ACCESS CONTROL (RBAC) RULES
   // ──────────────────────────────────────────────────────────────
   static final Map<ShopApprovalStatus, List<String>> _allowedRolesForState = {
-    ShopApprovalStatus.draft: ['shop_owner', 'admin', 'manager'], 
+    ShopApprovalStatus.draft: ['shop_owner', 'admin', 'manager'],
     ShopApprovalStatus.under_review: ['shop_owner', 'admin', 'manager'], // Owner submits for review
     ShopApprovalStatus.approved: ['admin', 'super_admin'], // Only Admin can approve
     ShopApprovalStatus.rejected: ['admin', 'super_admin'], // Only Admin can reject
@@ -55,13 +55,14 @@ class VendorApprovalEngine {
     }
 
     final allowedRoles = _allowedRolesForState[to] ?? [];
-    if (!allowedRoles.contains(actorRole.toLowerCase()) && 
-        actorRole.toLowerCase() != 'admin' && 
+    if (!allowedRoles.contains(actorRole.toLowerCase()) &&
+        actorRole.toLowerCase() != 'admin' &&
         actorRole.toLowerCase() != 'super_admin') {
       throw UnauthorizedWorkflowException(
         role: actorRole,
         transition: '${from.name} → ${to.name}',
-        customMessage: 'Role $actorRole is not authorized to transition vendor approval to ${to.name}.',
+        customMessage:
+            'Role $actorRole is not authorized to transition vendor approval to ${to.name}.',
       );
     }
   }
@@ -119,7 +120,9 @@ class VendorApprovalEngine {
         });
       });
 
-      debugPrint('[VendorApprovalEngine] Shop $shopId transitioned to ${newStatus.name} by $actorRole');
+      debugPrint(
+        '[VendorApprovalEngine] Shop $shopId transitioned to ${newStatus.name} by $actorRole',
+      );
     } catch (e) {
       debugPrint('[VendorApprovalEngine] Transition failed: $e');
       rethrow;

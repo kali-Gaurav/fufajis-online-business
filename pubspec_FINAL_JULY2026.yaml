@@ -1,0 +1,162 @@
+name: fufajis_online
+description: A Flutter e-commerce application for Fufaji Online Business
+
+publish_to: 'none'
+
+version: 1.2.0+4
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # Firebase packages (all at latest stable for Flutter 3.44.4)
+  cloud_firestore: ^6.8.3        # UPDATED: 6.6.0 -> 6.8.3 (latest, fully compatible)
+  firebase_auth: ^6.7.0          # ✓ Latest stable
+  firebase_storage: ^13.6.6       # ✓ Latest stable
+  firebase_core: ^4.13.4          # ✓ Latest stable
+  firebase_messaging: ^16.4.1     # ✓ Latest stable (17.x requires extensive testing)
+  cloud_functions: ^6.5.0         # ✓ Latest stable
+  firebase_app_check: ^0.5.4      # ✓ Latest stable
+  firebase_remote_config: ^6.6.0  # ✓ Latest stable
+  firebase_analytics: ^12.5.3     # ✓ Latest stable
+  firebase_performance: ^0.11.4+3 # ✓ Latest stable
+  firebase_database: ^12.7.3      # ✓ Latest stable
+  firebase_crashlytics: ^5.3.3    # ✓ Latest stable
+  firebase_ai: ^3.13.0            # ✓ Latest stable
+  google_generative_ai: ^0.4.5    # ✓ Latest stable
+
+  # State management
+  provider: ^6.4.1                # ✓ Latest stable
+  riverpod: ^3.2.1                # ✓ Latest stable
+  flutter_riverpod: ^3.3.1        # ✓ Latest stable
+
+  # UI & Navigation
+  go_router: ^16.2.0              # ✓ Latest stable
+  flutter_localizations:
+    sdk: flutter
+  intl: ">=0.19.0 <0.21.0"        # ✓ Compatible range
+  google_fonts: ^6.3.1            # ✓ Latest stable
+  cached_network_image: ^3.4.1    # ✓ Latest stable
+  shimmer: ^3.0.0                 # ✓ Latest stable
+  flutter_animate: ^4.5.0         # ✓ Latest stable
+  pinput: ^6.0.2                  # ✓ Latest stable
+  lottie: ^3.1.2                  # ✓ Latest stable
+  intl_phone_number_input: ^0.8.1 # UPDATED: 0.7.0 -> 0.8.1 (latest, dlibphonenumber fixed)
+  infinite_scroll_pagination: ^5.1.1 # ✓ Latest stable
+
+  # Scanner & Camera
+  mobile_scanner: ^7.2.0          # ✓ Latest stable
+  camera: ^0.11.2+1               # ✓ Latest stable
+  google_mlkit_commons: ^0.11.0   # ✓ Latest stable
+  google_mlkit_barcode_scanning: ^0.14.1 # ✓ Latest stable
+  google_mlkit_image_labeling: ^0.14.1   # ✓ Latest stable
+  google_mlkit_text_recognition: ^0.15.0 # ✓ Latest stable
+  image_picker: ^1.1.2            # ✓ Latest stable
+
+  # Location & Maps
+  geolocator: ^14.0.2             # UPDATED: 13.0.0 -> 14.0.2 (latest, Flutter 3.44.4 compatible)
+  geocoding: ^4.0.0               # ✓ Latest stable
+  google_maps_flutter: ^2.17.1    # UPDATED: 2.10.0 -> 2.17.1 (latest, multiple bug fixes)
+  permission_handler: ^12.0.1     # UPDATED: 11.0.0 -> 12.0.1 (latest, native deprecation fixes)
+  flutter_background_service: ^5.0.10 # ✓ Latest stable
+  workmanager: ^0.9.0+3           # UPDATED: 0.7.0 -> 0.9.0+3 (latest, >= Flutter 3.32.0 requirement met)
+  flutter_polyline_points: ^2.1.0 # ✓ Latest stable
+  flutter_map: ^8.3.0             # ✓ Latest stable
+  latlong2: ^0.9.1                # ✓ Latest stable
+
+  # Utilities
+  uuid: ^4.8.1                    # UPDATED: 4.5.1 -> 4.8.1 (latest, 4.x redesign stable)
+  google_mobile_ads: ^6.0.0       # ✓ Latest stable
+  dio: ^5.7.0                     # ✓ Latest stable
+  flutter_local_notifications: ^19.5.0 # ✓ Latest stable
+  shared_preferences: ^2.4.12     # ✓ Latest stable
+  connectivity_plus: ^7.1.1       # ✓ Latest stable
+  hive: ^2.2.3                    # ✓ Latest stable
+  hive_flutter: ^1.1.0            # ✓ Latest stable
+  sqflite: ^2.4.2                 # ✓ Latest stable
+  path: ^1.9.1                    # ✓ Latest stable
+  url_launcher: ^6.3.2            # ✓ Latest stable
+  share_plus: ^12.0.2             # ✓ Latest stable
+  path_provider: ^2.1.5           # ✓ Latest stable
+  image: ^4.3.0                   # ✓ Latest stable
+  flutter_dotenv: ^6.0.1          # ✓ Latest stable
+  package_info_plus: ^9.0.0       # ✓ Latest stable
+  crypto: ^3.0.5                  # ✓ Latest stable
+  http: ^1.2.2                    # ✓ Latest stable
+  decimal: ^2.3.3                 # ✓ Latest stable
+  timeago: ^3.7.1                 # ✓ Latest stable
+  otp: ^3.1.2                     # ✓ Latest stable
+
+  # Payments
+  razorpay_flutter: ^1.4.5        # ✓ Latest stable
+
+  # Security - Hashing & Encryption
+  bcrypt: ^1.2.0                  # ✓ Latest stable
+
+  # Charts & Analytics
+  # fl_chart: ^1.2.0 is CURRENT LATEST (not 0.69.0 which is deprecated)
+  # HOLD at 0.69.0 for now as version 1.2.0+ has breaking changes. Plan migration to 1.2.0 in next phase.
+  fl_chart: ^0.69.0               # HOLD: Deprecated but stable. Plan v1.2.0 migration (breaking changes)
+
+  # PDF & Documents
+  pdf: ^3.11.1                    # ✓ Latest stable
+  printing: ^5.13.2               # ✓ Latest stable
+
+  # WhatsApp Integration
+  whatsapp_unilink: ^2.1.0        # ✓ Latest stable
+
+  # Audio & Speech
+  record: ^6.2.1                  # ✓ Latest stable
+  speech_to_text: ^7.4.0          # ✓ Latest stable
+  video_player: ^2.10.1           # ✓ Latest stable
+  flutter_tts: ^4.2.5             # ✓ Latest stable
+
+  # Date & Time
+  date_time_picker_plus: ^1.0.1   # ✓ Latest stable
+
+  # Hardware
+  blue_thermal_printer: ^1.2.3    # ✓ Latest stable
+
+  # Error Reporting & OTA
+  sentry_flutter: ^9.22.0         # ✓ Latest stable
+  shorebird_code_push: ^2.0.0     # ✓ Latest stable
+  google_sign_in: ^6.2.1          # ✓ Latest stable
+  qr_flutter: ^4.1.0              # ✓ Latest stable
+
+  # Authentication & Security
+  local_auth: ^2.1.6              # ✓ Latest stable
+  device_info_plus: ^12.4.0       # ✓ Latest stable
+  flutter_secure_storage: ^10.3.1 # ✓ Latest stable
+  supabase_flutter: ^2.15.0       # ✓ Latest stable
+  sign_in_with_apple: ^7.0.1      # ✓ Latest stable
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  build_runner: ^2.4.13
+  json_serializable: ^6.9.0
+  mockito: ^5.4.4
+  fake_cloud_firestore: ^4.1.1
+
+  firebase_core_platform_interface: any
+  cloud_firestore_platform_interface: any
+  connectivity_plus_platform_interface: any
+  sqflite_common: any
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    # SECURITY NOTICE: .env is NEVER listed here — never bundle secrets in APK assets.
+    # The app reads public Razorpay key from AppConfig via --dart-define at build time.
+    # Secrets are fetched at runtime from backend /config endpoint.
+    # - .env  (REMOVED - DO NOT INCLUDE)
+    - shorebird.yaml
+    - assets/images/
+    - assets/icons/
+    - assets/lottie/

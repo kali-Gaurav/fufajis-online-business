@@ -2,12 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/owner_model.dart';
 import 'device_security_service.dart';
 
-enum OwnerLoginState {
-  firstLogin,
-  dailyLogin,
-  newDevicePending,
-  unauthorized,
-}
+enum OwnerLoginState { firstLogin, dailyLogin, newDevicePending, unauthorized }
 
 class OwnerAuthService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -40,7 +35,7 @@ class OwnerAuthService {
     }
 
     bool isApproved = owner.approvedDevices.any((d) => d.deviceId == deviceId && d.approved);
-    
+
     if (isApproved) {
       return OwnerLoginState.dailyLogin;
     } else {
@@ -53,11 +48,7 @@ class OwnerAuthService {
     String deviceId = await DeviceSecurityService.getDeviceId();
     String deviceName = await DeviceSecurityService.getDeviceName();
 
-    Device newDevice = Device(
-      deviceId: deviceId,
-      deviceName: deviceName,
-      approved: approved,
-    );
+    Device newDevice = Device(deviceId: deviceId, deviceName: deviceName, approved: approved);
 
     // Get document ID
     var snapshot = await _firestore
@@ -65,11 +56,11 @@ class OwnerAuthService {
         .where('email', isEqualTo: email)
         .limit(1)
         .get();
-        
+
     if (snapshot.docs.isNotEmpty) {
       String docId = snapshot.docs.first.id;
       await _firestore.collection('owners').doc(docId).update({
-        'approvedDevices': FieldValue.arrayUnion([newDevice.toJson()])
+        'approvedDevices': FieldValue.arrayUnion([newDevice.toJson()]),
       });
     }
   }
@@ -84,7 +75,7 @@ class OwnerAuthService {
         .where('email', isEqualTo: email)
         .limit(1)
         .get();
-        
+
     if (snapshot.docs.isNotEmpty) {
       String docId = snapshot.docs.first.id;
       await _firestore.collection('owners').doc(docId).update({
@@ -103,28 +94,27 @@ class OwnerAuthService {
         .where('email', isEqualTo: email)
         .limit(1)
         .get();
-        
+
     if (snapshot.docs.isNotEmpty) {
       var doc = snapshot.docs.first;
       var data = doc.data();
-      var approvedDevices = List<Map<String, dynamic>>.from(data['approvedDevices'] as Iterable? ?? []);
-      
+      var approvedDevices = List<Map<String, dynamic>>.from(
+        data['approvedDevices'] as Iterable? ?? [],
+      );
+
       for (var dev in approvedDevices) {
         if (dev['deviceId'] == deviceId) {
           dev['approved'] = true;
           break;
         }
       }
-      
-      await doc.reference.update({
-        'approvedDevices': approvedDevices,
-      });
+
+      await doc.reference.update({'approvedDevices': approvedDevices});
     }
   }
 
   /// Rename a device (updates deviceName in approvedDevices array)
-  static Future<void> renameDevice(
-      String email, String deviceId, String newName) async {
+  static Future<void> renameDevice(String email, String deviceId, String newName) async {
     var snapshot = await _firestore
         .collection('owners')
         .where('email', isEqualTo: email)
@@ -134,7 +124,8 @@ class OwnerAuthService {
     if (snapshot.docs.isNotEmpty) {
       var doc = snapshot.docs.first;
       var devices = List<Map<String, dynamic>>.from(
-          (doc.data()['approvedDevices'] as Iterable?) ?? []);
+        (doc.data()['approvedDevices'] as Iterable?) ?? [],
+      );
 
       for (var dev in devices) {
         if (dev['deviceId'] == deviceId) {
@@ -154,17 +145,17 @@ class OwnerAuthService {
         .where('email', isEqualTo: email)
         .limit(1)
         .get();
-        
+
     if (snapshot.docs.isNotEmpty) {
       var doc = snapshot.docs.first;
       var data = doc.data();
-      var approvedDevices = List<Map<String, dynamic>>.from(data['approvedDevices'] as Iterable? ?? []);
-      
+      var approvedDevices = List<Map<String, dynamic>>.from(
+        data['approvedDevices'] as Iterable? ?? [],
+      );
+
       approvedDevices.removeWhere((dev) => dev['deviceId'] == deviceId);
-      
-      await doc.reference.update({
-        'approvedDevices': approvedDevices,
-      });
+
+      await doc.reference.update({'approvedDevices': approvedDevices});
     }
   }
 }

@@ -14,10 +14,7 @@ import '../utils/monetary_value.dart';
 /// Centralized Voice Command Executor for Fufaji Online.
 /// Handles execution of all parsed voice intents.
 class VoiceCommandExecutor {
-  static Future<String> execute(
-    VoiceCommand command,
-    BuildContext context,
-  ) async {
+  static Future<String> execute(VoiceCommand command, BuildContext context) async {
     final auth = Provider.of<AuthProvider>(context, listen: false);
     final user = auth.currentUser;
 
@@ -53,10 +50,7 @@ class VoiceCommandExecutor {
 
   // ─── CUSTOMER ACTIONS ──────────────────────────────────────────────────────
 
-  static Future<String> _executeSearchProduct(
-    VoiceCommand cmd,
-    BuildContext context,
-  ) async {
+  static Future<String> _executeSearchProduct(VoiceCommand cmd, BuildContext context) async {
     final query = cmd.parameters['query'] as String? ?? '';
     if (query.isNotEmpty) {
       context.push('/customer/search?q=${Uri.encodeComponent(query)}');
@@ -65,14 +59,11 @@ class VoiceCommandExecutor {
     return 'Dhundhne ke liye kuch boliye.';
   }
 
-  static Future<String> _executeAddToCart(
-    VoiceCommand cmd,
-    BuildContext context,
-  ) async {
+  static Future<String> _executeAddToCart(VoiceCommand cmd, BuildContext context) async {
     try {
       final cartProvider = Provider.of<CartProvider>(context, listen: false);
       final productProvider = Provider.of<ProductProvider>(context, listen: false);
-      
+
       // Use Backend Gemini for smarter parsing and searching
       final response = await ApiClient.instance.post('/ai/voice-to-cart', {
         'transcript': cmd.parameters['raw_text'] ?? cmd.parameters['product'] ?? '',
@@ -88,7 +79,11 @@ class VoiceCommandExecutor {
             // Find in local cache to get full model
             final localProduct = productProvider.products.firstWhere(
               (p) => p.id == item['productId'],
-              orElse: () => ProductModel.fromMap({...item, 'id': item['productId'], 'name': item['originalName']}),
+              orElse: () => ProductModel.fromMap({
+                ...item,
+                'id': item['productId'],
+                'name': item['originalName'],
+              }),
             );
 
             final qty = (item['quantity'] as num?)?.toInt() ?? 1;
@@ -130,7 +125,9 @@ class VoiceCommandExecutor {
     BuildContext context,
     UserModel? user,
   ) async {
-    if (user?.role != UserRole.owner && user?.role != UserRole.superAdmin && user?.role != UserRole.employee) {
+    if (user?.role != UserRole.owner &&
+        user?.role != UserRole.superAdmin &&
+        user?.role != UserRole.employee) {
       return 'Ye command sirf owner ya employee use kar sakte hain.';
     }
 
@@ -156,10 +153,7 @@ class VoiceCommandExecutor {
     }
   }
 
-  static Future<String> _executeCheckStock(
-    VoiceCommand cmd,
-    BuildContext context,
-  ) async {
+  static Future<String> _executeCheckStock(VoiceCommand cmd, BuildContext context) async {
     try {
       final productProvider = Provider.of<ProductProvider>(context, listen: false);
       final productName = (cmd.parameters['product'] as String? ?? '').toLowerCase();
@@ -250,17 +244,16 @@ class VoiceCommandExecutor {
       final today = DateTime.now();
       final startOfDay = DateTime(today.year, today.month, today.day);
 
-      final query = db.collection('orders').where(
-        'createdAt',
-        isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay),
-      );
+      final query = db
+          .collection('orders')
+          .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay));
 
       final snap = user?.role == UserRole.customer
           ? await query.where('customerId', isEqualTo: user?.id).get()
           : await query.get();
 
       final count = snap.docs.length;
-      
+
       if (user?.role == UserRole.owner) {
         context.push('/owner/orders');
       } else {

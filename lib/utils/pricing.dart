@@ -19,22 +19,14 @@ class PricingUtils {
   /// Format amount as Indian Rupees (₹)
   /// Example: 1000 → "₹1,000.00"
   static String formatINR(double amount) {
-    final formatter = NumberFormat.currency(
-      locale: 'en_IN',
-      symbol: '₹',
-      decimalDigits: 2,
-    );
+    final formatter = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 2);
     return formatter.format(amount);
   }
 
   /// Format amount as INR without decimal places
   /// Example: 1000 → "₹1,000"
   static String formatINRCompact(double amount) {
-    final formatter = NumberFormat.currency(
-      locale: 'en_IN',
-      symbol: '₹',
-      decimalDigits: 0,
-    );
+    final formatter = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
     return formatter.format(amount);
   }
 
@@ -47,12 +39,7 @@ class PricingUtils {
     final gstAmount = calculateGST(basePrice, gstRate: gstRate);
     final total = basePrice + gstAmount;
 
-    return {
-      'base': basePrice,
-      'gst': gstAmount,
-      'total': total,
-      'gstRate': gstRate,
-    };
+    return {'base': basePrice, 'gst': gstAmount, 'total': total, 'gstRate': gstRate};
   }
 
   /// Round to 2 decimal places (common for currency)
@@ -86,10 +73,8 @@ class PricingDisplay {
 
   double get totalPrice => basePrice + gstAmount;
 
-  PricingDisplay({
-    required this.basePrice,
-    required this.gstRate,
-  }) : gstAmount = PricingUtils.calculateGST(basePrice, gstRate: gstRate);
+  PricingDisplay({required this.basePrice, required this.gstRate})
+    : gstAmount = PricingUtils.calculateGST(basePrice, gstRate: gstRate);
 
   String get basePriceFormatted => PricingUtils.formatINR(basePrice);
   String get gstAmountFormatted => PricingUtils.formatINR(gstAmount);

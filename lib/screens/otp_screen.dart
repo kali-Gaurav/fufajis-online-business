@@ -61,24 +61,17 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
       vsync: this,
       duration: const Duration(milliseconds: 500),
     );
-    _shakeAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _shakeController,
-        curve: _ShakeCurve(),
-      ),
-    );
+    _shakeAnim = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _shakeController, curve: _ShakeCurve()));
 
     // Lock animation for input complete
-    _lockController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-    _lockScaleAnim = Tween<double>(begin: 1.0, end: 1.15).animate(
-      CurvedAnimation(
-        parent: _lockController,
-        curve: Curves.elasticOut,
-      ),
-    );
+    _lockController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+    _lockScaleAnim = Tween<double>(
+      begin: 1.0,
+      end: 1.15,
+    ).animate(CurvedAnimation(parent: _lockController, curve: Curves.elasticOut));
   }
 
   @override
@@ -137,10 +130,7 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
       );
     }
 
-    final isValid = await authProvider.verifyOTP(
-      _otpController.text,
-      selectedRole: parsedRole,
-    );
+    final isValid = await authProvider.verifyOTP(_otpController.text, selectedRole: parsedRole);
 
     if (isValid) {
       if (!mounted) return;
@@ -245,11 +235,7 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
     final defaultPinTheme = PinTheme(
       width: 50,
       height: 56,
-      textStyle: TextStyle(
-        fontSize: 22,
-        fontWeight: FontWeight.bold,
-        color: textColor,
-      ),
+      textStyle: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: textColor),
       decoration: BoxDecoration(
         color: isDark ? AppTheme.grey800 : AppTheme.white,
         border: Border.all(color: isDark ? AppTheme.grey700 : AppTheme.grey300),
@@ -281,231 +267,228 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
         key: _burstKey,
         radius: 120,
         child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 20),
-              
-              // Lock Icon with Unlock morph on completion
-              Center(
-                child: FadeSlideIn(
-                  duration: AppTheme.durationMedium,
-                  child: ScaleTransition(
-                    scale: _lockScaleAnim,
-                    child: Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: _otpComplete 
-                            ? AppTheme.success.withValues(alpha: 0.15)
-                            : AppTheme.primary.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: (_otpComplete ? AppTheme.success : AppTheme.primary)
-                                .withValues(alpha: 0.1),
-                            blurRadius: 20,
-                            offset: const Offset(0, 4),
-                          )
-                        ],
-                      ),
-                      child: Icon(
-                        _otpComplete ? Icons.lock_open_rounded : Icons.lock_outline_rounded,
-                        size: 44,
-                        color: _otpComplete ? AppTheme.success : AppTheme.primary,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
-              
-              // Title
-              FadeSlideIn(
-                duration: AppTheme.durationMedium,
-                delay: const Duration(milliseconds: 100),
-                child: Text(
-                  'Verification',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
-                    letterSpacing: -0.5,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const SizedBox(height: 12),
-              
-              // Subtitle
-              FadeSlideIn(
-                duration: AppTheme.durationMedium,
-                delay: const Duration(milliseconds: 150),
-                child: RichText(
-                  textAlign: TextAlign.center,
-                  text: TextSpan(
-                    style: TextStyle(fontSize: 16, color: subTextColor, fontFamily: 'Poppins'),
-                    children: [
-                      const TextSpan(text: 'Enter the 6-digit code sent to \n'),
-                      TextSpan(
-                        text: widget.phoneNumber,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : AppTheme.grey900,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 40),
-              
-              // OTP Input with Shake Animation on wrong OTP
-              Center(
-                child: FadeSlideIn(
-                  duration: AppTheme.durationMedium,
-                  delay: const Duration(milliseconds: 200),
-                  child: AnimatedBuilder(
-                    animation: _shakeAnim,
-                    builder: (context, child) {
-                      final dx = _shakeAnim.value * 24.0;
-                      return Transform.translate(
-                        offset: Offset(dx, 0),
-                        child: child,
-                      );
-                    },
-                    child: Pinput(
-                      length: 6,
-                      controller: _otpController,
-                      defaultPinTheme: defaultPinTheme,
-                      focusedPinTheme: focusedPinTheme,
-                      errorPinTheme: errorPinTheme,
-                      keyboardType: TextInputType.number,
-                      onCompleted: (value) {
-                        if (value.length == 6) {
-                          _verifyOTP();
-                        }
-                      },
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 40),
-              
-              // Verify Button with Scale Bounce
-              FadeSlideIn(
-                duration: AppTheme.durationMedium,
-                delay: const Duration(milliseconds: 250),
-                child: ScaleBounce(
-                  onTap: _otpComplete ? _verifyOTP : null,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: _otpComplete ? AppTheme.primaryGradient : null,
-                      color: _otpComplete ? null : AppTheme.grey300,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: _otpComplete 
-                          ? [
-                              BoxShadow(
-                                color: AppTheme.primary.withValues(alpha: 0.3),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              )
-                            ] 
-                          : [],
-                    ),
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    child: Text(
-                      'Verify & Proceed',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: _otpComplete ? Colors.white : AppTheme.grey500,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
-              
-              // Circular Timer / Resend OTP Action
-              FadeSlideIn(
-                duration: AppTheme.durationMedium,
-                delay: const Duration(milliseconds: 300),
-                child: Center(
-                  child: _canResend
-                      ? ScaleBounce(
-                          onTap: _resendOTP,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                            decoration: BoxDecoration(
-                              color: AppTheme.primary.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(24),
-                            ),
-                            child: const Text(
-                              'Resend OTP',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: AppTheme.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        )
-                      : Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            CountdownRing(
-                              seconds: _resendTimer,
-                              size: 44,
-                              ringColor: AppTheme.primary,
-                              trackColor: AppTheme.primary.withValues(alpha: 0.12),
-                              textStyle: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                                color: AppTheme.primary,
-                              ),
-                              onComplete: () {
-                                if (mounted) setState(() => _canResend = true);
-                              },
-                            ),
-                            const SizedBox(width: 12),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 20),
 
-                            Text(
-                              'Resend code in ${_resendTimer}s',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: isDark ? Colors.white54 : AppTheme.grey600,
-                                fontWeight: FontWeight.w500,
-                              ),
+                // Lock Icon with Unlock morph on completion
+                Center(
+                  child: FadeSlideIn(
+                    duration: AppTheme.durationMedium,
+                    child: ScaleTransition(
+                      scale: _lockScaleAnim,
+                      child: Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: _otpComplete
+                              ? AppTheme.success.withValues(alpha: 0.15)
+                              : AppTheme.primary.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: (_otpComplete ? AppTheme.success : AppTheme.primary)
+                                  .withValues(alpha: 0.1),
+                              blurRadius: 20,
+                              offset: const Offset(0, 4),
                             ),
                           ],
                         ),
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              FadeSlideIn(
-                duration: AppTheme.durationMedium,
-                delay: const Duration(milliseconds: 350),
-                child: TextButton(
-                  onPressed: () => context.go('/login'),
-                  child: Text(
-                    "Change Phone Number",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: subTextColor,
-                      decoration: TextDecoration.underline,
+                        child: Icon(
+                          _otpComplete ? Icons.lock_open_rounded : Icons.lock_outline_rounded,
+                          size: 44,
+                          color: _otpComplete ? AppTheme.success : AppTheme.primary,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 32),
+
+                // Title
+                FadeSlideIn(
+                  duration: AppTheme.durationMedium,
+                  delay: const Duration(milliseconds: 100),
+                  child: Text(
+                    'Verification',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
+                      letterSpacing: -0.5,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Subtitle
+                FadeSlideIn(
+                  duration: AppTheme.durationMedium,
+                  delay: const Duration(milliseconds: 150),
+                  child: RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                      style: TextStyle(fontSize: 16, color: subTextColor, fontFamily: 'Poppins'),
+                      children: [
+                        const TextSpan(text: 'Enter the 6-digit code sent to \n'),
+                        TextSpan(
+                          text: widget.phoneNumber,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : AppTheme.grey900,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 40),
+
+                // OTP Input with Shake Animation on wrong OTP
+                Center(
+                  child: FadeSlideIn(
+                    duration: AppTheme.durationMedium,
+                    delay: const Duration(milliseconds: 200),
+                    child: AnimatedBuilder(
+                      animation: _shakeAnim,
+                      builder: (context, child) {
+                        final dx = _shakeAnim.value * 24.0;
+                        return Transform.translate(offset: Offset(dx, 0), child: child);
+                      },
+                      child: Pinput(
+                        length: 6,
+                        controller: _otpController,
+                        defaultPinTheme: defaultPinTheme,
+                        focusedPinTheme: focusedPinTheme,
+                        errorPinTheme: errorPinTheme,
+                        keyboardType: TextInputType.number,
+                        onCompleted: (value) {
+                          if (value.length == 6) {
+                            _verifyOTP();
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 40),
+
+                // Verify Button with Scale Bounce
+                FadeSlideIn(
+                  duration: AppTheme.durationMedium,
+                  delay: const Duration(milliseconds: 250),
+                  child: ScaleBounce(
+                    onTap: _otpComplete ? _verifyOTP : null,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: _otpComplete ? AppTheme.primaryGradient : null,
+                        color: _otpComplete ? null : AppTheme.grey300,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: _otpComplete
+                            ? [
+                                BoxShadow(
+                                  color: AppTheme.primary.withValues(alpha: 0.3),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ]
+                            : [],
+                      ),
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      child: Text(
+                        'Verify & Proceed',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: _otpComplete ? Colors.white : AppTheme.grey500,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                // Circular Timer / Resend OTP Action
+                FadeSlideIn(
+                  duration: AppTheme.durationMedium,
+                  delay: const Duration(milliseconds: 300),
+                  child: Center(
+                    child: _canResend
+                        ? ScaleBounce(
+                            onTap: _resendOTP,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: AppTheme.primary.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              child: const Text(
+                                'Resend OTP',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: AppTheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          )
+                        : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CountdownRing(
+                                seconds: _resendTimer,
+                                size: 44,
+                                ringColor: AppTheme.primary,
+                                trackColor: AppTheme.primary.withValues(alpha: 0.12),
+                                textStyle: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppTheme.primary,
+                                ),
+                                onComplete: () {
+                                  if (mounted) setState(() => _canResend = true);
+                                },
+                              ),
+                              const SizedBox(width: 12),
+
+                              Text(
+                                'Resend code in ${_resendTimer}s',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: isDark ? Colors.white54 : AppTheme.grey600,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                FadeSlideIn(
+                  duration: AppTheme.durationMedium,
+                  delay: const Duration(milliseconds: 350),
+                  child: TextButton(
+                    onPressed: () => context.go('/login'),
+                    child: Text(
+                      "Change Phone Number",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: subTextColor,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
         ), // ParticlesBurst
       ),
     );

@@ -28,11 +28,7 @@ class RatingPromptService {
 
     // Check if user has already rated any product from this order
     for (var item in order.items) {
-      final hasReviewed = await _hasUserReviewedProduct(
-        item.productId,
-        order.customerId,
-        order.id,
-      );
+      final hasReviewed = await _hasUserReviewedProduct(item.productId, order.customerId, order.id);
 
       if (!hasReviewed) {
         return true; // At least one product hasn't been reviewed
@@ -47,11 +43,7 @@ class RatingPromptService {
     final unreviewed = <OrderItem>[];
 
     for (var item in order.items) {
-      final hasReviewed = await _hasUserReviewedProduct(
-        item.productId,
-        order.customerId,
-        order.id,
-      );
+      final hasReviewed = await _hasUserReviewedProduct(item.productId, order.customerId, order.id);
 
       if (!hasReviewed) {
         unreviewed.add(item);
@@ -62,11 +54,7 @@ class RatingPromptService {
   }
 
   /// Check if user has already reviewed a specific product from an order
-  Future<bool> _hasUserReviewedProduct(
-    String productId,
-    String userId,
-    String orderId,
-  ) async {
+  Future<bool> _hasUserReviewedProduct(String productId, String userId, String orderId) async {
     try {
       final snapshot = await _db
           .collection('products')

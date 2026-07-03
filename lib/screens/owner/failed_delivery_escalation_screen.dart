@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-import '../../services/order_workflow_engine.dart';
+import '../../models/order_model.dart';
+import '../../services/cancellation_fee_service.dart';
 import '../../services/notification_service.dart';
 import '../../utils/app_theme.dart';
 
@@ -19,14 +20,21 @@ class FailedDeliveryEscalationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Failed Delivery Escalation', style: TextStyle(fontWeight: FontWeight.w700)),
+        title: const Text(
+          'Failed Delivery Escalation',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
         backgroundColor: AppTheme.error,
         foregroundColor: Colors.white,
       ),
+      // FIX (Module 9 follow-up): this screen queried a status string
+      // ('OrderStatus.delivery_failed') that no writer ever produced, so it
+      // permanently showed "No failed deliveries". It now matches the
+      // deliveryFailed flag that DeliveryProvider.markDeliveryFailed sets.
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('orders')
-            .where('status', isEqualTo: 'OrderStatus.delivery_failed')
+            .where('deliveryFailed', isEqualTo: true)
             .orderBy('updatedAt', descending: true)
             .snapshots(),
         builder: (ctx, snap) {
@@ -56,13 +64,15 @@ class FailedDeliveryEscalationScreen extends StatelessWidget {
               final customerName = d['customerName'] ?? 'Customer';
               final total = (d['totalAmount'] as num?)?.toDouble() ?? 0;
               final updatedAt = (d['updatedAt'] as Timestamp?)?.toDate();
-              final failReason = d['deliveryFailedReason'] ?? 'No reason provided';
+              // Field name matches what DeliveryProvider.markDeliveryFailed writes.
+              final failReason = d['failureReason'] ?? d['deliveryFailedReason'] ?? 'No reason provided';
 
               return Card(
                 margin: const EdgeInsets.only(bottom: 10),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: const BorderSide(color: AppTheme.error)),
+                  borderRadius: BorderRadius.circular(12),
+                  side: const BorderSide(color: AppTheme.error),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -76,18 +86,25 @@ class FailedDeliveryEscalationScreen extends StatelessWidget {
                               color: AppTheme.error.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text('#$orderNumber',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    color: AppTheme.error)),
+                            child: Text(
+                              '#$orderNumber',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.error,
+                              ),
+                            ),
                           ),
                           const SizedBox(width: 8),
                           Expanded(
-                            child: Text(customerName,
-                                style: const TextStyle(fontWeight: FontWeight.w600)),
+                            child: Text(
+                              customerName,
+                              style: const TextStyle(fontWeight: FontWeight.w600),
+                            ),
                           ),
-                          Text('₹${total.toStringAsFixed(0)}',
-                              style: const TextStyle(fontWeight: FontWeight.w700)),
+                          Text(
+                            '₹${total.toStringAsFixed(0)}',
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -96,8 +113,10 @@ class FailedDeliveryEscalationScreen extends StatelessWidget {
                           const Icon(Icons.error_outline, size: 14, color: AppTheme.warning),
                           const SizedBox(width: 4),
                           Expanded(
-                            child: Text(failReason,
-                                style: const TextStyle(fontSize: 12, color: AppTheme.warning)),
+                            child: Text(
+                              failReason,
+                              style: const TextStyle(fontSize: 12, color: AppTheme.warning),
+                            ),
                           ),
                         ],
                       ),
@@ -118,8 +137,13 @@ class FailedDeliveryEscalationScreen extends StatelessWidget {
                               label: const Text('Reassign', style: TextStyle(fontSize: 12)),
                               style: OutlinedButton.styleFrom(foregroundColor: AppTheme.info),
                               onPressed: () => _handleEscalation(
-                                  context, orderId, orderNumber, 'out_for_delivery',
-                                  d['customerId'] ?? '', d['orderNumber'] ?? ''),
+                                context,
+                                orderId,
+                                orderNumber,
+                                'out_for_delivery',
+                                d['customerId'] ?? '',
+                                d['orderNumber'] ?? '',
+                              ),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -129,8 +153,13 @@ class FailedDeliveryEscalationScreen extends StatelessWidget {
                               label: const Text('Return', style: TextStyle(fontSize: 12)),
                               style: OutlinedButton.styleFrom(foregroundColor: AppTheme.warning),
                               onPressed: () => _handleEscalation(
-                                  context, orderId, orderNumber, 'return_initiated',
-                                  d['customerId'] ?? '', d['orderNumber'] ?? ''),
+                                context,
+                                orderId,
+                                orderNumber,
+                                'return_initiated',
+                                d['customerId'] ?? '',
+                                d['orderNumber'] ?? '',
+                              ),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -140,8 +169,13 @@ class FailedDeliveryEscalationScreen extends StatelessWidget {
                               label: const Text('Cancel', style: TextStyle(fontSize: 12)),
                               style: OutlinedButton.styleFrom(foregroundColor: AppTheme.error),
                               onPressed: () => _handleEscalation(
-                                  context, orderId, orderNumber, 'cancelled',
-                                  d['customerId'] ?? '', d['orderNumber'] ?? ''),
+                                context,
+                                orderId,
+                                orderNumber,
+                                'cancelled',
+                                d['customerId'] ?? '',
+                                d['orderNumber'] ?? '',
+                              ),
                             ),
                           ),
                         ],
@@ -157,16 +191,21 @@ class FailedDeliveryEscalationScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _handleEscalation(BuildContext context, String orderId,
-      String orderNumber, String toStatus, String customerId, String orderNum) async {
-    final engine = OrderWorkflowEngine();
-    final result = await engine.transition(
-      orderId: orderId,
-      fromStatus: 'delivery_failed',
-      toStatus: toStatus,
-      changedByUserId: 'dispatcher',
-      reason: 'Escalation: $toStatus',
-    );
+  Future<void> _handleEscalation(
+    BuildContext context,
+    String orderId,
+    String orderNumber,
+    String toStatus,
+    String customerId,
+    String orderNum,
+  ) async {
+    // FIX (Module 9 follow-up): this used to call the orphaned
+    // OrderWorkflowEngine with fromStatus 'delivery_failed' — a status no
+    // writer ever produces — so every escalation action failed. It now
+    // writes the live qualified status vocabulary directly, clears the
+    // deliveryFailed flag, and routes cancellations through
+    // CancellationFeeService so refund + stock restore actually happen.
+    final result = await _applyEscalation(orderId, toStatus);
 
     if (!context.mounted) return;
     if (result.success) {
@@ -179,11 +218,11 @@ class FailedDeliveryEscalationScreen extends StatelessWidget {
           message: toStatus == 'out_for_delivery'
               ? 'Your order #$orderNum has been reassigned to a new rider.'
               : toStatus == 'return_initiated'
-                  ? 'Your order #$orderNum could not be delivered. Return initiated.'
-                  : 'Your order #$orderNum has been cancelled. A refund will follow.',
+              ? 'Your order #$orderNum could not be delivered. Return initiated.'
+              : 'Your order #$orderNum has been cancelled. A refund will follow.',
         );
       } catch (_) {}
-      
+
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -193,11 +232,70 @@ class FailedDeliveryEscalationScreen extends StatelessWidget {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed: ${result.error}'),
-          backgroundColor: AppTheme.error,
-        ),
+        SnackBar(content: Text('Failed: ${result.error}'), backgroundColor: AppTheme.error),
       );
     }
   }
+
+  Future<_EscalationResult> _applyEscalation(String orderId, String toStatus) async {
+    final db = FirebaseFirestore.instance;
+    try {
+      switch (toStatus) {
+        case 'out_for_delivery':
+          // Put the order back into the dispatch pool for reassignment.
+          await db.collection('orders').doc(orderId).update({
+            'status': 'OrderStatus.packed',
+            'deliveryFailed': FieldValue.delete(),
+            'deliveryAgentId': null,
+            'deliveryAgentName': null,
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+          return const _EscalationResult.ok();
+
+        case 'return_initiated':
+          await db.collection('orders').doc(orderId).update({
+            'status': 'OrderStatus.returned',
+            'deliveryFailed': FieldValue.delete(),
+            'returnReason': 'Delivery failed — return initiated by dispatcher',
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+          return const _EscalationResult.ok();
+
+        case 'cancelled':
+          // Cancellation must go through the fee/refund/stock-restore path,
+          // not a bare status flip.
+          final snap = await db.collection('orders').doc(orderId).get();
+          if (!snap.exists) return const _EscalationResult.fail('Order not found');
+          final order = OrderModel.fromMap({...snap.data()!, 'id': snap.id});
+          final refunded = await CancellationFeeService().applyAndRefund(
+            order: order,
+            cancelledBy: 'dispatcher',
+            reason: 'Cancelled after failed delivery',
+            waiveFee: true, // customer shouldn't pay a fee for OUR failed delivery
+          );
+          if (!refunded) {
+            return const _EscalationResult.fail('Refund processing failed');
+          }
+          await db.collection('orders').doc(orderId).update({
+            'status': 'OrderStatus.cancelled',
+            'deliveryFailed': FieldValue.delete(),
+            'cancellationReason': 'Cancelled after failed delivery',
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+          return const _EscalationResult.ok();
+
+        default:
+          return _EscalationResult.fail('Unknown escalation action: $toStatus');
+      }
+    } catch (e) {
+      return _EscalationResult.fail(e.toString());
+    }
+  }
+}
+
+class _EscalationResult {
+  final bool success;
+  final String? error;
+  const _EscalationResult.ok() : success = true, error = null;
+  const _EscalationResult.fail(this.error) : success = false;
 }

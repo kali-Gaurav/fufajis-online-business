@@ -121,9 +121,7 @@ class AlertModel {
           : DateTime.now(),
       resolved: json['resolved'] as bool? ?? false,
       resolvedBy: json['resolvedBy'] as String?,
-      resolvedAt: json['resolvedAt'] != null
-          ? DateTime.parse(json['resolvedAt'] as String)
-          : null,
+      resolvedAt: json['resolvedAt'] != null ? DateTime.parse(json['resolvedAt'] as String) : null,
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
   }

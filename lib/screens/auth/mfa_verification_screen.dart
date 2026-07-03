@@ -98,11 +98,7 @@ class _MfaVerificationScreenState extends State<MfaVerificationScreen> {
     return PinTheme(
       width: 50,
       height: 56,
-      textStyle: TextStyle(
-        fontSize: 22,
-        fontWeight: FontWeight.bold,
-        color: textColor,
-      ),
+      textStyle: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: textColor),
       decoration: BoxDecoration(
         color: isDark ? AppTheme.grey800 : AppTheme.white,
         borderRadius: BorderRadius.circular(12),
@@ -138,11 +134,7 @@ class _MfaVerificationScreenState extends State<MfaVerificationScreen> {
                       color: AppTheme.primary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(28),
                     ),
-                    child: const Icon(
-                      Icons.shield_outlined,
-                      size: 48,
-                      color: AppTheme.primary,
-                    ),
+                    child: const Icon(Icons.shield_outlined, size: 48, color: AppTheme.primary),
                   ),
                 ),
               ),
@@ -153,11 +145,7 @@ class _MfaVerificationScreenState extends State<MfaVerificationScreen> {
                 child: Text(
                   'Two-Step Verification',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
-                  ),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: textColor),
                 ),
               ),
               const SizedBox(height: 8),

@@ -12,8 +12,7 @@ class KhataService {
       final userDoc = await transaction.get(userRef);
       if (!userDoc.exists) throw Exception('User not found');
 
-      final currentBalance = ((userDoc.data()?['creditBalance'] as num?) ?? 0.0)
-          .toDouble();
+      final currentBalance = ((userDoc.data()?['creditBalance'] as num?) ?? 0.0).toDouble();
       double newBalance = currentBalance;
 
       if (tx.type == KhataTransactionType.credit) {
@@ -37,11 +36,7 @@ class KhataService {
         .where('userId', isEqualTo: userId)
         .orderBy('timestamp', descending: true)
         .snapshots()
-        .map(
-          (snap) => snap.docs
-              .map((doc) => KhataTransaction.fromMap(doc.data()))
-              .toList(),
-        );
+        .map((snap) => snap.docs.map((doc) => KhataTransaction.fromMap(doc.data())).toList());
   }
 
   Future<double> getCustomerTotalCredit(String userId) async {

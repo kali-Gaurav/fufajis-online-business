@@ -44,11 +44,15 @@ class _DisputeScreenState extends State<DisputeScreen> {
 
   Future<void> _submitDispute() async {
     if (_selectedItemIds.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select at least one item')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select at least one item')));
       return;
     }
     if (_reasonController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please describe the issue')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please describe the issue')));
       return;
     }
 
@@ -72,7 +76,10 @@ class _DisputeScreenState extends State<DisputeScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Dispute submitted. Our team will review it within 24 hours.'), backgroundColor: AppTheme.success),
+          const SnackBar(
+            content: Text('Dispute submitted. Our team will review it within 24 hours.'),
+            backgroundColor: AppTheme.success,
+          ),
         );
         Navigator.pop(context);
       }
@@ -89,10 +96,12 @@ class _DisputeScreenState extends State<DisputeScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
-    if (_order == null) return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppTheme.primary)));
+    if (_order == null)
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator(color: AppTheme.primary)),
+      );
 
     return Scaffold(
       appBar: AppBar(title: const Text('Report an Issue')),
@@ -101,7 +110,10 @@ class _DisputeScreenState extends State<DisputeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Select problematic items', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const Text(
+              'Select problematic items',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
             const SizedBox(height: 16),
             ..._order!.items.map((item) {
               final isSelected = _selectedItemIds.contains(item.productId);
@@ -122,7 +134,10 @@ class _DisputeScreenState extends State<DisputeScreen> {
               );
             }),
             const Divider(height: 40),
-            const Text('Describe the issue', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const Text(
+              'Describe the issue',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
             const SizedBox(height: 12),
             TextField(
               controller: _reasonController,
@@ -133,7 +148,10 @@ class _DisputeScreenState extends State<DisputeScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            const Text('Upload Photos (Proof)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const Text(
+              'Upload Photos (Proof)',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
             const SizedBox(height: 12),
             SizedBox(
               height: 100,
@@ -144,18 +162,23 @@ class _DisputeScreenState extends State<DisputeScreen> {
                     onTap: _pickImage,
                     child: Container(
                       width: 100,
-                      decoration: BoxDecoration(color: AppTheme.grey100, borderRadius: BorderRadius.circular(12)),
+                      decoration: BoxDecoration(
+                        color: AppTheme.grey100,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       child: const Icon(Icons.add_a_photo, color: AppTheme.grey500),
                     ),
                   ),
-                  ..._images.map((img) => Container(
-                    width: 100,
-                    margin: const EdgeInsets.only(left: 12),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      image: DecorationImage(image: FileImage(File(img.path)), fit: BoxFit.cover),
+                  ..._images.map(
+                    (img) => Container(
+                      width: 100,
+                      margin: const EdgeInsets.only(left: 12),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        image: DecorationImage(image: FileImage(File(img.path)), fit: BoxFit.cover),
+                      ),
                     ),
-                  )),
+                  ),
                 ],
               ),
             ),
@@ -165,8 +188,11 @@ class _DisputeScreenState extends State<DisputeScreen> {
               height: 54,
               child: ElevatedButton(
                 onPressed: _isSubmitting ? null : _submitDispute,
-                style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, foregroundColor: Colors.white),
-                child: _isSubmitting 
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primary,
+                  foregroundColor: Colors.white,
+                ),
+                child: _isSubmitting
                     ? const CircularProgressIndicator(color: Colors.white)
                     : const Text('SUBMIT COMPLAINT', style: TextStyle(fontWeight: FontWeight.bold)),
               ),

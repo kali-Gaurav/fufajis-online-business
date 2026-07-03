@@ -7,10 +7,7 @@ class LineChartData {
   final String label;
   final double value;
 
-  LineChartData({
-    required this.label,
-    required this.value,
-  });
+  LineChartData({required this.label, required this.value});
 }
 
 /// A simple line chart widget for displaying trend data
@@ -44,12 +41,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
   @override
   Widget build(BuildContext context) {
     if (widget.data.isEmpty) {
-      return Center(
-        child: Text(
-          'No data available',
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-      );
+      return Center(child: Text('No data available', style: Theme.of(context).textTheme.bodySmall));
     }
 
     return Column(
@@ -57,9 +49,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
       children: [
         Text(
           widget.title,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 16),
         SizedBox(
@@ -84,54 +74,45 @@ class _LineChartWidgetState extends State<LineChartWidget> {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: List.generate(
-          widget.data.length,
-          (index) {
-            final item = widget.data[index];
-            return GestureDetector(
-              onTap: () {
-                setState(() {
-                  _selectedIndex = _selectedIndex == index ? null : index;
-                });
-                widget.onPointTap?.call(index);
-              },
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: _selectedIndex == index
-                      ? widget.lineColor.withValues(alpha: 0.2)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(4),
-                  border: _selectedIndex == index
-                      ? Border.all(color: widget.lineColor)
-                      : null,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      item.label,
-                      style: Theme.of(context).textTheme.labelSmall,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      item.value.toStringAsFixed(0),
-                      style:
-                          Theme.of(context).textTheme.labelSmall?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
-                    ),
-                  ],
-                ),
+        children: List.generate(widget.data.length, (index) {
+          final item = widget.data[index];
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                _selectedIndex = _selectedIndex == index ? null : index;
+              });
+              widget.onPointTap?.call(index);
+            },
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: _selectedIndex == index
+                    ? widget.lineColor.withValues(alpha: 0.2)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(4),
+                border: _selectedIndex == index ? Border.all(color: widget.lineColor) : null,
               ),
-            );
-          },
-        ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    item.label,
+                    style: Theme.of(context).textTheme.labelSmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    item.value.toStringAsFixed(0),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
       ),
     );
   }
@@ -188,29 +169,19 @@ class _LineChartPainter extends CustomPainter {
     for (int i = 0; i <= 5; i++) {
       final y = padding + (chartHeight / 5) * i;
 
-      canvas.drawLine(
-        Offset(padding, y),
-        Offset(size.width - padding, y),
-        gridPaint,
-      );
+      canvas.drawLine(Offset(padding, y), Offset(size.width - padding, y), gridPaint);
 
       // Y-axis labels
       final value = maxValue - (range / 5) * i;
       final textPainter = TextPainter(
         text: TextSpan(
           text: value.toStringAsFixed(0),
-          style: const TextStyle(
-            color: Colors.grey,
-            fontSize: 9,
-          ),
+          style: const TextStyle(color: Colors.grey, fontSize: 9),
         ),
         textDirection: TextDirection.ltr,
       );
       textPainter.layout();
-      textPainter.paint(
-        canvas,
-        Offset(padding - 30, y - 5),
-      );
+      textPainter.paint(canvas, Offset(padding - 30, y - 5));
     }
 
     // Draw line
@@ -224,9 +195,7 @@ class _LineChartPainter extends CustomPainter {
       final path = Path();
 
       for (int i = 0; i < data.length; i++) {
-        final normalizedValue = range > 0
-            ? (data[i].value - minValue) / range
-            : 0;
+        final normalizedValue = range > 0 ? (data[i].value - minValue) / range : 0;
         final x = padding + (chartWidth / (data.length - 1)) * i;
         final y = size.height - padding - (normalizedValue * chartHeight);
 
@@ -249,9 +218,7 @@ class _LineChartPainter extends CustomPainter {
       final path = Path();
 
       for (int i = 0; i < data.length; i++) {
-        final normalizedValue = range > 0
-            ? (data[i].value - minValue) / range
-            : 0;
+        final normalizedValue = range > 0 ? (data[i].value - minValue) / range : 0;
         final x = padding + (chartWidth / (data.length - 1)) * i;
         final y = size.height - padding - (normalizedValue * chartHeight);
 
@@ -263,10 +230,7 @@ class _LineChartPainter extends CustomPainter {
       }
 
       // Close path to create area
-      path.lineTo(
-        padding + chartWidth,
-        size.height - padding,
-      );
+      path.lineTo(padding + chartWidth, size.height - padding);
       path.lineTo(padding, size.height - padding);
       path.close();
 
@@ -276,9 +240,7 @@ class _LineChartPainter extends CustomPainter {
     // Draw points
     if (showPoints) {
       for (int i = 0; i < data.length; i++) {
-        final normalizedValue = range > 0
-            ? (data[i].value - minValue) / range
-            : 0;
+        final normalizedValue = range > 0 ? (data[i].value - minValue) / range : 0;
         final x = padding + (chartWidth / (data.length - 1)) * i;
         final y = size.height - padding - (normalizedValue * chartHeight);
 

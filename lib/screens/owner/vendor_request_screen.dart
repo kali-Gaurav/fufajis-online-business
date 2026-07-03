@@ -26,7 +26,6 @@ class _VendorRequestScreenState extends State<VendorRequestScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     final products = Provider.of<ProductProvider>(context).products;
@@ -44,10 +43,7 @@ class _VendorRequestScreenState extends State<VendorRequestScreen> {
               icon: const Icon(Icons.send, color: AppTheme.primary),
               label: const Text(
                 'Send',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.primary,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primary),
               ),
             ),
         ],
@@ -98,8 +94,7 @@ class _VendorRequestScreenState extends State<VendorRequestScreen> {
                       subtitle: Text('Qty: ${item.quantity} ${item.unit}'),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete, color: AppTheme.error),
-                        onPressed: () =>
-                            setState(() => _orderItems.removeAt(index)),
+                        onPressed: () => setState(() => _orderItems.removeAt(index)),
                       ),
                     ),
                   );
@@ -115,10 +110,7 @@ class _VendorRequestScreenState extends State<VendorRequestScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Vendor Details',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
+        const Text('Vendor Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         TextField(
           controller: _vendorNameController,
@@ -175,10 +167,7 @@ class _VendorRequestScreenState extends State<VendorRequestScreen> {
             ],
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
             ElevatedButton(
               onPressed: () {
                 if (selectedProduct != null && qtyController.text.isNotEmpty) {
@@ -189,9 +178,8 @@ class _VendorRequestScreenState extends State<VendorRequestScreen> {
                         productName: selectedProduct!.name,
                         quantity: int.parse(qtyController.text),
                         unit: selectedProduct!.unit,
-                        estimatedCost:
-                            (selectedProduct!.price *
-                            int.parse(qtyController.text)).toDouble(),
+                        estimatedCost: (selectedProduct!.price * int.parse(qtyController.text))
+                            .toDouble(),
                       ),
                     );
                   });
@@ -207,11 +195,10 @@ class _VendorRequestScreenState extends State<VendorRequestScreen> {
   }
 
   Future<void> _sendOrderRequest() async {
-    if (_vendorNameController.text.isEmpty ||
-        _vendorPhoneController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter vendor details')),
-      );
+    if (_vendorNameController.text.isEmpty || _vendorPhoneController.text.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter vendor details')));
       return;
     }
 
@@ -223,12 +210,8 @@ class _VendorRequestScreenState extends State<VendorRequestScreen> {
     }
     message += "\nPlease let us know when you can deliver.";
 
-    final phone = _vendorPhoneController.text
-        .replaceAll('+', '')
-        .replaceAll(' ', '');
-    final url = Uri.parse(
-      'https://wa.me/91$phone?text=${Uri.encodeComponent(message)}',
-    );
+    final phone = _vendorPhoneController.text.replaceAll('+', '').replaceAll(' ', '');
+    final url = Uri.parse('https://wa.me/91$phone?text=${Uri.encodeComponent(message)}');
 
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
@@ -239,10 +222,7 @@ class _VendorRequestScreenState extends State<VendorRequestScreen> {
         shopId: 'fufaji_central',
         distributorName: _vendorNameController.text,
         items: _orderItems,
-        totalAmount: _orderItems.fold(
-          0,
-          (sum, item) => sum + item.estimatedCost,
-        ),
+        totalAmount: _orderItems.fold(0, (sum, item) => sum + item.estimatedCost),
         createdAt: DateTime.now(),
         status: 'sent',
       );
@@ -253,9 +233,9 @@ class _VendorRequestScreenState extends State<VendorRequestScreen> {
       ); // Using existing updateOrder but for PO collection in future
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Order request sent and logged.')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Order request sent and logged.')));
         Navigator.pop(context);
       }
     }

@@ -36,10 +36,10 @@ void main() {
           .collection('settings')
           .doc('notifications')
           .set({
-        'promotions': true,
-        'quietHoursStart': '$startHour:00',
-        'quietHoursEnd': '$endHour:00',
-      });
+            'promotions': true,
+            'quietHoursStart': '$startHour:00',
+            'quietHoursEnd': '$endHour:00',
+          });
 
       // Try sending a non-essential promotion notification
       final sent = await notificationService.sendNotificationToUser(
@@ -70,10 +70,10 @@ void main() {
           .collection('settings')
           .doc('notifications')
           .set({
-        'orderUpdates': true,
-        'quietHoursStart': '$startHour:00',
-        'quietHoursEnd': '$endHour:00',
-      });
+            'orderUpdates': true,
+            'quietHoursStart': '$startHour:00',
+            'quietHoursEnd': '$endHour:00',
+          });
 
       // Try sending a transactional orderUpdate notification
       final sent = await notificationService.sendNotificationToUser(
@@ -103,11 +103,11 @@ void main() {
           .collection('settings')
           .doc('notifications')
           .set({
-        'promotions': true,
-        'quietHoursStart': '23:00', // Non-quiet hours
-        'quietHoursEnd': '05:00',
-        'frequencyLimitPerHour': 2,
-      });
+            'promotions': true,
+            'quietHoursStart': '23:00', // Non-quiet hours
+            'quietHoursEnd': '05:00',
+            'frequencyLimitPerHour': 2,
+          });
 
       // Seed 2 existing promotion notifications within the last hour
       final notificationsCol = fakeFirestore
@@ -140,9 +140,7 @@ void main() {
 
     test('Resilient Channel Fallback Routing', () async {
       // Configure user with no FCM token
-      await fakeFirestore.collection('users').doc(userId).set({
-        'name': 'Test User',
-      });
+      await fakeFirestore.collection('users').doc(userId).set({'name': 'Test User'});
 
       // Send with fallback (should fail WhatsApp, FCM, and SMS, but succeed at In-app)
       final success = await WhatsAppNotificationService.sendWithFallback(

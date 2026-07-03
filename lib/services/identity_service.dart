@@ -33,11 +33,7 @@ class IdentityService {
       final uid = FirebaseAuth.instance.currentUser?.uid;
       if (uid == null) return false;
 
-      final docRef = _firestore
-          .collection('users')
-          .doc(uid)
-          .collection('contacts')
-          .doc();
+      final docRef = _firestore.collection('users').doc(uid).collection('contacts').doc();
 
       final contactData = contact.toMap();
       contactData['id'] = docRef.id;
@@ -57,12 +53,7 @@ class IdentityService {
       final uid = FirebaseAuth.instance.currentUser?.uid;
       if (uid == null) return false;
 
-      await _firestore
-          .collection('users')
-          .doc(uid)
-          .collection('contacts')
-          .doc(contactId)
-          .delete();
+      await _firestore.collection('users').doc(uid).collection('contacts').doc(contactId).delete();
       return true;
     } catch (e) {
       return false;

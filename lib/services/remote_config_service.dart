@@ -40,9 +40,7 @@ class RemoteConfigService {
         RemoteConfigSettings(
           fetchTimeout: const Duration(minutes: 1),
           // Development optimization: 0 seconds for instant testing
-          minimumFetchInterval: kDebugMode
-              ? Duration.zero
-              : const Duration(minutes: 15),
+          minimumFetchInterval: kDebugMode ? Duration.zero : const Duration(minutes: 15),
         ),
       );
 
@@ -52,8 +50,7 @@ class RemoteConfigService {
         keyLatestAppVersion: '1.0.0',
         keyLatestBuildNumber: 0,
         keyLatestApkUrl: '',
-        keyForceUpdateUrl:
-            'https://play.google.com/store/apps/details?id=com.fufajis.online',
+        keyForceUpdateUrl: 'https://play.google.com/store/apps/details?id=com.fufajis.online',
         keyMaintenanceMode: false,
         keyMaintenanceMessage:
             'We are currently updating our systems to serve you better. Please check back soon.',
@@ -90,9 +87,7 @@ class RemoteConfigService {
   Future<void> ensureInitialized() async {
     if (_initCompleter.isCompleted) return;
     try {
-      await _initCompleter.future.timeout(
-        const Duration(seconds: 5),
-      );
+      await _initCompleter.future.timeout(const Duration(seconds: 5));
     } on TimeoutException {
       debugPrint('RemoteConfig init timeout; continuing with defaults');
       // Continue anyway — defaults are set and safe to use
@@ -112,8 +107,7 @@ class RemoteConfigService {
   String get latestAppVersion => _remoteConfig.getString(keyLatestAppVersion);
   String get forceUpdateUrl => _remoteConfig.getString(keyForceUpdateUrl);
   bool get isMaintenanceMode => _remoteConfig.getBool(keyMaintenanceMode);
-  String get maintenanceMessage =>
-      _remoteConfig.getString(keyMaintenanceMessage);
+  String get maintenanceMessage => _remoteConfig.getString(keyMaintenanceMessage);
   String get festivalMode => _remoteConfig.getString(keyFestivalMode);
   String get supportPhone => _remoteConfig.getString(keySupportPhone);
   bool get showAds => _remoteConfig.getBool(keyShowAds);

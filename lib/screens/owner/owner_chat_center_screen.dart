@@ -28,11 +28,9 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: _tabs.length, vsync: this);
-    _searchCtrl.addListener(
-        () => setState(() => _searchQuery = _searchCtrl.text));
+    _searchCtrl.addListener(() => setState(() => _searchQuery = _searchCtrl.text));
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<ChatProvider>(context, listen: false)
-          .listenToAllConversations();
+      Provider.of<ChatProvider>(context, listen: false).listenToAllConversations();
     });
   }
 
@@ -43,15 +41,11 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
     super.dispose();
   }
 
-  List<ChatConversationModel> _filterConversations(
-      List<ChatConversationModel> all, String tab) {
+  List<ChatConversationModel> _filterConversations(List<ChatConversationModel> all, String tab) {
     List<ChatConversationModel> list;
     switch (tab) {
       case 'New':
-        list = all
-            .where((c) =>
-                c.status == ChatStatus.open && c.unreadCountOwner > 0)
-            .toList();
+        list = all.where((c) => c.status == ChatStatus.open && c.unreadCountOwner > 0).toList();
         break;
       case 'Active':
         list = all.where((c) => c.status == ChatStatus.active).toList();
@@ -66,12 +60,14 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
     final q = _searchQuery.trim().toLowerCase();
     if (q.isNotEmpty) {
       list = list
-          .where((c) =>
-              c.customerName.toLowerCase().contains(q) ||
-              (c.orderNumber?.toLowerCase().contains(q) ?? false) ||
-              (c.orderId?.toLowerCase().contains(q) ?? false) ||
-              c.lastMessage.toLowerCase().contains(q) ||
-              (c.assignedToName?.toLowerCase().contains(q) ?? false))
+          .where(
+            (c) =>
+                c.customerName.toLowerCase().contains(q) ||
+                (c.orderNumber?.toLowerCase().contains(q) ?? false) ||
+                (c.orderId?.toLowerCase().contains(q) ?? false) ||
+                c.lastMessage.toLowerCase().contains(q) ||
+                (c.assignedToName?.toLowerCase().contains(q) ?? false),
+          )
           .toList();
     }
     return list;
@@ -93,8 +89,7 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
                 return TabBarView(
                   controller: _tabController,
                   children: _tabs.map((tab) {
-                    final filtered =
-                        _filterConversations(chatProvider.conversations, tab);
+                    final filtered = _filterConversations(chatProvider.conversations, tab);
                     return _buildConversationList(filtered, isDark);
                   }).toList(),
                 );
@@ -126,8 +121,7 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
               Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new,
-                        color: Colors.white, size: 20),
+                    icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                   const Expanded(
@@ -162,51 +156,47 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
                     }),
                   ),
                   // Unread badge
-                  Consumer<ChatProvider>(builder: (ctx, chatProvider, _) {
-                    final newCount = chatProvider.conversations
-                        .where((c) =>
-                            c.status == ChatStatus.open &&
-                            c.unreadCountOwner > 0)
-                        .length;
-                    return newCount > 0
-                        ? Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: AppTheme.error,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              '$newCount new',
-                              style: const TextStyle(
+                  Consumer<ChatProvider>(
+                    builder: (ctx, chatProvider, _) {
+                      final newCount = chatProvider.conversations
+                          .where((c) => c.status == ChatStatus.open && c.unreadCountOwner > 0)
+                          .length;
+                      return newCount > 0
+                          ? Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: AppTheme.error,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                '$newCount new',
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                          )
-                        : const SizedBox.shrink();
-                  }),
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink();
+                    },
+                  ),
                 ],
               ),
               // ── Search field (Task #67) ────────────────────────────────────
               if (_searchActive)
                 Padding(
-                  padding:
-                      const EdgeInsets.fromLTRB(12, 4, 4, 4),
+                  padding: const EdgeInsets.fromLTRB(12, 4, 4, 4),
                   child: TextField(
                     controller: _searchCtrl,
                     autofocus: true,
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                      hintText:
-                          'Search by name, order #, message…',
+                      hintText: 'Search by name, order #, message…',
                       hintStyle: const TextStyle(color: Colors.white54),
-                      prefixIcon: const Icon(Icons.search,
-                          color: Colors.white70, size: 20),
+                      prefixIcon: const Icon(Icons.search, color: Colors.white70, size: 20),
                       suffixIcon: _searchQuery.isNotEmpty
                           ? IconButton(
-                              icon: const Icon(Icons.clear,
-                                  color: Colors.white70, size: 18),
+                              icon: const Icon(Icons.clear, color: Colors.white70, size: 18),
                               onPressed: () => _searchCtrl.clear(),
                             )
                           : null,
@@ -216,8 +206,7 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
                         borderRadius: BorderRadius.circular(28),
                         borderSide: BorderSide.none,
                       ),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     ),
                   ),
                 ),
@@ -229,67 +218,62 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
   }
 
   Widget _buildTabBar(bool isDark) {
-    return Consumer<ChatProvider>(builder: (ctx, chatProvider, _) {
-      return Container(
-        color: isDark ? AppTheme.grey800 : Colors.white,
-        child: TabBar(
-          controller: _tabController,
-          tabs: _tabs.map((tab) {
-            final count = _filterConversations(
-                    chatProvider.conversations, tab)
-                .length;
-            return Tab(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(tab),
-                  if (tab != 'All' && count > 0) ...[
-                    const SizedBox(width: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 1),
-                      decoration: BoxDecoration(
-                        color: tab == 'New'
-                            ? AppTheme.error
-                            : AppTheme.ownerAccent,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        '$count',
-                        style: const TextStyle(
+    return Consumer<ChatProvider>(
+      builder: (ctx, chatProvider, _) {
+        return Container(
+          color: isDark ? AppTheme.grey800 : Colors.white,
+          child: TabBar(
+            controller: _tabController,
+            tabs: _tabs.map((tab) {
+              final count = _filterConversations(chatProvider.conversations, tab).length;
+              return Tab(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(tab),
+                    if (tab != 'All' && count > 0) ...[
+                      const SizedBox(width: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: tab == 'New' ? AppTheme.error : AppTheme.ownerAccent,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          '$count',
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 10,
-                            fontWeight: FontWeight.w700),
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ],
-                ],
-              ),
-            );
-          }).toList(),
-          labelColor: AppTheme.ownerAccent,
-          unselectedLabelColor: AppTheme.grey500,
-          indicatorColor: AppTheme.ownerAccent,
-          indicatorWeight: 3,
-          labelStyle: const TextStyle(
-              fontWeight: FontWeight.w600, fontSize: 13),
-        ),
-      );
-    });
+                ),
+              );
+            }).toList(),
+            labelColor: AppTheme.ownerAccent,
+            unselectedLabelColor: AppTheme.grey500,
+            indicatorColor: AppTheme.ownerAccent,
+            indicatorWeight: 3,
+            labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+          ),
+        );
+      },
+    );
   }
 
-  Widget _buildConversationList(
-      List<ChatConversationModel> conversations, bool isDark) {
+  Widget _buildConversationList(List<ChatConversationModel> conversations, bool isDark) {
     if (conversations.isEmpty) {
       return _buildEmptyState(isDark);
     }
     return ListView.separated(
       padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: conversations.length,
-      separatorBuilder: (_, __) => const Divider(
-          height: 1, indent: 80, endIndent: 16, color: AppTheme.grey200),
-      itemBuilder: (ctx, i) =>
-          _buildConversationTile(conversations[i], isDark),
+      separatorBuilder: (_, __) =>
+          const Divider(height: 1, indent: 80, endIndent: 16, color: AppTheme.grey200),
+      itemBuilder: (ctx, i) => _buildConversationTile(conversations[i], isDark),
     );
   }
 
@@ -305,8 +289,7 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
               color: AppTheme.ownerAccent.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Center(
-                child: Text('💬', style: TextStyle(fontSize: 36))),
+            child: const Center(child: Text('💬', style: TextStyle(fontSize: 36))),
           ),
           const SizedBox(height: 16),
           Text(
@@ -327,8 +310,7 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
     );
   }
 
-  Widget _buildConversationTile(
-      ChatConversationModel conv, bool isDark) {
+  Widget _buildConversationTile(ChatConversationModel conv, bool isDark) {
     final statusColor = _statusColor(conv.status);
     final statusIcon = _statusIcon(conv.status);
     final timeStr = _formatTime(conv.lastUpdated);
@@ -338,9 +320,7 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
       onTap: () => context.push('/owner/chat/${conv.chatId}'),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        color: hasUnread
-            ? AppTheme.ownerAccent.withValues(alpha: 0.04)
-            : Colors.transparent,
+        color: hasUnread ? AppTheme.ownerAccent.withValues(alpha: 0.04) : Colors.transparent,
         child: Row(
           children: [
             // Avatar
@@ -350,9 +330,7 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
                   radius: 26,
                   backgroundColor: AppTheme.ownerAccent.withValues(alpha: 0.15),
                   child: Text(
-                    conv.customerName.isNotEmpty
-                        ? conv.customerName[0].toUpperCase()
-                        : 'C',
+                    conv.customerName.isNotEmpty ? conv.customerName[0].toUpperCase() : 'C',
                     style: const TextStyle(
                       color: AppTheme.ownerAccent,
                       fontWeight: FontWeight.w700,
@@ -369,16 +347,9 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
                     decoration: BoxDecoration(
                       color: statusColor,
                       shape: BoxShape.circle,
-                      border: Border.all(
-                          color: isDark ? AppTheme.grey800 : Colors.white,
-                          width: 2),
+                      border: Border.all(color: isDark ? AppTheme.grey800 : Colors.white, width: 2),
                     ),
-                    child: Center(
-                      child: Text(
-                        statusIcon,
-                        style: const TextStyle(fontSize: 7),
-                      ),
-                    ),
+                    child: Center(child: Text(statusIcon, style: const TextStyle(fontSize: 7))),
                   ),
                 ),
               ],
@@ -395,9 +366,7 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
                         child: Text(
                           conv.customerName,
                           style: TextStyle(
-                            fontWeight: hasUnread
-                                ? FontWeight.w700
-                                : FontWeight.w500,
+                            fontWeight: hasUnread ? FontWeight.w700 : FontWeight.w500,
                             fontSize: 15,
                             color: isDark ? Colors.white : AppTheme.grey900,
                           ),
@@ -409,12 +378,8 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
                         timeStr,
                         style: TextStyle(
                           fontSize: 11,
-                          color: hasUnread
-                              ? AppTheme.ownerAccent
-                              : AppTheme.grey400,
-                          fontWeight: hasUnread
-                              ? FontWeight.w600
-                              : FontWeight.normal,
+                          color: hasUnread ? AppTheme.ownerAccent : AppTheme.grey400,
+                          fontWeight: hasUnread ? FontWeight.w600 : FontWeight.normal,
                         ),
                       ),
                     ],
@@ -424,8 +389,7 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
                     children: [
                       if (conv.orderNumber != null) ...[
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 1),
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                           decoration: BoxDecoration(
                             color: AppTheme.primary.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(6),
@@ -449,9 +413,7 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
                             color: hasUnread
                                 ? (isDark ? Colors.white70 : AppTheme.grey700)
                                 : AppTheme.grey500,
-                            fontWeight: hasUnread
-                                ? FontWeight.w500
-                                : FontWeight.normal,
+                            fontWeight: hasUnread ? FontWeight.w500 : FontWeight.normal,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -463,13 +425,11 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(Icons.person_outline,
-                            size: 12, color: AppTheme.grey400),
+                        const Icon(Icons.person_outline, size: 12, color: AppTheme.grey400),
                         const SizedBox(width: 3),
                         Text(
                           'Assigned to ${conv.assignedToName}',
-                          style: const TextStyle(
-                              fontSize: 11, color: AppTheme.grey400),
+                          style: const TextStyle(fontSize: 11, color: AppTheme.grey400),
                         ),
                       ],
                     ),
@@ -495,13 +455,12 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
                 ),
                 child: Center(
                   child: Text(
-                    conv.unreadCountOwner > 99
-                        ? '99+'
-                        : '${conv.unreadCountOwner}',
+                    conv.unreadCountOwner > 99 ? '99+' : '${conv.unreadCountOwner}',
                     style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700),
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ),
@@ -552,10 +511,14 @@ class _SentimentBadge extends StatelessWidget {
 
   Color get _color {
     switch (sentiment) {
-      case SentimentLabel.positive: return const Color(0xFF2E7D32);
-      case SentimentLabel.neutral:  return const Color(0xFF757575);
-      case SentimentLabel.negative: return const Color(0xFFE65100);
-      case SentimentLabel.angry:    return const Color(0xFFC62828);
+      case SentimentLabel.positive:
+        return const Color(0xFF2E7D32);
+      case SentimentLabel.neutral:
+        return const Color(0xFF757575);
+      case SentimentLabel.negative:
+        return const Color(0xFFE65100);
+      case SentimentLabel.angry:
+        return const Color(0xFFC62828);
     }
   }
 
@@ -570,10 +533,7 @@ class _SentimentBadge extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: _color.withValues(alpha: 0.4)),
         ),
-        child: Text(
-          sentiment.emoji,
-          style: const TextStyle(fontSize: 13),
-        ),
+        child: Text(sentiment.emoji, style: const TextStyle(fontSize: 13)),
       ),
     );
   }

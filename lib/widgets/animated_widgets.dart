@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import '../utils/app_theme.dart';
 
-
 /// Staggered Fade + Slide entrance animation for lists and details
 class FadeSlideIn extends StatefulWidget {
   final Widget child;
@@ -32,18 +31,17 @@ class _FadeSlideInState extends State<FadeSlideIn> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: widget.duration,
-    );
+    _controller = AnimationController(vsync: this, duration: widget.duration);
 
-    _opacityAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _opacityAnim = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
-    _offsetAnim = Tween<Offset>(begin: widget.offset, end: Offset.zero).animate(
-      CurvedAnimation(parent: _controller, curve: AppTheme.curveEntrance),
-    );
+    _offsetAnim = Tween<Offset>(
+      begin: widget.offset,
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: AppTheme.curveEntrance));
 
     if (widget.delay == Duration.zero) {
       _controller.forward();
@@ -67,10 +65,7 @@ class _FadeSlideInState extends State<FadeSlideIn> with SingleTickerProviderStat
       builder: (context, child) {
         return Opacity(
           opacity: _opacityAnim.value,
-          child: FractionalTranslation(
-            translation: _offsetAnim.value,
-            child: widget.child,
-          ),
+          child: FractionalTranslation(translation: _offsetAnim.value, child: widget.child),
         );
       },
     );
@@ -83,12 +78,7 @@ class ScaleBounce extends StatefulWidget {
   final VoidCallback? onTap;
   final double scaleFactor;
 
-  const ScaleBounce({
-    super.key,
-    required this.child,
-    this.onTap,
-    this.scaleFactor = 0.95,
-  });
+  const ScaleBounce({super.key, required this.child, this.onTap, this.scaleFactor = 0.95});
 
   @override
   State<ScaleBounce> createState() => _ScaleBounceState();
@@ -101,13 +91,11 @@ class _ScaleBounceState extends State<ScaleBounce> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 100),
-    );
-    _scaleAnim = Tween<double>(begin: 1.0, end: widget.scaleFactor).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.decelerate),
-    );
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
+    _scaleAnim = Tween<double>(
+      begin: 1.0,
+      end: widget.scaleFactor,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.decelerate));
   }
 
   @override
@@ -138,10 +126,7 @@ class _ScaleBounceState extends State<ScaleBounce> with SingleTickerProviderStat
       onTapUp: _handleTapUp,
       onTapCancel: _handleTapCancel,
       behavior: HitTestBehavior.opaque,
-      child: ScaleTransition(
-        scale: _scaleAnim,
-        child: widget.child,
-      ),
+      child: ScaleTransition(scale: _scaleAnim, child: widget.child),
     );
   }
 }
@@ -170,14 +155,13 @@ class _ShimmerLoadingState extends State<ShimmerLoading> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    )..repeat();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500))
+      ..repeat();
 
-    _alignAnim = Tween<double>(begin: -2.0, end: 2.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOutSine),
-    );
+    _alignAnim = Tween<double>(
+      begin: -2.0,
+      end: 2.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOutSine));
   }
 
   @override
@@ -197,11 +181,7 @@ class _ShimmerLoadingState extends State<ShimmerLoading> with SingleTickerProvid
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(widget.borderRadius),
             gradient: LinearGradient(
-              colors: const [
-                AppTheme.shimmerBase,
-                AppTheme.shimmerHighlight,
-                AppTheme.shimmerBase,
-              ],
+              colors: const [AppTheme.shimmerBase, AppTheme.shimmerHighlight, AppTheme.shimmerBase],
               stops: const [0.0, 0.5, 1.0],
               begin: Alignment(_alignAnim.value - 1, -0.3),
               end: Alignment(_alignAnim.value + 1, 0.3),
@@ -237,13 +217,10 @@ class AnimatedCounter extends StatelessWidget {
       duration: duration,
       curve: Curves.easeOutQuad,
       builder: (context, animValue, child) {
-        final formatted = animValue % 1 == 0 
-            ? animValue.toInt().toString() 
+        final formatted = animValue % 1 == 0
+            ? animValue.toInt().toString()
             : animValue.toStringAsFixed(1);
-        return Text(
-          '$prefix$formatted$suffix',
-          style: style,
-        );
+        return Text('$prefix$formatted$suffix', style: style);
       },
     );
   }
@@ -331,13 +308,11 @@ class _PulseGlowState extends State<PulseGlow> with SingleTickerProviderStateMix
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: widget.duration,
-    )..repeat();
-    _glowAnim = Tween<double>(begin: 0.0, end: widget.maxRadius).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _controller = AnimationController(vsync: this, duration: widget.duration)..repeat();
+    _glowAnim = Tween<double>(
+      begin: 0.0,
+      end: widget.maxRadius,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
   }
 
   @override
@@ -356,9 +331,7 @@ class _PulseGlowState extends State<PulseGlow> with SingleTickerProviderStateMix
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: widget.glowColor.withValues(
-                  alpha: (1.0 - _controller.value) * 0.4,
-                ),
+                color: widget.glowColor.withValues(alpha: (1.0 - _controller.value) * 0.4),
                 blurRadius: _glowAnim.value * 2,
                 spreadRadius: _glowAnim.value,
               ),
@@ -399,10 +372,7 @@ class _TypewriterTextState extends State<TypewriterText> with SingleTickerProvid
   void initState() {
     super.initState();
     _charCount = 0;
-    _controller = AnimationController(
-      vsync: this,
-      duration: widget.speed * widget.text.length,
-    );
+    _controller = AnimationController(vsync: this, duration: widget.speed * widget.text.length);
 
     _controller.addListener(() {
       final newCount = (_controller.value * widget.text.length).round();
@@ -500,8 +470,8 @@ class StaggeredScrollList extends StatelessWidget {
         return FadeSlideIn(
           duration: itemDuration,
           delay: delayStep * index,
-          offset: scrollDirection == Axis.vertical 
-              ? const Offset(0.0, 0.15) 
+          offset: scrollDirection == Axis.vertical
+              ? const Offset(0.0, 0.15)
               : const Offset(0.15, 0.0),
           child: children[index],
         );
@@ -536,9 +506,7 @@ class SafeLottieAsset extends StatelessWidget {
       fit: fit,
       errorBuilder: (context, error, stackTrace) {
         debugPrint('SafeLottieAsset: Failed to load $assetPath. Using fallback.');
-        return fallbackBuilder != null 
-            ? fallbackBuilder!(context) 
-            : const SizedBox.shrink();
+        return fallbackBuilder != null ? fallbackBuilder!(context) : const SizedBox.shrink();
       },
     );
   }
@@ -573,10 +541,7 @@ class _BouncingDotsLoaderState extends State<BouncingDotsLoader>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..repeat();
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 900))..repeat();
   }
 
   @override
@@ -598,8 +563,7 @@ class _BouncingDotsLoaderState extends State<BouncingDotsLoader>
             margin: const EdgeInsets.symmetric(horizontal: 4),
             width: widget.dotSize,
             height: widget.dotSize,
-            transform: Matrix4.translationValues(
-                0, -widget.bounceHeight * bounce, 0),
+            transform: Matrix4.translationValues(0, -widget.bounceHeight * bounce, 0),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: widget.color.withValues(alpha: 0.60 + 0.40 * bounce),
@@ -623,11 +587,7 @@ class AnimatedGradientText extends StatefulWidget {
     super.key,
     required this.text,
     this.baseStyle,
-    this.gradientColors = const [
-      Color(0xFFFF6B00),
-      Color(0xFFFFB347),
-      Color(0xFFFF6B00),
-    ],
+    this.gradientColors = const [Color(0xFFFF6B00), Color(0xFFFFB347), Color(0xFFFF6B00)],
     this.duration = const Duration(seconds: 2),
   });
 
@@ -643,11 +603,11 @@ class _AnimatedGradientTextState extends State<AnimatedGradientText>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: widget.duration)
-      ..repeat();
-    _shiftAnim = Tween<double>(begin: -1.5, end: 1.5).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
-    );
+    _ctrl = AnimationController(vsync: this, duration: widget.duration)..repeat();
+    _shiftAnim = Tween<double>(
+      begin: -1.5,
+      end: 1.5,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
   }
 
   @override
@@ -668,9 +628,7 @@ class _AnimatedGradientTextState extends State<AnimatedGradientText>
         ).createShader(bounds),
         child: Text(
           widget.text,
-          style: (widget.baseStyle ?? const TextStyle()).copyWith(
-            color: Colors.white,
-          ),
+          style: (widget.baseStyle ?? const TextStyle()).copyWith(color: Colors.white),
         ),
       ),
     );
@@ -696,8 +654,7 @@ class SlideUpFade extends StatefulWidget {
   State<SlideUpFade> createState() => _SlideUpFadeState();
 }
 
-class _SlideUpFadeState extends State<SlideUpFade>
-    with SingleTickerProviderStateMixin {
+class _SlideUpFadeState extends State<SlideUpFade> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _opacity;
   late Animation<double> _offset;
@@ -706,12 +663,14 @@ class _SlideUpFadeState extends State<SlideUpFade>
   void initState() {
     super.initState();
     _ctrl = AnimationController(vsync: this, duration: widget.duration);
-    _opacity = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeOut),
-    );
-    _offset = Tween<double>(begin: widget.slideDistance, end: 0).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic),
-    );
+    _opacity = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
+    _offset = Tween<double>(
+      begin: widget.slideDistance,
+      end: 0,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
 
     if (widget.delay == Duration.zero) {
       _ctrl.forward();
@@ -734,10 +693,7 @@ class _SlideUpFadeState extends State<SlideUpFade>
       animation: _ctrl,
       builder: (_, child) => Opacity(
         opacity: _opacity.value,
-        child: Transform.translate(
-          offset: Offset(0, _offset.value),
-          child: child,
-        ),
+        child: Transform.translate(offset: Offset(0, _offset.value), child: child),
       ),
       child: widget.child,
     );
@@ -764,18 +720,14 @@ class RippleTap extends StatefulWidget {
   State<RippleTap> createState() => _RippleTapState();
 }
 
-class _RippleTapState extends State<RippleTap>
-    with SingleTickerProviderStateMixin {
+class _RippleTapState extends State<RippleTap> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   Offset _tapPos = Offset.zero;
 
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 400),
-    );
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
   }
 
   @override
@@ -801,8 +753,7 @@ class _RippleTapState extends State<RippleTap>
             color: widget.rippleColor,
           ),
           child: ClipRRect(
-            borderRadius:
-                widget.borderRadius ?? BorderRadius.circular(AppTheme.radiusMd),
+            borderRadius: widget.borderRadius ?? BorderRadius.circular(AppTheme.radiusMd),
             child: child,
           ),
         ),
@@ -817,11 +768,7 @@ class _RipplePainter extends CustomPainter {
   final double progress;
   final Color color;
 
-  const _RipplePainter({
-    required this.position,
-    required this.progress,
-    required this.color,
-  });
+  const _RipplePainter({required this.position, required this.progress, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -867,13 +814,12 @@ class _GlowFABState extends State<GlowFAB> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1600),
-    )..repeat(reverse: true);
-    _glow = Tween<double>(begin: 0.4, end: 1.0).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
-    );
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1600))
+      ..repeat(reverse: true);
+    _glow = Tween<double>(
+      begin: 0.4,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
   }
 
   @override
@@ -891,8 +837,7 @@ class _GlowFABState extends State<GlowFAB> with SingleTickerProviderStateMixin {
         builder: (_, child) => Container(
           decoration: BoxDecoration(
             shape: widget.label == null ? BoxShape.circle : BoxShape.rectangle,
-            borderRadius:
-                widget.label != null ? BorderRadius.circular(30) : null,
+            borderRadius: widget.label != null ? BorderRadius.circular(30) : null,
             boxShadow: [
               BoxShadow(
                 color: widget.color.withValues(alpha: _glow.value * 0.50),
@@ -904,22 +849,15 @@ class _GlowFABState extends State<GlowFAB> with SingleTickerProviderStateMixin {
           child: child,
         ),
         child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: widget.label != null ? 20 : 16,
-            vertical: 16,
-          ),
+          padding: EdgeInsets.symmetric(horizontal: widget.label != null ? 20 : 16, vertical: 16),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                widget.color,
-                Color.lerp(widget.color, Colors.black, 0.15) ?? widget.color,
-              ],
+              colors: [widget.color, Color.lerp(widget.color, Colors.black, 0.15) ?? widget.color],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             shape: widget.label == null ? BoxShape.circle : BoxShape.rectangle,
-            borderRadius:
-                widget.label != null ? BorderRadius.circular(30) : null,
+            borderRadius: widget.label != null ? BorderRadius.circular(30) : null,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -968,8 +906,7 @@ class CountUpText extends StatefulWidget {
   State<CountUpText> createState() => _CountUpTextState();
 }
 
-class _CountUpTextState extends State<CountUpText>
-    with SingleTickerProviderStateMixin {
+class _CountUpTextState extends State<CountUpText> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _anim;
   double _previousValue = 0;
@@ -978,9 +915,10 @@ class _CountUpTextState extends State<CountUpText>
   void initState() {
     super.initState();
     _ctrl = AnimationController(vsync: this, duration: widget.duration);
-    _anim = Tween<double>(begin: 0, end: widget.value).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeOutQuad),
-    );
+    _anim = Tween<double>(
+      begin: 0,
+      end: widget.value,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutQuad));
     _ctrl.forward();
   }
 
@@ -989,9 +927,10 @@ class _CountUpTextState extends State<CountUpText>
     super.didUpdateWidget(old);
     if (old.value != widget.value) {
       _previousValue = old.value;
-      _anim = Tween<double>(begin: _previousValue, end: widget.value).animate(
-        CurvedAnimation(parent: _ctrl, curve: Curves.easeOutQuad),
-      );
+      _anim = Tween<double>(
+        begin: _previousValue,
+        end: widget.value,
+      ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutQuad));
       _ctrl.forward(from: 0);
     }
   }
@@ -1011,10 +950,7 @@ class _CountUpTextState extends State<CountUpText>
         final formatted = widget.decimals == 0
             ? v.round().toString()
             : v.toStringAsFixed(widget.decimals);
-        return Text(
-          '${widget.prefix}$formatted${widget.suffix}',
-          style: widget.style,
-        );
+        return Text('${widget.prefix}$formatted${widget.suffix}', style: widget.style);
       },
     );
   }
@@ -1046,17 +982,18 @@ class _AnimatedSuccessMarkState extends State<AnimatedSuccessMark>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 600));
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
     _scale = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
-          parent: _ctrl,
-          curve: const Interval(0, 0.6, curve: Curves.elasticOut)),
+        parent: _ctrl,
+        curve: const Interval(0, 0.6, curve: Curves.elasticOut),
+      ),
     );
     _checkProgress = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
-          parent: _ctrl,
-          curve: const Interval(0.4, 1.0, curve: Curves.easeOut)),
+        parent: _ctrl,
+        curve: const Interval(0.4, 1.0, curve: Curves.easeOut),
+      ),
     );
     _ctrl.forward().then((_) => widget.onComplete?.call());
   }
@@ -1082,10 +1019,7 @@ class _AnimatedSuccessMarkState extends State<AnimatedSuccessMark>
             border: Border.all(color: widget.color, width: 2.5),
           ),
           child: CustomPaint(
-            painter: _CheckPainter(
-              progress: _checkProgress.value,
-              color: widget.color,
-            ),
+            painter: _CheckPainter(progress: _checkProgress.value, color: widget.color),
           ),
         ),
       ),
@@ -1126,10 +1060,8 @@ class _CheckPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _CheckPainter old) =>
-      old.progress != progress;
+  bool shouldRepaint(covariant _CheckPainter old) => old.progress != progress;
 }
-
 
 // ============================================================================
 //  FUFAJI ANIMATION SYSTEM v2 — Added June 2026
@@ -1176,21 +1108,19 @@ class _ShimmerWidget extends StatefulWidget {
   State<_ShimmerWidget> createState() => _ShimmerWidgetState();
 }
 
-class _ShimmerWidgetState extends State<_ShimmerWidget>
-    with SingleTickerProviderStateMixin {
+class _ShimmerWidgetState extends State<_ShimmerWidget> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _anim;
 
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1400),
-    )..repeat();
-    _anim = Tween<double>(begin: -1.0, end: 2.0).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
-    );
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400))
+      ..repeat();
+    _anim = Tween<double>(
+      begin: -1.0,
+      end: 2.0,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
   }
 
   @override
@@ -1240,10 +1170,7 @@ class FufajiShimmerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return _ShimmerWidget(
       child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-        ),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1333,11 +1260,7 @@ class _SparklePainterV2 extends CustomPainter {
   final double size;
   final Color color;
 
-  const _SparklePainterV2({
-    required this.opacity,
-    this.size = 8,
-    this.color = Colors.white,
-  });
+  const _SparklePainterV2({required this.opacity, this.size = 8, this.color = Colors.white});
 
   @override
   void paint(Canvas canvas, Size s) {
@@ -1364,8 +1287,7 @@ class _SparklePainterV2 extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _SparklePainterV2 old) =>
-      old.opacity != opacity;
+  bool shouldRepaint(covariant _SparklePainterV2 old) => old.opacity != opacity;
 }
 
 /// A single animated sparkle. Fades in/out on a loop with the given phase offset.
@@ -1385,17 +1307,14 @@ class AnimatedSparkle extends StatefulWidget {
   State<AnimatedSparkle> createState() => _AnimatedSparkleState();
 }
 
-class _AnimatedSparkleState extends State<AnimatedSparkle>
-    with SingleTickerProviderStateMixin {
+class _AnimatedSparkleState extends State<AnimatedSparkle> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
 
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2400),
-    )..repeat();
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 2400))
+      ..repeat();
   }
 
   @override
@@ -1413,11 +1332,7 @@ class _AnimatedSparkleState extends State<AnimatedSparkle>
         final opacity = (math.sin(phase * math.pi * 2) * 0.5 + 0.5).clamp(0.0, 1.0);
         return CustomPaint(
           size: Size(widget.size * 2, widget.size * 2),
-          painter: _SparklePainterV2(
-            opacity: opacity,
-            size: widget.size,
-            color: widget.color,
-          ),
+          painter: _SparklePainterV2(opacity: opacity, size: widget.size, color: widget.color),
         );
       },
     );
@@ -1489,8 +1404,7 @@ class BounceIn extends StatefulWidget {
   State<BounceIn> createState() => _BounceInState();
 }
 
-class _BounceInState extends State<BounceIn>
-    with SingleTickerProviderStateMixin {
+class _BounceInState extends State<BounceIn> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _scale;
   late Animation<double> _opacity;
@@ -1499,13 +1413,11 @@ class _BounceInState extends State<BounceIn>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
-    _scale = Tween<double>(begin: widget.beginScale, end: 1.0).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.elasticOut),
-    );
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
+    _scale = Tween<double>(
+      begin: widget.beginScale,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.elasticOut));
     _opacity = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _ctrl,
@@ -1569,8 +1481,7 @@ class ScaleInFade extends StatefulWidget {
   State<ScaleInFade> createState() => _ScaleInFadeState();
 }
 
-class _ScaleInFadeState extends State<ScaleInFade>
-    with SingleTickerProviderStateMixin {
+class _ScaleInFadeState extends State<ScaleInFade> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _scale;
   late Animation<double> _fade;
@@ -1579,12 +1490,14 @@ class _ScaleInFadeState extends State<ScaleInFade>
   void initState() {
     super.initState();
     _ctrl = AnimationController(vsync: this, duration: widget.duration);
-    _scale = Tween<double>(begin: widget.beginScale, end: 1.0).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack),
-    );
-    _fade = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeOut),
-    );
+    _scale = Tween<double>(
+      begin: widget.beginScale,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack));
+    _fade = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
     Future.delayed(widget.delay, () {
       if (mounted) _ctrl.forward();
     });
@@ -1646,31 +1559,25 @@ class PulsingDot extends StatefulWidget {
   final Color color;
   final double size;
 
-  const PulsingDot({
-    super.key,
-    this.color = AppTheme.primary,
-    this.size = 10,
-  });
+  const PulsingDot({super.key, this.color = AppTheme.primary, this.size = 10});
 
   @override
   State<PulsingDot> createState() => _PulsingDotState();
 }
 
-class _PulsingDotState extends State<PulsingDot>
-    with SingleTickerProviderStateMixin {
+class _PulsingDotState extends State<PulsingDot> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _pulse;
 
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    )..repeat(reverse: true);
-    _pulse = Tween<double>(begin: 0.4, end: 1.0).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
-    );
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))
+      ..repeat(reverse: true);
+    _pulse = Tween<double>(
+      begin: 0.4,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
   }
 
   @override
@@ -1722,21 +1629,19 @@ class GlowContainer extends StatefulWidget {
   State<GlowContainer> createState() => _GlowContainerState();
 }
 
-class _GlowContainerState extends State<GlowContainer>
-    with SingleTickerProviderStateMixin {
+class _GlowContainerState extends State<GlowContainer> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _glow;
 
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1800),
-    )..repeat(reverse: true);
-    _glow = Tween<double>(begin: 0.3, end: 1.0).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
-    );
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1800))
+      ..repeat(reverse: true);
+    _glow = Tween<double>(
+      begin: 0.3,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
   }
 
   @override
@@ -1794,8 +1699,7 @@ class FufajiGlowButton extends StatefulWidget {
   State<FufajiGlowButton> createState() => _FufajiGlowButtonState();
 }
 
-class _FufajiGlowButtonState extends State<FufajiGlowButton>
-    with SingleTickerProviderStateMixin {
+class _FufajiGlowButtonState extends State<FufajiGlowButton> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _scale;
   late Animation<double> _glow;
@@ -1803,16 +1707,16 @@ class _FufajiGlowButtonState extends State<FufajiGlowButton>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1600),
-    )..repeat(reverse: true);
-    _scale = Tween<double>(begin: 1.0, end: 1.02).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
-    );
-    _glow = Tween<double>(begin: 0.35, end: 0.75).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
-    );
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1600))
+      ..repeat(reverse: true);
+    _scale = Tween<double>(
+      begin: 1.0,
+      end: 1.02,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
+    _glow = Tween<double>(
+      begin: 0.35,
+      end: 0.75,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
   }
 
   @override
@@ -1851,10 +1755,7 @@ class _FufajiGlowButtonState extends State<FufajiGlowButton>
                     ? const SizedBox(
                         width: 22,
                         height: 22,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2.5,
-                        ),
+                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
                       )
                     : Row(
                         mainAxisSize: MainAxisSize.min,
@@ -1921,11 +1822,7 @@ class _ConfettiPainter extends CustomPainter {
         ..style = PaintingStyle.fill;
       canvas.drawRRect(
         RRect.fromRectAndRadius(
-          Rect.fromCenter(
-            center: Offset.zero,
-            width: p.size,
-            height: p.size * 0.45,
-          ),
+          Rect.fromCenter(center: Offset.zero, width: p.size, height: p.size * 0.45),
           const Radius.circular(2),
         ),
         paint,
@@ -1942,18 +1839,13 @@ class FufajiConfetti extends StatefulWidget {
   final bool play;
   final Widget child;
 
-  const FufajiConfetti({
-    super.key,
-    required this.child,
-    this.play = true,
-  });
+  const FufajiConfetti({super.key, required this.child, this.play = true});
 
   @override
   State<FufajiConfetti> createState() => _FufajiConfettiState();
 }
 
-class _FufajiConfettiState extends State<FufajiConfetti>
-    with SingleTickerProviderStateMixin {
+class _FufajiConfettiState extends State<FufajiConfetti> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   final List<_ConfettiParticle> _particles = [];
   final _rng = math.Random();
@@ -1972,10 +1864,8 @@ class _FufajiConfettiState extends State<FufajiConfetti>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 16),
-    )..addListener(_tick);
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 16))
+      ..addListener(_tick);
     if (widget.play) _launch();
   }
 
@@ -1988,21 +1878,17 @@ class _FufajiConfettiState extends State<FufajiConfetti>
   void _launch() {
     _particles.clear();
     for (int i = 0; i < 80; i++) {
-      _particles.add(_ConfettiParticle(
-        position: Offset(
-          100 + _rng.nextDouble() * 200,
-          -20 - _rng.nextDouble() * 40,
+      _particles.add(
+        _ConfettiParticle(
+          position: Offset(100 + _rng.nextDouble() * 200, -20 - _rng.nextDouble() * 40),
+          velocity: Offset((_rng.nextDouble() - 0.5) * 6, 3 + _rng.nextDouble() * 5),
+          color: _colors[_rng.nextInt(_colors.length)],
+          rotation: _rng.nextDouble() * math.pi * 2,
+          rotationSpeed: (_rng.nextDouble() - 0.5) * 0.18,
+          size: 8 + _rng.nextDouble() * 8,
+          opacity: 1.0,
         ),
-        velocity: Offset(
-          (_rng.nextDouble() - 0.5) * 6,
-          3 + _rng.nextDouble() * 5,
-        ),
-        color: _colors[_rng.nextInt(_colors.length)],
-        rotation: _rng.nextDouble() * math.pi * 2,
-        rotationSpeed: (_rng.nextDouble() - 0.5) * 0.18,
-        size: 8 + _rng.nextDouble() * 8,
-        opacity: 1.0,
-      ));
+      );
     }
     _ctrl.repeat();
     Future.delayed(const Duration(seconds: 3), () {
@@ -2036,9 +1922,7 @@ class _FufajiConfettiState extends State<FufajiConfetti>
           widget.child,
           if (widget.play)
             Positioned.fill(
-              child: IgnorePointer(
-                child: CustomPaint(painter: _ConfettiPainter(_particles)),
-              ),
+              child: IgnorePointer(child: CustomPaint(painter: _ConfettiPainter(_particles))),
             ),
         ],
       ),
@@ -2052,27 +1936,19 @@ class FufajiLoadingDots extends StatefulWidget {
   final Color color;
   final double dotSize;
 
-  const FufajiLoadingDots({
-    super.key,
-    this.color = AppTheme.primary,
-    this.dotSize = 8,
-  });
+  const FufajiLoadingDots({super.key, this.color = AppTheme.primary, this.dotSize = 8});
 
   @override
   State<FufajiLoadingDots> createState() => _FufajiLoadingDotsState();
 }
 
-class _FufajiLoadingDotsState extends State<FufajiLoadingDots>
-    with SingleTickerProviderStateMixin {
+class _FufajiLoadingDotsState extends State<FufajiLoadingDots> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
 
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..repeat();
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 900))..repeat();
   }
 
   @override
@@ -2130,8 +2006,7 @@ class AnimatedTabItem extends StatefulWidget {
   State<AnimatedTabItem> createState() => _AnimatedTabItemState();
 }
 
-class _AnimatedTabItemState extends State<AnimatedTabItem>
-    with SingleTickerProviderStateMixin {
+class _AnimatedTabItemState extends State<AnimatedTabItem> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _scale;
   late Animation<double> _indicatorWidth;
@@ -2139,16 +2014,15 @@ class _AnimatedTabItemState extends State<AnimatedTabItem>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-    _scale = Tween<double>(begin: 1.0, end: 1.18).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.elasticOut),
-    );
-    _indicatorWidth = Tween<double>(begin: 0, end: 24).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic),
-    );
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+    _scale = Tween<double>(
+      begin: 1.0,
+      end: 1.18,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.elasticOut));
+    _indicatorWidth = Tween<double>(
+      begin: 0,
+      end: 24,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
     if (widget.isSelected) _ctrl.forward();
   }
 
@@ -2207,10 +2081,7 @@ class _AnimatedTabItemState extends State<AnimatedTabItem>
                     child: Container(
                       padding: const EdgeInsets.all(2),
                       constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                      ),
+                      decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
                       child: Text(
                         widget.badgeCount > 99 ? '99+' : widget.badgeCount.toString(),
                         style: const TextStyle(
@@ -2254,24 +2125,17 @@ class CartAddBurst extends StatefulWidget {
   State<CartAddBurst> createState() => _CartAddBurstState();
 }
 
-class _CartAddBurstState extends State<CartAddBurst>
-    with SingleTickerProviderStateMixin {
+class _CartAddBurstState extends State<CartAddBurst> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _scale;
 
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 400),
-    );
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
     _scale = TweenSequence<double>([
       TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.35), weight: 30),
-      TweenSequenceItem(
-        tween: Tween(begin: 1.35, end: 1.0),
-        weight: 70,
-      ),
+      TweenSequenceItem(tween: Tween(begin: 1.35, end: 1.0), weight: 70),
     ]).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack));
   }
 
@@ -2317,8 +2181,7 @@ class SlideUpReveal extends StatefulWidget {
   State<SlideUpReveal> createState() => _SlideUpRevealState();
 }
 
-class _SlideUpRevealState extends State<SlideUpReveal>
-    with SingleTickerProviderStateMixin {
+class _SlideUpRevealState extends State<SlideUpReveal> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<Offset> _slide;
   late Animation<double> _fade;
@@ -2331,9 +2194,10 @@ class _SlideUpRevealState extends State<SlideUpReveal>
       begin: const Offset(0, 0.3),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
-    _fade = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeOut),
-    );
+    _fade = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
     Future.delayed(widget.delay, () {
       if (mounted) _ctrl.forward();
     });
@@ -2373,12 +2237,10 @@ class FloatingSparklesBackground extends StatefulWidget {
   });
 
   @override
-  State<FloatingSparklesBackground> createState() =>
-      _FloatingSparklesBackgroundState();
+  State<FloatingSparklesBackground> createState() => _FloatingSparklesBackgroundState();
 }
 
-class _FloatingSparklesBackgroundState
-    extends State<FloatingSparklesBackground> {
+class _FloatingSparklesBackgroundState extends State<FloatingSparklesBackground> {
   final _rng = math.Random(42);
 
   late final List<double> _xFracs;
@@ -2405,10 +2267,7 @@ class _FloatingSparklesBackgroundState
                 return Positioned(
                   left: _xFracs[i] * constraints.maxWidth,
                   top: _yFracs[i] * constraints.maxHeight,
-                  child: AnimatedSparkle(
-                    size: _sizes[i],
-                    phaseOffset: i / widget.sparkleCount,
-                  ),
+                  child: AnimatedSparkle(size: _sizes[i], phaseOffset: i / widget.sparkleCount),
                 );
               }),
               widget.child,
@@ -2444,8 +2303,7 @@ class ConfettiShower extends StatefulWidget {
   ConfettiShowerState createState() => ConfettiShowerState();
 }
 
-class ConfettiShowerState extends State<ConfettiShower>
-    with SingleTickerProviderStateMixin {
+class ConfettiShowerState extends State<ConfettiShower> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   final List<_ConfettiParticle> _particles = [];
   final _rng = math.Random();
@@ -2466,10 +2324,8 @@ class ConfettiShowerState extends State<ConfettiShower>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 16),
-    )..addListener(_tick);
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 16))
+      ..addListener(_tick);
     if (widget.autoPlay) play();
   }
 
@@ -2480,21 +2336,17 @@ class ConfettiShowerState extends State<ConfettiShower>
     _particles.clear();
     // Spawn particles across screen width
     for (int i = 0; i < widget.count; i++) {
-      _particles.add(_ConfettiParticle(
-        position: Offset(
-          50 + _rng.nextDouble() * 300,
-          -30 - _rng.nextDouble() * 60,
+      _particles.add(
+        _ConfettiParticle(
+          position: Offset(50 + _rng.nextDouble() * 300, -30 - _rng.nextDouble() * 60),
+          velocity: Offset((_rng.nextDouble() - 0.5) * 7, 4 + _rng.nextDouble() * 6),
+          color: _colors[_rng.nextInt(_colors.length)],
+          rotation: _rng.nextDouble() * math.pi * 2,
+          rotationSpeed: (_rng.nextDouble() - 0.5) * 0.2,
+          size: 7 + _rng.nextDouble() * 9,
+          opacity: 1.0,
         ),
-        velocity: Offset(
-          (_rng.nextDouble() - 0.5) * 7,
-          4 + _rng.nextDouble() * 6,
-        ),
-        color: _colors[_rng.nextInt(_colors.length)],
-        rotation: _rng.nextDouble() * math.pi * 2,
-        rotationSpeed: (_rng.nextDouble() - 0.5) * 0.2,
-        size: 7 + _rng.nextDouble() * 9,
-        opacity: 1.0,
-      ));
+      );
     }
     _ctrl.repeat();
     Future.delayed(widget.duration, stop);
@@ -2537,9 +2389,7 @@ class ConfettiShowerState extends State<ConfettiShower>
           widget.child,
           if (_playing)
             Positioned.fill(
-              child: IgnorePointer(
-                child: CustomPaint(painter: _ConfettiPainter(_particles)),
-              ),
+              child: IgnorePointer(child: CustomPaint(painter: _ConfettiPainter(_particles))),
             ),
         ],
       ),
@@ -2566,8 +2416,7 @@ class SpringCard extends StatefulWidget {
   State<SpringCard> createState() => _SpringCardState();
 }
 
-class _SpringCardState extends State<SpringCard>
-    with SingleTickerProviderStateMixin {
+class _SpringCardState extends State<SpringCard> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _slide;
   late Animation<double> _opacity;
@@ -2575,13 +2424,11 @@ class _SpringCardState extends State<SpringCard>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 550),
-    );
-    _slide = Tween<double>(begin: widget.springDistance, end: 0.0).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.elasticOut),
-    );
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 550));
+    _slide = Tween<double>(
+      begin: widget.springDistance,
+      end: 0.0,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.elasticOut));
     _opacity = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _ctrl,
@@ -2605,10 +2452,7 @@ class _SpringCardState extends State<SpringCard>
       animation: _ctrl,
       builder: (_, child) => Opacity(
         opacity: _opacity.value,
-        child: Transform.translate(
-          offset: Offset(0, _slide.value),
-          child: child,
-        ),
+        child: Transform.translate(offset: Offset(0, _slide.value), child: child),
       ),
       child: widget.child,
     );
@@ -2642,8 +2486,7 @@ class CountdownRing extends StatefulWidget {
   State<CountdownRing> createState() => _CountdownRingState();
 }
 
-class _CountdownRingState extends State<CountdownRing>
-    with SingleTickerProviderStateMixin {
+class _CountdownRingState extends State<CountdownRing> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late int _maxSeconds;
 
@@ -2702,7 +2545,8 @@ class _CountdownRingState extends State<CountdownRing>
               ),
               Text(
                 '$remaining',
-                style: widget.textStyle ??
+                style:
+                    widget.textStyle ??
                     TextStyle(
                       fontSize: widget.size * 0.3,
                       fontWeight: FontWeight.bold,
@@ -2759,9 +2603,7 @@ class _RingPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_RingPainter old) =>
-      old.progress != progress ||
-      old.ringColor != ringColor ||
-      old.trackColor != trackColor;
+      old.progress != progress || old.ringColor != ringColor || old.trackColor != trackColor;
 }
 
 // ── ParticlesBurst — success particle explosion, triggered imperatively ───────
@@ -2788,8 +2630,7 @@ class ParticlesBurst extends StatefulWidget {
   ParticlesBurstState createState() => ParticlesBurstState();
 }
 
-class ParticlesBurstState extends State<ParticlesBurst>
-    with SingleTickerProviderStateMixin {
+class ParticlesBurstState extends State<ParticlesBurst> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   final List<_BurstParticle> _particles = [];
   bool _active = false;
@@ -2798,10 +2639,8 @@ class ParticlesBurstState extends State<ParticlesBurst>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    )..addStatusListener((s) {
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 800))
+      ..addStatusListener((s) {
         if (s == AnimationStatus.completed) {
           if (mounted) setState(() => _active = false);
         }
@@ -2819,19 +2658,21 @@ class ParticlesBurstState extends State<ParticlesBurst>
     for (int i = 0; i < widget.particleCount; i++) {
       final angle = 2 * math.pi * i / widget.particleCount;
       final speed = widget.radius * (0.5 + _rng.nextDouble() * 0.5);
-      _particles.add(_BurstParticle(
-        dx: math.cos(angle) * speed,
-        dy: math.sin(angle) * speed,
-        color: widget.colors != null && widget.colors!.isNotEmpty
-            ? widget.colors![_rng.nextInt(widget.colors!.length)]
-            : HSVColor.fromAHSV(
-                1.0,
-                _rng.nextDouble() * 60 + 10,
-                0.8 + _rng.nextDouble() * 0.2,
-                0.9 + _rng.nextDouble() * 0.1,
-              ).toColor(),
-        size: 4 + _rng.nextDouble() * 6,
-      ));
+      _particles.add(
+        _BurstParticle(
+          dx: math.cos(angle) * speed,
+          dy: math.sin(angle) * speed,
+          color: widget.colors != null && widget.colors!.isNotEmpty
+              ? widget.colors![_rng.nextInt(widget.colors!.length)]
+              : HSVColor.fromAHSV(
+                  1.0,
+                  _rng.nextDouble() * 60 + 10,
+                  0.8 + _rng.nextDouble() * 0.2,
+                  0.9 + _rng.nextDouble() * 0.1,
+                ).toColor(),
+          size: 4 + _rng.nextDouble() * 6,
+        ),
+      );
     }
     setState(() => _active = true);
     _ctrl.forward(from: 0.0);
@@ -2850,10 +2691,7 @@ class ParticlesBurstState extends State<ParticlesBurst>
                 child: AnimatedBuilder(
                   animation: _ctrl,
                   builder: (_, __) => CustomPaint(
-                    painter: _BurstPainter(
-                      particles: _particles,
-                      progress: _ctrl.value,
-                    ),
+                    painter: _BurstPainter(particles: _particles, progress: _ctrl.value),
                   ),
                 ),
               ),

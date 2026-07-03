@@ -23,10 +23,7 @@ class ReorderService {
   // ─── RECENT ORDERS ──────────────────────────────────────────────────
 
   /// Retrieve user's recent completed orders for "Buy Again" display
-  Future<List<OrderModel>> getRecentOrders(
-    String userId, {
-    int limit = 5,
-  }) async {
+  Future<List<OrderModel>> getRecentOrders(String userId, {int limit = 5}) async {
     try {
       final snapshot = await _db
           .collection('orders')
@@ -36,9 +33,7 @@ class ReorderService {
           .limit(limit)
           .get();
 
-      return snapshot.docs
-          .map((doc) => OrderModel.fromMap(doc.data()))
-          .toList();
+      return snapshot.docs.map((doc) => OrderModel.fromMap(doc.data())).toList();
     } catch (e) {
       debugPrint('[ReorderService] Error fetching recent orders: $e');
       return [];
@@ -63,9 +58,7 @@ class ReorderService {
           .orderBy('updatedAt', descending: true)
           .get();
 
-      return snapshot.docs
-          .map((doc) => ReorderTemplate.fromMap(doc.data()))
-          .toList();
+      return snapshot.docs.map((doc) => ReorderTemplate.fromMap(doc.data())).toList();
     } catch (e) {
       debugPrint('[ReorderService] Error fetching templates: $e');
       return [];
@@ -164,10 +157,7 @@ class ReorderService {
       cartProvider.clearCart();
 
       for (var item in order.items) {
-        final prodDoc = await _db
-            .collection('products')
-            .doc(item.productId)
-            .get();
+        final prodDoc = await _db.collection('products').doc(item.productId).get();
 
         if (!prodDoc.exists) {
           unavailableItems.add(item.productName);
@@ -192,9 +182,7 @@ class ReorderService {
         // Match unit option variant
         ProductUnitOption? matchedOption;
         if (item.selectedVariant != null) {
-          final options = product.unitOptions.where(
-            (opt) => opt.id == item.selectedVariant,
-          );
+          final options = product.unitOptions.where((opt) => opt.id == item.selectedVariant);
           if (options.isNotEmpty) {
             matchedOption = options.first;
           }
@@ -203,11 +191,7 @@ class ReorderService {
         // Clamp quantity to available stock
         final safeQuantity = item.quantity.clamp(1, product.stockQuantity);
 
-        cartProvider.addToCart(
-          product,
-          quantity: safeQuantity,
-          selectedUnit: matchedOption,
-        );
+        cartProvider.addToCart(product, quantity: safeQuantity, selectedUnit: matchedOption);
         addedItems.add(item.productName);
       }
 
@@ -242,10 +226,7 @@ class ReorderService {
       cartProvider.clearCart();
 
       for (var item in template.items) {
-        final prodDoc = await _db
-            .collection('products')
-            .doc(item.productId)
-            .get();
+        final prodDoc = await _db.collection('products').doc(item.productId).get();
 
         if (!prodDoc.exists) {
           unavailableItems.add(item.productName);
@@ -267,9 +248,7 @@ class ReorderService {
 
         ProductUnitOption? matchedOption;
         if (item.selectedVariant != null) {
-          final options = product.unitOptions.where(
-            (opt) => opt.id == item.selectedVariant,
-          );
+          final options = product.unitOptions.where((opt) => opt.id == item.selectedVariant);
           if (options.isNotEmpty) {
             matchedOption = options.first;
           }
@@ -277,11 +256,7 @@ class ReorderService {
 
         final safeQuantity = item.quantity.clamp(1, product.stockQuantity);
 
-        cartProvider.addToCart(
-          product,
-          quantity: safeQuantity,
-          selectedUnit: matchedOption,
-        );
+        cartProvider.addToCart(product, quantity: safeQuantity, selectedUnit: matchedOption);
         addedItems.add(item.productName);
       }
 
@@ -332,9 +307,7 @@ class ReorderResult {
     if (addedItems.isEmpty) return 'None of the items are currently available.';
 
     final parts = <String>[];
-    parts.add(
-      '${addedItems.length} item${addedItems.length > 1 ? 's' : ''} added to cart.',
-    );
+    parts.add('${addedItems.length} item${addedItems.length > 1 ? 's' : ''} added to cart.');
 
     if (hasUnavailableItems) {
       parts.add(

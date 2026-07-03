@@ -27,8 +27,10 @@ class FraudDetectionService {
   /// Analyzes an order for fraudulent parameters and returns a risk score between 0.0 and 1.0.
   Future<double> analyzeOrderRisk(OrderModel order) async {
     try {
-      debugPrint('[FraudDetection] Analyzing fraud risk for order: #${order.orderNumber} (ID: ${order.id})');
-      
+      debugPrint(
+        '[FraudDetection] Analyzing fraud risk for order: #${order.orderNumber} (ID: ${order.id})',
+      );
+
       double riskScore = 0.0;
       final List<String> reasons = [];
 
@@ -51,7 +53,7 @@ class FraudDetectionService {
           .select('order_id')
           .eq('user_id', order.customerId)
           .limit(5);
-      
+
       final List<dynamic> prevOrders = prevOrdersResponse as List<dynamic>;
       if (prevOrders.isEmpty && order.totalAmount > MonetaryValue(5000)) {
         riskScore += 0.25;
@@ -87,7 +89,7 @@ class FraudDetectionService {
           'title': title,
           'description': desc,
           'resolved': false,
-          'created_at': DateTime.now().toIso8601String()
+          'created_at': DateTime.now().toIso8601String(),
         });
 
         // Write to Firestore active alerts (this propagates to NOC dashboards in real-time)
@@ -125,8 +127,9 @@ class FraudDetectionService {
 
       if (totalExceptions > 5 || paymentFailures > 2) {
         final alertId = 'rider_anomaly_$riderId';
-        final desc = 'Rider $riderId flagged with $totalExceptions delivery exceptions ($paymentFailures payment failures) in last 7 days.';
-        
+        final desc =
+            'Rider $riderId flagged with $totalExceptions delivery exceptions ($paymentFailures payment failures) in last 7 days.';
+
         await _client.from('ai_alerts').upsert({
           'alert_id': alertId,
           'alert_type': 'anomaly',
@@ -134,7 +137,7 @@ class FraudDetectionService {
           'title': 'Rider Exception Threshold Breached',
           'description': desc,
           'resolved': false,
-          'created_at': DateTime.now().toIso8601String()
+          'created_at': DateTime.now().toIso8601String(),
         });
 
         await _alertService.generateSecurityAlert(

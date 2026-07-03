@@ -26,8 +26,7 @@ class LoyaltyPointsCard extends StatefulWidget {
   State<LoyaltyPointsCard> createState() => _LoyaltyPointsCardState();
 }
 
-class _LoyaltyPointsCardState extends State<LoyaltyPointsCard>
-    with TickerProviderStateMixin {
+class _LoyaltyPointsCardState extends State<LoyaltyPointsCard> with TickerProviderStateMixin {
   late final AnimationController _counter;
   late final Animation<int> _counterAnim;
   late final AnimationController _shimmer;
@@ -35,19 +34,15 @@ class _LoyaltyPointsCardState extends State<LoyaltyPointsCard>
   @override
   void initState() {
     super.initState();
-    _counter = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    );
-    _counterAnim = IntTween(begin: 0, end: widget.points).animate(
-      CurvedAnimation(parent: _counter, curve: Curves.easeOutCubic),
-    );
+    _counter = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
+    _counterAnim = IntTween(
+      begin: 0,
+      end: widget.points,
+    ).animate(CurvedAnimation(parent: _counter, curve: Curves.easeOutCubic));
     _counter.forward();
 
-    _shimmer = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1800),
-    )..repeat();
+    _shimmer = AnimationController(vsync: this, duration: const Duration(milliseconds: 1800))
+      ..repeat();
   }
 
   @override
@@ -161,10 +156,7 @@ class _LoyaltyPointsCardState extends State<LoyaltyPointsCard>
                     // Header
                     Row(
                       children: [
-                        Text(
-                          _tier.emoji,
-                          style: const TextStyle(fontSize: 24),
-                        ),
+                        Text(_tier.emoji, style: const TextStyle(fontSize: 24)),
                         const SizedBox(width: 8),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,8 +172,7 @@ class _LoyaltyPointsCardState extends State<LoyaltyPointsCard>
                             Text(
                               widget.userName,
                               style: TextStyle(
-                                color:
-                                    Colors.white.withValues(alpha: 0.8),
+                                color: Colors.white.withValues(alpha: 0.8),
                                 fontSize: 12,
                               ),
                             ),
@@ -192,15 +183,11 @@ class _LoyaltyPointsCardState extends State<LoyaltyPointsCard>
                           GestureDetector(
                             onTap: widget.onRedeem,
                             child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
-                                color:
-                                    Colors.white.withValues(alpha: 0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                    color: Colors.white
-                                        .withValues(alpha: 0.4)),
+                                border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
                               ),
                               child: const Text(
                                 'Redeem',
@@ -255,10 +242,7 @@ class _LoyaltyPointsCardState extends State<LoyaltyPointsCard>
                     if (widget.pointsExpiry != null)
                       Text(
                         'Expires ${_formatExpiry(widget.pointsExpiry!)}',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.7),
-                          fontSize: 11,
-                        ),
+                        style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 11),
                       ),
 
                     const SizedBox(height: 16),
@@ -276,10 +260,7 @@ class _LoyaltyPointsCardState extends State<LoyaltyPointsCard>
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          Text(
-                            _nextTier!.emoji,
-                            style: const TextStyle(fontSize: 16),
-                          ),
+                          Text(_nextTier!.emoji, style: const TextStyle(fontSize: 16)),
                         ],
                       ),
                       const SizedBox(height: 6),
@@ -287,10 +268,8 @@ class _LoyaltyPointsCardState extends State<LoyaltyPointsCard>
                         borderRadius: BorderRadius.circular(4),
                         child: LinearProgressIndicator(
                           value: _tierProgress.clamp(0.0, 1.0),
-                          backgroundColor:
-                              Colors.white.withValues(alpha: 0.2),
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                              Colors.white),
+                          backgroundColor: Colors.white.withValues(alpha: 0.2),
+                          valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                           minHeight: 6,
                         ),
                       ),
@@ -341,18 +320,14 @@ class _EarnChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         label,
-        style: const TextStyle(
-            color: Colors.white,
-            fontSize: 10,
-            fontWeight: FontWeight.w500),
+        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w500),
       ),
     );
   }

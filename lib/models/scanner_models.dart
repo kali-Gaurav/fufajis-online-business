@@ -62,7 +62,9 @@ class InventoryAudit {
     if (val is Timestamp) return val.toDate();
     try {
       return DateTime.tryParse(val.toString());
-    } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
+    } catch (e, stack) {
+      LoggingService().error('Silent error caught', e, stack);
+    }
     return null;
   }
 
@@ -156,7 +158,9 @@ class DamageReport {
     if (val is Timestamp) return val.toDate();
     try {
       return DateTime.tryParse(val.toString());
-    } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
+    } catch (e, stack) {
+      LoggingService().error('Silent error caught', e, stack);
+    }
     return null;
   }
 
@@ -256,7 +260,9 @@ class InventoryTransfer {
     if (val is Timestamp) return val.toDate();
     try {
       return DateTime.tryParse(val.toString());
-    } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
+    } catch (e, stack) {
+      LoggingService().error('Silent error caught', e, stack);
+    }
     return null;
   }
 
@@ -329,14 +335,10 @@ class AttendanceRecord {
       checkInTime: _parseDate(map['checkInTime']),
       checkOutTime: _parseDate(map['checkOutTime']),
       checkInLocation: map['checkInLocation'] != null
-          ? LocationData.fromMap(
-              Map<String, dynamic>.from(map['checkInLocation'] as Map),
-            )
+          ? LocationData.fromMap(Map<String, dynamic>.from(map['checkInLocation'] as Map))
           : null,
       checkOutLocation: map['checkOutLocation'] != null
-          ? LocationData.fromMap(
-              Map<String, dynamic>.from(map['checkOutLocation'] as Map),
-            )
+          ? LocationData.fromMap(Map<String, dynamic>.from(map['checkOutLocation'] as Map))
           : null,
       qrCodeId: map['qrCodeId'] as String?,
       status: AttendanceStatus.values.firstWhere(
@@ -353,7 +355,9 @@ class AttendanceRecord {
     if (val is Timestamp) return val.toDate();
     try {
       return DateTime.tryParse(val.toString());
-    } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
+    } catch (e, stack) {
+      LoggingService().error('Silent error caught', e, stack);
+    }
     return null;
   }
 
@@ -386,12 +390,7 @@ class LocationData {
   final double? accuracy;
   final String? address;
 
-  LocationData({
-    required this.latitude,
-    required this.longitude,
-    this.accuracy,
-    this.address,
-  });
+  LocationData({required this.latitude, required this.longitude, this.accuracy, this.address});
 
   factory LocationData.fromPosition(Position position) {
     return LocationData(
@@ -411,21 +410,11 @@ class LocationData {
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      'latitude': latitude,
-      'longitude': longitude,
-      'accuracy': accuracy,
-      'address': address,
-    };
+    return {'latitude': latitude, 'longitude': longitude, 'accuracy': accuracy, 'address': address};
   }
 
   double distanceTo(LocationData other) {
-    return Geolocator.distanceBetween(
-      latitude,
-      longitude,
-      other.latitude,
-      other.longitude,
-    );
+    return Geolocator.distanceBetween(latitude, longitude, other.latitude, other.longitude);
   }
 }
 
@@ -478,7 +467,9 @@ class CashCollection {
     if (val is Timestamp) return val.toDate();
     try {
       return DateTime.tryParse(val.toString());
-    } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
+    } catch (e, stack) {
+      LoggingService().error('Silent error caught', e, stack);
+    }
     return null;
   }
 
@@ -563,7 +554,9 @@ class ReturnRecord {
     if (val is Timestamp) return val.toDate();
     try {
       return DateTime.tryParse(val.toString());
-    } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
+    } catch (e, stack) {
+      LoggingService().error('Silent error caught', e, stack);
+    }
     return null;
   }
 
@@ -646,7 +639,9 @@ class ShelfRefillAlert {
     if (val is Timestamp) return val.toDate();
     try {
       return DateTime.tryParse(val.toString());
-    } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
+    } catch (e, stack) {
+      LoggingService().error('Silent error caught', e, stack);
+    }
     return null;
   }
 

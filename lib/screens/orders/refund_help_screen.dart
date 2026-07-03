@@ -6,10 +6,7 @@ class RefundHelpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Refund & Returns'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Refund & Returns'), centerTitle: true),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -56,10 +53,7 @@ class RefundHelpScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      '1. Open your order',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                    Text('1. Open your order', style: TextStyle(fontWeight: FontWeight.bold)),
                     SizedBox(height: 8),
                     Text('2. Tap "Return/Refund"'),
                     SizedBox(height: 8),
@@ -82,9 +76,7 @@ class RefundHelpScreen extends StatelessWidget {
             icon: const Icon(Icons.receipt_long),
             label: const Text('Request Refund for This Order'),
             onPressed: () => _showRefundRequest(context),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-            ),
+            style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
@@ -98,14 +90,14 @@ class RefundHelpScreen extends StatelessWidget {
   }
 
   void _showRefundRequest(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Refund request submitted')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Refund request submitted')));
   }
 
   void _openChat(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Opening chat with support team')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Opening chat with support team')));
   }
 }

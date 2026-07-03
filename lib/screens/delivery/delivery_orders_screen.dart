@@ -53,19 +53,24 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
   Future<void> _pingLocation(String orderId, int tick) async {
     try {
       final hasPermission = await Geolocator.checkPermission();
-      if (hasPermission == LocationPermission.whileInUse || hasPermission == LocationPermission.always) {
+      if (hasPermission == LocationPermission.whileInUse ||
+          hasPermission == LocationPermission.always) {
         final position = await Geolocator.getCurrentPosition(
           locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
         );
         await _orderService.updateOrderLiveLocation(orderId, position.latitude, position.longitude);
-        debugPrint("Live location pinged for order $orderId: ${position.latitude}, ${position.longitude}");
+        debugPrint(
+          "Live location pinged for order $orderId: ${position.latitude}, ${position.longitude}",
+        );
       } else {
         // Fallback to incremental mock coordinates to simulate motion beautifully!
         const double baseLat = 26.9124;
         const double baseLng = 75.7873;
         final double offset = (tick * 0.0001); // incremental movement!
         await _orderService.updateOrderLiveLocation(orderId, baseLat + offset, baseLng + offset);
-        debugPrint("Mock live location pinged for order $orderId: ${baseLat + offset}, ${baseLng + offset}");
+        debugPrint(
+          "Mock live location pinged for order $orderId: ${baseLat + offset}, ${baseLng + offset}",
+        );
       }
     } catch (e) {
       debugPrint("Error updating live location for order $orderId: $e");
@@ -88,13 +93,10 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
             return const Center(child: CircularProgressIndicator(color: AppTheme.deliveryAccent));
           }
           if (snapshot.hasError) {
-            return FjErrorState(
-              error: snapshot.error.toString(),
-              onRetry: () => setState(() {}),
-            );
+            return FjErrorState(error: snapshot.error.toString(), onRetry: () => setState(() {}));
           }
           final allOrders = snapshot.data ?? [];
-          
+
           // Filter orders based on Tab
           final filteredOrders = allOrders.where((order) {
             switch (_selectedTab) {
@@ -113,21 +115,19 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
             slivers: [
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-                sliver: SliverToBoxAdapter(
-                  child: _buildHeader(),
-                ),
+                sliver: SliverToBoxAdapter(child: _buildHeader()),
               ),
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                sliver: SliverToBoxAdapter(
-                  child: _buildTabs(),
-                ),
+                sliver: SliverToBoxAdapter(child: _buildTabs()),
               ),
               if (filteredOrders.isEmpty)
                 SliverFillRemaining(
                   hasScrollBody: false,
                   child: FjEmptyState(
-                    icon: _selectedTab == 0 ? Icons.inventory_2_outlined : (_selectedTab == 1 ? Icons.two_wheeler : Icons.task_alt),
+                    icon: _selectedTab == 0
+                        ? Icons.inventory_2_outlined
+                        : (_selectedTab == 1 ? Icons.two_wheeler : Icons.task_alt),
                     title: 'No ${_tabs[_selectedTab]} orders',
                     subtitle: 'Check other tabs or wait for new assignments.',
                   ),
@@ -158,11 +158,7 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
       children: [
         const Text(
           'Delivery Orders',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: AppTheme.grey900,
-          ),
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.grey900),
         ),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -176,10 +172,7 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
               SizedBox(width: 4),
               Text(
                 'Online',
-                style: TextStyle(
-                  color: AppTheme.success,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(color: AppTheme.success, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -190,10 +183,7 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
 
   Widget _buildTabs() {
     return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.sand,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: BoxDecoration(color: AppTheme.sand, borderRadius: BorderRadius.circular(12)),
       child: Row(
         children: List.generate(_tabs.length, (index) {
           return Expanded(
@@ -316,10 +306,7 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
               ),
               IconButton(
                 onPressed: () async {
-                  final Uri launchUri = Uri(
-                    scheme: 'tel',
-                    path: order.customerPhone,
-                  );
+                  final Uri launchUri = Uri(scheme: 'tel', path: order.customerPhone);
                   if (await canLaunchUrl(launchUri)) {
                     await launchUrl(launchUri);
                   }
@@ -505,9 +492,7 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => DeliveryPodScannerScreen(
-                            parcelId: order.id,
-                          ),
+                          builder: (_) => DeliveryPodScannerScreen(parcelId: order.id),
                           fullscreenDialog: true,
                         ),
                       ),
@@ -643,16 +628,13 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
             ],
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
             ElevatedButton(
               onPressed: () async {
                 final input = textController.text.trim();
-                if (input == order.otp || input == '1234') { 
+                if (input == order.otp || input == '1234') {
                   Navigator.pop(context);
-                  
+
                   // Camera Proof Simulation/Integration (Feature 8 geofence photo)
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -668,7 +650,7 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                   );
 
                   await Future.delayed(const Duration(seconds: 1)); // Simulate upload
-                  
+
                   // 2. Perform verification (Now using secure Cloud Function via OrderService)
                   final success = await _orderService.verifyAndDeliverOrder(
                     orderId: order.id,
@@ -676,16 +658,16 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                     riderLatitude: 0.0, // Should get real coords
                     riderLongitude: 0.0,
                   );
-                  
+
                   if (success) {
                     _stopLiveCoordinateTracking(order.id);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Order delivered successfully! ✅')),
                     );
                   } else {
-                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Verification failed.')),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(const SnackBar(content: Text('Verification failed.')));
                   }
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -735,7 +717,10 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
           builder: (context, setStateDialog) {
             return AlertDialog(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: const Text('Mark Delivery Failed', style: TextStyle(fontWeight: FontWeight.w700)),
+              title: const Text(
+                'Mark Delivery Failed',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -749,10 +734,7 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                       contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     ),
                     items: reasons.map((reason) {
-                      return DropdownMenuItem<String>(
-                        value: reason,
-                        child: Text(reason),
-                      );
+                      return DropdownMenuItem<String>(value: reason, child: Text(reason));
                     }).toList(),
                     onChanged: (val) {
                       if (val != null) {
@@ -765,22 +747,13 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                 ],
               ),
               actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
-                ),
+                TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
                 ElevatedButton(
                   onPressed: () async {
                     Navigator.pop(context);
-                    await _syncService.enqueueStatusUpdate(
-                      order.id,
-                      'failedDelivery',
-                    );
+                    await _syncService.enqueueStatusUpdate(order.id, 'failedDelivery');
 
-                    await FirebaseFirestore.instance
-                        .collection('orders')
-                        .doc(order.id)
-                        .update({
+                    await FirebaseFirestore.instance.collection('orders').doc(order.id).update({
                       'status': 'OrderStatus.cancelled',
                       'failureReason': selectedReason,
                       'failedAt': FieldValue.serverTimestamp(),
@@ -792,7 +765,9 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Order #${order.orderNumber} marked failed: $selectedReason'),
+                          content: Text(
+                            'Order #${order.orderNumber} marked failed: $selectedReason',
+                          ),
                           backgroundColor: AppTheme.warning,
                         ),
                       );
@@ -809,4 +784,3 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
     );
   }
 }
-

@@ -39,23 +39,27 @@ class _RawItem {
   _RawItem(this.name, this.quantity, this.unit, this.parseConfidence);
 }
 
-/// Hybrid voice-order parser.
+/// Hybrid voice-order parser with improved matching for Indian groceries.
 ///
 /// transcript -> raw items {name, qty, unit}  (offline Hinglish parser, with an
 /// opportunistic Gemini boost when it produces a richer result) -> each item
-/// fuzzy-matched against the live catalog -> [ParsedVoiceItem]s for review.
+/// fuzzy-matched against the live catalog using keywords, Hindi names, and phonetic
+/// matching -> [ParsedVoiceItem]s for review.
 ///
 /// Designed to never throw and to always degrade gracefully offline.
+///
+/// Matching improves when:
+///   • Product has keywords pre-loaded (e.g., "aloo", "potato", "आलू")
+///   • Product has Hindi name matching
+///   • Phonetic scoring handles Hinglish variations
 class VoiceOrderParser {
   final HinglishVoiceSearchParser _hinglish = HinglishVoiceSearchParser();
   final GeminiService _gemini = GeminiService();
 
-  static const double _matchThreshold = 0.42;
+  // Lowered threshold (0.35 from 0.42) to handle Hinglish Indian product names better
+  static const double _matchThreshold = 0.35;
 
-  Future<List<ParsedVoiceItem>> parse(
-    String transcript,
-    List<ProductModel> catalog,
-  ) async {
+  Future<List<ParsedVoiceItem>> parse(String transcript, List<ProductModel> catalog) async {
     final clean = transcript.trim();
     if (clean.isEmpty) return [];
 
@@ -65,8 +69,7 @@ class VoiceOrderParser {
     // 2) Online boost — only adopted if it yields MORE usable items.
     List<_RawItem> chosen = offline;
     try {
-      final online = await _geminiRawItems(clean)
-          .timeout(const Duration(seconds: 8));
+      final online = await _geminiRawItems(clean).timeout(const Duration(seconds: 8));
       if (online.isNotEmpty &&
           _matchableCount(online, catalog) > _matchableCount(offline, catalog)) {
         chosen = online;
@@ -84,20 +87,18 @@ class VoiceOrderParser {
       final best = ranked.isNotEmpty ? ranked.first : null;
       final matchScore = best?.$2 ?? 0.0;
       final product = (best != null && matchScore >= _matchThreshold) ? best.$1 : null;
-      final alternatives = ranked
-          .skip(product != null ? 1 : 0)
-          .take(4)
-          .map((e) => e.$1)
-          .toList();
-      items.add(ParsedVoiceItem(
-        spokenName: _titleCase(raw.name),
-        quantity: raw.quantity.clamp(1, 99),
-        unit: raw.unit.isEmpty ? (product?.unit ?? 'item') : raw.unit,
-        product: product,
-        confidence: (raw.parseConfidence * 0.4 + matchScore * 0.6).clamp(0.0, 1.0),
-        alternatives: alternatives,
-        selected: product != null,
-      ));
+      final alternatives = ranked.skip(product != null ? 1 : 0).take(4).map((e) => e.$1).toList();
+      items.add(
+        ParsedVoiceItem(
+          spokenName: _titleCase(raw.name),
+          quantity: raw.quantity.clamp(1, 99),
+          unit: raw.unit.isEmpty ? (product?.unit ?? 'item') : raw.unit,
+          product: product,
+          confidence: (raw.parseConfidence * 0.4 + matchScore * 0.6).clamp(0.0, 1.0),
+          alternatives: alternatives,
+          selected: product != null,
+        ),
+      );
     }
     return items;
   }
@@ -109,12 +110,7 @@ class VoiceOrderParser {
       final intents = await _hinglish.parseMultiItem(text);
       return intents
           .where((i) => i.productQuery.trim().isNotEmpty)
-          .map((i) => _RawItem(
-                i.productQuery,
-                _toCount(i.quantity),
-                i.unit,
-                i.confidence,
-              ))
+          .map((i) => _RawItem(i.productQuery, _toCount(i.quantity), i.unit, i.confidence))
           .toList();
     } catch (e) {
       debugPrint('[VoiceOrderParser] offline parse failed: $e');
@@ -124,17 +120,10 @@ class VoiceOrderParser {
 
   Future<List<_RawItem>> _geminiRawItems(String text) async {
     final maps = await _gemini.parseItemListFromText(text);
-    return maps
-        .where((m) => (m['name'] ?? '').toString().trim().isNotEmpty)
-        .map((m) {
+    return maps.where((m) => (m['name'] ?? '').toString().trim().isNotEmpty).map((m) {
       final qtyRaw = m['quantity'];
       final qty = qtyRaw is num ? qtyRaw.toDouble() : double.tryParse('$qtyRaw') ?? 1.0;
-      return _RawItem(
-        m['name'].toString(),
-        _toCount(qty),
-        (m['unit'] ?? '').toString(),
-        0.85,
-      );
+      return _RawItem(m['name'].toString(), _toCount(qty), (m['unit'] ?? '').toString(), 0.85);
     }).toList();
   }
 
@@ -156,6 +145,7 @@ class VoiceOrderParser {
   // ─────────────── catalog matching ───────────────
 
   /// Returns (product, score) ranked best-first.
+  /// Scores improved with keyword, Hindi name, and category-aware matching.
   List<(ProductModel, double)> _rankMatches(String query, List<ProductModel> catalog) {
     final q = _normalize(query);
     if (q.isEmpty) return [];
@@ -165,27 +155,71 @@ class VoiceOrderParser {
     for (final p in catalog) {
       if (!p.isAvailable) continue;
       final name = _normalize(p.name);
-      final hay = _normalize(
-          [p.name, p.category, p.subCategory, p.brand ?? '', ...p.tags].join(' '));
+
+      // Build haystack with Hindi name and keywords for richer matching
+      final haystack = [
+        p.name,
+        p.hindiName, // NEW: Product's Hindi name
+        p.category,
+        p.subCategory,
+        p.brand ?? '',
+        ...p.tags,
+        ...p.keywords, // NEW: Pre-computed keywords for this product
+      ].join(' ');
+      final hay = _normalize(haystack);
 
       double score = 0;
+
+      // Exact match on name
       if (name == q) {
         score = 1.0;
-      } else if (name.contains(q) || q.contains(name)) {
+      }
+      // Substring match on name
+      else if (name.contains(q) || q.contains(name)) {
         score = 0.9;
-      } else {
-        // Token overlap
+      }
+      // Keyword-based match (NEW): Check if query matches any keyword directly
+      else if (p.keywords.isNotEmpty) {
+        for (final keyword in p.keywords) {
+          final norm_kw = _normalize(keyword);
+          if (norm_kw == q || q.contains(norm_kw) || norm_kw.contains(q)) {
+            score = 0.85; // High confidence for keyword match
+            break;
+          }
+        }
+      }
+
+      // Hindi name match (NEW): Check normalized Hindi name
+      if (score == 0 && p.hindiName.isNotEmpty) {
+        final hindiName = _normalize(p.hindiName);
+        if (hindiName == q || hindiName.contains(q) || q.contains(hindiName)) {
+          score = 0.85;
+        }
+      }
+
+      // Token-based matching with phonetic fallback
+      if (score == 0) {
         final nameTokens = name.split(' ').where((t) => t.length > 1).toList();
         int overlap = 0;
         for (final qt in qTokens) {
           if (nameTokens.contains(qt) || hay.contains(qt)) {
             overlap++;
           } else {
-            // phonetic / fuzzy on tokens
+            // Phonetic/fuzzy on tokens
             for (final nt in nameTokens) {
               if (StringUtils.isPhoneticMatch(qt, nt, threshold: qt.length > 5 ? 2 : 1)) {
                 overlap++;
                 break;
+              }
+            }
+            // NEW: Also check against keywords
+            if (overlap == 0) {
+              for (final keyword in p.keywords) {
+                final norm_kw = _normalize(keyword);
+                if (StringUtils.isPhoneticMatch(qt, norm_kw, threshold: qt.length > 5 ? 2 : 1)) {
+                  overlap++;
+                  break;
+                }
               }
             }
           }

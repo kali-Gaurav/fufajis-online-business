@@ -33,8 +33,8 @@ class PermissionService {
   /// Checks current network status (Step 5.3)
   Future<bool> isNetworkConnected() async {
     final dynamic connectivityRes = await Connectivity().checkConnectivity();
-    final List<ConnectivityResult> connectivityResult = (connectivityRes is List) 
-        ? List<ConnectivityResult>.from(connectivityRes) 
+    final List<ConnectivityResult> connectivityResult = (connectivityRes is List)
+        ? List<ConnectivityResult>.from(connectivityRes)
         : [connectivityRes as ConnectivityResult];
     return !connectivityResult.contains(ConnectivityResult.none);
   }

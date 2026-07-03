@@ -1,0 +1,2470 @@
+{
+  "metadata": {
+    "version": "Batch 1 v2",
+    "architecture": "SKU-first with 3-layer hierarchy",
+    "targetMetrics": {
+      "productFamilies": "150-180",
+      "skuVariants": "350-450",
+      "brands": "20-30"
+    },
+    "generatedDate": "2026-07-02",
+    "totalFamilies": 129,
+    "totalVariants": 182,
+    "totalBrands": 16,
+    "brands": [
+      "Aashirvaad",
+      "Amul",
+      "Daawat",
+      "Fortune",
+      "Generic",
+      "Gopal",
+      "Heritage",
+      "India Gate",
+      "Mother Dairy",
+      "Nandini",
+      "Organic India",
+      "Patanjali",
+      "Pillsbury",
+      "Premium",
+      "Saras",
+      "Tata"
+    ]
+  },
+  "products": [
+    {
+      "id": "amul_taaza",
+      "name": "Amul Taaza Milk",
+      "hindi": "अमूल तारा दूध",
+      "brand": "Amul",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "amul_taaza_250ml",
+          "qty": 0.25,
+          "unit": "L",
+          "mrp": 20,
+          "sp": 18
+        },
+        {
+          "sku": "amul_taaza_500ml",
+          "qty": 0.5,
+          "unit": "L",
+          "mrp": 35,
+          "sp": 32
+        },
+        {
+          "sku": "amul_taaza_1L",
+          "qty": 1.0,
+          "unit": "L",
+          "mrp": 60,
+          "sp": 55
+        },
+        {
+          "sku": "amul_taaza_2L",
+          "qty": 2.0,
+          "unit": "L",
+          "mrp": 110,
+          "sp": 100
+        }
+      ]
+    },
+    {
+      "id": "amul_gold",
+      "name": "Amul Gold Milk",
+      "hindi": "अमूल गोल्ड दूध",
+      "brand": "Amul",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "amul_gold_500ml",
+          "qty": 0.5,
+          "unit": "L",
+          "mrp": 40,
+          "sp": 36
+        },
+        {
+          "sku": "amul_gold_1L",
+          "qty": 1.0,
+          "unit": "L",
+          "mrp": 70,
+          "sp": 63
+        },
+        {
+          "sku": "amul_gold_2L",
+          "qty": 2.0,
+          "unit": "L",
+          "mrp": 130,
+          "sp": 118
+        }
+      ]
+    },
+    {
+      "id": "amul_double_toned",
+      "name": "Amul Double Toned Milk",
+      "hindi": "अमूल डबल टोन्ड दूध",
+      "brand": "Amul",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "amul_dt_500ml",
+          "qty": 0.5,
+          "unit": "L",
+          "mrp": 28,
+          "sp": 25
+        },
+        {
+          "sku": "amul_dt_1L",
+          "qty": 1.0,
+          "unit": "L",
+          "mrp": 48,
+          "sp": 43
+        }
+      ]
+    },
+    {
+      "id": "mother_dairy_toned",
+      "name": "Mother Dairy Toned Milk",
+      "hindi": "मदर डेरी टोन्ड दूध",
+      "brand": "Mother Dairy",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "md_toned_500ml",
+          "qty": 0.5,
+          "unit": "L",
+          "mrp": 30,
+          "sp": 27
+        },
+        {
+          "sku": "md_toned_1L",
+          "qty": 1.0,
+          "unit": "L",
+          "mrp": 52,
+          "sp": 47
+        }
+      ]
+    },
+    {
+      "id": "mother_dairy_full_cream",
+      "name": "Mother Dairy Full Cream Milk",
+      "hindi": "मदर डेरी फुल क्रीम दूध",
+      "brand": "Mother Dairy",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "md_fc_500ml",
+          "qty": 0.5,
+          "unit": "L",
+          "mrp": 38,
+          "sp": 34
+        },
+        {
+          "sku": "md_fc_1L",
+          "qty": 1.0,
+          "unit": "L",
+          "mrp": 68,
+          "sp": 61
+        }
+      ]
+    },
+    {
+      "id": "saras_gold",
+      "name": "Saras Gold Milk",
+      "hindi": "सारस गोल्ड दूध",
+      "brand": "Saras",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "saras_500ml",
+          "qty": 0.5,
+          "unit": "L",
+          "mrp": 32,
+          "sp": 29
+        },
+        {
+          "sku": "saras_1L",
+          "qty": 1.0,
+          "unit": "L",
+          "mrp": 58,
+          "sp": 52
+        }
+      ]
+    },
+    {
+      "id": "nandini_milk",
+      "name": "Nandini Milk",
+      "hindi": "नंदिनी दूध",
+      "brand": "Nandini",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "nandini_500ml",
+          "qty": 0.5,
+          "unit": "L",
+          "mrp": 35,
+          "sp": 31
+        },
+        {
+          "sku": "nandini_1L",
+          "qty": 1.0,
+          "unit": "L",
+          "mrp": 60,
+          "sp": 54
+        }
+      ]
+    },
+    {
+      "id": "gopal_milk",
+      "name": "Gopal Milk",
+      "hindi": "गोपाल दूध",
+      "brand": "Gopal",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "gopal_500ml",
+          "qty": 0.5,
+          "unit": "L",
+          "mrp": 33,
+          "sp": 30
+        },
+        {
+          "sku": "gopal_1L",
+          "qty": 1.0,
+          "unit": "L",
+          "mrp": 55,
+          "sp": 50
+        }
+      ]
+    },
+    {
+      "id": "heritage_milk",
+      "name": "Heritage Milk",
+      "hindi": "हेरिटेज दूध",
+      "brand": "Heritage",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "heritage_1L",
+          "qty": 1.0,
+          "unit": "L",
+          "mrp": 75,
+          "sp": 68
+        }
+      ]
+    },
+    {
+      "id": "amul_ghee_500",
+      "name": "Amul Ghee 500ml",
+      "hindi": "अमूल घी 500ml",
+      "brand": "Amul",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "amul_ghee_250ml",
+          "qty": 0.25,
+          "unit": "L",
+          "mrp": 180,
+          "sp": 160
+        },
+        {
+          "sku": "amul_ghee_500ml",
+          "qty": 0.5,
+          "unit": "L",
+          "mrp": 340,
+          "sp": 310
+        }
+      ]
+    },
+    {
+      "id": "amul_ghee_1l",
+      "name": "Amul Ghee 1L",
+      "hindi": "अमूल घी 1L",
+      "brand": "Amul",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "amul_ghee_1L",
+          "qty": 1.0,
+          "unit": "L",
+          "mrp": 640,
+          "sp": 580
+        }
+      ]
+    },
+    {
+      "id": "amul_ghee_premium",
+      "name": "Amul Premium Ghee",
+      "hindi": "अमूल प्रीमियम घी",
+      "brand": "Amul",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "amul_ghee_prem_500ml",
+          "qty": 0.5,
+          "unit": "L",
+          "mrp": 400,
+          "sp": 360
+        },
+        {
+          "sku": "amul_ghee_prem_1L",
+          "qty": 1.0,
+          "unit": "L",
+          "mrp": 750,
+          "sp": 680
+        }
+      ]
+    },
+    {
+      "id": "mother_dairy_ghee",
+      "name": "Mother Dairy Ghee",
+      "hindi": "मदर डेरी घी",
+      "brand": "Mother Dairy",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "md_ghee_250ml",
+          "qty": 0.25,
+          "unit": "L",
+          "mrp": 170,
+          "sp": 150
+        },
+        {
+          "sku": "md_ghee_500ml",
+          "qty": 0.5,
+          "unit": "L",
+          "mrp": 320,
+          "sp": 290
+        }
+      ]
+    },
+    {
+      "id": "heritage_ghee",
+      "name": "Heritage Ghee",
+      "hindi": "हेरिटेज घी",
+      "brand": "Heritage",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "heritage_ghee_1L",
+          "qty": 1.0,
+          "unit": "L",
+          "mrp": 680,
+          "sp": 620
+        }
+      ]
+    },
+    {
+      "id": "amul_butter_100g",
+      "name": "Amul Butter 100g",
+      "hindi": "अमूल मक्खन 100g",
+      "brand": "Amul",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "amul_butter_100g",
+          "qty": 100,
+          "unit": "g",
+          "mrp": 60,
+          "sp": 55
+        }
+      ]
+    },
+    {
+      "id": "amul_butter_200g",
+      "name": "Amul Butter 200g",
+      "hindi": "अमूल मक्खन 200g",
+      "brand": "Amul",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "amul_butter_200g",
+          "qty": 200,
+          "unit": "g",
+          "mrp": 110,
+          "sp": 100
+        }
+      ]
+    },
+    {
+      "id": "amul_butter_500g",
+      "name": "Amul Butter 500g",
+      "hindi": "अमूल मक्खन 500g",
+      "brand": "Amul",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "amul_butter_500g",
+          "qty": 500,
+          "unit": "g",
+          "mrp": 250,
+          "sp": 225
+        }
+      ]
+    },
+    {
+      "id": "amul_butter_premium",
+      "name": "Amul Premium Butter",
+      "hindi": "अमूल प्रीमियम मक्खन",
+      "brand": "Amul",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "amul_butter_prem_200g",
+          "qty": 200,
+          "unit": "g",
+          "mrp": 130,
+          "sp": 120
+        },
+        {
+          "sku": "amul_butter_prem_500g",
+          "qty": 500,
+          "unit": "g",
+          "mrp": 300,
+          "sp": 270
+        }
+      ]
+    },
+    {
+      "id": "heritage_butter",
+      "name": "Heritage Butter",
+      "hindi": "हेरिटेज मक्खन",
+      "brand": "Heritage",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "heritage_butter_100g",
+          "qty": 100,
+          "unit": "g",
+          "mrp": 70,
+          "sp": 63
+        }
+      ]
+    },
+    {
+      "id": "amul_dahi_400ml",
+      "name": "Amul Dahi 400ml",
+      "hindi": "अमूल दही 400ml",
+      "brand": "Amul",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "amul_dahi_400ml",
+          "qty": 400,
+          "unit": "ml",
+          "mrp": 50,
+          "sp": 45
+        }
+      ]
+    },
+    {
+      "id": "amul_dahi_1l",
+      "name": "Amul Dahi 1L",
+      "hindi": "अमूल दही 1L",
+      "brand": "Amul",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "amul_dahi_1L",
+          "qty": 1000,
+          "unit": "ml",
+          "mrp": 100,
+          "sp": 90
+        }
+      ]
+    },
+    {
+      "id": "mother_dairy_dahi",
+      "name": "Mother Dairy Dahi",
+      "hindi": "मदर डेरी दही",
+      "brand": "Mother Dairy",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "md_dahi_500ml",
+          "qty": 500,
+          "unit": "ml",
+          "mrp": 40,
+          "sp": 35
+        },
+        {
+          "sku": "md_dahi_1L",
+          "qty": 1000,
+          "unit": "ml",
+          "mrp": 70,
+          "sp": 60
+        }
+      ]
+    },
+    {
+      "id": "greek_yogurt",
+      "name": "Greek Yogurt",
+      "hindi": "ग्रीक योगर्ट",
+      "brand": "Amul",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "greek_yogurt_200g",
+          "qty": 200,
+          "unit": "g",
+          "mrp": 90,
+          "sp": 80
+        },
+        {
+          "sku": "greek_yogurt_400g",
+          "qty": 400,
+          "unit": "g",
+          "mrp": 160,
+          "sp": 145
+        }
+      ]
+    },
+    {
+      "id": "amul_lassi",
+      "name": "Amul Lassi",
+      "hindi": "अमूल लस्सी",
+      "brand": "Amul",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "amul_lassi_400ml",
+          "qty": 400,
+          "unit": "ml",
+          "mrp": 50,
+          "sp": 45
+        },
+        {
+          "sku": "amul_lassi_1L",
+          "qty": 1000,
+          "unit": "ml",
+          "mrp": 110,
+          "sp": 100
+        }
+      ]
+    },
+    {
+      "id": "amul_paneer_200g",
+      "name": "Amul Paneer 200g",
+      "hindi": "अमूल पनीर 200g",
+      "brand": "Amul",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "amul_paneer_200g",
+          "qty": 200,
+          "unit": "g",
+          "mrp": 120,
+          "sp": 110
+        }
+      ]
+    },
+    {
+      "id": "amul_paneer_500g",
+      "name": "Amul Paneer 500g",
+      "hindi": "अमूल पनीर 500g",
+      "brand": "Amul",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "amul_paneer_500g",
+          "qty": 500,
+          "unit": "g",
+          "mrp": 280,
+          "sp": 260
+        }
+      ]
+    },
+    {
+      "id": "heritage_paneer",
+      "name": "Heritage Paneer",
+      "hindi": "हेरिटेज पनीर",
+      "brand": "Heritage",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "heritage_paneer_250g",
+          "qty": 250,
+          "unit": "g",
+          "mrp": 150,
+          "sp": 135
+        },
+        {
+          "sku": "heritage_paneer_500g",
+          "qty": 500,
+          "unit": "g",
+          "mrp": 280,
+          "sp": 260
+        }
+      ]
+    },
+    {
+      "id": "loose_paneer",
+      "name": "Loose Fresh Paneer",
+      "hindi": "ताज़ा पनीर",
+      "brand": "Generic",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "loose_paneer_250g",
+          "qty": 250,
+          "unit": "g",
+          "mrp": 130,
+          "sp": 120
+        },
+        {
+          "sku": "loose_paneer_500g",
+          "qty": 500,
+          "unit": "g",
+          "mrp": 250,
+          "sp": 230
+        }
+      ]
+    },
+    {
+      "id": "amul_cheese",
+      "name": "Amul Cheese",
+      "hindi": "अमूल चीज़",
+      "brand": "Amul",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "amul_cheese_100g",
+          "qty": 100,
+          "unit": "g",
+          "mrp": 80,
+          "sp": 70
+        },
+        {
+          "sku": "amul_cheese_200g",
+          "qty": 200,
+          "unit": "g",
+          "mrp": 150,
+          "sp": 135
+        }
+      ]
+    },
+    {
+      "id": "mozzarella_cheese",
+      "name": "Mozzarella Cheese",
+      "hindi": "मोजेरेला चीज़",
+      "brand": "Amul",
+      "category": "dairy",
+      "variants": [
+        {
+          "sku": "mozzarella_200g",
+          "qty": 200,
+          "unit": "g",
+          "mrp": 120,
+          "sp": 110
+        }
+      ]
+    },
+    {
+      "id": "aashirvaad_atta_1kg",
+      "name": "Aashirvaad Whole Wheat Atta 1kg",
+      "hindi": "आश्रिवाद गेहूँ का आटा 1kg",
+      "brand": "Aashirvaad",
+      "category": "atta_flour",
+      "variants": [
+        {
+          "sku": "aashirvaad_atta_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 40,
+          "sp": 35
+        }
+      ]
+    },
+    {
+      "id": "aashirvaad_atta_5kg",
+      "name": "Aashirvaad Atta 5kg",
+      "hindi": "आश्रिवाद आटा 5kg",
+      "brand": "Aashirvaad",
+      "category": "atta_flour",
+      "variants": [
+        {
+          "sku": "aashirvaad_atta_5kg",
+          "qty": 5,
+          "unit": "kg",
+          "mrp": 190,
+          "sp": 170
+        }
+      ]
+    },
+    {
+      "id": "aashirvaad_atta_10kg",
+      "name": "Aashirvaad Atta 10kg",
+      "hindi": "आश्रिवाद आटा 10kg",
+      "brand": "Aashirvaad",
+      "category": "atta_flour",
+      "variants": [
+        {
+          "sku": "aashirvaad_atta_10kg",
+          "qty": 10,
+          "unit": "kg",
+          "mrp": 360,
+          "sp": 330
+        }
+      ]
+    },
+    {
+      "id": "pillsbury_atta_1kg",
+      "name": "Pillsbury Chakki Fresh Atta 1kg",
+      "hindi": "पिलसबरी चक्की फ्रेश आटा 1kg",
+      "brand": "Pillsbury",
+      "category": "atta_flour",
+      "variants": [
+        {
+          "sku": "pillsbury_atta_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 45,
+          "sp": 40
+        }
+      ]
+    },
+    {
+      "id": "pillsbury_atta_5kg",
+      "name": "Pillsbury Atta 5kg",
+      "hindi": "पिलसबरी आटा 5kg",
+      "brand": "Pillsbury",
+      "category": "atta_flour",
+      "variants": [
+        {
+          "sku": "pillsbury_atta_5kg",
+          "qty": 5,
+          "unit": "kg",
+          "mrp": 210,
+          "sp": 190
+        }
+      ]
+    },
+    {
+      "id": "fortune_atta_1kg",
+      "name": "Fortune Chakki Atta 1kg",
+      "hindi": "फॉर्च्यून चक्की आटा 1kg",
+      "brand": "Fortune",
+      "category": "atta_flour",
+      "variants": [
+        {
+          "sku": "fortune_atta_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 42,
+          "sp": 37
+        }
+      ]
+    },
+    {
+      "id": "fortune_atta_5kg",
+      "name": "Fortune Atta 5kg",
+      "hindi": "फॉर्च्यून आटा 5kg",
+      "brand": "Fortune",
+      "category": "atta_flour",
+      "variants": [
+        {
+          "sku": "fortune_atta_5kg",
+          "qty": 5,
+          "unit": "kg",
+          "mrp": 200,
+          "sp": 180
+        }
+      ]
+    },
+    {
+      "id": "patanjali_atta_1kg",
+      "name": "Patanjali Organic Atta 1kg",
+      "hindi": "पतंजली ऑर्गेनिक आटा 1kg",
+      "brand": "Patanjali",
+      "category": "atta_flour",
+      "variants": [
+        {
+          "sku": "patanjali_atta_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 50,
+          "sp": 45
+        }
+      ]
+    },
+    {
+      "id": "patanjali_atta_5kg",
+      "name": "Patanjali Atta 5kg",
+      "hindi": "पतंजली आटा 5kg",
+      "brand": "Patanjali",
+      "category": "atta_flour",
+      "variants": [
+        {
+          "sku": "patanjali_atta_5kg",
+          "qty": 5,
+          "unit": "kg",
+          "mrp": 235,
+          "sp": 215
+        }
+      ]
+    },
+    {
+      "id": "loose_atta_1kg",
+      "name": "Loose Chakki Atta 1kg",
+      "hindi": "खुला चक्की आटा 1kg",
+      "brand": "Generic",
+      "category": "atta_flour",
+      "variants": [
+        {
+          "sku": "loose_atta_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 35,
+          "sp": 30
+        }
+      ]
+    },
+    {
+      "id": "loose_atta_5kg",
+      "name": "Loose Atta 5kg",
+      "hindi": "खुला आटा 5kg",
+      "brand": "Generic",
+      "category": "atta_flour",
+      "variants": [
+        {
+          "sku": "loose_atta_5kg",
+          "qty": 5,
+          "unit": "kg",
+          "mrp": 165,
+          "sp": 150
+        }
+      ]
+    },
+    {
+      "id": "loose_atta_10kg",
+      "name": "Loose Atta 10kg",
+      "hindi": "खुला आटा 10kg",
+      "brand": "Generic",
+      "category": "atta_flour",
+      "variants": [
+        {
+          "sku": "loose_atta_10kg",
+          "qty": 10,
+          "unit": "kg",
+          "mrp": 320,
+          "sp": 290
+        }
+      ]
+    },
+    {
+      "id": "multigrains_atta",
+      "name": "Multi Grain Atta",
+      "hindi": "मल्टी ग्रेन आटा",
+      "brand": "Aashirvaad",
+      "category": "atta_flour",
+      "variants": [
+        {
+          "sku": "multigrains_atta_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 55,
+          "sp": 50
+        }
+      ]
+    },
+    {
+      "id": "aashirvaad_maida_1kg",
+      "name": "Aashirvaad Maida 1kg",
+      "hindi": "आश्रिवाद मैदा 1kg",
+      "brand": "Aashirvaad",
+      "category": "atta_flour",
+      "variants": [
+        {
+          "sku": "aashirvaad_maida_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 45,
+          "sp": 40
+        }
+      ]
+    },
+    {
+      "id": "pillsbury_maida_1kg",
+      "name": "Pillsbury Maida 1kg",
+      "hindi": "पिलसबरी मैदा 1kg",
+      "brand": "Pillsbury",
+      "category": "atta_flour",
+      "variants": [
+        {
+          "sku": "pillsbury_maida_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 48,
+          "sp": 42
+        }
+      ]
+    },
+    {
+      "id": "loose_maida_1kg",
+      "name": "Loose Maida 1kg",
+      "hindi": "खुला मैदा 1kg",
+      "brand": "Generic",
+      "category": "atta_flour",
+      "variants": [
+        {
+          "sku": "loose_maida_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 38,
+          "sp": 33
+        }
+      ]
+    },
+    {
+      "id": "besan_1kg",
+      "name": "Gram Flour Besan 1kg",
+      "hindi": "बेसन 1kg",
+      "brand": "Aashirvaad",
+      "category": "atta_flour",
+      "variants": [
+        {
+          "sku": "besan_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 35,
+          "sp": 30
+        },
+        {
+          "sku": "besan_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 60,
+          "sp": 50
+        }
+      ]
+    },
+    {
+      "id": "daawat_basmati_1kg",
+      "name": "Daawat Basmati Rice 1kg",
+      "hindi": "दावत बासमती चावल 1kg",
+      "brand": "Daawat",
+      "category": "rice",
+      "variants": [
+        {
+          "sku": "daawat_basmati_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 85,
+          "sp": 75
+        }
+      ]
+    },
+    {
+      "id": "daawat_basmati_2kg",
+      "name": "Daawat Basmati 2kg",
+      "hindi": "दावत बासमती 2kg",
+      "brand": "Daawat",
+      "category": "rice",
+      "variants": [
+        {
+          "sku": "daawat_basmati_2kg",
+          "qty": 2,
+          "unit": "kg",
+          "mrp": 160,
+          "sp": 145
+        }
+      ]
+    },
+    {
+      "id": "daawat_basmati_5kg",
+      "name": "Daawat Basmati 5kg",
+      "hindi": "दावत बासमती 5kg",
+      "brand": "Daawat",
+      "category": "rice",
+      "variants": [
+        {
+          "sku": "daawat_basmati_5kg",
+          "qty": 5,
+          "unit": "kg",
+          "mrp": 380,
+          "sp": 345
+        }
+      ]
+    },
+    {
+      "id": "india_gate_basmati_1kg",
+      "name": "India Gate Basmati 1kg",
+      "hindi": "इंडिया गेट बासमती 1kg",
+      "brand": "India Gate",
+      "category": "rice",
+      "variants": [
+        {
+          "sku": "india_gate_basmati_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 95,
+          "sp": 85
+        }
+      ]
+    },
+    {
+      "id": "india_gate_basmati_5kg",
+      "name": "India Gate Basmati 5kg",
+      "hindi": "इंडिया गेट बासमती 5kg",
+      "brand": "India Gate",
+      "category": "rice",
+      "variants": [
+        {
+          "sku": "india_gate_basmati_5kg",
+          "qty": 5,
+          "unit": "kg",
+          "mrp": 440,
+          "sp": 400
+        }
+      ]
+    },
+    {
+      "id": "aashirvaad_basmati_1kg",
+      "name": "Aashirvaad Basmati 1kg",
+      "hindi": "आश्रिवाद बासमती 1kg",
+      "brand": "Aashirvaad",
+      "category": "rice",
+      "variants": [
+        {
+          "sku": "aashirvaad_basmati_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 90,
+          "sp": 80
+        }
+      ]
+    },
+    {
+      "id": "aashirvaad_basmati_2kg",
+      "name": "Aashirvaad Basmati 2kg",
+      "hindi": "आश्रिवाद बासमती 2kg",
+      "brand": "Aashirvaad",
+      "category": "rice",
+      "variants": [
+        {
+          "sku": "aashirvaad_basmati_2kg",
+          "qty": 2,
+          "unit": "kg",
+          "mrp": 170,
+          "sp": 150
+        }
+      ]
+    },
+    {
+      "id": "fortune_basmati_1kg",
+      "name": "Fortune Basmati 1kg",
+      "hindi": "फॉर्च्यून बासमती 1kg",
+      "brand": "Fortune",
+      "category": "rice",
+      "variants": [
+        {
+          "sku": "fortune_basmati_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 88,
+          "sp": 78
+        }
+      ]
+    },
+    {
+      "id": "tata_basmati_1kg",
+      "name": "Tata Basmati 1kg",
+      "hindi": "टाटा बासमती 1kg",
+      "brand": "Tata",
+      "category": "rice",
+      "variants": [
+        {
+          "sku": "tata_basmati_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 100,
+          "sp": 90
+        }
+      ]
+    },
+    {
+      "id": "tata_basmati_2kg",
+      "name": "Tata Basmati 2kg",
+      "hindi": "टाटा बासमती 2kg",
+      "brand": "Tata",
+      "category": "rice",
+      "variants": [
+        {
+          "sku": "tata_basmati_2kg",
+          "qty": 2,
+          "unit": "kg",
+          "mrp": 190,
+          "sp": 170
+        }
+      ]
+    },
+    {
+      "id": "tata_white_1kg",
+      "name": "Tata White Rice 1kg",
+      "hindi": "टाटा सफेद चावल 1kg",
+      "brand": "Tata",
+      "category": "rice",
+      "variants": [
+        {
+          "sku": "tata_white_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 50,
+          "sp": 45
+        }
+      ]
+    },
+    {
+      "id": "tata_white_5kg",
+      "name": "Tata White 5kg",
+      "hindi": "टाटा सफेद 5kg",
+      "brand": "Tata",
+      "category": "rice",
+      "variants": [
+        {
+          "sku": "tata_white_5kg",
+          "qty": 5,
+          "unit": "kg",
+          "mrp": 240,
+          "sp": 220
+        }
+      ]
+    },
+    {
+      "id": "tata_white_10kg",
+      "name": "Tata White 10kg",
+      "hindi": "टाटा सफेद 10kg",
+      "brand": "Tata",
+      "category": "rice",
+      "variants": [
+        {
+          "sku": "tata_white_10kg",
+          "qty": 10,
+          "unit": "kg",
+          "mrp": 450,
+          "sp": 410
+        }
+      ]
+    },
+    {
+      "id": "fortune_white_1kg",
+      "name": "Fortune White Rice 1kg",
+      "hindi": "फॉर्च्यून सफेद चावल 1kg",
+      "brand": "Fortune",
+      "category": "rice",
+      "variants": [
+        {
+          "sku": "fortune_white_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 48,
+          "sp": 43
+        }
+      ]
+    },
+    {
+      "id": "fortune_white_5kg",
+      "name": "Fortune White 5kg",
+      "hindi": "फॉर्च्यून सफेद 5kg",
+      "brand": "Fortune",
+      "category": "rice",
+      "variants": [
+        {
+          "sku": "fortune_white_5kg",
+          "qty": 5,
+          "unit": "kg",
+          "mrp": 230,
+          "sp": 210
+        }
+      ]
+    },
+    {
+      "id": "loose_white_rice_1kg",
+      "name": "Loose White Rice 1kg",
+      "hindi": "खुला सफेद चावल 1kg",
+      "brand": "Generic",
+      "category": "rice",
+      "variants": [
+        {
+          "sku": "loose_white_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 45,
+          "sp": 40
+        }
+      ]
+    },
+    {
+      "id": "loose_white_5kg",
+      "name": "Loose White 5kg",
+      "hindi": "खुला सफेद 5kg",
+      "brand": "Generic",
+      "category": "rice",
+      "variants": [
+        {
+          "sku": "loose_white_5kg",
+          "qty": 5,
+          "unit": "kg",
+          "mrp": 215,
+          "sp": 195
+        }
+      ]
+    },
+    {
+      "id": "loose_white_10kg",
+      "name": "Loose White 10kg",
+      "hindi": "खुला सफेद 10kg",
+      "brand": "Generic",
+      "category": "rice",
+      "variants": [
+        {
+          "sku": "loose_white_10kg",
+          "qty": 10,
+          "unit": "kg",
+          "mrp": 400,
+          "sp": 360
+        }
+      ]
+    },
+    {
+      "id": "sona_masoori_1kg",
+      "name": "Sona Masoori 1kg",
+      "hindi": "सोना मसूरी 1kg",
+      "brand": "Generic",
+      "category": "rice",
+      "variants": [
+        {
+          "sku": "sona_masoori_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 65,
+          "sp": 55
+        }
+      ]
+    },
+    {
+      "id": "sona_masoori_2kg",
+      "name": "Sona Masoori 2kg",
+      "hindi": "सोना मसूरी 2kg",
+      "brand": "Generic",
+      "category": "rice",
+      "variants": [
+        {
+          "sku": "sona_masoori_2kg",
+          "qty": 2,
+          "unit": "kg",
+          "mrp": 120,
+          "sp": 105
+        }
+      ]
+    },
+    {
+      "id": "jasmine_rice_1kg",
+      "name": "Jasmine Rice 1kg",
+      "hindi": "चमेली चावल 1kg",
+      "brand": "Generic",
+      "category": "rice",
+      "variants": [
+        {
+          "sku": "jasmine_rice_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 70,
+          "sp": 60
+        }
+      ]
+    },
+    {
+      "id": "brown_rice_1kg",
+      "name": "Brown Rice 1kg",
+      "hindi": "भूरा चावल 1kg",
+      "brand": "Generic",
+      "category": "rice",
+      "variants": [
+        {
+          "sku": "brown_rice_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 80,
+          "sp": 70
+        }
+      ]
+    },
+    {
+      "id": "moong_dal_dhuli_500g",
+      "name": "Moong Dal Dhuli 500g",
+      "hindi": "मूंग दाल धुली 500g",
+      "brand": "Generic",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "moong_dhuli_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 100,
+          "sp": 90
+        }
+      ]
+    },
+    {
+      "id": "moong_dal_dhuli_1kg",
+      "name": "Moong Dal Dhuli 1kg",
+      "hindi": "मूंग दाल धुली 1kg",
+      "brand": "Generic",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "moong_dhuli_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 180,
+          "sp": 160
+        }
+      ]
+    },
+    {
+      "id": "moong_dal_chilka_500g",
+      "name": "Moong Dal Chilka 500g",
+      "hindi": "मूंग दाल छिलका 500g",
+      "brand": "Generic",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "moong_chilka_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 95,
+          "sp": 85
+        }
+      ]
+    },
+    {
+      "id": "moong_dal_chilka_1kg",
+      "name": "Moong Dal Chilka 1kg",
+      "hindi": "मूंग दाल छिलका 1kg",
+      "brand": "Generic",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "moong_chilka_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 170,
+          "sp": 150
+        }
+      ]
+    },
+    {
+      "id": "tata_moong_dal",
+      "name": "Tata Sampann Moong Dal",
+      "hindi": "टाटा सम्पन्न मूंग दाल",
+      "brand": "Tata",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "tata_moong_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 120,
+          "sp": 105
+        },
+        {
+          "sku": "tata_moong_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 210,
+          "sp": 190
+        }
+      ]
+    },
+    {
+      "id": "moong_whole",
+      "name": "Moong Whole",
+      "hindi": "साबुत मूंग",
+      "brand": "Generic",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "moong_whole_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 110,
+          "sp": 100
+        },
+        {
+          "sku": "moong_whole_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 200,
+          "sp": 180
+        }
+      ]
+    },
+    {
+      "id": "masoor_dal_split",
+      "name": "Masoor Dal Split",
+      "hindi": "मसूर दाल छिली",
+      "brand": "Generic",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "masoor_split_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 70,
+          "sp": 60
+        },
+        {
+          "sku": "masoor_split_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 120,
+          "sp": 105
+        }
+      ]
+    },
+    {
+      "id": "masoor_dal_whole",
+      "name": "Masoor Dal Whole",
+      "hindi": "साबुत मसूर दाल",
+      "brand": "Generic",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "masoor_whole_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 80,
+          "sp": 70
+        },
+        {
+          "sku": "masoor_whole_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 140,
+          "sp": 125
+        }
+      ]
+    },
+    {
+      "id": "tata_masoor",
+      "name": "Tata Sampann Masoor Dal",
+      "hindi": "टाटा सम्पन्न मसूर दाल",
+      "brand": "Tata",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "tata_masoor_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 85,
+          "sp": 75
+        }
+      ]
+    },
+    {
+      "id": "arhar_dal",
+      "name": "Arhar Dal",
+      "hindi": "अरहर दाल",
+      "brand": "Generic",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "arhar_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 80,
+          "sp": 70
+        },
+        {
+          "sku": "arhar_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 140,
+          "sp": 125
+        }
+      ]
+    },
+    {
+      "id": "tata_arhar",
+      "name": "Tata Sampann Arhar Dal",
+      "hindi": "टाटा सम्पन्न अरहर दाल",
+      "brand": "Tata",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "tata_arhar_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 160,
+          "sp": 145
+        }
+      ]
+    },
+    {
+      "id": "urad_dal",
+      "name": "Urad Dal",
+      "hindi": "उड़द दाल",
+      "brand": "Generic",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "urad_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 110,
+          "sp": 100
+        },
+        {
+          "sku": "urad_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 200,
+          "sp": 180
+        }
+      ]
+    },
+    {
+      "id": "chana_dal",
+      "name": "Chana Dal",
+      "hindi": "चना दाल",
+      "brand": "Generic",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "chana_dal_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 90,
+          "sp": 80
+        },
+        {
+          "sku": "chana_dal_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 160,
+          "sp": 145
+        }
+      ]
+    },
+    {
+      "id": "kabuli_chana",
+      "name": "Kabuli Chana",
+      "hindi": "काबुली चना",
+      "brand": "Generic",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "kabuli_chana_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 130,
+          "sp": 115
+        }
+      ]
+    },
+    {
+      "id": "kala_chana",
+      "name": "Kala Chana",
+      "hindi": "काला चना",
+      "brand": "Generic",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "kala_chana_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 70,
+          "sp": 60
+        },
+        {
+          "sku": "kala_chana_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 120,
+          "sp": 105
+        }
+      ]
+    },
+    {
+      "id": "rajma_chithra",
+      "name": "Rajma Chithra",
+      "hindi": "राजमा चित्रा",
+      "brand": "Generic",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "rajma_chithra_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 140,
+          "sp": 125
+        }
+      ]
+    },
+    {
+      "id": "rajma_jammu",
+      "name": "Rajma Jammu",
+      "hindi": "राजमा जम्मू",
+      "brand": "Generic",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "rajma_jammu_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 140,
+          "sp": 125
+        }
+      ]
+    },
+    {
+      "id": "black_eyed_pea",
+      "name": "Black Eyed Pea Lobia",
+      "hindi": "लोबिया",
+      "brand": "Generic",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "lobia_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 70,
+          "sp": 60
+        }
+      ]
+    },
+    {
+      "id": "white_peas",
+      "name": "White Peas",
+      "hindi": "सफेद मटर",
+      "brand": "Generic",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "white_peas_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 65,
+          "sp": 55
+        }
+      ]
+    },
+    {
+      "id": "fenugreek_seeds",
+      "name": "Fenugreek Seeds Methi",
+      "hindi": "मेथी के दाने",
+      "brand": "Generic",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "methi_250g",
+          "qty": 0.25,
+          "unit": "kg",
+          "mrp": 90,
+          "sp": 80
+        },
+        {
+          "sku": "methi_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 160,
+          "sp": 145
+        }
+      ]
+    },
+    {
+      "id": "peas_frozen",
+      "name": "Green Peas",
+      "hindi": "हरी मटर",
+      "brand": "Generic",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "peas_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 80,
+          "sp": 70
+        }
+      ]
+    },
+    {
+      "id": "mixed_dal",
+      "name": "Mixed Dal",
+      "hindi": "मिक्स दाल",
+      "brand": "Generic",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "mixed_dal_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 150,
+          "sp": 135
+        }
+      ]
+    },
+    {
+      "id": "organic_moong",
+      "name": "Organic Moong Dal",
+      "hindi": "जैविक मूंग दाल",
+      "brand": "Organic India",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "organic_moong_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 130,
+          "sp": 115
+        }
+      ]
+    },
+    {
+      "id": "organic_masoor",
+      "name": "Organic Masoor Dal",
+      "hindi": "जैविक मसूर दाल",
+      "brand": "Organic India",
+      "category": "pulses",
+      "variants": [
+        {
+          "sku": "organic_masoor_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 125,
+          "sp": 110
+        }
+      ]
+    },
+    {
+      "id": "loose_potato",
+      "name": "Loose Potato",
+      "hindi": "खुला आलू",
+      "brand": "Generic",
+      "category": "vegetables",
+      "variants": [
+        {
+          "sku": "potato_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 30,
+          "sp": 28
+        },
+        {
+          "sku": "potato_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 50,
+          "sp": 45
+        },
+        {
+          "sku": "potato_2kg",
+          "qty": 2,
+          "unit": "kg",
+          "mrp": 90,
+          "sp": 80
+        },
+        {
+          "sku": "potato_5kg",
+          "qty": 5,
+          "unit": "kg",
+          "mrp": 200,
+          "sp": 175
+        }
+      ]
+    },
+    {
+      "id": "loose_onion",
+      "name": "Loose Onion",
+      "hindi": "खुली प्याज",
+      "brand": "Generic",
+      "category": "vegetables",
+      "variants": [
+        {
+          "sku": "onion_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 25,
+          "sp": 22
+        },
+        {
+          "sku": "onion_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 40,
+          "sp": 35
+        },
+        {
+          "sku": "onion_2kg",
+          "qty": 2,
+          "unit": "kg",
+          "mrp": 70,
+          "sp": 60
+        }
+      ]
+    },
+    {
+      "id": "loose_tomato",
+      "name": "Loose Tomato",
+      "hindi": "खुआ टमाटर",
+      "brand": "Generic",
+      "category": "vegetables",
+      "variants": [
+        {
+          "sku": "tomato_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 35,
+          "sp": 30
+        },
+        {
+          "sku": "tomato_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 60,
+          "sp": 50
+        },
+        {
+          "sku": "tomato_2kg",
+          "qty": 2,
+          "unit": "kg",
+          "mrp": 100,
+          "sp": 85
+        }
+      ]
+    },
+    {
+      "id": "loose_carrot",
+      "name": "Loose Carrot",
+      "hindi": "खुली गाजर",
+      "brand": "Generic",
+      "category": "vegetables",
+      "variants": [
+        {
+          "sku": "carrot_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 40,
+          "sp": 35
+        },
+        {
+          "sku": "carrot_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 70,
+          "sp": 60
+        }
+      ]
+    },
+    {
+      "id": "loose_cabbage",
+      "name": "Loose Cabbage",
+      "hindi": "खुली पत्तागोभी",
+      "brand": "Generic",
+      "category": "vegetables",
+      "variants": [
+        {
+          "sku": "cabbage_1pc",
+          "qty": 1,
+          "unit": "piece",
+          "mrp": 45,
+          "sp": 40
+        },
+        {
+          "sku": "cabbage_2pc",
+          "qty": 2,
+          "unit": "piece",
+          "mrp": 80,
+          "sp": 70
+        }
+      ]
+    },
+    {
+      "id": "loose_cauliflower",
+      "name": "Loose Cauliflower",
+      "hindi": "खुली फूलगोभी",
+      "brand": "Generic",
+      "category": "vegetables",
+      "variants": [
+        {
+          "sku": "cauliflower_1pc",
+          "qty": 1,
+          "unit": "piece",
+          "mrp": 50,
+          "sp": 45
+        }
+      ]
+    },
+    {
+      "id": "loose_spinach",
+      "name": "Loose Spinach",
+      "hindi": "खुली पालक",
+      "brand": "Generic",
+      "category": "vegetables",
+      "variants": [
+        {
+          "sku": "spinach_1bunch",
+          "qty": 1,
+          "unit": "bunch",
+          "mrp": 35,
+          "sp": 30
+        }
+      ]
+    },
+    {
+      "id": "loose_brinjal",
+      "name": "Loose Brinjal",
+      "hindi": "खुआ बैंगन",
+      "brand": "Generic",
+      "category": "vegetables",
+      "variants": [
+        {
+          "sku": "brinjal_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 40,
+          "sp": 35
+        },
+        {
+          "sku": "brinjal_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 70,
+          "sp": 60
+        }
+      ]
+    },
+    {
+      "id": "loose_bell_pepper",
+      "name": "Loose Bell Pepper",
+      "hindi": "खुई शिमला मिर्च",
+      "brand": "Generic",
+      "category": "vegetables",
+      "variants": [
+        {
+          "sku": "bellpepper_1pc",
+          "qty": 1,
+          "unit": "piece",
+          "mrp": 60,
+          "sp": 50
+        }
+      ]
+    },
+    {
+      "id": "loose_cucumber",
+      "name": "Loose Cucumber",
+      "hindi": "खुआ खीरा",
+      "brand": "Generic",
+      "category": "vegetables",
+      "variants": [
+        {
+          "sku": "cucumber_1pc",
+          "qty": 1,
+          "unit": "piece",
+          "mrp": 30,
+          "sp": 25
+        }
+      ]
+    },
+    {
+      "id": "loose_radish",
+      "name": "Loose Radish",
+      "hindi": "खुली मूली",
+      "brand": "Generic",
+      "category": "vegetables",
+      "variants": [
+        {
+          "sku": "radish_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 25,
+          "sp": 20
+        },
+        {
+          "sku": "radish_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 40,
+          "sp": 35
+        }
+      ]
+    },
+    {
+      "id": "loose_bottlegourd",
+      "name": "Loose Bottle Gourd",
+      "hindi": "खुई लौकी",
+      "brand": "Generic",
+      "category": "vegetables",
+      "variants": [
+        {
+          "sku": "bottlegourd_1pc",
+          "qty": 1,
+          "unit": "piece",
+          "mrp": 50,
+          "sp": 40
+        }
+      ]
+    },
+    {
+      "id": "loose_methi",
+      "name": "Loose Fenugreek Leaves",
+      "hindi": "खुली मेथी",
+      "brand": "Generic",
+      "category": "vegetables",
+      "variants": [
+        {
+          "sku": "methi_1bunch",
+          "qty": 1,
+          "unit": "bunch",
+          "mrp": 30,
+          "sp": 25
+        }
+      ]
+    },
+    {
+      "id": "loose_bhindi",
+      "name": "Loose Okra",
+      "hindi": "खुई भिंडी",
+      "brand": "Generic",
+      "category": "vegetables",
+      "variants": [
+        {
+          "sku": "bhindi_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 45,
+          "sp": 40
+        },
+        {
+          "sku": "bhindi_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 80,
+          "sp": 70
+        }
+      ]
+    },
+    {
+      "id": "loose_greenbeans",
+      "name": "Loose Green Beans",
+      "hindi": "खुई सेम",
+      "brand": "Generic",
+      "category": "vegetables",
+      "variants": [
+        {
+          "sku": "beans_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 40,
+          "sp": 35
+        },
+        {
+          "sku": "beans_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 70,
+          "sp": 60
+        }
+      ]
+    },
+    {
+      "id": "loose_greenchilli",
+      "name": "Loose Green Chilli",
+      "hindi": "खुई हरी मिर्च",
+      "brand": "Generic",
+      "category": "vegetables",
+      "variants": [
+        {
+          "sku": "greenchilli_100g",
+          "qty": 0.1,
+          "unit": "kg",
+          "mrp": 30,
+          "sp": 25
+        },
+        {
+          "sku": "greenchilli_250g",
+          "qty": 0.25,
+          "unit": "kg",
+          "mrp": 60,
+          "sp": 50
+        }
+      ]
+    },
+    {
+      "id": "loose_ginger",
+      "name": "Loose Ginger",
+      "hindi": "खुई अदरक",
+      "brand": "Generic",
+      "category": "vegetables",
+      "variants": [
+        {
+          "sku": "ginger_250g",
+          "qty": 0.25,
+          "unit": "kg",
+          "mrp": 40,
+          "sp": 35
+        },
+        {
+          "sku": "ginger_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 70,
+          "sp": 60
+        }
+      ]
+    },
+    {
+      "id": "loose_garlic",
+      "name": "Loose Garlic",
+      "hindi": "खुई लहसुन",
+      "brand": "Generic",
+      "category": "vegetables",
+      "variants": [
+        {
+          "sku": "garlic_250g",
+          "qty": 0.25,
+          "unit": "kg",
+          "mrp": 35,
+          "sp": 30
+        },
+        {
+          "sku": "garlic_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 60,
+          "sp": 50
+        }
+      ]
+    },
+    {
+      "id": "loose_sweetpotato",
+      "name": "Loose Sweet Potato",
+      "hindi": "खुई शकरकंद",
+      "brand": "Generic",
+      "category": "vegetables",
+      "variants": [
+        {
+          "sku": "sweetpotato_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 35,
+          "sp": 30
+        },
+        {
+          "sku": "sweetpotato_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 60,
+          "sp": 50
+        }
+      ]
+    },
+    {
+      "id": "loose_beetroot",
+      "name": "Loose Beetroot",
+      "hindi": "खुआ चुकंदर",
+      "brand": "Generic",
+      "category": "vegetables",
+      "variants": [
+        {
+          "sku": "beetroot_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 45,
+          "sp": 40
+        },
+        {
+          "sku": "beetroot_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 80,
+          "sp": 70
+        }
+      ]
+    },
+    {
+      "id": "loose_banana",
+      "name": "Loose Banana Dozen",
+      "hindi": "खुले केले (दर्जन)",
+      "brand": "Generic",
+      "category": "fruits",
+      "variants": [
+        {
+          "sku": "banana_6pc",
+          "qty": 6,
+          "unit": "piece",
+          "mrp": 35,
+          "sp": 30
+        },
+        {
+          "sku": "banana_12pc",
+          "qty": 12,
+          "unit": "piece",
+          "mrp": 60,
+          "sp": 50
+        }
+      ]
+    },
+    {
+      "id": "loose_apple",
+      "name": "Loose Apple",
+      "hindi": "खुआ सेब",
+      "brand": "Generic",
+      "category": "fruits",
+      "variants": [
+        {
+          "sku": "apple_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 120,
+          "sp": 100
+        },
+        {
+          "sku": "apple_2kg",
+          "qty": 2,
+          "unit": "kg",
+          "mrp": 220,
+          "sp": 190
+        }
+      ]
+    },
+    {
+      "id": "kashmir_apple",
+      "name": "Kashmir Apple Premium",
+      "hindi": "कश्मीरी सेब प्रीमियम",
+      "brand": "Premium",
+      "category": "fruits",
+      "variants": [
+        {
+          "sku": "kashmir_apple_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 150,
+          "sp": 130
+        }
+      ]
+    },
+    {
+      "id": "loose_orange",
+      "name": "Loose Orange",
+      "hindi": "खुआ संतरा",
+      "brand": "Generic",
+      "category": "fruits",
+      "variants": [
+        {
+          "sku": "orange_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 80,
+          "sp": 70
+        }
+      ]
+    },
+    {
+      "id": "loose_mango",
+      "name": "Loose Mango",
+      "hindi": "खुआ आम",
+      "brand": "Generic",
+      "category": "fruits",
+      "variants": [
+        {
+          "sku": "mango_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 100,
+          "sp": 85
+        },
+        {
+          "sku": "mango_2kg",
+          "qty": 2,
+          "unit": "kg",
+          "mrp": 180,
+          "sp": 150
+        }
+      ]
+    },
+    {
+      "id": "alphonso_mango",
+      "name": "Alphonso Mango Premium",
+      "hindi": "अल्फांसो आम प्रीमियम",
+      "brand": "Premium",
+      "category": "fruits",
+      "variants": [
+        {
+          "sku": "alphonso_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 200,
+          "sp": 170
+        }
+      ]
+    },
+    {
+      "id": "loose_papaya",
+      "name": "Loose Papaya",
+      "hindi": "खुआ पपीता",
+      "brand": "Generic",
+      "category": "fruits",
+      "variants": [
+        {
+          "sku": "papaya_1pc",
+          "qty": 1,
+          "unit": "piece",
+          "mrp": 60,
+          "sp": 50
+        }
+      ]
+    },
+    {
+      "id": "loose_guava",
+      "name": "Loose Guava",
+      "hindi": "खुआ अमरूद",
+      "brand": "Generic",
+      "category": "fruits",
+      "variants": [
+        {
+          "sku": "guava_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 70,
+          "sp": 60
+        }
+      ]
+    },
+    {
+      "id": "loose_pomegranate",
+      "name": "Loose Pomegranate",
+      "hindi": "खुआ अनार",
+      "brand": "Generic",
+      "category": "fruits",
+      "variants": [
+        {
+          "sku": "pomegranate_1pc",
+          "qty": 1,
+          "unit": "piece",
+          "mrp": 80,
+          "sp": 70
+        }
+      ]
+    },
+    {
+      "id": "loose_watermelon",
+      "name": "Loose Watermelon",
+      "hindi": "खुआ तरबूज",
+      "brand": "Generic",
+      "category": "fruits",
+      "variants": [
+        {
+          "sku": "watermelon_1pc",
+          "qty": 1,
+          "unit": "piece",
+          "mrp": 200,
+          "sp": 170
+        }
+      ]
+    },
+    {
+      "id": "loose_grapes",
+      "name": "Loose Grapes",
+      "hindi": "खुए अंगूर",
+      "brand": "Generic",
+      "category": "fruits",
+      "variants": [
+        {
+          "sku": "grapes_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 80,
+          "sp": 70
+        },
+        {
+          "sku": "grapes_1kg",
+          "qty": 1,
+          "unit": "kg",
+          "mrp": 140,
+          "sp": 120
+        }
+      ]
+    },
+    {
+      "id": "loose_pineapple",
+      "name": "Loose Pineapple",
+      "hindi": "खुआ अनन्नास",
+      "brand": "Generic",
+      "category": "fruits",
+      "variants": [
+        {
+          "sku": "pineapple_1pc",
+          "qty": 1,
+          "unit": "piece",
+          "mrp": 100,
+          "sp": 85
+        }
+      ]
+    },
+    {
+      "id": "loose_kiwi",
+      "name": "Loose Kiwi",
+      "hindi": "खुई कीवी",
+      "brand": "Generic",
+      "category": "fruits",
+      "variants": [
+        {
+          "sku": "kiwi_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 150,
+          "sp": 130
+        }
+      ]
+    },
+    {
+      "id": "loose_strawberry",
+      "name": "Loose Strawberry",
+      "hindi": "खुई स्ट्रॉबेरी",
+      "brand": "Generic",
+      "category": "fruits",
+      "variants": [
+        {
+          "sku": "strawberry_250g",
+          "qty": 0.25,
+          "unit": "kg",
+          "mrp": 120,
+          "sp": 100
+        }
+      ]
+    },
+    {
+      "id": "loose_coconut",
+      "name": "Loose Coconut",
+      "hindi": "खुआ नारियल",
+      "brand": "Generic",
+      "category": "fruits",
+      "variants": [
+        {
+          "sku": "coconut_1pc",
+          "qty": 1,
+          "unit": "piece",
+          "mrp": 40,
+          "sp": 35
+        }
+      ]
+    },
+    {
+      "id": "loose_sapota",
+      "name": "Loose Sapota Chikoo",
+      "hindi": "खुई चीकू",
+      "brand": "Generic",
+      "category": "fruits",
+      "variants": [
+        {
+          "sku": "sapota_500g",
+          "qty": 0.5,
+          "unit": "kg",
+          "mrp": 60,
+          "sp": 50
+        }
+      ]
+    }
+  ]
+}

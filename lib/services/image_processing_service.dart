@@ -15,9 +15,9 @@ class ImageProcessingService {
   // API endpoints for background removal (configurable)
   static const String _removeBgApiUrl = 'https://api.remove.bg/v1.0/removebg';
 
-
   /// Pick an image from gallery or camera and process it
-  Future<File?> pickAndProcessImage(BuildContext context, {
+  Future<File?> pickAndProcessImage(
+    BuildContext context, {
     ImageSource source = ImageSource.gallery,
     bool removeBackground = true,
     bool enhanceColors = true,
@@ -86,7 +86,7 @@ class ImageProcessingService {
   /// Note: This requires an API key from remove.bg or similar service
   Future<File> removeBackgroundAI(File imageFile) async {
     String apiKey = const String.fromEnvironment('REMOVE_BG_API_KEY', defaultValue: '');
-    
+
     if (apiKey.isEmpty) {
       debugPrint('No Background Removal API Key found. Returning original image.');
       return imageFile;
@@ -94,7 +94,7 @@ class ImageProcessingService {
 
     try {
       debugPrint('Calling background removal API...');
-      
+
       final request = http.MultipartRequest('POST', Uri.parse(_removeBgApiUrl))
         ..headers['X-Api-Key'] = apiKey
         ..fields['size'] = 'auto'
@@ -147,11 +147,7 @@ class ImageProcessingService {
       img.Image? image = img.decodeImage(bytes);
       if (image == null) return imageFile;
 
-      image = img.convolution(image, filter: [
-         0, -1,  0,
-        -1,  5, -1,
-         0, -1,  0
-      ]);
+      image = img.convolution(image, filter: [0, -1, 0, -1, 5, -1, 0, -1, 0]);
 
       final directory = await getTemporaryDirectory();
       final outputPath = '${directory.path}/sharpened_${DateTime.now().millisecondsSinceEpoch}.jpg';
@@ -171,10 +167,7 @@ class ImageProcessingService {
       // Compression is implicitly handled by pickImage's quality in real usage,
       // here we just upload the bytes.
       final ref = _storage.ref().child(path);
-      final uploadTask = await ref.putData(
-        bytes, 
-        SettableMetadata(contentType: 'image/jpeg'),
-      );
+      final uploadTask = await ref.putData(bytes, SettableMetadata(contentType: 'image/jpeg'));
       return await uploadTask.ref.getDownloadURL();
     } catch (e) {
       debugPrint('[ImageProcessingService] Upload failed: $e');

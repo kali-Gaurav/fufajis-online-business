@@ -70,17 +70,11 @@ class TrieSearchEngine {
       current = nextNode;
     }
 
-    return current.productIds
-        .map((id) => _productIndex[id])
-        .whereType<ProductModel>()
-        .toList();
+    return current.productIds.map((id) => _productIndex[id]).whereType<ProductModel>().toList();
   }
 
   /// Search with Levenshtein fuzzy distance matching for typo tolerance
-  List<MapEntry<ProductModel, double>> searchFuzzy(
-    String query, {
-    int maxDistance = 2,
-  }) {
+  List<MapEntry<ProductModel, double>> searchFuzzy(String query, {int maxDistance = 2}) {
     final cleanQuery = query.toLowerCase().trim();
     if (cleanQuery.isEmpty) return [];
 
@@ -95,8 +89,7 @@ class TrieSearchEngine {
       if (product == null) continue;
 
       // Score formula: confidence scales inversely with edit distance
-      final double confidence =
-          1.0 - (distance / (cleanQuery.length + maxDistance));
+      final double confidence = 1.0 - (distance / (cleanQuery.length + maxDistance));
       results.add(MapEntry(product, confidence.clamp(0.1, 1.0)));
     }
 

@@ -9,18 +9,13 @@ import 'delivery_proof_screen.dart';
 class DeliveryDetailLastMileScreen extends StatefulWidget {
   final DeliveryTaskModel delivery;
 
-  const DeliveryDetailLastMileScreen({
-    super.key,
-    required this.delivery,
-  });
+  const DeliveryDetailLastMileScreen({super.key, required this.delivery});
 
   @override
-  State<DeliveryDetailLastMileScreen> createState() =>
-      _DeliveryDetailLastMileScreenState();
+  State<DeliveryDetailLastMileScreen> createState() => _DeliveryDetailLastMileScreenState();
 }
 
-class _DeliveryDetailLastMileScreenState
-    extends State<DeliveryDetailLastMileScreen> {
+class _DeliveryDetailLastMileScreenState extends State<DeliveryDetailLastMileScreen> {
   @override
   void initState() {
     super.initState();
@@ -49,20 +44,16 @@ class _DeliveryDetailLastMileScreenState
     await provider.startDelivery(widget.delivery.deliveryId);
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Delivery started. Location tracking enabled.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Delivery started. Location tracking enabled.')));
     }
   }
 
   void _completeDelivery() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => DeliveryProofScreen(
-          delivery: widget.delivery,
-        ),
-      ),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => DeliveryProofScreen(delivery: widget.delivery)));
   }
 
   void _failDelivery() {
@@ -81,10 +72,7 @@ class _DeliveryDetailLastMileScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Order #${widget.delivery.orderNumber}'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text('Order #${widget.delivery.orderNumber}'), centerTitle: true),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -110,18 +98,12 @@ class _DeliveryDetailLastMileScreenState
                       children: [
                         const Text(
                           'Delivery Status',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
-                          ),
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           _getStatusLabel(widget.delivery.status),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -138,10 +120,7 @@ class _DeliveryDetailLastMileScreenState
                 children: [
                   const Text(
                     'Order Details',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
                   _buildDetailItem('Customer', widget.delivery.customerName),
@@ -166,10 +145,7 @@ class _DeliveryDetailLastMileScreenState
                 children: [
                   const Text(
                     'Actions',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -247,21 +223,9 @@ class _DeliveryDetailLastMileScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-            ),
-          ),
+          Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
           const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -314,10 +278,7 @@ class _DeliveryFailureDialog extends StatefulWidget {
   final DeliveryTaskModel delivery;
   final VoidCallback onConfirm;
 
-  const _DeliveryFailureDialog({
-    required this.delivery,
-    required this.onConfirm,
-  });
+  const _DeliveryFailureDialog({required this.delivery, required this.onConfirm});
 
   @override
   State<_DeliveryFailureDialog> createState() => _DeliveryFailureDialogState();
@@ -337,9 +298,9 @@ class _DeliveryFailureDialogState extends State<_DeliveryFailureDialog> {
 
   void _submit() async {
     if (_selectedReason == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a reason')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select a reason')));
       return;
     }
 
@@ -371,10 +332,7 @@ class _DeliveryFailureDialogState extends State<_DeliveryFailureDialog> {
           children: [
             const Text(
               'Why could not deliver?',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             ..._reasons.map(
@@ -394,9 +352,7 @@ class _DeliveryFailureDialogState extends State<_DeliveryFailureDialog> {
               controller: _notesController,
               decoration: InputDecoration(
                 hintText: 'Additional notes (optional)',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 contentPadding: const EdgeInsets.all(12),
               ),
               maxLines: 3,
@@ -412,9 +368,7 @@ class _DeliveryFailureDialogState extends State<_DeliveryFailureDialog> {
                 const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: _submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.error,
-                  ),
+                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.error),
                   child: const Text('Submit & Retry'),
                 ),
               ],

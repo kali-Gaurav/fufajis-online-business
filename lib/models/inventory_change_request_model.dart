@@ -99,11 +99,9 @@ class InventoryChangeRequestModel {
     this.reviewNote,
   });
 
-  int get affectedProductCount =>
-      changes.map((c) => c.productId).toSet().length;
+  int get affectedProductCount => changes.map((c) => c.productId).toSet().length;
 
-  factory InventoryChangeRequestModel.fromMap(
-      Map<String, dynamic> map, String docId) {
+  factory InventoryChangeRequestModel.fromMap(Map<String, dynamic> map, String docId) {
     return InventoryChangeRequestModel(
       id: docId,
       type: InventoryChangeType.values.firstWhere(

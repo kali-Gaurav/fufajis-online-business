@@ -15,7 +15,6 @@ import 'package:provider/provider.dart';
 
 import '../../widgets/common/fj_button.dart';
 
-
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
 
@@ -115,7 +114,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       'ridersCount': 1,
       'topCategory': 'Household',
       'density': 'Low',
-    }
+    },
   ];
 
   @override
@@ -153,9 +152,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       stream: _orderService.getAllOrdersStream(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(color: AppTheme.primary),
-          );
+          return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
         }
 
         final allOrders = snapshot.data ?? [];
@@ -172,11 +169,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         for (var order in filteredOrders) {
           final isDelivered = order.status == OrderStatus.delivered;
           final isPaid = order.paymentStatus == 'paid' || order.paymentMethod != PaymentMethod.cod;
-          
+
           if (isDelivered || isPaid) {
             grossRevenue += order.totalAmount.toDouble();
           }
-          
+
           if (order.status == OrderStatus.refunded || order.status == OrderStatus.returned) {
             totalRefunded += order.totalAmount.toDouble();
           }
@@ -184,8 +181,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           uniqueCustomers.add(order.customerId);
 
           for (var item in order.items) {
-            productSalesCount[item.productName] = (productSalesCount[item.productName] ?? 0) + item.quantity;
-            productRevenue[item.productName] = (productRevenue[item.productName] ?? 0.0) + item.totalPrice.toDouble();
+            productSalesCount[item.productName] =
+                (productSalesCount[item.productName] ?? 0) + item.quantity;
+            productRevenue[item.productName] =
+                (productRevenue[item.productName] ?? 0.0) + item.totalPrice.toDouble();
 
             String category = _guessCategory(item.productName);
             categorySales[category] = (categorySales[category] ?? 0.0) + item.totalPrice.toDouble();
@@ -194,7 +193,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
         final double totalNetRevenue = grossRevenue - totalRefunded;
         final int totalOrdersCount = filteredOrders.length;
-        final double avgOrderValue = totalOrdersCount > 0 ? (totalNetRevenue / totalOrdersCount) : 0.0;
+        final double avgOrderValue = totalOrdersCount > 0
+            ? (totalNetRevenue / totalOrdersCount)
+            : 0.0;
         final int totalCustomersCount = uniqueCustomers.length;
 
         // Top Products list
@@ -207,7 +208,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             'name': name,
             'sales': sales,
             'revenue': '₹${revenue.toStringAsFixed(0)}',
-            'growth': '+${(sales * 2.5).toStringAsFixed(0)}%'
+            'growth': '+${(sales * 2.5).toStringAsFixed(0)}%',
           };
         }).toList();
 
@@ -226,7 +227,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          _analyticsTab == 0 ? 'District Analytics Board' : 'District Sales Heatmaps',
+                          _analyticsTab == 0
+                              ? 'District Analytics Board'
+                              : 'District Sales Heatmaps',
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -274,8 +277,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     ),
                     child: const Row(
                       children: [
-                        Icon(Icons.auto_graph,
-                            color: Colors.white, size: 28),
+                        Icon(Icons.auto_graph, color: Colors.white, size: 28),
                         SizedBox(width: 14),
                         Expanded(
                           child: Column(
@@ -292,8 +294,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                               SizedBox(height: 2),
                               Text(
                                 'Financial · Business KPIs · Franchise · PDF export',
-                                style: TextStyle(
-                                    color: Colors.white70, fontSize: 12),
+                                style: TextStyle(color: Colors.white70, fontSize: 12),
                               ),
                             ],
                           ),
@@ -375,10 +376,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 color: AppTheme.white,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.black.withValues(alpha: 0.03),
-                    blurRadius: 4,
-                  )
+                  BoxShadow(color: AppTheme.black.withValues(alpha: 0.03), blurRadius: 4),
                 ],
               ),
               child: Row(
@@ -395,7 +393,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                         _periods[index],
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: _selectedPeriod == index ? FontWeight.bold : FontWeight.normal,
+                          fontWeight: _selectedPeriod == index
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                           color: _selectedPeriod == index ? AppTheme.white : AppTheme.grey700,
                         ),
                       ),
@@ -427,11 +427,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         // Recent Activities Feed
         _buildRecentActivitySection(filteredOrders),
         const SizedBox(height: 24),
-        
+
         // Feature: Actionable Low Stock (Feature 12)
         _buildRestockActionSection(context),
         const SizedBox(height: 24),
-        
+
         // Feature 45: Promo Manager
         const BroadcastPromoManager(),
         const SizedBox(height: 100),
@@ -460,12 +460,18 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 '⚡ Critical Restock Actions',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.error),
               ),
-              Text('${alerts.length} items low', style: const TextStyle(fontSize: 12, color: AppTheme.error)),
+              Text(
+                '${alerts.length} items low',
+                style: const TextStyle(fontSize: 12, color: AppTheme.error),
+              ),
             ],
           ),
           const SizedBox(height: 16),
           if (alerts.isEmpty)
-            const Text('All stock levels are optimal!', style: TextStyle(color: AppTheme.success, fontSize: 13))
+            const Text(
+              'All stock levels are optimal!',
+              style: TextStyle(color: AppTheme.success, fontSize: 13),
+            )
           else
             ListView.builder(
               shrinkWrap: true,
@@ -475,8 +481,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 final alert = alerts[index];
                 return ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(alert.productName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                  subtitle: Text('Only ${alert.currentStock} left (Min: ${alert.minimumStock})', style: const TextStyle(fontSize: 12)),
+                  title: Text(
+                    alert.productName,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
+                  subtitle: Text(
+                    'Only ${alert.currentStock} left (Min: ${alert.minimumStock})',
+                    style: const TextStyle(fontSize: 12),
+                  ),
                   trailing: FjButton(
                     label: 'RESTOCK',
                     onPressed: () {
@@ -498,7 +510,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   Widget _buildHeatmapsDashboard(List<OrderModel> orders) {
     // Filter zones based on search query and density selector
     final filteredZones = _postcodeZones.where((zone) {
-      final matchesSearch = (zone['zip'] as String).contains(_searchQuery) ||
+      final matchesSearch =
+          (zone['zip'] as String).contains(_searchQuery) ||
           (zone['name'] as String).toLowerCase().contains(_searchQuery.toLowerCase());
       final matchesDensity =
           _selectedDensityFilter == 'All' || zone['density'] == _selectedDensityFilter;
@@ -542,7 +555,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       children: [
                         const Text(
                           'Filter Density:',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.grey700),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.grey700,
+                          ),
                         ),
                         Row(
                           children: [
@@ -576,12 +593,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   itemCount: filteredZones.length,
                   itemBuilder: (context, index) {
                     final zone = filteredZones[index];
-                    final isSelected = (_selectedPostcode?['zip'] as String?) == (zone['zip'] as String?);
+                    final isSelected =
+                        (_selectedPostcode?['zip'] as String?) == (zone['zip'] as String?);
 
                     Color densityColor = AppTheme.grey600;
                     if (zone['density'] == 'High') {
                       densityColor = AppTheme.error;
-                    } else if (zone['density'] == 'Medium') densityColor = AppTheme.warning;
+                    } else if (zone['density'] == 'Medium')
+                      densityColor = AppTheme.warning;
 
                     return GestureDetector(
                       onTap: () => setState(() => _selectedPostcode = zone),
@@ -599,7 +618,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                             BoxShadow(
                               color: AppTheme.black.withValues(alpha: isSelected ? 0.06 : 0.02),
                               blurRadius: 4,
-                            )
+                            ),
                           ],
                         ),
                         child: Row(
@@ -612,18 +631,28 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                   children: [
                                     Text(
                                       'PIN: ${zone['zip']}',
-                                      style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.grey800),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: AppTheme.grey800,
+                                      ),
                                     ),
                                     const SizedBox(width: 8),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: densityColor.withValues(alpha: 0.08),
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: Text(
                                         '${zone['density']} Density',
-                                        style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: densityColor),
+                                        style: TextStyle(
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.bold,
+                                          color: densityColor,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -640,7 +669,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                               children: [
                                 Text(
                                   '₹${(zone['revenue'] as num).toStringAsFixed(0)}',
-                                  style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primary),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.primary,
+                                  ),
                                 ),
                                 Text(
                                   '${zone['ordersCount']} orders',
@@ -689,17 +721,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppTheme.grey200),
                   boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.black.withValues(alpha: 0.02),
-                      blurRadius: 8,
-                    )
+                    BoxShadow(color: AppTheme.black.withValues(alpha: 0.02), blurRadius: 8),
                   ],
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
-                  child: _mapMode == 0
-                      ? _buildVectorScatterMap()
-                      : _buildGoogleMapsWidget(orders),
+                  child: _mapMode == 0 ? _buildVectorScatterMap() : _buildGoogleMapsWidget(orders),
                 ),
               ),
               const SizedBox(height: 24),
@@ -804,12 +831,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               Builder(
                 builder: (context) {
                   // Normalize coordinates to fit the bounds of the map view container
-                  final double normalX = ((zone['lng'] as num) - 75.72) / 0.16; // ranges from 75.72 to 75.88
-                  final double normalY = ((zone['lat'] as num) - 26.81) / 0.12; // ranges from 26.81 to 26.93
+                  final double normalX =
+                      ((zone['lng'] as num) - 75.72) / 0.16; // ranges from 75.72 to 75.88
+                  final double normalY =
+                      ((zone['lat'] as num) - 26.81) / 0.12; // ranges from 26.81 to 26.93
 
                   // Clamp values between 0.1 and 0.9 to avoid edge clipping
                   final double xPercent = normalX.clamp(0.1, 0.9);
-                  final double yPercent = 1.0 - normalY.clamp(0.1, 0.9); // invert Y for screen coords
+                  final double yPercent =
+                      1.0 - normalY.clamp(0.1, 0.9); // invert Y for screen coords
 
                   final isSelected = _selectedPostcode?['zip'] == zone['zip'];
                   Color zoneColor = AppTheme.grey600;
@@ -818,7 +848,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   } else if (zone['density'] == 'Medium') {
                     zoneColor = AppTheme.warning;
                   }
-
 
                   // Pulse size based on orders count
                   final double dotRadius = 12 + (zone['ordersCount'] as int).toDouble() / 3;
@@ -847,7 +876,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                   color: AppTheme.primary.withValues(alpha: 0.3),
                                   blurRadius: 10,
                                   spreadRadius: 2,
-                                )
+                                ),
                             ],
                           ),
                           child: Center(
@@ -864,7 +893,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       ),
                     ),
                   );
-                }
+                },
               ),
             ],
 
@@ -904,7 +933,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 ),
                 child: const Text(
                   'Vector Radar Plot',
-                  style: TextStyle(color: AppTheme.white, fontSize: 10, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: AppTheme.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -946,7 +979,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           icon: BitmapDescriptor.defaultMarkerWithHue(
             isSelected
                 ? BitmapDescriptor.hueAzure
-                : (zone['density'] == 'High' ? BitmapDescriptor.hueRed : BitmapDescriptor.hueYellow),
+                : (zone['density'] == 'High'
+                      ? BitmapDescriptor.hueRed
+                      : BitmapDescriptor.hueYellow),
           ),
           onTap: () {
             setState(() {
@@ -995,7 +1030,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     Color densityColor = AppTheme.grey600;
     if (zone['density'] == 'High') {
       densityColor = AppTheme.error;
-    } else if (zone['density'] == 'Medium') densityColor = AppTheme.warning;
+    } else if (zone['density'] == 'Medium')
+      densityColor = AppTheme.warning;
 
     return Container(
       width: double.infinity,
@@ -1004,12 +1040,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         color: AppTheme.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppTheme.grey200),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.01),
-            blurRadius: 4,
-          )
-        ],
+        boxShadow: [BoxShadow(color: AppTheme.black.withValues(alpha: 0.01), blurRadius: 4)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1024,7 +1055,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     children: [
                       Text(
                         zone['name'] as String,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.grey900),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.grey900,
+                        ),
                       ),
                       const SizedBox(width: 8),
                       Container(
@@ -1035,7 +1070,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                         ),
                         child: Text(
                           '${zone['density']} Density',
-                          style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: densityColor),
+                          style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            color: densityColor,
+                          ),
                         ),
                       ),
                     ],
@@ -1080,12 +1119,42 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               childAspectRatio: 2.2,
             ),
             children: [
-              _buildInspectorStatTile('Total Orders', (zone['ordersCount'] as int).toString(), Icons.shopping_basket_outlined, AppTheme.primary),
-              _buildInspectorStatTile('Total Revenue', '₹${(zone['revenue'] as num).toStringAsFixed(0)}', Icons.payments_outlined, AppTheme.info),
-              _buildInspectorStatTile('Avg Delivery Time', '${zone['avgDeliveryMins'] as int} min', Icons.schedule, AppTheme.warning),
-              _buildInspectorStatTile('Customer Satisfaction', '${zone['satisfaction'] as num} / 5', Icons.star_border, AppTheme.warning),
-              _buildInspectorStatTile('Active Riders', (zone['ridersCount'] as int).toString(), Icons.sports_motorsports_outlined, AppTheme.success),
-              _buildInspectorStatTile('Top Category', zone['topCategory'] as String, Icons.grid_view_sharp, Colors.deepPurple),
+              _buildInspectorStatTile(
+                'Total Orders',
+                (zone['ordersCount'] as int).toString(),
+                Icons.shopping_basket_outlined,
+                AppTheme.primary,
+              ),
+              _buildInspectorStatTile(
+                'Total Revenue',
+                '₹${(zone['revenue'] as num).toStringAsFixed(0)}',
+                Icons.payments_outlined,
+                AppTheme.info,
+              ),
+              _buildInspectorStatTile(
+                'Avg Delivery Time',
+                '${zone['avgDeliveryMins'] as int} min',
+                Icons.schedule,
+                AppTheme.warning,
+              ),
+              _buildInspectorStatTile(
+                'Customer Satisfaction',
+                '${zone['satisfaction'] as num} / 5',
+                Icons.star_border,
+                AppTheme.warning,
+              ),
+              _buildInspectorStatTile(
+                'Active Riders',
+                (zone['ridersCount'] as int).toString(),
+                Icons.sports_motorsports_outlined,
+                AppTheme.success,
+              ),
+              _buildInspectorStatTile(
+                'Top Category',
+                zone['topCategory'] as String,
+                Icons.grid_view_sharp,
+                Colors.deepPurple,
+              ),
             ],
           ),
         ],
@@ -1105,10 +1174,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.08),
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.08), shape: BoxShape.circle),
             child: Icon(icon, color: color, size: 16),
           ),
           const SizedBox(width: 10),
@@ -1119,7 +1185,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               children: [
                 Text(
                   value,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppTheme.grey900),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.grey900,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
@@ -1138,13 +1208,25 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   // --- Metrics dashboard subcomponents ---
   String _guessCategory(String productName) {
     final name = productName.toLowerCase();
-    if (name.contains('rice') || name.contains('atta') || name.contains('flour') || name.contains('dal')) {
+    if (name.contains('rice') ||
+        name.contains('atta') ||
+        name.contains('flour') ||
+        name.contains('dal')) {
       return 'Groceries';
-    } else if (name.contains('milk') || name.contains('paneer') || name.contains('ghee') || name.contains('butter')) {
+    } else if (name.contains('milk') ||
+        name.contains('paneer') ||
+        name.contains('ghee') ||
+        name.contains('butter')) {
       return 'Dairy';
-    } else if (name.contains('mango') || name.contains('apple') || name.contains('banana') || name.contains('orange')) {
+    } else if (name.contains('mango') ||
+        name.contains('apple') ||
+        name.contains('banana') ||
+        name.contains('orange')) {
       return 'Fruits';
-    } else if (name.contains('potato') || name.contains('onion') || name.contains('tomato') || name.contains('chilli')) {
+    } else if (name.contains('potato') ||
+        name.contains('onion') ||
+        name.contains('tomato') ||
+        name.contains('chilli')) {
       return 'Vegetables';
     } else {
       return 'Household';
@@ -1166,7 +1248,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             color: const Color(0xFF667eea).withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
-          )
+          ),
         ],
       ),
       child: Column(
@@ -1178,10 +1260,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               const SizedBox(width: 8),
               Text(
                 'Total Net Revenue (P&L Adjusted)',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppTheme.white.withValues(alpha: 0.8),
-                ),
+                style: TextStyle(fontSize: 14, color: AppTheme.white.withValues(alpha: 0.8)),
               ),
             ],
           ),
@@ -1201,10 +1280,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               const SizedBox(width: 4),
               Text(
                 'Includes discounts & subtracted refunds.',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.white.withValues(alpha: 0.7),
-                ),
+                style: TextStyle(fontSize: 12, color: AppTheme.white.withValues(alpha: 0.7)),
               ),
             ],
           ),
@@ -1215,10 +1291,34 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
   Widget _buildStatsGrid(int orders, double avgValue, int customers) {
     final stats = [
-      {'title': 'Total Orders', 'value': '$orders', 'change': '+12%', 'icon': Icons.shopping_bag, 'color': AppTheme.primary},
-      {'title': 'Avg Order Value', 'value': '₹${avgValue.toStringAsFixed(0)}', 'change': '+4%', 'icon': Icons.receipt_long, 'color': AppTheme.info},
-      {'title': 'Customers', 'value': '$customers', 'change': '+18%', 'icon': Icons.people, 'color': AppTheme.success},
-      {'title': 'District Cover', 'value': '98.5%', 'change': '+0.5%', 'icon': Icons.percent, 'color': AppTheme.warning},
+      {
+        'title': 'Total Orders',
+        'value': '$orders',
+        'change': '+12%',
+        'icon': Icons.shopping_bag,
+        'color': AppTheme.primary,
+      },
+      {
+        'title': 'Avg Order Value',
+        'value': '₹${avgValue.toStringAsFixed(0)}',
+        'change': '+4%',
+        'icon': Icons.receipt_long,
+        'color': AppTheme.info,
+      },
+      {
+        'title': 'Customers',
+        'value': '$customers',
+        'change': '+18%',
+        'icon': Icons.people,
+        'color': AppTheme.success,
+      },
+      {
+        'title': 'District Cover',
+        'value': '98.5%',
+        'change': '+0.5%',
+        'icon': Icons.percent,
+        'color': AppTheme.warning,
+      },
     ];
 
     return GridView.builder(
@@ -1258,11 +1358,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       color: (stat['color'] as Color).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(
-                      stat['icon'] as IconData,
-                      color: stat['color'] as Color,
-                      size: 20,
-                    ),
+                    child: Icon(stat['icon'] as IconData, color: stat['color'] as Color, size: 20),
                   ),
                   Text(
                     stat['change'] as String,
@@ -1288,10 +1384,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               const SizedBox(height: 4),
               Text(
                 stat['title'] as String,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: AppTheme.grey500,
-                ),
+                style: const TextStyle(fontSize: 11, color: AppTheme.grey500),
               ),
             ],
           ),
@@ -1448,11 +1541,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 SizedBox(
                   height: 180,
                   child: PieChart(
-                    PieChartData(
-                      sections: pieSections,
-                      sectionsSpace: 2,
-                      centerSpaceRadius: 30,
-                    ),
+                    PieChartData(sections: pieSections, sectionsSpace: 2, centerSpaceRadius: 30),
                   ),
                 ),
               ],
@@ -1482,11 +1571,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         children: [
           const Text(
             'Top Selling Products',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.grey900,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.grey900),
           ),
           const SizedBox(height: 16),
           if (products.isEmpty)
@@ -1542,10 +1627,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                         ),
                         Text(
                           product['growth'] as String,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.success,
-                          ),
+                          style: const TextStyle(fontSize: 12, color: AppTheme.success),
                         ),
                       ],
                     ),
@@ -1627,11 +1709,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         children: [
           const Text(
             'District Live Feeds',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.grey900,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.grey900),
           ),
           const SizedBox(height: 16),
           ...activities.map((activity) {
@@ -1654,10 +1732,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text(
-                      activity['title'] as String,
-                      style: const TextStyle(fontSize: 14),
-                    ),
+                    child: Text(activity['title'] as String, style: const TextStyle(fontSize: 14)),
                   ),
                   Text(
                     activity['time'] as String,
@@ -1751,7 +1826,7 @@ class MapGridPainter extends CustomPainter {
     // Draw secondary rings around the selected postcode to simulate scanning/radar
     if (selectedZip != null) {
       final zone = postcodes.firstWhere((element) => element['zip'] == selectedZip);
-      
+
       final double normalX = ((zone['lng'] as num) - 75.72) / 0.16;
       final double normalY = ((zone['lat'] as num) - 26.81) / 0.12;
 
@@ -1773,4 +1848,3 @@ class MapGridPainter extends CustomPainter {
     return oldDelegate.selectedZip != selectedZip;
   }
 }
-

@@ -16,23 +16,23 @@ import '../utils/app_theme.dart';
 
 enum OrderStatus {
   // Initial states
-  pending('pending'),           // Just created, awaiting payment
-  confirmed('confirmed'),       // Payment verified
+  pending('pending'), // Just created, awaiting payment
+  confirmed('confirmed'), // Payment verified
 
   // Processing states
-  processing('processing'),     // Being prepared at shop
-  packed('packed'),             // Ready for pickup/delivery
+  processing('processing'), // Being prepared at shop
+  packed('packed'), // Ready for pickup/delivery
 
   // Delivery states
-  shipped('shipped'),           // With rider, in transit
+  shipped('shipped'), // With rider, in transit
   outForDelivery('out_for_delivery'), // Legacy/Common name
-  delivered('delivered'),       // Delivered to customer
+  delivered('delivered'), // Delivered to customer
 
   // Terminal states
-  completed('completed'),       // Successfully completed
-  cancelled('cancelled'),       // Cancelled by customer/shop
-  returned('returned'),         // Returned by customer
-  refunded('refunded');         // Refund processed
+  completed('completed'), // Successfully completed
+  cancelled('cancelled'), // Cancelled by customer/shop
+  returned('returned'), // Returned by customer
+  refunded('refunded'); // Refund processed
 
   final String value;
   const OrderStatus(this.value);
@@ -45,9 +45,7 @@ enum OrderStatus {
     if (status == null || status.isEmpty) return OrderStatus.pending;
 
     // Handle legacy 'OrderStatus.' prefix
-    final normalized = status
-        .replaceAll('OrderStatus.', '')
-        .toLowerCase();
+    final normalized = status.replaceAll('OrderStatus.', '').toLowerCase();
 
     try {
       return OrderStatus.values.firstWhere(

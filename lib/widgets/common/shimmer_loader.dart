@@ -22,13 +22,11 @@ class ShimmerLoader extends StatelessWidget {
     this.borderRadius = 8,
   }) : shape = BoxShape.rectangle;
 
-  const ShimmerLoader.circular({
-    super.key,
-    required double size,
-  })  : width = size,
-        height = size,
-        borderRadius = size / 2,
-        shape = BoxShape.circle;
+  const ShimmerLoader.circular({super.key, required double size})
+    : width = size,
+      height = size,
+      borderRadius = size / 2,
+      shape = BoxShape.circle;
 
   @override
   Widget build(BuildContext context) {
@@ -41,9 +39,7 @@ class ShimmerLoader extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           shape: shape,
-          borderRadius: shape == BoxShape.rectangle
-              ? BorderRadius.circular(borderRadius)
-              : null,
+          borderRadius: shape == BoxShape.rectangle ? BorderRadius.circular(borderRadius) : null,
         ),
       ),
     );
@@ -72,10 +68,7 @@ class ProductCardSkeleton extends StatelessWidget {
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ShimmerLoader.rectangular(
-            height: 120,
-            borderRadius: 12,
-          ),
+          ShimmerLoader.rectangular(height: 120, borderRadius: 12),
           Padding(
             padding: EdgeInsets.all(8),
             child: Column(

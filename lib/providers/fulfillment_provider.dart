@@ -22,11 +22,7 @@ class FulfillmentProvider with ChangeNotifier {
   String? get error => _error;
 
   /// Load all assigned orders for an employee
-  Future<void> loadAssignedOrders(
-    String employeeId,
-    String shopId,
-    String branchId,
-  ) async {
+  Future<void> loadAssignedOrders(String employeeId, String shopId, String branchId) async {
     try {
       _isLoading = true;
       _error = null;
@@ -37,11 +33,14 @@ class FulfillmentProvider with ChangeNotifier {
           .where('employeeId', isEqualTo: employeeId)
           .where('shopId', isEqualTo: shopId)
           .where('branchId', isEqualTo: branchId)
-          .where('status', whereIn: [
-            FulfillmentStatus.assigned.index,
-            FulfillmentStatus.packing.index,
-            FulfillmentStatus.ready.index,
-          ])
+          .where(
+            'status',
+            whereIn: [
+              FulfillmentStatus.assigned.index,
+              FulfillmentStatus.packing.index,
+              FulfillmentStatus.ready.index,
+            ],
+          )
           .orderBy('createdAt', descending: true)
           .get();
 
@@ -70,16 +69,21 @@ class FulfillmentProvider with ChangeNotifier {
         .where('employeeId', isEqualTo: employeeId)
         .where('shopId', isEqualTo: shopId)
         .where('branchId', isEqualTo: branchId)
-        .where('status', whereIn: [
-          FulfillmentStatus.assigned.index,
-          FulfillmentStatus.packing.index,
-          FulfillmentStatus.ready.index,
-        ])
+        .where(
+          'status',
+          whereIn: [
+            FulfillmentStatus.assigned.index,
+            FulfillmentStatus.packing.index,
+            FulfillmentStatus.ready.index,
+          ],
+        )
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => FulfillmentTask.fromMap({...doc.data(), 'id': doc.id}))
-            .toList());
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => FulfillmentTask.fromMap({...doc.data(), 'id': doc.id}))
+              .toList(),
+        );
   }
 
   /// Start packing an order
@@ -94,10 +98,7 @@ class FulfillmentProvider with ChangeNotifier {
         'startedAt': Timestamp.fromDate(now),
       });
 
-      _currentTask = _currentTask?.copyWith(
-        status: FulfillmentStatus.packing,
-        startedAt: now,
-      );
+      _currentTask = _currentTask?.copyWith(status: FulfillmentStatus.packing, startedAt: now);
 
       _isLoading = false;
       notifyListeners();
@@ -110,18 +111,13 @@ class FulfillmentProvider with ChangeNotifier {
   }
 
   /// Mark a single item as packed
-  Future<void> markItemPacked(
-    String taskId,
-    String productId,
-    double quantity,
-  ) async {
+  Future<void> markItemPacked(String taskId, String productId, double quantity) async {
     try {
       final task = _currentTask;
       if (task == null) throw Exception('No current task');
 
       // Update item in task
-      final itemIndex =
-          task.items.indexWhere((item) => item.productId == productId);
+      final itemIndex = task.items.indexWhere((item) => item.productId == productId);
       if (itemIndex == -1) throw Exception('Item not found');
 
       task.items[itemIndex].packedQuantity = quantity;
@@ -148,8 +144,7 @@ class FulfillmentProvider with ChangeNotifier {
       final task = _currentTask;
       if (task == null) throw Exception('No current task');
 
-      final itemIndex =
-          task.items.indexWhere((item) => item.productId == productId);
+      final itemIndex = task.items.indexWhere((item) => item.productId == productId);
       if (itemIndex == -1) throw Exception('Item not found');
 
       task.items[itemIndex].verified = true;
@@ -213,9 +208,7 @@ class FulfillmentProvider with ChangeNotifier {
         'status': FulfillmentStatus.qualityChecked.index,
       });
 
-      _currentTask = _currentTask?.copyWith(
-        status: FulfillmentStatus.qualityChecked,
-      );
+      _currentTask = _currentTask?.copyWith(status: FulfillmentStatus.qualityChecked);
 
       _isLoading = false;
       notifyListeners();
@@ -228,11 +221,7 @@ class FulfillmentProvider with ChangeNotifier {
   }
 
   /// Approve quality check
-  Future<void> approveQuality(
-    String taskId,
-    double qualityScore,
-    String approvedBy,
-  ) async {
+  Future<void> approveQuality(String taskId, double qualityScore, String approvedBy) async {
     try {
       _isLoading = true;
       notifyListeners();
@@ -263,11 +252,7 @@ class FulfillmentProvider with ChangeNotifier {
   }
 
   /// Reject quality check
-  Future<void> rejectQuality(
-    String taskId,
-    String reason,
-    String rejectedBy,
-  ) async {
+  Future<void> rejectQuality(String taskId, String reason, String rejectedBy) async {
     try {
       _isLoading = true;
       notifyListeners();
@@ -314,10 +299,7 @@ class FulfillmentProvider with ChangeNotifier {
       if (snapshot.exists) {
         _todayStats = EmployeeDailyStats.fromMap(snapshot.data()!);
       } else {
-        _todayStats = EmployeeDailyStats(
-          employeeId: employeeId,
-          date: dateStr,
-        );
+        _todayStats = EmployeeDailyStats(employeeId: employeeId, date: dateStr);
       }
 
       notifyListeners();
@@ -334,11 +316,9 @@ class FulfillmentProvider with ChangeNotifier {
     final dateStr =
         '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
-    return _db
-        .collection('employee_daily_stats')
-        .doc('${employeeId}_$dateStr')
-        .snapshots()
-        .map((snapshot) {
+    return _db.collection('employee_daily_stats').doc('${employeeId}_$dateStr').snapshots().map((
+      snapshot,
+    ) {
       if (snapshot.exists) {
         return EmployeeDailyStats.fromMap(snapshot.data()!);
       }
@@ -374,8 +354,8 @@ class FulfillmentProvider with ChangeNotifier {
 
       if (completedTask.status == FulfillmentStatus.completed) {
         stats.qualityChecksPassed += 1;
-        stats.qualityScore = (stats.qualityScore * (stats.qualityChecksPassed - 1) +
-                completedTask.qualityScore) /
+        stats.qualityScore =
+            (stats.qualityScore * (stats.qualityChecksPassed - 1) + completedTask.qualityScore) /
             stats.qualityChecksPassed;
       } else if (completedTask.status == FulfillmentStatus.rejected) {
         stats.qualityChecksFailed += 1;
@@ -411,8 +391,7 @@ class FulfillmentProvider with ChangeNotifier {
         return null;
       }
 
-      _currentTask =
-          FulfillmentTask.fromMap({...snapshot.data()!, 'id': snapshot.id});
+      _currentTask = FulfillmentTask.fromMap({...snapshot.data()!, 'id': snapshot.id});
       _isLoading = false;
       notifyListeners();
       return _currentTask;
@@ -426,11 +405,7 @@ class FulfillmentProvider with ChangeNotifier {
 
   /// Stream a specific task in real-time
   Stream<FulfillmentTask?> streamTask(String taskId) {
-    return _db
-        .collection('fulfillment_tasks')
-        .doc(taskId)
-        .snapshots()
-        .map((snapshot) {
+    return _db.collection('fulfillment_tasks').doc(taskId).snapshots().map((snapshot) {
       if (snapshot.exists) {
         return FulfillmentTask.fromMap({...snapshot.data()!, 'id': snapshot.id});
       }

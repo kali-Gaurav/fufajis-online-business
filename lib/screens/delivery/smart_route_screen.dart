@@ -18,10 +18,7 @@ class _DeliveryTrip {
   final List<OrderModel> orders;
   bool isCompleted;
 
-  _DeliveryTrip({
-    required this.tripNumber,
-    required this.orders,
-  }) : isCompleted = false;
+  _DeliveryTrip({required this.tripNumber, required this.orders}) : isCompleted = false;
 
   double get estimatedEarnings => orders.length * 30.0; // ₹30 per delivery
   String get label => 'Trip $tripNumber';
@@ -83,12 +80,10 @@ class _SmartRouteScreenState extends State<SmartRouteScreen> {
       final snap = await FirebaseFirestore.instance
           .collection('orders')
           .where('deliveryAgentId', isEqualTo: user.id)
-          .where('createdAt',
-              isGreaterThanOrEqualTo: Timestamp.fromDate(midnight))
+          .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(midnight))
           .get();
 
-      final orders =
-          snap.docs.map((d) => OrderModel.fromMap(d.data())).toList();
+      final orders = snap.docs.map((d) => OrderModel.fromMap(d.data())).toList();
 
       setState(() => _todaysOrders = orders);
 
@@ -112,26 +107,21 @@ class _SmartRouteScreenState extends State<SmartRouteScreen> {
   Future<void> _clusterOrders(List<String> orderIds) async {
     setState(() => _isClustering = true);
     try {
-      final callable = FirebaseFunctions.instance
-          .httpsCallable('clusterDeliveryOrders');
+      final callable = FirebaseFunctions.instance.httpsCallable('clusterDeliveryOrders');
       final result = await callable.call({'orderIds': orderIds});
       final data = result.data as Map<String, dynamic>;
       final rawClusters = (data['clusters'] as List<dynamic>?) ?? [];
 
       final trips = <_DeliveryTrip>[];
       for (int i = 0; i < rawClusters.length; i++) {
-        final clusterIds =
-            List<String>.from(rawClusters[i] as List<dynamic>);
+        final clusterIds = List<String>.from(rawClusters[i] as List<dynamic>);
         final clusterOrders = clusterIds
-            .map((id) => _todaysOrders.firstWhere(
-                  (o) => o.id == id,
-                  orElse: () => _todaysOrders.first,
-                ))
+            .map(
+              (id) =>
+                  _todaysOrders.firstWhere((o) => o.id == id, orElse: () => _todaysOrders.first),
+            )
             .toList();
-        trips.add(_DeliveryTrip(
-          tripNumber: i + 1,
-          orders: clusterOrders,
-        ));
+        trips.add(_DeliveryTrip(tripNumber: i + 1, orders: clusterOrders));
       }
 
       setState(() {
@@ -143,9 +133,7 @@ class _SmartRouteScreenState extends State<SmartRouteScreen> {
       debugPrint('[SmartRoute] Clustering failed, falling back: $e');
       // Fallback: put all orders in one trip
       setState(() {
-        _trips = [
-          _DeliveryTrip(tripNumber: 1, orders: _todaysOrders),
-        ];
+        _trips = [_DeliveryTrip(tripNumber: 1, orders: _todaysOrders)];
         _isLoading = false;
         _isClustering = false;
       });
@@ -155,15 +143,13 @@ class _SmartRouteScreenState extends State<SmartRouteScreen> {
   // ── Open Google Maps with all waypoints for a trip ────────────────────
   Future<void> _startTrip(_DeliveryTrip trip) async {
     try {
-      final waypoints = trip.orders
-          .map((o) {
-            final a = o.deliveryAddress;
-            if (a.latitude != 0.0 || a.longitude != 0.0) {
-              return '${a.latitude},${a.longitude}';
-            }
-            return Uri.encodeComponent(a.fullAddress);
-          })
-          .toList();
+      final waypoints = trip.orders.map((o) {
+        final a = o.deliveryAddress;
+        if (a.latitude != 0.0 || a.longitude != 0.0) {
+          return '${a.latitude},${a.longitude}';
+        }
+        return Uri.encodeComponent(a.fullAddress);
+      }).toList();
 
       if (waypoints.isEmpty) {
         _showSnack('No delivery addresses found for this trip.');
@@ -180,8 +166,7 @@ class _SmartRouteScreenState extends State<SmartRouteScreen> {
         url =
             'https://www.google.com/maps/dir/?api=1&destination=$destination&waypoints=$waypointsParam&travelmode=driving';
       } else {
-        url =
-            'https://www.google.com/maps/dir/?api=1&destination=$destination&travelmode=driving';
+        url = 'https://www.google.com/maps/dir/?api=1&destination=$destination&travelmode=driving';
       }
 
       final uri = Uri.parse(url);
@@ -201,15 +186,10 @@ class _SmartRouteScreenState extends State<SmartRouteScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text('Mark Trip ${trip.tripNumber} Complete?'),
-        content: Text(
-            'This will mark ${trip.orders.length} order(s) as delivered.'),
+        content: Text('This will mark ${trip.orders.length} order(s) as delivered.'),
         actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancel')),
-          ElevatedButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Confirm')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Confirm')),
         ],
       ),
     );
@@ -221,14 +201,11 @@ class _SmartRouteScreenState extends State<SmartRouteScreen> {
       final batch = FirebaseFirestore.instance.batch();
       for (final order in trip.orders) {
         if (order.status == OrderStatus.delivered) continue;
-        batch.update(
-          FirebaseFirestore.instance.collection('orders').doc(order.id),
-          {
-            'status': OrderStatus.delivered.toString(),
-            'deliveredAt': FieldValue.serverTimestamp(),
-            'updatedAt': FieldValue.serverTimestamp(),
-          },
-        );
+        batch.update(FirebaseFirestore.instance.collection('orders').doc(order.id), {
+          'status': OrderStatus.delivered.toString(),
+          'deliveredAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
       }
       await batch.commit();
 
@@ -246,8 +223,7 @@ class _SmartRouteScreenState extends State<SmartRouteScreen> {
 
   void _showSnack(String msg) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   // ── Build ─────────────────────────────────────────────────────────────
@@ -274,28 +250,22 @@ class _SmartRouteScreenState extends State<SmartRouteScreen> {
                   const CircularProgressIndicator(color: AppTheme.deliveryAccent),
                   const SizedBox(height: 12),
                   Text(
-                    _isClustering
-                        ? 'Clustering orders by location...'
-                        : 'Loading orders...',
+                    _isClustering ? 'Clustering orders by location...' : 'Loading orders...',
                     style: const TextStyle(color: AppTheme.grey600),
                   ),
                 ],
               ),
             )
           : _errorMessage != null
-              ? _ErrorView(
-                  message: _errorMessage!,
-                  onRetry: _loadAndCluster,
-                )
-              : _todaysOrders.isEmpty
-                  ? const _EmptyView()
-                  : _buildTripList(),
+          ? _ErrorView(message: _errorMessage!, onRetry: _loadAndCluster)
+          : _todaysOrders.isEmpty
+          ? const _EmptyView()
+          : _buildTripList(),
     );
   }
 
   Widget _buildTripList() {
-    final totalEarnings =
-        _trips.fold(0.0, (acc, t) => acc + t.estimatedEarnings);
+    final totalEarnings = _trips.fold(0.0, (acc, t) => acc + t.estimatedEarnings);
     final completedTrips = _trips.where((t) => t.isCompleted).length;
 
     return Column(
@@ -307,16 +277,8 @@ class _SmartRouteScreenState extends State<SmartRouteScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _StatChip(
-                label: 'Orders',
-                value: '${_todaysOrders.length}',
-                icon: Icons.inventory_2,
-              ),
-              _StatChip(
-                label: 'Trips',
-                value: '${_trips.length}',
-                icon: Icons.route,
-              ),
+              _StatChip(label: 'Orders', value: '${_todaysOrders.length}', icon: Icons.inventory_2),
+              _StatChip(label: 'Trips', value: '${_trips.length}', icon: Icons.route),
               _StatChip(
                 label: 'Done',
                 value: '$completedTrips/${_trips.length}',
@@ -356,11 +318,7 @@ class _TripCard extends StatefulWidget {
   final VoidCallback onStartTrip;
   final VoidCallback onMarkDelivered;
 
-  const _TripCard({
-    required this.trip,
-    required this.onStartTrip,
-    required this.onMarkDelivered,
-  });
+  const _TripCard({required this.trip, required this.onStartTrip, required this.onMarkDelivered});
 
   @override
   State<_TripCard> createState() => _TripCardState();
@@ -372,8 +330,9 @@ class _TripCardState extends State<_TripCard> {
   @override
   Widget build(BuildContext context) {
     final trip = widget.trip;
-    final Color cardColor =
-        trip.isCompleted ? AppTheme.success.withValues(alpha: 0.08) : AppTheme.white;
+    final Color cardColor = trip.isCompleted
+        ? AppTheme.success.withValues(alpha: 0.08)
+        : AppTheme.white;
 
     return Card(
       color: cardColor,
@@ -389,27 +348,22 @@ class _TripCardState extends State<_TripCard> {
           // Trip header
           ListTile(
             leading: CircleAvatar(
-              backgroundColor: trip.isCompleted
-                  ? AppTheme.success
-                  : AppTheme.primary,
+              backgroundColor: trip.isCompleted ? AppTheme.success : AppTheme.primary,
               child: Text(
                 '${trip.tripNumber}',
-                style: const TextStyle(
-                    color: AppTheme.white, fontWeight: FontWeight.bold),
+                style: const TextStyle(color: AppTheme.white, fontWeight: FontWeight.bold),
               ),
             ),
-            title: Text(
-              trip.label,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+            title: Text(trip.label, style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text(
+              trip.areaLabel,
+              style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
             ),
-            subtitle: Text(trip.areaLabel,
-                style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: AppTheme.info.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -417,31 +371,28 @@ class _TripCardState extends State<_TripCard> {
                   child: Text(
                     '₹${trip.estimatedEarnings.round()}',
                     style: const TextStyle(
-                        color: AppTheme.info,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13),
+                      color: AppTheme.info,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 4),
                 IconButton(
-                  icon: Icon(
-                      _expanded ? Icons.expand_less : Icons.expand_more),
-                  onPressed: () =>
-                      setState(() => _expanded = !_expanded),
+                  icon: Icon(_expanded ? Icons.expand_less : Icons.expand_more),
+                  onPressed: () => setState(() => _expanded = !_expanded),
                 ),
               ],
             ),
           ),
 
           // Expandable order list
-          if (_expanded)
-            ...trip.orders.map((order) => _OrderRow(order: order)),
+          if (_expanded) ...trip.orders.map((order) => _OrderRow(order: order)),
 
           // Action buttons
           if (!trip.isCompleted)
             Padding(
-              padding:
-                  const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
               child: Row(
                 children: [
                   Expanded(
@@ -477,10 +428,10 @@ class _TripCardState extends State<_TripCard> {
                 children: [
                   Icon(Icons.check_circle, color: AppTheme.success, size: 18),
                   SizedBox(width: 6),
-                  Text('Trip Completed',
-                      style: TextStyle(
-                          color: AppTheme.success,
-                          fontWeight: FontWeight.bold)),
+                  Text(
+                    'Trip Completed',
+                    style: TextStyle(color: AppTheme.success, fontWeight: FontWeight.bold),
+                  ),
                 ],
               ),
             ),
@@ -522,20 +473,17 @@ class _OrderRow extends StatelessWidget {
               children: [
                 Text(
                   order.customerName,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w600, fontSize: 13),
+                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
                 ),
                 Text(
                   order.deliveryAddress.fullAddress,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                      fontSize: 11, color: AppTheme.grey600),
+                  style: const TextStyle(fontSize: 11, color: AppTheme.grey600),
                 ),
                 Text(
                   '${order.items.length} items · ₹${order.totalAmount.round()}',
-                  style: const TextStyle(
-                      fontSize: 11, color: AppTheme.grey500),
+                  style: const TextStyle(fontSize: 11, color: AppTheme.grey500),
                 ),
               ],
             ),
@@ -558,8 +506,7 @@ class _StatChip extends StatelessWidget {
   final String value;
   final IconData icon;
 
-  const _StatChip(
-      {required this.label, required this.value, required this.icon});
+  const _StatChip({required this.label, required this.value, required this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -568,13 +515,11 @@ class _StatChip extends StatelessWidget {
       children: [
         Icon(icon, color: AppTheme.white, size: 18),
         const SizedBox(height: 2),
-        Text(value,
-            style: const TextStyle(
-                color: AppTheme.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 15)),
-        Text(label,
-            style: const TextStyle(color: Colors.white70, fontSize: 10)),
+        Text(
+          value,
+          style: const TextStyle(color: AppTheme.white, fontWeight: FontWeight.bold, fontSize: 15),
+        ),
+        Text(label, style: const TextStyle(color: Colors.white70, fontSize: 10)),
       ],
     );
   }
@@ -592,15 +537,17 @@ class _EmptyView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.local_shipping_outlined,
-              size: 72, color: AppTheme.grey300),
+          Icon(Icons.local_shipping_outlined, size: 72, color: AppTheme.grey300),
           SizedBox(height: 16),
-          Text('No deliveries assigned today',
-              style: TextStyle(
-                  color: AppTheme.grey500, fontWeight: FontWeight.w500)),
+          Text(
+            'No deliveries assigned today',
+            style: TextStyle(color: AppTheme.grey500, fontWeight: FontWeight.w500),
+          ),
           SizedBox(height: 8),
-          Text('Check back later or contact the shop owner.',
-              style: TextStyle(color: AppTheme.grey400, fontSize: 12)),
+          Text(
+            'Check back later or contact the shop owner.',
+            style: TextStyle(color: AppTheme.grey400, fontSize: 12),
+          ),
         ],
       ),
     );
@@ -621,12 +568,13 @@ class _ErrorView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline,
-                size: 60, color: AppTheme.error),
+            const Icon(Icons.error_outline, size: 60, color: AppTheme.error),
             const SizedBox(height: 12),
-            Text(message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: AppTheme.grey700)),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppTheme.grey700),
+            ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: onRetry,

@@ -7,8 +7,7 @@ import '../models/employee_performance_model.dart';
 /// Service for fetching and processing business analytics data
 /// Provides comprehensive metrics for owner dashboard
 class BusinessAnalyticsService {
-  static final BusinessAnalyticsService _instance =
-      BusinessAnalyticsService._internal();
+  static final BusinessAnalyticsService _instance = BusinessAnalyticsService._internal();
 
   factory BusinessAnalyticsService() => _instance;
 
@@ -27,23 +26,19 @@ class BusinessAnalyticsService {
       debugPrint('[Analytics] Fetching dashboard metrics for period: $period');
 
       // Fetch revenue data
-      final revenueData =
-          await _getRevenueMetrics(startDate, endDate);
+      final revenueData = await _getRevenueMetrics(startDate, endDate);
 
       // Fetch order data
-      final orderData =
-          await _getOrderMetrics(startDate, endDate);
+      final orderData = await _getOrderMetrics(startDate, endDate);
 
       // Fetch customer data
-      final customerData =
-          await _getCustomerMetrics(startDate, endDate);
+      final customerData = await _getCustomerMetrics(startDate, endDate);
 
       // Fetch product data
       final productData = await _getProductMetrics();
 
       // Fetch delivery data
-      final deliveryData =
-          await _getDeliveryMetrics(startDate, endDate);
+      final deliveryData = await _getDeliveryMetrics(startDate, endDate);
 
       // Fetch employee data
       final employeeData = await _getEmployeeMetrics();
@@ -56,8 +51,7 @@ class BusinessAnalyticsService {
         dateTo: endDate,
         totalRevenue: revenueData['total'] as double,
         revenueGrowth: revenueData['growth'] as double,
-        revenueByPaymentMethod:
-            revenueData['byPaymentMethod'] as Map<String, double>,
+        revenueByPaymentMethod: revenueData['byPaymentMethod'] as Map<String, double>,
         revenueByCategory: revenueData['byCategory'] as Map<String, double>,
         totalOrders: orderData['total'] as int,
         pendingOrders: orderData['pending'] as int,
@@ -81,8 +75,7 @@ class BusinessAnalyticsService {
         onTimeDeliveryRate: deliveryData['onTimeRate'] as double,
         failedDeliveryRate: deliveryData['failedRate'] as double,
         avgDeliveryTime: deliveryData['avgTime'] as double,
-        topDeliveryAgents:
-            deliveryData['topAgents'] as List<DeliveryAgentMetric>,
+        topDeliveryAgents: deliveryData['topAgents'] as List<DeliveryAgentMetric>,
         topPerformers: employeeData,
         avgPackingQuality: 0.0, // Will be calculated from employee data
         grossProfit: profitData['gross'] as double,
@@ -112,9 +105,7 @@ class BusinessAnalyticsService {
 
       final prevRevenue = prevData['total'] as double;
       final currentRevenue = data['total'] as double;
-      final trend = prevRevenue > 0
-          ? ((currentRevenue - prevRevenue) / prevRevenue) * 100
-          : 0.0;
+      final trend = prevRevenue > 0 ? ((currentRevenue - prevRevenue) / prevRevenue) * 100 : 0.0;
 
       return {
         'today': data['today'] ?? 0.0,
@@ -155,8 +146,7 @@ class BusinessAnalyticsService {
         refundedOrders: refunded,
         avgTimeToDeliver: orderData['avgDeliveryTime'] as double? ?? 0.0,
         onTimeDeliveryRate: orderData['onTimeRate'] as double? ?? 0.0,
-        customerSatisfactionRating:
-            orderData['avgRating'] as double? ?? 0.0,
+        customerSatisfactionRating: orderData['avgRating'] as double? ?? 0.0,
         timestamp: DateTime.now(),
       );
     } catch (e) {
@@ -232,15 +222,12 @@ class BusinessAnalyticsService {
           revenue += (data['totalAmount'] as num?)?.toDouble() ?? 0.0;
         } else if (paymentStatus == 'failed') {
           failedPayments++;
-          final reason = data['paymentFailureReason'] as String? ??
-              'unknown';
+          final reason = data['paymentFailureReason'] as String? ?? 'unknown';
           failureReasons[reason] = (failureReasons[reason] ?? 0) + 1;
         }
       }
 
-      final successRate = totalPayments > 0
-          ? (successfulPayments / totalPayments) * 100
-          : 0.0;
+      final successRate = totalPayments > 0 ? (successfulPayments / totalPayments) * 100 : 0.0;
 
       return {
         'totalPayments': totalPayments,
@@ -258,13 +245,17 @@ class BusinessAnalyticsService {
 
   Future<List<EmployeeMetric>> _getEmployeeMetrics() async {
     final employees = await getEmployeeAnalytics();
-    return employees.map((e) => EmployeeMetric(
-      employeeId: e.employeeId,
-      employeeName: e.name,
-      role: e.role,
-      ordersCompleted: e.ordersPacked,
-      qualityScore: e.qualityScore,
-    )).toList();
+    return employees
+        .map(
+          (e) => EmployeeMetric(
+            employeeId: e.employeeId,
+            employeeName: e.name,
+            role: e.role,
+            ordersCompleted: e.ordersPacked,
+            qualityScore: e.qualityScore,
+          ),
+        )
+        .toList();
   }
 
   /// Get employee performance analytics
@@ -284,8 +275,7 @@ class BusinessAnalyticsService {
             role: data['role'] as String? ?? 'Employee',
             ordersPacked: data['ordersPacked'] as int? ?? 0,
             qualityScore: (data['qualityScore'] as num?)?.toDouble() ?? 0.0,
-            avgTimePerOrder:
-                (data['avgTimePerOrder'] as num?)?.toDouble() ?? 0.0,
+            avgTimePerOrder: (data['avgTimePerOrder'] as num?)?.toDouble() ?? 0.0,
             rating: (data['rating'] as num?)?.toDouble() ?? 0.0,
             efficiency: (data['efficiency'] as num?)?.toDouble() ?? 0.0,
             lastUpdated: data['lastUpdated'] != null
@@ -341,10 +331,7 @@ class BusinessAnalyticsService {
         startDate = DateTime(now.year, now.month, now.day);
     }
 
-    return {
-      'start': startDate,
-      'end': now,
-    };
+    return {'start': startDate, 'end': now};
   }
 
   /// Get previous period date range
@@ -379,8 +366,7 @@ class BusinessAnalyticsService {
   }
 
   /// Fetch revenue metrics
-  Future<Map<String, dynamic>> _getRevenueMetrics(
-      DateTime startDate, DateTime endDate) async {
+  Future<Map<String, dynamic>> _getRevenueMetrics(DateTime startDate, DateTime endDate) async {
     final orders = await _firestore
         .collection('orders')
         .where('createdAt', isGreaterThanOrEqualTo: startDate)
@@ -399,17 +385,14 @@ class BusinessAnalyticsService {
 
       // Group by payment method
       final paymentMethod = data['paymentMethod'] as String? ?? 'unknown';
-      byPaymentMethod[paymentMethod] =
-          (byPaymentMethod[paymentMethod] ?? 0.0) + amount;
+      byPaymentMethod[paymentMethod] = (byPaymentMethod[paymentMethod] ?? 0.0) + amount;
 
       // Group by category (from order items)
       final items = data['items'] as List? ?? [];
       for (var item in items) {
-        final category =
-            (item as Map<String, dynamic>)['category'] as String? ?? 'other';
-        final itemAmount =
-            ((item['quantity'] as num? ?? 0) * (item['price'] as num? ?? 0))
-                .toDouble();
+        final category = (item as Map<String, dynamic>)['category'] as String? ?? 'other';
+        final itemAmount = ((item['quantity'] as num? ?? 0) * (item['price'] as num? ?? 0))
+            .toDouble();
         byCategory[category] = (byCategory[category] ?? 0.0) + itemAmount;
       }
     }
@@ -423,8 +406,7 @@ class BusinessAnalyticsService {
   }
 
   /// Fetch order metrics
-  Future<Map<String, dynamic>> _getOrderMetrics(
-      DateTime startDate, DateTime endDate) async {
+  Future<Map<String, dynamic>> _getOrderMetrics(DateTime startDate, DateTime endDate) async {
     final orders = await _firestore
         .collection('orders')
         .where('createdAt', isGreaterThanOrEqualTo: startDate)
@@ -476,8 +458,7 @@ class BusinessAnalyticsService {
           final createdAt = data['createdAt'] as Timestamp?;
           final deliveredAt = data['deliveredAt'] as Timestamp?;
           if (createdAt != null && deliveredAt != null) {
-            totalDeliveryTime +=
-                deliveredAt.toDate().difference(createdAt.toDate()).inMinutes;
+            totalDeliveryTime += deliveredAt.toDate().difference(createdAt.toDate()).inMinutes;
 
             // Check if on-time
             const expectedDeliveryTime = 24 * 60; // 24 hours in minutes
@@ -505,12 +486,9 @@ class BusinessAnalyticsService {
       }
     }
 
-    final avgOrderValue =
-        total > 0 ? totalRevenue / deliveredCount : 0.0;
-    final avgDeliveryTime =
-        deliveredCount > 0 ? totalDeliveryTime / deliveredCount : 0.0;
-    final onTimeRate =
-        deliveredCount > 0 ? (onTimeCount / deliveredCount) * 100 : 0.0;
+    final avgOrderValue = total > 0 ? totalRevenue / deliveredCount : 0.0;
+    final avgDeliveryTime = deliveredCount > 0 ? totalDeliveryTime / deliveredCount : 0.0;
+    final onTimeRate = deliveredCount > 0 ? (onTimeCount / deliveredCount) * 100 : 0.0;
     final avgRating = ratedCount > 0 ? totalRating / ratedCount : 0.0;
 
     return {
@@ -531,8 +509,7 @@ class BusinessAnalyticsService {
   }
 
   /// Fetch customer metrics
-  Future<Map<String, dynamic>> _getCustomerMetrics(
-      DateTime startDate, DateTime endDate) async {
+  Future<Map<String, dynamic>> _getCustomerMetrics(DateTime startDate, DateTime endDate) async {
     final orders = await _firestore
         .collection('orders')
         .where('createdAt', isGreaterThanOrEqualTo: startDate)
@@ -558,8 +535,7 @@ class BusinessAnalyticsService {
 
         // Check if repeat customer (more than 1 order in period)
         final orderCount = orders.docs
-            .where((o) =>
-                (o.data()['customerId'] as String? ?? '') == customerId)
+            .where((o) => (o.data()['customerId'] as String? ?? '') == customerId)
             .length;
         if (orderCount > 1) {
           repeatingCustomers.add(customerId);
@@ -640,8 +616,7 @@ class BusinessAnalyticsService {
   }
 
   /// Fetch delivery metrics
-  Future<Map<String, dynamic>> _getDeliveryMetrics(
-      DateTime startDate, DateTime endDate) async {
+  Future<Map<String, dynamic>> _getDeliveryMetrics(DateTime startDate, DateTime endDate) async {
     final deliveries = await _firestore
         .collection('deliveries')
         .where('createdAt', isGreaterThanOrEqualTo: startDate)
@@ -667,8 +642,7 @@ class BusinessAnalyticsService {
         final createdAt = data['createdAt'] as Timestamp?;
         final deliveredAt = data['deliveredAt'] as Timestamp?;
         if (createdAt != null && deliveredAt != null) {
-          totalDeliveryTime +=
-              deliveredAt.toDate().difference(createdAt.toDate()).inMinutes;
+          totalDeliveryTime += deliveredAt.toDate().difference(createdAt.toDate()).inMinutes;
         }
       } else if (status == 'failed') {
         failedDeliveries++;
@@ -682,29 +656,28 @@ class BusinessAnalyticsService {
         final rating = data['rating'] as num?;
         if (rating != null) {
           final current = agentRatings[agentId] ?? 0.0;
-          agentRatings[agentId] =
-              (current + rating.toDouble()) / 2;
+          agentRatings[agentId] = (current + rating.toDouble()) / 2;
         }
       }
     }
 
-    final onTimeRate = totalDeliveries > 0
-        ? (successfulDeliveries / totalDeliveries) * 100
+    final onTimeRate = totalDeliveries > 0 ? (successfulDeliveries / totalDeliveries) * 100 : 0.0;
+    final failedRate = totalDeliveries > 0 ? (failedDeliveries / totalDeliveries) * 100 : 0.0;
+    final avgDeliveryTime = successfulDeliveries > 0
+        ? totalDeliveryTime / successfulDeliveries
         : 0.0;
-    final failedRate =
-        totalDeliveries > 0 ? (failedDeliveries / totalDeliveries) * 100 : 0.0;
-    final avgDeliveryTime =
-        successfulDeliveries > 0 ? totalDeliveryTime / successfulDeliveries : 0.0;
 
     // Get top agents
     final topAgents = agentDeliveries.entries
-        .map((e) => DeliveryAgentMetric(
-              agentId: e.key,
-              agentName: e.key, // Would need to fetch actual name
-              deliveriesCompleted: e.value,
-              avgRating: agentRatings[e.key] ?? 0.0,
-              onTimeRate: onTimeRate,
-            ))
+        .map(
+          (e) => DeliveryAgentMetric(
+            agentId: e.key,
+            agentName: e.key, // Would need to fetch actual name
+            deliveriesCompleted: e.value,
+            avgRating: agentRatings[e.key] ?? 0.0,
+            onTimeRate: onTimeRate,
+          ),
+        )
         .toList();
     topAgents.sort((a, b) => b.deliveriesCompleted.compareTo(a.deliveriesCompleted));
 
@@ -718,8 +691,7 @@ class BusinessAnalyticsService {
   }
 
   /// Fetch profit metrics
-  Future<Map<String, dynamic>> _getProfitMetrics(
-      DateTime startDate, DateTime endDate) async {
+  Future<Map<String, dynamic>> _getProfitMetrics(DateTime startDate, DateTime endDate) async {
     // This is simplified; actual implementation would need cost data
     final revenueData = await _getRevenueMetrics(startDate, endDate);
     final revenue = revenueData['total'] as double;
@@ -736,11 +708,7 @@ class BusinessAnalyticsService {
       'gross': grossProfit,
       'net': netProfit,
       'margin': margin,
-      'breakdown': {
-        'cogs': revenue * 0.4,
-        'operations': revenue * 0.2,
-        'delivery': revenue * 0.1,
-      },
+      'breakdown': {'cogs': revenue * 0.4, 'operations': revenue * 0.2, 'delivery': revenue * 0.1},
     };
   }
 }

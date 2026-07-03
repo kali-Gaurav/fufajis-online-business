@@ -7,13 +7,7 @@ import '../services/offline_notification_queue_service.dart';
 import '../services/campaign_service.dart';
 
 // Notification types enum
-enum NotificationType {
-  orderUpdate,
-  promotion,
-  priceDrop,
-  shopUpdate,
-  systemMessage,
-}
+enum NotificationType { orderUpdate, promotion, priceDrop, shopUpdate, systemMessage }
 
 class NotificationModel {
   final String id;
@@ -72,9 +66,7 @@ class NotificationModel {
   static NotificationType? parseNotificationType(String? typeStr) {
     if (typeStr == null) return null;
     try {
-      return NotificationType.values.firstWhere(
-        (e) => e.toString().split('.').last == typeStr,
-      );
+      return NotificationType.values.firstWhere((e) => e.toString().split('.').last == typeStr);
     } catch (e) {
       return null;
     }
@@ -101,8 +93,7 @@ class NotificationSettings {
     TimeOfDay? quietHoursStart,
     TimeOfDay? quietHoursEnd,
     this.frequencyLimitPerHour = 10,
-  }) : quietHoursStart =
-           quietHoursStart ?? const TimeOfDay(hour: 22, minute: 0),
+  }) : quietHoursStart = quietHoursStart ?? const TimeOfDay(hour: 22, minute: 0),
        quietHoursEnd = quietHoursEnd ?? const TimeOfDay(hour: 8, minute: 0);
 
   factory NotificationSettings.fromMap(Map<String, dynamic> map) {
@@ -158,8 +149,7 @@ class NotificationSettings {
 class NotificationProvider with ChangeNotifier {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final OfflineNotificationQueueService _queueService =
-      OfflineNotificationQueueService();
+  final OfflineNotificationQueueService _queueService = OfflineNotificationQueueService();
   final Connectivity _connectivity = Connectivity();
 
   bool _isLoading = false;
@@ -208,9 +198,7 @@ class NotificationProvider with ChangeNotifier {
       _updateConnectivityStatus(result, userId);
 
       // Listen for connectivity changes
-      _connectivitySubscription = _connectivity.onConnectivityChanged.listen((
-        result,
-      ) {
+      _connectivitySubscription = _connectivity.onConnectivityChanged.listen((result) {
         _updateConnectivityStatus(result, userId);
       });
     } catch (e) {
@@ -254,10 +242,7 @@ class NotificationProvider with ChangeNotifier {
           .snapshots()
           .listen((data) {
             _notifications = data.docs
-                .map(
-                  (doc) =>
-                      NotificationModel.fromMap({...doc.data(), 'id': doc.id}),
-                )
+                .map((doc) => NotificationModel.fromMap({...doc.data(), 'id': doc.id}))
                 .toList();
             notifyListeners();
           });
@@ -435,9 +420,9 @@ class NotificationProvider with ChangeNotifier {
       debugPrint('FCM Token: $_fcmToken');
 
       if (userId != null && _fcmToken != null) {
-        await FirebaseFirestore.instance.collection('users').doc(userId).update(
-          {'fcmToken': _fcmToken},
-        );
+        await FirebaseFirestore.instance.collection('users').doc(userId).update({
+          'fcmToken': _fcmToken,
+        });
       }
     } catch (e) {
       debugPrint('Error getting FCM token: $e');
@@ -451,9 +436,9 @@ class NotificationProvider with ChangeNotifier {
       debugPrint('Refreshed FCM Token: $token');
 
       if (userId != null) {
-        await FirebaseFirestore.instance.collection('users').doc(userId).update(
-          {'fcmToken': token},
-        );
+        await FirebaseFirestore.instance.collection('users').doc(userId).update({
+          'fcmToken': token,
+        });
       }
     });
   }

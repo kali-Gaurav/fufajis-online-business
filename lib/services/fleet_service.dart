@@ -21,10 +21,7 @@ class FleetService {
   FleetService._internal();
 
   Future<void> submitCodSettlement(CodSettlementModel settlement) async {
-    await _db
-        .collection('cod_settlements')
-        .doc(settlement.id)
-        .set(settlement.toMap());
+    await _db.collection('cod_settlements').doc(settlement.id).set(settlement.toMap());
   }
 
   Stream<List<CodSettlementModel>> getCodSettlementsStream(String riderId) {
@@ -34,9 +31,7 @@ class FleetService {
         .orderBy('submittedAt', descending: true)
         .snapshots()
         .map((snapshot) {
-          return snapshot.docs
-              .map((doc) => CodSettlementModel.fromMap(doc.data()))
-              .toList();
+          return snapshot.docs.map((doc) => CodSettlementModel.fromMap(doc.data())).toList();
         });
   }
 
@@ -46,9 +41,7 @@ class FleetService {
         .orderBy('submittedAt', descending: true)
         .snapshots()
         .map((snapshot) {
-          return snapshot.docs
-              .map((doc) => CodSettlementModel.fromMap(doc.data()))
-              .toList();
+          return snapshot.docs.map((doc) => CodSettlementModel.fromMap(doc.data())).toList();
         });
   }
 
@@ -80,7 +73,7 @@ class FleetService {
       if (notes != null) {
         updates['notes'] = notes;
       }
-      
+
       transaction.update(docRef, updates);
 
       // If approved, decrement rider's cash balance
@@ -106,14 +99,14 @@ class FleetService {
       attendance.clockInLongitude,
     );
 
-    if (distance > 1.0) { // 1.0 km
-      throw Exception('Clock-in failed. You must be within 1km of the store. Current distance: ${distance.toStringAsFixed(1)}km.');
+    if (distance > 1.0) {
+      // 1.0 km
+      throw Exception(
+        'Clock-in failed. You must be within 1km of the store. Current distance: ${distance.toStringAsFixed(1)}km.',
+      );
     }
 
-    await _db
-        .collection('attendance')
-        .doc(attendance.id)
-        .set(attendance.toMap());
+    await _db.collection('attendance').doc(attendance.id).set(attendance.toMap());
 
     // Fetch rider branchId from profile
     final riderDoc = await _db.collection('users').doc(attendance.riderId).get();
@@ -148,16 +141,12 @@ class FleetService {
     // Attempt online sync
     final bool online = OfflineSyncService().isOnline.value;
     if (online) {
-        await _db.collection('rider_shifts').doc(shiftId).set(shift.toMap());
-        await SqliteService().markRiderShiftSynced(shiftId);
+      await _db.collection('rider_shifts').doc(shiftId).set(shift.toMap());
+      await SqliteService().markRiderShiftSynced(shiftId);
     }
   }
 
-  Future<void> clockOutRider(
-    String attendanceId,
-    double latitude,
-    double longitude,
-  ) async {
+  Future<void> clockOutRider(String attendanceId, double latitude, double longitude) async {
     // 1. Fetch attendance
     final attendanceDoc = await _db.collection('attendance').doc(attendanceId).get();
     if (!attendanceDoc.exists) throw Exception('Attendance record not found');
@@ -166,17 +155,22 @@ class FleetService {
     // 2. Guard check: Cash balance limit
     final double cashBalance = await getRiderCashBalance(attendance.riderId);
     if (cashBalance > 500.0) {
-      throw Exception('Clock-out blocked. You have outstanding cash balance of ₹${cashBalance.round()}. Minimum limit for clock-out is ₹500. Please settle with the owner first.');
+      throw Exception(
+        'Clock-out blocked. You have outstanding cash balance of ₹${cashBalance.round()}. Minimum limit for clock-out is ₹500. Please settle with the owner first.',
+      );
     }
 
     // 3. Guard check: Active deliveries
-    final activeDeliveriesQuery = await _db.collection('deliveries')
+    final activeDeliveriesQuery = await _db
+        .collection('deliveries')
         .where('employeeId', isEqualTo: attendance.riderId)
         .where('status', whereIn: ['assigned', 'accepted', 'picked_up', 'on_the_way', 'arrived'])
         .get();
 
     if (activeDeliveriesQuery.docs.isNotEmpty) {
-      throw Exception('Clock-out blocked. You have ${activeDeliveriesQuery.docs.length} active deliveries in progress.');
+      throw Exception(
+        'Clock-out blocked. You have ${activeDeliveriesQuery.docs.length} active deliveries in progress.',
+      );
     }
 
     // Fetch rider branchId from profile
@@ -209,11 +203,11 @@ class FleetService {
 
     final bool online = OfflineSyncService().isOnline.value;
     if (online) {
-        await _db.collection('rider_shifts').doc(shiftId).update({
-          'currentState': RiderShiftState.offline.name,
-          'endedAt': FieldValue.serverTimestamp(),
-        });
-        await SqliteService().markRiderShiftSynced(shiftId);
+      await _db.collection('rider_shifts').doc(shiftId).update({
+        'currentState': RiderShiftState.offline.name,
+        'endedAt': FieldValue.serverTimestamp(),
+      });
+      await SqliteService().markRiderShiftSynced(shiftId);
     }
   }
 
@@ -224,22 +218,16 @@ class FleetService {
         .orderBy('clockInTime', descending: true)
         .snapshots()
         .map((snapshot) {
-          return snapshot.docs
-              .map((doc) => AttendanceModel.fromMap(doc.data()))
-              .toList();
+          return snapshot.docs.map((doc) => AttendanceModel.fromMap(doc.data())).toList();
         });
   }
 
   Stream<List<AttendanceModel>> getAllAttendanceStream() {
-    return _db
-        .collection('attendance')
-        .orderBy('clockInTime', descending: true)
-        .snapshots()
-        .map((snapshot) {
-          return snapshot.docs
-              .map((doc) => AttendanceModel.fromMap(doc.data()))
-              .toList();
-        });
+    return _db.collection('attendance').orderBy('clockInTime', descending: true).snapshots().map((
+      snapshot,
+    ) {
+      return snapshot.docs.map((doc) => AttendanceModel.fromMap(doc.data())).toList();
+    });
   }
 
   /// Step 30.1: Auto-dispatch to nearest active agent
@@ -268,12 +256,7 @@ class FleetService {
         final double? riderLng = data['lastLongitude'] as double?;
 
         if (riderLat != null && riderLng != null) {
-          final distance = _calculateDistance(
-            shopLat,
-            shopLng,
-            riderLat,
-            riderLng,
-          );
+          final distance = _calculateDistance(shopLat, shopLng, riderLat, riderLng);
           if (distance < minDistance) {
             minDistance = distance;
             nearestRiderId = data['riderId'] as String?;
@@ -288,12 +271,7 @@ class FleetService {
     }
   }
 
-  double _calculateDistance(
-    double lat1,
-    double lon1,
-    double lat2,
-    double lon2,
-  ) {
+  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
     // Basic Pythagorean distance for demo (not for global usage, but okay for hyperlocal)
     return (lat1 - lat2) * (lat1 - lat2) + (lon1 - lon2) * (lon1 - lon2);
   }
@@ -316,17 +294,22 @@ class FleetService {
       // 1. Rider Cash Limit Check (₹5,000)
       final double currentCash = ((riderData['currentCashBalance'] as num?) ?? 0.0).toDouble();
       if (currentCash > 5000) {
-        throw Exception('Rider ${_getSafeName(riderData)} has ₹${currentCash.round()} un-settled cash. Limit is ₹5,000.');
+        throw Exception(
+          'Rider ${_getSafeName(riderData)} has ₹${currentCash.round()} un-settled cash. Limit is ₹5,000.',
+        );
       }
 
       // 2. Order Stacking Check (Max 3 active orders)
-      final activeDeliveriesQuery = await _db.collection('deliveries')
+      final activeDeliveriesQuery = await _db
+          .collection('deliveries')
           .where('employeeId', isEqualTo: riderId)
           .where('status', whereIn: ['assigned', 'accepted', 'picked_up', 'on_the_way', 'arrived'])
           .get();
 
       if (activeDeliveriesQuery.docs.length >= 3) {
-        throw Exception('Rider ${_getSafeName(riderData)} already has 3 active deliveries. Complete them before assigning more.');
+        throw Exception(
+          'Rider ${_getSafeName(riderData)} already has 3 active deliveries. Complete them before assigning more.',
+        );
       }
 
       // 3. State Machine Check (Must be packed/ready)
@@ -347,7 +330,8 @@ class FleetService {
         'deliveryAgentName': (riderData['name'] as String?) ?? 'Rider',
         'deliveryAgentPhone': (riderData['phoneNumber'] as String?) ?? '',
         'assignmentTime': FieldValue.serverTimestamp(),
-        'status': 'OrderStatus.processing', // Moving from packed to processing (preparing for delivery)
+        'status':
+            'OrderStatus.processing', // Moving from packed to processing (preparing for delivery)
       });
 
       // 3. Create a delivery job record
@@ -370,7 +354,8 @@ class FleetService {
     });
   }
 
-  String _getSafeName(Map<String, dynamic> data) => (data['name'] as String?) ?? (data['phoneNumber'] as String?) ?? 'Unknown';
+  String _getSafeName(Map<String, dynamic> data) =>
+      (data['name'] as String?) ?? (data['phoneNumber'] as String?) ?? 'Unknown';
 
   /// Rider accepts the delivery
   Future<void> acceptDelivery(String deliveryId) async {
@@ -409,7 +394,7 @@ class FleetService {
   Future<void> pickupOrder(String deliveryId) async {
     final deliveryDoc = await _db.collection('deliveries').doc(deliveryId).get();
     if (!deliveryDoc.exists) return;
-    
+
     final data = deliveryDoc.data()!;
     final orderId = data['orderId'] as String?;
     final riderId = data['employeeId'] as String?;
@@ -419,7 +404,9 @@ class FleetService {
     final riderDoc = await _db.collection('users').doc(riderId).get();
     final double currentCash = ((riderDoc.data()?['currentCashBalance'] as num?) ?? 0.0).toDouble();
     if (currentCash > 5000) {
-      throw Exception('Cash limit exceeded (₹${currentCash.round()}). Please settle cash before picking up new orders.');
+      throw Exception(
+        'Cash limit exceeded (₹${currentCash.round()}). Please settle cash before picking up new orders.',
+      );
     }
 
     // Use OrderService to update status so OTP is generated and WhatsApp is sent
@@ -511,7 +498,8 @@ class FleetService {
 
     // 1. Geofence Check (50 meters)
     final distance = _calculateHaversine(destLat, destLng, currLat, currLng);
-    if (distance > 0.05) { // 0.05 km = 50 meters
+    if (distance > 0.05) {
+      // 0.05 km = 50 meters
       throw Exception('You are too far from the customer location to complete delivery.');
     }
 
@@ -522,7 +510,7 @@ class FleetService {
         .collection('secure')
         .doc('otp')
         .get();
-    
+
     Object? correctOtp;
     if (secureOtpDoc.exists) {
       correctOtp = secureOtpDoc.data()?['otp'];
@@ -553,9 +541,10 @@ class FleetService {
 
   double _calculateHaversine(double lat1, double lon1, double lat2, double lon2) {
     const p = 0.017453292519943295;
-    final a = 0.5 - cos((lat2 - lat1) * p)/2 +
-          cos(lat1 * p) * cos(lat2 * p) *
-          (1 - cos((lon2 - lon1) * p))/2;
+    final a =
+        0.5 -
+        cos((lat2 - lat1) * p) / 2 +
+        cos(lat1 * p) * cos(lat2 * p) * (1 - cos((lon2 - lon1) * p)) / 2;
     return 12742 * asin(sqrt(a));
   }
 
@@ -567,11 +556,12 @@ class FleetService {
   }
 
   Stream<List<DeliveryModel>> getActiveDeliveriesStream(String riderId) {
-    return _db.collection('deliveries')
-      .where('employeeId', isEqualTo: riderId)
-      .where('status', whereIn: ['assigned', 'accepted', 'picked_up', 'on_the_way', 'arrived'])
-      .snapshots()
-      .map((snap) => snap.docs.map((doc) => DeliveryModel.fromMap(doc.data())).toList());
+    return _db
+        .collection('deliveries')
+        .where('employeeId', isEqualTo: riderId)
+        .where('status', whereIn: ['assigned', 'accepted', 'picked_up', 'on_the_way', 'arrived'])
+        .snapshots()
+        .map((snap) => snap.docs.map((doc) => DeliveryModel.fromMap(doc.data())).toList());
   }
 
   /// Trigger SOS Alert

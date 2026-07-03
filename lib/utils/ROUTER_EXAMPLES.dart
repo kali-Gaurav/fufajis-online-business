@@ -1,3 +1,4 @@
+
 /// Practical Examples for Fufaji Navigation
 ///
 /// Copy-paste ready code snippets for common routing tasks.
@@ -34,14 +35,8 @@ class CustomerNavigationExamples {
   }
 
   /// Show order confirmation
-  static void showOrderConfirmation(
-    BuildContext context,
-    String orderId,
-    String orderNumber,
-  ) {
-    context.push(
-      '/customer/order-confirmation?orderId=$orderId&orderNumber=$orderNumber',
-    );
+  static void showOrderConfirmation(BuildContext context, String orderId, String orderNumber) {
+    context.push('/customer/order-confirmation?orderId=$orderId&orderNumber=$orderNumber');
   }
 
   /// View all orders
@@ -506,11 +501,7 @@ class AuthNavigationExamples {
   }
 
   /// Verify with role parameter
-  static void verifyPhoneForRole(
-    BuildContext context,
-    String phoneNumber,
-    String role,
-  ) {
+  static void verifyPhoneForRole(BuildContext context, String phoneNumber, String role) {
     final encoded = Uri.encodeComponent(phoneNumber);
     context.push('/otp/$encoded?role=$role');
   }
@@ -521,11 +512,7 @@ class AuthNavigationExamples {
   }
 
   /// Handle verification wall (when guest tries protected action)
-  static void verifyIdentity(
-    BuildContext context,
-    String returnPath,
-    String? reason,
-  ) {
+  static void verifyIdentity(BuildContext context, String returnPath, String? reason) {
     final encoded = Uri.encodeComponent(returnPath);
     final reasonQuery = reason != null ? '&reason=${Uri.encodeComponent(reason)}' : '';
     context.go('/auth/verify-wall?returnPath=$encoded$reasonQuery');
@@ -548,11 +535,7 @@ class AuthNavigationExamples {
 
 class ErrorNavigationExamples {
   /// Show unauthorized access screen
-  static void showUnauthorized(
-    BuildContext context,
-    String? reason,
-    String? returnPath,
-  ) {
+  static void showUnauthorized(BuildContext context, String? reason, String? returnPath) {
     final reasonQuery = reason != null ? '&reason=${Uri.encodeComponent(reason)}' : '';
     final pathQuery = returnPath != null ? '?returnPath=${Uri.encodeComponent(returnPath)}' : '';
     context.go('/unauthorized$pathQuery$reasonQuery');
@@ -598,11 +581,7 @@ class ErrorNavigationExamples {
 
 class ConditionalNavigationExamples {
   /// Navigate based on authentication state
-  static void navigateToHome(
-    BuildContext context,
-    bool isLoggedIn,
-    String userRole,
-  ) {
+  static void navigateToHome(BuildContext context, bool isLoggedIn, String userRole) {
     if (!isLoggedIn) {
       context.go('/login');
       return;
@@ -639,11 +618,7 @@ class ConditionalNavigationExamples {
   }
 
   /// Navigate based on verification status
-  static void navigateIfVerified(
-    BuildContext context,
-    bool isVerified,
-    String intendedPath,
-  ) {
+  static void navigateIfVerified(BuildContext context, bool isVerified, String intendedPath) {
     if (isVerified) {
       context.go(intendedPath);
     } else {

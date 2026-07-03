@@ -3,7 +3,6 @@ import 'package:fufajis_online/services/order_status_engine.dart';
 import 'package:fufajis_online/constants/order_status.dart';
 
 void main() {
-
   late OrderStatusEngine engine;
 
   setUp(() {
@@ -13,11 +12,26 @@ void main() {
   group('OrderStatusEngine Workflow Validation', () {
     test('Valid workflow transitions should succeed', () {
       // Valid path: pending -> confirmed -> processing -> packed -> outForDelivery -> delivered
-      expect(() => engine.validateTransition(OrderStatus.pending, OrderStatus.confirmed, 'admin'), returnsNormally);
-      expect(() => engine.validateTransition(OrderStatus.confirmed, OrderStatus.processing, 'admin'), returnsNormally);
-      expect(() => engine.validateTransition(OrderStatus.processing, OrderStatus.packed, 'admin'), returnsNormally);
-      expect(() => engine.validateTransition(OrderStatus.packed, OrderStatus.outForDelivery, 'admin'), returnsNormally);
-      expect(() => engine.validateTransition(OrderStatus.outForDelivery, OrderStatus.delivered, 'admin'), returnsNormally);
+      expect(
+        () => engine.validateTransition(OrderStatus.pending, OrderStatus.confirmed, 'admin'),
+        returnsNormally,
+      );
+      expect(
+        () => engine.validateTransition(OrderStatus.confirmed, OrderStatus.processing, 'admin'),
+        returnsNormally,
+      );
+      expect(
+        () => engine.validateTransition(OrderStatus.processing, OrderStatus.packed, 'admin'),
+        returnsNormally,
+      );
+      expect(
+        () => engine.validateTransition(OrderStatus.packed, OrderStatus.outForDelivery, 'admin'),
+        returnsNormally,
+      );
+      expect(
+        () => engine.validateTransition(OrderStatus.outForDelivery, OrderStatus.delivered, 'admin'),
+        returnsNormally,
+      );
     });
 
     test('Invalid workflow transitions should throw InvalidStatusTransitionException', () {
@@ -25,7 +39,7 @@ void main() {
         () => engine.validateTransition(OrderStatus.pending, OrderStatus.delivered, 'admin'),
         throwsA(isA<InvalidStatusTransitionException>()),
       );
-      
+
       expect(
         () => engine.validateTransition(OrderStatus.delivered, OrderStatus.processing, 'admin'),
         throwsA(isA<InvalidStatusTransitionException>()),
@@ -49,18 +63,30 @@ void main() {
     test('Delivery Partner is only allowed specific transitions', () {
       // Allowed: outForDelivery, delivered
       expect(
-        () => engine.validateTransition(OrderStatus.packed, OrderStatus.outForDelivery, 'delivery_partner'),
+        () => engine.validateTransition(
+          OrderStatus.packed,
+          OrderStatus.outForDelivery,
+          'delivery_partner',
+        ),
         returnsNormally,
       );
-      
+
       expect(
-        () => engine.validateTransition(OrderStatus.outForDelivery, OrderStatus.delivered, 'delivery_partner'),
+        () => engine.validateTransition(
+          OrderStatus.outForDelivery,
+          OrderStatus.delivered,
+          'delivery_partner',
+        ),
         returnsNormally,
       );
-      
+
       // Blocked: Cancelled
       expect(
-        () => engine.validateTransition(OrderStatus.processing, OrderStatus.cancelled, 'delivery_partner'),
+        () => engine.validateTransition(
+          OrderStatus.processing,
+          OrderStatus.cancelled,
+          'delivery_partner',
+        ),
         throwsA(isA<UnauthorizedWorkflowException>()),
       );
     });

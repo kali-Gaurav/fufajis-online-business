@@ -76,17 +76,10 @@ class _NetworkErrorScreenState extends State<NetworkErrorScreen> {
                         color: isDark ? AppTheme.grey800 : Colors.white,
                         shape: BoxShape.circle,
                         boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
-                            blurRadius: 12,
-                          )
+                          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.wifi_off_rounded,
-                        size: 64,
-                        color: AppTheme.primary,
-                      ),
+                      child: const Icon(Icons.wifi_off_rounded, size: 64, color: AppTheme.primary),
                     ),
                   ),
                 ),
@@ -115,11 +108,7 @@ class _NetworkErrorScreenState extends State<NetworkErrorScreen> {
                   child: Text(
                     'Please check your internet connection and try again. '
                     'You can also use offline mode to browse cached data.',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: subTextColor,
-                      height: 1.4,
-                    ),
+                    style: TextStyle(fontSize: 16, color: subTextColor, height: 1.4),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -197,9 +186,7 @@ class _NetworkErrorScreenState extends State<NetworkErrorScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
                           color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.white,
-                          border: Border.all(
-                            color: isDark ? AppTheme.grey800 : AppTheme.grey200,
-                          ),
+                          border: Border.all(color: isDark ? AppTheme.grey800 : AppTheme.grey200),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         alignment: Alignment.center,
@@ -230,10 +217,7 @@ class _NetworkErrorScreenState extends State<NetworkErrorScreen> {
                         color: isDark ? const Color(0xFF2C2C2C) : AppTheme.grey200,
                       ),
                       boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.02),
-                          blurRadius: 10,
-                        )
+                        BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10),
                       ],
                     ),
                     child: Column(
@@ -270,16 +254,14 @@ class _NetworkErrorScreenState extends State<NetworkErrorScreen> {
                     builder: (context, snapshot) {
                       final isOnline = snapshot.data ?? false;
                       final bannerColor = isOnline ? AppTheme.success : AppTheme.error;
-                      
+
                       return AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         decoration: BoxDecoration(
                           color: bannerColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: bannerColor.withValues(alpha: 0.3),
-                          ),
+                          border: Border.all(color: bannerColor.withValues(alpha: 0.3)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -327,10 +309,7 @@ class _NetworkErrorScreenState extends State<NetworkErrorScreen> {
         Text('•', style: TextStyle(fontSize: 16, color: color)),
         const SizedBox(width: 8),
         Expanded(
-          child: Text(
-            text,
-            style: TextStyle(color: color, fontSize: 13),
-          ),
+          child: Text(text, style: TextStyle(color: color, fontSize: 13)),
         ),
       ],
     );

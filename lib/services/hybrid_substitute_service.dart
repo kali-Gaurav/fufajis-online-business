@@ -117,7 +117,9 @@ class HybridSubstituteService {
         replacementPrice: substitute.price.toDouble(),
       );
     }
-    debugPrint('[HybridSubstitute] Substitution proposed: ${item.productName} → ${substitute.name}');
+    debugPrint(
+      '[HybridSubstitute] Substitution proposed: ${item.productName} → ${substitute.name}',
+    );
   }
 
   /// Handles customer approve/decline, or auto-approves after deadline.
@@ -135,8 +137,7 @@ class HybridSubstituteService {
     bool changed = false;
 
     final updatedItems = order.items.map((it) {
-      if (it.id == itemId &&
-          (it.substitutionStatus == 'pending' || isAutoResolution)) {
+      if (it.id == itemId && (it.substitutionStatus == 'pending' || isAutoResolution)) {
         changed = true;
         if (approved) {
           return it.copyWith(
@@ -206,13 +207,14 @@ class HybridSubstituteService {
     required List<ProductModel> candidates,
     String? preferredBrandId,
   }) {
-    final available = candidates
-        .where((p) => p.id != original.id && p.stockQuantity > 0)
-        .toList();
+    final available = candidates.where((p) => p.id != original.id && p.stockQuantity > 0).toList();
 
     available.sort((a, b) {
-      return _computeScore(original, b, preferredBrandId)
-          .compareTo(_computeScore(original, a, preferredBrandId));
+      return _computeScore(
+        original,
+        b,
+        preferredBrandId,
+      ).compareTo(_computeScore(original, a, preferredBrandId));
     });
 
     return available.take(5).toList();
@@ -232,11 +234,15 @@ class HybridSubstituteService {
     // Price proximity (within 20% price range = max score)
     final double candidatePrice = candidate.price.toDouble();
     final double originalPrice = original.price.toDouble();
-    final priceDelta = originalPrice > 0 ? (candidatePrice - originalPrice).abs() / originalPrice : 0.0;
+    final priceDelta = originalPrice > 0
+        ? (candidatePrice - originalPrice).abs() / originalPrice
+        : 0.0;
     if (priceDelta <= 0.05) {
       score += 20;
-    } else if (priceDelta <= 0.10) score += 15;
-    else if (priceDelta <= 0.20) score += 10;
+    } else if (priceDelta <= 0.10)
+      score += 15;
+    else if (priceDelta <= 0.20)
+      score += 10;
 
     // Customer's preferred brand
     if (preferredBrandId != null && candidate.brand == preferredBrandId) score += 15;
@@ -269,8 +275,11 @@ class HybridSubstituteService {
       if (subId.isEmpty) return null;
 
       final subDoc = await _firestore
-          .collection('shops').doc(shopId)
-          .collection('products').doc(subId).get();
+          .collection('shops')
+          .doc(shopId)
+          .collection('products')
+          .doc(subId)
+          .get();
 
       if (!subDoc.exists) return null;
       final substitute = ProductModel.fromMap(subDoc.data()!);
@@ -291,8 +300,10 @@ class HybridSubstituteService {
   Future<String?> _getCustomerBrandPreference(String userId, String productId) async {
     try {
       final doc = await _firestore
-          .collection('users').doc(userId)
-          .collection('substitution_prefs').doc(productId)
+          .collection('users')
+          .doc(userId)
+          .collection('substitution_prefs')
+          .doc(productId)
           .get();
       return doc.data()?['preferredBrand'] as String?;
     } catch (_) {
@@ -312,7 +323,9 @@ class HybridSubstituteService {
   Future<List<ProductModel>> _fetchCatalog(String shopId, String category) async {
     try {
       final snap = await _firestore
-          .collection('shops').doc(shopId).collection('products')
+          .collection('shops')
+          .doc(shopId)
+          .collection('products')
           .where('category', isEqualTo: category)
           .where('isAvailable', isEqualTo: true)
           .get();
@@ -331,21 +344,25 @@ class HybridSubstituteService {
     bool requiresApproval = true,
   }) async {
     await _firestore
-        .collection('shops').doc(shopId)
-        .collection('substitute_overrides').doc(productId)
+        .collection('shops')
+        .doc(shopId)
+        .collection('substitute_overrides')
+        .doc(productId)
         .set({
-      'substituteProductId': substituteProductId,
-      'isActive': true,
-      'requiresApproval': requiresApproval,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+          'substituteProductId': substituteProductId,
+          'isActive': true,
+          'requiresApproval': requiresApproval,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
     debugPrint('[HybridSubstitute] Manual override set for $productId → $substituteProductId');
   }
 
   Future<void> removeManualOverride(String shopId, String productId) async {
     await _firestore
-        .collection('shops').doc(shopId)
-        .collection('substitute_overrides').doc(productId)
+        .collection('shops')
+        .doc(shopId)
+        .collection('substitute_overrides')
+        .doc(productId)
         .update({'isActive': false});
   }
 }

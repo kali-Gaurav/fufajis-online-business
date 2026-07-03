@@ -13,8 +13,7 @@ class InventoryTransferScreen extends StatefulWidget {
   const InventoryTransferScreen({super.key});
 
   @override
-  State<InventoryTransferScreen> createState() =>
-      _InventoryTransferScreenState();
+  State<InventoryTransferScreen> createState() => _InventoryTransferScreenState();
 }
 
 class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
@@ -42,15 +41,15 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: AppTheme.error));
   }
 
   void _showSuccess(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: AppTheme.success),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: AppTheme.success));
   }
 
   Future<void> _lookupProduct(String barcode) async {
@@ -150,7 +149,6 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -197,8 +195,7 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
                                 children: [
                                   Text(
                                     'Barcode: $_scannedBarcode',
-                                    style:
-                                        const TextStyle(fontWeight: FontWeight.bold),
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                   if (_product != null) Text(_product!.name),
                                 ],
@@ -227,14 +224,10 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Transfer Details',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
+                      Text('Transfer Details', style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 12),
                       _buildDetailRow('Product', _product!.name),
-                      _buildDetailRow(
-                          'Current Stock', _product!.stockQuantity.toString()),
+                      _buildDetailRow('Current Stock', _product!.stockQuantity.toString()),
                       const SizedBox(height: 12),
                       const Text(
                         'Destination Branch',
@@ -245,26 +238,22 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
                         initialValue: _selectedDestinationBranchId,
                         hint: const Text('Select branch'),
                         items: _branches
-                            .where((b) =>
-                                b.id !=
-                                context.read<AuthProvider>().currentBranch?.id)
+                            .where((b) => b.id != context.read<AuthProvider>().currentBranch?.id)
                             .map((branch) {
-                          return DropdownMenuItem(
-                            value: branch.id,
-                            child: Text(branch.branchName),
-                          );
-                        }).toList(),
+                              return DropdownMenuItem(
+                                value: branch.id,
+                                child: Text(branch.branchName),
+                              );
+                            })
+                            .toList(),
                         onChanged: (value) {
-                          final branch =
-                              _branches.firstWhere((b) => b.id == value);
+                          final branch = _branches.firstWhere((b) => b.id == value);
                           setState(() {
                             _selectedDestinationBranchId = value;
                             _selectedDestinationBranchName = branch.branchName;
                           });
                         },
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                        ),
+                        decoration: const InputDecoration(border: OutlineInputBorder()),
                       ),
                       const SizedBox(height: 12),
                       TextField(
@@ -309,38 +298,38 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
             // Recent Transfers
             if (_transfers.isNotEmpty) ...[
               const SizedBox(height: 24),
-              Text(
-                'Recent Transfers',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
+              Text('Recent Transfers', style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
-              ..._transfers.map((transfer) => Card(
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: _getStatusColor(transfer.status.name),
-                        child: const Icon(Icons.swap_horiz, color: Colors.white),
-                      ),
-                      title: Text(transfer.productName),
-                      subtitle: Text(
-                          '${transfer.sourceBranchName} → ${transfer.destinationBranchName}'),
-                      trailing: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'x${transfer.quantity}',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            transfer.status.name.toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: _getStatusColor(transfer.status.name),
-                            ),
-                          ),
-                        ],
-                      ),
+              ..._transfers.map(
+                (transfer) => Card(
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: _getStatusColor(transfer.status.name),
+                      child: const Icon(Icons.swap_horiz, color: Colors.white),
                     ),
-                  )),
+                    title: Text(transfer.productName),
+                    subtitle: Text(
+                      '${transfer.sourceBranchName} → ${transfer.destinationBranchName}',
+                    ),
+                    trailing: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'x${transfer.quantity}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          transfer.status.name.toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: _getStatusColor(transfer.status.name),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ],
           ],
         ),
@@ -384,10 +373,7 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
         title: const Text('Enter Barcode', style: TextStyle(fontWeight: FontWeight.w700)),
         content: TextField(
           autofocus: true,
-          decoration: const InputDecoration(
-            labelText: 'Barcode',
-            border: OutlineInputBorder(),
-          ),
+          decoration: const InputDecoration(labelText: 'Barcode', border: OutlineInputBorder()),
           onSubmitted: (value) {
             if (value.isNotEmpty) {
               Navigator.pop(context);
@@ -398,12 +384,7 @@ class _InventoryTransferScreenState extends State<InventoryTransferScreen> {
             }
           },
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-        ],
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel'))],
       ),
     );
   }

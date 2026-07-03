@@ -5,15 +5,15 @@ import '../services/product_service.dart';
 
 class ReviewProvider extends ChangeNotifier {
   final ProductService _productService = ProductService();
-  
+
   List<ProductReviewModel> _reviews = [];
   bool _isLoading = false;
   String? _error;
-  
+
   // Rating distribution
   Map<int, int> _ratingDistribution = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0};
   double _averageRating = 0.0;
-  
+
   // Getters
   List<ProductReviewModel> get reviews => _reviews;
   bool get isLoading => _isLoading;
@@ -127,21 +127,14 @@ class ReviewProvider extends ChangeNotifier {
   }
 
   /// Add shop owner response to a review
-  Future<void> addOwnerResponse(
-    String productId,
-    String reviewId,
-    String response,
-  ) async {
+  Future<void> addOwnerResponse(String productId, String reviewId, String response) async {
     try {
       await FirebaseFirestore.instance
           .collection('products')
           .doc(productId)
           .collection('reviews')
           .doc(reviewId)
-          .update({
-            'ownerReply': response,
-            'ownerReplyDate': FieldValue.serverTimestamp(),
-          });
+          .update({'ownerReply': response, 'ownerReplyDate': FieldValue.serverTimestamp()});
       notifyListeners();
     } catch (e) {
       _error = e.toString();
@@ -151,21 +144,14 @@ class ReviewProvider extends ChangeNotifier {
   }
 
   /// Flag a review for moderation
-  Future<void> flagReview(
-    String productId,
-    String reviewId,
-    List<String> reasons,
-  ) async {
+  Future<void> flagReview(String productId, String reviewId, List<String> reasons) async {
     try {
       await FirebaseFirestore.instance
           .collection('products')
           .doc(productId)
           .collection('reviews')
           .doc(reviewId)
-          .update({
-            'isFlagged': true,
-            'flagReasons': reasons,
-          });
+          .update({'isFlagged': true, 'flagReasons': reasons});
       notifyListeners();
     } catch (e) {
       _error = e.toString();
@@ -182,9 +168,7 @@ class ReviewProvider extends ChangeNotifier {
           .doc(productId)
           .collection('reviews')
           .doc(reviewId)
-          .update({
-            'helpfulCount': FieldValue.increment(1),
-          });
+          .update({'helpfulCount': FieldValue.increment(1)});
       notifyListeners();
     } catch (e) {
       _error = e.toString();
@@ -194,11 +178,7 @@ class ReviewProvider extends ChangeNotifier {
   }
 
   /// Check if user has already reviewed this product from a specific order
-  Future<bool> hasUserReviewedProduct(
-    String productId,
-    String userId,
-    String orderId,
-  ) async {
+  Future<bool> hasUserReviewedProduct(String productId, String userId, String orderId) async {
     try {
       final snapshot = await FirebaseFirestore.instance
           .collection('products')
@@ -225,9 +205,7 @@ class ReviewProvider extends ChangeNotifier {
           .orderBy('createdAt', descending: true)
           .get();
 
-      return snapshot.docs
-          .map((doc) => ProductReviewModel.fromMap(doc.data()))
-          .toList();
+      return snapshot.docs.map((doc) => ProductReviewModel.fromMap(doc.data())).toList();
     } catch (e) {
       _error = e.toString();
       notifyListeners();
@@ -243,10 +221,7 @@ class ReviewProvider extends ChangeNotifier {
           .doc(productId)
           .collection('reviews')
           .doc(reviewId)
-          .update({
-            'isFlagged': false,
-            'isApproved': true,
-          });
+          .update({'isFlagged': false, 'isApproved': true});
       notifyListeners();
     } catch (e) {
       _error = e.toString();
@@ -263,9 +238,7 @@ class ReviewProvider extends ChangeNotifier {
           .doc(productId)
           .collection('reviews')
           .doc(reviewId)
-          .update({
-            'isApproved': false,
-          });
+          .update({'isApproved': false});
       notifyListeners();
     } catch (e) {
       _error = e.toString();

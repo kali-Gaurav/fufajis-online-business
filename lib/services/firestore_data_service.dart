@@ -24,10 +24,7 @@ class FirestoreDataService extends ChangeNotifier {
       _error = null;
       notifyListeners();
 
-      await _firestore.collection(collection).doc(documentId).set(
-            data,
-            SetOptions(merge: merge),
-          );
+      await _firestore.collection(collection).doc(documentId).set(data, SetOptions(merge: merge));
 
       _isLoading = false;
       notifyListeners();
@@ -40,10 +37,7 @@ class FirestoreDataService extends ChangeNotifier {
   }
 
   /// Create a new document with auto-generated ID
-  Future<String> addDocument(
-    String collection,
-    Map<String, dynamic> data,
-  ) async {
+  Future<String> addDocument(String collection, Map<String, dynamic> data) async {
     try {
       _isLoading = true;
       _error = null;
@@ -64,25 +58,20 @@ class FirestoreDataService extends ChangeNotifier {
   }
 
   /// Get a single document
-  Future<Map<String, dynamic>?> getDocument(
-    String collection,
-    String documentId,
-  ) async {
+  Future<Map<String, dynamic>?> getDocument(String collection, String documentId) async {
     try {
       _isLoading = true;
       _error = null;
       notifyListeners();
 
-      final DocumentSnapshot doc =
-          await _firestore.collection(collection).doc(documentId).get();
+      final DocumentSnapshot doc = await _firestore.collection(collection).doc(documentId).get();
 
       _isLoading = false;
       notifyListeners();
 
       return doc.data() as Map<String, dynamic>?;
     } catch (e) {
-      _error =
-          'Failed to get document from $collection: ${e.toString()}';
+      _error = 'Failed to get document from $collection: ${e.toString()}';
       _isLoading = false;
       notifyListeners();
       rethrow;
@@ -138,9 +127,7 @@ class FirestoreDataService extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
 
-      return snapshot.docs
-          .map((doc) => doc.data() as Map<String, dynamic>)
-          .toList();
+      return snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
     } catch (e) {
       _error = 'Failed to get collection $collection: ${e.toString()}';
       _isLoading = false;
@@ -173,10 +160,7 @@ class FirestoreDataService extends ChangeNotifier {
   }
 
   /// Delete a document
-  Future<void> deleteDocument(
-    String collection,
-    String documentId,
-  ) async {
+  Future<void> deleteDocument(String collection, String documentId) async {
     try {
       _isLoading = true;
       _error = null;
@@ -195,9 +179,7 @@ class FirestoreDataService extends ChangeNotifier {
   }
 
   /// Batch write operations
-  Future<void> batchWrite(
-    Map<String, Map<String, dynamic>> operations,
-  ) async {
+  Future<void> batchWrite(Map<String, Map<String, dynamic>> operations) async {
     try {
       _isLoading = true;
       _error = null;
@@ -231,9 +213,7 @@ class FirestoreDataService extends ChangeNotifier {
   }
 
   /// Transaction for atomic multi-step operations
-  Future<T> runTransaction<T>(
-    Future<T> Function(Transaction) updateFunction,
-  ) async {
+  Future<T> runTransaction<T>(Future<T> Function(Transaction) updateFunction) async {
     try {
       _isLoading = true;
       _error = null;
@@ -254,15 +234,8 @@ class FirestoreDataService extends ChangeNotifier {
   }
 
   /// Real-time listener for a single document
-  Stream<Map<String, dynamic>?> streamDocument(
-    String collection,
-    String documentId,
-  ) {
-    return _firestore
-        .collection(collection)
-        .doc(documentId)
-        .snapshots()
-        .map((doc) => doc.data());
+  Stream<Map<String, dynamic>?> streamDocument(String collection, String documentId) {
+    return _firestore.collection(collection).doc(documentId).snapshots().map((doc) => doc.data());
   }
 
   /// Real-time listener for a collection
@@ -289,9 +262,7 @@ class FirestoreDataService extends ChangeNotifier {
     }
 
     return query.snapshots().map((snapshot) {
-      return snapshot.docs
-          .map((doc) => doc.data() as Map<String, dynamic>)
-          .toList();
+      return snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
     });
   }
 
@@ -323,12 +294,7 @@ class FirestoreDataService extends ChangeNotifier {
   }
 
   /// Increment a numeric field
-  Future<void> incrementField(
-    String collection,
-    String documentId,
-    String field,
-    num value,
-  ) async {
+  Future<void> incrementField(String collection, String documentId, String field, num value) async {
     try {
       _isLoading = true;
       _error = null;
@@ -401,12 +367,7 @@ class FirestoreDataService extends ChangeNotifier {
   }
 
   /// Apply where clause with operator
-  Query _applyWhereClause(
-    Query query,
-    String field,
-    String? operator,
-    dynamic value,
-  ) {
+  Query _applyWhereClause(Query query, String field, String? operator, dynamic value) {
     switch (operator) {
       case '<':
         return query.where(field, isLessThan: value);

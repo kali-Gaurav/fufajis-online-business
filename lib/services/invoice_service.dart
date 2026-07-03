@@ -6,7 +6,6 @@ import '../models/order_model.dart';
 import '../models/invoice_model.dart';
 import '../utils/monetary_value.dart';
 import '../services/gst_service.dart';
-import 'dart:typed_data';
 
 /// Invoice PDF Generation Service
 /// Creates professional invoices for delivery completion
@@ -29,12 +28,14 @@ class InvoiceService {
 
       // Format items for display
       final itemsTable = order.items
-          .map((item) => [
-                item.name,
-                item.quantity.toString(),
-                '₹${item.price.toStringAsFixed(2)}',
-                '₹${(item.price * item.quantity).toStringAsFixed(2)}',
-              ])
+          .map(
+            (item) => [
+              item.name,
+              item.quantity.toString(),
+              '₹${item.price.toStringAsFixed(2)}',
+              '₹${(item.price * item.quantity).toStringAsFixed(2)}',
+            ],
+          )
           .toList();
 
       // Build PDF
@@ -51,17 +52,11 @@ class InvoiceService {
                   children: [
                     pw.Text(
                       'FUFAJI STORE',
-                      style: pw.TextStyle(
-                        fontSize: 24,
-                        fontWeight: pw.FontWeight.bold,
-                      ),
+                      style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
                     ),
                     pw.Text(
                       'INVOICE',
-                      style: pw.TextStyle(
-                        fontSize: 18,
-                        fontWeight: pw.FontWeight.bold,
-                      ),
+                      style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
                     ),
                   ],
                 ),
@@ -110,12 +105,8 @@ class InvoiceService {
                   headers: ['Item', 'Qty', 'Price', 'Total'],
                   data: itemsTable,
                   border: pw.TableBorder.all(),
-                  headerStyle: pw.TextStyle(
-                    fontWeight: pw.FontWeight.bold,
-                  ),
-                  headerDecoration: const pw.BoxDecoration(
-                    color: PdfColors.grey300,
-                  ),
+                  headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                  headerDecoration: const pw.BoxDecoration(color: PdfColors.grey300),
                   cellHeight: 30,
                   cellAlignment: pw.Alignment.centerLeft,
                 ),
@@ -160,10 +151,7 @@ class InvoiceService {
                       pw.Row(
                         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                         children: [
-                          pw.Text(
-                            'TOTAL:',
-                            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                          ),
+                          pw.Text('TOTAL:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                           pw.Text(
                             '₹${order.totalAmount.toStringAsFixed(2)}',
                             style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
@@ -199,15 +187,17 @@ class InvoiceService {
 
       // Create InvoiceItem list from order items
       final invoiceItems = order.items
-          .map((item) => InvoiceItem(
-            productId: item.productId,
-            productName: item.productName,
-            quantity: item.quantity,
-            unitPrice: item.price.toDouble(),
-            taxRate: 5.0, // Default 5% GST
-            amount: item.totalPrice,
-            tax: MonetaryValue(item.totalPrice.toDouble() * 0.05),
-          ))
+          .map(
+            (item) => InvoiceItem(
+              productId: item.productId,
+              productName: item.productName,
+              quantity: item.quantity,
+              unitPrice: item.price.toDouble(),
+              taxRate: 5.0, // Default 5% GST
+              amount: item.totalPrice,
+              tax: MonetaryValue(item.totalPrice.toDouble() * 0.05),
+            ),
+          )
           .toList();
 
       final invoice = InvoiceModel(
@@ -229,7 +219,9 @@ class InvoiceService {
         customerPhone: order.customerPhone,
         issueDate: DateTime.now(),
         paymentMethod: order.paymentMethod.toString(),
-        paymentStatus: order.paymentStatus == 'completed' ? PaymentStatus.paid : PaymentStatus.unpaid,
+        paymentStatus: order.paymentStatus == 'completed'
+            ? PaymentStatus.paid
+            : PaymentStatus.unpaid,
         pdfUrl: null,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
@@ -273,9 +265,7 @@ class InvoiceService {
           .orderBy('issueDate', descending: true)
           .get();
 
-      return snapshot.docs
-          .map((doc) => InvoiceModel.fromDocSnapshot(doc))
-          .toList();
+      return snapshot.docs.map((doc) => InvoiceModel.fromDocSnapshot(doc)).toList();
     } catch (e) {
       debugPrint('[Invoice] Error fetching customer invoices: $e');
       return [];
@@ -290,28 +280,22 @@ class InvoiceService {
     PaymentStatus? paymentStatus,
   }) async {
     try {
-      var query = _firestore
-          .collection('invoices')
-          .where('shopId', isEqualTo: shopId) as Query;
+      var query = _firestore.collection('invoices').where('shopId', isEqualTo: shopId) as Query;
 
       if (startDate != null) {
-        query = query.where('issueDate', isGreaterThanOrEqualTo: startDate) as Query;
+        query = query.where('issueDate', isGreaterThanOrEqualTo: startDate);
       }
 
       if (endDate != null) {
-        query = query.where('issueDate', isLessThanOrEqualTo: endDate) as Query;
+        query = query.where('issueDate', isLessThanOrEqualTo: endDate);
       }
 
       final snapshot = await query.orderBy('issueDate', descending: true).get();
 
-      var invoices = snapshot.docs
-          .map((doc) => InvoiceModel.fromDocSnapshot(doc))
-          .toList();
+      var invoices = snapshot.docs.map((doc) => InvoiceModel.fromDocSnapshot(doc)).toList();
 
       if (paymentStatus != null) {
-        invoices = invoices
-            .where((inv) => inv.paymentStatus == paymentStatus)
-            .toList();
+        invoices = invoices.where((inv) => inv.paymentStatus == paymentStatus).toList();
       }
 
       return invoices;
@@ -332,8 +316,10 @@ class InvoiceService {
           build: (context) => pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text('Invoice ${invoice.invoiceNumber}',
-                  style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                'Invoice ${invoice.invoiceNumber}',
+                style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
+              ),
               pw.SizedBox(height: 20),
               pw.Text('Shop: ${invoice.shopName}'),
               pw.Text('Customer: ${invoice.customerName}'),
@@ -368,10 +354,7 @@ class InvoiceService {
   /// Update payment status of an invoice
   Future<void> updatePaymentStatus(String invoiceId, PaymentStatus status) async {
     try {
-      await _firestore
-          .collection('invoices')
-          .doc(invoiceId)
-          .update({'paymentStatus': status.json});
+      await _firestore.collection('invoices').doc(invoiceId).update({'paymentStatus': status.json});
       debugPrint('[Invoice] Updated invoice $invoiceId to $status');
     } catch (e) {
       debugPrint('[Invoice] Error updating payment status: $e');
@@ -386,19 +369,19 @@ class InvoiceService {
     String? shopId,
   }) async {
     try {
-      var query = _firestore
-          .collection('invoices')
-          .where('issueDate', isGreaterThanOrEqualTo: startDate)
-          .where('issueDate', isLessThanOrEqualTo: endDate) as Query;
+      var query =
+          _firestore
+                  .collection('invoices')
+                  .where('issueDate', isGreaterThanOrEqualTo: startDate)
+                  .where('issueDate', isLessThanOrEqualTo: endDate)
+              as Query;
 
       if (shopId != null) {
-        query = query.where('shopId', isEqualTo: shopId) as Query;
+        query = query.where('shopId', isEqualTo: shopId);
       }
 
       final snapshot = await query.get();
-      final invoices = snapshot.docs
-          .map((doc) => InvoiceModel.fromDocSnapshot(doc))
-          .toList();
+      final invoices = snapshot.docs.map((doc) => InvoiceModel.fromDocSnapshot(doc)).toList();
 
       double totalTax = 0;
       double totalRevenue = 0;
@@ -415,7 +398,8 @@ class InvoiceService {
       }
 
       return GSTReport(
-        period: '${startDate.year}-${startDate.month}-${startDate.day} to ${endDate.year}-${endDate.month}-${endDate.day}',
+        period:
+            '${startDate.year}-${startDate.month}-${startDate.day} to ${endDate.year}-${endDate.month}-${endDate.day}',
         generatedAt: DateTime.now(),
         totalSales: totalRevenue,
         taxByRate: taxBreakdown,
@@ -444,10 +428,7 @@ class InvoiceService {
   /// Finalize an invoice (mark as immutable)
   Future<void> finalizeInvoice(String invoiceId) async {
     try {
-      await _firestore
-          .collection('invoices')
-          .doc(invoiceId)
-          .update({'isImmutable': true});
+      await _firestore.collection('invoices').doc(invoiceId).update({'isImmutable': true});
       debugPrint('[Invoice] Invoice finalized: $invoiceId');
     } catch (e) {
       debugPrint('[Invoice] Error finalizing invoice: $e');
@@ -460,7 +441,9 @@ class InvoiceService {
     try {
       final invoice = await generateInvoice(order);
       final pdfBytes = await generateInvoicePDF(invoice);
-      debugPrint('[Invoice] Invoice ready for printing: ${invoice.invoiceNumber} (${pdfBytes.length} bytes)');
+      debugPrint(
+        '[Invoice] Invoice ready for printing: ${invoice.invoiceNumber} (${pdfBytes.length} bytes)',
+      );
       // Print implementation would go here
     } catch (e) {
       debugPrint('[Invoice] Error generating and printing invoice: $e');

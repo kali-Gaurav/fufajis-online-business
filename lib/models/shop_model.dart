@@ -35,7 +35,8 @@ class ShopModel {
     this.active = true,
     this.address,
     this.contactPhone,
-    this.approvalStatus = ShopApprovalStatus.approved, // Default to approved for backward compatibility, but new flows should start at draft
+    this.approvalStatus = ShopApprovalStatus
+        .approved, // Default to approved for backward compatibility, but new flows should start at draft
     this.commissionPercent = 10.0,
     this.bankAccountNumber,
     this.bankIfsc,

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lottie/lottie.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../models/order_model.dart';
 import '../../models/delivery_type.dart';
@@ -28,17 +27,14 @@ class OrderConfirmationScreen extends StatefulWidget {
   final String? orderId;
   final String? orderNumber;
 
-  const OrderConfirmationScreen({
-    super.key,
-    this.orderId,
-    this.orderNumber,
-  });
+  const OrderConfirmationScreen({super.key, this.orderId, this.orderNumber});
 
   @override
   State<OrderConfirmationScreen> createState() => _OrderConfirmationScreenState();
 }
 
-class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with TickerProviderStateMixin {
+class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
+    with TickerProviderStateMixin {
   OrderModel? _order;
   bool _isLoading = true;
   String? _errorMessage;
@@ -54,10 +50,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
       vsync: this,
       duration: const Duration(milliseconds: 500),
     );
-    _confettiController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 3),
-    );
+    _confettiController = AnimationController(vsync: this, duration: const Duration(seconds: 3));
     _loadOrder();
   }
 
@@ -133,10 +126,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
     // Send confirmation notification
     final notificationService = NotificationService();
     if (_order != null) {
-      notificationService.triggerLocalOrderStatusNotification(
-        _order!.orderNumber,
-        'Order Placed',
-      );
+      notificationService.triggerLocalOrderStatusNotification(_order!.orderNumber, 'Order Placed');
 
       // Send SMS confirmation
       _sendOrderConfirmationSMS();
@@ -144,7 +134,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
   }
 
   /// Send order confirmation SMS to customer
-  /// 
+  ///
   /// [Requirements 4.9]: Send confirmation SMS/notification
   Future<void> _sendOrderConfirmationSMS() async {
     if (_order == null) return;
@@ -179,9 +169,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _buildBody(),
-    );
+    return Scaffold(body: _buildBody());
   }
 
   Widget _buildBody() {
@@ -191,10 +179,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
 
     if (_errorMessage != null) {
       return Center(
-        child: FjErrorState(
-          error: _errorMessage!,
-          onRetry: _loadOrder,
-        ),
+        child: FjErrorState(error: _errorMessage!, onRetry: _loadOrder),
       );
     }
 
@@ -236,10 +221,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
                     const SizedBox(height: 20),
 
                     // COD delivery OTP
-                    SpringCard(
-                      delay: const Duration(milliseconds: 160),
-                      child: _buildCodOtpCard(),
-                    ),
+                    SpringCard(delay: const Duration(milliseconds: 160), child: _buildCodOtpCard()),
 
                     // Order number and status
                     SpringCard(
@@ -302,7 +284,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
             ],
           ),
         ),
-        
+
         // Confetti overlay
         _buildConfettiOverlay(),
       ],
@@ -387,9 +369,9 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
             child: TextButton.icon(
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: otp));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('OTP copied to clipboard')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('OTP copied to clipboard')));
               },
               icon: const Icon(Icons.copy, size: 16),
               label: const Text('Copy OTP'),
@@ -403,11 +385,9 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
   // ── PaymentSuccessAnimation (for paid orders) ────────────────────────────
   Widget _buildPaymentSuccessSection() {
     if (_order == null) return const SizedBox.shrink();
-    final isPaid = _order!.paymentStatus == 'paid' ||
-        _order!.paymentMethod != PaymentMethod.cod;
+    final isPaid = _order!.paymentStatus == 'paid' || _order!.paymentMethod != PaymentMethod.cod;
     if (!isPaid) return const SizedBox.shrink();
-    final delivery =
-        DeliveryChargeCalculator.getFormattedDeliveryDate(_order!.deliveryType);
+    final delivery = DeliveryChargeCalculator.getFormattedDeliveryDate(_order!.deliveryType);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(8),
@@ -434,9 +414,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
   // ── WhatsApp share ───────────────────────────────────────────────────────
   Future<void> _shareViaWhatsApp() async {
     if (_order == null) return;
-    final items = _order!.items
-        .map((i) => '• ${i.productName} x${i.quantity}')
-        .join('\n');
+    final items = _order!.items.map((i) => '• ${i.productName} x${i.quantity}').join('\n');
     final message = Uri.encodeComponent(
       "Hi! I just placed an order on Fufaji's Online 🛒\n"
       'Order #: ${_order!.orderNumber}\n'
@@ -450,16 +428,16 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
         await launchUrl(url, mode: LaunchMode.externalApplication);
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('WhatsApp not installed')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('WhatsApp not installed')));
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not open WhatsApp: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Could not open WhatsApp: $e')));
       }
     }
   }
@@ -476,28 +454,19 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  AppTheme.primary.withValues(alpha: 0.12),
-                  Colors.white,
-                ],
+                colors: [AppTheme.primary.withValues(alpha: 0.12), Colors.white],
               ),
             ),
           ),
           // Ambient floating bubbles
-          const FloatingBubbles(
-            color: AppTheme.primary,
-            count: 8,
-          ),
+          const FloatingBubbles(color: AppTheme.primary, count: 8),
           // Animated success icon with particle burst
           Center(
             child: ParticlesBurst(
               key: _burstKey,
               radius: 100,
               child: ScaleTransition(
-                scale: CurvedAnimation(
-                  parent: _scaleController,
-                  curve: Curves.elasticOut,
-                ),
+                scale: CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
                 child: Container(
                   width: 130,
                   height: 130,
@@ -512,12 +481,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
                       ),
                     ],
                   ),
-                  child: Center(
-                    child: AnimatedCheck(
-                      size: 90,
-                      color: AppTheme.success,
-                    ),
-                  ),
+                  child: const Center(child: AnimatedCheck(size: 90, color: AppTheme.success)),
                 ),
               ),
             ),
@@ -545,20 +509,13 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
       children: [
         Text(
           'Order Placed Successfully!',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: AppTheme.grey900,
-          ),
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.grey900),
           textAlign: TextAlign.center,
         ),
         SizedBox(height: 8),
         Text(
           'Thank you for your order',
-          style: TextStyle(
-            fontSize: 14,
-            color: AppTheme.grey600,
-          ),
+          style: TextStyle(fontSize: 14, color: AppTheme.grey600),
           textAlign: TextAlign.center,
         ),
       ],
@@ -661,11 +618,15 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
                 style: TextStyle(fontSize: 13, color: AppTheme.grey600),
               ),
               Text(
-                _order!.deliveryCharge.toDouble() == 0 ? 'FREE' : '₹${_order!.deliveryCharge.round()}',
+                _order!.deliveryCharge.toDouble() == 0
+                    ? 'FREE'
+                    : '₹${_order!.deliveryCharge.round()}',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
-                  color: _order!.deliveryCharge.toDouble() == 0 ? AppTheme.success : AppTheme.grey900,
+                  color: _order!.deliveryCharge.toDouble() == 0
+                      ? AppTheme.success
+                      : AppTheme.grey900,
                 ),
               ),
             ],
@@ -715,11 +676,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
           ],
           if (_order!.walletAmountUsed.toDouble() > 0) ...[
             const SizedBox(height: 8),
-            _buildPriceRow(
-              'Wallet Used',
-              -_order!.walletAmountUsed.toDouble(),
-              isDiscount: true,
-            ),
+            _buildPriceRow('Wallet Used', -_order!.walletAmountUsed.toDouble(), isDiscount: true),
           ],
           const Divider(height: 24),
           Row(
@@ -766,10 +723,8 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
                     child: Image.network(
                       item.productImage,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => const Icon(
-                        Icons.image,
-                        color: AppTheme.grey400,
-                      ),
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Icon(Icons.image, color: AppTheme.grey400),
                     ),
                   )
                 : const Icon(Icons.image, color: AppTheme.grey400),
@@ -817,32 +772,33 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
     );
   }
 
-  Widget _buildPriceRow(String label, double value,
-      {bool isFree = false, bool isDiscount = false}) {
+  Widget _buildPriceRow(
+    String label,
+    double value, {
+    bool isFree = false,
+    bool isDiscount = false,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
-          style: TextStyle(
-            fontSize: 13,
-            color: isFree ? AppTheme.success : AppTheme.grey600,
-          ),
+          style: TextStyle(fontSize: 13, color: isFree ? AppTheme.success : AppTheme.grey600),
         ),
         Text(
           isDiscount
               ? '- ₹${value.abs().round()}'
               : isFree
-                  ? 'FREE'
-                  : '₹${value.round()}',
+              ? 'FREE'
+              : '₹${value.round()}',
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w500,
             color: isFree
                 ? AppTheme.success
                 : isDiscount
-                    ? AppTheme.success
-                    : AppTheme.grey900,
+                ? AppTheme.success
+                : AppTheme.grey900,
           ),
         ),
       ],
@@ -859,11 +815,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
         children: [
           Row(
             children: [
-              Icon(
-                paymentMethodOption.icon,
-                color: paymentMethodOption.iconColor,
-                size: 20,
-              ),
+              Icon(paymentMethodOption.icon, color: paymentMethodOption.iconColor, size: 20),
               const SizedBox(width: 8),
               const Text(
                 'Payment Method',
@@ -1016,8 +968,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
               ),
             ],
           ),
-          if (address.deliveryInstructions != null &&
-              address.deliveryInstructions!.isNotEmpty) ...[
+          if (address.deliveryInstructions != null && address.deliveryInstructions!.isNotEmpty) ...[
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.all(10),
@@ -1032,10 +983,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
                   Expanded(
                     child: Text(
                       address.deliveryInstructions!,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.grey700,
-                      ),
+                      style: const TextStyle(fontSize: 12, color: AppTheme.grey700),
                     ),
                   ),
                 ],
@@ -1080,9 +1028,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
           _buildTimelineStep(
             icon: Icons.check_circle,
             title: 'Order Placed',
-            subtitle: _order?.createdAt != null
-                ? _formatDateTime(_order!.createdAt)
-                : 'Confirmed',
+            subtitle: _order?.createdAt != null ? _formatDateTime(_order!.createdAt) : 'Confirmed',
             isCompleted: true,
             isFirst: true,
           ),
@@ -1110,16 +1056,10 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: isCompleted
-                    ? AppTheme.success.withValues(alpha: 0.1)
-                    : AppTheme.grey200,
+                color: isCompleted ? AppTheme.success.withValues(alpha: 0.1) : AppTheme.grey200,
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                color: isCompleted ? AppTheme.success : AppTheme.grey400,
-                size: 18,
-              ),
+              child: Icon(icon, color: isCompleted ? AppTheme.success : AppTheme.grey400, size: 18),
             ),
             if (!isFirst)
               Container(
@@ -1143,13 +1083,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
                 ),
               ),
               const SizedBox(height: 2),
-              Text(
-                subtitle,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.grey500,
-                ),
-              ),
+              Text(subtitle, style: const TextStyle(fontSize: 12, color: AppTheme.grey500)),
             ],
           ),
         ),
@@ -1173,10 +1107,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
       String subtitle = '';
       final historyEntry = statusHistory.firstWhere(
         (entry) => entry.status == status,
-        orElse: () => StatusHistoryEntry(
-          status: status,
-          timestamp: DateTime.now(),
-        ),
+        orElse: () => StatusHistoryEntry(status: status, timestamp: DateTime.now()),
       );
       subtitle = _formatDateTime(historyEntry.timestamp);
 
@@ -1283,10 +1214,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
   Widget _buildHelpSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.grey100,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      decoration: BoxDecoration(color: AppTheme.grey100, borderRadius: BorderRadius.circular(16)),
       child: Column(
         children: [
           const Row(
@@ -1340,13 +1268,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
             child: Icon(icon, color: AppTheme.primary, size: 24),
           ),
           const SizedBox(height: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 11,
-              color: AppTheme.grey600,
-            ),
-          ),
+          Text(label, style: const TextStyle(fontSize: 11, color: AppTheme.grey600)),
         ],
       ),
     );
@@ -1376,15 +1298,15 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
     try {
       final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
       if (!ok && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Call us at \${AppConfig.shopPhone}')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Call us at \${AppConfig.shopPhone}')));
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Call us at \${AppConfig.shopPhone}')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Call us at \${AppConfig.shopPhone}')));
       }
     }
   }
@@ -1393,9 +1315,9 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
     if (_order != null) {
       InvoiceService().generateAndPrintInvoice(_order!);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Order data not available')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Order data not available')));
     }
   }
 
@@ -1403,9 +1325,9 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
     if (_order != null && _order!.canCancel) {
       _showCancelOrderDialog();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('This order cannot be cancelled')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('This order cannot be cancelled')));
     }
   }
 
@@ -1425,18 +1347,12 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> with 
           'Are you sure you want to cancel this order? This action cannot be undone.',
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Keep Order'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Keep Order')),
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(context);
               final orderProvider = Provider.of<OrderProvider>(context, listen: false);
-              final success = await orderProvider.cancelOrder(
-                _order!.id,
-                'Cancelled by customer',
-              );
+              final success = await orderProvider.cancelOrder(_order!.id, 'Cancelled by customer');
               if (success && context.mounted) {
                 context.go('/customer/home');
               }
@@ -1519,11 +1435,7 @@ class _RateExperienceSheetState extends State<_RateExperienceSheet> {
           const SizedBox(height: 20),
           const Text(
             'How was your experience?',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.grey900,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey900),
           ),
           const SizedBox(height: 8),
           const Text(
@@ -1539,9 +1451,7 @@ class _RateExperienceSheetState extends State<_RateExperienceSheet> {
               return IconButton(
                 onPressed: () => setState(() => _rating = star),
                 icon: Icon(
-                  star <= _rating
-                      ? Icons.star_rounded
-                      : Icons.star_outline_rounded,
+                  star <= _rating ? Icons.star_rounded : Icons.star_outline_rounded,
                   color: star <= _rating ? AppTheme.warning : AppTheme.grey300,
                   size: 40,
                 ),
@@ -1557,14 +1467,9 @@ class _RateExperienceSheetState extends State<_RateExperienceSheet> {
                 backgroundColor: AppTheme.primary,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text(
-                'Submit Feedback',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              child: const Text('Submit Feedback', style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ),
           const SizedBox(height: 8),

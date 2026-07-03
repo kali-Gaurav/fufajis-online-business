@@ -15,8 +15,7 @@ class ScannerService {
   final List<Barcode> _scannedCodes = [];
   final ValueNotifier<Barcode?> _latestScan = ValueNotifier<Barcode?>(null);
   final ValueNotifier<bool> _isScanning = ValueNotifier<bool>(false);
-  final ValueNotifier<ScanResult?> _lastResult =
-      ValueNotifier<ScanResult?>(null);
+  final ValueNotifier<ScanResult?> _lastResult = ValueNotifier<ScanResult?>(null);
 
   // Getters
   MobileScannerController get controller => _controller;
@@ -129,12 +128,7 @@ class ScannerService {
   }) async {
     try {
       final logId = const Uuid().v4();
-      await _firestore
-          .collection('shops')
-          .doc(shopId)
-          .collection('scan_logs')
-          .doc(logId)
-          .set({
+      await _firestore.collection('shops').doc(shopId).collection('scan_logs').doc(logId).set({
         'id': logId,
         'shopId': shopId,
         'branchId': branchId,
@@ -155,11 +149,7 @@ class ScannerService {
 
   // ── Owner: real-time scan activity stream ───────────────────────────────────
 
-  Stream<QuerySnapshot> scanLogsStream({
-    required String shopId,
-    String? branchId,
-    int limit = 50,
-  }) {
+  Stream<QuerySnapshot> scanLogsStream({required String shopId, String? branchId, int limit = 50}) {
     Query query = _firestore
         .collection('shops')
         .doc(shopId)
@@ -200,18 +190,18 @@ class ScanResult {
   });
 
   Map<String, dynamic> toMap() => {
-        'code': code,
-        'format': format,
-        'type': type,
-        'timestamp': timestamp.toIso8601String(),
-      };
+    'code': code,
+    'format': format,
+    'type': type,
+    'timestamp': timestamp.toIso8601String(),
+  };
 
   factory ScanResult.fromMap(Map<String, dynamic> map) => ScanResult(
-        code: map['code'] as String? ?? '',
-        format: map['format'] as String? ?? 'unknown',
-        type: map['type'] as String? ?? 'unknown',
-        timestamp: DateTime.tryParse(map['timestamp'] as String? ?? '') ?? DateTime.now(),
-      );
+    code: map['code'] as String? ?? '',
+    format: map['format'] as String? ?? 'unknown',
+    type: map['type'] as String? ?? 'unknown',
+    timestamp: DateTime.tryParse(map['timestamp'] as String? ?? '') ?? DateTime.now(),
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -232,111 +222,111 @@ class ScanAction {
   });
 
   factory ScanAction.productScan(String barcode) => ScanAction._(
-        code: barcode,
-        actionType: ScanMode.productSearch,
-        displayLabel: 'Product Search',
-        metadata: {'barcode': barcode},
-      );
+    code: barcode,
+    actionType: ScanMode.productSearch,
+    displayLabel: 'Product Search',
+    metadata: {'barcode': barcode},
+  );
 
   factory ScanAction.orderPacking(String raw) => ScanAction._(
-        code: raw,
-        actionType: ScanMode.orderPacking,
-        displayLabel: 'Order Packing',
-        metadata: {'orderId': raw.replaceFirst('ORDER-', '')},
-      );
+    code: raw,
+    actionType: ScanMode.orderPacking,
+    displayLabel: 'Order Packing',
+    metadata: {'orderId': raw.replaceFirst('ORDER-', '')},
+  );
 
   factory ScanAction.dispatchVerification(String raw) => ScanAction._(
-        code: raw,
-        actionType: ScanMode.dispatch,
-        displayLabel: 'Dispatch Verification',
-        metadata: {'orderId': raw.replaceFirst('DISPATCH-', '')},
-      );
+    code: raw,
+    actionType: ScanMode.dispatch,
+    displayLabel: 'Dispatch Verification',
+    metadata: {'orderId': raw.replaceFirst('DISPATCH-', '')},
+  );
 
   factory ScanAction.proofOfDelivery(String raw) => ScanAction._(
-        code: raw,
-        actionType: ScanMode.deliveryPOD,
-        displayLabel: 'Proof of Delivery',
-        metadata: {'parcelId': raw.replaceFirst('PARCEL-', '')},
-      );
+    code: raw,
+    actionType: ScanMode.deliveryPOD,
+    displayLabel: 'Proof of Delivery',
+    metadata: {'parcelId': raw.replaceFirst('PARCEL-', '')},
+  );
 
   factory ScanAction.inventoryTransfer(String raw) => ScanAction._(
-        code: raw,
-        actionType: ScanMode.inventoryReceiving,
-        displayLabel: 'Inventory Transfer',
-        metadata: {'transferId': raw.replaceFirst('TRANSFER-', '')},
-      );
+    code: raw,
+    actionType: ScanMode.inventoryReceiving,
+    displayLabel: 'Inventory Transfer',
+    metadata: {'transferId': raw.replaceFirst('TRANSFER-', '')},
+  );
 
   factory ScanAction.stockAudit(String raw) => ScanAction._(
-        code: raw,
-        actionType: ScanMode.inventoryAudit,
-        displayLabel: 'Stock Audit',
-        metadata: {'auditId': raw.replaceFirst('AUDIT-', '')},
-      );
+    code: raw,
+    actionType: ScanMode.inventoryAudit,
+    displayLabel: 'Stock Audit',
+    metadata: {'auditId': raw.replaceFirst('AUDIT-', '')},
+  );
 
   factory ScanAction.returnItem(String raw) => ScanAction._(
-        code: raw,
-        actionType: ScanMode.returnItem,
-        displayLabel: 'Return Item',
-        metadata: {'returnId': raw.replaceFirst('RETURN-', '')},
-      );
+    code: raw,
+    actionType: ScanMode.returnItem,
+    displayLabel: 'Return Item',
+    metadata: {'returnId': raw.replaceFirst('RETURN-', '')},
+  );
 
   factory ScanAction.damageItem(String raw) => ScanAction._(
-        code: raw,
-        actionType: ScanMode.damageItem,
-        displayLabel: 'Damage Item',
-        metadata: {'damageId': raw.replaceFirst('DAMAGE-', '')},
-      );
+    code: raw,
+    actionType: ScanMode.damageItem,
+    displayLabel: 'Damage Item',
+    metadata: {'damageId': raw.replaceFirst('DAMAGE-', '')},
+  );
 
   factory ScanAction.riderScan(String raw) => ScanAction._(
-        code: raw,
-        actionType: ScanMode.riderScan,
-        displayLabel: 'Rider Scan',
-        metadata: {'riderId': raw.replaceFirst('RIDER-', '')},
-      );
+    code: raw,
+    actionType: ScanMode.riderScan,
+    displayLabel: 'Rider Scan',
+    metadata: {'riderId': raw.replaceFirst('RIDER-', '')},
+  );
 
   factory ScanAction.attendance(String raw) => ScanAction._(
-        code: raw,
-        actionType: ScanMode.attendance,
-        displayLabel: 'Attendance',
-        metadata: {'attendanceId': raw.replaceFirst('ATTENDANCE-', '')},
-      );
+    code: raw,
+    actionType: ScanMode.attendance,
+    displayLabel: 'Attendance',
+    metadata: {'attendanceId': raw.replaceFirst('ATTENDANCE-', '')},
+  );
 
   factory ScanAction.shelfCheck(String raw) => ScanAction._(
-        code: raw,
-        actionType: ScanMode.shelfAudit,
-        displayLabel: 'Shelf Audit',
-        metadata: {'shelfId': raw.replaceFirst('SHELF-', '')},
-      );
+    code: raw,
+    actionType: ScanMode.shelfAudit,
+    displayLabel: 'Shelf Audit',
+    metadata: {'shelfId': raw.replaceFirst('SHELF-', '')},
+  );
 
   factory ScanAction.membershipLookup(String raw) => ScanAction._(
-        code: raw,
-        actionType: ScanMode.customerMembership,
-        displayLabel: 'Customer Membership',
-        metadata: {'customerId': raw.replaceFirst('MEMBER-', '')},
-      );
+    code: raw,
+    actionType: ScanMode.customerMembership,
+    displayLabel: 'Customer Membership',
+    metadata: {'customerId': raw.replaceFirst('MEMBER-', '')},
+  );
 
   factory ScanAction.paymentQr(String raw) => ScanAction._(
-        code: raw,
-        actionType: ScanMode.paymentQr,
-        displayLabel: 'Payment QR',
-        metadata: {'upiUrl': raw},
-      );
+    code: raw,
+    actionType: ScanMode.paymentQr,
+    displayLabel: 'Payment QR',
+    metadata: {'upiUrl': raw},
+  );
 
   String get displayCode => code.replaceAll(RegExp(r'^[A-Z]+-'), '');
 
   Map<String, dynamic> toMap() => {
-        'code': code,
-        'actionType': actionType,
-        'displayLabel': displayLabel,
-        'metadata': metadata,
-      };
+    'code': code,
+    'actionType': actionType,
+    'displayLabel': displayLabel,
+    'metadata': metadata,
+  };
 
   factory ScanAction.fromMap(Map<String, dynamic> map) => ScanAction._(
-        code: map['code'] as String? ?? '',
-        actionType: map['actionType'] as String? ?? ScanMode.productSearch,
-        displayLabel: map['displayLabel'] as String? ?? '',
-        metadata: Map<String, dynamic>.from(map['metadata'] as Map? ?? {}),
-      );
+    code: map['code'] as String? ?? '',
+    actionType: map['actionType'] as String? ?? ScanMode.productSearch,
+    displayLabel: map['displayLabel'] as String? ?? '',
+    metadata: Map<String, dynamic>.from(map['metadata'] as Map? ?? {}),
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

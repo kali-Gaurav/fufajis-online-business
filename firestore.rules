@@ -71,7 +71,7 @@ service cloud.firestore {
       allow create: if isSignedIn() && isOwningUser(userId);
       // Update: owning user can edit, but role field is immutable (protected from self-escalation)
       allow update: if isSignedIn() && (
-        (isOwningUser(userId) && request.resource.data.role == resource.data.role) ||
+        (isOwningUser(userId) && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'isActive', 'balance']))) ||
         isGlobalAdmin()
       );
       allow delete: if false;
@@ -84,6 +84,22 @@ service cloud.firestore {
       match /notifications/{notifId} {
         allow read: if isSignedIn() && (isOwningUser(userId) || isGlobalAdmin());
         allow write: if isGlobalAdmin(); // System only
+      }
+
+      match /devices/{deviceId} {
+        allow read, write: if isSignedIn() && (isOwningUser(userId) || isGlobalAdmin());
+      }
+
+      match /addresses/{addressId} {
+        allow read, write: if isSignedIn() && (isOwningUser(userId) || isGlobalAdmin());
+      }
+
+      // TASK #3 FIX: reorder_templates subcollection (was missing)
+      match /reorder_templates/{templateId} {
+        allow read: if isSignedIn() && (isOwningUser(userId) || isGlobalAdmin());
+        allow create: if isSignedIn() && isOwningUser(userId);
+        allow update: if isSignedIn() && (isOwningUser(userId) || isGlobalAdmin());
+        allow delete: if isSignedIn() && (isOwningUser(userId) || isGlobalAdmin());
       }
 
       // NOTE: No wildcard catch-all — each subcollection must be explicitly defined
@@ -162,7 +178,10 @@ service cloud.firestore {
     // TASK #5: PRE_AUTHORIZED_USERS COLLECTION (service role only)
     // ========================================================================
     match /pre_authorized_users/{phoneOrEmail} {
-      allow read: if isSignedIn() && isGlobalAdmin();
+      // CRITICAL FIX (2026-07-03): Allow any signed-in user to READ during auth lookup
+      // (when Google/Phone auth succeeds but custom claims not yet set).
+      // Admins can still read all. Users can only READ to look up their role in _checkRoleAuthorization.
+      allow read: if isSignedIn();
       // Write restricted to authenticated backend service via custom claims check.
       // Only Cloud Functions (Admin SDK) and Edge Functions can write.
       // Direct client writes blocked to prevent unauthorized pre-auth bypass.
@@ -195,16 +214,19 @@ service cloud.firestore {
         (isDispatcher() && isBranchMatch(resource.data.branchId)) ||
         isGlobalAdmin()
       );
-      allow create: if isSignedIn() && isCustomer() && request.resource.data.customerId == request.auth.uid;
+      allow create: if isSignedIn() && isCustomer() && 
+        request.resource.data.customerId == request.auth.uid &&
+        request.resource.data.status == 'pending';
       allow update: if isSignedIn() && (
         // Delivered/cancelled/returned orders are immutable
         (!isOrderTerminal()) && (
           (isBranchManager() && isBranchMatch(resource.data.branchId)) ||
           (isDispatcher() && isBranchMatch(resource.data.branchId)) ||
-          // Customers can only cancel pending/confirmed orders (pre-packed)
+          // Customers can only cancel pending/confirmed orders (pre-packed), and cannot change amounts
           (isCustomer() && resource.data.customerId == request.auth.uid &&
            resource.data.status in ['pending', 'confirmed'] &&
-           request.resource.data.status == 'cancelled') ||
+           request.resource.data.status == 'cancelled' &&
+           (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['totalAmount', 'deliveryFee', 'discountAmount']))) ||
           isGlobalAdmin()
         )
       );
@@ -358,7 +380,7 @@ service cloud.firestore {
       allow update: if isSignedIn() && (
         isGlobalAdmin() ||
         (isDispatcher() && isBranchMatch(resource.data.branchId)) ||
-        (isRider() && resource.data.riderId == request.auth.uid)
+        (isRider() && resource.data.riderId == request.auth.uid && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['branchId', 'orderId', 'customerId', 'deliveryFee'])))
       );
     }
 
@@ -592,11 +614,13 @@ service cloud.firestore {
     // CACHE Collection
     // CRITICAL FIX: Removed duplicate allow write clause
     // Now: unauthenticated can write to ping_test only, authenticated staff/service can write elsewhere
-    match /cache/{documentId=**} {
-      allow read: if true;  // Allow read for connectivity tests
-      // FIX: Combined both rules into single condition with OR
-      // This allows: (1) unauthenticated ping_test writes for connectivity, (2) authenticated writes for staff/service
-      allow write: if documentId == 'ping_test' || (isSignedIn() && (isStaff() || isServiceAuth()));
+    match /cache/ping_test {
+      allow read, write: if true;
+    }
+
+    match /cache/{document=**} {
+      allow read: if true;
+      allow write: if isSignedIn() && (isStaff() || isServiceAuth());
     }
 
     // ANALYTICS Collection
@@ -634,7 +658,11 @@ service cloud.firestore {
     }
 
     match /low_stock_alerts/{alertId} {
-      allow read: if isSignedIn() && isGlobalAdmin();
+      // TASK #1 FIX: Allow shop staff to read alerts for their branch
+      allow read: if isSignedIn() && (
+        isGlobalAdmin() ||
+        (isStaff() && isBranchMatch(resource.data.branchId))
+      );
       allow write: if false; // System only (Admin SDK)
     }
 
@@ -870,6 +898,18 @@ service cloud.firestore {
       match /analytics/{analyticsId} {
         allow read: if isSignedIn() && (isShopOwner(shopId) || isGlobalAdmin());
       }
+
+      // TASK #1 FIX: products subcollection (was missing, causing PERMISSION_DENIED)
+      match /products/{productId} {
+        allow read: if isSignedIn() && (isShopOwner(shopId) || isGlobalAdmin() || isCustomer());
+        allow create, update: if isSignedIn() && (isShopOwner(shopId) || isGlobalAdmin());
+        allow delete: if isSignedIn() && (isShopOwner(shopId) || isGlobalAdmin());
+
+        match /inventory/{invId} {
+          allow read: if isSignedIn() && (isShopOwner(shopId) || isGlobalAdmin() || isApprovedEmployee());
+          allow write: if isSignedIn() && (isShopOwner(shopId) || isGlobalAdmin());
+        }
+      }
     }
 
     match /return_requests/{returnId} {
@@ -965,56 +1005,6 @@ service cloud.firestore {
         resource.data.customerId == request.auth.uid ||
         isGlobalAdmin()
       );
-    }
-
-    // ========================================================================
-    // MISSION CONTROL (AI AGENTS)
-    // ========================================================================
-
-    match /agents/{agentId} {
-      allow read: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-      allow write: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-    }
-
-    match /agent_tasks/{taskId} {
-      allow read: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-      // Owner/Admin can approve/edit/reject tasks
-      allow write: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-    }
-
-    match /reports/{reportId} {
-      allow read: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-      allow write: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-    }
-
-    match /broadcasts/{broadcastId} {
-      allow read: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-      allow write: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-    }
-
-    match /agent_config/{configId} {
-      allow read: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-      allow write: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-    }
-
-    match /agent_runs/{runId} {
-      allow read: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-      allow write: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-    }
-
-    match /agent_memory/{memId} {
-      allow read: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-      allow write: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-    }
-
-    match /ai_insights/{docId} {
-      allow read: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-      allow write: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-    }
-
-    match /pricing_recommendations/{recId} {
-      allow read: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
-      allow write: if isSignedIn() && (isGlobalAdmin() || isServiceAuth());
     }
   }
 }

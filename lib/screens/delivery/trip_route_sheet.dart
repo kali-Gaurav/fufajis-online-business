@@ -43,7 +43,9 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
     try {
       final permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
-        final pos = await Geolocator.getCurrentPosition(locationSettings: const LocationSettings(accuracy: LocationAccuracy.high));
+        final pos = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+        );
         setState(() {
           _currentPos = _HyperLocalPosition(pos.latitude, pos.longitude);
         });
@@ -60,8 +62,16 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
     });
 
     // Run nearest neighbor optimization
-    final sorted = _routingService.optimizeRoute(orders, _currentPos.latitude, _currentPos.longitude);
-    final directions = _routingService.generateDirections(sorted, _currentPos.latitude, _currentPos.longitude);
+    final sorted = _routingService.optimizeRoute(
+      orders,
+      _currentPos.latitude,
+      _currentPos.longitude,
+    );
+    final directions = _routingService.generateDirections(
+      sorted,
+      _currentPos.latitude,
+      _currentPos.longitude,
+    );
 
     setState(() {
       _optimizedOrders = sorted;
@@ -74,13 +84,19 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
   }
 
   void _launchMultiStopMap() async {
-    final url = _routingService.getMapsMultiStopUrl(_optimizedOrders, _currentPos.latitude, _currentPos.longitude);
+    final url = _routingService.getMapsMultiStopUrl(
+      _optimizedOrders,
+      _currentPos.latitude,
+      _currentPos.longitude,
+    );
     if (url.isNotEmpty && await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url));
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not launch maps. Please check your internet connection.')),
+          const SnackBar(
+            content: Text('Could not launch maps. Please check your internet connection.'),
+          ),
         );
       }
     }
@@ -162,10 +178,7 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
             ],
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
             ElevatedButton(
               onPressed: () {
                 final otp = otpController.text.trim();
@@ -173,9 +186,9 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
                   Navigator.pop(context);
                   _markOrderDeliveredOffline(order, otp);
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please enter a valid 4-digit OTP')),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('Please enter a valid 4-digit OTP')));
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -192,18 +205,15 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
 
   void _markOrderDeliveredOffline(OrderModel order, String otp) async {
     // Write status changes through our SyncService queue
-    await _syncService.enqueueStatusUpdate(
-      order.id,
-      'delivered',
-      otp: otp,
-      otpVerified: true,
-    );
+    await _syncService.enqueueStatusUpdate(order.id, 'delivered', otp: otp, otpVerified: true);
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(_syncService.isOnline.value
-            ? 'Order marked as Delivered.'
-            : 'Offline: Added delivery update to synchronization queue.'),
+        content: Text(
+          _syncService.isOnline.value
+              ? 'Order marked as Delivered.'
+              : 'Offline: Added delivery update to synchronization queue.',
+        ),
         backgroundColor: AppTheme.success,
       ),
     );
@@ -214,16 +224,15 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(_syncService.isOnline.value
-            ? 'Order marked as Out for Delivery.'
-            : 'Offline: Added "Out for Delivery" change to synchronization queue.'),
+        content: Text(
+          _syncService.isOnline.value
+              ? 'Order marked as Out for Delivery.'
+              : 'Offline: Added "Out for Delivery" change to synchronization queue.',
+        ),
         backgroundColor: AppTheme.primary,
       ),
     );
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -243,7 +252,9 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: online
-                          ? (pendingCount > 0 ? AppTheme.warning.withValues(alpha: 0.15) : AppTheme.success.withValues(alpha: 0.1))
+                          ? (pendingCount > 0
+                                ? AppTheme.warning.withValues(alpha: 0.15)
+                                : AppTheme.success.withValues(alpha: 0.1))
                           : AppTheme.warning.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -252,17 +263,21 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
                         Icon(
                           online ? Icons.cloud_done : Icons.cloud_off,
                           size: 16,
-                          color: online ? (pendingCount > 0 ? AppTheme.warning : AppTheme.success) : AppTheme.warning,
+                          color: online
+                              ? (pendingCount > 0 ? AppTheme.warning : AppTheme.success)
+                              : AppTheme.warning,
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          online 
-                              ? (pendingCount > 0 ? 'Syncing ($pendingCount)' : 'Online') 
+                          online
+                              ? (pendingCount > 0 ? 'Syncing ($pendingCount)' : 'Online')
                               : 'Offline ($pendingCount)',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: online ? (pendingCount > 0 ? AppTheme.warning : AppTheme.success) : AppTheme.warning,
+                            color: online
+                                ? (pendingCount > 0 ? AppTheme.warning : AppTheme.success)
+                                : AppTheme.warning,
                           ),
                         ),
                       ],
@@ -283,11 +298,15 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
 
           final allOrders = snapshot.data ?? [];
           // Filter to active deliveries (confirmed, packed, outForDelivery)
-          final activeDeliveries = allOrders.where((o) =>
-              o.status == OrderStatus.confirmed ||
-              o.status == OrderStatus.processing ||
-              o.status == OrderStatus.packed ||
-              o.status == OrderStatus.outForDelivery).toList();
+          final activeDeliveries = allOrders
+              .where(
+                (o) =>
+                    o.status == OrderStatus.confirmed ||
+                    o.status == OrderStatus.processing ||
+                    o.status == OrderStatus.packed ||
+                    o.status == OrderStatus.outForDelivery,
+              )
+              .toList();
 
           if (activeDeliveries.isEmpty) {
             return const Center(
@@ -300,7 +319,11 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
                     SizedBox(height: 16),
                     Text(
                       'No Active Deliveries!',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey700),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.grey700,
+                      ),
                     ),
                     SizedBox(height: 8),
                     Text(
@@ -378,7 +401,7 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
             color: AppTheme.primary.withValues(alpha: 0.3),
             blurRadius: 10,
             offset: const Offset(0, 4),
-          )
+          ),
         ],
       ),
       child: Column(
@@ -444,22 +467,21 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey800),
           ),
           const Divider(height: 16),
-          ..._routeDirections.map((dir) => Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.chevron_right, size: 16, color: AppTheme.primary),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        dir,
-                        style: const TextStyle(fontSize: 12, color: AppTheme.grey700),
-                      ),
-                    ),
-                  ],
-                ),
-              )),
+          ..._routeDirections.map(
+            (dir) => Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.chevron_right, size: 16, color: AppTheme.primary),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(dir, style: const TextStyle(fontSize: 12, color: AppTheme.grey700)),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -475,7 +497,9 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
         color: isCompleted ? AppTheme.grey100 : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isCurrentStop ? AppTheme.primary : (isCompleted ? Colors.transparent : AppTheme.grey200),
+          color: isCurrentStop
+              ? AppTheme.primary
+              : (isCompleted ? Colors.transparent : AppTheme.grey200),
           width: isCurrentStop ? 2 : 1,
         ),
         boxShadow: isCurrentStop
@@ -484,7 +508,7 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
                   color: AppTheme.primary.withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 3),
-                )
+                ),
               ]
             : null,
       ),
@@ -505,7 +529,11 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
                       ? const Icon(Icons.check, size: 12, color: Colors.white)
                       : Text(
                           '${index + 1}',
-                          style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                 ),
                 const SizedBox(width: 8),
@@ -568,7 +596,11 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
                   const SizedBox(width: 6),
                   Text(
                     'Collect Cash on Delivery: ₹${order.totalAmount.toStringAsFixed(1)}',
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppTheme.success),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.success,
+                    ),
                   ),
                 ],
               ),
@@ -610,7 +642,7 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
                     ),
                   ),
                 ],
-              )
+              ),
             ],
           ],
         ),
@@ -644,11 +676,7 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
       ),
       child: Text(
         label,
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          color: chipColor,
-        ),
+        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: chipColor),
       ),
     );
   }

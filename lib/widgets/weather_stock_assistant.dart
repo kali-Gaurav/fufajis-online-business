@@ -33,7 +33,11 @@ class WeatherStockAssistant extends StatelessWidget {
                   children: [
                     Text(
                       'Weather-Stock Insight',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                     Text(
                       'Heavy Rain Predicted in Bassi Tomorrow',
@@ -44,8 +48,14 @@ class WeatherStockAssistant extends StatelessWidget {
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(color: AppTheme.warning, borderRadius: BorderRadius.circular(8)),
-                child: const Text('ACTION NEEDED', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold)),
+                decoration: BoxDecoration(
+                  color: AppTheme.warning,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  'ACTION NEEDED',
+                  style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold),
+                ),
               ),
             ],
           ),
@@ -68,12 +78,17 @@ class WeatherStockAssistant extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Add suggested stock to procurement?', style: TextStyle(color: Colors.white70, fontSize: 11)),
+              const Text(
+                'Add suggested stock to procurement?',
+                style: TextStyle(color: Colors.white70, fontSize: 11),
+              ),
               ElevatedButton(
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('ðŸ“¦ Monsoon-special stock (Tea, Besan, Biscuits) added to procurement list.'),
+                      content: Text(
+                        'ðŸ“¦ Monsoon-special stock (Tea, Besan, Biscuits) added to procurement list.',
+                      ),
                       backgroundColor: AppTheme.info,
                     ),
                   );
@@ -84,7 +99,10 @@ class WeatherStockAssistant extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                child: const Text('Pre-order Now', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                child: const Text(
+                  'Pre-order Now',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                ),
               ),
             ],
           ),
@@ -103,12 +121,25 @@ class WeatherStockAssistant extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
-            Text(qty, style: const TextStyle(color: AppTheme.warning, fontSize: 10, fontWeight: FontWeight.bold)),
+            Text(
+              name,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 11,
+              ),
+            ),
+            Text(
+              qty,
+              style: const TextStyle(
+                color: AppTheme.warning,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 }
-

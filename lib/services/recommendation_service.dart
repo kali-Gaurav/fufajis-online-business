@@ -36,32 +36,43 @@ class RecommendationService {
     }
 
     if (recommendations.length < limit) {
-      recommendations.addAll(allProducts
-          .where((p) => p.isTrending && !cartIds.contains(p.id) && !recommendations.contains(p))
-          .take(limit - recommendations.length));
+      recommendations.addAll(
+        allProducts
+            .where((p) => p.isTrending && !cartIds.contains(p.id) && !recommendations.contains(p))
+            .take(limit - recommendations.length),
+      );
     }
 
     return recommendations.take(limit).toList();
   }
 
   /// Returns the user's top categories based on history
-  static List<String> getFavoriteCategories(List<OrderModel> orders, List<ProductModel> allProducts) {
+  static List<String> getFavoriteCategories(
+    List<OrderModel> orders,
+    List<ProductModel> allProducts,
+  ) {
     if (orders.isEmpty) return [];
-    
+
     final Map<String, int> scores = {};
     for (var order in orders) {
       for (var item in order.items) {
-        final p = allProducts.firstWhere((element) => element.id == item.productId, orElse: () => allProducts.first);
+        final p = allProducts.firstWhere(
+          (element) => element.id == item.productId,
+          orElse: () => allProducts.first,
+        );
         scores[p.categoryId] = (scores[p.categoryId] ?? 0) + 1;
       }
     }
-    
+
     final sorted = scores.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
     return sorted.map((e) => e.key).take(5).toList();
   }
 
   /// Finds "Frequently Bought Together" items (Upsell)
-  List<ProductModel> getComplementaryProducts(ProductModel product, List<ProductModel> allProducts) {
+  List<ProductModel> getComplementaryProducts(
+    ProductModel product,
+    List<ProductModel> allProducts,
+  ) {
     // Basic logic: same category + popular
     return allProducts
         .where((p) => p.categoryId == product.categoryId && p.id != product.id && p.isTrending)

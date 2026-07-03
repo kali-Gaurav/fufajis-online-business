@@ -16,10 +16,7 @@ class ExportService {
 
   /// Export orders to CSV format
   /// Returns the file path of the exported CSV
-  Future<String> exportOrdersToCSV({
-    required DateTime startDate,
-    required DateTime endDate,
-  }) async {
+  Future<String> exportOrdersToCSV({required DateTime startDate, required DateTime endDate}) async {
     try {
       debugPrint('[ExportService] Exporting orders to CSV from $startDate to $endDate');
 
@@ -75,8 +72,7 @@ class ExportService {
     required DateTime endDate,
   }) async {
     try {
-      debugPrint(
-          '[ExportService] Exporting orders to Excel format from $startDate to $endDate');
+      debugPrint('[ExportService] Exporting orders to Excel format from $startDate to $endDate');
 
       // Fetch orders
       final orders = await _firestore
@@ -144,7 +140,9 @@ class ExportService {
       // Revenue section
       report.writeln('REVENUE METRICS');
       report.writeln('-' * 60);
-      report.writeln('Total Revenue: ₹${(metrics['totalRevenue'] as num? ?? 0).toStringAsFixed(2)}');
+      report.writeln(
+        'Total Revenue: ₹${(metrics['totalRevenue'] as num? ?? 0).toStringAsFixed(2)}',
+      );
       report.writeln('Growth: ${(metrics['revenueGrowth'] as num? ?? 0).toStringAsFixed(2)}%');
       report.writeln('');
 
@@ -154,7 +152,9 @@ class ExportService {
       report.writeln('Total Orders: ${metrics['totalOrders'] ?? 0}');
       report.writeln('Delivered: ${metrics['deliveredOrders'] ?? 0}');
       report.writeln('Cancelled: ${metrics['cancelledOrders'] ?? 0}');
-      report.writeln('Average Order Value: ₹${(metrics['avgOrderValue'] as num? ?? 0).toStringAsFixed(2)}');
+      report.writeln(
+        'Average Order Value: ₹${(metrics['avgOrderValue'] as num? ?? 0).toStringAsFixed(2)}',
+      );
       report.writeln('');
 
       // Customer section
@@ -168,16 +168,22 @@ class ExportService {
       // Delivery section
       report.writeln('DELIVERY METRICS');
       report.writeln('-' * 60);
-      report.writeln('On-Time Delivery Rate: ${(metrics['onTimeDeliveryRate'] as num? ?? 0).toStringAsFixed(2)}%');
+      report.writeln(
+        'On-Time Delivery Rate: ${(metrics['onTimeDeliveryRate'] as num? ?? 0).toStringAsFixed(2)}%',
+      );
       report.writeln('Failed Deliveries: ${metrics['failedDeliveryRate'] as num? ?? 0}%');
-      report.writeln('Average Delivery Time: ${(metrics['avgDeliveryTime'] as num? ?? 0).toStringAsFixed(0)} minutes');
+      report.writeln(
+        'Average Delivery Time: ${(metrics['avgDeliveryTime'] as num? ?? 0).toStringAsFixed(0)} minutes',
+      );
       report.writeln('');
 
       // Profit section
       report.writeln('PROFIT METRICS');
       report.writeln('-' * 60);
       report.writeln('Gross Profit: ₹${(metrics['grossProfit'] as num? ?? 0).toStringAsFixed(2)}');
-      report.writeln('Profit Margin: ${(metrics['profitMargin'] as num? ?? 0).toStringAsFixed(2)}%');
+      report.writeln(
+        'Profit Margin: ${(metrics['profitMargin'] as num? ?? 0).toStringAsFixed(2)}%',
+      );
       report.writeln('');
 
       report.writeln('=' * 60);
@@ -237,8 +243,7 @@ class ExportService {
 
       final products = await _firestore.collection('products').get();
 
-      const csvHeader =
-          'Product ID,Product Name,Stock,Min Stock,Price,Category,Last Restocked\n';
+      const csvHeader = 'Product ID,Product Name,Stock,Min Stock,Price,Category,Last Restocked\n';
 
       StringBuffer csvContent = StringBuffer(csvHeader);
 
@@ -306,8 +311,7 @@ class ExportService {
       final file = File(filePath);
       await file.writeAsString(csvContent.toString());
 
-      debugPrint(
-          '[ExportService] Employee performance exported to CSV: $filePath');
+      debugPrint('[ExportService] Employee performance exported to CSV: $filePath');
       return filePath;
     } catch (e) {
       debugPrint('[ExportService] Error exporting employee performance: $e');
@@ -320,26 +324,28 @@ class ExportService {
   Future<String> exportUserData(String userId) async {
     try {
       debugPrint('[ExportService] Starting GDPR/DPDP data export for user: $userId');
-      
+
       // 1. Fetch user profile
       final userDoc = await _firestore.collection('users').doc(userId).get();
       final profile = userDoc.exists ? userDoc.data() : <String, dynamic>{};
-      
+
       // 2. Fetch orders
       final ordersSnap = await _firestore
           .collection('orders')
           .where('customerId', isEqualTo: userId)
           .get();
       final orders = ordersSnap.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList();
-      
+
       // 3. Fetch wallet transactions
       final walletSnap = await _firestore
           .collection('users')
           .doc(userId)
           .collection('wallet_transactions')
           .get();
-      final walletTransactions = walletSnap.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList();
-      
+      final walletTransactions = walletSnap.docs
+          .map((doc) => {'id': doc.id, ...doc.data()})
+          .toList();
+
       // 4. Fetch support tickets
       final ticketsSnap = await _firestore
           .collection('support_tickets')
@@ -359,13 +365,13 @@ class ExportService {
       };
 
       final jsonString = const JsonEncoder.withIndent('  ').convert(exportData);
-      
+
       final directory = await getApplicationDocumentsDirectory();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final filePath = '${directory.path}/fufaji_user_data_$timestamp.json';
       final file = File(filePath);
       await file.writeAsString(jsonString);
-      
+
       debugPrint('[ExportService] GDPR data export completed: $filePath');
       return filePath;
     } catch (e) {
@@ -378,12 +384,12 @@ class ExportService {
   Future<String> exportSettlementsToCSV({required String period}) async {
     try {
       debugPrint('[ExportService] Exporting settlements to CSV for $period');
-      
+
       final settlements = await _firestore.collection('cod_settlements').get();
-      
+
       const csvHeader = 'Settlement ID,Rider Name,Collected Amount,Settled Amount,Status,Date\n';
       StringBuffer csvContent = StringBuffer(csvHeader);
-      
+
       for (var doc in settlements.docs) {
         final data = doc.data();
         final id = doc.id;
@@ -394,16 +400,18 @@ class ExportService {
         final date = data['createdAt'] != null
             ? (data['createdAt'] as Timestamp).toDate().toString().split(' ')[0]
             : 'N/A';
-            
-        csvContent.writeln('$id,"$riderName",${collected.toStringAsFixed(2)},${settled.toStringAsFixed(2)},$status,$date');
+
+        csvContent.writeln(
+          '$id,"$riderName",${collected.toStringAsFixed(2)},${settled.toStringAsFixed(2)},$status,$date',
+        );
       }
-      
+
       final directory = await getApplicationDocumentsDirectory();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final filePath = '${directory.path}/settlements_export_$timestamp.csv';
       final file = File(filePath);
       await file.writeAsString(csvContent.toString());
-      
+
       return filePath;
     } catch (e) {
       debugPrint('[ExportService] Error exporting settlements: $e');

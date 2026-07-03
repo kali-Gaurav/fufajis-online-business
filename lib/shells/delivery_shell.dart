@@ -27,8 +27,7 @@ class _DeliveryShellState extends State<DeliveryShell> {
     final String location = GoRouterState.of(context).uri.path;
 
     // Map tab: smart route, cluster view, trip sheet
-    if (location.startsWith('/delivery/smart-route') ||
-        location.startsWith('/delivery/cluster/')) {
+    if (location.startsWith('/delivery/smart-route') || location.startsWith('/delivery/cluster/')) {
       return 0;
     }
 
@@ -60,16 +59,10 @@ class _DeliveryShellState extends State<DeliveryShell> {
     final l10n = AppLocalizations.of(context)!;
 
     // Hide nav on detail screens
-    final isMainTab = location == '/delivery' ||
-        location == '/delivery/smart-route';
+    final isMainTab = location == '/delivery' || location == '/delivery/smart-route';
 
     return Scaffold(
-      appBar: isMainTab
-          ? null
-          : AppBar(
-              elevation: 1,
-              automaticallyImplyLeading: true,
-            ),
+      appBar: isMainTab ? null : AppBar(elevation: 1, automaticallyImplyLeading: true),
       body: widget.child,
       bottomNavigationBar: NavigationBar(
         selectedIndex: selectedIndex,
@@ -77,29 +70,25 @@ class _DeliveryShellState extends State<DeliveryShell> {
           // Map Tab - most prominent
           NavigationDestination(
             icon: const Icon(Icons.map_outlined),
-            selectedIcon:
-                const Icon(Icons.map, color: AppTheme.primary),
+            selectedIcon: const Icon(Icons.map, color: AppTheme.primary),
             label: l10n.translate('map') ?? 'Map',
           ),
           // Orders Tab
           NavigationDestination(
             icon: const Icon(Icons.assignment_outlined),
-            selectedIcon: const Icon(Icons.assignment,
-                color: AppTheme.primary),
+            selectedIcon: const Icon(Icons.assignment, color: AppTheme.primary),
             label: l10n.translate('orders') ?? 'Orders',
           ),
           // Earnings Tab
           NavigationDestination(
             icon: const Icon(Icons.account_balance_wallet_outlined),
-            selectedIcon: const Icon(Icons.account_balance_wallet,
-                color: AppTheme.primary),
+            selectedIcon: const Icon(Icons.account_balance_wallet, color: AppTheme.primary),
             label: l10n.translate('earnings') ?? 'Earnings',
           ),
           // Profile Tab
           NavigationDestination(
             icon: const Icon(Icons.person_outline),
-            selectedIcon:
-                const Icon(Icons.person, color: AppTheme.primary),
+            selectedIcon: const Icon(Icons.person, color: AppTheme.primary),
             label: l10n.translate('profile') ?? 'Profile',
           ),
         ],

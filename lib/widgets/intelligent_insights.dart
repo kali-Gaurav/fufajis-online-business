@@ -47,21 +47,14 @@ class GaonIntelligentInsights extends StatelessWidget {
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: AppTheme.success,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Row(
                   children: [
-                    Icon(
-                      Icons.auto_awesome,
-                      size: 14,
-                      color: AppTheme.success,
-                    ),
+                    Icon(Icons.auto_awesome, size: 14, color: AppTheme.success),
                     SizedBox(width: 4),
                     Text(
                       'AI UPDATED',
@@ -120,10 +113,7 @@ class GaonIntelligentInsights extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-        ),
+        Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
         Text(subtitle, style: TextStyle(color: Colors.grey[500], fontSize: 12)),
         const SizedBox(height: 16),
         Row(
@@ -143,12 +133,7 @@ class GaonIntelligentInsights extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              insight.name,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                            Text(insight.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                             Text(
                               insight.growth,
                               style: TextStyle(
@@ -162,17 +147,11 @@ class GaonIntelligentInsights extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           'High Demand:',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey[600],
-                          ),
+                          style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                         ),
                         Text(
                           insight.items,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -229,17 +208,8 @@ class GaonIntelligentInsights extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    village,
-                    style: const TextStyle(fontSize: 9, color: Colors.grey),
-                  ),
+                  Text(name, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                  Text(village, style: const TextStyle(fontSize: 9, color: Colors.grey)),
                 ],
               ),
             ),
@@ -261,9 +231,7 @@ class GaonIntelligentInsights extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppTheme.info, AppTheme.info],
-        ),
+        gradient: const LinearGradient(colors: [AppTheme.info, AppTheme.info]),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -276,11 +244,7 @@ class GaonIntelligentInsights extends StatelessWidget {
               children: [
                 Text(
                   'Automated Logic for Fufaji',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                 ),
                 Text(
                   'Based on trends, I suggest ordering +50kg Tomatoes for Bassi tomorrow.',
@@ -304,9 +268,7 @@ class GaonIntelligentInsights extends StatelessWidget {
               backgroundColor: AppTheme.cream,
               foregroundColor: AppTheme.info,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             child: const Text(
               'Confirm Order',

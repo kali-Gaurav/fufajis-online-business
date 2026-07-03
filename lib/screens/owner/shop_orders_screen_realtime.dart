@@ -14,28 +14,20 @@ import '../../utils/app_theme.dart';
 class ShopOrdersScreenRealtime extends StatefulWidget {
   final String shopId;
 
-  const ShopOrdersScreenRealtime({
-    super.key,
-    required this.shopId,
-  });
+  const ShopOrdersScreenRealtime({super.key, required this.shopId});
 
   @override
-  State<ShopOrdersScreenRealtime> createState() =>
-      _ShopOrdersScreenRealtimeState();
+  State<ShopOrdersScreenRealtime> createState() => _ShopOrdersScreenRealtimeState();
 }
 
-class _ShopOrdersScreenRealtimeState
-    extends State<ShopOrdersScreenRealtime> {
+class _ShopOrdersScreenRealtimeState extends State<ShopOrdersScreenRealtime> {
   String _selectedFilter = 'all'; // all, pending, preparing, ready, delivered
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Orders',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-        ),
+        title: const Text('Orders', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         backgroundColor: AppTheme.primary,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -63,17 +55,11 @@ class _ShopOrdersScreenRealtimeState
               stream: _buildOrdersStream(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      color: AppTheme.primary,
-                    ),
-                  );
+                  return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
                 }
 
                 if (snapshot.hasError) {
-                  return Center(
-                    child: Text('Error: ${snapshot.error}'),
-                  );
+                  return Center(child: Text('Error: ${snapshot.error}'));
                 }
 
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
@@ -81,16 +67,9 @@ class _ShopOrdersScreenRealtimeState
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(
-                          Icons.inbox_outlined,
-                          size: 64,
-                          color: AppTheme.grey300,
-                        ),
+                        const Icon(Icons.inbox_outlined, size: 64, color: AppTheme.grey300),
                         const SizedBox(height: 16),
-                        Text(
-                          'No orders found',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
+                        Text('No orders found', style: Theme.of(context).textTheme.titleMedium),
                       ],
                     ),
                   );
@@ -102,14 +81,10 @@ class _ShopOrdersScreenRealtimeState
                   padding: const EdgeInsets.all(8),
                   itemCount: orders.length,
                   itemBuilder: (context, index) {
-                    final orderData =
-                        orders[index].data() as Map<String, dynamic>;
+                    final orderData = orders[index].data() as Map<String, dynamic>;
                     final orderId = orders[index].id;
 
-                    return _buildOrderCard(
-                      orderId: orderId,
-                      orderData: orderData,
-                    );
+                    return _buildOrderCard(orderId: orderId, orderData: orderData);
                   },
                 );
               },
@@ -158,17 +133,13 @@ class _ShopOrdersScreenRealtimeState
     );
   }
 
-  Widget _buildOrderCard({
-    required String orderId,
-    required Map<String, dynamic> orderData,
-  }) {
+  Widget _buildOrderCard({required String orderId, required Map<String, dynamic> orderData}) {
     final orderNumber = orderData['orderNumber'] as String? ?? orderId;
     final status = orderData['status'] as String? ?? 'unknown';
     final createdAt = orderData['createdAt'];
     final customerId = orderData['customerId'] as String?;
     final totalAmount = orderData['totalAmount'] as num? ?? 0;
-    final itemCount =
-        (orderData['items'] as List?)?.length ?? 0;
+    final itemCount = (orderData['items'] as List?)?.length ?? 0;
 
     // Parse timestamp
     String timeText = '–';
@@ -194,10 +165,7 @@ class _ShopOrdersScreenRealtimeState
       child: InkWell(
         onTap: () {
           // Navigate to order detail
-          Navigator.pushNamed(
-            context,
-            '/owner/order-detail/$orderId',
-          );
+          Navigator.pushNamed(context, '/owner/order-detail/$orderId');
         },
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -213,24 +181,14 @@ class _ShopOrdersScreenRealtimeState
                     children: [
                       Text(
                         'Order #$orderNumber',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        timeText,
-                        style: const TextStyle(
-                          color: AppTheme.grey600,
-                          fontSize: 12,
-                        ),
-                      ),
+                      Text(timeText, style: const TextStyle(color: AppTheme.grey600, fontSize: 12)),
                     ],
                   ),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: statusColor.withAlpha(25),
                       border: Border.all(color: statusColor.withAlpha(100)),
@@ -268,10 +226,7 @@ class _ShopOrdersScreenRealtimeState
                     children: [
                       Text(
                         '$itemCount item${itemCount != 1 ? 's' : ''}',
-                        style: const TextStyle(
-                          color: AppTheme.grey700,
-                          fontSize: 12,
-                        ),
+                        style: const TextStyle(color: AppTheme.grey700, fontSize: 12),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -294,10 +249,7 @@ class _ShopOrdersScreenRealtimeState
                         iconSize: 16,
                         color: AppTheme.grey600,
                         onPressed: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/owner/order-detail/$orderId',
-                          );
+                          Navigator.pushNamed(context, '/owner/order-detail/$orderId');
                         },
                       ),
                     ],

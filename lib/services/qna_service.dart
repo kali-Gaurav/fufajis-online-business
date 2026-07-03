@@ -70,14 +70,9 @@ class QnaService {
     final existingQna = QnaModel.fromMap(doc.data() as Map<String, dynamic>);
 
     // Verify shop owner owns this product
-    final productDoc = await _firestore
-        .collection('products')
-        .doc(productId)
-        .get();
+    final productDoc = await _firestore.collection('products').doc(productId).get();
     if (productDoc.exists && productDoc.data() != null) {
-      final product = ProductModel.fromMap(
-        productDoc.data() as Map<String, dynamic>,
-      );
+      final product = ProductModel.fromMap(productDoc.data() as Map<String, dynamic>);
       if (product.shopId != shopOwnerId) {
         throw Exception('Only the shop owner can answer this question');
       }
@@ -118,8 +113,7 @@ class QnaService {
     final qna = QnaModel.fromMap(doc.data() as Map<String, dynamic>);
 
     // Check if user already voted
-    if (qna.helpfulVoters.contains(userId) ||
-        qna.unhelpfulVoters.contains(userId)) {
+    if (qna.helpfulVoters.contains(userId) || qna.unhelpfulVoters.contains(userId)) {
       throw Exception('User has already voted');
     }
 
@@ -146,8 +140,7 @@ class QnaService {
     final qna = QnaModel.fromMap(doc.data() as Map<String, dynamic>);
 
     // Check if user already voted
-    if (qna.helpfulVoters.contains(userId) ||
-        qna.unhelpfulVoters.contains(userId)) {
+    if (qna.helpfulVoters.contains(userId) || qna.unhelpfulVoters.contains(userId)) {
       throw Exception('User has already voted');
     }
 
@@ -231,10 +224,7 @@ class QnaService {
   }
 
   /// Get single question by ID
-  Future<QnaModel?> getQuestion({
-    required String productId,
-    required String questionId,
-  }) async {
+  Future<QnaModel?> getQuestion({required String productId, required String questionId}) async {
     final doc = await _qnaCollection(productId).doc(questionId).get();
     if (!doc.exists || doc.data() == null) return null;
     return QnaModel.fromMap(doc.data() as Map<String, dynamic>);
@@ -292,34 +282,22 @@ class QnaService {
         .limit(100)
         .snapshots()
         .map((snapshot) {
-          return snapshot.docs
-              .map((doc) => QnaModel.fromMap(doc.data()))
-              .toList();
+          return snapshot.docs.map((doc) => QnaModel.fromMap(doc.data())).toList();
         });
   }
 
   /// Resolve a question
-  Future<void> resolveQuestion({
-    required String productId,
-    required String questionId,
-  }) async {
-    await _qnaCollection(
-      productId,
-    ).doc(questionId).update({'status': QnaStatus.resolved.name});
+  Future<void> resolveQuestion({required String productId, required String questionId}) async {
+    await _qnaCollection(productId).doc(questionId).update({'status': QnaStatus.resolved.name});
   }
 
   /// Notify shop owner of new question
   Future<void> _notifyShopOwner(String productId, QnaModel qna) async {
     // Get product to find shop owner
-    final productDoc = await _firestore
-        .collection('products')
-        .doc(productId)
-        .get();
+    final productDoc = await _firestore.collection('products').doc(productId).get();
     if (!productDoc.exists || productDoc.data() == null) return;
 
-    final product = ProductModel.fromMap(
-      productDoc.data() as Map<String, dynamic>,
-    );
+    final product = ProductModel.fromMap(productDoc.data() as Map<String, dynamic>);
 
     // Send notification to shop owner
     await _notificationService.sendNotificationToUser(
@@ -338,11 +316,7 @@ class QnaService {
       title: 'Your question has been answered!',
       body:
           '${answered.shopOwnerName} answered your question about ${answered.answer?.substring(0, min(50, answered.answer!.length))}...',
-      data: {
-        'type': 'qna_answered',
-        'productId': original.productId,
-        'questionId': original.id,
-      },
+      data: {'type': 'qna_answered', 'productId': original.productId, 'questionId': original.id},
     );
   }
 

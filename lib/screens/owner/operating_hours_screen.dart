@@ -19,10 +19,15 @@ class _OperatingHoursScreenState extends State<OperatingHoursScreen> {
     'Thursday',
     'Friday',
     'Saturday',
-    'Sunday'
+    'Sunday',
   ];
 
-  Future<void> _selectTime(BuildContext context, String day, bool isOpenTime, String currentTime) async {
+  Future<void> _selectTime(
+    BuildContext context,
+    String day,
+    bool isOpenTime,
+    String currentTime,
+  ) async {
     final provider = Provider.of<ShopConfigProvider>(context, listen: false);
     final config = provider.shopConfig;
     if (config == null) return;
@@ -41,7 +46,8 @@ class _OperatingHoursScreenState extends State<OperatingHoursScreen> {
       final minuteStr = picked.minute.toString().padLeft(2, '0');
       final formattedTime = '$hourStr:$minuteStr';
 
-      final currentDayHours = config.operatingHours[day] ??
+      final currentDayHours =
+          config.operatingHours[day] ??
           OperatingHours(isOpen: true, openTime: '09:00', closeTime: '21:00');
 
       final updatedDayHours = isOpenTime
@@ -65,7 +71,8 @@ class _OperatingHoursScreenState extends State<OperatingHoursScreen> {
     final config = provider.shopConfig;
     if (config == null) return;
 
-    final sourceHours = config.operatingHours[sourceDay] ??
+    final sourceHours =
+        config.operatingHours[sourceDay] ??
         OperatingHours(isOpen: true, openTime: '09:00', closeTime: '21:00');
 
     try {
@@ -82,7 +89,9 @@ class _OperatingHoursScreenState extends State<OperatingHoursScreen> {
       await provider.updateShopConfig(config.copyWith(operatingHours: newHoursMap));
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Applied times (${sourceHours.openTime} - ${sourceHours.closeTime}) to all days'),
+          content: Text(
+            'Applied times (${sourceHours.openTime} - ${sourceHours.closeTime}) to all days',
+          ),
           backgroundColor: AppTheme.success,
         ),
       );
@@ -118,8 +127,14 @@ class _OperatingHoursScreenState extends State<OperatingHoursScreen> {
               elevation: 2,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: SwitchListTile(
-                title: const Text('Auto-Close Outside Hours', style: TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: const Text('Automatically marks the shop as closed in the customer app outside operating hours.', style: TextStyle(fontWeight: FontWeight.w700)),
+                title: const Text(
+                  'Auto-Close Outside Hours',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: const Text(
+                  'Automatically marks the shop as closed in the customer app outside operating hours.',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
                 value: config.autoCloseOutsideHours,
                 activeThumbColor: AppTheme.primary,
                 onChanged: (val) async {
@@ -139,7 +154,8 @@ class _OperatingHoursScreenState extends State<OperatingHoursScreen> {
               itemCount: _days.length,
               itemBuilder: (context, index) {
                 final day = _days[index];
-                final hours = config.operatingHours[day] ??
+                final hours =
+                    config.operatingHours[day] ??
                     OperatingHours(isOpen: true, openTime: '09:00', closeTime: '21:00');
 
                 return Card(
@@ -179,7 +195,10 @@ class _OperatingHoursScreenState extends State<OperatingHoursScreen> {
                                     InkWell(
                                       onTap: () => _selectTime(context, day, true, hours.openTime),
                                       child: Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 6,
+                                        ),
                                         decoration: BoxDecoration(
                                           border: Border.all(color: Colors.grey[300]!),
                                           borderRadius: BorderRadius.circular(8),
@@ -195,9 +214,13 @@ class _OperatingHoursScreenState extends State<OperatingHoursScreen> {
                                       child: Text('to'),
                                     ),
                                     InkWell(
-                                      onTap: () => _selectTime(context, day, false, hours.closeTime),
+                                      onTap: () =>
+                                          _selectTime(context, day, false, hours.closeTime),
                                       child: Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 6,
+                                        ),
                                         decoration: BoxDecoration(
                                           border: Border.all(color: Colors.grey[300]!),
                                           borderRadius: BorderRadius.circular(8),
@@ -216,7 +239,11 @@ class _OperatingHoursScreenState extends State<OperatingHoursScreen> {
                           children: [
                             if (hours.isOpen)
                               IconButton(
-                                icon: const Icon(Icons.copy_all, color: AppTheme.ownerAccent, size: 20),
+                                icon: const Icon(
+                                  Icons.copy_all,
+                                  color: AppTheme.ownerAccent,
+                                  size: 20,
+                                ),
                                 onPressed: () => _applyToAll(day),
                                 tooltip: 'Apply these times to all days',
                               ),
@@ -233,7 +260,7 @@ class _OperatingHoursScreenState extends State<OperatingHoursScreen> {
                               },
                             ),
                           ],
-                        )
+                        ),
                       ],
                     ),
                   ),

@@ -22,7 +22,7 @@ class CacheService {
 
   // Initialize service settings
   Future<void> init() async {
-    if (_initialized) return;  // Prevent double initialization
+    if (_initialized) return; // Prevent double initialization
 
     debugPrint('[CacheService] ⚠️ Upstash Redis direct frontend access is DISABLED for security.');
     _prefs = await SharedPreferences.getInstance();
@@ -33,18 +33,23 @@ class CacheService {
   Future<void> _activateFirebaseCache() async {
     try {
       debugPrint('[CacheService] Step 4: Activating Firebase Cache (Firestore fallback)...');
-      // Verify firestore connectivity
-      await _firestore.collection('cache').doc('ping_test').set({
-        'pingedAt': FieldValue.serverTimestamp(),
-      }).timeout(const Duration(seconds: 10));
       
+      // Fix 1 & 2: Reduced timeout and added graceful failover.
+      // If firestore is unreachable or permission is denied (e.g. guest mode),
+      // we fall back to Local SharedPreferences in 2 seconds instead of hanging for 10.
+      await _firestore
+          .collection('cache')
+          .doc('ping_test')
+          .set({'pingedAt': FieldValue.serverTimestamp()})
+          .timeout(const Duration(seconds: 2));
+
       _useFirebaseCache = true;
       _useLocalFailover = false;
       debugPrint('👉 [CacheService] Firebase Cache fallback activated successfully.');
     } catch (e) {
       _useLocalFailover = true;
       _useFirebaseCache = false;
-      debugPrint('⚠️ [CacheService] Firebase Cache (Firestore) is unavailable ($e).');
+      debugPrint('⚠️ [CacheService] Firebase Cache (Firestore) is unavailable or permission denied ($e).');
       debugPrint('👉 [CacheService] Activated Local SharedPreferences Failover.');
     }
   }
@@ -218,19 +223,20 @@ class CacheService {
     final expiresAt = DateTime.now().add(Duration(seconds: ttlSeconds)).millisecondsSinceEpoch;
     final ok1 = _useLocalFailover || _prefs == null
         ? await _saveToLocal(key, value)
-        : (_useFirebaseCache ? await _saveToFirebaseCache(key, value) : await _saveToLocal(key, value));
+        : (_useFirebaseCache
+              ? await _saveToFirebaseCache(key, value)
+              : await _saveToLocal(key, value));
     final ok2 = _useLocalFailover || _prefs == null
         ? await _saveToLocal('${key}_exp', expiresAt.toString())
         : (_useFirebaseCache
-            ? await _saveToFirebaseCache('${key}_exp', expiresAt.toString())
-            : await _saveToLocal('${key}_exp', expiresAt.toString()));
+              ? await _saveToFirebaseCache('${key}_exp', expiresAt.toString())
+              : await _saveToLocal('${key}_exp', expiresAt.toString()));
     return ok1 && ok2;
   }
 
   /// Gets [key], honoring TTL on the fallback tiers (Redis handles
   /// expiry natively, so a plain [get] is used there).
   Future<String?> _getWithTtl(String key) async {
-
     final expStr = await _readFromLocal('${key}_exp') ?? await _readFromFirebaseCache('${key}_exp');
     if (expStr != null) {
       final expiresAt = int.tryParse(expStr);
@@ -249,8 +255,11 @@ class CacheService {
 
   /// Stores a serialized user session, keyed by [userId], with a
   /// default TTL of 7 days (matches typical "remember me" duration).
-  Future<bool> setUserSession(String userId, Map<String, dynamic> sessionData,
-      {int ttlSeconds = 7 * 24 * 60 * 60}) {
+  Future<bool> setUserSession(
+    String userId,
+    Map<String, dynamic> sessionData, {
+    int ttlSeconds = 7 * 24 * 60 * 60,
+  }) {
     return _setWithTtl('session:$userId', jsonEncode(sessionData), ttlSeconds);
   }
 
@@ -276,8 +285,11 @@ class CacheService {
 
   /// Caches a product's serialized data for [ttlSeconds] (default 10
   /// minutes) to reduce repeated Supabase/Firestore reads on hot items.
-  Future<bool> cacheProduct(String productId, Map<String, dynamic> productData,
-      {int ttlSeconds = 10 * 60}) {
+  Future<bool> cacheProduct(
+    String productId,
+    Map<String, dynamic> productData, {
+    int ttlSeconds = 10 * 60,
+  }) {
     return _setWithTtl('product:$productId', jsonEncode(productData), ttlSeconds);
   }
 
@@ -306,8 +318,11 @@ class CacheService {
   /// (default 30 days) purely as a storage-eviction safeguard for
   /// abandoned carts — they are refreshed on every save, so an
   /// actively-used cart never expires.
-  Future<bool> saveCart(String userId, List<Map<String, dynamic>> cartItems,
-      {int ttlSeconds = 30 * 24 * 60 * 60}) {
+  Future<bool> saveCart(
+    String userId,
+    List<Map<String, dynamic>> cartItems, {
+    int ttlSeconds = 30 * 24 * 60 * 60,
+  }) {
     return _setWithTtl('cart:$userId', jsonEncode(cartItems), ttlSeconds);
   }
 

@@ -66,7 +66,10 @@ class WhatsAppSyncService {
             await _processDocumentMessage(from, message['document'], messageId);
             break;
           default:
-            await _sendReply(from, 'Sorry, I can only process text messages and images of bills. Please send a photo of your bill or a list of items.');
+            await _sendReply(
+              from,
+              'Sorry, I can only process text messages and images of bills. Please send a photo of your bill or a list of items.',
+            );
         }
 
         // Mark message as processed
@@ -84,14 +87,20 @@ class WhatsAppSyncService {
       final items = await _geminiService.parseItemListFromText(message);
 
       if (items.isEmpty) {
-        await _sendReply(from, 'I could not understand the items list. Please try again with a format like:\n\n"Add 20 apples at 150, 10 bananas at 50"');
+        await _sendReply(
+          from,
+          'I could not understand the items list. Please try again with a format like:\n\n"Add 20 apples at 150, 10 bananas at 50"',
+        );
         return;
       }
 
       // Get or create shop profile for this user
       final shopId = await _getShopIdFromPhone(from);
       if (shopId == null) {
-        await _sendReply(from, 'Your phone number is not registered as a shop. Please register your shop first.');
+        await _sendReply(
+          from,
+          'Your phone number is not registered as a shop. Please register your shop first.',
+        );
         return;
       }
 
@@ -104,7 +113,8 @@ class WhatsAppSyncService {
 
       String response = '✅ Added $successCount items to inventory:\n\n';
       for (final result in results.where((r) => r['success'])) {
-        response += '• ${result['name']} - ₹${result['price']} (${result['quantity']} ${result['unit']})\n';
+        response +=
+            '• ${result['name']} - ₹${result['price']} (${result['quantity']} ${result['unit']})\n';
       }
 
       if (failCount > 0) {
@@ -118,7 +128,11 @@ class WhatsAppSyncService {
   }
 
   /// Process image message (bill photo)
-  Future<void> _processImageMessage(String from, Map<String, dynamic> imageData, String messageId) async {
+  Future<void> _processImageMessage(
+    String from,
+    Map<String, dynamic> imageData,
+    String messageId,
+  ) async {
     try {
       await _sendReply(from, '📸 Processing your bill image... This may take a moment.');
 
@@ -136,14 +150,20 @@ class WhatsAppSyncService {
       final items = await _geminiService.parseBillItems(extractedText);
 
       if (items.isEmpty) {
-        await _sendReply(from, 'I could not extract any items from this image. Please try sending a clearer image or type the items manually.');
+        await _sendReply(
+          from,
+          'I could not extract any items from this image. Please try sending a clearer image or type the items manually.',
+        );
         return;
       }
 
       // Get or create shop profile
       final shopId = await _getShopIdFromPhone(from);
       if (shopId == null) {
-        await _sendReply(from, 'Your phone number is not registered as a shop. Please register your shop first.');
+        await _sendReply(
+          from,
+          'Your phone number is not registered as a shop. Please register your shop first.',
+        );
         return;
       }
 
@@ -152,7 +172,7 @@ class WhatsAppSyncService {
 
       // Send summary
       final successCount = results.where((r) => r['success']).length;
-      
+
       String response = '✅ Successfully processed bill! Added $successCount items:\n\n';
       for (final result in results.where((r) => r['success']).take(5)) {
         response += '• ${result['name']} - ₹${result['price']}\n';
@@ -168,7 +188,11 @@ class WhatsAppSyncService {
   }
 
   /// Process document message (PDF/Excel bill)
-  Future<void> _processDocumentMessage(String from, Map<String, dynamic> documentData, String messageId) async {
+  Future<void> _processDocumentMessage(
+    String from,
+    Map<String, dynamic> documentData,
+    String messageId,
+  ) async {
     try {
       await _sendReply(from, '📄 Processing your document...');
 
@@ -177,7 +201,10 @@ class WhatsAppSyncService {
 
       if (mimeType == 'application/pdf') {
         // Process PDF bill
-        await _sendReply(from, 'PDF processing is not yet supported. Please send an image of the bill.');
+        await _sendReply(
+          from,
+          'PDF processing is not yet supported. Please send an image of the bill.',
+        );
       } else {
         await _sendReply(from, 'Unsupported document format. Please send an image of the bill.');
       }
@@ -191,9 +218,7 @@ class WhatsAppSyncService {
     final url = '$_apiUrl/$mediaId';
     final response = await http.get(
       Uri.parse(url),
-      headers: {
-        'Authorization': 'Bearer $_accessToken',
-      },
+      headers: {'Authorization': 'Bearer $_accessToken'},
     );
 
     if (response.statusCode != 200) {
@@ -214,11 +239,7 @@ class WhatsAppSyncService {
       image = img.adjustColor(image, contrast: 1.2, brightness: 1.1);
 
       // Sharpen - Using convolution as sharpen is sometimes not available in all versions
-      image = img.convolution(image, filter: [
-        0, -1,  0,
-       -1,  5, -1,
-        0, -1,  0
-      ]);
+      image = img.convolution(image, filter: [0, -1, 0, -1, 5, -1, 0, -1, 0]);
 
       // Convert back to bytes
       return Uint8List.fromList(img.encodePng(image));
@@ -262,12 +283,12 @@ class WhatsAppSyncService {
   String _normalizePhoneNumber(String phone) {
     // Remove any non-digit characters
     String digits = phone.replaceAll(RegExp(r'\D'), '');
-    
+
     // Add country code if missing
     if (digits.length == 10) {
       digits = '91$digits';
     }
-    
+
     return digits;
   }
 
@@ -305,7 +326,6 @@ class WhatsAppSyncService {
           district: shopDoc.data()?['district'] ?? 'Jaipur',
         );
 
-
         await _firestore.collection('products').doc(productId).set(product.toMap());
 
         results.add({
@@ -316,11 +336,7 @@ class WhatsAppSyncService {
           'unit': product.unit,
         });
       } catch (e) {
-        results.add({
-          'success': false,
-          'name': item['name'] ?? 'Unknown',
-          'error': e.toString(),
-        });
+        results.add({'success': false, 'name': item['name'] ?? 'Unknown', 'error': e.toString()});
       }
     }
 
@@ -344,10 +360,7 @@ class WhatsAppSyncService {
 
     await http.post(
       Uri.parse(url),
-      headers: {
-        'Authorization': 'Bearer $_accessToken',
-        'Content-Type': 'application/json',
-      },
+      headers: {'Authorization': 'Bearer $_accessToken', 'Content-Type': 'application/json'},
       body: body,
     );
   }

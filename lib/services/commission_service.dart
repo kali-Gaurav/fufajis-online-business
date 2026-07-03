@@ -90,15 +90,17 @@ class CommissionService {
       final sales = grossSales[shopId] ?? 0.0;
       final commission = sales * (commissionPercent / 100);
 
-      summaries.add(VendorCommissionSummary(
-        shopId: shopId,
-        shopName: shop?.shopName ?? 'Unknown shop ($shopId)',
-        commissionPercent: commissionPercent,
-        orderCount: orderCounts[shopId] ?? 0,
-        grossSales: sales,
-        commissionAmount: commission,
-        vendorPayable: sales - commission,
-      ));
+      summaries.add(
+        VendorCommissionSummary(
+          shopId: shopId,
+          shopName: shop?.shopName ?? 'Unknown shop ($shopId)',
+          commissionPercent: commissionPercent,
+          orderCount: orderCounts[shopId] ?? 0,
+          grossSales: sales,
+          commissionAmount: commission,
+          vendorPayable: sales - commission,
+        ),
+      );
     }
 
     // Highest sales first.

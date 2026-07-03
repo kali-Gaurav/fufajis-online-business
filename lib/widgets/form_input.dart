@@ -104,9 +104,7 @@ class _FormInputState extends State<FormInput> {
           textInputAction: widget.maxLines == 1 ? TextInputAction.next : TextInputAction.none,
           decoration: InputDecoration(
             hintText: widget.placeholder,
-            hintStyle: TextStyle(
-              color: isDark ? Colors.white38 : AppTheme.grey400,
-            ),
+            hintStyle: TextStyle(color: isDark ? Colors.white38 : AppTheme.grey400),
 
             // FILL COLOR
             filled: true,
@@ -115,60 +113,40 @@ class _FormInputState extends State<FormInput> {
             // BORDER
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(
-                color: isDark ? const Color(0xFF333333) : AppTheme.grey300,
-              ),
+              borderSide: BorderSide(color: isDark ? const Color(0xFF333333) : AppTheme.grey300),
             ),
 
             // ENABLED BORDER
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(
-                color: isDark ? const Color(0xFF333333) : AppTheme.grey300,
-              ),
+              borderSide: BorderSide(color: isDark ? const Color(0xFF333333) : AppTheme.grey300),
             ),
 
             // FOCUSED BORDER (ORANGE)
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(
-                color: AppTheme.primary,
-                width: 2,
-              ),
+              borderSide: const BorderSide(color: AppTheme.primary, width: 2),
             ),
 
             // ERROR BORDER (RED)
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(
-                color: AppTheme.error,
-                width: 1,
-              ),
+              borderSide: const BorderSide(color: AppTheme.error, width: 1),
             ),
 
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(
-                color: AppTheme.error,
-                width: 2,
-              ),
+              borderSide: const BorderSide(color: AppTheme.error, width: 2),
             ),
 
             // PADDING
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
-            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
 
             // SUFFIX ICON (for error)
             suffixIcon: _error != null && _error!.isNotEmpty
                 ? const Padding(
                     padding: EdgeInsets.all(12),
-                    child: Icon(
-                      Icons.error_outline_rounded,
-                      color: AppTheme.error,
-                      size: 20,
-                    ),
+                    child: Icon(Icons.error_outline_rounded, color: AppTheme.error, size: 20),
                   )
                 : null,
           ),

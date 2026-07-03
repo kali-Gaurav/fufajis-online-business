@@ -54,9 +54,12 @@ class _IdentityContactsScreenState extends State<IdentityContactsScreen> {
               ),
               DropdownButtonFormField<String>(
                 initialValue: relationship,
-                items: ['primary', 'family', 'friend', 'emergency']
-                    .map((s) => DropdownMenuItem(value: s, child: Text(s.toUpperCase())))
-                    .toList(),
+                items: [
+                  'primary',
+                  'family',
+                  'friend',
+                  'emergency',
+                ].map((s) => DropdownMenuItem(value: s, child: Text(s.toUpperCase()))).toList(),
                 onChanged: (v) => relationship = v ?? 'primary',
                 decoration: const InputDecoration(labelText: 'Relationship'),
               ),
@@ -68,7 +71,7 @@ class _IdentityContactsScreenState extends State<IdentityContactsScreen> {
           ElevatedButton(
             onPressed: () async {
               if (nameController.text.isEmpty || phoneController.text.isEmpty) return;
-              
+
               final userId = context.read<AuthProvider>().currentUser?.id;
               if (userId == null) return;
 
@@ -86,9 +89,9 @@ class _IdentityContactsScreenState extends State<IdentityContactsScreen> {
               if (mounted) {
                 Navigator.pop(context);
                 if (success) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Contact added to secure vault')),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('Contact added to secure vault')));
                 }
               }
             },
@@ -103,7 +106,6 @@ class _IdentityContactsScreenState extends State<IdentityContactsScreen> {
   void dispose() {
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -151,8 +153,8 @@ class _IdentityContactsScreenState extends State<IdentityContactsScreen> {
                 trailing: IconButton(
                   icon: const Icon(Icons.delete_outline, color: AppTheme.error),
                   onPressed: () => provider.deleteContact(
-                    contact.id, 
-                    context.read<AuthProvider>().currentUser!.id
+                    contact.id,
+                    context.read<AuthProvider>().currentUser!.id,
                   ),
                 ),
               );

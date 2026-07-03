@@ -59,9 +59,7 @@ class EmptyStateWidget extends StatelessWidget {
     return EmptyStateWidget(
       icon: Icons.search_off_rounded,
       iconColor: AppTheme.grey500,
-      title: query != null && query.isNotEmpty
-          ? 'No results for "$query"'
-          : 'Search for Products',
+      title: query != null && query.isNotEmpty ? 'No results for "$query"' : 'Search for Products',
       subtitle: query != null && query.isNotEmpty
           ? 'Try a different keyword or\nbrowse our categories.'
           : 'Type a product name to find what\nyou\'re looking for.',
@@ -139,11 +137,7 @@ class EmptyStateWidget extends StatelessWidget {
                 color: iconColor.withValues(alpha: 0.10),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                size: 50,
-                color: iconColor,
-              ),
+              child: Icon(icon, size: 50, color: iconColor),
             ),
             const SizedBox(height: 24),
 
@@ -164,11 +158,7 @@ class EmptyStateWidget extends StatelessWidget {
             Text(
               subtitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppTheme.grey500,
-                height: 1.6,
-              ),
+              style: const TextStyle(fontSize: 14, color: AppTheme.grey500, height: 1.6),
             ),
 
             // Action button
@@ -182,17 +172,12 @@ class EmptyStateWidget extends StatelessWidget {
                     backgroundColor: AppTheme.primary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     elevation: 0,
                   ),
                   child: Text(
                     actionLabel!,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
                   ),
                 ),
               ),

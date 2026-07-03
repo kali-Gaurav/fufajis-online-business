@@ -15,18 +15,11 @@ class ForceUpdateOverlay extends StatelessWidget {
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 32),
           padding: const EdgeInsets.all(32),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-          ),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
-                Icons.system_update,
-                size: 64,
-                color: AppTheme.primary,
-              ),
+              const Icon(Icons.system_update, size: 64, color: AppTheme.primary),
               const SizedBox(height: 24),
               const Text(
                 'Update Required',
@@ -49,24 +42,16 @@ class ForceUpdateOverlay extends StatelessWidget {
                   onPressed: () async {
                     final url = Uri.parse(updateUrl);
                     if (await canLaunchUrl(url)) {
-                      await launchUrl(
-                        url,
-                        mode: LaunchMode.externalApplication,
-                      );
+                      await launchUrl(url, mode: LaunchMode.externalApplication);
                     }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text(
-                    'Update Now',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  child: const Text('Update Now', style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ),
             ],

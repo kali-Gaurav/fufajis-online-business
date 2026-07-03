@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../models/low_stock_alert_model.dart' show LowStockAlert;
 import '../models/product_model.dart';
+
 // notification_service imported for FCM queue
 
 /// Smart Inventory Automation Service
@@ -14,22 +15,19 @@ import '../models/product_model.dart';
 /// - Auto-generates suggested Purchase Order quantities (EOQ formula)
 /// - Writes alerts to Firestore `inventory_alerts` collection for dashboard widget
 class InventoryAutomationService {
-  static final InventoryAutomationService _instance =
-      InventoryAutomationService._internal();
+  static final InventoryAutomationService _instance = InventoryAutomationService._internal();
   factory InventoryAutomationService() => _instance;
   InventoryAutomationService._internal();
 
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   // ─── Alert thresholds ─────────────────────────────────────────────────────────
-  static const int _criticalThreshold = 2;    // units — bright red badge
-  static const int _lowThreshold = 5;         // units — orange warning
+  static const int _criticalThreshold = 2; // units — bright red badge
+  static const int _lowThreshold = 5; // units — orange warning
   static const int _defaultReorderPoint = 10; // fallback if no sales history
 
   // ─── Main entry: call from Cloud Function cron or owner dashboard ─────────────
-  Future<Map<String, dynamic>> runFullInventoryCheck({
-    String shopId = 'shop_001',
-  }) async {
+  Future<Map<String, dynamic>> runFullInventoryCheck({String shopId = 'shop_001'}) async {
     debugPrint('[InvAuto] Starting full inventory check for $shopId…');
 
     final results = <String, dynamic>{
@@ -64,10 +62,7 @@ class InventoryAutomationService {
     required String shopId,
     required Map<String, dynamic> results,
   }) async {
-    final snapshot = await _db
-        .collection('products')
-        .where('isActive', isEqualTo: true)
-        .get();
+    final snapshot = await _db.collection('products').where('isActive', isEqualTo: true).get();
 
     final batch = _db.batch();
     final now = Timestamp.now();
@@ -209,11 +204,7 @@ class InventoryAutomationService {
           'fcmToken': fcmToken,
           'title': '📦 Inventory Alert — Fufaji\'s',
           'body': body,
-          'data': {
-            'type': 'inventory_alert',
-            'shopId': shopId,
-            'route': '/owner/inventory-alerts',
-          },
+          'data': {'type': 'inventory_alert', 'shopId': shopId, 'route': '/owner/inventory-alerts'},
           'status': 'pending',
           'createdAt': FieldValue.serverTimestamp(),
         });
@@ -240,9 +231,7 @@ class InventoryAutomationService {
   // ─── Demand velocity (units sold / 30 days) ───────────────────────────────────
   Future<double> _getDemandVelocity(String productId) async {
     try {
-      final thirtyDaysAgo = Timestamp.fromDate(
-        DateTime.now().subtract(const Duration(days: 30)),
-      );
+      final thirtyDaysAgo = Timestamp.fromDate(DateTime.now().subtract(const Duration(days: 30)));
       final snapshot = await _db
           .collection('order_items')
           .where('productId', isEqualTo: productId)
@@ -280,23 +269,18 @@ class InventoryAutomationService {
   }
 
   // ─── Public: get active alerts stream for dashboard widget ───────────────────
-  Stream<List<LowStockAlert>> watchActiveAlerts({
-    String shopId = 'shop_001',
-  }) {
+  Stream<List<LowStockAlert>> watchActiveAlerts({String shopId = 'shop_001'}) {
     return _db
         .collection('inventory_alerts')
         .where('shopId', isEqualTo: shopId)
         .orderBy('updatedAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs
-            .map((d) => LowStockAlert.fromMap(d.data()))
-            .toList());
+        .map((snap) => snap.docs.map((d) => LowStockAlert.fromMap(d.data())).toList());
   }
 
   // ─── Public: quick check single product ──────────────────────────────────────
   Future<String?> getAlertLevel(String productId) async {
-    final doc =
-        await _db.collection('inventory_alerts').doc(productId).get();
+    final doc = await _db.collection('inventory_alerts').doc(productId).get();
     return doc.exists ? doc['alertLevel'] as String? : null;
   }
 }

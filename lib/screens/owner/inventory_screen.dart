@@ -19,21 +19,12 @@ class InventoryScreen extends StatefulWidget {
 
 class _InventoryScreenState extends State<InventoryScreen> {
   int _selectedFilter = 0;
-  final List<String> _filters = [
-    'All',
-    'Low Stock',
-    'Out of Stock',
-    'Expiring Soon',
-    'Expired',
-  ];
+  final List<String> _filters = ['All', 'Low Stock', 'Out of Stock', 'Expiring Soon', 'Expired'];
   final ProductService _productService = ProductService();
   String _searchQuery = '';
   bool _autoReorderEnabled = false;
   bool _isAutoReordering = false;
   int _globalThreshold = 10;
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +34,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     // Filter by search query
     if (_searchQuery.isNotEmpty) {
       products = products
-          .where(
-            (p) => p.name.toLowerCase().contains(_searchQuery.toLowerCase()),
-          )
+          .where((p) => p.name.toLowerCase().contains(_searchQuery.toLowerCase()))
           .toList();
     }
 
@@ -72,19 +61,14 @@ class _InventoryScreenState extends State<InventoryScreen> {
       // Expired
       products = products
           .where(
-            (p) =>
-                p.isExpired ||
-                (p.expiryDate != null &&
-                    p.expiryDate!.isBefore(DateTime.now())),
+            (p) => p.isExpired || (p.expiryDate != null && p.expiryDate!.isBefore(DateTime.now())),
           )
           .toList();
     }
 
     // Handle Auto-Reorder logic if enabled
     if (_autoReorderEnabled) {
-      final lowStockProducts = products
-          .where((p) => p.stockQuantity < p.minimumStock)
-          .toList();
+      final lowStockProducts = products.where((p) => p.stockQuantity < p.minimumStock).toList();
       if (lowStockProducts.isNotEmpty) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _triggerAutoReorder(lowStockProducts, productProvider);
@@ -115,11 +99,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
                 children: [
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const BillScannerScreen(),
-                        ),
-                      ),
+                      onPressed: () => Navigator.of(
+                        context,
+                      ).push(MaterialPageRoute(builder: (_) => const BillScannerScreen())),
                       icon: const Icon(Icons.document_scanner_outlined),
                       label: const Text('Scan Bill'),
                       style: ElevatedButton.styleFrom(
@@ -132,8 +114,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () =>
-                          _showAddStockDialog(context, productProvider.products),
+                      onPressed: () => _showAddStockDialog(context, productProvider.products),
                       icon: const Icon(Icons.add),
                       label: const Text('Quick Add'),
                       style: ElevatedButton.styleFrom(
@@ -257,9 +238,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     final lowStockCount = allProducts
         .where((p) => p.stockQuantity > 0 && p.stockQuantity < p.minimumStock)
         .length;
-    final outOfStockCount = allProducts
-        .where((p) => p.stockQuantity == 0)
-        .length;
+    final outOfStockCount = allProducts.where((p) => p.stockQuantity == 0).length;
     final expiringSoonCount = allProducts
         .where(
           (p) =>
@@ -270,33 +249,15 @@ class _InventoryScreenState extends State<InventoryScreen> {
         .length;
     final expiredCount = allProducts
         .where(
-          (p) =>
-              p.isExpired ||
-              (p.expiryDate != null && p.expiryDate!.isBefore(DateTime.now())),
+          (p) => p.isExpired || (p.expiryDate != null && p.expiryDate!.isBefore(DateTime.now())),
         )
         .length;
 
     final stats = [
-      {
-        'label': 'Low Stock',
-        'value': lowStockCount.toString(),
-        'color': AppTheme.warning,
-      },
-      {
-        'label': 'Out of Stock',
-        'value': outOfStockCount.toString(),
-        'color': AppTheme.error,
-      },
-      {
-        'label': 'Expiring Soon',
-        'value': expiringSoonCount.toString(),
-        'color': AppTheme.warning,
-      },
-      {
-        'label': 'Expired',
-        'value': expiredCount.toString(),
-        'color': AppTheme.error,
-      },
+      {'label': 'Low Stock', 'value': lowStockCount.toString(), 'color': AppTheme.warning},
+      {'label': 'Out of Stock', 'value': outOfStockCount.toString(), 'color': AppTheme.error},
+      {'label': 'Expiring Soon', 'value': expiringSoonCount.toString(), 'color': AppTheme.warning},
+      {'label': 'Expired', 'value': expiredCount.toString(), 'color': AppTheme.error},
     ];
 
     return Row(
@@ -363,17 +324,14 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
   Widget _buildInventoryItem(ProductModel product) {
     final bool isLowStock =
-        product.stockQuantity > 0 &&
-        product.stockQuantity < product.minimumStock;
+        product.stockQuantity > 0 && product.stockQuantity < product.minimumStock;
     final bool isOutOfStock = product.stockQuantity == 0;
 
     // Expiry status
     String? expiryText;
     Color expiryColor = AppTheme.success;
     if (product.expiryDate != null) {
-      final daysToExpiry = product.expiryDate!
-          .difference(DateTime.now())
-          .inDays;
+      final daysToExpiry = product.expiryDate!.difference(DateTime.now()).inDays;
       if (daysToExpiry < 0) {
         expiryText = 'Expired';
         expiryColor = AppTheme.error;
@@ -381,8 +339,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
         expiryText = 'Expiring in $daysToExpiry days';
         expiryColor = AppTheme.warning;
       } else {
-        expiryText =
-            'Expires: ${intl.DateFormat('dd/MM').format(product.expiryDate!)}';
+        expiryText = 'Expires: ${intl.DateFormat('dd/MM').format(product.expiryDate!)}';
         expiryColor = AppTheme.success;
       }
     }
@@ -449,18 +406,12 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   children: [
                     Text(
                       'SKU: $sku | ₹${product.price}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.grey500,
-                      ),
+                      style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
                     ),
                     if (expiryText != null) ...[
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: expiryColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
@@ -479,21 +430,14 @@ class _InventoryScreenState extends State<InventoryScreen> {
                 ),
                 const SizedBox(height: 4),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 2,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
                     color: statusColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
                     stockStatus,
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: statusColor,
-                    ),
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: statusColor),
                   ),
                 ),
               ],
@@ -505,11 +449,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
             children: [
               Text(
                 '${product.stockQuantity}',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: statusColor,
-                ),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: statusColor),
               ),
               Text(
                 'Min: ${product.minimumStock}',
@@ -564,11 +504,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
         'isAvailable': true,
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Quick added $amount units to ${product.name}'),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Quick added $amount units to ${product.name}')));
       }
     } catch (e) {
       if (mounted) {
@@ -579,10 +517,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     }
   }
 
-  void _showAddStockDialog(
-    BuildContext context,
-    List<ProductModel> allProducts,
-  ) {
+  void _showAddStockDialog(BuildContext context, List<ProductModel> allProducts) {
     if (allProducts.isEmpty) return;
     ProductModel selectedProduct = allProducts.first;
     final controller = TextEditingController(text: '10');
@@ -591,7 +526,10 @@ class _InventoryScreenState extends State<InventoryScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Quick Inventory Addition', style: TextStyle(fontWeight: FontWeight.w700)),
+          title: const Text(
+            'Quick Inventory Addition',
+            style: TextStyle(fontWeight: FontWeight.w700),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -628,10 +566,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
             ],
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
             ElevatedButton(
               onPressed: () async {
                 final amount = int.tryParse(controller.text);
@@ -644,9 +579,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     if (context.mounted) {
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Quick stock added successfully!'),
-                        ),
+                        const SnackBar(content: Text('Quick stock added successfully!')),
                       );
                     }
                   } catch (e) {
@@ -666,13 +599,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
   }
 
-  Widget _buildAlertsPanel(
-    List<ProductModel> products,
-    ProductProvider provider,
-  ) {
-    final lowStockItems = products
-        .where((p) => p.stockQuantity < p.minimumStock)
-        .toList();
+  Widget _buildAlertsPanel(List<ProductModel> products, ProductProvider provider) {
+    final lowStockItems = products.where((p) => p.stockQuantity < p.minimumStock).toList();
     if (lowStockItems.isEmpty) return const SizedBox();
 
     return Container(
@@ -690,10 +618,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
             children: [
               Row(
                 children: [
-                  const Icon(
-                    Icons.warning_amber_rounded,
-                    color: AppTheme.error,
-                  ),
+                  const Icon(Icons.warning_amber_rounded, color: AppTheme.error),
                   const SizedBox(width: 8),
                   Text(
                     'Low Stock Warning Alerts (${lowStockItems.length} items)',
@@ -713,10 +638,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                     }
                   },
                   icon: const Icon(Icons.refresh, size: 16),
-                  label: const Text(
-                    'Reorder All (+50)',
-                    style: TextStyle(fontSize: 12),
-                  ),
+                  label: const Text('Reorder All (+50)', style: TextStyle(fontSize: 12)),
                   style: TextButton.styleFrom(foregroundColor: AppTheme.error),
                 ),
             ],
@@ -736,9 +658,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   decoration: BoxDecoration(
                     color: AppTheme.white,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: AppTheme.error.withValues(alpha: 0.1),
-                    ),
+                    border: Border.all(color: AppTheme.error.withValues(alpha: 0.1)),
                   ),
                   child: Row(
                     children: [
@@ -757,10 +677,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                             ),
                             Text(
                               'Stock: ${item.stockQuantity} (Min: ${item.minimumStock})',
-                              style: const TextStyle(
-                                fontSize: 10,
-                                color: AppTheme.grey600,
-                              ),
+                              style: const TextStyle(fontSize: 10, color: AppTheme.grey600),
                             ),
                           ],
                         ),
@@ -771,18 +688,13 @@ class _InventoryScreenState extends State<InventoryScreen> {
                           await _quickIncrementStock(item, 50);
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.error.withValues(
-                            alpha: 0.1,
-                          ),
+                          backgroundColor: AppTheme.error.withValues(alpha: 0.1),
                           foregroundColor: AppTheme.error,
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           minimumSize: const Size(60, 32),
                         ),
-                        child: const Text(
-                          'Reorder',
-                          style: TextStyle(fontSize: 11),
-                        ),
+                        child: const Text('Reorder', style: TextStyle(fontSize: 11)),
                       ),
                     ],
                   ),

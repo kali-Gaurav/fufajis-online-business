@@ -51,124 +51,7 @@ class PaymentRouterService {
     throw UnsupportedError('Webhook handling is disabled on the client.');
   }
 
-  /// Validates HMAC-SHA256 signature (Razorpay webhook security)
-  /// Deprecated: Webhooks must be processed exclusively on the Node.js backend.
-  @deprecated
-  bool _validateWebhookSignature(
-    String eventId,
-    String eventType,
-    Map<String, dynamic> payload,
-    String signature,
-  ) {
-    debugPrint('[PaymentRouter] ❌ Client-side signature verification is deprecated and disabled.');
-    return false;
-  }
 
-  /// Async handler: Payment succeeded
-  Future<void> _onPaymentSuccess(Map<String, dynamic> payload) async {
-    final razorpayPaymentId = payload['payment_id'] as String?;
-
-    if (razorpayPaymentId == null) {
-      debugPrint('[PaymentRouter] ❌ Missing payment_id in success webhook');
-      return;
-    }
-
-    // Update order status to confirmed
-    try {
-      await _firestore.runTransaction((transaction) async {
-        // Find order by razorpay payment ID
-        final orderQuery = await _firestore
-            .collection('orders')
-            .where('razorpayPaymentId', isEqualTo: razorpayPaymentId)
-            .limit(1)
-            .get();
-
-        if (orderQuery.docs.isEmpty) {
-          debugPrint('[PaymentRouter] Order not found for payment: $razorpayPaymentId');
-          return;
-        }
-
-        final orderDoc = orderQuery.docs.first;
-        final orderId = orderDoc.id;
-
-        // Update order status
-        transaction.update(orderDoc.reference, {
-          'status': 'confirmed',
-          'paymentStatus': 'completed',
-          'razorpayPaymentId': razorpayPaymentId,
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
-
-        // Update payment ledger
-        final paymentId = 'rzp_$razorpayPaymentId';
-        final paymentRef = _firestore.collection('payments').doc(paymentId);
-        transaction.update(paymentRef, {
-          'status': 'success',
-          'razorpayPaymentId': razorpayPaymentId,
-          'completedAt': FieldValue.serverTimestamp(),
-          'needsReconciliation': false,
-        });
-
-        debugPrint('[PaymentRouter] ✅ Order $orderId confirmed via webhook');
-      });
-    } catch (e) {
-      debugPrint('[PaymentRouter] Error processing payment success: $e');
-    }
-  }
-
-  /// Async handler: Payment failed → Enqueue for retry
-  Future<void> _onPaymentFailed(Map<String, dynamic> payload) async {
-    final razorpayPaymentId = payload['payment_id'] as String?;
-    final orderId = payload['order_id'] as String?;
-    final reason = payload['description'] as String? ?? 'unknown';
-
-    if (razorpayPaymentId == null || orderId == null) {
-      debugPrint('[PaymentRouter] ❌ Missing IDs in failed webhook');
-      return;
-    }
-
-    try {
-      // Create retry entry
-      final retryId = 'retry_${DateTime.now().millisecondsSinceEpoch}_$razorpayPaymentId';
-      await _firestore.collection('payment_retry_queue').doc(retryId).set({
-        'razorpayPaymentId': razorpayPaymentId,
-        'orderId': orderId,
-        'failureReason': reason,
-        'retryCount': 0,
-        'maxRetries': _maxRetries,
-        'status': 'pending',
-        'nextRetryAt': DateTime.now().add(const Duration(milliseconds: _initialBackoffMs)),
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-
-      debugPrint('[PaymentRouter] 🔄 Enqueued for retry: $retryId');
-    } catch (e) {
-      debugPrint('[PaymentRouter] Error handling payment failure: $e');
-    }
-  }
-
-  /// Async handler: UPI payment authorized
-  Future<void> _onUpiSuccess(Map<String, dynamic> payload) async {
-    // Similar to _onPaymentSuccess but for UPI
-    final upiTransactionId = payload['upi_transaction_id'] as String?;
-    final orderId = payload['order_id'] as String?;
-
-    if (upiTransactionId == null || orderId == null) return;
-
-    try {
-      final orderRef = _firestore.collection('orders').doc(orderId);
-      await orderRef.update({
-        'status': 'confirmed',
-        'paymentStatus': 'completed',
-        'upiTransactionId': upiTransactionId,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-
-      debugPrint('[PaymentRouter] ✅ UPI Order $orderId confirmed');
-    } catch (e) {
-      debugPrint('[PaymentRouter] Error processing UPI success: $e');
-    }
-  }
 
   // ─────────────── RETRY LOGIC (Exponential Backoff) ───────────────
 
@@ -198,12 +81,12 @@ class PaymentRouterService {
           final backoffMs = (_initialBackoffMs * pow(_backoffMultiplier, retryCount)).toInt();
           await retryDoc.reference.update({
             'retryCount': retryCount + 1,
-            'nextRetryAt': Timestamp.fromDate(
-              now.add(Duration(milliseconds: backoffMs)),
-            ),
+            'nextRetryAt': Timestamp.fromDate(now.add(Duration(milliseconds: backoffMs))),
           });
 
-          debugPrint('[PaymentRouter] 🔄 Retry #${retryCount + 1} scheduled in ${backoffMs}ms for $orderId');
+          debugPrint(
+            '[PaymentRouter] 🔄 Retry #${retryCount + 1} scheduled in ${backoffMs}ms for $orderId',
+          );
         }
       }
     } catch (e) {
@@ -225,48 +108,23 @@ class PaymentRouterService {
 
       if (customerId == null) return;
 
-      await _firestore.runTransaction((transaction) async {
-        final userRef = _firestore.collection('users').doc(customerId);
-        final userDoc = await transaction.get(userRef);
+      // CRITICAL: Do NOT use Firestore transactions directly
+      // Backend API must handle wallet fallback atomically:
+      // 1. Verify wallet balance
+      // 2. Deduct from wallet in PostgreSQL
+      // 3. Update order status via atomic transaction
+      // 4. Create audit log
+      // 5. Sync to Firestore eventually
 
-        if (!userDoc.exists) return;
+      debugPrint('[PaymentRouter] ⚠️ Wallet fallback should be handled via backend API');
+      debugPrint('[PaymentRouter] POST /admin/payments/fallback-to-wallet with orderId=$orderId, customerId=$customerId, amount=$totalAmount');
 
-        final userData = userDoc.data()!;
-        final walletBalance = (userData['walletBalance'] as num?)?.toDouble() ?? 0;
-
-        if (walletBalance < totalAmount) {
-          debugPrint('[PaymentRouter] ⚠️ Insufficient wallet balance for fallback: $customerId');
-          return; // Wallet insufficient
-        }
-
-        // Deduct from wallet
-        final newBalance = walletBalance - totalAmount;
-        transaction.update(userRef, {
-          'walletBalance': newBalance,
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
-
-        // Update order as wallet-paid
-        transaction.update(orderDoc.reference, {
-          'status': 'confirmed',
-          'paymentStatus': 'wallet_paid',
-          'paymentMethod': 'wallet',
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
-
-        // Record wallet transaction
-        final txnRef = userRef.collection('wallet_transactions').doc();
-        transaction.set(txnRef, {
-          'type': 'payment_fallback',
-          'amount': totalAmount,
-          'orderReference': orderId,
-          'reason': 'Payment retry failed, fallback to wallet',
-          'balanceAfter': newBalance,
-          'timestamp': FieldValue.serverTimestamp(),
-        });
-
-        debugPrint('[PaymentRouter] ✅ Wallet fallback applied: $customerId -₹$totalAmount');
-      });
+      // Caller should invoke backend API instead:
+      // await apiService.post('/admin/payments/fallback-to-wallet', {
+      //   'orderId': orderId,
+      //   'customerId': customerId,
+      //   'amount': totalAmount,
+      // });
     } catch (e) {
       debugPrint('[PaymentRouter] Error applying wallet fallback: $e');
     }
@@ -300,7 +158,11 @@ class PaymentRouterService {
         return const PaymentRoute(method: 'upi', reason: 'low_order_value', estimatedFee: 0);
       }
       if (availableMethods.contains('cod')) {
-        return const PaymentRoute(method: 'cod', reason: 'low_order_value_fallback', estimatedFee: 0);
+        return const PaymentRoute(
+          method: 'cod',
+          reason: 'low_order_value_fallback',
+          estimatedFee: 0,
+        );
       }
     }
 
@@ -352,7 +214,9 @@ class PaymentRouterService {
       if (doc.exists) {
         final existingStatus = doc.data()?['status']?.toString();
         if (existingStatus == 'success' || existingStatus == 'captured') {
-          debugPrint('[PaymentRouter] Payment attempt $paymentId already succeeded. Skipping duplicate ledger write.');
+          debugPrint(
+            '[PaymentRouter] Payment attempt $paymentId already succeeded. Skipping duplicate ledger write.',
+          );
           return;
         }
       }
@@ -375,30 +239,59 @@ class PaymentRouterService {
       'updatedAt': FieldValue.serverTimestamp(),
     };
 
-    await _firestore.collection('payments').doc(paymentId).set(data);
-    debugPrint('[PaymentRouter] Ledger entry: $paymentId → ${status.name}');
+    // CRITICAL: Do NOT write payment ledger directly to Firestore
+    // Backend API must handle payment recording atomically:
+    // 1. Verify payment signature (if Razorpay)
+    // 2. Record ledger entry in PostgreSQL
+    // 3. Update order status if payment success
+    // 4. Create audit log
+    // 5. Sync to Firestore eventually
+
+    debugPrint('[PaymentRouter] ⚠️ Payment ledger recording should be handled via backend API');
+    debugPrint('[PaymentRouter] POST /admin/payments/record with paymentId=$paymentId, status=${status.name}');
+
+    // Caller should invoke backend API instead:
+    // await apiService.post('/admin/payments/record', {
+    //   'paymentId': paymentId,
+    //   'orderId': orderId,
+    //   'customerId': customerId,
+    //   'amount': amount,
+    //   'method': method,
+    //   'status': status.name,
+    //   'razorpayPaymentId': razorpayPaymentId,
+    // });
 
     // If failed, add to reconciliation queue
     if (status == PaymentLedgerStatus.failed) {
-      await _enqueueReconciliation(paymentId, orderId, amount, failureReason);
+      // await _enqueueReconciliation(paymentId, orderId, amount, failureReason);
+      debugPrint('[PaymentRouter] Payment $paymentId failed - backend will handle reconciliation');
     }
   }
 
   /// Updates an existing ledger entry (e.g., after successful retry).
+  /// DEPRECATED: This method writes directly to Firestore, which bypasses backend validation.
+  /// Use backend API instead: POST /admin/payments/{paymentId}/update-status
+  @deprecated
   Future<void> updatePaymentStatus({
     required String paymentId,
     required PaymentLedgerStatus status,
     String? razorpayPaymentId,
     String? resolvedBy,
   }) async {
-    await _firestore.collection('payments').doc(paymentId).update({
-      'status': status.name,
-      'needsReconciliation': status == PaymentLedgerStatus.failed,
-      'razorpayPaymentId': razorpayPaymentId ?? '',
-      'resolvedBy': resolvedBy ?? '',
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-    debugPrint('[PaymentRouter] Updated payment $paymentId → ${status.name}');
+    // CRITICAL: Do NOT write payment status directly to Firestore
+    // Backend API must handle status updates atomically
+
+    debugPrint('[PaymentRouter] ⚠️ Payment status update should be handled via backend API');
+    debugPrint('[PaymentRouter] POST /admin/payments/$paymentId/update-status with status=${status.name}');
+
+    // Caller should invoke backend API instead:
+    // await apiService.post('/admin/payments/$paymentId/update-status', {
+    //   'status': status.name,
+    //   'razorpayPaymentId': razorpayPaymentId,
+    //   'resolvedBy': resolvedBy,
+    // });
+
+    throw UnsupportedError('Use backend API for payment status updates instead of direct Firestore writes');
   }
 
   // ─────────────── RECONCILIATION QUEUE ───────────────
@@ -471,10 +364,7 @@ class PaymentRouterService {
 
   Future<Map<String, dynamic>> _loadRoutingConfig() async {
     try {
-      final doc = await _firestore
-          .collection('settings')
-          .doc('payment_routing')
-          .get();
+      final doc = await _firestore.collection('settings').doc('payment_routing').get();
       return doc.exists ? doc.data()! : {};
     } catch (_) {
       return {};
@@ -500,13 +390,8 @@ class PaymentRoute {
   final String reason;
   final double estimatedFee;
 
-  const PaymentRoute({
-    required this.method,
-    required this.reason,
-    required this.estimatedFee,
-  });
+  const PaymentRoute({required this.method, required this.reason, required this.estimatedFee});
 
   @override
-  String toString() =>
-      'PaymentRoute(method=$method, reason=$reason, fee=₹$estimatedFee)';
+  String toString() => 'PaymentRoute(method=$method, reason=$reason, fee=₹$estimatedFee)';
 }

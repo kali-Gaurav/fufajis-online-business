@@ -17,7 +17,7 @@ class OtpRateLimiter {
   static const String _keyAttempts = 'otp_attempts';
   static const String _keyLastAttempt = 'otp_last_attempt';
   static const String _keyBlockedUntil = 'otp_blocked_until';
-  
+
   static const int maxAttempts = 5;
   static const int blockDurationMinutes = 60; // 1 hour block
 
@@ -69,7 +69,9 @@ class OtpRateLimiter {
     await _secureStorage.write(key: _keyLastAttempt, value: DateTime.now().toIso8601String());
 
     if (attempts >= maxAttempts) {
-      final DateTime blockedUntil = DateTime.now().add(const Duration(minutes: blockDurationMinutes));
+      final DateTime blockedUntil = DateTime.now().add(
+        const Duration(minutes: blockDurationMinutes),
+      );
       await _secureStorage.write(key: _keyBlockedUntil, value: blockedUntil.toIso8601String());
     }
   }

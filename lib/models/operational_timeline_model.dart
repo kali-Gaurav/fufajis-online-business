@@ -6,7 +6,7 @@ enum TimelineEntityType {
   purchase_order,
   supplier_quote,
   refund_request,
-  other
+  other,
 }
 
 class OperationalTimelineModel {
@@ -14,11 +14,11 @@ class OperationalTimelineModel {
   final String branchId;
   final String entityId;
   final TimelineEntityType entityType;
-  
+
   final String title;
   final String description;
   final String eventKey; // e.g., 'created', 'assigned', 'picked_up'
-  
+
   final String? triggeredByUserId;
   final Map<String, dynamic> metadata;
   final DateTime timestamp;

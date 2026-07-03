@@ -1,0 +1,311 @@
+{
+  "category": "Beverages",
+  "count": 20,
+  "products": [
+    {
+      "id": "BEV001",
+      "familyName": "Tata Tea Premium",
+      "brand": "Tata Tea",
+      "hindiName": "Tata Tea प्रीमियम चाय",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "250g", "price": 145, "cost": 95},
+        {"size": "500g", "price": 270, "cost": 175},
+        {"size": "1kg", "price": 520, "cost": 335}
+      ],
+      "keywords": ["tea", "black tea", "chai", "Tata premium", "प्रीमियम चाय"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "BEV002",
+      "familyName": "Taj Mahal Tea",
+      "brand": "Taj Mahal",
+      "hindiName": "Taj Mahal चाय",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "250g", "price": 135, "cost": 88},
+        {"size": "500g", "price": 252, "cost": 163},
+        {"size": "1kg", "price": 485, "cost": 313}
+      ],
+      "keywords": ["tea", "black tea", "taj", "Taj Mahal tea", "चाय"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "BEV003",
+      "familyName": "Bru Instant Coffee",
+      "brand": "Bru",
+      "hindiName": "Bru तात्कालिक कॉफी",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 85, "cost": 55},
+        {"size": "100g", "price": 155, "cost": 100},
+        {"size": "500g", "price": 685, "cost": 442},
+        {"size": "1kg", "price": 1320, "cost": 852}
+      ],
+      "keywords": ["coffee", "instant", "brew", "Bru instant", "तात्कालिक कॉफी"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "BEV004",
+      "familyName": "Nescafe Instant Coffee",
+      "brand": "Nescafe",
+      "hindiName": "Nescafe तात्कालिक कॉफी",
+      "brandType": "international",
+      "skus": [
+        {"size": "50g", "price": 95, "cost": 61},
+        {"size": "100g", "price": 175, "cost": 113},
+        {"size": "500g", "price": 765, "cost": 493},
+        {"size": "1kg", "price": 1475, "cost": 951}
+      ],
+      "keywords": ["coffee", "instant", "nescafe", "Nescafe premium", "तात्कालिक कॉफी"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "BEV005",
+      "familyName": "Bournvita Chocolate Drink",
+      "brand": "Bournvita",
+      "hindiName": "Bournvita चॉकलेट पेय",
+      "brandType": "international",
+      "skus": [
+        {"size": "200ml", "price": 45, "cost": 29},
+        {"size": "500ml", "price": 105, "cost": 68},
+        {"size": "1L", "price": 195, "cost": 126}
+      ],
+      "keywords": ["drink", "chocolate", "beverage", "Bournvita drink", "चॉकलेट पेय"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "BEV006",
+      "familyName": "Amul Kool Flavored Drink",
+      "brand": "Amul Kool",
+      "hindiName": "Amul Kool स्वादित पेय",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "200ml", "price": 35, "cost": 22},
+        {"size": "500ml", "price": 80, "cost": 51},
+        {"size": "1L", "price": 150, "cost": 97}
+      ],
+      "keywords": ["drink", "flavored", "amul", "Amul Kool drink", "स्वादित पेय"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "BEV007",
+      "familyName": "Darjeeling Tea Premium",
+      "brand": "Tata Tea",
+      "hindiName": "Tata Tea दार्जिलिंग प्रीमियम",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "250g", "price": 195, "cost": 125},
+        {"size": "500g", "price": 365, "cost": 235},
+        {"size": "1kg", "price": 705, "cost": 455}
+      ],
+      "keywords": ["tea", "darjeeling", "premium", "Tata darjeeling", "दार्जिलिंग प्रीमियम"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "BEV008",
+      "familyName": "Assam Tea Strong",
+      "brand": "Taj Mahal",
+      "hindiName": "Taj Mahal असम चाय",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "250g", "price": 165, "cost": 106},
+        {"size": "500g", "price": 310, "cost": 200},
+        {"size": "1kg", "price": 600, "cost": 387}
+      ],
+      "keywords": ["tea", "assam", "strong", "Taj Mahal assam", "असम चाय"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "BEV009",
+      "familyName": "Green Tea Pure",
+      "brand": "Tata Tea",
+      "hindiName": "Tata Tea शुद्ध हरी चाय",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "250g", "price": 175, "cost": 113},
+        {"size": "500g", "price": 330, "cost": 213},
+        {"size": "1kg", "price": 640, "cost": 413}
+      ],
+      "keywords": ["tea", "green", "pure", "Tata green", "शुद्ध हरी चाय"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "BEV010",
+      "familyName": "Oolong Tea Premium",
+      "brand": "Taj Mahal",
+      "hindiName": "Taj Mahal ऊलॉन्ग चाय प्रीमियम",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "250g", "price": 185, "cost": 119},
+        {"size": "500g", "price": 350, "cost": 226},
+        {"size": "1kg", "price": 675, "cost": 435}
+      ],
+      "keywords": ["tea", "oolong", "premium", "Taj Mahal oolong", "ऊलॉन्ग चाय प्रीमियम"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "BEV011",
+      "familyName": "Ground Coffee Arabica",
+      "brand": "Bru",
+      "hindiName": "Bru अरेबिका कॉफी पीस",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 110, "cost": 71},
+        {"size": "100g", "price": 200, "cost": 129},
+        {"size": "500g", "price": 880, "cost": 567},
+        {"size": "1kg", "price": 1695, "cost": 1093}
+      ],
+      "keywords": ["coffee", "ground", "arabica", "Bru arabica", "अरेबिका कॉफी पीस"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "BEV012",
+      "familyName": "Premium Instant Coffee",
+      "brand": "Nescafe",
+      "hindiName": "Nescafe प्रीमियम तात्कालिक कॉफी",
+      "brandType": "international",
+      "skus": [
+        {"size": "50g", "price": 125, "cost": 81},
+        {"size": "100g", "price": 230, "cost": 149},
+        {"size": "500g", "price": 1010, "cost": 651},
+        {"size": "1kg", "price": 1945, "cost": 1254}
+      ],
+      "keywords": ["coffee", "premium", "instant", "Nescafe premium", "प्रीमियम तात्कालिक कॉफी"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "BEV013",
+      "familyName": "Herbal Green Tea",
+      "brand": "Tata Tea",
+      "hindiName": "Tata Tea जड़ी-बूटी हरी चाय",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "250g", "price": 165, "cost": 106},
+        {"size": "500g", "price": 310, "cost": 200},
+        {"size": "1kg", "price": 600, "cost": 387}
+      ],
+      "keywords": ["tea", "herbal", "green", "Tata herbal", "जड़ी-बूटी हरी चाय"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "BEV014",
+      "familyName": "Masala Tea Mix",
+      "brand": "Taj Mahal",
+      "hindiName": "Taj Mahal मसाला चाय मिश्रण",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "250g", "price": 155, "cost": 100},
+        {"size": "500g", "price": 290, "cost": 187},
+        {"size": "1kg", "price": 560, "cost": 361}
+      ],
+      "keywords": ["tea", "masala", "spiced", "Taj Mahal masala", "मसाला चाय मिश्रण"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "BEV015",
+      "familyName": "Chicory Coffee Blend",
+      "brand": "Bru",
+      "hindiName": "Bru चिकोरी कॉफी मिश्रण",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "50g", "price": 65, "cost": 42},
+        {"size": "100g", "price": 120, "cost": 77},
+        {"size": "500g", "price": 525, "cost": 339},
+        {"size": "1kg", "price": 1010, "cost": 652}
+      ],
+      "keywords": ["coffee", "chicory", "blend", "Bru chicory", "चिकोरी कॉफी मिश्रण"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "BEV016",
+      "familyName": "Chai Masala Powder",
+      "brand": "Tata Tea",
+      "hindiName": "Tata Tea चाय मसाला पाउडर",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "250g", "price": 140, "cost": 90},
+        {"size": "500g", "price": 260, "cost": 168},
+        {"size": "1kg", "price": 500, "cost": 323}
+      ],
+      "keywords": ["tea", "masala chai", "spiced", "Tata chai", "चाय मसाला पाउडर"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "BEV017",
+      "familyName": "Cold Coffee Mix",
+      "brand": "Nescafe",
+      "hindiName": "Nescafe ठंडी कॉफी मिश्रण",
+      "brandType": "international",
+      "skus": [
+        {"size": "200ml", "price": 55, "cost": 35},
+        {"size": "500ml", "price": 130, "cost": 84},
+        {"size": "1L", "price": 245, "cost": 158}
+      ],
+      "keywords": ["drink", "coffee", "cold", "Nescafe cold", "ठंडी कॉफी मिश्रण"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "BEV018",
+      "familyName": "Chocolate Milk Mix",
+      "brand": "Bournvita",
+      "hindiName": "Bournvita चॉकलेट दूध मिश्रण",
+      "brandType": "international",
+      "skus": [
+        {"size": "200ml", "price": 48, "cost": 31},
+        {"size": "500ml", "price": 112, "cost": 72},
+        {"size": "1L", "price": 210, "cost": 135}
+      ],
+      "keywords": ["drink", "chocolate", "milk", "Bournvita mix", "चॉकलेट दूध मिश्रण"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "BEV019",
+      "familyName": "Malt Drink Powder",
+      "brand": "Amul Kool",
+      "hindiName": "Amul Kool माल्ट पेय पाउडर",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "200ml", "price": 42, "cost": 27},
+        {"size": "500ml", "price": 98, "cost": 63},
+        {"size": "1L", "price": 185, "cost": 119}
+      ],
+      "keywords": ["drink", "malt", "powder", "Amul malt", "माल्ट पेय पाउडर"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    },
+    {
+      "id": "BEV020",
+      "familyName": "Lemon Iced Tea Mix",
+      "brand": "Taj Mahal",
+      "hindiName": "Taj Mahal नींबू बर्फ चाय मिश्रण",
+      "brandType": "Indian",
+      "skus": [
+        {"size": "200ml", "price": 50, "cost": 32},
+        {"size": "500ml", "price": 115, "cost": 74},
+        {"size": "1L", "price": 215, "cost": 139}
+      ],
+      "keywords": ["drink", "tea", "lemon", "Taj Mahal iced", "नींबू बर्फ चाय मिश्रण"],
+      "validator_brand_type": "PASS",
+      "validator_sku_size": "PASS"
+    }
+  ]
+}

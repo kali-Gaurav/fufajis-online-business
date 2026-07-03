@@ -93,11 +93,7 @@ class CompetitorPrice {
   final MonetaryValue price;
   final DateTime updatedAt;
 
-  CompetitorPrice({
-    required this.competitorName,
-    required this.price,
-    required this.updatedAt,
-  });
+  CompetitorPrice({required this.competitorName, required this.price, required this.updatedAt});
 
   factory CompetitorPrice.fromMap(Map<String, dynamic> map) {
     return CompetitorPrice(
@@ -108,11 +104,7 @@ class CompetitorPrice {
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      'competitorName': competitorName,
-      'price': price,
-      'updatedAt': updatedAt,
-    };
+    return {'competitorName': competitorName, 'price': price, 'updatedAt': updatedAt};
   }
 }
 
@@ -131,6 +123,10 @@ class ProductModel {
   final String shopName;
   final String imageUrl;
   final List<String> images;
+  final String hindiName; // NEW: Hindi product name for voice search
+  final List<String> keywords; // NEW: Keywords for voice/fuzzy matching (e.g., ["aloo", "potato", "आलू"])
+  final double? mrpPrice; // NEW: Maximum Retail Price (separate from selling price)
+  final Map<String, String> nutrition; // NEW: Nutrition facts (e.g., {"protein": "12g", "fiber": "8g"})
   final double rating;
   final int reviewCount;
   final int stockQuantity;
@@ -190,6 +186,10 @@ class ProductModel {
     required this.shopName,
     required this.imageUrl,
     this.images = const [],
+    this.hindiName = '', // NEW: Hindi name default
+    this.keywords = const [], // NEW: Keywords default
+    this.mrpPrice, // NEW: MRP optional
+    this.nutrition = const {}, // NEW: Nutrition default
     this.rating = 0.0,
     this.reviewCount = 0,
     required this.stockQuantity,
@@ -241,7 +241,9 @@ class ProductModel {
     if (val is Timestamp) return val.toDate();
     try {
       return DateTime.tryParse(val.toString());
-    } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
+    } catch (e, stack) {
+      LoggingService().error('Silent error caught', e, stack);
+    }
     return null;
   }
 
@@ -252,7 +254,9 @@ class ProductModel {
       description: map['description'] as String? ?? '',
       price: MonetaryValue(map['price'] ?? 0.0),
       originalPrice: map['originalPrice'] != null ? MonetaryValue(map['originalPrice']) : null,
-      discountPercentage: map['discountPercentage'] != null ? MonetaryValue(map['discountPercentage']) : null,
+      discountPercentage: map['discountPercentage'] != null
+          ? MonetaryValue(map['discountPercentage'])
+          : null,
       unit: map['unit'] as String? ?? 'piece',
       categoryId: (map['categoryId'] as String?) ?? (map['category'] as String?) ?? 'other',
       category: map['category'] as String? ?? 'other',
@@ -261,6 +265,10 @@ class ProductModel {
       shopName: map['shopName'] as String? ?? '',
       imageUrl: map['imageUrl'] as String? ?? '',
       images: List<String>.from(map['images'] as Iterable? ?? []),
+      hindiName: map['hindiName'] as String? ?? '', // NEW
+      keywords: List<String>.from(map['keywords'] as Iterable? ?? []), // NEW
+      mrpPrice: (map['mrpPrice'] as num?)?.toDouble(), // NEW
+      nutrition: Map<String, String>.from(map['nutrition'] as Map? ?? {}), // NEW
       rating: (map['rating'] as num? ?? 0.0).toDouble(),
       reviewCount: map['reviewCount'] as int? ?? 0,
       stockQuantity: map['stockQuantity'] as int? ?? 0,
@@ -279,9 +287,7 @@ class ProductModel {
       isExpired: map['isExpired'] as bool? ?? false,
       competitorPrices:
           (map['competitorPrices'] as List?)
-              ?.map(
-                (x) => CompetitorPrice.fromMap(Map<String, dynamic>.from(x as Map)),
-              )
+              ?.map((x) => CompetitorPrice.fromMap(Map<String, dynamic>.from(x as Map)))
               .toList() ??
           const [],
       costPrice: (map['costPrice'] as num?)?.toDouble(),
@@ -299,9 +305,7 @@ class ProductModel {
       updatedAt: _parseDate(map['updatedAt']) ?? DateTime.now(),
       unitOptions:
           (map['unitOptions'] as List?)
-              ?.map(
-                (x) => ProductUnitOption.fromMap(Map<String, dynamic>.from(x as Map)),
-              )
+              ?.map((x) => ProductUnitOption.fromMap(Map<String, dynamic>.from(x as Map)))
               .toList() ??
           const [],
       lightningDealPrice: (map['lightningDealPrice'] as num?)?.toDouble(),
@@ -312,19 +316,13 @@ class ProductModel {
       harvestDate: _parseDate(map['harvestDate']),
       isOrganicCertified: map['isOrganicCertified'] as bool? ?? false,
       branchStock:
-          (map['branchStock'] as Map?)?.map(
-            (k, v) => MapEntry(k.toString(), v as int),
-          ) ??
-          const {},
+          (map['branchStock'] as Map?)?.map((k, v) => MapEntry(k.toString(), v as int)) ?? const {},
       branchLocations:
           (map['branchLocations'] as Map?)?.map((k, v) {
             if (v is Map) {
               return MapEntry(k.toString(), Map<String, dynamic>.from(v));
             } else if (v is String) {
-              final regAisle = RegExp(
-                r'Aisle\s+([A-Za-z0-9]+)',
-                caseSensitive: false,
-              );
+              final regAisle = RegExp(r'Aisle\s+([A-Za-z0-9]+)', caseSensitive: false);
               final regShelf = RegExp(r'Shelf\s+(\d+)', caseSensitive: false);
               final matchAisle = regAisle.firstMatch(v);
               final matchShelf = regShelf.firstMatch(v);
@@ -362,6 +360,10 @@ class ProductModel {
       'shopName': shopName,
       'imageUrl': imageUrl,
       'images': images,
+      'hindiName': hindiName, // NEW
+      'keywords': keywords, // NEW
+      'mrpPrice': mrpPrice, // NEW
+      'nutrition': nutrition, // NEW
       'rating': rating,
       'reviewCount': reviewCount,
       'stockQuantity': stockQuantity,
@@ -422,6 +424,10 @@ class ProductModel {
     String? shopName,
     String? imageUrl,
     List<String>? images,
+    String? hindiName, // NEW
+    List<String>? keywords, // NEW
+    double? mrpPrice, // NEW
+    Map<String, String>? nutrition, // NEW
     double? rating,
     int? reviewCount,
     int? stockQuantity,
@@ -475,6 +481,10 @@ class ProductModel {
       shopName: shopName ?? this.shopName,
       imageUrl: imageUrl ?? this.imageUrl,
       images: images ?? this.images,
+      hindiName: hindiName ?? this.hindiName, // NEW
+      keywords: keywords ?? this.keywords, // NEW
+      mrpPrice: mrpPrice ?? this.mrpPrice, // NEW
+      nutrition: nutrition ?? this.nutrition, // NEW
       rating: rating ?? this.rating,
       reviewCount: reviewCount ?? this.reviewCount,
       stockQuantity: stockQuantity ?? this.stockQuantity,
@@ -537,8 +547,9 @@ class ProductModel {
     return price;
   }
 
-  double? get mrp =>
-      isLightningDealActive ? (originalPrice?.toDouble() ?? price.toDouble()) : originalPrice?.toDouble();
+  double? get mrp => isLightningDealActive
+      ? (originalPrice?.toDouble() ?? price.toDouble())
+      : originalPrice?.toDouble();
 
   double get effectiveDiscount {
     if (isLightningDealActive) {

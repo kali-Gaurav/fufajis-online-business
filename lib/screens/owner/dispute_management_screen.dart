@@ -23,8 +23,7 @@ class DisputeManagementScreen extends StatefulWidget {
   const DisputeManagementScreen({super.key});
 
   @override
-  State<DisputeManagementScreen> createState() =>
-      _DisputeManagementScreenState();
+  State<DisputeManagementScreen> createState() => _DisputeManagementScreenState();
 }
 
 class _DisputeManagementScreenState extends State<DisputeManagementScreen> {
@@ -58,11 +57,12 @@ class _DisputeManagementScreenState extends State<DisputeManagementScreen> {
                 Center(
                   child: Column(
                     children: [
-                      Icon(Icons.gavel_outlined,
-                          size: 56, color: AppTheme.grey400),
+                      Icon(Icons.gavel_outlined, size: 56, color: AppTheme.grey400),
                       SizedBox(height: 12),
-                      Text('No disputes or chargebacks yet',
-                          style: TextStyle(color: AppTheme.grey600)),
+                      Text(
+                        'No disputes or chargebacks yet',
+                        style: TextStyle(color: AppTheme.grey600),
+                      ),
                     ],
                   ),
                 ),
@@ -70,10 +70,8 @@ class _DisputeManagementScreenState extends State<DisputeManagementScreen> {
             );
           }
 
-          final open =
-              disputes.where((d) => d.needsAction).toList();
-          final resolved =
-              disputes.where((d) => !d.needsAction).toList();
+          final open = disputes.where((d) => d.needsAction).toList();
+          final resolved = disputes.where((d) => !d.needsAction).toList();
 
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -94,8 +92,7 @@ class _DisputeManagementScreenState extends State<DisputeManagementScreen> {
                   ),
                   BiKpiCard(
                     label: 'Total Disputed',
-                    value: kInr.format(
-                        disputes.fold<double>(0, (a, d) => a + d.amount)),
+                    value: kInr.format(disputes.fold<double>(0, (a, d) => a + d.amount)),
                     icon: Icons.gavel_outlined,
                     color: AppTheme.error,
                   ),
@@ -103,20 +100,18 @@ class _DisputeManagementScreenState extends State<DisputeManagementScreen> {
               ),
               const SizedBox(height: 16),
               if (open.isNotEmpty) ...[
-                const Text('Needs Action',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 15)),
+                const Text(
+                  'Needs Action',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
                 const SizedBox(height: 8),
                 ...open.map((d) => _DisputeCard(dispute: d, dateFmt: _dateFmt)),
                 const SizedBox(height: 20),
               ],
               if (resolved.isNotEmpty) ...[
-                const Text('Resolved',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 15)),
+                const Text('Resolved', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                 const SizedBox(height: 8),
-                ...resolved
-                    .map((d) => _DisputeCard(dispute: d, dateFmt: _dateFmt)),
+                ...resolved.map((d) => _DisputeCard(dispute: d, dateFmt: _dateFmt)),
               ],
               const SizedBox(height: 24),
             ],
@@ -177,16 +172,15 @@ class _DisputeCardState extends State<_DisputeCard> {
     if (file == null) return;
     setState(() => _submitting = true);
     try {
-      final ref = FirebaseStorage.instance
-          .ref()
-          .child('disputes/${widget.dispute.id}/evidence_${DateTime.now().millisecondsSinceEpoch}.jpg');
+      final ref = FirebaseStorage.instance.ref().child(
+        'disputes/${widget.dispute.id}/evidence_${DateTime.now().millisecondsSinceEpoch}.jpg',
+      );
       await ref.putFile(File(file.path));
       final url = await ref.getDownloadURL();
       setState(() => _newEvidenceUrls.add(url));
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Upload failed: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
       }
     } finally {
       if (mounted) setState(() => _submitting = false);
@@ -197,17 +191,16 @@ class _DisputeCardState extends State<_DisputeCard> {
     setState(() => _submitting = true);
     try {
       final allUrls = [...widget.dispute.evidenceUrls, ..._newEvidenceUrls];
-      final callable =
-          FirebaseFunctions.instance.httpsCallable('submitDisputeEvidence');
+      final callable = FirebaseFunctions.instance.httpsCallable('submitDisputeEvidence');
       await callable.call({
         'disputeId': widget.dispute.id,
         'evidenceUrls': allUrls,
         'evidenceNotes': _notesController.text.trim(),
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Evidence submitted to gateway record')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Evidence submitted to gateway record')));
         setState(() {
           _newEvidenceUrls.clear();
           _expanded = false;
@@ -215,8 +208,7 @@ class _DisputeCardState extends State<_DisputeCard> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Failed: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e')));
       }
     } finally {
       if (mounted) setState(() => _submitting = false);
@@ -239,15 +231,12 @@ class _DisputeCardState extends State<_DisputeCard> {
               children: [
                 Expanded(
                   child: Text(
-                    d.orderNumber != null
-                        ? 'Order #${d.orderNumber}'
-                        : 'Payment ${d.paymentId}',
+                    d.orderNumber != null ? 'Order #${d.orderNumber}' : 'Payment ${d.paymentId}',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: _statusColor(d.status).withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(8),
@@ -255,22 +244,26 @@ class _DisputeCardState extends State<_DisputeCard> {
                   child: Text(
                     d.status.label,
                     style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: _statusColor(d.status)),
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: _statusColor(d.status),
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 6),
-            Text('Disputed amount: ${kInr.format(d.amount)}',
-                style: const TextStyle(fontWeight: FontWeight.w600)),
+            Text(
+              'Disputed amount: ${kInr.format(d.amount)}',
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
             if (d.reasonDescription.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 2),
-                child: Text('Reason: ${d.reasonDescription}',
-                    style: const TextStyle(
-                        fontSize: 12, color: AppTheme.grey600)),
+                child: Text(
+                  'Reason: ${d.reasonDescription}',
+                  style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
+                ),
               ),
             if (d.respondBy != null)
               Padding(
@@ -282,17 +275,17 @@ class _DisputeCardState extends State<_DisputeCard> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: (daysLeft != null && daysLeft <= 2)
-                        ? AppTheme.error
-                        : AppTheme.grey700,
+                    color: (daysLeft != null && daysLeft <= 2) ? AppTheme.error : AppTheme.grey700,
                   ),
                 ),
               ),
             if (d.evidenceUrls.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 6),
-                child: Text('${d.evidenceUrls.length} evidence file(s) submitted',
-                    style: const TextStyle(fontSize: 12, color: AppTheme.success)),
+                child: Text(
+                  '${d.evidenceUrls.length} evidence file(s) submitted',
+                  style: const TextStyle(fontSize: 12, color: AppTheme.success),
+                ),
               ),
             if (d.needsAction) ...[
               const SizedBox(height: 8),
@@ -314,13 +307,13 @@ class _DisputeCardState extends State<_DisputeCard> {
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    ..._newEvidenceUrls.map((u) => Chip(
-                          label: const Text('Evidence file'),
-                          avatar: const Icon(Icons.check_circle,
-                              size: 16, color: AppTheme.success),
-                          onDeleted: () =>
-                              setState(() => _newEvidenceUrls.remove(u)),
-                        )),
+                    ..._newEvidenceUrls.map(
+                      (u) => Chip(
+                        label: const Text('Evidence file'),
+                        avatar: const Icon(Icons.check_circle, size: 16, color: AppTheme.success),
+                        onDeleted: () => setState(() => _newEvidenceUrls.remove(u)),
+                      ),
+                    ),
                     ActionChip(
                       avatar: const Icon(Icons.upload_file, size: 16),
                       label: const Text('Upload file'),
@@ -363,13 +356,16 @@ class _ErrorBox extends StatelessWidget {
         children: [
           const Icon(Icons.error_outline, size: 48, color: AppTheme.error),
           const SizedBox(height: 12),
-          const Text('Could not load disputes',
-              style:
-                  TextStyle(fontWeight: FontWeight.bold, color: AppTheme.grey800)),
+          const Text(
+            'Could not load disputes',
+            style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.grey800),
+          ),
           const SizedBox(height: 4),
-          Text(message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
+          ),
         ],
       ),
     );

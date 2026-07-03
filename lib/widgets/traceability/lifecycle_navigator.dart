@@ -23,11 +23,7 @@ class LifecycleNavigator extends StatelessWidget {
   final String rootEntityTitle;
   final List<LifecycleNode> nodes;
 
-  const LifecycleNavigator({
-    super.key,
-    required this.rootEntityTitle,
-    required this.nodes,
-  });
+  const LifecycleNavigator({super.key, required this.rootEntityTitle, required this.nodes});
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +43,10 @@ class LifecycleNavigator extends StatelessWidget {
             children: [
               const Icon(Icons.account_tree, color: AppTheme.primary),
               const SizedBox(width: 8),
-              Text('LIFECYCLE GRAPH: $rootEntityTitle', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              Text(
+                'LIFECYCLE GRAPH: $rootEntityTitle',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
             ],
           ),
           const SizedBox(height: 24),
@@ -76,11 +75,7 @@ class LifecycleNavigator extends StatelessWidget {
                 decoration: BoxDecoration(color: statusColor, shape: BoxShape.circle),
               ),
               if (node.childrenIds.isNotEmpty)
-                Container(
-                  width: 2,
-                  height: 40,
-                  color: Colors.grey.shade300,
-                )
+                Container(width: 2, height: 40, color: Colors.grey.shade300),
             ],
           ),
           const SizedBox(width: 16),
@@ -92,13 +87,20 @@ class LifecycleNavigator extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(node.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text(node.status, style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold)),
+                    Text(
+                      node.status,
+                      style: TextStyle(
+                        color: statusColor,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
                 Text(node.type, style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

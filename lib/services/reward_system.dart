@@ -58,18 +58,10 @@ class RewardSystem {
         final currentPoints = userData['rewardPoints'] ?? 0;
         final newPoints = currentPoints + firstOrderPoints;
 
-        transaction.update(userRef, {
-          'rewardPoints': newPoints,
-          'updatedAt': DateTime.now(),
-        });
+        transaction.update(userRef, {'rewardPoints': newPoints, 'updatedAt': DateTime.now()});
 
         // Record transaction
-        _recordPointsTransaction(
-          transaction,
-          userId,
-          firstOrderPoints,
-          'First Order Bonus',
-        );
+        _recordPointsTransaction(transaction, userId, firstOrderPoints, 'First Order Bonus');
       });
 
       return true;
@@ -96,18 +88,10 @@ class RewardSystem {
         final currentPoints = userData['rewardPoints'] ?? 0;
         final newPoints = currentPoints + reviewPoints;
 
-        transaction.update(userRef, {
-          'rewardPoints': newPoints,
-          'updatedAt': DateTime.now(),
-        });
+        transaction.update(userRef, {'rewardPoints': newPoints, 'updatedAt': DateTime.now()});
 
         // Record transaction
-        _recordPointsTransaction(
-          transaction,
-          userId,
-          reviewPoints,
-          'Review Bonus',
-        );
+        _recordPointsTransaction(transaction, userId, reviewPoints, 'Review Bonus');
       });
 
       return true;
@@ -134,18 +118,10 @@ class RewardSystem {
         final currentPoints = userData['rewardPoints'] ?? 0;
         final newPoints = currentPoints + referralPoints;
 
-        transaction.update(userRef, {
-          'rewardPoints': newPoints,
-          'updatedAt': DateTime.now(),
-        });
+        transaction.update(userRef, {'rewardPoints': newPoints, 'updatedAt': DateTime.now()});
 
         // Record transaction
-        _recordPointsTransaction(
-          transaction,
-          userId,
-          referralPoints,
-          'Referral Bonus',
-        );
+        _recordPointsTransaction(transaction, userId, referralPoints, 'Referral Bonus');
       });
 
       return true;
@@ -177,19 +153,10 @@ class RewardSystem {
         final currentPoints = userData['rewardPoints'] ?? 0;
         final newPoints = currentPoints + points;
 
-        transaction.update(userRef, {
-          'rewardPoints': newPoints,
-          'updatedAt': DateTime.now(),
-        });
+        transaction.update(userRef, {'rewardPoints': newPoints, 'updatedAt': DateTime.now()});
 
         // Record transaction
-        _recordPointsTransaction(
-          transaction,
-          userId,
-          points,
-          'Order Points',
-          orderId,
-        );
+        _recordPointsTransaction(transaction, userId, points, 'Order Points', orderId);
       });
 
       return true;
@@ -202,10 +169,7 @@ class RewardSystem {
   /// Redeems reward points for wallet credit
   ///
   /// [Requirements 11.3]: Implements points-to-currency conversion (100 points = ₹1)
-  Future<double?> redeemPoints({
-    required String userId,
-    required int pointsToRedeem,
-  }) async {
+  Future<double?> redeemPoints({required String userId, required int pointsToRedeem}) async {
     try {
       final userRef = _firestore.collection('users').doc(userId);
 
@@ -234,20 +198,10 @@ class RewardSystem {
         });
 
         // Record points transaction
-        _recordPointsTransaction(
-          transaction,
-          userId,
-          -pointsToRedeem,
-          'Points Redeemed',
-        );
+        _recordPointsTransaction(transaction, userId, -pointsToRedeem, 'Points Redeemed');
 
         // Record wallet transaction
-        _recordWalletTransaction(
-          transaction,
-          userId,
-          walletCredit,
-          'Reward Points Redeemed',
-        );
+        _recordWalletTransaction(transaction, userId, walletCredit, 'Reward Points Redeemed');
 
         return walletCredit;
       });
@@ -296,15 +250,14 @@ class RewardSystem {
     final transactionId = 'pts_${DateTime.now().millisecondsSinceEpoch}';
     final userRef = _firestore.collection('users').doc(userId);
 
-    transaction
-        .set(userRef.collection('reward_transactions').doc(transactionId), {
-          'id': transactionId,
-          'userId': userId,
-          'points': points,
-          'description': description,
-          'orderId': orderId,
-          'timestamp': DateTime.now(),
-        });
+    transaction.set(userRef.collection('reward_transactions').doc(transactionId), {
+      'id': transactionId,
+      'userId': userId,
+      'points': points,
+      'description': description,
+      'orderId': orderId,
+      'timestamp': DateTime.now(),
+    });
   }
 
   /// Helper method to record wallet transaction
@@ -317,14 +270,13 @@ class RewardSystem {
     final transactionId = 'wlt_${DateTime.now().millisecondsSinceEpoch}';
     final userRef = _firestore.collection('users').doc(userId);
 
-    transaction
-        .set(userRef.collection('wallet_transactions').doc(transactionId), {
-          'id': transactionId,
-          'userId': userId,
-          'amount': amount,
-          'description': description,
-          'timestamp': DateTime.now(),
-        });
+    transaction.set(userRef.collection('wallet_transactions').doc(transactionId), {
+      'id': transactionId,
+      'userId': userId,
+      'amount': amount,
+      'description': description,
+      'timestamp': DateTime.now(),
+    });
   }
 
   /// Streams reward points changes in real-time

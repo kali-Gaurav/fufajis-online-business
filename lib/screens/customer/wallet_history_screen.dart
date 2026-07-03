@@ -6,7 +6,7 @@ import '../../services/wallet_service.dart';
 import '../../utils/app_theme.dart';
 
 /// WalletHistoryScreen displays transaction history with pagination and filtering
-/// 
+///
 /// [Requirements 11.7]: Displays transaction history with pagination,
 /// shows transaction type, amount, order reference, timestamp,
 /// and allows filtering by transaction type
@@ -46,8 +46,7 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels ==
-        _scrollController.position.maxScrollExtent) {
+    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
       // Load more transactions when reaching bottom
       _loadMoreTransactions();
     }
@@ -59,15 +58,14 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
         _isLoadingMore = true;
         _currentLimit += 20;
       });
-      
+
       final authProvider = context.read<AuthProvider>();
       final walletProvider = context.read<WalletProvider>();
-      
+
       if (authProvider.currentUser != null) {
-        walletProvider.fetchTransactions(
-          authProvider.currentUser!.id, 
-          limit: _currentLimit
-        ).then((_) {
+        walletProvider.fetchTransactions(authProvider.currentUser!.id, limit: _currentLimit).then((
+          _,
+        ) {
           if (mounted) {
             setState(() {
               _isLoadingMore = false;
@@ -90,10 +88,7 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
       if (type == null) {
         walletProvider.fetchTransactions(authProvider.currentUser!.id);
       } else {
-        walletProvider.filterTransactionsByType(
-          authProvider.currentUser!.id,
-          type,
-        );
+        walletProvider.filterTransactionsByType(authProvider.currentUser!.id, type);
       }
     }
   }
@@ -109,9 +104,9 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
             icon: const Icon(Icons.file_download),
             tooltip: 'Export Transactions',
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Transactions exported successfully.')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Transactions exported successfully.')));
             },
           ),
         ],
@@ -119,15 +114,11 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
       body: Consumer2<AuthProvider, WalletProvider>(
         builder: (context, authProvider, walletProvider, _) {
           if (authProvider.currentUser == null) {
-            return const Center(
-              child: Text('Please log in to view wallet history'),
-            );
+            return const Center(child: Text('Please log in to view wallet history'));
           }
 
           if (walletProvider.isLoading && walletProvider.transactions.isEmpty) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppTheme.primary),
-            );
+            return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
           }
 
           return Column(
@@ -178,16 +169,9 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.history,
-                          size: 64,
-                          color: Colors.grey[300],
-                        ),
+                        Icon(Icons.history, size: 64, color: Colors.grey[300]),
                         const SizedBox(height: 16),
-                        Text(
-                          'No transactions yet',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
+                        Text('No transactions yet', style: Theme.of(context).textTheme.titleMedium),
                         const SizedBox(height: 8),
                         Text(
                           'Your wallet transactions will appear here',
@@ -214,31 +198,25 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
                       FilterChip(
                         label: const Text('Cashback'),
                         selected: _selectedFilter == WalletTransactionType.cashback,
-                        onSelected: (_) =>
-                            _applyFilter(WalletTransactionType.cashback),
+                        onSelected: (_) => _applyFilter(WalletTransactionType.cashback),
                       ),
                       const SizedBox(width: 8),
                       FilterChip(
                         label: const Text('Refund'),
                         selected: _selectedFilter == WalletTransactionType.refund,
-                        onSelected: (_) =>
-                            _applyFilter(WalletTransactionType.refund),
+                        onSelected: (_) => _applyFilter(WalletTransactionType.refund),
                       ),
                       const SizedBox(width: 8),
                       FilterChip(
                         label: const Text('Payment'),
-                        selected:
-                            _selectedFilter == WalletTransactionType.walletPayment,
-                        onSelected: (_) =>
-                            _applyFilter(WalletTransactionType.walletPayment),
+                        selected: _selectedFilter == WalletTransactionType.walletPayment,
+                        onSelected: (_) => _applyFilter(WalletTransactionType.walletPayment),
                       ),
                       const SizedBox(width: 8),
                       FilterChip(
                         label: const Text('Redeemed'),
-                        selected: _selectedFilter ==
-                            WalletTransactionType.rewardPointsRedeemed,
-                        onSelected: (_) => _applyFilter(
-                            WalletTransactionType.rewardPointsRedeemed),
+                        selected: _selectedFilter == WalletTransactionType.rewardPointsRedeemed,
+                        onSelected: (_) => _applyFilter(WalletTransactionType.rewardPointsRedeemed),
                       ),
                     ],
                   ),
@@ -247,8 +225,7 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
                 Expanded(
                   child: ListView.builder(
                     controller: _scrollController,
-                    itemCount: walletProvider.transactions.length +
-                        (_isLoadingMore ? 1 : 0),
+                    itemCount: walletProvider.transactions.length + (_isLoadingMore ? 1 : 0),
                     itemBuilder: (context, index) {
                       if (index == walletProvider.transactions.length) {
                         return const Padding(
@@ -270,10 +247,7 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
     );
   }
 
-  Widget _buildTransactionTile(
-    BuildContext context,
-    WalletTransaction transaction,
-  ) {
+  Widget _buildTransactionTile(BuildContext context, WalletTransaction transaction) {
     final isCredit = transaction.amount > 0;
     final amountColor = isCredit ? AppTheme.success : AppTheme.error;
     final amountSign = isCredit ? '+' : '';
@@ -285,7 +259,10 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
       child: ListTile(
         onTap: () => _showTransactionDetail(context, transaction),
         leading: _buildTransactionIcon(transaction.type),
-        title: Text(transaction.type.displayName, style: const TextStyle(fontWeight: FontWeight.w600)),
+        title: Text(
+          transaction.type.displayName,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -297,9 +274,7 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
             const SizedBox(height: 4),
             Text(
               _formatDate(transaction.timestamp),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
             ),
           ],
         ),
@@ -309,17 +284,14 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
           children: [
             Text(
               '$amountSign₹${transaction.amount.toStringAsFixed(2)}',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: amountColor,
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(color: amountColor, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
             Text(
               'Bal: ₹${transaction.balanceAfter.toStringAsFixed(2)}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
             ),
           ],
         ),
@@ -337,25 +309,32 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Amount: ₹${transaction.amount.toStringAsFixed(2)}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              'Amount: ₹${transaction.amount.toStringAsFixed(2)}',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 12),
-            Text('Date: ${transaction.timestamp.toLocal().toString().split('.')[0]}', style: const TextStyle(fontSize: 14)),
+            Text(
+              'Date: ${transaction.timestamp.toLocal().toString().split('.')[0]}',
+              style: const TextStyle(fontSize: 14),
+            ),
             const SizedBox(height: 8),
-            Text('Description: ${transaction.description ?? transaction.type.description}', style: const TextStyle(fontSize: 14)),
+            Text(
+              'Description: ${transaction.description ?? transaction.type.description}',
+              style: const TextStyle(fontSize: 14),
+            ),
             if (transaction.orderReference != null) ...[
               const SizedBox(height: 8),
               Text('Order ID: ${transaction.orderReference}', style: const TextStyle(fontSize: 14)),
             ],
             const SizedBox(height: 8),
-            Text('Balance After: ₹${transaction.balanceAfter.toStringAsFixed(2)}', style: const TextStyle(fontSize: 14)),
+            Text(
+              'Balance After: ₹${transaction.balanceAfter.toStringAsFixed(2)}',
+              style: const TextStyle(fontSize: 14),
+            ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))],
       ),
     );
   }
@@ -423,4 +402,3 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
     }
   }
 }
-

@@ -54,21 +54,25 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
 
   void _onItemTapped(int index, BuildContext context) {
     switch (index) {
-      case 0: context.go('/delivery'); break;
-      case 1: context.go('/delivery/orders'); break;
-      case 2: context.go('/delivery/earnings'); break;
-      case 3: context.go('/delivery/trip-sheet'); break;
-      case 4: context.go('/delivery/scanner'); break;
+      case 0:
+        context.go('/delivery');
+        break;
+      case 1:
+        context.go('/delivery/orders');
+        break;
+      case 2:
+        context.go('/delivery/earnings');
+        break;
+      case 3:
+        context.go('/delivery/trip-sheet');
+        break;
+      case 4:
+        context.go('/delivery/scanner');
+        break;
     }
   }
 
-  final List<String> _titles = [
-    'Dashboard',
-    'Orders',
-    'Earnings',
-    'Trip Worksheet',
-    'Scanner',
-  ];
+  final List<String> _titles = ['Dashboard', 'Orders', 'Earnings', 'Trip Worksheet', 'Scanner'];
 
   @override
   Widget build(BuildContext context) {
@@ -86,14 +90,8 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
                 valueListenable: _syncService.pendingSyncCount,
                 builder: (context, pendingCount, child) {
                   return Container(
-                    margin: const EdgeInsets.symmetric(
-                      vertical: 10,
-                      horizontal: 8,
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
+                    margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: online
                           ? (pendingCount > 0
@@ -108,25 +106,19 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
                           online ? Icons.cloud_done : Icons.cloud_off,
                           size: 14,
                           color: online
-                              ? (pendingCount > 0
-                                    ? AppTheme.warning
-                                    : AppTheme.success)
+                              ? (pendingCount > 0 ? AppTheme.warning : AppTheme.success)
                               : AppTheme.warning,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           online
-                              ? (pendingCount > 0
-                                    ? 'Sync ($pendingCount)'
-                                    : 'Online')
+                              ? (pendingCount > 0 ? 'Sync ($pendingCount)' : 'Online')
                               : 'Offline ($pendingCount)',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                             color: online
-                                ? (pendingCount > 0
-                                      ? AppTheme.warning
-                                      : AppTheme.success)
+                                ? (pendingCount > 0 ? AppTheme.warning : AppTheme.success)
                                 : AppTheme.warning,
                           ),
                         ),
@@ -139,7 +131,9 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
           ),
           IconButton(
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Search tapped')));
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Search tapped')));
             },
             icon: const Icon(Icons.notifications_outlined),
           ),
@@ -151,9 +145,14 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
               tooltip: 'Switch Role',
             ),
           ),
-          IconButton(onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Account profile tapped')));
-          }, icon: const Icon(Icons.account_circle)),
+          IconButton(
+            onPressed: () {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Account profile tapped')));
+            },
+            icon: const Icon(Icons.account_circle),
+          ),
         ],
       ),
       body: Row(
@@ -167,45 +166,44 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
                     child: IntrinsicHeight(
                       child: NavigationRail(
                         selectedIndex: selectedIndex,
-                      onDestinationSelected: (index) {
-                        _onItemTapped(index, context);
-                      },
-                      labelType: NavigationRailLabelType.all,
-                      destinations: const [
-                        NavigationRailDestination(
-                          icon: Icon(Icons.dashboard_outlined),
-                          selectedIcon: Icon(Icons.dashboard),
-                          label: Text('Dashboard'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.local_shipping_outlined),
-                          selectedIcon: Icon(Icons.local_shipping),
-                          label: Text('Orders'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.account_balance_wallet_outlined),
-                          selectedIcon: Icon(Icons.account_balance_wallet),
-                          label: Text('Earnings'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.route_outlined),
-                          selectedIcon: Icon(Icons.route),
-                          label: Text('Trip Sheet'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.qr_code_scanner_outlined),
-                          selectedIcon: Icon(Icons.qr_code_scanner),
-                          label: Text('Scanner'),
-                        ),
-                      ],
-                    ),
+                        onDestinationSelected: (index) {
+                          _onItemTapped(index, context);
+                        },
+                        labelType: NavigationRailLabelType.all,
+                        destinations: const [
+                          NavigationRailDestination(
+                            icon: Icon(Icons.dashboard_outlined),
+                            selectedIcon: Icon(Icons.dashboard),
+                            label: Text('Dashboard'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.local_shipping_outlined),
+                            selectedIcon: Icon(Icons.local_shipping),
+                            label: Text('Orders'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.account_balance_wallet_outlined),
+                            selectedIcon: Icon(Icons.account_balance_wallet),
+                            label: Text('Earnings'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.route_outlined),
+                            selectedIcon: Icon(Icons.route),
+                            label: Text('Trip Sheet'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.qr_code_scanner_outlined),
+                            selectedIcon: Icon(Icons.qr_code_scanner),
+                            label: Text('Scanner'),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
               },
             ),
-          if (useRail)
-            const VerticalDivider(thickness: 1, width: 1),
+          if (useRail) const VerticalDivider(thickness: 1, width: 1),
           Expanded(
             child: Column(
               children: [
@@ -225,11 +223,31 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
               selectedItemColor: AppTheme.primary,
               unselectedItemColor: AppTheme.grey500,
               items: const [
-                BottomNavigationBarItem(icon: Icon(Icons.dashboard_outlined), activeIcon: Icon(Icons.dashboard), label: 'Dashboard'),
-                BottomNavigationBarItem(icon: Icon(Icons.local_shipping_outlined), activeIcon: Icon(Icons.local_shipping), label: 'Orders'),
-                BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet_outlined), activeIcon: Icon(Icons.account_balance_wallet), label: 'Earnings'),
-                BottomNavigationBarItem(icon: Icon(Icons.route_outlined), activeIcon: Icon(Icons.route), label: 'Trip'),
-                BottomNavigationBarItem(icon: Icon(Icons.qr_code_scanner_outlined), activeIcon: Icon(Icons.qr_code_scanner), label: 'Scanner'),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.dashboard_outlined),
+                  activeIcon: Icon(Icons.dashboard),
+                  label: 'Dashboard',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.local_shipping_outlined),
+                  activeIcon: Icon(Icons.local_shipping),
+                  label: 'Orders',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.account_balance_wallet_outlined),
+                  activeIcon: Icon(Icons.account_balance_wallet),
+                  label: 'Earnings',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.route_outlined),
+                  activeIcon: Icon(Icons.route),
+                  label: 'Trip',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.qr_code_scanner_outlined),
+                  activeIcon: Icon(Icons.qr_code_scanner),
+                  label: 'Scanner',
+                ),
               ],
             ),
     );
@@ -308,7 +326,10 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
           }
         }
         final pos = await Geolocator.getCurrentPosition(
-          locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, timeLimit: Duration(seconds: 10)),
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+            timeLimit: Duration(seconds: 10),
+          ),
         );
         currentLat = pos.latitude;
         currentLng = pos.longitude;
@@ -327,7 +348,8 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
       storeLng,
     );
 
-    if (distance > 1.0) { // Enforced 1km Production Limit
+    if (distance > 1.0) {
+      // Enforced 1km Production Limit
       setState(() => _isLoadingLocation = false);
       _showErrorDialog(
         "Geo-Fence Violation",
@@ -386,7 +408,9 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
         );
         currentLat = pos.latitude;
         currentLng = pos.longitude;
-      } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
+      } catch (e, stack) {
+        LoggingService().error('Silent error caught', e, stack);
+      }
     }
 
     try {
@@ -422,12 +446,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
           ],
         ),
         content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
       ),
     );
   }
@@ -454,9 +473,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
         if (snapshot.hasData) {
           final list = snapshot.data!;
           history = list;
-          final activeIndex = list.indexWhere(
-            (element) => element.status == 'active',
-          );
+          final activeIndex = list.indexWhere((element) => element.status == 'active');
           if (activeIndex != -1) {
             activeShift = list[activeIndex];
             _startTimer(activeShift.clockInTime);
@@ -468,13 +485,12 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
         }
 
         final bool isClockedIn = activeShift != null;
-        final double currentDistance = _routingService
-            .calculateHaversineDistance(
-              _useMockLocation ? _mockLat : storeLat,
-              _useMockLocation ? _mockLng : storeLng,
-              storeLat,
-              storeLng,
-            );
+        final double currentDistance = _routingService.calculateHaversineDistance(
+          _useMockLocation ? _mockLat : storeLat,
+          _useMockLocation ? _mockLng : storeLng,
+          storeLat,
+          storeLng,
+        );
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -490,20 +506,13 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
               const SizedBox(height: 24),
 
               // Attendance Check-In Panel
-              _buildAttendancePanel(
-                isClockedIn,
-                activeShift,
-                currentDistance,
-                riderId,
-                riderName,
-              ),
+              _buildAttendancePanel(isClockedIn, activeShift, currentDistance, riderId, riderName),
               const SizedBox(height: 24),
 
               // Location Simulator Panel (Developer/Demo Presets)
               if (kDebugMode || rider?.role == UserRole.superAdmin)
                 _buildLocationSimulatorCard(currentDistance),
-              if (kDebugMode || rider?.role == UserRole.superAdmin)
-                const SizedBox(height: 24),
+              if (kDebugMode || rider?.role == UserRole.superAdmin) const SizedBox(height: 24),
 
               // Stats
               _buildStatsGrid(deliveryProvider),
@@ -517,18 +526,11 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
               const SizedBox(height: 24),
 
               // Today's Deliveries (Active Tasks)
-              _buildTodayDeliveries(
-                deliveryProvider.assignedOrders,
-                deliveryProvider,
-              ),
+              _buildTodayDeliveries(deliveryProvider.assignedOrders, deliveryProvider),
               const SizedBox(height: 24),
 
               // Pickup Queue (Available Orders)
-              _buildPickupQueue(
-                deliveryProvider.availableOrders,
-                deliveryProvider,
-                rider,
-              ),
+              _buildPickupQueue(deliveryProvider.availableOrders, deliveryProvider, rider),
               const SizedBox(height: 24),
 
               // Quick Actions
@@ -563,19 +565,12 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
           const Expanded(
             child: Text(
               'Select Vehicle Mode:',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: AppTheme.grey700,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.grey700),
             ),
           ),
           SegmentedButton<String>(
             segments: const [
-              ButtonSegment(
-                value: 'Bike',
-                label: Text('Bike'),
-                icon: Icon(Icons.motorcycle),
-              ),
+              ButtonSegment(value: 'Bike', label: Text('Bike'), icon: Icon(Icons.motorcycle)),
               ButtonSegment(
                 value: 'E-Rickshaw',
                 label: Text('E-Rickshaw'),
@@ -629,10 +624,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                 const SizedBox(height: 8),
                 Text(
                   'Complete your geofenced shift clock-in to receive orders.',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppTheme.white.withValues(alpha: 0.8),
-                  ),
+                  style: TextStyle(fontSize: 14, color: AppTheme.white.withValues(alpha: 0.8)),
                 ),
               ],
             ),
@@ -643,11 +635,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
               color: AppTheme.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
-              Icons.delivery_dining,
-              size: 40,
-              color: AppTheme.white,
-            ),
+            child: const Icon(Icons.delivery_dining, size: 40, color: AppTheme.white),
           ),
         ],
       ),
@@ -691,10 +679,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
@@ -704,19 +689,12 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                     Container(
                       width: 8,
                       height: 8,
-                      decoration: BoxDecoration(
-                        color: color,
-                        shape: BoxShape.circle,
-                      ),
+                      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       isClockedIn ? 'ON DUTY' : 'OFF DUTY',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: color,
-                      ),
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: color),
                     ),
                   ],
                 ),
@@ -732,11 +710,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
             const SizedBox(height: 8),
             Row(
               children: [
-                const Icon(
-                  Icons.timer_outlined,
-                  color: AppTheme.success,
-                  size: 20,
-                ),
+                const Icon(Icons.timer_outlined, color: AppTheme.success, size: 20),
                 const SizedBox(width: 8),
                 const Text(
                   'Active Duration: ',
@@ -762,22 +736,14 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
           ] else ...[
             const Text(
               'To start receiving and delivering orders, please clock in. You must be physically present within 1 km of the Jaipur shop base.',
-              style: TextStyle(
-                fontSize: 14,
-                color: AppTheme.grey600,
-                height: 1.4,
-              ),
+              style: TextStyle(fontSize: 14, color: AppTheme.grey600, height: 1.4),
             ),
             const SizedBox(height: 12),
             Row(
               children: [
                 Icon(
-                  currentDistance <= 1.0
-                      ? Icons.check_circle_outline
-                      : Icons.cancel_outlined,
-                  color: currentDistance <= 1.0
-                      ? AppTheme.success
-                      : AppTheme.error,
+                  currentDistance <= 1.0 ? Icons.check_circle_outline : Icons.cancel_outlined,
+                  color: currentDistance <= 1.0 ? AppTheme.success : AppTheme.error,
                   size: 20,
                 ),
                 const SizedBox(width: 8),
@@ -786,15 +752,11 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                   style: const TextStyle(fontSize: 14, color: AppTheme.grey700),
                 ),
                 Text(
-                  currentDistance <= 1.0
-                      ? '(Within 1 km radius)'
-                      : '(Out of Bounds)',
+                  currentDistance <= 1.0 ? '(Within 1 km radius)' : '(Out of Bounds)',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: currentDistance <= 1.0
-                        ? AppTheme.success
-                        : AppTheme.error,
+                    color: currentDistance <= 1.0 ? AppTheme.success : AppTheme.error,
                   ),
                 ),
               ],
@@ -802,9 +764,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
             const SizedBox(height: 20),
             FjButton(
               label: 'Clock In (Start Shift)',
-              onPressed: _isLoadingLocation
-                  ? null
-                  : () => _handleClockIn(riderId, riderName),
+              onPressed: _isLoadingLocation ? null : () => _handleClockIn(riderId, riderName),
               isLoading: _isLoadingLocation,
               width: double.infinity,
             ),
@@ -818,11 +778,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
     final presets = [
       {'name': 'At Central Shop (0.0 km)', 'lat': storeLat, 'lng': storeLng},
       {'name': 'Nearby Crossing (1.2 km)', 'lat': 26.9200, 'lng': 75.7900},
-      {
-        'name': 'Out-of-Bounds Village (35.4 km)',
-        'lat': 27.0500,
-        'lng': 76.1000,
-      },
+      {'name': 'Out-of-Bounds Village (35.4 km)', 'lat': 27.0500, 'lng': 76.1000},
     ];
 
     return Container(
@@ -872,11 +828,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
           if (_useMockLocation) ...[
             const Text(
               'Select Mock Position Preset:',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.grey700,
-              ),
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.grey700),
             ),
             const SizedBox(height: 8),
             Wrap(
@@ -890,9 +842,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                   selectedColor: AppTheme.info.withValues(alpha: 0.2),
                   labelStyle: TextStyle(
                     color: isSelected ? AppTheme.info : AppTheme.grey700,
-                    fontWeight: isSelected
-                        ? FontWeight.bold
-                        : FontWeight.normal,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                     fontSize: 12,
                   ),
                   onSelected: (selected) {
@@ -916,20 +866,13 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
               ),
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.info_outline,
-                    size: 16,
-                    color: AppTheme.grey600,
-                  ),
+                  const Icon(Icons.info_outline, size: 16, color: AppTheme.grey600),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Simulating Coordinates: (${_mockLat.toStringAsFixed(4)}, ${_mockLng.toStringAsFixed(4)})\n'
                       'Distance from base: ${currentDistance.toStringAsFixed(2)} km',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: AppTheme.grey700,
-                      ),
+                      style: const TextStyle(fontSize: 11, color: AppTheme.grey700),
                     ),
                   ),
                 ],
@@ -1022,34 +965,30 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                     color: AppTheme.primary.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(
-                    stat['icon'] as IconData,
-                    color: AppTheme.primary,
-                    size: 20,
+                  child: Icon(stat['icon'] as IconData, color: AppTheme.primary, size: 20),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  stat['value'] as String,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.grey900,
                   ),
                 ),
-              const SizedBox(height: 12),
-              Text(
-                stat['value'] as String,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.grey900,
+                const SizedBox(height: 4),
+                Text(
+                  stat['title'] as String,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 10, color: AppTheme.grey500),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                stat['title'] as String,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 10, color: AppTheme.grey500),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      );
-    },
-  );
+        );
+      },
+    );
   }
 
   Widget _buildShiftHistorySection(List<AttendanceModel> history) {
@@ -1071,21 +1010,14 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
         children: [
           const Text(
             'Shift History & Logs',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.grey900,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey900),
           ),
           const SizedBox(height: 12),
           if (history.isEmpty)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 24),
               child: Center(
-                child: Text(
-                  'No shift records found.',
-                  style: TextStyle(color: AppTheme.grey500),
-                ),
+                child: Text('No shift records found.', style: TextStyle(color: AppTheme.grey500)),
               ),
             )
           else
@@ -1118,12 +1050,8 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          item.status == 'active'
-                              ? Icons.play_arrow
-                              : Icons.stop,
-                          color: item.status == 'active'
-                              ? AppTheme.success
-                              : AppTheme.grey600,
+                          item.status == 'active' ? Icons.play_arrow : Icons.stop,
+                          color: item.status == 'active' ? AppTheme.success : AppTheme.grey600,
                           size: 18,
                         ),
                       ),
@@ -1142,10 +1070,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                             Text(
                               'In: ${DateFormat('hh:mm a').format(item.clockInTime)}  '
                               '${item.clockOutTime != null ? "Out: ${DateFormat('hh:mm a').format(item.clockOutTime!)}" : ""}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: AppTheme.grey500,
-                              ),
+                              style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
                             ),
                           ],
                         ),
@@ -1154,9 +1079,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                         durationStr,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: item.status == 'active'
-                              ? AppTheme.success
-                              : AppTheme.grey700,
+                          color: item.status == 'active' ? AppTheme.success : AppTheme.grey700,
                         ),
                       ),
                     ],
@@ -1169,10 +1092,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
     );
   }
 
-  Widget _buildTodayDeliveries(
-    List<OrderModel> orders,
-    DeliveryProvider provider,
-  ) {
+  Widget _buildTodayDeliveries(List<OrderModel> orders, DeliveryProvider provider) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -1202,10 +1122,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
               ),
               Text(
                 '${orders.length} Active',
-                style: const TextStyle(
-                  color: AppTheme.primary,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -1225,9 +1142,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                 decoration: BoxDecoration(
                   color: AppTheme.info.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: AppTheme.info.withValues(alpha: 0.2),
-                  ),
+                  border: Border.all(color: AppTheme.info.withValues(alpha: 0.2)),
                 ),
                 child: Row(
                   children: [
@@ -1238,10 +1153,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                         color: AppTheme.primary,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(
-                        Icons.delivery_dining,
-                        color: AppTheme.white,
-                      ),
+                      child: const Icon(Icons.delivery_dining, color: AppTheme.white),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -1259,29 +1171,17 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                               ),
                               const SizedBox(width: 8),
                               GestureDetector(
-                                onTap: () => launchUrl(
-                                  Uri.parse('tel:${order.customerPhone}'),
-                                ),
-                                child: const Icon(
-                                  Icons.phone,
-                                  size: 16,
-                                  color: AppTheme.primary,
-                                ),
+                                onTap: () => launchUrl(Uri.parse('tel:${order.customerPhone}')),
+                                child: const Icon(Icons.phone, size: 16, color: AppTheme.primary),
                               ),
                             ],
                           ),
-                          Text(
-                            order.customerName,
-                            style: const TextStyle(fontSize: 14),
-                          ),
+                          Text(order.customerName, style: const TextStyle(fontSize: 14)),
                           Text(
                             order.deliveryAddress.fullAddress,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppTheme.grey500,
-                            ),
+                            style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
                           ),
                         ],
                       ),
@@ -1304,10 +1204,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                                 order.deliveryAddress.latitude,
                                 order.deliveryAddress.longitude,
                               ),
-                              icon: const Icon(
-                                Icons.navigation,
-                                color: AppTheme.info,
-                              ),
+                              icon: const Icon(Icons.navigation, color: AppTheme.info),
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
                             ),
@@ -1324,16 +1221,12 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (_) => LiveTrackingScreen(
-                                        deliveryId: snap.docs.first.id,
-                                      ),
+                                      builder: (_) =>
+                                          LiveTrackingScreen(deliveryId: snap.docs.first.id),
                                     ),
                                   );
                                 } else {
-                                  _showOtpVerificationDialog(
-                                    order.id,
-                                    provider,
-                                  );
+                                  _showOtpVerificationDialog(order.id, provider);
                                 }
                               },
                               height: 32,
@@ -1352,11 +1245,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
     );
   }
 
-  Widget _buildPickupQueue(
-    List<OrderModel> orders,
-    DeliveryProvider provider,
-    UserModel? rider,
-  ) {
+  Widget _buildPickupQueue(List<OrderModel> orders, DeliveryProvider provider, UserModel? rider) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -1394,10 +1283,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                 )
               else
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: AppTheme.success.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -1445,10 +1331,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                           ),
                           Text(
                             '${order.items.length} items • ₹${order.totalAmount.round()}',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppTheme.grey600,
-                            ),
+                            style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
                           ),
                         ],
                       ),
@@ -1509,9 +1392,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
     final focusNode = FocusNode();
 
     // Auto-focus the OTP field
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => focusNode.requestFocus(),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) => focusNode.requestFocus());
 
     showDialog(
       context: context,
@@ -1528,15 +1409,8 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
               keyboardType: TextInputType.number,
               maxLength: 6,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 8,
-              ),
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: '0000',
-              ),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 8),
+              decoration: const InputDecoration(border: OutlineInputBorder(), hintText: '0000'),
             ),
             if (kDebugMode) // Helper for testers
               TextButton(
@@ -1546,17 +1420,11 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           FjButton(
             label: 'Complete Delivery',
             onPressed: () async {
-              final success = await provider.verifyAndCompleteDelivery(
-                orderId,
-                controller.text,
-              );
+              final success = await provider.verifyAndCompleteDelivery(orderId, controller.text);
               if (context.mounted) {
                 if (success) {
                   Navigator.pop(context);
@@ -1586,11 +1454,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
     final actions = [
       {'icon': Icons.navigation, 'label': 'Navigate', 'color': AppTheme.info},
       {'icon': Icons.qr_code, 'label': 'Scan OTP', 'color': AppTheme.primary},
-      {
-        'icon': Icons.phone,
-        'label': 'Call Customer',
-        'color': AppTheme.success,
-      },
+      {'icon': Icons.phone, 'label': 'Call Customer', 'color': AppTheme.success},
       {'icon': Icons.help, 'label': 'Help', 'color': AppTheme.warning},
     ];
 
@@ -1612,11 +1476,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
         children: [
           const Text(
             'Quick Actions',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.grey900,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey900),
           ),
           const SizedBox(height: 16),
           Row(
@@ -1627,9 +1487,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                   if (action['label'] == 'Help') {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => const RiderChatScreen(),
-                      ),
+                      MaterialPageRoute(builder: (context) => const RiderChatScreen()),
                     );
                   }
                 },
@@ -1639,23 +1497,15 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                       width: 56,
                       height: 56,
                       decoration: BoxDecoration(
-                        color: (action['color'] as Color).withValues(
-                          alpha: 0.1,
-                        ),
+                        color: (action['color'] as Color).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(
-                        action['icon'] as IconData,
-                        color: action['color'] as Color,
-                      ),
+                      child: Icon(action['icon'] as IconData, color: action['color'] as Color),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       action['label'] as String,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.grey700,
-                      ),
+                      style: const TextStyle(fontSize: 12, color: AppTheme.grey700),
                     ),
                   ],
                 ),
@@ -1668,11 +1518,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
   }
 
   Widget _buildCashCollectionSummaryCard(String riderId) {
-    final startOfDay = DateTime(
-      DateTime.now().year,
-      DateTime.now().month,
-      DateTime.now().day,
-    );
+    final startOfDay = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
 
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
@@ -1733,11 +1579,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                   color: Colors.white.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.account_balance_wallet,
-                  color: Colors.white,
-                  size: 28,
-                ),
+                child: const Icon(Icons.account_balance_wallet, color: Colors.white, size: 28),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -1771,9 +1613,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                   // Direct to settlements management or earnings page
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text(
-                        'Please submit settlement from the Earnings page.',
-                      ),
+                      content: Text('Please submit settlement from the Earnings page.'),
                     ),
                   );
                 },

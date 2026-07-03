@@ -28,7 +28,7 @@ class ShopConfigModel {
   final bool enableLoyaltyPoints;
   final bool isAutoPilotEnabled;
   final bool isEmergencyMode;
-  
+
   // Billing/Delivery Logic
   final double expressDeliveryFee;
   final double baseDeliveryRadiusKm;
@@ -115,22 +115,16 @@ class ShopConfigModel {
       maxDeliveryRadiusKm: (map['maxDeliveryRadiusKm'] as num? ?? 8.0).toDouble(),
       deliveryZones:
           (map['deliveryZones'] as List?)
-              ?.map(
-                (z) =>
-                    DeliveryZone.fromMap(Map<String, dynamic>.from(z as Map)),
-              )
+              ?.map((z) => DeliveryZone.fromMap(Map<String, dynamic>.from(z as Map)))
               .toList() ??
           [],
       minOrderAmount: (map['minOrderAmount'] as num? ?? 0.0).toDouble(),
-      minOrderForFreeDelivery: (map['minOrderForFreeDelivery'] as num? ?? 500.0)
-          .toDouble(),
+      minOrderForFreeDelivery: (map['minOrderForFreeDelivery'] as num? ?? 500.0).toDouble(),
       flatDeliveryFee: (map['flatDeliveryFee'] as num? ?? 40.0).toDouble(),
       operatingHours:
           (map['operatingHours'] as Map?)?.map(
-            (k, v) => MapEntry(
-              k.toString(),
-              OperatingHours.fromMap(Map<String, dynamic>.from(v as Map)),
-            ),
+            (k, v) =>
+                MapEntry(k.toString(), OperatingHours.fromMap(Map<String, dynamic>.from(v as Map))),
           ) ??
           {},
       autoCloseOutsideHours: map['autoCloseOutsideHours'] as bool? ?? false,
@@ -189,12 +183,10 @@ class ShopConfigModel {
       maxDeliveryRadiusKm: maxDeliveryRadiusKm ?? this.maxDeliveryRadiusKm,
       deliveryZones: deliveryZones ?? this.deliveryZones,
       minOrderAmount: minOrderAmount ?? this.minOrderAmount,
-      minOrderForFreeDelivery:
-          minOrderForFreeDelivery ?? this.minOrderForFreeDelivery,
+      minOrderForFreeDelivery: minOrderForFreeDelivery ?? this.minOrderForFreeDelivery,
       flatDeliveryFee: flatDeliveryFee ?? this.flatDeliveryFee,
       operatingHours: operatingHours ?? this.operatingHours,
-      autoCloseOutsideHours:
-          autoCloseOutsideHours ?? this.autoCloseOutsideHours,
+      autoCloseOutsideHours: autoCloseOutsideHours ?? this.autoCloseOutsideHours,
       maxCodLimit: maxCodLimit ?? this.maxCodLimit,
       maxCreditLimit: maxCreditLimit ?? this.maxCreditLimit,
       maxOrdersPerSlot: maxOrdersPerSlot ?? this.maxOrdersPerSlot,
@@ -277,11 +269,7 @@ class OperatingHours {
   final String openTime;
   final String closeTime;
 
-  OperatingHours({
-    required this.isOpen,
-    required this.openTime,
-    required this.closeTime,
-  });
+  OperatingHours({required this.isOpen, required this.openTime, required this.closeTime});
 
   Map<String, dynamic> toMap() {
     return {'isOpen': isOpen, 'openTime': openTime, 'closeTime': closeTime};

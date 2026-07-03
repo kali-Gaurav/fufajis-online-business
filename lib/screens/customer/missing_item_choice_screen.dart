@@ -12,7 +12,7 @@ import '../../utils/monetary_value.dart';
 /// Feature 5 — Missing Item Protection: Customer Choice Screen
 ///
 /// When an ordered item is out of stock, this screen gives the customer
-/// three explicit choices:
+/// Three explicit choices:
 ///   1. Refund to original payment method
 ///   2. Wallet Credit (instant, higher perceived value)
 ///   3. Accept a suggested Replacement product
@@ -101,18 +101,36 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
                   children: [
                     Icon(Icons.inventory_2_outlined, size: 14, color: AppTheme.warning),
                     SizedBox(width: 4),
-                    Text('Out of Stock', style: TextStyle(color: AppTheme.warning, fontSize: 12, fontWeight: FontWeight.w600)),
+                    Text(
+                      'Out of Stock',
+                      style: TextStyle(
+                        color: AppTheme.warning,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ],
                 ),
               ),
               const Spacer(),
-              Text('₹${_itemValue.round()}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primary)),
+              Text(
+                '₹${_itemValue.round()}',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.primary,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
           Text(
             widget.missingItem.productName,
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: AppTheme.grey900),
+            style: const TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.grey900,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
@@ -147,34 +165,37 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
   // ─────────────── CHOICES ───────────────
 
   Widget _buildChoiceSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('What would you like to do?',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.grey900)),
-        const SizedBox(height: 14),
-        _buildChoiceCard(
-          choice: MissingItemChoice.walletCredit,
-          icon: Icons.account_balance_wallet_outlined,
-          color: const Color(0xFF2E7D32),
-          title: 'Wallet Credit',
-          subtitle: '₹${_itemValue.round()} added to your Fufaji Wallet instantly',
-          badge: 'Recommended',
-          badgeColor: const Color(0xFF2E7D32),
-        ),
-        const SizedBox(height: 10),
-        _buildChoiceCard(
-          choice: MissingItemChoice.refund,
-          icon: Icons.currency_rupee,
-          color: AppTheme.ownerAccent,
-          title: 'Refund',
-          subtitle: '₹${_itemValue.round()} refunded to your original payment method (2–5 days)',
-        ),
-        if (_hasReplacement) ...[
+    return RadioGroup<MissingItemChoice>(
+      groupValue: _selectedChoice,
+      onChanged: (v) => setState(() => _selectedChoice = v),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'What would you like to do?',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.grey900),
+          ),
+          const SizedBox(height: 14),
+          _buildChoiceCard(
+            choice: MissingItemChoice.walletCredit,
+            icon: Icons.account_balance_wallet_outlined,
+            color: const Color(0xFF2E7D32),
+            title: 'Wallet Credit',
+            subtitle: '₹${_itemValue.round()} added to your Fufaji Wallet instantly',
+            badge: 'Recommended',
+            badgeColor: const Color(0xFF2E7D32),
+          ),
           const SizedBox(height: 10),
-          _buildReplacementCard(),
+          _buildChoiceCard(
+            choice: MissingItemChoice.refund,
+            icon: Icons.currency_rupee,
+            color: AppTheme.ownerAccent,
+            title: 'Refund',
+            subtitle: '₹${_itemValue.round()} refunded to your original payment method (2–5 days)',
+          ),
+          if (_hasReplacement) ...[const SizedBox(height: 10), _buildReplacementCard()],
         ],
-      ],
+      ),
     );
   }
 
@@ -201,7 +222,13 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
-              ? [BoxShadow(color: color.withValues(alpha: 0.12), blurRadius: 8, offset: const Offset(0, 2))]
+              ? [
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.12),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
               : [],
         ),
         child: Row(
@@ -221,7 +248,14 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
                 children: [
                   Row(
                     children: [
-                      Text(title, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: isSelected ? color : AppTheme.grey900)),
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          color: isSelected ? color : AppTheme.grey900,
+                        ),
+                      ),
                       if (badge != null) ...[
                         const SizedBox(width: 8),
                         Container(
@@ -230,7 +264,14 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
                             color: badgeColor ?? color,
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          child: Text(badge, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                          child: Text(
+                            badge,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ],
                     ],
@@ -240,12 +281,7 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
                 ],
               ),
             ),
-            Radio<MissingItemChoice>(
-              value: choice,
-              groupValue: _selectedChoice,
-              onChanged: (v) => setState(() => _selectedChoice = v),
-              activeColor: color,
-            ),
+            Radio<MissingItemChoice>(value: choice, activeColor: color),
           ],
         ),
       ),
@@ -283,7 +319,10 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Accept Replacement', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                  const Text(
+                    'Accept Replacement',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                  ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
@@ -292,7 +331,11 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
                       Expanded(
                         child: Text(
                           '${replacement.name} (₹${replacement.price.round()} / ${replacement.unit})',
-                          style: const TextStyle(color: Colors.purple, fontSize: 12, fontWeight: FontWeight.w500),
+                          style: const TextStyle(
+                            color: Colors.purple,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ],
@@ -302,8 +345,8 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
                     replacement.price > _itemValue
                         ? 'You pay ₹${(replacement.price - _itemValue).round()} extra'
                         : replacement.price < _itemValue
-                            ? 'You save ₹${(_itemValue - replacement.price).round()}'
-                            : 'Same price — no change',
+                        ? 'You save ₹${(_itemValue - replacement.price).round()}'
+                        : 'Same price — no change',
                     style: TextStyle(
                       color: replacement.price > _itemValue ? AppTheme.warning : AppTheme.success,
                       fontSize: 11,
@@ -312,10 +355,8 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
                 ],
               ),
             ),
-            Radio<MissingItemChoice>(
+            const Radio<MissingItemChoice>(
               value: MissingItemChoice.replacement,
-              groupValue: _selectedChoice,
-              onChanged: (v) => setState(() => _selectedChoice = v),
               activeColor: Colors.purple,
             ),
           ],
@@ -361,8 +402,15 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
           elevation: canConfirm ? 2 : 0,
         ),
         child: _isSubmitting
-            ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-            : const Text('Confirm Choice', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+              )
+            : const Text(
+                'Confirm Choice',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
       ),
     );
   }
@@ -400,7 +448,8 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
           transactionType: WalletTransactionType.refund,
           orderReference: widget.orderId,
           description: 'Wallet Credit: ${widget.missingItem.productName} unavailable',
-          transactionId: 'walletcredit_${widget.missingItem.id}_${DateTime.now().millisecondsSinceEpoch}',
+          transactionId:
+              'walletcredit_${widget.missingItem.id}_${DateTime.now().millisecondsSinceEpoch}',
         );
       }
 
@@ -426,9 +475,9 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
     } catch (e) {
       debugPrint('[MissingItemChoice] Submit error: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error));
         setState(() => _isSubmitting = false);
       }
     }
@@ -438,11 +487,16 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
     final message = switch (_selectedChoice!) {
       MissingItemChoice.walletCredit => '✅ ₹${_itemValue.round()} added to your Fufaji Wallet!',
       MissingItemChoice.refund => '✅ Refund of ₹${_itemValue.round()} initiated (2–5 days)',
-      MissingItemChoice.replacement => '✅ Replacement confirmed: ${widget.suggestedReplacement?.name}',
+      MissingItemChoice.replacement =>
+        '✅ Replacement confirmed: ${widget.suggestedReplacement?.name}',
     };
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: AppTheme.success, duration: const Duration(seconds: 3)),
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppTheme.success,
+        duration: const Duration(seconds: 3),
+      ),
     );
 
     Navigator.of(context).pop(true);

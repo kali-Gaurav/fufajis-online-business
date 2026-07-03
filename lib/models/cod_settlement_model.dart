@@ -55,9 +55,7 @@ class CodSettlementModel {
       submittedAt: map['submittedAt'] != null
           ? (map['submittedAt'] as Timestamp).toDate()
           : DateTime.now(),
-      resolvedAt: map['resolvedAt'] != null
-          ? (map['resolvedAt'] as Timestamp).toDate()
-          : null,
+      resolvedAt: map['resolvedAt'] != null ? (map['resolvedAt'] as Timestamp).toDate() : null,
       notes: map['notes'] as String?,
     );
   }

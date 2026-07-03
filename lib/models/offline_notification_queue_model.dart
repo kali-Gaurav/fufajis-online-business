@@ -33,9 +33,7 @@ class OfflineNotificationQueueModel {
       body: map['body'] ?? '',
       type: map['type'] ?? '',
       createdAt: _parseDateTime(map['createdAt']),
-      deliveredAt: map['deliveredAt'] != null
-          ? _parseDateTime(map['deliveredAt'])
-          : null,
+      deliveredAt: map['deliveredAt'] != null ? _parseDateTime(map['deliveredAt']) : null,
       data: map['data'],
       deepLink: map['deepLink'],
       isDelivered: map['isDelivered'] ?? false,

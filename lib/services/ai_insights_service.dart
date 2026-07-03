@@ -22,7 +22,7 @@ class AIInsightsService {
   Future<String> generateDailyAdvisorBriefing(String ownerId) async {
     try {
       debugPrint('[AIInsightsService] Querying sales metrics for daily advisor briefing...');
-      
+
       // Fetch latest sales analytics from Postgres
       final salesResponse = await _client
           .from('sales_analytics')
@@ -67,7 +67,9 @@ class AIInsightsService {
           'Respond with markdown only. Keep it highly action-oriented and brief.';
 
       final narrative = await _bedrock.generateComplexReasoning(prompt, maxTokens: 1000);
-      final finalNarrative = narrative ?? 'Operational parameters are stable. Focus on replenishment of fast-moving consumer goods.';
+      final finalNarrative =
+          narrative ??
+          'Operational parameters are stable. Focus on replenishment of fast-moving consumer goods.';
 
       // Save to Firestore ai_insights
       await _firestore.collection('ai_insights').doc('latest_briefing').set({
@@ -85,12 +87,16 @@ class AIInsightsService {
         'target_entity_id': 'all',
         'recommended_action': 'Review Daily Advisor Briefing Recommendations',
         'confidence_score': 0.9,
-        'supporting_factors': ['Revenue: ₹$totalRevenue7d', 'OOS count: $outOfStock', 'Dead stock: ₹$deadStock'],
+        'supporting_factors': [
+          'Revenue: ₹$totalRevenue7d',
+          'OOS count: $outOfStock',
+          'Dead stock: ₹$deadStock',
+        ],
         'expected_outcome': 'Improve cash flow and reduce warehouse stockout rates.',
         'potential_risk': 'Marketing expenditure increase.',
         'rollback_strategy': 'Halt campaign parameters.',
         'status': 'pending',
-        'created_at': DateTime.now().toIso8601String()
+        'created_at': DateTime.now().toIso8601String(),
       });
 
       debugPrint('[AIInsightsService] Daily briefing generated and saved.');
@@ -105,7 +111,7 @@ class AIInsightsService {
   Future<List<PricingRecommendationModel>> generatePricingSuggestions(String branchId) async {
     try {
       debugPrint('[AIInsightsService] Generating pricing suggestions for branch: $branchId...');
-      
+
       // Fetch some products with pricing to simulate suggestions
       final productsResponse = await _client
           .from('products')
@@ -135,7 +141,7 @@ class AIInsightsService {
             'Response must be strict JSON only, nothing else.';
 
         final responseText = await _bedrock.generateComplexReasoning(prompt, maxTokens: 200);
-        
+
         double suggestedPrice = currentPrice;
         String reason = 'Dynamic demand adjustment based on market rate movements.';
 
@@ -190,12 +196,16 @@ class AIInsightsService {
             'target_entity_id': pid,
             'recommended_action': 'Adjust dynamic price of $name to ₹$suggestedPrice',
             'confidence_score': 0.88,
-            'supporting_factors': ['Current price: ₹$currentPrice', 'Stock: $stock', 'Reason: $reason'],
+            'supporting_factors': [
+              'Current price: ₹$currentPrice',
+              'Stock: $stock',
+              'Reason: $reason',
+            ],
             'expected_outcome': 'Optimizes gross profit margins based on wholesale trends.',
             'potential_risk': 'Marginal customer friction.',
             'rollback_strategy': 'Restore original price of ₹$currentPrice',
             'status': 'pending',
-            'created_at': DateTime.now().toIso8601String()
+            'created_at': DateTime.now().toIso8601String(),
           });
         }
       }

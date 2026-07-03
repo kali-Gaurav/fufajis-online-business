@@ -25,9 +25,7 @@ class CategoryMigrationService {
 
     // Try to match against ProductCategory enum names
     try {
-      return ProductCategory.values
-          .firstWhere((e) => e.name == normalized)
-          .name;
+      return ProductCategory.values.firstWhere((e) => e.name == normalized).name;
     } catch (e) {
       _logger.warning('[CategoryMigration] Unmapped category, using fallback');
     }
@@ -91,9 +89,7 @@ class CategoryMigrationService {
   /// Backfills category Id for all existing products
   ///
   /// Returns: (success count, error count, total count)
-  static Future<(int, int, int)> migrateProducts({
-    String? shopId,
-  }) async {
+  static Future<(int, int, int)> migrateProducts({String? shopId}) async {
     _logger.info('[CategoryMigration] Starting category backfill...');
 
     int success = 0;
@@ -166,7 +162,9 @@ class CategoryMigrationService {
       final snap = await query.limit(10).get();
 
       if (snap.docs.isNotEmpty) {
-        _logger.warning('[CategoryMigration] ❌ Found ${snap.docs.length} products without category Id');
+        _logger.warning(
+          '[CategoryMigration] ❌ Found ${snap.docs.length} products without category Id',
+        );
         for (final doc in snap.docs.take(3)) {
           _logger.warning('[CategoryMigration] Example: ${doc.id} = ${doc['category']}');
         }
@@ -208,10 +206,7 @@ class CategoryMigrationService {
 
   /// One-time setup: Run this ONCE after deploying category Id changes
   /// Typically called from an admin screen or app startup (guard with flag)
-  static Future<void> runMigrationIfNeeded({
-    bool forceMigration = false,
-    String? shopId,
-  }) async {
+  static Future<void> runMigrationIfNeeded({bool forceMigration = false, String? shopId}) async {
     try {
       final status = await getStatus(shopId: shopId);
       final pending = status['pending'] ?? 0;
@@ -224,7 +219,9 @@ class CategoryMigrationService {
 
       if (!forceMigration && pending < (total * 0.05)) {
         // If <5% pending, might be new products added after migration
-        _logger.info('[CategoryMigration] Only $pending/$total pending; skipping (set forceMigration=true to override)');
+        _logger.info(
+          '[CategoryMigration] Only $pending/$total pending; skipping (set forceMigration=true to override)',
+        );
         return;
       }
 

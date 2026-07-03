@@ -12,7 +12,7 @@ enum UserRole {
   dispatcher,
   branchManager,
   supplier,
-  franchiseOwner
+  franchiseOwner,
 }
 
 enum MembershipTier { bronze, silver, gold, platinum }
@@ -108,7 +108,8 @@ class UserModel {
         (e) => e.toString() == map['role'],
         orElse: () => UserRole.customer,
       ),
-      roles: (map['roles'] as List<dynamic>?)
+      roles:
+          (map['roles'] as List<dynamic>?)
               ?.map(
                 (r) => UserRole.values.firstWhere(
                   (e) => e.toString() == r,
@@ -137,7 +138,8 @@ class UserModel {
       isBlocked: map['isBlocked'] ?? false,
       pinHash: map['pinHash'],
       biometricEnabled: map['biometricEnabled'] ?? false,
-      approvedDevices: (map['approvedDevices'] as List<dynamic>?)
+      approvedDevices:
+          (map['approvedDevices'] as List<dynamic>?)
               ?.map((d) => DeviceFingerprint.fromMap(d))
               .toList() ??
           [],

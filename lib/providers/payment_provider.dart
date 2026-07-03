@@ -47,10 +47,7 @@ class PaymentProvider with ChangeNotifier {
       'name': "Fufaji's Online",
       'description': description,
       'order_id': orderId,
-      'prefill': {
-        'contact': user.phoneNumber,
-        'email': user.email ?? 'customer@fufaji.com',
-      },
+      'prefill': {'contact': user.phoneNumber, 'email': user.email ?? 'customer@fufaji.com'},
       'external': {
         'wallets': ['paytm'],
       },
@@ -80,11 +77,7 @@ class PaymentProvider with ChangeNotifier {
       _errorMessage = "Payment signature verification failed. Possible tampering detected.";
       notifyListeners();
       if (onPaymentError != null) {
-        onPaymentError!(PaymentFailureResponse(
-          Razorpay.PAYMENT_CANCELLED,
-          _errorMessage,
-          {},
-        ));
+        onPaymentError!(PaymentFailureResponse(Razorpay.PAYMENT_CANCELLED, _errorMessage, {}));
       }
     }
   }
@@ -117,11 +110,7 @@ class PaymentProvider with ChangeNotifier {
   }
 
   // Handle Khata/Credit Logic
-  Future<bool> processCreditPayment(
-    double amount,
-    UserModel user,
-    AuthProvider auth,
-  ) async {
+  Future<bool> processCreditPayment(double amount, UserModel user, AuthProvider auth) async {
     if (user.creditBalance + amount > user.creditLimit) {
       _errorMessage =
           "Credit limit exceeded. Current: ₹${user.creditBalance.round()} / Limit: ₹${user.creditLimit.round()}";

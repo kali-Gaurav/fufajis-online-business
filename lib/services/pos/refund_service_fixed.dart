@@ -15,8 +15,7 @@ class RefundServiceFixed {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseFunctions _functions = FirebaseFunctions.instance;
 
-  static final RefundServiceFixed _instance =
-      RefundServiceFixed._internal();
+  static final RefundServiceFixed _instance = RefundServiceFixed._internal();
 
   factory RefundServiceFixed() => _instance;
   RefundServiceFixed._internal();
@@ -65,14 +64,12 @@ class RefundServiceFixed {
       debugPrint(
         '[RefundServiceFixed] Refund processed successfully. '
         'Order: $orderId, Amount: ₹$refundAmount, '
-        'Items restored: ${data['itemsRestored']}'
+        'Items restored: ${data['itemsRestored']}',
       );
 
       return data;
     } on FirebaseFunctionsException catch (e) {
-      debugPrint(
-        '[RefundServiceFixed] CloudFunction error: ${e.code} - ${e.message}'
-      );
+      debugPrint('[RefundServiceFixed] CloudFunction error: ${e.code} - ${e.message}');
 
       // User-friendly error messages
       if (e.code == 'not-found') {
@@ -93,10 +90,7 @@ class RefundServiceFixed {
   /// Get refund status for an order
   Future<RefundStatus> getRefundStatus(String orderId) async {
     try {
-      final orderDoc = await _firestore
-          .collection('orders')
-          .doc(orderId)
-          .get();
+      final orderDoc = await _firestore.collection('orders').doc(orderId).get();
 
       if (!orderDoc.exists) {
         throw Exception('Order not found');
@@ -115,11 +109,7 @@ class RefundServiceFixed {
         );
       }
 
-      return RefundStatus(
-        isRefunded: false,
-        refundedAt: null,
-        refundAmount: 0.0,
-      );
+      return RefundStatus(isRefunded: false, refundedAt: null, refundAmount: 0.0);
     } catch (e) {
       debugPrint('[RefundServiceFixed] Error getting refund status: $e');
       rethrow;
@@ -135,9 +125,7 @@ class RefundServiceFixed {
           .orderBy('processedAt', descending: true)
           .get();
 
-      return snapshot.docs
-          .map((doc) => RefundRecord.fromMap(doc.data()))
-          .toList();
+      return snapshot.docs.map((doc) => RefundRecord.fromMap(doc.data())).toList();
     } catch (e) {
       debugPrint('[RefundServiceFixed] Error getting customer refunds: $e');
       return [];
@@ -146,38 +134,26 @@ class RefundServiceFixed {
 
   /// Listen for refund updates (real-time)
   Stream<RefundStatus> watchRefundStatus(String orderId) {
-    return _firestore
-        .collection('orders')
-        .doc(orderId)
-        .snapshots()
-        .map((snapshot) {
-          if (!snapshot.exists) {
-            return RefundStatus(
-              isRefunded: false,
-              refundedAt: null,
-              refundAmount: 0.0,
-            );
-          }
+    return _firestore.collection('orders').doc(orderId).snapshots().map((snapshot) {
+      if (!snapshot.exists) {
+        return RefundStatus(isRefunded: false, refundedAt: null, refundAmount: 0.0);
+      }
 
-          final data = snapshot.data()!;
-          final status = data['status'] as String?;
-          final refundedAt = data['refundedAt'] as Timestamp?;
-          final refundAmount = (data['refundAmount'] ?? 0.0) as double;
+      final data = snapshot.data()!;
+      final status = data['status'] as String?;
+      final refundedAt = data['refundedAt'] as Timestamp?;
+      final refundAmount = (data['refundAmount'] ?? 0.0) as double;
 
-          if (status == 'refunded' || status == 'OrderStatus.refunded') {
-            return RefundStatus(
-              isRefunded: true,
-              refundedAt: refundedAt?.toDate(),
-              refundAmount: refundAmount,
-            );
-          }
+      if (status == 'refunded' || status == 'OrderStatus.refunded') {
+        return RefundStatus(
+          isRefunded: true,
+          refundedAt: refundedAt?.toDate(),
+          refundAmount: refundAmount,
+        );
+      }
 
-          return RefundStatus(
-            isRefunded: false,
-            refundedAt: null,
-            refundAmount: 0.0,
-          );
-        });
+      return RefundStatus(isRefunded: false, refundedAt: null, refundAmount: 0.0);
+    });
   }
 
   /// Approve return request with automatic refund and stock restoration
@@ -199,10 +175,7 @@ class RefundServiceFixed {
       );
 
       // Then update the return request status
-      await _firestore
-          .collection('return_requests')
-          .doc(returnRequestId)
-          .update({
+      await _firestore.collection('return_requests').doc(returnRequestId).update({
         'status': 'approved',
         'approvedAt': FieldValue.serverTimestamp(),
         'approvalNotes': approvalNotes,
@@ -210,16 +183,13 @@ class RefundServiceFixed {
 
       debugPrint('[RefundServiceFixed] Return approved and refund processed');
     } catch (e) {
-      debugPrint(
-          '[RefundServiceFixed] Error approving return: $e');
+      debugPrint('[RefundServiceFixed] Error approving return: $e');
       rethrow;
     }
   }
 
   /// Get inventory events for audit trail
-  Future<List<InventoryEvent>> getInventoryEventsForOrder(
-    String orderId,
-  ) async {
+  Future<List<InventoryEvent>> getInventoryEventsForOrder(String orderId) async {
     try {
       final snapshot = await _firestore
           .collection('inventory_events')
@@ -227,9 +197,7 @@ class RefundServiceFixed {
           .orderBy('timestamp', descending: true)
           .get();
 
-      return snapshot.docs
-          .map((doc) => InventoryEvent.fromMap(doc.data()))
-          .toList();
+      return snapshot.docs.map((doc) => InventoryEvent.fromMap(doc.data())).toList();
     } catch (e) {
       debugPrint('[RefundServiceFixed] Error getting inventory events: $e');
       return [];
@@ -243,11 +211,7 @@ class RefundStatus {
   final DateTime? refundedAt;
   final double refundAmount;
 
-  RefundStatus({
-    required this.isRefunded,
-    required this.refundedAt,
-    required this.refundAmount,
-  });
+  RefundStatus({required this.isRefunded, required this.refundedAt, required this.refundAmount});
 
   bool get isPending => !isRefunded;
 }
@@ -282,8 +246,7 @@ class RefundRecord {
       refundAmount: (data['refundAmount'] ?? 0.0) as double,
       reason: data['reason'] as String? ?? '',
       itemCount: (data['itemCount'] ?? 0) as int,
-      processedAt: (data['processedAt'] as Timestamp?)?.toDate() ??
-          DateTime.now(),
+      processedAt: (data['processedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       processedBy: data['processedBy'] as String? ?? '',
     );
   }
@@ -326,8 +289,7 @@ class InventoryEvent {
       stockBefore: (data['stockBefore'] ?? 0) as int,
       stockAfter: (data['stockAfter'] ?? 0) as int,
       reason: data['reason'] as String?,
-      timestamp: (data['timestamp'] as Timestamp?)?.toDate() ??
-          DateTime.now(),
+      timestamp: (data['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 

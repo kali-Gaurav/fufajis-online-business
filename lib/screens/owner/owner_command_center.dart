@@ -136,10 +136,7 @@ class _OwnerCommandCenterState extends State<OwnerCommandCenter> {
           );
         }
 
-        final currencyFormatter = NumberFormat.currency(
-          symbol: '₹',
-          decimalDigits: 0,
-        );
+        final currencyFormatter = NumberFormat.currency(symbol: '₹', decimalDigits: 0);
 
         return Padding(
           padding: const EdgeInsets.all(16),
@@ -259,9 +256,7 @@ class _OwnerCommandCenterState extends State<OwnerCommandCenter> {
         decoration: BoxDecoration(
           color: isDark ? Colors.grey[850] : Colors.white,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
-          ),
+          border: Border.all(color: isDark ? Colors.grey[700]! : Colors.grey[300]!),
         ),
         child: Column(
           children: [
@@ -294,10 +289,7 @@ class _OwnerCommandCenterState extends State<OwnerCommandCenter> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SectionHeader(
-              title: 'Analytics',
-              subtitle: 'Performance overview',
-            ),
+            const SectionHeader(title: 'Analytics', subtitle: 'Performance overview'),
             Padding(
               padding: const EdgeInsets.all(16),
               child: Container(
@@ -316,10 +308,7 @@ class _OwnerCommandCenterState extends State<OwnerCommandCenter> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Revenue Breakdown',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
+                    Text('Revenue Breakdown', style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 16),
                     _buildRevenueChart(metrics),
                   ],
@@ -372,10 +361,7 @@ class _OwnerCommandCenterState extends State<OwnerCommandCenter> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Top Products',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
+                    Text('Top Products', style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 16),
                     _buildTopProductsList(metrics),
                   ],
@@ -395,33 +381,29 @@ class _OwnerCommandCenterState extends State<OwnerCommandCenter> {
       height: 250,
       child: PieChart(
         PieChartData(
-          sections: entries
-              .asMap()
-              .entries
-              .map((entry) {
-                final category = entry.value.key;
-                final value = entry.value.value;
-                final colors = [
-                  AppTheme.info,
-                  AppTheme.success,
-                  AppTheme.warning,
-                  Colors.purple,
-                  Colors.pink,
-                ];
+          sections: entries.asMap().entries.map((entry) {
+            final category = entry.value.key;
+            final value = entry.value.value;
+            final colors = [
+              AppTheme.info,
+              AppTheme.success,
+              AppTheme.warning,
+              Colors.purple,
+              Colors.pink,
+            ];
 
-                return PieChartSectionData(
-                  color: colors[entry.key % colors.length],
-                  value: value.toDouble(),
-                  title: '$category\n₹${NumberFormat('#,##0', 'en_IN').format(value)}',
-                  radius: 80,
-                  titleStyle: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                );
-              })
-              .toList(),
+            return PieChartSectionData(
+              color: colors[entry.key % colors.length],
+              value: value.toDouble(),
+              title: '$category\n₹${NumberFormat('#,##0', 'en_IN').format(value)}',
+              radius: 80,
+              titleStyle: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            );
+          }).toList(),
           centerSpaceRadius: 40,
           sectionsSpace: 2,
         ),
@@ -465,10 +447,7 @@ class _OwnerCommandCenterState extends State<OwnerCommandCenter> {
       );
     }
 
-    final currencyFormatter = NumberFormat.currency(
-      symbol: '₹',
-      decimalDigits: 0,
-    );
+    final currencyFormatter = NumberFormat.currency(symbol: '₹', decimalDigits: 0);
 
     return ListView.builder(
       shrinkWrap: true,
@@ -487,10 +466,7 @@ class _OwnerCommandCenterState extends State<OwnerCommandCenter> {
                   children: [
                     Text(
                       product.productName,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -518,10 +494,7 @@ class _OwnerCommandCenterState extends State<OwnerCommandCenter> {
                     children: [
                       const Icon(Icons.star, size: 14, color: AppTheme.warning),
                       const SizedBox(width: 2),
-                      Text(
-                        product.rating.toStringAsFixed(1),
-                        style: const TextStyle(fontSize: 11),
-                      ),
+                      Text(product.rating.toStringAsFixed(1), style: const TextStyle(fontSize: 11)),
                     ],
                   ),
                 ],

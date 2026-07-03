@@ -1,0 +1,6317 @@
+[
+  {
+    "familyId": "vegetables_1",
+    "name": "Potato",
+    "hindiName": "आलू",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "aloo",
+        "alu",
+        "potato",
+        "आलू"
+      ],
+      "aliases": [
+        "aloo",
+        "alu",
+        "batata"
+      ],
+      "phonetics": [
+        "potato"
+      ],
+      "regional": [
+        "aloo"
+      ],
+      "hindiKeywords": [
+        "आलू"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_1_sku1",
+        "familyId": "vegetables_1",
+        "displayName": "Potato 1kg",
+        "hindiName": "आलू 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 23,
+          "sellingPrice": 23
+        },
+        "inventory": {
+          "totalStock": 93,
+          "reservedStock": 1,
+          "availableStock": 96
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_2",
+    "name": "Onion",
+    "hindiName": "प्याज",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "pyas",
+        "प्याज",
+        "pyaz",
+        "onion"
+      ],
+      "aliases": [
+        "pyaz",
+        "pyas",
+        "kanda"
+      ],
+      "phonetics": [
+        "onion"
+      ],
+      "regional": [
+        "pyaz"
+      ],
+      "hindiKeywords": [
+        "प्याज"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_2_sku1",
+        "familyId": "vegetables_2",
+        "displayName": "Onion 1kg",
+        "hindiName": "प्याज 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 45,
+          "sellingPrice": 45
+        },
+        "inventory": {
+          "totalStock": 116,
+          "reservedStock": 10,
+          "availableStock": 124
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_3",
+    "name": "Tomato",
+    "hindiName": "टमाटर",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "tomato",
+        "टमाटर",
+        "veg",
+        "tamatar"
+      ],
+      "aliases": [
+        "tamatar",
+        "tomato"
+      ],
+      "phonetics": [
+        "tomato"
+      ],
+      "regional": [
+        "tamatar"
+      ],
+      "hindiKeywords": [
+        "टमाटर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_3_sku1",
+        "familyId": "vegetables_3",
+        "displayName": "Tomato 1kg",
+        "hindiName": "टमाटर 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 49,
+          "sellingPrice": 49
+        },
+        "inventory": {
+          "totalStock": 143,
+          "reservedStock": 13,
+          "availableStock": 102
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_4",
+    "name": "Carrot",
+    "hindiName": "गाजर",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "carrot",
+        "gajar",
+        "गाजर",
+        "veg"
+      ],
+      "aliases": [
+        "gajar",
+        "carrot"
+      ],
+      "phonetics": [
+        "carrot"
+      ],
+      "regional": [
+        "gajar"
+      ],
+      "hindiKeywords": [
+        "गाजर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_4_sku1",
+        "familyId": "vegetables_4",
+        "displayName": "Carrot 1kg",
+        "hindiName": "गाजर 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 32,
+          "sellingPrice": 32
+        },
+        "inventory": {
+          "totalStock": 80,
+          "reservedStock": 20,
+          "availableStock": 46
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_5",
+    "name": "Cabbage",
+    "hindiName": "पत्तागोभी",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "cabbage",
+        "patta gobi",
+        "पत्तागोभी",
+        "veg"
+      ],
+      "aliases": [
+        "patta gobi",
+        "cabbage"
+      ],
+      "phonetics": [
+        "cabbage"
+      ],
+      "regional": [
+        "patta gobi"
+      ],
+      "hindiKeywords": [
+        "पत्तागोभी"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_5_sku1",
+        "familyId": "vegetables_5",
+        "displayName": "Cabbage 1kg",
+        "hindiName": "पत्तागोभी 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 21,
+          "sellingPrice": 21
+        },
+        "inventory": {
+          "totalStock": 91,
+          "reservedStock": 19,
+          "availableStock": 73
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_6",
+    "name": "Cauliflower",
+    "hindiName": "फूलगोभी",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "phool gobi",
+        "cauliflower",
+        "veg",
+        "फूलगोभी"
+      ],
+      "aliases": [
+        "phool gobi",
+        "cauliflower"
+      ],
+      "phonetics": [
+        "cauliflower"
+      ],
+      "regional": [
+        "phool gobi"
+      ],
+      "hindiKeywords": [
+        "फूलगोभी"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_6_sku1",
+        "familyId": "vegetables_6",
+        "displayName": "Cauliflower 1kg",
+        "hindiName": "फूलगोभी 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 30,
+          "sellingPrice": 30
+        },
+        "inventory": {
+          "totalStock": 51,
+          "reservedStock": 8,
+          "availableStock": 65
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_7",
+    "name": "Brinjal",
+    "hindiName": "बैंगन",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "brinjal",
+        "baigan",
+        "बैंगन",
+        "eggplant"
+      ],
+      "aliases": [
+        "baigan",
+        "eggplant"
+      ],
+      "phonetics": [
+        "brinjal"
+      ],
+      "regional": [
+        "baigan"
+      ],
+      "hindiKeywords": [
+        "बैंगन"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_7_sku1",
+        "familyId": "vegetables_7",
+        "displayName": "Brinjal 1kg",
+        "hindiName": "बैंगन 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 39,
+          "sellingPrice": 39
+        },
+        "inventory": {
+          "totalStock": 145,
+          "reservedStock": 15,
+          "availableStock": 112
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_8",
+    "name": "Cucumber",
+    "hindiName": "खीरा",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "खीरा",
+        "veg",
+        "cucumber",
+        "khira"
+      ],
+      "aliases": [
+        "khira",
+        "cucumber"
+      ],
+      "phonetics": [
+        "cucumber"
+      ],
+      "regional": [
+        "khira"
+      ],
+      "hindiKeywords": [
+        "खीरा"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_8_sku1",
+        "familyId": "vegetables_8",
+        "displayName": "Cucumber 1kg",
+        "hindiName": "खीरा 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 38,
+          "sellingPrice": 38
+        },
+        "inventory": {
+          "totalStock": 53,
+          "reservedStock": 2,
+          "availableStock": 36
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_9",
+    "name": "Capsicum",
+    "hindiName": "शिमला मिर्च",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "शिमला मिर्च",
+        "shimla mirch",
+        "bell pepper",
+        "capsicum"
+      ],
+      "aliases": [
+        "shimla mirch",
+        "bell pepper"
+      ],
+      "phonetics": [
+        "capsicum"
+      ],
+      "regional": [
+        "shimla mirch"
+      ],
+      "hindiKeywords": [
+        "शिमला मिर्च"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_9_sku1",
+        "familyId": "vegetables_9",
+        "displayName": "Capsicum 1kg",
+        "hindiName": "शिमला मिर्च 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 50,
+          "sellingPrice": 50
+        },
+        "inventory": {
+          "totalStock": 100,
+          "reservedStock": 14,
+          "availableStock": 67
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_10",
+    "name": "Ladyfinger",
+    "hindiName": "भिंडी",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "okra",
+        "ladyfinger",
+        "भिंडी",
+        "bhindi"
+      ],
+      "aliases": [
+        "bhindi",
+        "okra"
+      ],
+      "phonetics": [
+        "ladyfinger"
+      ],
+      "regional": [
+        "bhindi"
+      ],
+      "hindiKeywords": [
+        "भिंडी"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_10_sku1",
+        "familyId": "vegetables_10",
+        "displayName": "Ladyfinger 1kg",
+        "hindiName": "भिंडी 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 33,
+          "sellingPrice": 33
+        },
+        "inventory": {
+          "totalStock": 126,
+          "reservedStock": 5,
+          "availableStock": 42
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_11",
+    "name": "Pumpkin",
+    "hindiName": "कद्दू",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "kaddu",
+        "veg",
+        "pumpkin",
+        "कद्दू"
+      ],
+      "aliases": [
+        "kaddu",
+        "pumpkin"
+      ],
+      "phonetics": [
+        "pumpkin"
+      ],
+      "regional": [
+        "kaddu"
+      ],
+      "hindiKeywords": [
+        "कद्दू"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_11_sku1",
+        "familyId": "vegetables_11",
+        "displayName": "Pumpkin 1kg",
+        "hindiName": "कद्दू 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 54,
+          "sellingPrice": 54
+        },
+        "inventory": {
+          "totalStock": 45,
+          "reservedStock": 13,
+          "availableStock": 44
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_12",
+    "name": "Bottle Gourd",
+    "hindiName": "लौकी",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "लौकी",
+        "lauki",
+        "veg",
+        "bottle"
+      ],
+      "aliases": [
+        "lauki",
+        "bottle gourd"
+      ],
+      "phonetics": [
+        "bottle"
+      ],
+      "regional": [
+        "lauki"
+      ],
+      "hindiKeywords": [
+        "लौकी"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_12_sku1",
+        "familyId": "vegetables_12",
+        "displayName": "Bottle Gourd 1kg",
+        "hindiName": "लौकी 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 51,
+          "sellingPrice": 51
+        },
+        "inventory": {
+          "totalStock": 64,
+          "reservedStock": 13,
+          "availableStock": 23
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_13",
+    "name": "Ridge Gourd",
+    "hindiName": "तुरई",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "turei",
+        "तुरई",
+        "veg",
+        "ridge"
+      ],
+      "aliases": [
+        "turei",
+        "ridge gourd"
+      ],
+      "phonetics": [
+        "ridge"
+      ],
+      "regional": [
+        "turei"
+      ],
+      "hindiKeywords": [
+        "तुरई"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_13_sku1",
+        "familyId": "vegetables_13",
+        "displayName": "Ridge Gourd 1kg",
+        "hindiName": "तुरई 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 41,
+          "sellingPrice": 41
+        },
+        "inventory": {
+          "totalStock": 124,
+          "reservedStock": 19,
+          "availableStock": 45
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_14",
+    "name": "Bitter Gourd",
+    "hindiName": "करेला",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "करेला",
+        "bitter melon",
+        "karela",
+        "bitter"
+      ],
+      "aliases": [
+        "karela",
+        "bitter melon"
+      ],
+      "phonetics": [
+        "bitter"
+      ],
+      "regional": [
+        "karela"
+      ],
+      "hindiKeywords": [
+        "करेला"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_14_sku1",
+        "familyId": "vegetables_14",
+        "displayName": "Bitter Gourd 1kg",
+        "hindiName": "करेला 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 49,
+          "sellingPrice": 49
+        },
+        "inventory": {
+          "totalStock": 128,
+          "reservedStock": 0,
+          "availableStock": 37
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_15",
+    "name": "Spinach",
+    "hindiName": "पालक",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "पालक",
+        "palak",
+        "spinach",
+        "veg"
+      ],
+      "aliases": [
+        "palak",
+        "spinach"
+      ],
+      "phonetics": [
+        "spinach"
+      ],
+      "regional": [
+        "palak"
+      ],
+      "hindiKeywords": [
+        "पालक"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_15_sku1",
+        "familyId": "vegetables_15",
+        "displayName": "Spinach 0.5kg",
+        "hindiName": "पालक 0.5kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 24,
+          "sellingPrice": 24
+        },
+        "inventory": {
+          "totalStock": 58,
+          "reservedStock": 6,
+          "availableStock": 102
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_16",
+    "name": "Coriander Leaves",
+    "hindiName": "धनिया पत्ता",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "coriander",
+        "धनिया पत्ता",
+        "cilantro",
+        "dhanya patta"
+      ],
+      "aliases": [
+        "dhanya patta",
+        "cilantro"
+      ],
+      "phonetics": [
+        "coriander"
+      ],
+      "regional": [
+        "dhanya patta"
+      ],
+      "hindiKeywords": [
+        "धनिया पत्ता"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_16_sku1",
+        "familyId": "vegetables_16",
+        "displayName": "Coriander Leaves 0.25kg",
+        "hindiName": "धनिया पत्ता 0.25kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 0.25,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 23,
+          "sellingPrice": 23
+        },
+        "inventory": {
+          "totalStock": 108,
+          "reservedStock": 9,
+          "availableStock": 105
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_17",
+    "name": "Mint Leaves",
+    "hindiName": "पुदीना",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "pudina",
+        "पुदीना",
+        "veg",
+        "mint"
+      ],
+      "aliases": [
+        "pudina",
+        "mint"
+      ],
+      "phonetics": [
+        "mint"
+      ],
+      "regional": [
+        "pudina"
+      ],
+      "hindiKeywords": [
+        "पुदीना"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_17_sku1",
+        "familyId": "vegetables_17",
+        "displayName": "Mint Leaves 0.25kg",
+        "hindiName": "पुदीना 0.25kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 0.25,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 52,
+          "sellingPrice": 52
+        },
+        "inventory": {
+          "totalStock": 54,
+          "reservedStock": 13,
+          "availableStock": 126
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_18",
+    "name": "Garlic",
+    "hindiName": "लहसुन",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "लहसुन",
+        "garlic",
+        "veg",
+        "lahsun"
+      ],
+      "aliases": [
+        "lahsun",
+        "garlic"
+      ],
+      "phonetics": [
+        "garlic"
+      ],
+      "regional": [
+        "lahsun"
+      ],
+      "hindiKeywords": [
+        "लहसुन"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_18_sku1",
+        "familyId": "vegetables_18",
+        "displayName": "Garlic 1kg",
+        "hindiName": "लहसुन 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 44,
+          "sellingPrice": 44
+        },
+        "inventory": {
+          "totalStock": 120,
+          "reservedStock": 12,
+          "availableStock": 111
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_19",
+    "name": "Ginger",
+    "hindiName": "अदरक",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "ginger",
+        "adrak",
+        "अदरक",
+        "veg"
+      ],
+      "aliases": [
+        "adrak",
+        "ginger"
+      ],
+      "phonetics": [
+        "ginger"
+      ],
+      "regional": [
+        "adrak"
+      ],
+      "hindiKeywords": [
+        "अदरक"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_19_sku1",
+        "familyId": "vegetables_19",
+        "displayName": "Ginger 1kg",
+        "hindiName": "अदरक 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 58,
+          "sellingPrice": 58
+        },
+        "inventory": {
+          "totalStock": 81,
+          "reservedStock": 17,
+          "availableStock": 38
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_20",
+    "name": "Green Chili",
+    "hindiName": "हरी मिर्च",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "हरी मिर्च",
+        "green",
+        "hari mirch",
+        "veg"
+      ],
+      "aliases": [
+        "hari mirch",
+        "green chili"
+      ],
+      "phonetics": [
+        "green"
+      ],
+      "regional": [
+        "hari mirch"
+      ],
+      "hindiKeywords": [
+        "हरी मिर्च"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_20_sku1",
+        "familyId": "vegetables_20",
+        "displayName": "Green Chili 1kg",
+        "hindiName": "हरी मिर्च 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 22,
+          "sellingPrice": 22
+        },
+        "inventory": {
+          "totalStock": 113,
+          "reservedStock": 2,
+          "availableStock": 111
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_21",
+    "name": "Beetroot",
+    "hindiName": "चुकंदर",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "chukandar",
+        "चुकंदर",
+        "veg",
+        "beetroot"
+      ],
+      "aliases": [
+        "chukandar",
+        "beetroot"
+      ],
+      "phonetics": [
+        "beetroot"
+      ],
+      "regional": [
+        "chukandar"
+      ],
+      "hindiKeywords": [
+        "चुकंदर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_21_sku1",
+        "familyId": "vegetables_21",
+        "displayName": "Beetroot 1kg",
+        "hindiName": "चुकंदर 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 72,
+          "sellingPrice": 72
+        },
+        "inventory": {
+          "totalStock": 134,
+          "reservedStock": 16,
+          "availableStock": 107
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_22",
+    "name": "Radish",
+    "hindiName": "मूली",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "mooli",
+        "radish",
+        "मूली",
+        "veg"
+      ],
+      "aliases": [
+        "mooli",
+        "radish"
+      ],
+      "phonetics": [
+        "radish"
+      ],
+      "regional": [
+        "mooli"
+      ],
+      "hindiKeywords": [
+        "मूली"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_22_sku1",
+        "familyId": "vegetables_22",
+        "displayName": "Radish 1kg",
+        "hindiName": "मूली 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 23,
+          "sellingPrice": 23
+        },
+        "inventory": {
+          "totalStock": 112,
+          "reservedStock": 17,
+          "availableStock": 97
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_23",
+    "name": "Peas",
+    "hindiName": "मटर",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "matar",
+        "मटर",
+        "veg",
+        "peas"
+      ],
+      "aliases": [
+        "matar",
+        "peas"
+      ],
+      "phonetics": [
+        "peas"
+      ],
+      "regional": [
+        "matar"
+      ],
+      "hindiKeywords": [
+        "मटर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_23_sku1",
+        "familyId": "vegetables_23",
+        "displayName": "Peas 1kg",
+        "hindiName": "मटर 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 60,
+          "sellingPrice": 60
+        },
+        "inventory": {
+          "totalStock": 46,
+          "reservedStock": 10,
+          "availableStock": 96
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_24",
+    "name": "Corn",
+    "hindiName": "मकई",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "corn",
+        "मकई",
+        "veg",
+        "makkai"
+      ],
+      "aliases": [
+        "makkai",
+        "corn"
+      ],
+      "phonetics": [
+        "corn"
+      ],
+      "regional": [
+        "makkai"
+      ],
+      "hindiKeywords": [
+        "मकई"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_24_sku1",
+        "familyId": "vegetables_24",
+        "displayName": "Corn 1kg",
+        "hindiName": "मकई 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 54,
+          "sellingPrice": 54
+        },
+        "inventory": {
+          "totalStock": 92,
+          "reservedStock": 11,
+          "availableStock": 76
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_25",
+    "name": "Mushroom",
+    "hindiName": "मशरूम",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "मशरूम",
+        "mushroom",
+        "कुक्कुरमुत्ता",
+        "veg"
+      ],
+      "aliases": [
+        "mushroom",
+        "कुक्कुरमुत्ता"
+      ],
+      "phonetics": [
+        "mushroom"
+      ],
+      "regional": [
+        "mushroom"
+      ],
+      "hindiKeywords": [
+        "मशरूम"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_25_sku1",
+        "familyId": "vegetables_25",
+        "displayName": "Mushroom 0.5kg",
+        "hindiName": "मशरूम 0.5kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 33,
+          "sellingPrice": 33
+        },
+        "inventory": {
+          "totalStock": 146,
+          "reservedStock": 10,
+          "availableStock": 29
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_26",
+    "name": "Yam",
+    "hindiName": "जिमीकंद",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "yam",
+        "जिमीकंद",
+        "jimikand",
+        "veg"
+      ],
+      "aliases": [
+        "jimikand",
+        "yam"
+      ],
+      "phonetics": [
+        "yam"
+      ],
+      "regional": [
+        "jimikand"
+      ],
+      "hindiKeywords": [
+        "जिमीकंद"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_26_sku1",
+        "familyId": "vegetables_26",
+        "displayName": "Yam 1kg",
+        "hindiName": "जिमीकंद 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 49,
+          "sellingPrice": 49
+        },
+        "inventory": {
+          "totalStock": 145,
+          "reservedStock": 7,
+          "availableStock": 69
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_27",
+    "name": "Sweet Potato",
+    "hindiName": "शकरकंद",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "sweet",
+        "veg",
+        "शकरकंद",
+        "shakarkand"
+      ],
+      "aliases": [
+        "shakarkand",
+        "sweet potato"
+      ],
+      "phonetics": [
+        "sweet"
+      ],
+      "regional": [
+        "shakarkand"
+      ],
+      "hindiKeywords": [
+        "शकरकंद"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_27_sku1",
+        "familyId": "vegetables_27",
+        "displayName": "Sweet Potato 1kg",
+        "hindiName": "शकरकंद 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 46,
+          "sellingPrice": 46
+        },
+        "inventory": {
+          "totalStock": 117,
+          "reservedStock": 18,
+          "availableStock": 120
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_28",
+    "name": "Leek",
+    "hindiName": "प्याज का पौधा",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "प्याज",
+        "veg",
+        "प्याज का पौधा",
+        "leek"
+      ],
+      "aliases": [
+        "leek",
+        "प्याज"
+      ],
+      "phonetics": [
+        "leek"
+      ],
+      "regional": [
+        "leek"
+      ],
+      "hindiKeywords": [
+        "प्याज का पौधा"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_28_sku1",
+        "familyId": "vegetables_28",
+        "displayName": "Leek 1kg",
+        "hindiName": "प्याज का पौधा 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 43,
+          "sellingPrice": 43
+        },
+        "inventory": {
+          "totalStock": 128,
+          "reservedStock": 8,
+          "availableStock": 74
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_29",
+    "name": "Beet Greens",
+    "hindiName": "चुकंदर के पत्ते",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "beet",
+        "चुकंदर के पत्ते",
+        "leafy",
+        "veg"
+      ],
+      "aliases": [
+        "beet greens",
+        "leafy"
+      ],
+      "phonetics": [
+        "beet"
+      ],
+      "regional": [
+        "beet greens"
+      ],
+      "hindiKeywords": [
+        "चुकंदर के पत्ते"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_29_sku1",
+        "familyId": "vegetables_29",
+        "displayName": "Beet Greens 0.5kg",
+        "hindiName": "चुकंदर के पत्ते 0.5kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 51,
+          "sellingPrice": 51
+        },
+        "inventory": {
+          "totalStock": 136,
+          "reservedStock": 18,
+          "availableStock": 123
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_30",
+    "name": "Turnip",
+    "hindiName": "शलजम",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "turnip",
+        "shalzam",
+        "veg",
+        "शलजम"
+      ],
+      "aliases": [
+        "shalzam",
+        "turnip"
+      ],
+      "phonetics": [
+        "turnip"
+      ],
+      "regional": [
+        "shalzam"
+      ],
+      "hindiKeywords": [
+        "शलजम"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_30_sku1",
+        "familyId": "vegetables_30",
+        "displayName": "Turnip 1kg",
+        "hindiName": "शलजम 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 61,
+          "sellingPrice": 61
+        },
+        "inventory": {
+          "totalStock": 63,
+          "reservedStock": 2,
+          "availableStock": 55
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "fruits_31",
+    "name": "Banana",
+    "hindiName": "केले",
+    "category": "Fruits",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "kela",
+        "banana",
+        "केले",
+        "fru"
+      ],
+      "aliases": [
+        "kela",
+        "banana"
+      ],
+      "phonetics": [
+        "banana"
+      ],
+      "regional": [
+        "kela"
+      ],
+      "hindiKeywords": [
+        "केले"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "fruits_31_sku1",
+        "familyId": "fruits_31",
+        "displayName": "Banana 1dozen",
+        "hindiName": "केले 1dozen",
+        "productType": "loose",
+        "unitType": "count",
+        "quantity": 1.0,
+        "unit": "dozen",
+        "pricing": {
+          "mrp": 67,
+          "sellingPrice": 67
+        },
+        "inventory": {
+          "totalStock": 83,
+          "reservedStock": 6,
+          "availableStock": 125
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "fruits_32",
+    "name": "Apple",
+    "hindiName": "सेब",
+    "category": "Fruits",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "fru",
+        "seb",
+        "सेब",
+        "apple"
+      ],
+      "aliases": [
+        "seb",
+        "apple"
+      ],
+      "phonetics": [
+        "apple"
+      ],
+      "regional": [
+        "seb"
+      ],
+      "hindiKeywords": [
+        "सेब"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "fruits_32_sku1",
+        "familyId": "fruits_32",
+        "displayName": "Apple 1kg",
+        "hindiName": "सेब 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 193,
+          "sellingPrice": 182
+        },
+        "inventory": {
+          "totalStock": 148,
+          "reservedStock": 15,
+          "availableStock": 112
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "fruits_33",
+    "name": "Orange",
+    "hindiName": "संतरा",
+    "category": "Fruits",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "orange",
+        "संतरा",
+        "fru",
+        "santra"
+      ],
+      "aliases": [
+        "santra",
+        "orange"
+      ],
+      "phonetics": [
+        "orange"
+      ],
+      "regional": [
+        "santra"
+      ],
+      "hindiKeywords": [
+        "संतरा"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "fruits_33_sku1",
+        "familyId": "fruits_33",
+        "displayName": "Orange 1kg",
+        "hindiName": "संतरा 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 124,
+          "sellingPrice": 120
+        },
+        "inventory": {
+          "totalStock": 116,
+          "reservedStock": 20,
+          "availableStock": 91
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "fruits_34",
+    "name": "Mango",
+    "hindiName": "आम",
+    "category": "Fruits",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "mango",
+        "आम",
+        "aam",
+        "fru"
+      ],
+      "aliases": [
+        "aam",
+        "mango"
+      ],
+      "phonetics": [
+        "mango"
+      ],
+      "regional": [
+        "aam"
+      ],
+      "hindiKeywords": [
+        "आम"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "fruits_34_sku1",
+        "familyId": "fruits_34",
+        "displayName": "Mango 1kg",
+        "hindiName": "आम 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 242,
+          "sellingPrice": 226
+        },
+        "inventory": {
+          "totalStock": 72,
+          "reservedStock": 7,
+          "availableStock": 69
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "fruits_35",
+    "name": "Papaya",
+    "hindiName": "पपीता",
+    "category": "Fruits",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "papita",
+        "papaya",
+        "पपीता",
+        "fru"
+      ],
+      "aliases": [
+        "papita",
+        "papaya"
+      ],
+      "phonetics": [
+        "papaya"
+      ],
+      "regional": [
+        "papita"
+      ],
+      "hindiKeywords": [
+        "पपीता"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "fruits_35_sku1",
+        "familyId": "fruits_35",
+        "displayName": "Papaya 1kg",
+        "hindiName": "पपीता 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 211,
+          "sellingPrice": 198
+        },
+        "inventory": {
+          "totalStock": 122,
+          "reservedStock": 8,
+          "availableStock": 68
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "fruits_36",
+    "name": "Guava",
+    "hindiName": "अमरूद",
+    "category": "Fruits",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "guava",
+        "अमरूद",
+        "fru",
+        "amrud"
+      ],
+      "aliases": [
+        "amrud",
+        "guava"
+      ],
+      "phonetics": [
+        "guava"
+      ],
+      "regional": [
+        "amrud"
+      ],
+      "hindiKeywords": [
+        "अमरूद"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "fruits_36_sku1",
+        "familyId": "fruits_36",
+        "displayName": "Guava 1kg",
+        "hindiName": "अमरूद 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 161,
+          "sellingPrice": 153
+        },
+        "inventory": {
+          "totalStock": 94,
+          "reservedStock": 4,
+          "availableStock": 117
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "fruits_37",
+    "name": "Pomegranate",
+    "hindiName": "अनार",
+    "category": "Fruits",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "anar",
+        "अनार",
+        "pomegranate",
+        "fru"
+      ],
+      "aliases": [
+        "anar",
+        "pomegranate"
+      ],
+      "phonetics": [
+        "pomegranate"
+      ],
+      "regional": [
+        "anar"
+      ],
+      "hindiKeywords": [
+        "अनार"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "fruits_37_sku1",
+        "familyId": "fruits_37",
+        "displayName": "Pomegranate 1kg",
+        "hindiName": "अनार 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 185,
+          "sellingPrice": 175
+        },
+        "inventory": {
+          "totalStock": 102,
+          "reservedStock": 9,
+          "availableStock": 97
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "fruits_38",
+    "name": "Pineapple",
+    "hindiName": "अनन्नास",
+    "category": "Fruits",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "ananas",
+        "pineapple",
+        "अनन्नास",
+        "fru"
+      ],
+      "aliases": [
+        "ananas",
+        "pineapple"
+      ],
+      "phonetics": [
+        "pineapple"
+      ],
+      "regional": [
+        "ananas"
+      ],
+      "hindiKeywords": [
+        "अनन्नास"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "fruits_38_sku1",
+        "familyId": "fruits_38",
+        "displayName": "Pineapple 1piece",
+        "hindiName": "अनन्नास 1piece",
+        "productType": "loose",
+        "unitType": "count",
+        "quantity": 1.0,
+        "unit": "piece",
+        "pricing": {
+          "mrp": 36,
+          "sellingPrice": 36
+        },
+        "inventory": {
+          "totalStock": 70,
+          "reservedStock": 8,
+          "availableStock": 21
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "fruits_39",
+    "name": "Watermelon",
+    "hindiName": "तरबूज",
+    "category": "Fruits",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "tarbuj",
+        "तरबूज",
+        "watermelon",
+        "fru"
+      ],
+      "aliases": [
+        "tarbuj",
+        "watermelon"
+      ],
+      "phonetics": [
+        "watermelon"
+      ],
+      "regional": [
+        "tarbuj"
+      ],
+      "hindiKeywords": [
+        "तरबूज"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "fruits_39_sku1",
+        "familyId": "fruits_39",
+        "displayName": "Watermelon 1piece",
+        "hindiName": "तरबूज 1piece",
+        "productType": "loose",
+        "unitType": "count",
+        "quantity": 1.0,
+        "unit": "piece",
+        "pricing": {
+          "mrp": 119,
+          "sellingPrice": 116
+        },
+        "inventory": {
+          "totalStock": 108,
+          "reservedStock": 5,
+          "availableStock": 28
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "fruits_40",
+    "name": "Muskmelon",
+    "hindiName": "खरबूजा",
+    "category": "Fruits",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "kharbuja",
+        "खरबूजा",
+        "muskmelon",
+        "fru"
+      ],
+      "aliases": [
+        "kharbuja",
+        "muskmelon"
+      ],
+      "phonetics": [
+        "muskmelon"
+      ],
+      "regional": [
+        "kharbuja"
+      ],
+      "hindiKeywords": [
+        "खरबूजा"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "fruits_40_sku1",
+        "familyId": "fruits_40",
+        "displayName": "Muskmelon 1piece",
+        "hindiName": "खरबूजा 1piece",
+        "productType": "loose",
+        "unitType": "count",
+        "quantity": 1.0,
+        "unit": "piece",
+        "pricing": {
+          "mrp": 98,
+          "sellingPrice": 97
+        },
+        "inventory": {
+          "totalStock": 83,
+          "reservedStock": 20,
+          "availableStock": 39
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "fruits_41",
+    "name": "Grapes",
+    "hindiName": "अंगूर",
+    "category": "Fruits",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "angur",
+        "अंगूर",
+        "fru",
+        "grapes"
+      ],
+      "aliases": [
+        "angur",
+        "grapes"
+      ],
+      "phonetics": [
+        "grapes"
+      ],
+      "regional": [
+        "angur"
+      ],
+      "hindiKeywords": [
+        "अंगूर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "fruits_41_sku1",
+        "familyId": "fruits_41",
+        "displayName": "Grapes 1kg",
+        "hindiName": "अंगूर 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 286,
+          "sellingPrice": 266
+        },
+        "inventory": {
+          "totalStock": 45,
+          "reservedStock": 18,
+          "availableStock": 74
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "fruits_42",
+    "name": "Kiwi",
+    "hindiName": "कीवी",
+    "category": "Fruits",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "kiwi",
+        "कीवी",
+        "फल",
+        "fru"
+      ],
+      "aliases": [
+        "kiwi",
+        "फल"
+      ],
+      "phonetics": [
+        "kiwi"
+      ],
+      "regional": [
+        "kiwi"
+      ],
+      "hindiKeywords": [
+        "कीवी"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "fruits_42_sku1",
+        "familyId": "fruits_42",
+        "displayName": "Kiwi 1kg",
+        "hindiName": "कीवी 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 123,
+          "sellingPrice": 119
+        },
+        "inventory": {
+          "totalStock": 78,
+          "reservedStock": 12,
+          "availableStock": 57
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "fruits_43",
+    "name": "Coconut",
+    "hindiName": "नारियल",
+    "category": "Fruits",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "coconut",
+        "nariyal",
+        "नारियल",
+        "fru"
+      ],
+      "aliases": [
+        "nariyal",
+        "coconut"
+      ],
+      "phonetics": [
+        "coconut"
+      ],
+      "regional": [
+        "nariyal"
+      ],
+      "hindiKeywords": [
+        "नारियल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "fruits_43_sku1",
+        "familyId": "fruits_43",
+        "displayName": "Coconut 1piece",
+        "hindiName": "नारियल 1piece",
+        "productType": "loose",
+        "unitType": "count",
+        "quantity": 1.0,
+        "unit": "piece",
+        "pricing": {
+          "mrp": 251,
+          "sellingPrice": 234
+        },
+        "inventory": {
+          "totalStock": 131,
+          "reservedStock": 16,
+          "availableStock": 39
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "fruits_44",
+    "name": "Peach",
+    "hindiName": "आड़ू",
+    "category": "Fruits",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "आड़ू",
+        "aadu",
+        "peach",
+        "fru"
+      ],
+      "aliases": [
+        "aadu",
+        "peach"
+      ],
+      "phonetics": [
+        "peach"
+      ],
+      "regional": [
+        "aadu"
+      ],
+      "hindiKeywords": [
+        "आड़ू"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "fruits_44_sku1",
+        "familyId": "fruits_44",
+        "displayName": "Peach 1kg",
+        "hindiName": "आड़ू 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 123,
+          "sellingPrice": 119
+        },
+        "inventory": {
+          "totalStock": 96,
+          "reservedStock": 7,
+          "availableStock": 122
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "fruits_45",
+    "name": "Pear",
+    "hindiName": "नाशपाती",
+    "category": "Fruits",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "नाशपाती",
+        "nashpati",
+        "pear",
+        "fru"
+      ],
+      "aliases": [
+        "nashpati",
+        "pear"
+      ],
+      "phonetics": [
+        "pear"
+      ],
+      "regional": [
+        "nashpati"
+      ],
+      "hindiKeywords": [
+        "नाशपाती"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "fruits_45_sku1",
+        "familyId": "fruits_45",
+        "displayName": "Pear 1kg",
+        "hindiName": "नाशपाती 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 119,
+          "sellingPrice": 116
+        },
+        "inventory": {
+          "totalStock": 76,
+          "reservedStock": 2,
+          "availableStock": 119
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "dairy_46",
+    "name": "Amul Taaza Milk",
+    "hindiName": "अमूल ताज़ा दूध",
+    "category": "Dairy",
+    "brand": "Mother Dairy",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "अमूल ताज़ा दूध",
+        "mother dairy",
+        "amul",
+        "taaza",
+        "milk"
+      ],
+      "aliases": [
+        "amul",
+        "taaza",
+        "milk"
+      ],
+      "phonetics": [
+        "amul"
+      ],
+      "regional": [
+        "amul"
+      ],
+      "hindiKeywords": [
+        "अमूल ताज़ा दूध",
+        "दूध"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "dairy_46_sku1",
+        "familyId": "dairy_46",
+        "displayName": "Amul Taaza Milk 0.5L",
+        "hindiName": "अमूल ताज़ा दूध 0.5L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 0.5,
+        "unit": "L",
+        "pricing": {
+          "mrp": 63,
+          "sellingPrice": 63
+        },
+        "inventory": {
+          "totalStock": 105,
+          "reservedStock": 1,
+          "availableStock": 21
+        }
+      },
+      {
+        "skuId": "dairy_46_sku2",
+        "familyId": "dairy_46",
+        "displayName": "Amul Taaza Milk 1L",
+        "hindiName": "अमूल ताज़ा दूध 1L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 1.0,
+        "unit": "L",
+        "pricing": {
+          "mrp": 109,
+          "sellingPrice": 107
+        },
+        "inventory": {
+          "totalStock": 69,
+          "reservedStock": 20,
+          "availableStock": 83
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "dairy_47",
+    "name": "Mother Dairy Toned",
+    "hindiName": "मदर डेयरी दूध",
+    "category": "Dairy",
+    "brand": "Mother Dairy",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "mother dairy",
+        "mother",
+        "मदर डेयरी दूध",
+        "dairy",
+        "toned"
+      ],
+      "aliases": [
+        "mother dairy",
+        "toned",
+        "milk"
+      ],
+      "phonetics": [
+        "mother"
+      ],
+      "regional": [
+        "mother dairy"
+      ],
+      "hindiKeywords": [
+        "मदर डेयरी दूध",
+        "दूध"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "dairy_47_sku1",
+        "familyId": "dairy_47",
+        "displayName": "Mother Dairy Toned 0.5L",
+        "hindiName": "मदर डेयरी दूध 0.5L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 0.5,
+        "unit": "L",
+        "pricing": {
+          "mrp": 136,
+          "sellingPrice": 131
+        },
+        "inventory": {
+          "totalStock": 86,
+          "reservedStock": 1,
+          "availableStock": 111
+        }
+      },
+      {
+        "skuId": "dairy_47_sku2",
+        "familyId": "dairy_47",
+        "displayName": "Mother Dairy Toned 1L",
+        "hindiName": "मदर डेयरी दूध 1L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 1.0,
+        "unit": "L",
+        "pricing": {
+          "mrp": 109,
+          "sellingPrice": 107
+        },
+        "inventory": {
+          "totalStock": 48,
+          "reservedStock": 7,
+          "availableStock": 36
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "dairy_48",
+    "name": "Nandini Milk",
+    "hindiName": "नंदिनी दूध",
+    "category": "Dairy",
+    "brand": "Amul",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "milk",
+        "nandini",
+        "amul",
+        "नंदिनी दूध"
+      ],
+      "aliases": [
+        "nandini",
+        "milk"
+      ],
+      "phonetics": [
+        "nandini"
+      ],
+      "regional": [
+        "nandini"
+      ],
+      "hindiKeywords": [
+        "नंदिनी दूध",
+        "दूध"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "dairy_48_sku1",
+        "familyId": "dairy_48",
+        "displayName": "Nandini Milk 0.5L",
+        "hindiName": "नंदिनी दूध 0.5L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 0.5,
+        "unit": "L",
+        "pricing": {
+          "mrp": 94,
+          "sellingPrice": 93
+        },
+        "inventory": {
+          "totalStock": 147,
+          "reservedStock": 0,
+          "availableStock": 87
+        }
+      },
+      {
+        "skuId": "dairy_48_sku2",
+        "familyId": "dairy_48",
+        "displayName": "Nandini Milk 1L",
+        "hindiName": "नंदिनी दूध 1L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 1.0,
+        "unit": "L",
+        "pricing": {
+          "mrp": 109,
+          "sellingPrice": 107
+        },
+        "inventory": {
+          "totalStock": 70,
+          "reservedStock": 13,
+          "availableStock": 54
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "dairy_49",
+    "name": "Saras Milk",
+    "hindiName": "सारस दूध",
+    "category": "Dairy",
+    "brand": "Saras",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "milk",
+        "dai",
+        "सारस दूध",
+        "saras"
+      ],
+      "aliases": [
+        "saras",
+        "milk"
+      ],
+      "phonetics": [
+        "saras"
+      ],
+      "regional": [
+        "saras"
+      ],
+      "hindiKeywords": [
+        "सारस दूध",
+        "दूध"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "dairy_49_sku1",
+        "familyId": "dairy_49",
+        "displayName": "Saras Milk 0.5L",
+        "hindiName": "सारस दूध 0.5L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 0.5,
+        "unit": "L",
+        "pricing": {
+          "mrp": 102,
+          "sellingPrice": 100
+        },
+        "inventory": {
+          "totalStock": 145,
+          "reservedStock": 0,
+          "availableStock": 94
+        }
+      },
+      {
+        "skuId": "dairy_49_sku2",
+        "familyId": "dairy_49",
+        "displayName": "Saras Milk 1L",
+        "hindiName": "सारस दूध 1L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 1.0,
+        "unit": "L",
+        "pricing": {
+          "mrp": 109,
+          "sellingPrice": 107
+        },
+        "inventory": {
+          "totalStock": 95,
+          "reservedStock": 19,
+          "availableStock": 42
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "dairy_50",
+    "name": "Amul Ghee",
+    "hindiName": "अमूल घी",
+    "category": "Dairy",
+    "brand": "Nandini",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "amul",
+        "nandini",
+        "ghee",
+        "अमूल घी",
+        "dairy"
+      ],
+      "aliases": [
+        "amul",
+        "ghee",
+        "clarified butter"
+      ],
+      "phonetics": [
+        "amul"
+      ],
+      "regional": [
+        "amul"
+      ],
+      "hindiKeywords": [
+        "अमूल घी"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "dairy_50_sku1",
+        "familyId": "dairy_50",
+        "displayName": "Amul Ghee 0.25L",
+        "hindiName": "अमूल घी 0.25L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 0.25,
+        "unit": "L",
+        "pricing": {
+          "mrp": 53,
+          "sellingPrice": 53
+        },
+        "inventory": {
+          "totalStock": 105,
+          "reservedStock": 6,
+          "availableStock": 26
+        }
+      },
+      {
+        "skuId": "dairy_50_sku2",
+        "familyId": "dairy_50",
+        "displayName": "Amul Ghee 0.5L",
+        "hindiName": "अमूल घी 0.5L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 0.5,
+        "unit": "L",
+        "pricing": {
+          "mrp": 109,
+          "sellingPrice": 107
+        },
+        "inventory": {
+          "totalStock": 134,
+          "reservedStock": 19,
+          "availableStock": 44
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "dairy_51",
+    "name": "Amul Butter",
+    "hindiName": "अमूल मक्खन",
+    "category": "Dairy",
+    "brand": "Saras",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "amul",
+        "अमूल मक्खन",
+        "butter",
+        "dairy",
+        "saras"
+      ],
+      "aliases": [
+        "amul",
+        "butter",
+        "makhan"
+      ],
+      "phonetics": [
+        "amul"
+      ],
+      "regional": [
+        "amul"
+      ],
+      "hindiKeywords": [
+        "अमूल मक्खन"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "dairy_51_sku1",
+        "familyId": "dairy_51",
+        "displayName": "Amul Butter 0.5kg",
+        "hindiName": "अमूल मक्खन 0.5kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 124,
+          "sellingPrice": 120
+        },
+        "inventory": {
+          "totalStock": 144,
+          "reservedStock": 12,
+          "availableStock": 118
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "dairy_52",
+    "name": "Fresh Paneer",
+    "hindiName": "पनीर",
+    "category": "Dairy",
+    "brand": "Mother Dairy",
+    "productType": "fresh",
+    "voiceMetadata": {
+      "keywords": [
+        "mother dairy",
+        "पनीर",
+        "cottage cheese",
+        "fresh",
+        "dairy"
+      ],
+      "aliases": [
+        "paneer",
+        "cottage cheese"
+      ],
+      "phonetics": [
+        "fresh"
+      ],
+      "regional": [
+        "paneer"
+      ],
+      "hindiKeywords": [
+        "पनीर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "dairy_52_sku1",
+        "familyId": "dairy_52",
+        "displayName": "Fresh Paneer 0.5kg",
+        "hindiName": "पनीर 0.5kg",
+        "productType": "fresh",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 246,
+          "sellingPrice": 230
+        },
+        "inventory": {
+          "totalStock": 126,
+          "reservedStock": 8,
+          "availableStock": 26
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "dairy_53",
+    "name": "Curd",
+    "hindiName": "दही",
+    "category": "Dairy",
+    "brand": "Amul",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "amul",
+        "दही",
+        "curd",
+        "dairy",
+        "yogurt"
+      ],
+      "aliases": [
+        "dahi",
+        "curd",
+        "yogurt"
+      ],
+      "phonetics": [
+        "curd"
+      ],
+      "regional": [
+        "dahi"
+      ],
+      "hindiKeywords": [
+        "दही"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "dairy_53_sku1",
+        "familyId": "dairy_53",
+        "displayName": "Curd 0.5kg",
+        "hindiName": "दही 0.5kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 139,
+          "sellingPrice": 134
+        },
+        "inventory": {
+          "totalStock": 91,
+          "reservedStock": 2,
+          "availableStock": 106
+        }
+      },
+      {
+        "skuId": "dairy_53_sku2",
+        "familyId": "dairy_53",
+        "displayName": "Curd 1kg",
+        "hindiName": "दही 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 109,
+          "sellingPrice": 107
+        },
+        "inventory": {
+          "totalStock": 121,
+          "reservedStock": 12,
+          "availableStock": 83
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "rice_54",
+    "name": "Daawat Basmati",
+    "hindiName": "दावत बासमती चावल",
+    "category": "Rice",
+    "brand": "India Gate",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "india gate",
+        "daawat",
+        "rice ric",
+        "basmati",
+        "दावत बासमती चावल"
+      ],
+      "aliases": [
+        "daawat",
+        "basmati",
+        "rice"
+      ],
+      "phonetics": [
+        "daawat"
+      ],
+      "regional": [
+        "daawat"
+      ],
+      "hindiKeywords": [
+        "दावत बासमती चावल",
+        "चावल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "rice_54_sku1",
+        "familyId": "rice_54",
+        "displayName": "Daawat Basmati 1kg",
+        "hindiName": "दावत बासमती चावल 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 222,
+          "sellingPrice": 208
+        },
+        "inventory": {
+          "totalStock": 71,
+          "reservedStock": 2,
+          "availableStock": 48
+        }
+      },
+      {
+        "skuId": "rice_54_sku2",
+        "familyId": "rice_54",
+        "displayName": "Daawat Basmati 5kg",
+        "hindiName": "दावत बासमती चावल 5kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 5.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 229,
+          "sellingPrice": 215
+        },
+        "inventory": {
+          "totalStock": 61,
+          "reservedStock": 2,
+          "availableStock": 129
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "rice_55",
+    "name": "India Gate Basmati",
+    "hindiName": "इंडिया गेट बासमती",
+    "category": "Rice",
+    "brand": "Tata",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "tata",
+        "india gate",
+        "rice ric",
+        "india",
+        "इंडिया गेट बासमती"
+      ],
+      "aliases": [
+        "india gate",
+        "basmati",
+        "rice"
+      ],
+      "phonetics": [
+        "india"
+      ],
+      "regional": [
+        "india gate"
+      ],
+      "hindiKeywords": [
+        "इंडिया गेट बासमती"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "rice_55_sku1",
+        "familyId": "rice_55",
+        "displayName": "India Gate Basmati 1kg",
+        "hindiName": "इंडिया गेट बासमती 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 153,
+          "sellingPrice": 146
+        },
+        "inventory": {
+          "totalStock": 138,
+          "reservedStock": 5,
+          "availableStock": 104
+        }
+      },
+      {
+        "skuId": "rice_55_sku2",
+        "familyId": "rice_55",
+        "displayName": "India Gate Basmati 5kg",
+        "hindiName": "इंडिया गेट बासमती 5kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 5.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 229,
+          "sellingPrice": 215
+        },
+        "inventory": {
+          "totalStock": 138,
+          "reservedStock": 13,
+          "availableStock": 23
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "rice_56",
+    "name": "Fortune Basmati",
+    "hindiName": "फॉर्चून बासमती",
+    "category": "Rice",
+    "brand": "Tata",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "tata",
+        "rice ric",
+        "फॉर्चून बासमती",
+        "basmati",
+        "fortune"
+      ],
+      "aliases": [
+        "fortune",
+        "basmati",
+        "rice"
+      ],
+      "phonetics": [
+        "fortune"
+      ],
+      "regional": [
+        "fortune"
+      ],
+      "hindiKeywords": [
+        "फॉर्चून बासमती"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "rice_56_sku1",
+        "familyId": "rice_56",
+        "displayName": "Fortune Basmati 1kg",
+        "hindiName": "फॉर्चून बासमती 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 233,
+          "sellingPrice": 218
+        },
+        "inventory": {
+          "totalStock": 45,
+          "reservedStock": 4,
+          "availableStock": 43
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "rice_57",
+    "name": "Tata Basmati",
+    "hindiName": "टाटा बासमती",
+    "category": "Rice",
+    "brand": "Daawat",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "tata",
+        "टाटा बासमती",
+        "daawat",
+        "rice ric",
+        "basmati"
+      ],
+      "aliases": [
+        "tata",
+        "basmati",
+        "rice"
+      ],
+      "phonetics": [
+        "tata"
+      ],
+      "regional": [
+        "tata"
+      ],
+      "hindiKeywords": [
+        "टाटा बासमती"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "rice_57_sku1",
+        "familyId": "rice_57",
+        "displayName": "Tata Basmati 1kg",
+        "hindiName": "टाटा बासमती 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 191,
+          "sellingPrice": 180
+        },
+        "inventory": {
+          "totalStock": 63,
+          "reservedStock": 16,
+          "availableStock": 130
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "rice_58",
+    "name": "White Rice",
+    "hindiName": "सफेद चावल",
+    "category": "Rice",
+    "brand": "India Gate",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "chawal",
+        "सफेद चावल",
+        "india gate",
+        "white",
+        "rice ric"
+      ],
+      "aliases": [
+        "white rice",
+        "chawal"
+      ],
+      "phonetics": [
+        "white"
+      ],
+      "regional": [
+        "white rice"
+      ],
+      "hindiKeywords": [
+        "सफेद चावल",
+        "चावल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "rice_58_sku1",
+        "familyId": "rice_58",
+        "displayName": "White Rice 1kg",
+        "hindiName": "सफेद चावल 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 60,
+          "sellingPrice": 60
+        },
+        "inventory": {
+          "totalStock": 66,
+          "reservedStock": 1,
+          "availableStock": 21
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "rice_59",
+    "name": "Sona Masoori",
+    "hindiName": "सोना मसूरी चावल",
+    "category": "Rice",
+    "brand": "Tata",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "सोना मसूरी चावल",
+        "tata",
+        "rice",
+        "rice ric",
+        "sona"
+      ],
+      "aliases": [
+        "sona masoori",
+        "rice"
+      ],
+      "phonetics": [
+        "sona"
+      ],
+      "regional": [
+        "sona masoori"
+      ],
+      "hindiKeywords": [
+        "सोना मसूरी चावल",
+        "चावल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "rice_59_sku1",
+        "familyId": "rice_59",
+        "displayName": "Sona Masoori 1kg",
+        "hindiName": "सोना मसूरी चावल 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 63,
+          "sellingPrice": 63
+        },
+        "inventory": {
+          "totalStock": 116,
+          "reservedStock": 4,
+          "availableStock": 21
+        }
+      },
+      {
+        "skuId": "rice_59_sku2",
+        "familyId": "rice_59",
+        "displayName": "Sona Masoori 5kg",
+        "hindiName": "सोना मसूरी चावल 5kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 5.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 229,
+          "sellingPrice": 215
+        },
+        "inventory": {
+          "totalStock": 98,
+          "reservedStock": 11,
+          "availableStock": 108
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "rice_60",
+    "name": "Jasmine Rice",
+    "hindiName": "जैस्मिन चावल",
+    "category": "Rice",
+    "brand": "India Gate",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "jasmine",
+        "india gate",
+        "जैस्मिन चावल",
+        "rice",
+        "rice ric"
+      ],
+      "aliases": [
+        "jasmine",
+        "rice",
+        "चावल"
+      ],
+      "phonetics": [
+        "jasmine"
+      ],
+      "regional": [
+        "jasmine"
+      ],
+      "hindiKeywords": [
+        "जैस्मिन चावल",
+        "चावल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "rice_60_sku1",
+        "familyId": "rice_60",
+        "displayName": "Jasmine Rice 1kg",
+        "hindiName": "जैस्मिन चावल 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 160,
+          "sellingPrice": 153
+        },
+        "inventory": {
+          "totalStock": 73,
+          "reservedStock": 19,
+          "availableStock": 62
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "rice_61",
+    "name": "Brown Rice",
+    "hindiName": "भूरा चावल",
+    "category": "Rice",
+    "brand": "Fortune",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "chawal",
+        "brown",
+        "भूरा चावल",
+        "rice ric",
+        "fortune"
+      ],
+      "aliases": [
+        "brown rice",
+        "chawal"
+      ],
+      "phonetics": [
+        "brown"
+      ],
+      "regional": [
+        "brown rice"
+      ],
+      "hindiKeywords": [
+        "भूरा चावल",
+        "चावल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "rice_61_sku1",
+        "familyId": "rice_61",
+        "displayName": "Brown Rice 1kg",
+        "hindiName": "भूरा चावल 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 205,
+          "sellingPrice": 193
+        },
+        "inventory": {
+          "totalStock": 106,
+          "reservedStock": 15,
+          "availableStock": 54
+        }
+      },
+      {
+        "skuId": "rice_61_sku2",
+        "familyId": "rice_61",
+        "displayName": "Brown Rice 2kg",
+        "hindiName": "भूरा चावल 2kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 2.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 379,
+          "sellingPrice": 357
+        },
+        "inventory": {
+          "totalStock": 63,
+          "reservedStock": 9,
+          "availableStock": 32
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "flour_62",
+    "name": "Aashirvaad Atta",
+    "hindiName": "आशीर्वाद आटा",
+    "category": "Flour",
+    "brand": "Britannia",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "aashirvaad",
+        "atta",
+        "आशीर्वाद आटा",
+        "britannia",
+        "flour flou"
+      ],
+      "aliases": [
+        "aashirvaad",
+        "atta",
+        "flour"
+      ],
+      "phonetics": [
+        "aashirvaad"
+      ],
+      "regional": [
+        "aashirvaad"
+      ],
+      "hindiKeywords": [
+        "आशीर्वाद आटा",
+        "आटा"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "flour_62_sku1",
+        "familyId": "flour_62",
+        "displayName": "Aashirvaad Atta 1kg",
+        "hindiName": "आशीर्वाद आटा 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 38,
+          "sellingPrice": 38
+        },
+        "inventory": {
+          "totalStock": 136,
+          "reservedStock": 8,
+          "availableStock": 33
+        }
+      },
+      {
+        "skuId": "flour_62_sku2",
+        "familyId": "flour_62",
+        "displayName": "Aashirvaad Atta 5kg",
+        "hindiName": "आशीर्वाद आटा 5kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 5.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 109,
+          "sellingPrice": 107
+        },
+        "inventory": {
+          "totalStock": 145,
+          "reservedStock": 17,
+          "availableStock": 32
+        }
+      },
+      {
+        "skuId": "flour_62_sku3",
+        "familyId": "flour_62",
+        "displayName": "Aashirvaad Atta 10kg",
+        "hindiName": "आशीर्वाद आटा 10kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 10.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 102,
+          "sellingPrice": 100
+        },
+        "inventory": {
+          "totalStock": 56,
+          "reservedStock": 4,
+          "availableStock": 88
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "flour_63",
+    "name": "Pillsbury Atta",
+    "hindiName": "पिलसबरी आटा",
+    "category": "Flour",
+    "brand": "Britannia",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "पिलसबरी आटा",
+        "atta",
+        "pillsbury",
+        "britannia",
+        "flour flou"
+      ],
+      "aliases": [
+        "pillsbury",
+        "atta",
+        "flour"
+      ],
+      "phonetics": [
+        "pillsbury"
+      ],
+      "regional": [
+        "pillsbury"
+      ],
+      "hindiKeywords": [
+        "पिलसबरी आटा",
+        "आटा"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "flour_63_sku1",
+        "familyId": "flour_63",
+        "displayName": "Pillsbury Atta 1kg",
+        "hindiName": "पिलसबरी आटा 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 121,
+          "sellingPrice": 117
+        },
+        "inventory": {
+          "totalStock": 107,
+          "reservedStock": 8,
+          "availableStock": 83
+        }
+      },
+      {
+        "skuId": "flour_63_sku2",
+        "familyId": "flour_63",
+        "displayName": "Pillsbury Atta 5kg",
+        "hindiName": "पिलसबरी आटा 5kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 5.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 109,
+          "sellingPrice": 107
+        },
+        "inventory": {
+          "totalStock": 52,
+          "reservedStock": 7,
+          "availableStock": 89
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "flour_64",
+    "name": "Britannia Maida",
+    "hindiName": "ब्रिटानिया मैदा",
+    "category": "Flour",
+    "brand": "Pillsbury",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "ब्रिटानिया मैदा",
+        "pillsbury",
+        "britannia",
+        "maida",
+        "flour flou"
+      ],
+      "aliases": [
+        "britannia",
+        "maida",
+        "flour"
+      ],
+      "phonetics": [
+        "britannia"
+      ],
+      "regional": [
+        "britannia"
+      ],
+      "hindiKeywords": [
+        "ब्रिटानिया मैदा"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "flour_64_sku1",
+        "familyId": "flour_64",
+        "displayName": "Britannia Maida 1kg",
+        "hindiName": "ब्रिटानिया मैदा 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 136,
+          "sellingPrice": 131
+        },
+        "inventory": {
+          "totalStock": 57,
+          "reservedStock": 10,
+          "availableStock": 89
+        }
+      },
+      {
+        "skuId": "flour_64_sku2",
+        "familyId": "flour_64",
+        "displayName": "Britannia Maida 2kg",
+        "hindiName": "ब्रिटानिया मैदा 2kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 2.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 251,
+          "sellingPrice": 242
+        },
+        "inventory": {
+          "totalStock": 34,
+          "reservedStock": 6,
+          "availableStock": 53
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "flour_65",
+    "name": "Rice Flour",
+    "hindiName": "चावल का आटा",
+    "category": "Flour",
+    "brand": "Britannia",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "chawal ka aata",
+        "चावल का आटा",
+        "rice",
+        "britannia",
+        "flour flou"
+      ],
+      "aliases": [
+        "rice flour",
+        "chawal ka aata"
+      ],
+      "phonetics": [
+        "rice"
+      ],
+      "regional": [
+        "rice flour"
+      ],
+      "hindiKeywords": [
+        "चावल का आटा",
+        "आटा",
+        "चावल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "flour_65_sku1",
+        "familyId": "flour_65",
+        "displayName": "Rice Flour 1kg",
+        "hindiName": "चावल का आटा 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 40,
+          "sellingPrice": 40
+        },
+        "inventory": {
+          "totalStock": 56,
+          "reservedStock": 13,
+          "availableStock": 68
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "flour_66",
+    "name": "Corn Flour",
+    "hindiName": "मकई का आटा",
+    "category": "Flour",
+    "brand": "Pillsbury",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "मकई का आटा",
+        "pillsbury",
+        "makkai ka aata",
+        "corn",
+        "flour flou"
+      ],
+      "aliases": [
+        "corn flour",
+        "makkai ka aata"
+      ],
+      "phonetics": [
+        "corn"
+      ],
+      "regional": [
+        "corn flour"
+      ],
+      "hindiKeywords": [
+        "मकई का आटा",
+        "आटा"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "flour_66_sku1",
+        "familyId": "flour_66",
+        "displayName": "Corn Flour 1kg",
+        "hindiName": "मकई का आटा 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 130,
+          "sellingPrice": 126
+        },
+        "inventory": {
+          "totalStock": 135,
+          "reservedStock": 3,
+          "availableStock": 46
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "flour_67",
+    "name": "Multigrain Flour",
+    "hindiName": "मल्टीग्रेन आटा",
+    "category": "Flour",
+    "brand": "Britannia",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "atta",
+        "multigrain",
+        "britannia",
+        "flour flou",
+        "मल्टीग्रेन आटा"
+      ],
+      "aliases": [
+        "multigrain",
+        "atta",
+        "mixed flour"
+      ],
+      "phonetics": [
+        "multigrain"
+      ],
+      "regional": [
+        "multigrain"
+      ],
+      "hindiKeywords": [
+        "मल्टीग्रेन आटा",
+        "आटा"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "flour_67_sku1",
+        "familyId": "flour_67",
+        "displayName": "Multigrain Flour 1kg",
+        "hindiName": "मल्टीग्रेन आटा 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 119,
+          "sellingPrice": 116
+        },
+        "inventory": {
+          "totalStock": 118,
+          "reservedStock": 3,
+          "availableStock": 123
+        }
+      },
+      {
+        "skuId": "flour_67_sku2",
+        "familyId": "flour_67",
+        "displayName": "Multigrain Flour 2kg",
+        "hindiName": "मल्टीग्रेन आटा 2kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 2.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 220,
+          "sellingPrice": 214
+        },
+        "inventory": {
+          "totalStock": 70,
+          "reservedStock": 1,
+          "availableStock": 73
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "pulses_68",
+    "name": "Moong Dal Dhuli",
+    "hindiName": "मूंग दाल धुली",
+    "category": "Pulses",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "pulses pulse",
+        "moong",
+        "moong dal",
+        "मूंग दाल धुली",
+        "mung"
+      ],
+      "aliases": [
+        "moong dal",
+        "mung",
+        "dhuli"
+      ],
+      "phonetics": [
+        "moong"
+      ],
+      "regional": [
+        "moong dal"
+      ],
+      "hindiKeywords": [
+        "मूंग दाल धुली",
+        "दाल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "pulses_68_sku1",
+        "familyId": "pulses_68",
+        "displayName": "Moong Dal Dhuli 0.25kg",
+        "hindiName": "मूंग दाल धुली 0.25kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 0.25,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 191,
+          "sellingPrice": 180
+        },
+        "inventory": {
+          "totalStock": 97,
+          "reservedStock": 1,
+          "availableStock": 106
+        }
+      },
+      {
+        "skuId": "pulses_68_sku2",
+        "familyId": "pulses_68",
+        "displayName": "Moong Dal Dhuli 0.5kg",
+        "hindiName": "मूंग दाल धुली 0.5kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 189,
+          "sellingPrice": 179
+        },
+        "inventory": {
+          "totalStock": 134,
+          "reservedStock": 1,
+          "availableStock": 60
+        }
+      },
+      {
+        "skuId": "pulses_68_sku3",
+        "familyId": "pulses_68",
+        "displayName": "Moong Dal Dhuli 1kg",
+        "hindiName": "मूंग दाल धुली 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 177,
+          "sellingPrice": 168
+        },
+        "inventory": {
+          "totalStock": 150,
+          "reservedStock": 18,
+          "availableStock": 42
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "pulses_69",
+    "name": "Chana Dal",
+    "hindiName": "चना दाल",
+    "category": "Pulses",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "chana",
+        "split chickpea",
+        "pulses pulse",
+        "चना दाल"
+      ],
+      "aliases": [
+        "chana dal",
+        "split chickpea"
+      ],
+      "phonetics": [
+        "chana"
+      ],
+      "regional": [
+        "chana dal"
+      ],
+      "hindiKeywords": [
+        "चना दाल",
+        "दाल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "pulses_69_sku1",
+        "familyId": "pulses_69",
+        "displayName": "Chana Dal 0.25kg",
+        "hindiName": "चना दाल 0.25kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 0.25,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 235,
+          "sellingPrice": 220
+        },
+        "inventory": {
+          "totalStock": 112,
+          "reservedStock": 11,
+          "availableStock": 79
+        }
+      },
+      {
+        "skuId": "pulses_69_sku2",
+        "familyId": "pulses_69",
+        "displayName": "Chana Dal 0.5kg",
+        "hindiName": "चना दाल 0.5kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 189,
+          "sellingPrice": 179
+        },
+        "inventory": {
+          "totalStock": 142,
+          "reservedStock": 2,
+          "availableStock": 33
+        }
+      },
+      {
+        "skuId": "pulses_69_sku3",
+        "familyId": "pulses_69",
+        "displayName": "Chana Dal 1kg",
+        "hindiName": "चना दाल 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 177,
+          "sellingPrice": 168
+        },
+        "inventory": {
+          "totalStock": 85,
+          "reservedStock": 12,
+          "availableStock": 113
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "pulses_70",
+    "name": "Arhar Dal",
+    "hindiName": "अरहर दाल",
+    "category": "Pulses",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "tuvar",
+        "अरहर दाल",
+        "arhar",
+        "pulses pulse"
+      ],
+      "aliases": [
+        "arhar",
+        "tuvar",
+        "dal"
+      ],
+      "phonetics": [
+        "arhar"
+      ],
+      "regional": [
+        "arhar"
+      ],
+      "hindiKeywords": [
+        "अरहर दाल",
+        "दाल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "pulses_70_sku1",
+        "familyId": "pulses_70",
+        "displayName": "Arhar Dal 0.25kg",
+        "hindiName": "अरहर दाल 0.25kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 0.25,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 170,
+          "sellingPrice": 162
+        },
+        "inventory": {
+          "totalStock": 125,
+          "reservedStock": 7,
+          "availableStock": 40
+        }
+      },
+      {
+        "skuId": "pulses_70_sku2",
+        "familyId": "pulses_70",
+        "displayName": "Arhar Dal 0.5kg",
+        "hindiName": "अरहर दाल 0.5kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 189,
+          "sellingPrice": 179
+        },
+        "inventory": {
+          "totalStock": 143,
+          "reservedStock": 13,
+          "availableStock": 36
+        }
+      },
+      {
+        "skuId": "pulses_70_sku3",
+        "familyId": "pulses_70",
+        "displayName": "Arhar Dal 1kg",
+        "hindiName": "अरहर दाल 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 177,
+          "sellingPrice": 168
+        },
+        "inventory": {
+          "totalStock": 66,
+          "reservedStock": 9,
+          "availableStock": 50
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "pulses_71",
+    "name": "Urad Dal",
+    "hindiName": "उड़द दाल",
+    "category": "Pulses",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "urad",
+        "उड़द दाल",
+        "pulses pulse",
+        "black gram"
+      ],
+      "aliases": [
+        "urad",
+        "black gram",
+        "dal"
+      ],
+      "phonetics": [
+        "urad"
+      ],
+      "regional": [
+        "urad"
+      ],
+      "hindiKeywords": [
+        "उड़द दाल",
+        "दाल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "pulses_71_sku1",
+        "familyId": "pulses_71",
+        "displayName": "Urad Dal 0.25kg",
+        "hindiName": "उड़द दाल 0.25kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 0.25,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 199,
+          "sellingPrice": 188
+        },
+        "inventory": {
+          "totalStock": 95,
+          "reservedStock": 10,
+          "availableStock": 109
+        }
+      },
+      {
+        "skuId": "pulses_71_sku2",
+        "familyId": "pulses_71",
+        "displayName": "Urad Dal 0.5kg",
+        "hindiName": "उड़द दाल 0.5kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 189,
+          "sellingPrice": 179
+        },
+        "inventory": {
+          "totalStock": 40,
+          "reservedStock": 20,
+          "availableStock": 128
+        }
+      },
+      {
+        "skuId": "pulses_71_sku3",
+        "familyId": "pulses_71",
+        "displayName": "Urad Dal 1kg",
+        "hindiName": "उड़द दाल 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 177,
+          "sellingPrice": 168
+        },
+        "inventory": {
+          "totalStock": 100,
+          "reservedStock": 0,
+          "availableStock": 33
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "pulses_72",
+    "name": "Masoor Dal",
+    "hindiName": "मसूर दाल",
+    "category": "Pulses",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "मसूर दाल",
+        "masoor",
+        "pulses pulse",
+        "lentil"
+      ],
+      "aliases": [
+        "masoor",
+        "lentil",
+        "dal"
+      ],
+      "phonetics": [
+        "masoor"
+      ],
+      "regional": [
+        "masoor"
+      ],
+      "hindiKeywords": [
+        "मसूर दाल",
+        "दाल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "pulses_72_sku1",
+        "familyId": "pulses_72",
+        "displayName": "Masoor Dal 0.25kg",
+        "hindiName": "मसूर दाल 0.25kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 0.25,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 153,
+          "sellingPrice": 146
+        },
+        "inventory": {
+          "totalStock": 79,
+          "reservedStock": 0,
+          "availableStock": 45
+        }
+      },
+      {
+        "skuId": "pulses_72_sku2",
+        "familyId": "pulses_72",
+        "displayName": "Masoor Dal 0.5kg",
+        "hindiName": "मसूर दाल 0.5kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 189,
+          "sellingPrice": 179
+        },
+        "inventory": {
+          "totalStock": 115,
+          "reservedStock": 0,
+          "availableStock": 20
+        }
+      },
+      {
+        "skuId": "pulses_72_sku3",
+        "familyId": "pulses_72",
+        "displayName": "Masoor Dal 1kg",
+        "hindiName": "मसूर दाल 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 177,
+          "sellingPrice": 168
+        },
+        "inventory": {
+          "totalStock": 127,
+          "reservedStock": 5,
+          "availableStock": 104
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "pulses_73",
+    "name": "Chickpeas",
+    "hindiName": "छोले",
+    "category": "Pulses",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "chickpeas",
+        "pulses pulse",
+        "chole",
+        "छोले",
+        "chickpea"
+      ],
+      "aliases": [
+        "chole",
+        "chickpea",
+        "गड़"
+      ],
+      "phonetics": [
+        "chickpeas"
+      ],
+      "regional": [
+        "chole"
+      ],
+      "hindiKeywords": [
+        "छोले"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "pulses_73_sku1",
+        "familyId": "pulses_73",
+        "displayName": "Chickpeas 1kg",
+        "hindiName": "छोले 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 191,
+          "sellingPrice": 180
+        },
+        "inventory": {
+          "totalStock": 42,
+          "reservedStock": 14,
+          "availableStock": 85
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "pulses_74",
+    "name": "Kidney Beans",
+    "hindiName": "राजमा",
+    "category": "Pulses",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "kidney bean",
+        "pulses pulse",
+        "rajma",
+        "kidney",
+        "राजमा"
+      ],
+      "aliases": [
+        "rajma",
+        "kidney bean",
+        "लाल"
+      ],
+      "phonetics": [
+        "kidney"
+      ],
+      "regional": [
+        "rajma"
+      ],
+      "hindiKeywords": [
+        "राजमा"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "pulses_74_sku1",
+        "familyId": "pulses_74",
+        "displayName": "Kidney Beans 1kg",
+        "hindiName": "राजमा 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 108,
+          "sellingPrice": 106
+        },
+        "inventory": {
+          "totalStock": 146,
+          "reservedStock": 13,
+          "availableStock": 100
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_75",
+    "name": "Celery",
+    "hindiName": "अजवाइन",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "ajwain",
+        "अजवाइन",
+        "celery",
+        "vegetables"
+      ],
+      "aliases": [
+        "celery",
+        "ajwain"
+      ],
+      "phonetics": [
+        "celery"
+      ],
+      "regional": [
+        "celery"
+      ],
+      "hindiKeywords": [
+        "अजवाइन"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_75_sku1",
+        "familyId": "vegetables_75",
+        "displayName": "Celery 1kg",
+        "hindiName": "अजवाइन 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 18,
+          "sellingPrice": 18
+        },
+        "inventory": {
+          "totalStock": 102,
+          "reservedStock": 4,
+          "availableStock": 46
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_76",
+    "name": "Green Beans",
+    "hindiName": "सेम",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "सेम",
+        "green",
+        "green beans",
+        "beans"
+      ],
+      "aliases": [
+        "green beans",
+        "beans"
+      ],
+      "phonetics": [
+        "green"
+      ],
+      "regional": [
+        "green beans"
+      ],
+      "hindiKeywords": [
+        "सेम"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_76_sku1",
+        "familyId": "vegetables_76",
+        "displayName": "Green Beans 1kg",
+        "hindiName": "सेम 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 79,
+          "sellingPrice": 79
+        },
+        "inventory": {
+          "totalStock": 103,
+          "reservedStock": 14,
+          "availableStock": 41
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_77",
+    "name": "Peas Green",
+    "hindiName": "हरे मटर",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "matar",
+        "हरे मटर",
+        "green peas",
+        "peas"
+      ],
+      "aliases": [
+        "green peas",
+        "matar"
+      ],
+      "phonetics": [
+        "peas"
+      ],
+      "regional": [
+        "green peas"
+      ],
+      "hindiKeywords": [
+        "हरे मटर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_77_sku1",
+        "familyId": "vegetables_77",
+        "displayName": "Peas Green 1kg",
+        "hindiName": "हरे मटर 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 45,
+          "sellingPrice": 45
+        },
+        "inventory": {
+          "totalStock": 30,
+          "reservedStock": 7,
+          "availableStock": 75
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_78",
+    "name": "Drumstick",
+    "hindiName": "सहजन",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "सहजन",
+        "drumstick",
+        "moringa",
+        "vegetables"
+      ],
+      "aliases": [
+        "drumstick",
+        "moringa"
+      ],
+      "phonetics": [
+        "drumstick"
+      ],
+      "regional": [
+        "drumstick"
+      ],
+      "hindiKeywords": [
+        "सहजन"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_78_sku1",
+        "familyId": "vegetables_78",
+        "displayName": "Drumstick 1kg",
+        "hindiName": "सहजन 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 52,
+          "sellingPrice": 52
+        },
+        "inventory": {
+          "totalStock": 52,
+          "reservedStock": 4,
+          "availableStock": 64
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_79",
+    "name": "Arbi",
+    "hindiName": "अरबी",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "अरबी",
+        "taro",
+        "arbi",
+        "vegetables"
+      ],
+      "aliases": [
+        "arbi",
+        "taro"
+      ],
+      "phonetics": [
+        "arbi"
+      ],
+      "regional": [
+        "arbi"
+      ],
+      "hindiKeywords": [
+        "अरबी"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_79_sku1",
+        "familyId": "vegetables_79",
+        "displayName": "Arbi 1kg",
+        "hindiName": "अरबी 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 21,
+          "sellingPrice": 21
+        },
+        "inventory": {
+          "totalStock": 56,
+          "reservedStock": 6,
+          "availableStock": 93
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "vegetables_80",
+    "name": "Potato Chips",
+    "hindiName": "आलू के चिप्स",
+    "category": "Vegetables",
+    "brand": "Generic",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "chips",
+        "snack",
+        "potato",
+        "आलू के चिप्स"
+      ],
+      "aliases": [
+        "chips",
+        "snack"
+      ],
+      "phonetics": [
+        "potato"
+      ],
+      "regional": [
+        "chips"
+      ],
+      "hindiKeywords": [
+        "आलू के चिप्स"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "vegetables_80_sku1",
+        "familyId": "vegetables_80",
+        "displayName": "Potato Chips 0.5kg",
+        "hindiName": "आलू के चिप्स 0.5kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 84,
+          "sellingPrice": 84
+        },
+        "inventory": {
+          "totalStock": 116,
+          "reservedStock": 4,
+          "availableStock": 105
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "fruits_81",
+    "name": "Avocado",
+    "hindiName": "एवोकाडो",
+    "category": "Fruits",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "avocado",
+        "एवोकाडो",
+        "butter fruit",
+        "fruits"
+      ],
+      "aliases": [
+        "avocado",
+        "butter fruit"
+      ],
+      "phonetics": [
+        "avocado"
+      ],
+      "regional": [
+        "avocado"
+      ],
+      "hindiKeywords": [
+        "एवोकाडो"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "fruits_81_sku1",
+        "familyId": "fruits_81",
+        "displayName": "Avocado 1kg",
+        "hindiName": "एवोकाडो 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 81,
+          "sellingPrice": 81
+        },
+        "inventory": {
+          "totalStock": 33,
+          "reservedStock": 0,
+          "availableStock": 87
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "fruits_82",
+    "name": "Lemon",
+    "hindiName": "नींबू",
+    "category": "Fruits",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "nimbu",
+        "नींबू",
+        "lemon",
+        "fruits"
+      ],
+      "aliases": [
+        "nimbu",
+        "lemon"
+      ],
+      "phonetics": [
+        "lemon"
+      ],
+      "regional": [
+        "nimbu"
+      ],
+      "hindiKeywords": [
+        "नींबू"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "fruits_82_sku1",
+        "familyId": "fruits_82",
+        "displayName": "Lemon 1kg",
+        "hindiName": "नींबू 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 207,
+          "sellingPrice": 195
+        },
+        "inventory": {
+          "totalStock": 34,
+          "reservedStock": 8,
+          "availableStock": 87
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "fruits_83",
+    "name": "Lime",
+    "hindiName": "नीबू",
+    "category": "Fruits",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "sweet lime",
+        "lime",
+        "नीबू",
+        "fruits"
+      ],
+      "aliases": [
+        "lime",
+        "sweet lime"
+      ],
+      "phonetics": [
+        "lime"
+      ],
+      "regional": [
+        "lime"
+      ],
+      "hindiKeywords": [
+        "नीबू"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "fruits_83_sku1",
+        "familyId": "fruits_83",
+        "displayName": "Lime 1kg",
+        "hindiName": "नीबू 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 112,
+          "sellingPrice": 109
+        },
+        "inventory": {
+          "totalStock": 34,
+          "reservedStock": 0,
+          "availableStock": 89
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "fruits_84",
+    "name": "Dragon Fruit",
+    "hindiName": "ड्रैगन फल",
+    "category": "Fruits",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "ड्रैगन फल",
+        "dragon fruit",
+        "dragon",
+        "exotic"
+      ],
+      "aliases": [
+        "dragon fruit",
+        "exotic"
+      ],
+      "phonetics": [
+        "dragon"
+      ],
+      "regional": [
+        "dragon fruit"
+      ],
+      "hindiKeywords": [
+        "ड्रैगन फल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "fruits_84_sku1",
+        "familyId": "fruits_84",
+        "displayName": "Dragon Fruit 1kg",
+        "hindiName": "ड्रैगन फल 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 72,
+          "sellingPrice": 72
+        },
+        "inventory": {
+          "totalStock": 92,
+          "reservedStock": 7,
+          "availableStock": 98
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "fruits_85",
+    "name": "Blueberry",
+    "hindiName": "नीले अंगूर",
+    "category": "Fruits",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "नीले अंगूर",
+        "berries",
+        "blueberry",
+        "fruits"
+      ],
+      "aliases": [
+        "blueberry",
+        "berries"
+      ],
+      "phonetics": [
+        "blueberry"
+      ],
+      "regional": [
+        "blueberry"
+      ],
+      "hindiKeywords": [
+        "नीले अंगूर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "fruits_85_sku1",
+        "familyId": "fruits_85",
+        "displayName": "Blueberry 0.5kg",
+        "hindiName": "नीले अंगूर 0.5kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 138,
+          "sellingPrice": 133
+        },
+        "inventory": {
+          "totalStock": 34,
+          "reservedStock": 7,
+          "availableStock": 47
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "fruits_86",
+    "name": "Strawberry",
+    "hindiName": "स्ट्रॉबेरी",
+    "category": "Fruits",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "strawberry",
+        "स्ट्रॉबेरी",
+        "berries",
+        "fruits"
+      ],
+      "aliases": [
+        "strawberry",
+        "berries"
+      ],
+      "phonetics": [
+        "strawberry"
+      ],
+      "regional": [
+        "strawberry"
+      ],
+      "hindiKeywords": [
+        "स्ट्रॉबेरी"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "fruits_86_sku1",
+        "familyId": "fruits_86",
+        "displayName": "Strawberry 0.5kg",
+        "hindiName": "स्ट्रॉबेरी 0.5kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 200,
+          "sellingPrice": 189
+        },
+        "inventory": {
+          "totalStock": 86,
+          "reservedStock": 15,
+          "availableStock": 105
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "dairy_87",
+    "name": "Paneer Blocks",
+    "hindiName": "पनीर ब्लॉक",
+    "category": "Dairy",
+    "brand": "Mother Dairy",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "पनीर ब्लॉक",
+        "paneer",
+        "cheese",
+        "dairy"
+      ],
+      "aliases": [
+        "paneer",
+        "cheese"
+      ],
+      "phonetics": [
+        "paneer"
+      ],
+      "regional": [
+        "paneer"
+      ],
+      "hindiKeywords": [
+        "पनीर ब्लॉक"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "dairy_87_sku1",
+        "familyId": "dairy_87",
+        "displayName": "Paneer Blocks 0.25kg",
+        "hindiName": "पनीर ब्लॉक 0.25kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.25,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 108,
+          "sellingPrice": 106
+        },
+        "inventory": {
+          "totalStock": 112,
+          "reservedStock": 11,
+          "availableStock": 77
+        }
+      },
+      {
+        "skuId": "dairy_87_sku2",
+        "familyId": "dairy_87",
+        "displayName": "Paneer Blocks 0.5kg",
+        "hindiName": "पनीर ब्लॉक 0.5kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 109,
+          "sellingPrice": 107
+        },
+        "inventory": {
+          "totalStock": 82,
+          "reservedStock": 7,
+          "availableStock": 65
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "dairy_88",
+    "name": "Condensed Milk",
+    "hindiName": "डिब्बाबंद दूध",
+    "category": "Dairy",
+    "brand": "Mother Dairy",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "डिब्बाबंद दूध",
+        "condensed milk",
+        "condensed",
+        "khoya"
+      ],
+      "aliases": [
+        "condensed milk",
+        "khoya"
+      ],
+      "phonetics": [
+        "condensed"
+      ],
+      "regional": [
+        "condensed milk"
+      ],
+      "hindiKeywords": [
+        "डिब्बाबंद दूध",
+        "दूध"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "dairy_88_sku1",
+        "familyId": "dairy_88",
+        "displayName": "Condensed Milk 0.4kg",
+        "hindiName": "डिब्बाबंद दूध 0.4kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.4,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 63,
+          "sellingPrice": 63
+        },
+        "inventory": {
+          "totalStock": 96,
+          "reservedStock": 1,
+          "availableStock": 67
+        }
+      },
+      {
+        "skuId": "dairy_88_sku2",
+        "familyId": "dairy_88",
+        "displayName": "Condensed Milk 0kg",
+        "hindiName": "डिब्बाबंद दूध 0kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.8,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 116,
+          "sellingPrice": 116
+        },
+        "inventory": {
+          "totalStock": 57,
+          "reservedStock": 0,
+          "availableStock": 40
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "dairy_89",
+    "name": "Amul Kool Shake",
+    "hindiName": "अमूल कूल शेक",
+    "category": "Dairy",
+    "brand": "Amul",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "shake",
+        "अमूल कूल शेक",
+        "amul kool",
+        "amul"
+      ],
+      "aliases": [
+        "amul kool",
+        "shake"
+      ],
+      "phonetics": [
+        "amul"
+      ],
+      "regional": [
+        "amul kool"
+      ],
+      "hindiKeywords": [
+        "अमूल कूल शेक"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "dairy_89_sku1",
+        "familyId": "dairy_89",
+        "displayName": "Amul Kool Shake 0.5L",
+        "hindiName": "अमूल कूल शेक 0.5L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 0.5,
+        "unit": "L",
+        "pricing": {
+          "mrp": 65,
+          "sellingPrice": 65
+        },
+        "inventory": {
+          "totalStock": 34,
+          "reservedStock": 15,
+          "availableStock": 39
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "rice_90",
+    "name": "Arborio Rice",
+    "hindiName": "आर्बोरियो चावल",
+    "category": "Rice",
+    "brand": "India Gate",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "risotto",
+        "आर्बोरियो चावल",
+        "arborio",
+        "rice"
+      ],
+      "aliases": [
+        "arborio",
+        "risotto"
+      ],
+      "phonetics": [
+        "arborio"
+      ],
+      "regional": [
+        "arborio"
+      ],
+      "hindiKeywords": [
+        "आर्बोरियो चावल",
+        "चावल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "rice_90_sku1",
+        "familyId": "rice_90",
+        "displayName": "Arborio Rice 1kg",
+        "hindiName": "आर्बोरियो चावल 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 267,
+          "sellingPrice": 249
+        },
+        "inventory": {
+          "totalStock": 56,
+          "reservedStock": 1,
+          "availableStock": 35
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "rice_91",
+    "name": "Short Grain Rice",
+    "hindiName": "छोटे दाने वाले चावल",
+    "category": "Rice",
+    "brand": "India Gate",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "short",
+        "short grain",
+        "rice",
+        "छोटे दाने वाले चावल"
+      ],
+      "aliases": [
+        "short grain",
+        "rice"
+      ],
+      "phonetics": [
+        "short"
+      ],
+      "regional": [
+        "short grain"
+      ],
+      "hindiKeywords": [
+        "छोटे दाने वाले चावल",
+        "चावल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "rice_91_sku1",
+        "familyId": "rice_91",
+        "displayName": "Short Grain Rice 1kg",
+        "hindiName": "छोटे दाने वाले चावल 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 212,
+          "sellingPrice": 199
+        },
+        "inventory": {
+          "totalStock": 58,
+          "reservedStock": 10,
+          "availableStock": 73
+        }
+      },
+      {
+        "skuId": "rice_91_sku2",
+        "familyId": "rice_91",
+        "displayName": "Short Grain Rice 2kg",
+        "hindiName": "छोटे दाने वाले चावल 2kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 2.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 392,
+          "sellingPrice": 368
+        },
+        "inventory": {
+          "totalStock": 34,
+          "reservedStock": 6,
+          "availableStock": 43
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "rice_92",
+    "name": "Black Rice",
+    "hindiName": "काला चावल",
+    "category": "Rice",
+    "brand": "India Gate",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "black rice",
+        "black",
+        "glutinous",
+        "काला चावल"
+      ],
+      "aliases": [
+        "black rice",
+        "glutinous"
+      ],
+      "phonetics": [
+        "black"
+      ],
+      "regional": [
+        "black rice"
+      ],
+      "hindiKeywords": [
+        "काला चावल",
+        "चावल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "rice_92_sku1",
+        "familyId": "rice_92",
+        "displayName": "Black Rice 1kg",
+        "hindiName": "काला चावल 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 265,
+          "sellingPrice": 247
+        },
+        "inventory": {
+          "totalStock": 35,
+          "reservedStock": 8,
+          "availableStock": 55
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "flour_93",
+    "name": "Besan Flour",
+    "hindiName": "बेसन",
+    "category": "Flour",
+    "brand": "Pillsbury",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "besan",
+        "बेसन",
+        "gram flour",
+        "flour"
+      ],
+      "aliases": [
+        "besan",
+        "gram flour"
+      ],
+      "phonetics": [
+        "besan"
+      ],
+      "regional": [
+        "besan"
+      ],
+      "hindiKeywords": [
+        "बेसन"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "flour_93_sku1",
+        "familyId": "flour_93",
+        "displayName": "Besan Flour 1kg",
+        "hindiName": "बेसन 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 43,
+          "sellingPrice": 43
+        },
+        "inventory": {
+          "totalStock": 103,
+          "reservedStock": 15,
+          "availableStock": 21
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "flour_94",
+    "name": "Ragi Flour",
+    "hindiName": "रागी का आटा",
+    "category": "Flour",
+    "brand": "Aashirvaad",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "रागी का आटा",
+        "finger millet",
+        "ragi",
+        "flour"
+      ],
+      "aliases": [
+        "ragi",
+        "finger millet"
+      ],
+      "phonetics": [
+        "ragi"
+      ],
+      "regional": [
+        "ragi"
+      ],
+      "hindiKeywords": [
+        "रागी का आटा",
+        "आटा"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "flour_94_sku1",
+        "familyId": "flour_94",
+        "displayName": "Ragi Flour 1kg",
+        "hindiName": "रागी का आटा 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 123,
+          "sellingPrice": 119
+        },
+        "inventory": {
+          "totalStock": 94,
+          "reservedStock": 1,
+          "availableStock": 56
+        }
+      },
+      {
+        "skuId": "flour_94_sku2",
+        "familyId": "flour_94",
+        "displayName": "Ragi Flour 2kg",
+        "hindiName": "रागी का आटा 2kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 2.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 227,
+          "sellingPrice": 220
+        },
+        "inventory": {
+          "totalStock": 56,
+          "reservedStock": 0,
+          "availableStock": 33
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "flour_95",
+    "name": "Semolina",
+    "hindiName": "सूजी",
+    "category": "Flour",
+    "brand": "Aashirvaad",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "सूजी",
+        "semolina",
+        "suji",
+        "flour"
+      ],
+      "aliases": [
+        "semolina",
+        "suji"
+      ],
+      "phonetics": [
+        "semolina"
+      ],
+      "regional": [
+        "semolina"
+      ],
+      "hindiKeywords": [
+        "सूजी"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "flour_95_sku1",
+        "familyId": "flour_95",
+        "displayName": "Semolina 1kg",
+        "hindiName": "सूजी 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 125,
+          "sellingPrice": 121
+        },
+        "inventory": {
+          "totalStock": 30,
+          "reservedStock": 7,
+          "availableStock": 75
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "flour_96",
+    "name": "Coconut Flour",
+    "hindiName": "नारियल का आटा",
+    "category": "Flour",
+    "brand": "Pillsbury",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "नारियल का आटा",
+        "coconut",
+        "coconut flour",
+        "powder"
+      ],
+      "aliases": [
+        "coconut flour",
+        "powder"
+      ],
+      "phonetics": [
+        "coconut"
+      ],
+      "regional": [
+        "coconut flour"
+      ],
+      "hindiKeywords": [
+        "नारियल का आटा",
+        "आटा"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "flour_96_sku1",
+        "familyId": "flour_96",
+        "displayName": "Coconut Flour 1kg",
+        "hindiName": "नारियल का आटा 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 47,
+          "sellingPrice": 47
+        },
+        "inventory": {
+          "totalStock": 113,
+          "reservedStock": 4,
+          "availableStock": 104
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "pulses_97",
+    "name": "Gram Whole",
+    "hindiName": "काबुली चने",
+    "category": "Pulses",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "chickpea",
+        "gram",
+        "काबुली चने",
+        "pulses"
+      ],
+      "aliases": [
+        "gram",
+        "chickpea"
+      ],
+      "phonetics": [
+        "gram"
+      ],
+      "regional": [
+        "gram"
+      ],
+      "hindiKeywords": [
+        "काबुली चने"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "pulses_97_sku1",
+        "familyId": "pulses_97",
+        "displayName": "Gram Whole 1kg",
+        "hindiName": "काबुली चने 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 232,
+          "sellingPrice": 217
+        },
+        "inventory": {
+          "totalStock": 40,
+          "reservedStock": 11,
+          "availableStock": 57
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "pulses_98",
+    "name": "Black Chickpea",
+    "hindiName": "काले चने",
+    "category": "Pulses",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "काले चने",
+        "black chickpea",
+        "black",
+        "kala chana"
+      ],
+      "aliases": [
+        "black chickpea",
+        "kala chana"
+      ],
+      "phonetics": [
+        "black"
+      ],
+      "regional": [
+        "black chickpea"
+      ],
+      "hindiKeywords": [
+        "काले चने"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "pulses_98_sku1",
+        "familyId": "pulses_98",
+        "displayName": "Black Chickpea 1kg",
+        "hindiName": "काले चने 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 172,
+          "sellingPrice": 163
+        },
+        "inventory": {
+          "totalStock": 55,
+          "reservedStock": 9,
+          "availableStock": 31
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "pulses_99",
+    "name": "Red Lentils",
+    "hindiName": "लाल दाल",
+    "category": "Pulses",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "red lentils",
+        "red",
+        "लाल दाल",
+        "masoor"
+      ],
+      "aliases": [
+        "red lentils",
+        "masoor"
+      ],
+      "phonetics": [
+        "red"
+      ],
+      "regional": [
+        "red lentils"
+      ],
+      "hindiKeywords": [
+        "लाल दाल",
+        "दाल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "pulses_99_sku1",
+        "familyId": "pulses_99",
+        "displayName": "Red Lentils 1kg",
+        "hindiName": "लाल दाल 1kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 224,
+          "sellingPrice": 210
+        },
+        "inventory": {
+          "totalStock": 82,
+          "reservedStock": 10,
+          "availableStock": 60
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "pulses_100",
+    "name": "Fenugreek Seeds",
+    "hindiName": "मेथी के दाने",
+    "category": "Pulses",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "fenugreek",
+        "methi",
+        "मेथी के दाने",
+        "pulses"
+      ],
+      "aliases": [
+        "fenugreek",
+        "methi"
+      ],
+      "phonetics": [
+        "fenugreek"
+      ],
+      "regional": [
+        "fenugreek"
+      ],
+      "hindiKeywords": [
+        "मेथी के दाने"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "pulses_100_sku1",
+        "familyId": "pulses_100",
+        "displayName": "Fenugreek Seeds 0.25kg",
+        "hindiName": "मेथी के दाने 0.25kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 0.25,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 150,
+          "sellingPrice": 144
+        },
+        "inventory": {
+          "totalStock": 31,
+          "reservedStock": 4,
+          "availableStock": 37
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "pulses_101",
+    "name": "Sesame Seeds",
+    "hindiName": "तिल",
+    "category": "Pulses",
+    "brand": "Generic",
+    "productType": "loose",
+    "voiceMetadata": {
+      "keywords": [
+        "sesame",
+        "til",
+        "तिल",
+        "pulses"
+      ],
+      "aliases": [
+        "sesame",
+        "til"
+      ],
+      "phonetics": [
+        "sesame"
+      ],
+      "regional": [
+        "sesame"
+      ],
+      "hindiKeywords": [
+        "तिल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "pulses_101_sku1",
+        "familyId": "pulses_101",
+        "displayName": "Sesame Seeds 0.25kg",
+        "hindiName": "तिल 0.25kg",
+        "productType": "loose",
+        "unitType": "weight",
+        "quantity": 0.25,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 145,
+          "sellingPrice": 139
+        },
+        "inventory": {
+          "totalStock": 115,
+          "reservedStock": 15,
+          "availableStock": 34
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "dairy_117",
+    "name": "Amul Gold Milk",
+    "hindiName": "अमूल गोल्ड दूध",
+    "category": "Dairy",
+    "brand": "Amul",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "milk",
+        "doodh",
+        "amul",
+        "gold",
+        "दूध"
+      ],
+      "aliases": [
+        "amul",
+        "gold",
+        "milk"
+      ],
+      "phonetics": [
+        "amul"
+      ],
+      "regional": [
+        "amul"
+      ],
+      "hindiKeywords": [
+        "अमूल गोल्ड दूध"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "dairy_117_sku1",
+        "familyId": "dairy_117",
+        "displayName": "Amul Gold Milk 0.5L",
+        "hindiName": "अमूल गोल्ड दूध 0.5L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 0.5,
+        "unit": "L",
+        "pricing": {
+          "mrp": 106,
+          "sellingPrice": 99
+        },
+        "inventory": {
+          "totalStock": 54,
+          "reservedStock": 0,
+          "availableStock": 114
+        }
+      },
+      {
+        "skuId": "dairy_117_sku2",
+        "familyId": "dairy_117",
+        "displayName": "Amul Gold Milk 1L",
+        "hindiName": "अमूल गोल्ड दूध 1L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 1.0,
+        "unit": "L",
+        "pricing": {
+          "mrp": 114,
+          "sellingPrice": 107
+        },
+        "inventory": {
+          "totalStock": 75,
+          "reservedStock": 7,
+          "availableStock": 48
+        }
+      },
+      {
+        "skuId": "dairy_117_sku3",
+        "familyId": "dairy_117",
+        "displayName": "Amul Gold Milk 2L",
+        "hindiName": "अमूल गोल्ड दूध 2L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 2.0,
+        "unit": "L",
+        "pricing": {
+          "mrp": 107,
+          "sellingPrice": 100
+        },
+        "inventory": {
+          "totalStock": 57,
+          "reservedStock": 3,
+          "availableStock": 106
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "dairy_118",
+    "name": "Saras Gold Milk",
+    "hindiName": "सारस गोल्ड दूध",
+    "category": "Dairy",
+    "brand": "Saras",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "milk",
+        "doodh",
+        "saras",
+        "gold",
+        "दूध"
+      ],
+      "aliases": [
+        "saras",
+        "gold",
+        "milk"
+      ],
+      "phonetics": [
+        "saras"
+      ],
+      "regional": [
+        "saras"
+      ],
+      "hindiKeywords": [
+        "सारस गोल्ड दूध"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "dairy_118_sku1",
+        "familyId": "dairy_118",
+        "displayName": "Saras Gold Milk 0.5L",
+        "hindiName": "सारस गोल्ड दूध 0.5L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 0.5,
+        "unit": "L",
+        "pricing": {
+          "mrp": 119,
+          "sellingPrice": 111
+        },
+        "inventory": {
+          "totalStock": 109,
+          "reservedStock": 2,
+          "availableStock": 95
+        }
+      },
+      {
+        "skuId": "dairy_118_sku2",
+        "familyId": "dairy_118",
+        "displayName": "Saras Gold Milk 1L",
+        "hindiName": "सारस गोल्ड दूध 1L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 1.0,
+        "unit": "L",
+        "pricing": {
+          "mrp": 114,
+          "sellingPrice": 107
+        },
+        "inventory": {
+          "totalStock": 94,
+          "reservedStock": 1,
+          "availableStock": 23
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "rice_119",
+    "name": "Tata Sampann Basmati",
+    "hindiName": "टाटा सम्पन्न बासमती",
+    "category": "Rice",
+    "brand": "Tata Sampann",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "rice",
+        "basmati",
+        "tata",
+        "sampann",
+        "चावल"
+      ],
+      "aliases": [
+        "tata",
+        "sampann",
+        "basmati"
+      ],
+      "phonetics": [
+        "tata"
+      ],
+      "regional": [
+        "tata"
+      ],
+      "hindiKeywords": [
+        "टाटा सम्पन्न बासमती"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "rice_119_sku1",
+        "familyId": "rice_119",
+        "displayName": "Tata Sampann Basmati 1kg",
+        "hindiName": "टाटा सम्पन्न बासमती 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 68,
+          "sellingPrice": 65
+        },
+        "inventory": {
+          "totalStock": 67,
+          "reservedStock": 7,
+          "availableStock": 84
+        }
+      },
+      {
+        "skuId": "rice_119_sku2",
+        "familyId": "rice_119",
+        "displayName": "Tata Sampann Basmati 5kg",
+        "hindiName": "टाटा सम्पन्न बासमती 5kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 5.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 234,
+          "sellingPrice": 215
+        },
+        "inventory": {
+          "totalStock": 117,
+          "reservedStock": 0,
+          "availableStock": 91
+        }
+      },
+      {
+        "skuId": "rice_119_sku3",
+        "familyId": "rice_119",
+        "displayName": "Tata Sampann Basmati 25kg",
+        "hindiName": "टाटा सम्पन्न बासमती 25kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 25.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 220,
+          "sellingPrice": 202
+        },
+        "inventory": {
+          "totalStock": 65,
+          "reservedStock": 20,
+          "availableStock": 109
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "flour_120",
+    "name": "Pillsbury Whole Wheat",
+    "hindiName": "पिलसबरी साबुत गेहूं",
+    "category": "Flour",
+    "brand": "Pillsbury",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "atta",
+        "flour",
+        "pillsbury",
+        "wheat",
+        "आटा"
+      ],
+      "aliases": [
+        "pillsbury",
+        "whole",
+        "wheat"
+      ],
+      "phonetics": [
+        "pillsbury"
+      ],
+      "regional": [
+        "pillsbury"
+      ],
+      "hindiKeywords": [
+        "पिलसबरी साबुत गेहूं"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "flour_120_sku1",
+        "familyId": "flour_120",
+        "displayName": "Pillsbury Whole Wheat 1kg",
+        "hindiName": "पिलसबरी साबुत गेहूं 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 94,
+          "sellingPrice": 89
+        },
+        "inventory": {
+          "totalStock": 93,
+          "reservedStock": 7,
+          "availableStock": 77
+        }
+      },
+      {
+        "skuId": "flour_120_sku2",
+        "familyId": "flour_120",
+        "displayName": "Pillsbury Whole Wheat 5kg",
+        "hindiName": "पिलसबरी साबुत गेहूं 5kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 5.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 114,
+          "sellingPrice": 107
+        },
+        "inventory": {
+          "totalStock": 115,
+          "reservedStock": 8,
+          "availableStock": 123
+        }
+      },
+      {
+        "skuId": "flour_120_sku3",
+        "familyId": "flour_120",
+        "displayName": "Pillsbury Whole Wheat 10kg",
+        "hindiName": "पिलसबरी साबुत गेहूं 10kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 10.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 107,
+          "sellingPrice": 100
+        },
+        "inventory": {
+          "totalStock": 40,
+          "reservedStock": 5,
+          "availableStock": 109
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "pulses_121",
+    "name": "Organic India Moong",
+    "hindiName": "ऑर्गनिक इंडिया मूंग",
+    "category": "Pulses",
+    "brand": "Organic India",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "dal",
+        "moong",
+        "organic",
+        "india",
+        "दाल"
+      ],
+      "aliases": [
+        "organic",
+        "india",
+        "moong"
+      ],
+      "phonetics": [
+        "organic"
+      ],
+      "regional": [
+        "organic"
+      ],
+      "hindiKeywords": [
+        "ऑर्गनिक इंडिया मूंग"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "pulses_121_sku1",
+        "familyId": "pulses_121",
+        "displayName": "Organic India Moong 0.5kg",
+        "hindiName": "ऑर्गनिक इंडिया मूंग 0.5kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 183,
+          "sellingPrice": 169
+        },
+        "inventory": {
+          "totalStock": 83,
+          "reservedStock": 8,
+          "availableStock": 39
+        }
+      },
+      {
+        "skuId": "pulses_121_sku2",
+        "familyId": "pulses_121",
+        "displayName": "Organic India Moong 1kg",
+        "hindiName": "ऑर्गनिक इंडिया मूंग 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 194,
+          "sellingPrice": 179
+        },
+        "inventory": {
+          "totalStock": 67,
+          "reservedStock": 10,
+          "availableStock": 33
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "pulses_122",
+    "name": "Patanjali Atta",
+    "hindiName": "पतंजलि आटा",
+    "category": "Pulses",
+    "brand": "Patanjali",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "atta",
+        "flour",
+        "patanjali",
+        "wheat",
+        "आटा"
+      ],
+      "aliases": [
+        "patanjali",
+        "atta"
+      ],
+      "phonetics": [
+        "patanjali"
+      ],
+      "regional": [
+        "patanjali"
+      ],
+      "hindiKeywords": [
+        "पतंजलि आटा"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "pulses_122_sku1",
+        "familyId": "pulses_122",
+        "displayName": "Patanjali Atta 1kg",
+        "hindiName": "पतंजलि आटा 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 98,
+          "sellingPrice": 92
+        },
+        "inventory": {
+          "totalStock": 88,
+          "reservedStock": 3,
+          "availableStock": 65
+        }
+      },
+      {
+        "skuId": "pulses_122_sku2",
+        "familyId": "pulses_122",
+        "displayName": "Patanjali Atta 5kg",
+        "hindiName": "पतंजलि आटा 5kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 5.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 194,
+          "sellingPrice": 179
+        },
+        "inventory": {
+          "totalStock": 148,
+          "reservedStock": 11,
+          "availableStock": 97
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "dairy_123",
+    "name": "Heritage Milk",
+    "hindiName": "हेरिटेज दूध",
+    "category": "Dairy",
+    "brand": "Heritage",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "milk",
+        "doodh",
+        "heritage",
+        "dairy",
+        "दूध"
+      ],
+      "aliases": [
+        "heritage",
+        "milk"
+      ],
+      "phonetics": [
+        "heritage"
+      ],
+      "regional": [
+        "heritage"
+      ],
+      "hindiKeywords": [
+        "हेरिटेज दूध"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "dairy_123_sku1",
+        "familyId": "dairy_123",
+        "displayName": "Heritage Milk 0.5L",
+        "hindiName": "हेरिटेज दूध 0.5L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 0.5,
+        "unit": "L",
+        "pricing": {
+          "mrp": 58,
+          "sellingPrice": 56
+        },
+        "inventory": {
+          "totalStock": 143,
+          "reservedStock": 1,
+          "availableStock": 113
+        }
+      },
+      {
+        "skuId": "dairy_123_sku2",
+        "familyId": "dairy_123",
+        "displayName": "Heritage Milk 1L",
+        "hindiName": "हेरिटेज दूध 1L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 1.0,
+        "unit": "L",
+        "pricing": {
+          "mrp": 114,
+          "sellingPrice": 107
+        },
+        "inventory": {
+          "totalStock": 98,
+          "reservedStock": 17,
+          "availableStock": 35
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "rice_124",
+    "name": "Fortune Basmati Premium",
+    "hindiName": "फॉर्चून बासमती प्रीमियम",
+    "category": "Rice",
+    "brand": "Fortune",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "rice",
+        "basmati",
+        "fortune",
+        "premium",
+        "चावल"
+      ],
+      "aliases": [
+        "fortune",
+        "basmati",
+        "premium"
+      ],
+      "phonetics": [
+        "fortune"
+      ],
+      "regional": [
+        "fortune"
+      ],
+      "hindiKeywords": [
+        "फॉर्चून बासमती प्रीमियम"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "rice_124_sku1",
+        "familyId": "rice_124",
+        "displayName": "Fortune Basmati Premium 2kg",
+        "hindiName": "फॉर्चून बासमती प्रीमियम 2kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 2.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 294,
+          "sellingPrice": 269
+        },
+        "inventory": {
+          "totalStock": 88,
+          "reservedStock": 2,
+          "availableStock": 90
+        }
+      },
+      {
+        "skuId": "rice_124_sku2",
+        "familyId": "rice_124",
+        "displayName": "Fortune Basmati Premium 5kg",
+        "hindiName": "फॉर्चून बासमती प्रीमियम 5kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 5.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 234,
+          "sellingPrice": 215
+        },
+        "inventory": {
+          "totalStock": 77,
+          "reservedStock": 20,
+          "availableStock": 99
+        }
+      },
+      {
+        "skuId": "rice_124_sku3",
+        "familyId": "rice_124",
+        "displayName": "Fortune Basmati Premium 10kg",
+        "hindiName": "फॉर्चून बासमती प्रीमियम 10kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 10.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 220,
+          "sellingPrice": 202
+        },
+        "inventory": {
+          "totalStock": 150,
+          "reservedStock": 11,
+          "availableStock": 93
+        }
+      }
+    ]
+  }
+]

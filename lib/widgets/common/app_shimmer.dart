@@ -23,10 +23,7 @@ class AppShimmer extends StatefulWidget {
       child: Container(
         height: height,
         width: width,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(radius),
-        ),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(radius)),
       ),
     );
   }
@@ -36,10 +33,7 @@ class AppShimmer extends StatefulWidget {
       child: Container(
         width: size,
         height: size,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-        ),
+        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
       ),
     );
   }
@@ -105,10 +99,7 @@ class AppShimmer extends StatefulWidget {
     return AppShimmer(
       child: Container(
         width: 160,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-        ),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -125,23 +116,29 @@ class AppShimmer extends StatefulWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                      height: 12,
-                      decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(6))),
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   Container(
-                      height: 10,
-                      width: 80,
-                      decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(5))),
+                    height: 10,
+                    width: 80,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                  ),
                   const SizedBox(height: 10),
                   Container(
-                      height: 28,
-                      decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(8))),
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -166,10 +163,7 @@ class AppShimmer extends StatefulWidget {
         itemCount: count,
         itemBuilder: (_, __) => AppShimmer(
           child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
           ),
         ),
       ),
@@ -205,21 +199,19 @@ class AppShimmer extends StatefulWidget {
   State<AppShimmer> createState() => _AppShimmerState();
 }
 
-class _AppShimmerState extends State<AppShimmer>
-    with SingleTickerProviderStateMixin {
+class _AppShimmerState extends State<AppShimmer> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1400),
-    )..repeat();
-    _animation = Tween<double>(begin: -2, end: 2).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400))
+      ..repeat();
+    _animation = Tween<double>(
+      begin: -2,
+      end: 2,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -238,11 +230,7 @@ class _AppShimmerState extends State<AppShimmer>
             return LinearGradient(
               begin: Alignment(_animation.value - 1, 0),
               end: Alignment(_animation.value, 0),
-              colors: const [
-                Color(0xFFEEEEEE),
-                Color(0xFFF8F8F8),
-                Color(0xFFEEEEEE),
-              ],
+              colors: const [Color(0xFFEEEEEE), Color(0xFFF8F8F8), Color(0xFFEEEEEE)],
               stops: const [0.0, 0.5, 1.0],
             ).createShader(bounds);
           },

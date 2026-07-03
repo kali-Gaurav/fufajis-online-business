@@ -10,8 +10,7 @@ import '../models/user_model.dart';
 /// - Gold tier: ₹5000-19999
 /// - Platinum tier: ₹20000+
 class MembershipTierCalculator {
-  static final MembershipTierCalculator _instance =
-      MembershipTierCalculator._internal();
+  static final MembershipTierCalculator _instance = MembershipTierCalculator._internal();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   factory MembershipTierCalculator() {
@@ -172,15 +171,13 @@ class MembershipTierCalculator {
 
     if (currentTier == MembershipTier.bronze) {
       nextTier = MembershipTier.silver;
-      spendingRequired =
-          tierThresholds[MembershipTier.silver]! - currentSpending;
+      spendingRequired = tierThresholds[MembershipTier.silver]! - currentSpending;
     } else if (currentTier == MembershipTier.silver) {
       nextTier = MembershipTier.gold;
       spendingRequired = tierThresholds[MembershipTier.gold]! - currentSpending;
     } else if (currentTier == MembershipTier.gold) {
       nextTier = MembershipTier.platinum;
-      spendingRequired =
-          tierThresholds[MembershipTier.platinum]! - currentSpending;
+      spendingRequired = tierThresholds[MembershipTier.platinum]! - currentSpending;
     }
 
     return {
@@ -210,9 +207,7 @@ class MembershipTierCalculator {
     }
 
     final progress =
-        ((currentSpending - currentThreshold) /
-            (nextThreshold - currentThreshold)) *
-        100;
+        ((currentSpending - currentThreshold) / (nextThreshold - currentThreshold)) * 100;
     return progress.clamp(0.0, 100.0);
   }
 

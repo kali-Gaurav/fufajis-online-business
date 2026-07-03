@@ -28,7 +28,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
   final Map<String, double> _itemWeights = {};
   final Map<String, bool> _outOfStockItems = {};
   bool _isLoading = false;
-  
+
   // Step 29.4: Packing timer
   Stopwatch? _packingTimer;
   Timer? _uiTimer;
@@ -47,7 +47,8 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
       if (mounted && _packingTimer != null) {
         final duration = _packingTimer!.elapsed;
         setState(() {
-          _elapsedTime = '${duration.inMinutes.toString().padLeft(2, '0')}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}';
+          _elapsedTime =
+              '${duration.inMinutes.toString().padLeft(2, '0')}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}';
         });
       }
     });
@@ -69,7 +70,10 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
     return Scaffold(
       backgroundColor: AppTheme.grey100,
       appBar: AppBar(
-        title: const Text('Order Fulfillment Terminal', style: TextStyle(fontWeight: FontWeight.w700)),
+        title: const Text(
+          'Order Fulfillment Terminal',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
         backgroundColor: AppTheme.grey900,
         foregroundColor: Colors.white,
         actions: [
@@ -79,7 +83,11 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
               child: Center(
                 child: Text(
                   'Timer: $_elapsedTime',
-                  style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.bold, color: AppTheme.success),
+                  style: const TextStyle(
+                    fontFamily: 'monospace',
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.success,
+                  ),
                 ),
               ),
             ),
@@ -101,18 +109,23 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
                     children: [
                       const Padding(
                         padding: EdgeInsets.all(16),
-                        child: Text('PENDING QUEUE', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2, color: AppTheme.grey600)),
+                        child: Text(
+                          'PENDING QUEUE',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
+                            color: AppTheme.grey600,
+                          ),
+                        ),
                       ),
                       Expanded(child: _buildOrderQueue()),
                     ],
                   ),
                 ),
-                
+
                 // Right: Item Check-off / Review
                 Expanded(
-                  child: _activeOrderId == null 
-                    ? _buildTerminalIdleState()
-                    : _buildItemChecklist(),
+                  child: _activeOrderId == null ? _buildTerminalIdleState() : _buildItemChecklist(),
                 ),
               ],
             ),
@@ -126,7 +139,10 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
         children: [
           Icon(Icons.inventory_2_outlined, size: 80, color: AppTheme.grey300),
           SizedBox(height: 16),
-          Text('Select an order from the queue to start packing', style: TextStyle(color: AppTheme.grey500)),
+          Text(
+            'Select an order from the queue to start packing',
+            style: TextStyle(color: AppTheme.grey500),
+          ),
         ],
       ),
     );
@@ -177,10 +193,14 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
           .where('status', isEqualTo: 'OrderStatus.processing')
           .snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
+        if (!snapshot.hasData)
+          return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
         final docs = snapshot.data!.docs;
 
-        if (docs.isEmpty) return const Center(child: Text('No orders in preparation', style: TextStyle(fontSize: 12)));
+        if (docs.isEmpty)
+          return const Center(
+            child: Text('No orders in preparation', style: TextStyle(fontSize: 12)),
+          );
 
         return ListView.separated(
           itemCount: docs.length,
@@ -194,13 +214,26 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
               selectedTileColor: AppTheme.primary.withValues(alpha: 0.05),
               leading: CircleAvatar(
                 backgroundColor: AppTheme.grey200,
-                child: Text('${order.items.length}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.grey800)),
+                child: Text(
+                  '${order.items.length}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.grey800,
+                  ),
+                ),
               ),
-              title: Text('#${order.orderNumber}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              title: Text(
+                '#${order.orderNumber}',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('₹${order.totalAmount.toDouble().round()} • ${_formatDate(order.createdAt)}', style: const TextStyle(fontSize: 11)),
+                  Text(
+                    '₹${order.totalAmount.toDouble().round()} • ${_formatDate(order.createdAt)}',
+                    style: const TextStyle(fontSize: 11),
+                  ),
                   const SizedBox(height: 4),
                   _buildPackingStatusBadge(order.packingStatus),
                 ],
@@ -227,7 +260,8 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
     return StreamBuilder<DocumentSnapshot>(
       stream: FirebaseFirestore.instance.collection('orders').doc(_activeOrderId).snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData || !snapshot.data!.exists) return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
+        if (!snapshot.hasData || !snapshot.data!.exists)
+          return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
         final order = OrderModel.fromMap(snapshot.data!.data() as Map<String, dynamic>);
 
         if (order.packingStatus == 'pending_approval') {
@@ -271,8 +305,14 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Packing: #${order.orderNumber}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
-              Text('Customer: ${order.customerName}', style: const TextStyle(color: AppTheme.grey600)),
+              Text(
+                'Packing: #${order.orderNumber}',
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+              ),
+              Text(
+                'Customer: ${order.customerName}',
+                style: const TextStyle(color: AppTheme.grey600),
+              ),
             ],
           ),
           const Spacer(),
@@ -280,8 +320,14 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               const Text('Handled', style: TextStyle(fontSize: 12, color: AppTheme.grey500)),
-              Text('$handledCount / ${order.items.length}', 
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primary)),
+              Text(
+                '$handledCount / ${order.items.length}',
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.primary,
+                ),
+              ),
             ],
           ),
         ],
@@ -292,27 +338,28 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
   Widget _buildPackingItemTile(OrderItem item, ProductProvider productProvider) {
     final isPacked = _packedItems[item.id] ?? false;
     final isOos = _outOfStockItems[item.id] ?? item.isOutOfStock;
-    
-    final bool isWeightUnit = item.unit.toLowerCase().contains('kg') || 
-                              item.unit.toLowerCase().contains('g') || 
-                              item.unit.toLowerCase().contains('kilo') || 
-                              item.unit.toLowerCase().contains('gm');
+
+    final bool isWeightUnit =
+        item.unit.toLowerCase().contains('kg') ||
+        item.unit.toLowerCase().contains('g') ||
+        item.unit.toLowerCase().contains('kilo') ||
+        item.unit.toLowerCase().contains('gm');
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: isOos 
+        color: isOos
             ? AppTheme.error.withValues(alpha: 0.05)
-            : isPacked 
-                ? AppTheme.success.withValues(alpha: 0.05) 
-                : Colors.white,
+            : isPacked
+            ? AppTheme.success.withValues(alpha: 0.05)
+            : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isOos
               ? AppTheme.error.withValues(alpha: 0.3)
-              : isPacked 
-                  ? AppTheme.success.withValues(alpha: 0.3) 
-                  : AppTheme.grey200
+              : isPacked
+              ? AppTheme.success.withValues(alpha: 0.3)
+              : AppTheme.grey200,
         ),
       ),
       child: ListTile(
@@ -320,31 +367,40 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
         leading: Container(
           width: 50,
           height: 50,
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: AppTheme.grey100),
-          child: ClipRRect(borderRadius: BorderRadius.circular(8), child: CachedNetworkImage(imageUrl: item.productImage, fit: BoxFit.cover)),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: AppTheme.grey100,
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: CachedNetworkImage(imageUrl: item.productImage, fit: BoxFit.cover),
+          ),
         ),
         title: Text(
-          item.productName, 
+          item.productName,
           style: TextStyle(
             fontWeight: FontWeight.bold,
             decoration: isOos ? TextDecoration.lineThrough : null,
-          )
+          ),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Qty: ${item.quantity} ${item.unit}', 
+              'Qty: ${item.quantity} ${item.unit}',
               style: TextStyle(
-                color: isOos ? AppTheme.error : AppTheme.primary, 
-                fontWeight: FontWeight.bold
-              )
+                color: isOos ? AppTheme.error : AppTheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             if (isWeightUnit && !isOos) ...[
               const SizedBox(height: 8),
               Row(
                 children: [
-                  const Text('Actual Wt: ', style: TextStyle(fontSize: 12, color: AppTheme.grey600)),
+                  const Text(
+                    'Actual Wt: ',
+                    style: TextStyle(fontSize: 12, color: AppTheme.grey600),
+                  ),
                   SizedBox(
                     width: 100,
                     height: 32,
@@ -379,7 +435,10 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
                 tooltip: 'Out of Stock / Replacement',
               ),
             if (isOos)
-              const Text('OUT OF STOCK', style: TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold, fontSize: 11))
+              const Text(
+                'OUT OF STOCK',
+                style: TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold, fontSize: 11),
+              )
             else
               Transform.scale(
                 scale: 1.2,
@@ -402,7 +461,10 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
     final originalProduct = provider.getProductById(item.productId);
     if (originalProduct == null) return;
 
-    final replacements = ReplacementService().suggestReplacements(originalProduct, provider.products);
+    final replacements = ReplacementService().suggestReplacements(
+      originalProduct,
+      provider.products,
+    );
 
     showDialog(
       context: context,
@@ -412,26 +474,37 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Sorry, ${item.productName} is out of stock.', style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              'Sorry, ${item.productName} is out of stock.',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
-            const Text('Suggested Replacements:', style: TextStyle(fontSize: 12, color: AppTheme.grey600)),
+            const Text(
+              'Suggested Replacements:',
+              style: TextStyle(fontSize: 12, color: AppTheme.grey600),
+            ),
             const SizedBox(height: 8),
             if (replacements.isEmpty)
-              const Text('No replacements found in matching category.', style: TextStyle(fontStyle: FontStyle.italic))
+              const Text(
+                'No replacements found in matching category.',
+                style: TextStyle(fontStyle: FontStyle.italic),
+              )
             else
-              ...replacements.map((p) => ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: CircleAvatar(backgroundImage: CachedNetworkImageProvider(p.imageUrl)),
-                title: Text(p.name, style: const TextStyle(fontSize: 14)),
-                subtitle: Text('₹${p.price}'),
-                trailing: ElevatedButton(
-                  onPressed: () async {
-                    Navigator.pop(context);
-                    await _applyReplacement(item, p);
-                  },
-                  child: const Text('Select'),
+              ...replacements.map(
+                (p) => ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: CircleAvatar(backgroundImage: CachedNetworkImageProvider(p.imageUrl)),
+                  title: Text(p.name, style: const TextStyle(fontSize: 14)),
+                  subtitle: Text('₹${p.price}'),
+                  trailing: ElevatedButton(
+                    onPressed: () async {
+                      Navigator.pop(context);
+                      await _applyReplacement(item, p);
+                    },
+                    child: const Text('Select'),
+                  ),
                 ),
-              )),
+              ),
           ],
         ),
         actions: [
@@ -453,7 +526,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
       final docRef = FirebaseFirestore.instance.collection('orders').doc(_activeOrderId);
       final docSnapshot = await docRef.get();
       if (!docSnapshot.exists) return;
-      
+
       final order = OrderModel.fromMap(docSnapshot.data()!);
       final updatedItems = order.items.map((it) {
         if (it.id == oldItem.id) {
@@ -468,7 +541,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
         }
         return it;
       }).toList();
-      
+
       final newSubtotal = updatedItems.fold(0.0, (total, it) => total + it.totalPrice.toDouble());
       final newTotal = newSubtotal + order.deliveryCharge.toDouble() - order.discount.toDouble();
 
@@ -498,7 +571,9 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Replaced ${oldItem.productName} with ${newProduct.name}. Customer notified!'),
+            content: Text(
+              'Replaced ${oldItem.productName} with ${newProduct.name}. Customer notified!',
+            ),
             backgroundColor: AppTheme.success,
           ),
         );
@@ -517,10 +592,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
       final order = OrderModel.fromMap(docSnapshot.data()!);
       final updatedItems = order.items.map((it) {
         if (it.id == item.id) {
-          return it.copyWith(
-            isOutOfStock: true,
-            isPacked: false,
-          );
+          return it.copyWith(isOutOfStock: true, isPacked: false);
         }
         return it;
       }).toList();
@@ -571,7 +643,10 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
-          child: const Text('READY FOR PICKUP', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+          child: const Text(
+            'READY FOR PICKUP',
+            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+          ),
         ),
       ),
     );
@@ -587,7 +662,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
         finalWeights[item.id] = _itemWeights[item.id]!;
       }
     }
-    
+
     await FirebaseFirestore.instance.collection('orders').doc(order.id).update({
       'status': 'OrderStatus.packed',
       'packingTimeSeconds': _packingTimer?.elapsed.inSeconds ?? 0,
@@ -597,7 +672,10 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Order #${order.orderNumber} is ready for pickup!'), backgroundColor: AppTheme.success),
+        SnackBar(
+          content: Text('Order #${order.orderNumber} is ready for pickup!'),
+          backgroundColor: AppTheme.success,
+        ),
       );
       setState(() {
         _activeOrderId = null;
@@ -618,13 +696,11 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
     final packedBy = proof?['packedBy'] as String? ?? 'Employee';
     final packedAt = proof?['packedAt'] != null
         ? (proof!['packedAt'] is Timestamp
-            ? (proof['packedAt'] as Timestamp).toDate()
-            : DateTime.tryParse(proof['packedAt'].toString()))
+              ? (proof['packedAt'] as Timestamp).toDate()
+              : DateTime.tryParse(proof['packedAt'].toString()))
         : null;
 
-    final formattedPackedAt = packedAt != null
-        ? DateFormat('hh:mm a').format(packedAt)
-        : 'N/A';
+    final formattedPackedAt = packedAt != null ? DateFormat('hh:mm a').format(packedAt) : 'N/A';
 
     final startedAt = order.packingStartedAt;
     final completedAt = order.packingCompletedAt;
@@ -646,11 +722,24 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Review Packing: #${order.orderNumber}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
-                  Text('Packed by: $packedBy at $formattedPackedAt', style: const TextStyle(color: AppTheme.grey600)),
+                  Text(
+                    'Review Packing: #${order.orderNumber}',
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+                  ),
+                  Text(
+                    'Packed by: $packedBy at $formattedPackedAt',
+                    style: const TextStyle(color: AppTheme.grey600),
+                  ),
                   if (durationStr.isNotEmpty) ...[
                     const SizedBox(height: 4),
-                    Text('Time spent: $durationStr', style: const TextStyle(color: AppTheme.grey600, fontSize: 12, fontWeight: FontWeight.w500)),
+                    Text(
+                      'Time spent: $durationStr',
+                      style: const TextStyle(
+                        color: AppTheme.grey600,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ],
                 ],
               ),
@@ -668,7 +757,11 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
                     SizedBox(width: 6),
                     Text(
                       'AWAITING APPROVAL',
-                      style: TextStyle(color: AppTheme.warning, fontWeight: FontWeight.bold, fontSize: 12),
+                      style: TextStyle(
+                        color: AppTheme.warning,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
                     ),
                   ],
                 ),
@@ -692,15 +785,22 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
                     children: [
                       const Text(
                         'PACKED ITEMS CHECKLIST',
-                        style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2, color: AppTheme.grey600, fontSize: 13),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                          color: AppTheme.grey600,
+                          fontSize: 13,
+                        ),
                       ),
                       const SizedBox(height: 12),
                       ...order.items.map((item) {
-                        final isWeightUnit = item.unit.toLowerCase().contains('kg') || 
-                                             item.unit.toLowerCase().contains('g') || 
-                                             item.unit.toLowerCase().contains('kilo') || 
-                                             item.unit.toLowerCase().contains('gm');
-                        final hasCustomWeight = order.toMap()['packedWeights'] != null &&
+                        final isWeightUnit =
+                            item.unit.toLowerCase().contains('kg') ||
+                            item.unit.toLowerCase().contains('g') ||
+                            item.unit.toLowerCase().contains('kilo') ||
+                            item.unit.toLowerCase().contains('gm');
+                        final hasCustomWeight =
+                            order.toMap()['packedWeights'] != null &&
                             (order.toMap()['packedWeights'] as Map).containsKey(item.id);
                         final packedWeight = hasCustomWeight
                             ? (order.toMap()['packedWeights'] as Map)[item.id]
@@ -710,10 +810,14 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
                           margin: const EdgeInsets.only(bottom: 12),
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: item.isOutOfStock ? AppTheme.error.withValues(alpha: 0.05) : AppTheme.success.withValues(alpha: 0.05),
+                            color: item.isOutOfStock
+                                ? AppTheme.error.withValues(alpha: 0.05)
+                                : AppTheme.success.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: item.isOutOfStock ? AppTheme.error.withValues(alpha: 0.2) : AppTheme.success.withValues(alpha: 0.2),
+                              color: item.isOutOfStock
+                                  ? AppTheme.error.withValues(alpha: 0.2)
+                                  : AppTheme.success.withValues(alpha: 0.2),
                             ),
                           ),
                           child: ListTile(
@@ -728,18 +832,31 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Qty: ${item.quantity} ${item.unit}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                Text(
+                                  'Qty: ${item.quantity} ${item.unit}',
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
                                 if (isWeightUnit && packedWeight != null) ...[
                                   const SizedBox(height: 4),
                                   Text(
                                     'Verified Weight: $packedWeight kg',
-                                    style: const TextStyle(color: AppTheme.success, fontWeight: FontWeight.bold),
+                                    style: const TextStyle(
+                                      color: AppTheme.success,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ],
                               ],
                             ),
                             trailing: item.isOutOfStock
-                                ? const Text('OUT OF STOCK', style: TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold, fontSize: 11))
+                                ? const Text(
+                                    'OUT OF STOCK',
+                                    style: TextStyle(
+                                      color: AppTheme.error,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 11,
+                                    ),
+                                  )
                                 : const Icon(Icons.check_circle, color: AppTheme.success),
                           ),
                         );
@@ -756,7 +873,12 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
                     children: [
                       const Text(
                         'PACKING PHOTO PROOF',
-                        style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2, color: AppTheme.grey600, fontSize: 13),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                          color: AppTheme.grey600,
+                          fontSize: 13,
+                        ),
                       ),
                       const SizedBox(height: 12),
                       if (photoUrl != null && photoUrl.isNotEmpty)
@@ -774,14 +896,19 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
                                   fit: BoxFit.cover,
                                   placeholder: (context, url) => const SizedBox(
                                     height: 300,
-                                    child: Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent)),
+                                    child: Center(
+                                      child: CircularProgressIndicator(color: AppTheme.ownerAccent),
+                                    ),
                                   ),
                                   errorWidget: (context, url, error) => const Icon(Icons.error),
                                 ),
                                 Positioned(
                                   bottom: 12,
                                   child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: Colors.black54,
                                       borderRadius: BorderRadius.circular(20),
@@ -790,7 +917,10 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
                                       children: [
                                         Icon(Icons.zoom_in, color: Colors.white, size: 16),
                                         SizedBox(width: 4),
-                                        Text('Tap to Enlarge', style: TextStyle(color: Colors.white, fontSize: 11)),
+                                        Text(
+                                          'Tap to Enlarge',
+                                          style: TextStyle(color: Colors.white, fontSize: 11),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -813,7 +943,10 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
                               children: [
                                 Icon(Icons.photo, size: 48, color: Colors.grey),
                                 SizedBox(height: 8),
-                                Text('No photo proof submitted', style: TextStyle(color: Colors.grey)),
+                                Text(
+                                  'No photo proof submitted',
+                                  style: TextStyle(color: Colors.grey),
+                                ),
                               ],
                             ),
                           ),
@@ -841,7 +974,10 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
                   child: OutlinedButton.icon(
                     onPressed: () => _showRejectionDialog(order),
                     icon: const Icon(Icons.cancel, color: AppTheme.error),
-                    label: const Text('REJECT PACKING', style: TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold)),
+                    label: const Text(
+                      'REJECT PACKING',
+                      style: TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold),
+                    ),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: AppTheme.error, width: 1.5),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -856,7 +992,14 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
                   child: OutlinedButton.icon(
                     onPressed: () => _showPartialFulfillmentDialog(order),
                     icon: const Icon(Icons.incomplete_circle, color: AppTheme.warning),
-                    label: const Text('PARTIAL', style: TextStyle(color: AppTheme.warning, fontWeight: FontWeight.bold, fontSize: 12)),
+                    label: const Text(
+                      'PARTIAL',
+                      style: TextStyle(
+                        color: AppTheme.warning,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: AppTheme.warning, width: 1.5),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -871,7 +1014,10 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
                   child: ElevatedButton.icon(
                     onPressed: () => _approvePacking(order),
                     icon: const Icon(Icons.check_circle),
-                    label: const Text('APPROVE & SHIP', style: TextStyle(fontWeight: FontWeight.bold)),
+                    label: const Text(
+                      'APPROVE & SHIP',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.success,
                       foregroundColor: Colors.white,
@@ -900,10 +1046,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
               panEnabled: true,
               minScale: 0.5,
               maxScale: 4.0,
-              child: CachedNetworkImage(
-                imageUrl: url,
-                fit: BoxFit.contain,
-              ),
+              child: CachedNetworkImage(imageUrl: url, fit: BoxFit.contain),
             ),
             IconButton(
               icon: const Icon(Icons.close, color: Colors.white, size: 30),
@@ -920,7 +1063,10 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Reject Packing Submission', style: TextStyle(fontWeight: FontWeight.w700)),
+        title: const Text(
+          'Reject Packing Submission',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -930,7 +1076,8 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
             TextField(
               controller: controller,
               decoration: const InputDecoration(
-                hintText: 'e.g. Missing Item: Britannia Rusk, photo proof shows incorrect packaging...',
+                hintText:
+                    'e.g. Missing Item: Britannia Rusk, photo proof shows incorrect packaging...',
                 border: OutlineInputBorder(),
               ),
               maxLines: 3,
@@ -938,23 +1085,23 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () async {
               final reason = controller.text.trim();
               if (reason.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please enter a rejection reason')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Please enter a rejection reason')));
                 return;
               }
               Navigator.pop(ctx);
               await _rejectPacking(order, reason);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.error, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.error,
+              foregroundColor: Colors.white,
+            ),
             child: const Text('Confirm Rejection'),
           ),
         ],
@@ -970,7 +1117,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
       final ownerName = authProvider.currentUser?.name ?? 'Owner';
 
       await OrderService().approvePacking(order.id, ownerId, ownerName);
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Order #${order.orderNumber} approved and marked packed!'),
@@ -997,7 +1144,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
       final ownerName = authProvider.currentUser?.name ?? 'Owner';
 
       await OrderService().rejectPacking(order.id, ownerId, ownerName, reason);
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Order #${order.orderNumber} packing rejected. Sent back to packer.'),
@@ -1029,16 +1176,17 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Select unavailable items:',
-                    style: TextStyle(fontWeight: FontWeight.w600)),
+                const Text(
+                  'Select unavailable items:',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
                 const SizedBox(height: 8),
                 ...order.items.map((item) {
                   final isChecked = unavailableItemIds.contains(item.id);
                   return CheckboxListTile(
                     dense: true,
                     title: Text(item.productName, style: const TextStyle(fontSize: 13)),
-                    subtitle: Text('Qty: ${item.quantity}',
-                        style: const TextStyle(fontSize: 11)),
+                    subtitle: Text('Qty: ${item.quantity}', style: const TextStyle(fontSize: 11)),
                     value: isChecked,
                     onChanged: (v) {
                       setDialogState(() {
@@ -1055,10 +1203,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
             ),
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
-            ),
+            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: AppTheme.warning),
               onPressed: unavailableItemIds.isEmpty
@@ -1068,30 +1213,34 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
                       try {
                         final result = await PartialFulfillmentService.instance
                             .processPartialFulfillment(
-                          orderId: order.id,
-                          unavailableProductIds: unavailableItemIds,
-                          performedBy: 'owner',
-                        );
+                              orderId: order.id,
+                              unavailableProductIds: unavailableItemIds,
+                              performedBy: 'owner',
+                            );
                         if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text(result.success
-                                ? 'Partial fulfillment applied. Customer notified.'
-                                : 'Error: ${result.error}'),
-                            backgroundColor:
-                                result.success ? AppTheme.warning : AppTheme.error,
-                          ));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                result.success
+                                    ? 'Partial fulfillment applied. Customer notified.'
+                                    : 'Error: ${result.error}',
+                              ),
+                              backgroundColor: result.success ? AppTheme.warning : AppTheme.error,
+                            ),
+                          );
                         }
                       } catch (e) {
                         if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                            content: Text('Error: \$e'),
-                            backgroundColor: AppTheme.error,
-                          ));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Error: \$e'),
+                              backgroundColor: AppTheme.error,
+                            ),
+                          );
                         }
                       }
                     },
-              child: const Text('Apply Partial',
-                  style: TextStyle(color: Colors.white)),
+              child: const Text('Apply Partial', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),

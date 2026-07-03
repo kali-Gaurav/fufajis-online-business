@@ -167,18 +167,7 @@ class PaymentMethodOption {
 
   /// Get all available payment method options
   static List<PaymentMethodOption> get allOptions {
-    return [
-      cod,
-      upi,
-      razorpay,
-      credit,
-      wallet,
-      card,
-      netBanking,
-      emi,
-      payLater,
-      loyaltyPoints,
-    ];
+    return [cod, upi, razorpay, credit, wallet, card, netBanking, emi, payLater, loyaltyPoints];
   }
 
   /// Get payment method option by method

@@ -17,7 +17,7 @@ class _CheckoutAuthSheetState extends State<CheckoutAuthSheet> {
   final _phoneController = TextEditingController();
   final _otpController = TextEditingController();
   final OtpRateLimiter _rateLimiter = OtpRateLimiter();
-  
+
   bool _otpSent = false;
   String? _error;
 
@@ -34,22 +34,25 @@ class _CheckoutAuthSheetState extends State<CheckoutAuthSheet> {
       setState(() => _error = "Enter a valid phone number");
       return;
     }
-    
+
     // Check rate limit
     final status = await _rateLimiter.checkRateLimit();
     if (!status.allowed) {
-      setState(() => _error = "Too many attempts. Try again in ${status.blockedUntilMinutes} minutes.");
+      setState(
+        () => _error = "Too many attempts. Try again in ${status.blockedUntilMinutes} minutes.",
+      );
       return;
     }
 
     setState(() => _error = null);
-    
+
     final formattedPhone = phone.startsWith('+') ? phone : '+91$phone';
+    if (!mounted) return;
     final auth = Provider.of<AuthProvider>(context, listen: false);
-    
+
     await auth.sendOTPForCheckout(formattedPhone);
     await _rateLimiter.registerOtpAttempt();
-    
+
     if (auth.errorMessage != null) {
       setState(() => _error = auth.errorMessage);
     } else {
@@ -66,9 +69,9 @@ class _CheckoutAuthSheetState extends State<CheckoutAuthSheet> {
 
     setState(() => _error = null);
     final auth = Provider.of<AuthProvider>(context, listen: false);
-    
+
     final success = await auth.verifyOTPAndAutoCreateAccount(otp);
-    
+
     if (success) {
       await _rateLimiter.resetLimits();
       if (mounted) {
@@ -83,7 +86,7 @@ class _CheckoutAuthSheetState extends State<CheckoutAuthSheet> {
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
-    
+
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -105,7 +108,7 @@ class _CheckoutAuthSheetState extends State<CheckoutAuthSheet> {
             style: TextStyle(color: AppTheme.grey600),
           ),
           const SizedBox(height: 24),
-          
+
           if (_error != null) ...[
             Container(
               padding: const EdgeInsets.all(12),
@@ -113,10 +116,7 @@ class _CheckoutAuthSheetState extends State<CheckoutAuthSheet> {
                 color: AppTheme.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Text(
-                _error!,
-                style: const TextStyle(color: AppTheme.error),
-              ),
+              child: Text(_error!, style: const TextStyle(color: AppTheme.error)),
             ),
             const SizedBox(height: 16),
           ],
@@ -140,8 +140,19 @@ class _CheckoutAuthSheetState extends State<CheckoutAuthSheet> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: auth.isLoading
-                  ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                  : const Text('Send OTP', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                    )
+                  : const Text(
+                      'Send OTP',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
             ),
             const SizedBox(height: 16),
             const Row(
@@ -169,7 +180,10 @@ class _CheckoutAuthSheetState extends State<CheckoutAuthSheet> {
                 'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg',
                 height: 24,
               ),
-              label: const Text('Continue with Google', style: TextStyle(color: AppTheme.grey900, fontWeight: FontWeight.bold)),
+              label: const Text(
+                'Continue with Google',
+                style: TextStyle(color: AppTheme.grey900, fontWeight: FontWeight.bold),
+              ),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -195,8 +209,19 @@ class _CheckoutAuthSheetState extends State<CheckoutAuthSheet> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: auth.isLoading
-                  ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                  : const Text('Verify & Continue', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                    )
+                  : const Text(
+                      'Verify & Continue',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
             ),
           ],
           const SizedBox(height: 24),

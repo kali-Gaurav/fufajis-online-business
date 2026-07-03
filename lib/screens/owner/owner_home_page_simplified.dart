@@ -77,11 +77,7 @@ class OwnerHomePage extends StatelessWidget {
               children: [
                 Text(
                   'Welcome back!',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
                 SizedBox(height: 8),
                 Text(
@@ -125,8 +121,7 @@ class OwnerHomePage extends StatelessWidget {
         StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
               .collection('orders')
-              .where('createdAt',
-                  isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
+              .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
               .snapshots(),
           builder: (context, snapshot) {
             int totalOrders = 0;
@@ -258,11 +253,7 @@ class OwnerHomePage extends StatelessWidget {
               children: [
                 Text(
                   value,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -303,8 +294,7 @@ class OwnerHomePage extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppTheme.success.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                  color: AppTheme.success.withValues(alpha: 0.2), width: 1),
+              border: Border.all(color: AppTheme.success.withValues(alpha: 0.2), width: 1),
             ),
             child: const Row(
               children: [
@@ -351,20 +341,12 @@ class OwnerHomePage extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      Icon(
-                        isWarning ? Icons.warning : Icons.error,
-                        color: color,
-                        size: 20,
-                      ),
+                      Icon(isWarning ? Icons.warning : Icons.error, color: color, size: 20),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           alert['message'] as String,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: color,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: TextStyle(fontSize: 13, color: color, fontWeight: FontWeight.w500),
                         ),
                       ),
                       Icon(Icons.arrow_forward_ios, size: 14, color: color),
@@ -468,11 +450,7 @@ class OwnerHomePage extends StatelessWidget {
             Text(
               label,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: color),
             ),
           ],
         ),
@@ -501,8 +479,7 @@ class OwnerHomePage extends StatelessWidget {
         StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
               .collection('orders')
-              .where('createdAt',
-                  isGreaterThanOrEqualTo: Timestamp.fromDate(oneWeekAgo))
+              .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(oneWeekAgo))
               .snapshots(),
           builder: (context, snapshot) {
             int weekOrders = 0;
@@ -556,11 +533,7 @@ class OwnerHomePage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  Container(
-                    width: 1,
-                    height: 50,
-                    color: AppTheme.grey200,
-                  ),
+                  Container(width: 1, height: 50, color: AppTheme.grey200),
                   Column(
                     children: [
                       const Text(
@@ -582,11 +555,7 @@ class OwnerHomePage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  Container(
-                    width: 1,
-                    height: 50,
-                    color: AppTheme.grey200,
-                  ),
+                  Container(width: 1, height: 50, color: AppTheme.grey200),
                   Column(
                     children: [
                       const Text(
@@ -653,10 +622,7 @@ class OwnerHomePage extends StatelessWidget {
           if (recentOrders.isEmpty)
             const Padding(
               padding: EdgeInsets.all(20),
-              child: Text(
-                'No orders yet today.',
-                style: TextStyle(color: AppTheme.grey500),
-              ),
+              child: Text('No orders yet today.', style: TextStyle(color: AppTheme.grey500)),
             )
           else
             ...recentOrders.map((order) {
@@ -671,8 +637,7 @@ class OwnerHomePage extends StatelessWidget {
                         color: AppTheme.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(Icons.shopping_bag,
-                          color: AppTheme.primary),
+                      child: const Icon(Icons.shopping_bag, color: AppTheme.primary),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -688,10 +653,7 @@ class OwnerHomePage extends StatelessWidget {
                           ),
                           Text(
                             '${order.customerName} • ${order.items.length} items',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppTheme.grey600,
-                            ),
+                            style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
                           ),
                         ],
                       ),
@@ -707,11 +669,9 @@ class OwnerHomePage extends StatelessWidget {
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: _getStatusColor(order.status.displayName)
-                                .withValues(alpha: 0.1),
+                            color: _getStatusColor(order.status.displayName).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(

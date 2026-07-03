@@ -49,10 +49,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
             ],
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
             ElevatedButton(
               onPressed: () async {
                 final price = double.tryParse(priceController.text) ?? 0.0;
@@ -72,12 +69,16 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                 );
 
                 Navigator.pop(context); // Close dialog early
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Submitting...')));
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Submitting...')));
 
                 await _portalService.submitQuote(quote);
 
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Quote submitted successfully!')));
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('Quote submitted successfully!')));
                 }
               },
               child: const Text('Submit'),
@@ -94,7 +95,6 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -102,19 +102,37 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Open Requests for Bidding', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const Text(
+            'Open Requests for Bidding',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 16),
           StreamBuilder<QuerySnapshot>(
-            stream: _firestore.collection('purchase_requests')
-              .where('status', isEqualTo: PurchaseRequestStatus.approved.name) // Approved by Owner, waiting for suppliers
-              .snapshots(),
+            stream: _firestore
+                .collection('purchase_requests')
+                .where(
+                  'status',
+                  isEqualTo: PurchaseRequestStatus.approved.name,
+                ) // Approved by Owner, waiting for suppliers
+                .snapshots(),
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) return const CircularProgressIndicator(color: AppTheme.primary);
+              if (snapshot.connectionState == ConnectionState.waiting)
+                return const CircularProgressIndicator(color: AppTheme.primary);
               if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                return const Card(child: Padding(padding: EdgeInsets.all(16), child: Text('No open requests at the moment.')));
+                return const Card(
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Text('No open requests at the moment.'),
+                  ),
+                );
               }
 
-              final requests = snapshot.data!.docs.map((doc) => PurchaseRequestModel.fromMap(doc.data() as Map<String, dynamic>, doc.id)).toList();
+              final requests = snapshot.data!.docs
+                  .map(
+                    (doc) =>
+                        PurchaseRequestModel.fromMap(doc.data() as Map<String, dynamic>, doc.id),
+                  )
+                  .toList();
 
               return ListView.builder(
                 shrinkWrap: true,
@@ -125,7 +143,9 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                   return Card(
                     child: ListTile(
                       title: Text('Product ID: ${pr.productId}'),
-                      subtitle: Text('Quantity needed: ${pr.suggestedPurchaseQty} | Expected Cost: ₹${pr.expectedCost}/unit'),
+                      subtitle: Text(
+                        'Quantity needed: ${pr.suggestedPurchaseQty} | Expected Cost: ₹${pr.expectedCost}/unit',
+                      ),
                       trailing: ElevatedButton(
                         onPressed: () => _showQuoteDialog(pr),
                         child: const Text('Send Quote'),

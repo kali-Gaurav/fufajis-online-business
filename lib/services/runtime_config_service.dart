@@ -37,7 +37,7 @@ class RuntimeConfigService {
 
   static RuntimeConfigService get instance => _instance;
 
-  late Map<String, dynamic> _config;
+  Map<String, dynamic> _config = {};
   bool _isLoaded = false;
 
   /// Load configuration from backend
@@ -50,11 +50,8 @@ class RuntimeConfigService {
       debugPrint('[RuntimeConfig] Loading from $configUrl');
 
       final response = await http
-          .get(
-            configUrl,
-            headers: {'Content-Type': 'application/json'},
-          )
-          .timeout(const Duration(seconds: 10));
+          .get(configUrl, headers: {'Content-Type': 'application/json'})
+          .timeout(const Duration(seconds: 45));
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
@@ -64,7 +61,10 @@ class RuntimeConfigService {
         if (kDebugMode) {
           debugPrint('[RuntimeConfig] Received keys: ${_config.keys.join(', ')}');
           if (_config['supabase'] == null) {
-            debugPrint('[RuntimeConfig] WARNING: "supabase" section missing in config response');
+            debugPrint('[RuntimeConfig] CRITICAL: "supabase" section missing in config response!');
+          } else {
+            final sb = _config['supabase'];
+            debugPrint('[RuntimeConfig] Supabase Config: url=${sb['url'] != null}, key=${sb['anonKey'] != null}');
           }
         }
       } else {
@@ -82,20 +82,21 @@ class RuntimeConfigService {
   /// Fallback to build-time configuration
   void _loadDefaults() {
     debugPrint('[RuntimeConfig] Using build-time defaults');
-    _config = {
-      'apiBaseUrl': AppConfig.apiBaseUrl,
-      'payments': {
-        'razorpayKeyId': AppConfig.razorpayKeyId,
-      },
-      'monitoring': {
-        'sentryDsn': AppConfig.sentryDsn,
-      },
-      'shop': {
-        'latitude': AppConfig.shopLatitude,
-        'longitude': AppConfig.shopLongitude,
-        'maxDeliveryRadiusKm': AppConfig.deliveryRadiusKm,
-      },
-    };
+    try {
+      _config = {
+        'apiBaseUrl': AppConfig.apiBaseUrl,
+        'payments': {'razorpayKeyId': AppConfig.razorpayKeyId},
+        'monitoring': {'sentryDsn': AppConfig.sentryDsn},
+        'shop': {
+          'latitude': AppConfig.shopLatitude,
+          'longitude': AppConfig.shopLongitude,
+          'maxDeliveryRadiusKm': AppConfig.deliveryRadiusKm,
+        },
+      };
+    } catch (e) {
+      debugPrint('[RuntimeConfig] Critical: Failed to load defaults: $e');
+      _config = {};
+    }
     _isLoaded = true;
   }
 
@@ -105,32 +106,24 @@ class RuntimeConfigService {
 
   bool get isLoaded => _isLoaded;
 
-  String get apiBaseUrl =>
-      _config['apiBaseUrl'] ?? AppConfig.apiBaseUrl;
+  String get apiBaseUrl => _config['apiBaseUrl'] ?? AppConfig.apiBaseUrl;
 
-  String get razorpayKeyId =>
-      _config['payments']?['razorpayKeyId'] ?? AppConfig.razorpayKeyId;
+  String get razorpayKeyId => _config['payments']?['razorpayKeyId'] ?? AppConfig.razorpayKeyId;
 
-  String get sentryDsn =>
-      _config['monitoring']?['sentryDsn'] ?? AppConfig.sentryDsn;
+  String get sentryDsn => _config['monitoring']?['sentryDsn'] ?? AppConfig.sentryDsn;
 
-  String get supabaseUrl =>
-      _config['supabase']?['url'] ?? AppConfig.supabaseUrl;
+  String get supabaseUrl => _config['supabase']?['url'] ?? AppConfig.supabaseUrl;
 
-  String get supabaseAnonKey =>
-      _config['supabase']?['anonKey'] ?? AppConfig.supabaseAnonKey;
+  String get supabaseAnonKey => _config['supabase']?['anonKey'] ?? AppConfig.supabaseAnonKey;
 
-  double get shopLatitude =>
-      (_config['shop']?['latitude'] ?? AppConfig.shopLatitude).toDouble();
+  double get shopLatitude => (_config['shop']?['latitude'] ?? AppConfig.shopLatitude).toDouble();
 
-  double get shopLongitude =>
-      (_config['shop']?['longitude'] ?? AppConfig.shopLongitude).toDouble();
+  double get shopLongitude => (_config['shop']?['longitude'] ?? AppConfig.shopLongitude).toDouble();
 
   double get deliveryRadiusKm =>
       (_config['shop']?['maxDeliveryRadiusKm'] ?? AppConfig.deliveryRadiusKm).toDouble();
 
-  bool get whatsappEnabled =>
-      _config['features']?['whatsappEnabled'] ?? false;
+  bool get whatsappEnabled => _config['features']?['whatsappEnabled'] ?? false;
 
   /// Get raw config for debugging
   Map<String, dynamic> get rawConfig => Map.from(_config);

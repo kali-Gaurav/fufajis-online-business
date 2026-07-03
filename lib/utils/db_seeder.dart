@@ -95,7 +95,7 @@ class DatabaseSeeder {
         'brand': 'Aashirvaad',
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
-      }
+      },
     ];
 
     if (productsSnapshot.docs.isEmpty) {
@@ -116,12 +116,7 @@ class DatabaseSeeder {
       final bin = (i % 2) + 1; // 1, 2
 
       await doc.reference.update({
-        'branchLocations.$branchId': {
-          'zone': zone,
-          'aisle': aisle,
-          'shelf': shelf,
-          'bin': bin,
-        }
+        'branchLocations.$branchId': {'zone': zone, 'aisle': aisle, 'shelf': shelf, 'bin': bin},
       });
       i++;
     }
@@ -171,7 +166,7 @@ class DatabaseSeeder {
           'quantity': 100,
           'unit': itemsList[1]['unit'],
           'estimatedCost': itemsList[1]['price'] * 0.85,
-        }
+        },
     ];
 
     double po1Total = po1Items.fold(0.0, (sum, item) {
@@ -208,7 +203,7 @@ class DatabaseSeeder {
           'quantity': 30,
           'unit': itemsList[3]['unit'],
           'estimatedCost': itemsList[3]['price'] * 0.90,
-        }
+        },
     ];
 
     double po2Total = po2Items.fold(0.0, (sum, item) {

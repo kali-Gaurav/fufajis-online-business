@@ -7,7 +7,7 @@ class RealtimeDatabaseService {
   static final RealtimeDatabaseService _instance = RealtimeDatabaseService._internal();
   factory RealtimeDatabaseService() => _instance;
   static RealtimeDatabaseService get instance => _instance;
-  
+
   RealtimeDatabaseService._internal();
 
   final FirebaseDatabase _db = FirebaseDatabase.instance;
@@ -29,21 +29,21 @@ class RealtimeDatabaseService {
 
   // --- COLLISION PREVENTION (LOCKS) ---
 
-  /// Attempts to lock an order for packing. 
+  /// Attempts to lock an order for packing.
   /// Returns true if lock acquired, false if already locked by someone else.
   Future<bool> acquireOrderLock(String orderId, String employeeId, String employeeName) async {
     final lockRef = _db.ref('$PATH_ORDER_LOCKS/$orderId');
-    
+
     // Check if lock exists and is still valid (within 2 mins)
     final snapshot = await lockRef.get();
     if (snapshot.exists) {
       final data = Map<String, dynamic>.from(snapshot.value as Map);
       final lastHeartbeat = data['timestamp'] as int;
       final now = DateTime.now().millisecondsSinceEpoch;
-      
+
       // If lock is fresh (< 2 mins) and not ours, fail.
       if (now - lastHeartbeat < 120000 && data['employee_id'] != employeeId) {
-        return false; 
+        return false;
       }
     }
 
@@ -53,7 +53,7 @@ class RealtimeDatabaseService {
       'employee_name': employeeName,
       'timestamp': ServerValue.timestamp,
     });
-    
+
     // Auto-remove lock on disconnect
     await lockRef.onDisconnect().remove();
     return true;
@@ -113,20 +113,13 @@ class RealtimeDatabaseService {
   Future<void> setUserPresence(String userId, String role, bool isOnline) async {
     final presenceRef = _db.ref('$PATH_USER_PRESENCE/$userId');
     if (isOnline) {
-      await presenceRef.set({
-        'online': true,
-        'role': role,
-        'last_seen': ServerValue.timestamp,
-      });
+      await presenceRef.set({'online': true, 'role': role, 'last_seen': ServerValue.timestamp});
       await presenceRef.onDisconnect().update({
         'online': false,
         'last_seen': ServerValue.timestamp,
       });
     } else {
-      await presenceRef.update({
-        'online': false,
-        'last_seen': ServerValue.timestamp,
-      });
+      await presenceRef.update({'online': false, 'last_seen': ServerValue.timestamp});
     }
   }
 

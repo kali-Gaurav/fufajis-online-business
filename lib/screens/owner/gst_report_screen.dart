@@ -63,15 +63,15 @@ class _GSTReportScreenState extends State<GSTReportScreen> {
     try {
       await Provider.of<InvoiceProvider>(context, listen: false).saveGSTReport(_shopId);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('GST report saved for filing records')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('GST report saved for filing records')));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save report: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to save report: $e')));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -120,7 +120,10 @@ class _GSTReportScreenState extends State<GSTReportScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _SummaryRow(label: 'Total Sales', value: GSTService.formatCurrency(report.totalSales)),
+                        _SummaryRow(
+                          label: 'Total Sales',
+                          value: GSTService.formatCurrency(report.totalSales),
+                        ),
                         const Divider(),
                         _SummaryRow(
                           label: 'Total GST Liability',
@@ -131,7 +134,10 @@ class _GSTReportScreenState extends State<GSTReportScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text('Tax Breakdown by Rate', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                  const Text(
+                    'Tax Breakdown by Rate',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
                   const SizedBox(height: 8),
                   ...GSTService.getUniqueGSTRates(report.taxByRate.keys.toList()).map((rate) {
                     final tax = report.taxByRate[rate] ?? 0;
@@ -155,12 +161,17 @@ class _GSTReportScreenState extends State<GSTReportScreen> {
                   ),
                   const SizedBox(height: 24),
                 ],
-                const Text('Invoices in Range', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                const Text(
+                  'Invoices in Range',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
                 const SizedBox(height: 8),
                 if (provider.invoices.isEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 24),
-                    child: Center(child: Text('No invoices found', style: TextStyle(color: Colors.grey[600]))),
+                    child: Center(
+                      child: Text('No invoices found', style: TextStyle(color: Colors.grey[600])),
+                    ),
                   )
                 else
                   ...provider.invoices.map((inv) => _InvoiceRow(invoice: inv)),
@@ -181,7 +192,10 @@ class _SummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal, fontSize: bold ? 16 : 14);
+    final style = TextStyle(
+      fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+      fontSize: bold ? 16 : 14,
+    );
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(

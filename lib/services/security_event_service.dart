@@ -51,8 +51,7 @@ enum SecurityEventType {
 class SecurityEventService {
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  static final SecurityEventService _instance =
-      SecurityEventService._internal();
+  static final SecurityEventService _instance = SecurityEventService._internal();
   factory SecurityEventService() => _instance;
   SecurityEventService._internal();
 
@@ -68,13 +67,13 @@ class SecurityEventService {
       final deviceName = await DeviceSecurityService.getDeviceName();
 
       await _db.collection('security_events').add({
-        'event':      event.name,
-        'userId':     userId,
-        'email':      email,
-        'deviceId':   deviceId,
+        'event': event.name,
+        'userId': userId,
+        'email': email,
+        'deviceId': deviceId,
         'deviceName': deviceName,
-        'metadata':   metadata,
-        'timestamp':  FieldValue.serverTimestamp(),
+        'metadata': metadata,
+        'timestamp': FieldValue.serverTimestamp(),
       });
 
       debugPrint('[Security] Event: ${event.name} | user=$userId');
@@ -102,8 +101,7 @@ class SecurityEventService {
       query = query.where('userId', isEqualTo: filterUserId);
     }
 
-    return query.snapshots().map(
-        (s) => s.docs.map((d) => d.data()).toList());
+    return query.snapshots().map((s) => s.docs.map((d) => d.data()).toList());
   }
 
   /// Count failed PIN attempts for a user in the last N hours

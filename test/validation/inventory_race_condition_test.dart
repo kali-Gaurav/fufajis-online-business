@@ -12,7 +12,14 @@ import 'package:fufajis_online/constants/order_status.dart';
 import 'package:fufajis_online/utils/monetary_value.dart';
 
 // Mock Firebase for testing
-@GenerateMocks([FirebaseFirestore, CollectionReference, DocumentReference, DocumentSnapshot, QuerySnapshot, Transaction])
+@GenerateMocks([
+  FirebaseFirestore,
+  CollectionReference,
+  DocumentReference,
+  DocumentSnapshot,
+  QuerySnapshot,
+  Transaction,
+])
 import 'inventory_race_condition_test.mocks.dart';
 
 class _TestItem {
@@ -21,7 +28,13 @@ class _TestItem {
   final int quantity;
   final double price;
   final String category;
-  _TestItem({required this.productId, required this.productName, required this.quantity, required this.price, required this.category});
+  _TestItem({
+    required this.productId,
+    required this.productName,
+    required this.quantity,
+    required this.price,
+    required this.category,
+  });
 }
 
 /// INVENTORY RACE CONDITION TEST SUITE
@@ -128,16 +141,20 @@ void main() {
         customerId: testCustomerId1,
         customerName: 'Test Customer',
         customerPhone: '+919999999999',
-        items: order1Items.map((i) => model.OrderItem(
-          id: 'item_1',
-          productId: i.productId,
-          productName: i.productName,
-          productImage: '',
-          unit: 'kg',
-          quantity: i.quantity,
-          price: MonetaryValue(i.price),
-          totalPrice: MonetaryValue(i.price * i.quantity),
-        )).toList(),
+        items: order1Items
+            .map(
+              (i) => model.OrderItem(
+                id: 'item_1',
+                productId: i.productId,
+                productName: i.productName,
+                productImage: '',
+                unit: 'kg',
+                quantity: i.quantity,
+                price: MonetaryValue(i.price),
+                totalPrice: MonetaryValue(i.price * i.quantity),
+              ),
+            )
+            .toList(),
         subtotal: MonetaryValue(100.0),
         tax: MonetaryValue(0.0),
         discount: MonetaryValue(0.0),
@@ -203,8 +220,11 @@ void main() {
       expect(successCount, 5, reason: 'Exactly 5 customers should succeed');
       expect(failureCount, 5, reason: 'Exactly 5 customers should fail');
       expect(finalStock, 0, reason: 'Final stock must be exactly 0, never negative');
-      expect(successCount + failureCount, concurrentCustomers,
-        reason: 'All attempts accounted for');
+      expect(
+        successCount + failureCount,
+        concurrentCustomers,
+        reason: 'All attempts accounted for',
+      );
     });
 
     test('Concurrent orders create no lost updates or double-deductions', () async {
@@ -239,51 +259,58 @@ void main() {
       for (final log in stockLog) {
         if (log.contains('SUCCESS')) {
           tempStock--;
-          expect(tempStock, greaterThanOrEqualTo(0),
-            reason: 'Stock must never go negative: $log');
+          expect(tempStock, greaterThanOrEqualTo(0), reason: 'Stock must never go negative: $log');
         }
       }
     });
   });
 
   group('RACE CONDITION: Rapid Restock During Active Orders', () {
-    test('Order for 3 units fails (only 1 available), then restock +5, new order succeeds', () async {
-      // ARRANGE: Product has 1 unit, customer wants 3
-      var stockAvailable = 1;
-      const customerADesire = 3;
-      const restockAmount = 5;
-      const customerBDesire = 2;
+    test(
+      'Order for 3 units fails (only 1 available), then restock +5, new order succeeds',
+      () async {
+        // ARRANGE: Product has 1 unit, customer wants 3
+        var stockAvailable = 1;
+        const customerADesire = 3;
+        const restockAmount = 5;
+        const customerBDesire = 2;
 
-      // ACT: Customer A attempts to order 3
-      bool customerASucceeded = false;
-      if (stockAvailable >= customerADesire) {
-        stockAvailable -= customerADesire;
-        customerASucceeded = true;
-      }
+        // ACT: Customer A attempts to order 3
+        bool customerASucceeded = false;
+        if (stockAvailable >= customerADesire) {
+          stockAvailable -= customerADesire;
+          customerASucceeded = true;
+        }
 
-      // ASSERT: Customer A fails
-      expect(customerASucceeded, false,
-        reason: 'Order for 3 units should fail when only 1 available');
-      expect(stockAvailable, 1, reason: 'Stock unchanged after failed order');
+        // ASSERT: Customer A fails
+        expect(
+          customerASucceeded,
+          false,
+          reason: 'Order for 3 units should fail when only 1 available',
+        );
+        expect(stockAvailable, 1, reason: 'Stock unchanged after failed order');
 
-      // ACT: Manager restocks +5
-      stockAvailable += restockAmount;
-      expect(stockAvailable, 6, reason: 'Stock should be 1+5=6 after restock');
+        // ACT: Manager restocks +5
+        stockAvailable += restockAmount;
+        expect(stockAvailable, 6, reason: 'Stock should be 1+5=6 after restock');
 
-      // ACT: Customer B orders 2 units
-      bool customerBSucceeded = false;
-      if (stockAvailable >= customerBDesire) {
-        stockAvailable -= customerBDesire;
-        customerBSucceeded = true;
-      }
+        // ACT: Customer B orders 2 units
+        bool customerBSucceeded = false;
+        if (stockAvailable >= customerBDesire) {
+          stockAvailable -= customerBDesire;
+          customerBSucceeded = true;
+        }
 
-      // ASSERT: Customer B succeeds
-      expect(customerBSucceeded, true,
-        reason: 'Order for 2 units should succeed when 6 available');
-      expect(stockAvailable, 4, reason: 'Stock should be 6-2=4 after B succeeds');
-      expect(stockAvailable, greaterThanOrEqualTo(0),
-        reason: 'Stock must never be negative');
-    });
+        // ASSERT: Customer B succeeds
+        expect(
+          customerBSucceeded,
+          true,
+          reason: 'Order for 2 units should succeed when 6 available',
+        );
+        expect(stockAvailable, 4, reason: 'Stock should be 6-2=4 after B succeeds');
+        expect(stockAvailable, greaterThanOrEqualTo(0), reason: 'Stock must never be negative');
+      },
+    );
 
     test('Concurrent restock and order: transaction ensures isolation', () async {
       // ARRANGE: Simulate transaction-level isolation
@@ -342,26 +369,19 @@ void main() {
       }
 
       // ASSERT: Both succeed because they're isolated
-      expect(customerASucceeded, true,
-        reason: 'A should succeed (4 available at A)');
-      expect(customerBSucceeded, true,
-        reason: 'B should succeed (3 available at B)');
+      expect(customerASucceeded, true, reason: 'A should succeed (4 available at A)');
+      expect(customerBSucceeded, true, reason: 'B should succeed (3 available at B)');
       expect(branchAStock, 1, reason: 'Branch A: 5-4=1');
       expect(branchBStock, 0, reason: 'Branch B: 3-3=0');
 
       // Both remain non-negative
-      expect(branchAStock, greaterThanOrEqualTo(0),
-        reason: 'Branch A stock never negative');
-      expect(branchBStock, greaterThanOrEqualTo(0),
-        reason: 'Branch B stock never negative');
+      expect(branchAStock, greaterThanOrEqualTo(0), reason: 'Branch A stock never negative');
+      expect(branchBStock, greaterThanOrEqualTo(0), reason: 'Branch B stock never negative');
     });
 
     test('Branch stock map properly isolated in transaction update', () async {
       // ARRANGE: branchStock structure
-      final initialBranchStock = <String, int>{
-        'branch_downtown': 5,
-        'branch_mall': 3,
-      };
+      final initialBranchStock = <String, int>{'branch_downtown': 5, 'branch_mall': 3};
 
       // ACT: Simulate transaction update for branch_downtown
       const branchId = 'branch_downtown';
@@ -373,20 +393,18 @@ void main() {
       updatedBranchStock[branchId] = stock;
 
       // ASSERT: Only target branch modified
-      expect(updatedBranchStock['branch_downtown'], 3,
-        reason: 'Downtown: 5-2=3');
-      expect(updatedBranchStock['branch_mall'], 3,
-        reason: 'Mall unchanged');
-      expect(updatedBranchStock.values.every((v) => v >= 0), true,
-        reason: 'All branch stocks remain non-negative');
+      expect(updatedBranchStock['branch_downtown'], 3, reason: 'Downtown: 5-2=3');
+      expect(updatedBranchStock['branch_mall'], 3, reason: 'Mall unchanged');
+      expect(
+        updatedBranchStock.values.every((v) => v >= 0),
+        true,
+        reason: 'All branch stocks remain non-negative',
+      );
     });
 
     test('Cross-branch order fails if insufficient at target branch', () async {
       // ARRANGE: Customer tries to order from mall but only 1 item available
-      final branchStock = <String, int>{
-        'branch_downtown': 5,
-        'branch_mall': 1,
-      };
+      final branchStock = <String, int>{'branch_downtown': 5, 'branch_mall': 1};
 
       const targetBranch = 'branch_mall';
       const orderQty = 2;
@@ -401,12 +419,9 @@ void main() {
       }
 
       // ASSERT: Must fail
-      expect(orderSucceeded, false,
-        reason: 'Order fails (2 needed, 1 available at mall)');
-      expect(branchStock['branch_downtown'], 5,
-        reason: 'Downtown stock untouched');
-      expect(branchStock['branch_mall'], 1,
-        reason: 'Mall stock unchanged after failed order');
+      expect(orderSucceeded, false, reason: 'Order fails (2 needed, 1 available at mall)');
+      expect(branchStock['branch_downtown'], 5, reason: 'Downtown stock untouched');
+      expect(branchStock['branch_mall'], 1, reason: 'Mall stock unchanged after failed order');
     });
   });
 
@@ -443,8 +458,7 @@ void main() {
       for (final log in transactionLog) {
         if (!log.contains('FAILED')) {
           tempStock--;
-          expect(tempStock, greaterThanOrEqualTo(0),
-            reason: 'Stock must never be negative: $log');
+          expect(tempStock, greaterThanOrEqualTo(0), reason: 'Stock must never be negative: $log');
         }
       }
     });
@@ -475,8 +489,7 @@ void main() {
       expect(commits.length, 3, reason: 'All 3 transactions committed');
 
       const totalDeducted = 3 + 2 + 4;
-      expect(stock, 10 - totalDeducted,
-        reason: 'Stock matches sum of all deductions');
+      expect(stock, 10 - totalDeducted, reason: 'Stock matches sum of all deductions');
     });
 
     test('Double-deduction prevented: transaction isolation', () async {
@@ -528,8 +541,7 @@ void main() {
         }
 
         // Invariant: stock >= 0 always
-        expect(stock, greaterThanOrEqualTo(0),
-          reason: 'Invariant violated at iteration $i');
+        expect(stock, greaterThanOrEqualTo(0), reason: 'Invariant violated at iteration $i');
       }
 
       expect(stock, 0, reason: 'Stock bottoms at 0');
@@ -615,16 +627,16 @@ void main() {
         }
 
         // ASSERT: Invariant holds at every step
-        expect(stock, greaterThanOrEqualTo(0),
-          reason: 'Invariant broken at iteration $i');
+        expect(stock, greaterThanOrEqualTo(0), reason: 'Invariant broken at iteration $i');
       }
 
       // ASSERT: Final state is sane
-      expect(stock, 100 + totalRestocked - totalOrdered,
-        reason: 'Math checks out');
+      expect(stock, 100 + totalRestocked - totalOrdered, reason: 'Math checks out');
       expect(stock, greaterThanOrEqualTo(0), reason: 'Final stock valid');
-      print('Stress test: 1000 ops, final stock=$stock, '
-            'ordered=$totalOrdered, restocked=$totalRestocked, failed=$failedOrders');
+      print(
+        'Stress test: 1000 ops, final stock=$stock, '
+        'ordered=$totalOrdered, restocked=$totalRestocked, failed=$failedOrders',
+      );
     });
   });
 
@@ -654,16 +666,20 @@ void main() {
         customerId: testCustomerId1,
         customerName: 'Test Customer',
         customerPhone: '+919999999999',
-        items: items.map((i) => model.OrderItem(
-          id: i.productId == 'apple_001' ? 'i1' : 'i2',
-          productId: i.productId,
-          productName: i.productName,
-          productImage: '',
-          unit: 'kg',
-          quantity: i.quantity,
-          price: MonetaryValue(i.price),
-          totalPrice: MonetaryValue(i.price * i.quantity),
-        )).toList(),
+        items: items
+            .map(
+              (i) => model.OrderItem(
+                id: i.productId == 'apple_001' ? 'i1' : 'i2',
+                productId: i.productId,
+                productName: i.productName,
+                productImage: '',
+                unit: 'kg',
+                quantity: i.quantity,
+                price: MonetaryValue(i.price),
+                totalPrice: MonetaryValue(i.price * i.quantity),
+              ),
+            )
+            .toList(),
         subtotal: MonetaryValue(190.0),
         tax: MonetaryValue(0.0),
         discount: MonetaryValue(0.0),
@@ -726,10 +742,7 @@ void main() {
 
     test('Branch-aware stock deduction in transaction', () async {
       // ARRANGE: Multi-branch product
-      final branchStock = <String, int>{
-        'branch_downtown': 10,
-        'branch_mall': 5,
-      };
+      final branchStock = <String, int>{'branch_downtown': 10, 'branch_mall': 5};
 
       const targetBranch = 'branch_downtown';
       const orderQty = 7;
@@ -750,8 +763,7 @@ void main() {
       expect(orderSucceeded, true, reason: 'Order succeeds');
       expect(branchStock['branch_downtown'], 3, reason: 'Downtown: 10-7=3');
       expect(branchStock['branch_mall'], 5, reason: 'Mall unchanged');
-      expect(branchStock.values.every((v) => v >= 0), true,
-        reason: 'All branches remain valid');
+      expect(branchStock.values.every((v) => v >= 0), true, reason: 'All branches remain valid');
     });
   });
 
@@ -772,7 +784,8 @@ void main() {
         }
 
         // Step 2: Deduct wallet (simulate wallet error)
-        if (walletBalance >= 200.0) { // Intentional failure
+        if (walletBalance >= 200.0) {
+          // Intentional failure
           walletBalance -= 200.0;
         } else {
           throw Exception('Insufficient balance');

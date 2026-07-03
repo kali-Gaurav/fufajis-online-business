@@ -67,7 +67,7 @@ class _MyDevicesScreenState extends State<MyDevicesScreen> {
               final device = devices[index];
               final isCurrent = device['deviceId'] == _currentDeviceId;
               final isTrusted = device['trusted'] == true;
-              
+
               DateTime? lastLogin;
               if (device['lastLogin'] != null && device['lastLogin'] is Timestamp) {
                 lastLogin = (device['lastLogin'] as Timestamp).toDate();
@@ -98,7 +98,10 @@ class _MyDevicesScreenState extends State<MyDevicesScreen> {
                             color: AppTheme.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Text('This Device', style: TextStyle(fontSize: 10, color: AppTheme.primary)),
+                          child: const Text(
+                            'This Device',
+                            style: TextStyle(fontSize: 10, color: AppTheme.primary),
+                          ),
                         ),
                       ],
                     ],
@@ -108,7 +111,9 @@ class _MyDevicesScreenState extends State<MyDevicesScreen> {
                     children: [
                       const SizedBox(height: 4),
                       Text(
-                        lastLogin != null ? 'Last active: ${DateFormat.yMMMd().add_jm().format(lastLogin)}' : 'Never active',
+                        lastLogin != null
+                            ? 'Last active: ${DateFormat.yMMMd().add_jm().format(lastLogin)}'
+                            : 'Never active',
                         style: const TextStyle(fontSize: 12),
                       ),
                       const SizedBox(height: 2),
@@ -154,9 +159,9 @@ class _MyDevicesScreenState extends State<MyDevicesScreen> {
     if (confirm == true) {
       await _trustedDeviceService.revokeDevice(uid, deviceId);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Device access revoked')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Device access revoked')));
       }
     }
   }

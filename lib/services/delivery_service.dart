@@ -17,21 +17,14 @@ class DeliveryService {
   DeliveryService._internal();
 
   /// Calculate distance using Haversine formula (more accurate than simple Pythagorean)
-  double calculateDistance(
-    double lat1,
-    double lng1,
-    double lat2,
-    double lng2,
-  ) {
+  double calculateDistance(double lat1, double lng1, double lat2, double lng2) {
     const double R = 6371; // Earth radius in km
     final double dLat = (lat2 - lat1) * pi / 180;
     final double dLng = (lng2 - lng1) * pi / 180;
 
-    final double a = sin(dLat / 2) * sin(dLat / 2) +
-        cos(lat1 * pi / 180) *
-            cos(lat2 * pi / 180) *
-            sin(dLng / 2) *
-            sin(dLng / 2);
+    final double a =
+        sin(dLat / 2) * sin(dLat / 2) +
+        cos(lat1 * pi / 180) * cos(lat2 * pi / 180) * sin(dLng / 2) * sin(dLng / 2);
 
     final double c = 2 * atan2(sqrt(a), sqrt(1 - a));
     return R * c; // Distance in km
@@ -142,8 +135,12 @@ class DeliveryService {
           'deliveryAgentName': nearestAgent.name,
           'deliveryAgentPhone': nearestAgent.phone,
           'assignedAt': timestamp,
-          'assignmentDistance':
-              calculateDistance(customerLat, customerLng, nearestAgent.currentLat, nearestAgent.currentLng),
+          'assignmentDistance': calculateDistance(
+            customerLat,
+            customerLng,
+            nearestAgent.currentLat,
+            nearestAgent.currentLng,
+          ),
           'status': 'OrderStatus.outForDelivery',
         });
 
@@ -173,24 +170,18 @@ class DeliveryService {
 
         // Update agent: mark as unavailable if this is their only capacity
         // (Allow multiple orders per agent, but track current count)
-        final currentOrderCount =
-            (agentData['currentOrderCount'] as num?)?.toInt() ?? 0;
+        final currentOrderCount = (agentData['currentOrderCount'] as num?)?.toInt() ?? 0;
         const maxOrdersPerAgent = 3; // Maximum orders per agent
 
-        transaction.update(
-          _db.collection('delivery_agents').doc(nearestAgent.id),
-          {
-            'currentOrderId': order.id,
-            'currentOrderCount': currentOrderCount + 1,
-            'isAvailable': (currentOrderCount + 1) < maxOrdersPerAgent,
-            'lastAssignedAt': timestamp,
-          },
-        );
+        transaction.update(_db.collection('delivery_agents').doc(nearestAgent.id), {
+          'currentOrderId': order.id,
+          'currentOrderCount': currentOrderCount + 1,
+          'isAvailable': (currentOrderCount + 1) < maxOrdersPerAgent,
+          'lastAssignedAt': timestamp,
+        });
       });
 
-      debugPrint(
-        'Successfully assigned order ${order.id} to agent ${nearestAgent.name}',
-      );
+      debugPrint('Successfully assigned order ${order.id} to agent ${nearestAgent.name}');
       return true;
     } catch (e) {
       debugPrint('Error assigning delivery agent: $e');
@@ -199,11 +190,7 @@ class DeliveryService {
   }
 
   /// Update agent location
-  Future<void> updateAgentLocation(
-    String agentId,
-    double latitude,
-    double longitude,
-  ) async {
+  Future<void> updateAgentLocation(String agentId, double latitude, double longitude) async {
     try {
       await _db.collection('delivery_agents').doc(agentId).update({
         'currentLat': latitude,
@@ -232,9 +219,7 @@ class DeliveryService {
   /// Mark agent as unavailable
   Future<void> markAgentUnavailable(String agentId) async {
     try {
-      await _db.collection('delivery_agents').doc(agentId).update({
-        'isAvailable': false,
-      });
+      await _db.collection('delivery_agents').doc(agentId).update({'isAvailable': false});
     } catch (e) {
       debugPrint('Error marking agent unavailable: $e');
     }
@@ -260,10 +245,8 @@ class DeliveryService {
         .where('currentStatus', isEqualTo: 'active')
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs
-          .map((doc) => DeliveryAgent.fromMap(doc.data()))
-          .toList();
-    });
+          return snapshot.docs.map((doc) => DeliveryAgent.fromMap(doc.data())).toList();
+        });
   }
 
   /// Stream of agents with active deliveries
@@ -273,10 +256,8 @@ class DeliveryService {
         .where('currentStatus', isEqualTo: 'active')
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs
-          .map((doc) => DeliveryAgent.fromMap(doc.data()))
-          .toList();
-    });
+          return snapshot.docs.map((doc) => DeliveryAgent.fromMap(doc.data())).toList();
+        });
   }
 
   /// Increment agent delivery count
@@ -293,21 +274,15 @@ class DeliveryService {
   /// Update agent rating
   Future<void> updateAgentRating(String agentId, double newRating) async {
     try {
-      await _db.collection('delivery_agents').doc(agentId).update({
-        'rating': newRating,
-      });
+      await _db.collection('delivery_agents').doc(agentId).update({'rating': newRating});
     } catch (e) {
       debugPrint('Error updating agent rating: $e');
     }
   }
 
   /// Get delivery assignment history
-  Stream<List<Map<String, dynamic>>> getAssignmentHistory(
-    String? agentId,
-  ) {
-    var query = _db
-        .collection('delivery_assignments')
-        .orderBy('assignedAt', descending: true);
+  Stream<List<Map<String, dynamic>>> getAssignmentHistory(String? agentId) {
+    var query = _db.collection('delivery_assignments').orderBy('assignedAt', descending: true);
 
     if (agentId != null && agentId.isNotEmpty) {
       query = query.where('agentId', isEqualTo: agentId);
@@ -369,16 +344,10 @@ class DeliveryService {
         shopName: shopName,
       );
 
-      await _db
-          .collection('deliveries')
-          .doc(deliveryId)
-          .set(deliveryTask.toMap());
+      await _db.collection('deliveries').doc(deliveryId).set(deliveryTask.toMap());
 
       // Create OTP record for verification
-      await _db
-          .collection('delivery_otp')
-          .doc(deliveryId)
-          .set({
+      await _db.collection('delivery_otp').doc(deliveryId).set({
         'otp': otp,
         'generatedAt': Timestamp.fromDate(now),
         'expiresAt': Timestamp.fromDate(otpExpiresAt),
@@ -406,14 +375,10 @@ class DeliveryService {
   }
 
   /// Get deliveries for an agent on a specific date
-  Future<List<DeliveryTask>> getAgentDeliveries(
-    String agentId, {
-    DateTime? date,
-  }) async {
+  Future<List<DeliveryTask>> getAgentDeliveries(String agentId, {DateTime? date}) async {
     try {
       final queryDate = date ?? DateTime.now();
-      final startOfDay =
-          DateTime(queryDate.year, queryDate.month, queryDate.day);
+      final startOfDay = DateTime(queryDate.year, queryDate.month, queryDate.day);
       final endOfDay = startOfDay.add(const Duration(days: 1));
 
       final query = _db
@@ -424,9 +389,7 @@ class DeliveryService {
           .orderBy('createdAt', descending: false);
 
       final snapshot = await query.get();
-      return snapshot.docs
-          .map((doc) => DeliveryTask.fromMap(doc.data()))
-          .toList();
+      return snapshot.docs.map((doc) => DeliveryTask.fromMap(doc.data())).toList();
     } catch (e) {
       throw Exception('Failed to get agent deliveries: $e');
     }
@@ -462,12 +425,7 @@ class DeliveryService {
         'otpAttempts': 0,
       });
 
-      await _db
-          .collection('delivery_otp')
-          .doc(deliveryId)
-          .update({
-        'verified': true,
-      });
+      await _db.collection('delivery_otp').doc(deliveryId).update({'verified': true});
 
       return true;
     } catch (e) {
@@ -493,23 +451,12 @@ class DeliveryService {
   }
 
   /// Update delivery agent's live location
-  Future<void> updateLocation(
-    String deliveryId,
-    double latitude,
-    double longitude,
-  ) async {
+  Future<void> updateLocation(String deliveryId, double latitude, double longitude) async {
     try {
-      await _db
-          .collection('deliveries')
-          .doc(deliveryId)
-          .update({
-        'updatedAt': Timestamp.now(),
-      });
+      await _db.collection('deliveries').doc(deliveryId).update({'updatedAt': Timestamp.now()});
 
       // Store location history for analytics
-      await _db
-          .collection('delivery_locations')
-          .add({
+      await _db.collection('delivery_locations').add({
         'deliveryId': deliveryId,
         'latitude': latitude,
         'longitude': longitude,
@@ -542,9 +489,7 @@ class DeliveryService {
         customerSignature: customerSignature,
       );
 
-      await _db.collection('deliveries').doc(deliveryId).update({
-        'proofOfDelivery': proof.toMap(),
-      });
+      await _db.collection('deliveries').doc(deliveryId).update({'proofOfDelivery': proof.toMap()});
     } catch (e) {
       throw Exception('Failed to upload proof of delivery: $e');
     }
@@ -600,20 +545,14 @@ class DeliveryService {
       });
 
       // Update daily stats
-      await _updateDailyStats(
-        delivery.deliveryAgentId,
-        successful: false,
-      );
+      await _updateDailyStats(delivery.deliveryAgentId, successful: false);
     } catch (e) {
       throw Exception('Failed to mark delivery as failed: $e');
     }
   }
 
   /// Reschedule delivery
-  Future<void> rescheduleDelivery(
-    String deliveryId,
-    DateTime newDeliveryDate,
-  ) async {
+  Future<void> rescheduleDelivery(String deliveryId, DateTime newDeliveryDate) async {
     try {
       await _db.collection('deliveries').doc(deliveryId).update({
         'status': DeliveryStatus.rescheduled.toString(),
@@ -627,39 +566,26 @@ class DeliveryService {
   }
 
   /// Get delivery statistics for an agent
-  Future<DeliveryStats> getDeliveryStats(
-    String agentId, {
-    DateTime? date,
-  }) async {
+  Future<DeliveryStats> getDeliveryStats(String agentId, {DateTime? date}) async {
     try {
       final queryDate = date ?? DateTime.now();
       final dateStr =
           '${queryDate.year}-${queryDate.month.toString().padLeft(2, '0')}-${queryDate.day.toString().padLeft(2, '0')}';
 
-      final doc = await _db
-          .collection('agent_daily_stats')
-          .doc('${agentId}_$dateStr')
-          .get();
+      final doc = await _db.collection('agent_daily_stats').doc('${agentId}_$dateStr').get();
 
       if (doc.exists) {
         return DeliveryStats.fromMap(doc.data()!);
       }
 
-      return DeliveryStats(
-        agentId: agentId,
-        date: dateStr,
-      );
+      return DeliveryStats(agentId: agentId, date: dateStr);
     } catch (e) {
       throw Exception('Failed to get delivery stats: $e');
     }
   }
 
   /// Add customer rating for delivery
-  Future<void> rateDelivery(
-    String deliveryId,
-    double rating,
-    String? feedback,
-  ) async {
+  Future<void> rateDelivery(String deliveryId, double rating, String? feedback) async {
     try {
       if (rating < 1 || rating > 5) {
         throw Exception('Rating must be between 1 and 5');
@@ -696,8 +622,7 @@ class DeliveryService {
   /// Stream of deliveries for an agent (real-time)
   Stream<List<DeliveryTask>> streamAgentDeliveries(String agentId) {
     final queryDate = DateTime.now();
-    final startOfDay =
-        DateTime(queryDate.year, queryDate.month, queryDate.day);
+    final startOfDay = DateTime(queryDate.year, queryDate.month, queryDate.day);
     final endOfDay = startOfDay.add(const Duration(days: 1));
 
     return _db
@@ -707,9 +632,7 @@ class DeliveryService {
         .where('createdAt', isLessThan: Timestamp.fromDate(endOfDay))
         .orderBy('createdAt', descending: false)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => DeliveryTask.fromMap(doc.data()))
-            .toList());
+        .map((snapshot) => snapshot.docs.map((doc) => DeliveryTask.fromMap(doc.data())).toList());
   }
 
   /// Stream of a single delivery (real-time tracking)
@@ -718,9 +641,7 @@ class DeliveryService {
         .collection('deliveries')
         .doc(deliveryId)
         .snapshots()
-        .map((snapshot) => snapshot.exists
-            ? DeliveryTask.fromMap(snapshot.data()!)
-            : null);
+        .map((snapshot) => snapshot.exists ? DeliveryTask.fromMap(snapshot.data()!) : null);
   }
 
   /// Helper: Update daily statistics
@@ -735,10 +656,7 @@ class DeliveryService {
           '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
       final statsId = '${agentId}_$dateStr';
 
-      final statsDoc = await _db
-          .collection('agent_daily_stats')
-          .doc(statsId)
-          .get();
+      final statsDoc = await _db.collection('agent_daily_stats').doc(statsId).get();
 
       if (statsDoc.exists) {
         final stats = DeliveryStats.fromMap(statsDoc.data()!);
@@ -747,18 +665,14 @@ class DeliveryService {
           successfulDeliveries: successful
               ? stats.successfulDeliveries + 1
               : stats.successfulDeliveries,
-          failedDeliveries:
-              !successful ? stats.failedDeliveries + 1 : stats.failedDeliveries,
-          onTimeDeliveries:
-              isOnTime ? stats.onTimeDeliveries + 1 : stats.onTimeDeliveries,
-          onTimePercentage: ((isOnTime ? stats.onTimeDeliveries + 1 : stats.onTimeDeliveries) /
+          failedDeliveries: !successful ? stats.failedDeliveries + 1 : stats.failedDeliveries,
+          onTimeDeliveries: isOnTime ? stats.onTimeDeliveries + 1 : stats.onTimeDeliveries,
+          onTimePercentage:
+              ((isOnTime ? stats.onTimeDeliveries + 1 : stats.onTimeDeliveries) /
               (stats.totalDeliveries + 1) *
               100),
         );
-        await _db
-            .collection('agent_daily_stats')
-            .doc(statsId)
-            .update(updatedStats.toMap());
+        await _db.collection('agent_daily_stats').doc(statsId).update(updatedStats.toMap());
       } else {
         final newStats = DeliveryStats(
           agentId: agentId,
@@ -769,10 +683,7 @@ class DeliveryService {
           onTimeDeliveries: isOnTime ? 1 : 0,
           onTimePercentage: isOnTime ? 100.0 : 0.0,
         );
-        await _db
-            .collection('agent_daily_stats')
-            .doc(statsId)
-            .set(newStats.toMap());
+        await _db.collection('agent_daily_stats').doc(statsId).set(newStats.toMap());
       }
     } catch (e) {
       // Silently fail
@@ -802,10 +713,7 @@ class DeliveryService {
 
         final averageRating = count > 0 ? totalRating / count : 0.0;
 
-        await _db
-            .collection('delivery_agents')
-            .doc(agentId)
-            .update({
+        await _db.collection('delivery_agents').doc(agentId).update({
           'averageRating': averageRating,
           'totalRatings': count,
         });

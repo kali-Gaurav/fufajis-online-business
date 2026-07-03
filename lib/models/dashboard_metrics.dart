@@ -96,13 +96,15 @@ class DashboardMetrics {
       revenueGrowth: (map['revenueGrowth'] as num?)?.toDouble() ?? 0.0,
       revenueByPaymentMethod: Map<String, double>.from(
         (map['revenueByPaymentMethod'] as Map?)?.map(
-          (key, value) => MapEntry(key as String, (value as num).toDouble()),
-        ) ?? {},
+              (key, value) => MapEntry(key as String, (value as num).toDouble()),
+            ) ??
+            {},
       ),
       revenueByCategory: Map<String, double>.from(
         (map['revenueByCategory'] as Map?)?.map(
-          (key, value) => MapEntry(key as String, (value as num).toDouble()),
-        ) ?? {},
+              (key, value) => MapEntry(key as String, (value as num).toDouble()),
+            ) ??
+            {},
       ),
       totalOrders: (map['totalOrders'] as num?)?.toInt() ?? 0,
       pendingOrders: (map['pendingOrders'] as num?)?.toInt() ?? 0,
@@ -119,30 +121,39 @@ class DashboardMetrics {
       repeatPurchaseRate: (map['repeatPurchaseRate'] as num?)?.toDouble() ?? 0.0,
       avgCustomerLTV: (map['avgCustomerLTV'] as num?)?.toDouble() ?? 0.0,
       customerChurnRate: (map['customerChurnRate'] as num?)?.toDouble() ?? 0.0,
-      topSellers: (map['topSellers'] as List?)
-          ?.map((item) => ProductMetric.fromMap(item as Map<String, dynamic>))
-          .toList() ?? [],
-      lowPerformers: (map['lowPerformers'] as List?)
-          ?.map((item) => ProductMetric.fromMap(item as Map<String, dynamic>))
-          .toList() ?? [],
+      topSellers:
+          (map['topSellers'] as List?)
+              ?.map((item) => ProductMetric.fromMap(item as Map<String, dynamic>))
+              .toList() ??
+          [],
+      lowPerformers:
+          (map['lowPerformers'] as List?)
+              ?.map((item) => ProductMetric.fromMap(item as Map<String, dynamic>))
+              .toList() ??
+          [],
       outOfStockCount: (map['outOfStockCount'] as num?)?.toInt() ?? 0,
       avgProductRating: (map['avgProductRating'] as num?)?.toDouble() ?? 0.0,
       onTimeDeliveryRate: (map['onTimeDeliveryRate'] as num?)?.toDouble() ?? 0.0,
       failedDeliveryRate: (map['failedDeliveryRate'] as num?)?.toDouble() ?? 0.0,
       avgDeliveryTime: (map['avgDeliveryTime'] as num?)?.toDouble() ?? 0.0,
-      topDeliveryAgents: (map['topDeliveryAgents'] as List?)
-          ?.map((item) => DeliveryAgentMetric.fromMap(item as Map<String, dynamic>))
-          .toList() ?? [],
-      topPerformers: (map['topPerformers'] as List?)
-          ?.map((item) => EmployeeMetric.fromMap(item as Map<String, dynamic>))
-          .toList() ?? [],
+      topDeliveryAgents:
+          (map['topDeliveryAgents'] as List?)
+              ?.map((item) => DeliveryAgentMetric.fromMap(item as Map<String, dynamic>))
+              .toList() ??
+          [],
+      topPerformers:
+          (map['topPerformers'] as List?)
+              ?.map((item) => EmployeeMetric.fromMap(item as Map<String, dynamic>))
+              .toList() ??
+          [],
       avgPackingQuality: (map['avgPackingQuality'] as num?)?.toDouble() ?? 0.0,
       grossProfit: (map['grossProfit'] as num).toDouble(),
       profitMargin: (map['profitMargin'] as num?)?.toDouble() ?? 0.0,
       costBreakdown: Map<String, double>.from(
         (map['costBreakdown'] as Map?)?.map(
-          (key, value) => MapEntry(key as String, (value as num).toDouble()),
-        ) ?? {},
+              (key, value) => MapEntry(key as String, (value as num).toDouble()),
+            ) ??
+            {},
       ),
     );
   }

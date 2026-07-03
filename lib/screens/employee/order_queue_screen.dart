@@ -20,12 +20,10 @@ class _OrderQueueScreenState extends State<OrderQueueScreen> {
   String _searchQuery = '';
   List<Map<String, dynamic>> _availableOrders = [];
   bool _isLoading = false;
-  late PackingService _packingService;
 
   @override
   void initState() {
     super.initState();
-    _packingService = PackingService();
     _loadOrders();
   }
 
@@ -95,9 +93,11 @@ class _OrderQueueScreenState extends State<OrderQueueScreen> {
     // Apply search filter
     if (_searchQuery.isNotEmpty) {
       filtered = filtered
-          .where((order) =>
-              order['id'].toString().contains(_searchQuery) ||
-              order['customerName'].toString().toLowerCase().contains(_searchQuery.toLowerCase()))
+          .where(
+            (order) =>
+                order['id'].toString().contains(_searchQuery) ||
+                order['customerName'].toString().toLowerCase().contains(_searchQuery.toLowerCase()),
+          )
           .toList();
     }
 
@@ -110,14 +110,17 @@ class _OrderQueueScreenState extends State<OrderQueueScreen> {
         filtered.sort((a, b) => (b['total'] as num).compareTo(a['total'] as num));
         break;
       case 'customer_name':
-        filtered.sort((a, b) =>
-            (a['customerName'] as String).compareTo(b['customerName'] as String));
+        filtered.sort(
+          (a, b) => (a['customerName'] as String).compareTo(b['customerName'] as String),
+        );
         break;
       case 'priority':
         final priorityOrder = {'high': 0, 'normal': 1, 'low': 2};
-        filtered.sort((a, b) =>
-            (priorityOrder[a['priority'] as String] ?? 999)
-                .compareTo(priorityOrder[b['priority'] as String] ?? 999));
+        filtered.sort(
+          (a, b) => (priorityOrder[a['priority'] as String] ?? 999).compareTo(
+            priorityOrder[b['priority'] as String] ?? 999,
+          ),
+        );
         break;
     }
 
@@ -157,13 +160,15 @@ class _OrderQueueScreenState extends State<OrderQueueScreen> {
         shopId,
         branchId,
         items
-            .map((i) => FulfillmentItem(
-                  productId: i['productId'] as String,
-                  productName: i['productName'] as String,
-                  requiredQuantity: (i['requiredQuantity'] as num).toDouble(),
-                  unit: i['unit'] as String,
-                  createdAt: DateTime.now(),
-                ))
+            .map(
+              (i) => FulfillmentItem(
+                productId: i['productId'] as String,
+                productName: i['productName'] as String,
+                requiredQuantity: (i['requiredQuantity'] as num).toDouble(),
+                unit: i['unit'] as String,
+                createdAt: DateTime.now(),
+              ),
+            )
             .toList(),
       );
 
@@ -171,19 +176,14 @@ class _OrderQueueScreenState extends State<OrderQueueScreen> {
       await fulfillment.loadAssignedOrders(employeeId, shopId, branchId);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Order ${order['id']} accepted'),
-          backgroundColor: AppTheme.success,
-        ),
+        SnackBar(content: Text('Order ${order['id']} accepted'), backgroundColor: AppTheme.success),
       );
 
       // Navigate to packing screen
       if (mounted) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => PackingScreen(taskId: order['id'] as String),
-          ),
-        );
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => PackingScreen(taskId: order['id'] as String)));
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -216,9 +216,7 @@ class _OrderQueueScreenState extends State<OrderQueueScreen> {
                   decoration: InputDecoration(
                     hintText: 'Search order #, customer name',
                     prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -232,9 +230,7 @@ class _OrderQueueScreenState extends State<OrderQueueScreen> {
                     }
                   },
                   decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                   ),
                   items: const [
                     DropdownMenuItem(value: 'oldest_first', child: Text('Oldest First')),
@@ -252,29 +248,24 @@ class _OrderQueueScreenState extends State<OrderQueueScreen> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
                 : _availableOrders.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.inbox,
-                                size: 64, color: Colors.grey[400]),
-                            const SizedBox(height: 16),
-                            Text('No orders available',
-                                style: Theme.of(context).textTheme.titleMedium),
-                          ],
-                        ),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: _availableOrders.length,
-                        itemBuilder: (context, index) {
-                          final order = _availableOrders[index];
-                          return _OrderQueueCard(
-                            order: order,
-                            onTap: () => _acceptOrder(order),
-                          );
-                        },
-                      ),
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.inbox, size: 64, color: Colors.grey[400]),
+                        const SizedBox(height: 16),
+                        Text('No orders available', style: Theme.of(context).textTheme.titleMedium),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: _availableOrders.length,
+                    itemBuilder: (context, index) {
+                      final order = _availableOrders[index];
+                      return _OrderQueueCard(order: order, onTap: () => _acceptOrder(order));
+                    },
+                  ),
           ),
         ],
       ),
@@ -286,10 +277,7 @@ class _OrderQueueCard extends StatelessWidget {
   final Map<String, dynamic> order;
   final VoidCallback onTap;
 
-  const _OrderQueueCard({
-    required this.order,
-    required this.onTap,
-  });
+  const _OrderQueueCard({required this.order, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -313,9 +301,9 @@ class _OrderQueueCard extends StatelessWidget {
                 children: [
                   Text(
                     'Order #${order['id'] as String}',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
                   if ((order['priority'] as String) == 'high')
@@ -328,9 +316,9 @@ class _OrderQueueCard extends StatelessWidget {
                       child: Text(
                         'HIGH PRIORITY',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: AppTheme.error,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          color: AppTheme.error,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                 ],
@@ -358,9 +346,9 @@ class _OrderQueueCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       (order['address'] as String?) ?? 'Unknown address',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[600],
-                          ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -374,24 +362,19 @@ class _OrderQueueCard extends StatelessWidget {
                 children: [
                   const Icon(Icons.inventory, size: 16, color: AppTheme.info),
                   const SizedBox(width: 4),
-                  Text(
-                    '${order['items']} items',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
+                  Text('${order['items']} items', style: Theme.of(context).textTheme.bodySmall),
                   const Spacer(),
                   Text(
                     '₹${order['total']}',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.success,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.success,
+                    ),
                   ),
                   const Spacer(),
                   Text(
                     '$minutesOld min ago',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
-                        ),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                   ),
                 ],
               ),

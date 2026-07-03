@@ -67,8 +67,8 @@ class _TaskPriorityScreenState extends State<TaskPriorityScreen> {
           .where('status', whereIn: ['confirmed', 'processing'])
           .snapshots()
           .listen((snap) {
-        if (mounted) setState(() => _pendingOrders = snap.docs.length);
-      }),
+            if (mounted) setState(() => _pendingOrders = snap.docs.length);
+          }),
     );
 
     // Low stock alerts
@@ -80,8 +80,8 @@ class _TaskPriorityScreenState extends State<TaskPriorityScreen> {
           .where('stockQuantity', isLessThan: 10)
           .snapshots()
           .listen((snap) {
-        if (mounted) setState(() => _lowStockAlerts = snap.docs.length);
-      }),
+            if (mounted) setState(() => _lowStockAlerts = snap.docs.length);
+          }),
     );
 
     // Pending returns
@@ -92,8 +92,8 @@ class _TaskPriorityScreenState extends State<TaskPriorityScreen> {
           .where('status', isEqualTo: 'pending')
           .snapshots()
           .listen((snap) {
-        if (mounted) setState(() => _pendingReturns = snap.docs.length);
-      }),
+            if (mounted) setState(() => _pendingReturns = snap.docs.length);
+          }),
     );
 
     // Assigned deliveries
@@ -104,8 +104,8 @@ class _TaskPriorityScreenState extends State<TaskPriorityScreen> {
           .where('status', isEqualTo: 'dispatched')
           .snapshots()
           .listen((snap) {
-        if (mounted) setState(() => _assignedDeliveries = snap.docs.length);
-      }),
+            if (mounted) setState(() => _assignedDeliveries = snap.docs.length);
+          }),
     );
   }
 
@@ -163,9 +163,7 @@ class _TaskPriorityScreenState extends State<TaskPriorityScreen> {
                     color: AppTheme.warning,
                     onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const InventoryAuditScreen(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const InventoryAuditScreen()),
                     ),
                   ),
               ],
@@ -210,7 +208,7 @@ class _TaskPriorityScreenState extends State<TaskPriorityScreen> {
                       MaterialPageRoute(builder: (_) => const DeliveryScreen()),
                     ),
                   ),
-            ],
+              ],
             ),
 
             // If no tasks
@@ -223,11 +221,7 @@ class _TaskPriorityScreenState extends State<TaskPriorityScreen> {
                 child: Center(
                   child: Column(
                     children: [
-                      Icon(
-                        Icons.check_circle,
-                        size: 60,
-                        color: AppTheme.success,
-                      ),
+                      Icon(Icons.check_circle, size: 60, color: AppTheme.success),
                       SizedBox(height: 16),
                       Text(
                         'All caught up! ✓',
@@ -238,10 +232,7 @@ class _TaskPriorityScreenState extends State<TaskPriorityScreen> {
                         ),
                       ),
                       SizedBox(height: 8),
-                      Text(
-                        'No pending tasks for now',
-                        style: TextStyle(color: AppTheme.grey600),
-                      ),
+                      Text('No pending tasks for now', style: TextStyle(color: AppTheme.grey600)),
                     ],
                   ),
                 ),
@@ -257,8 +248,7 @@ class _TaskPriorityScreenState extends State<TaskPriorityScreen> {
   // ─────────────────────────────────────────────────
 
   Widget _buildShiftSummaryCard() {
-    final totalTasks =
-        _pendingOrders + _lowStockAlerts + _pendingReturns + _assignedDeliveries;
+    final totalTasks = _pendingOrders + _lowStockAlerts + _pendingReturns + _assignedDeliveries;
     final completedEstimate = _estimateTotalTime();
 
     return Container(
@@ -276,11 +266,7 @@ class _TaskPriorityScreenState extends State<TaskPriorityScreen> {
         children: [
           const Text(
             'Today\'s Shift Overview',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
           ),
           const SizedBox(height: 16),
           Row(
@@ -319,10 +305,7 @@ class _TaskPriorityScreenState extends State<TaskPriorityScreen> {
                   children: [
                     const Text(
                       'Est. Duration',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.white70,
-                      ),
+                      style: TextStyle(fontSize: 11, color: Colors.white70),
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -372,10 +355,7 @@ class _TaskPriorityScreenState extends State<TaskPriorityScreen> {
               Container(
                 width: 8,
                 height: 8,
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                ),
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
               ),
               const SizedBox(width: 8),
               Text(
@@ -390,11 +370,7 @@ class _TaskPriorityScreenState extends State<TaskPriorityScreen> {
               const Spacer(),
               Text(
                 '${tasks.length} task${tasks.length > 1 ? 's' : ''}',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: color,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w500),
               ),
             ],
           ),
@@ -467,10 +443,7 @@ class _TaskPriorityScreenState extends State<TaskPriorityScreen> {
                   const SizedBox(height: 4),
                   Text(
                     '$count item${count > 1 ? 's' : ''} · ~$timeEstimate',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.grey600,
-                    ),
+                    style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
                   ),
                 ],
               ),
@@ -482,10 +455,7 @@ class _TaskPriorityScreenState extends State<TaskPriorityScreen> {
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
+                  decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(6)),
                   child: const Text(
                     'Start',
                     style: TextStyle(
@@ -496,11 +466,7 @@ class _TaskPriorityScreenState extends State<TaskPriorityScreen> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 14,
-                  color: color,
-                ),
+                Icon(Icons.arrow_forward_ios, size: 14, color: color),
               ],
             ),
           ],

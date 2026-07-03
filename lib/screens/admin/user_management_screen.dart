@@ -13,7 +13,7 @@ class UserManagementScreen extends StatefulWidget {
 class _UserManagementScreenState extends State<UserManagementScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _searchController = TextEditingController();
-  
+
   final List<QueryDocumentSnapshot> _users = [];
   bool _isLoading = false;
   bool _hasMore = true;
@@ -48,16 +48,17 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
     try {
       Query q = _firestore.collection('users').limit(_limit);
-      
+
       if (_searchQuery.isNotEmpty) {
         // Prefix search on phone number
-        q = q.where('phoneNumber', isGreaterThanOrEqualTo: _searchQuery)
-             .where('phoneNumber', isLessThan: '$_searchQuery\uf8ff')
-             .orderBy('phoneNumber');
+        q = q
+            .where('phoneNumber', isGreaterThanOrEqualTo: _searchQuery)
+            .where('phoneNumber', isLessThan: '$_searchQuery\uf8ff')
+            .orderBy('phoneNumber');
       } else {
         q = q.orderBy('createdAt', descending: true);
       }
-      
+
       if (_lastDoc != null) {
         q = q.startAfterDocument(_lastDoc!);
       }
@@ -108,7 +109,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 ),
                 ElevatedButton.icon(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Filter tapped')));
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(const SnackBar(content: Text('Filter tapped')));
                   },
                   icon: const Icon(Icons.download),
                   label: const Text('Export CSV'),
@@ -128,9 +131,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 decoration: InputDecoration(
                   hintText: 'Search by Phone Number prefix (+91...)',
                   prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                 ),
                 onChanged: _onSearchChanged,
@@ -140,9 +141,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             Expanded(
               child: Card(
                 elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 child: Theme(
                   data: Theme.of(context).copyWith(cardColor: Colors.white),
                   child: Stack(
@@ -217,10 +216,7 @@ class _UserDataTableSource extends DataTableSource {
         DataCell(Text(phone)),
         DataCell(
           Chip(
-            label: Text(
-              role.toString().toUpperCase(),
-              style: const TextStyle(fontSize: 10),
-            ),
+            label: Text(role.toString().toUpperCase(), style: const TextStyle(fontSize: 10)),
             backgroundColor: role == 'admin'
                 ? AppTheme.error.withValues(alpha: 0.1)
                 : role == 'shop_owner'
@@ -228,12 +224,7 @@ class _UserDataTableSource extends DataTableSource {
                 : AppTheme.adminAccent.withValues(alpha: 0.1),
           ),
         ),
-        DataCell(
-          Text(
-            '₹$balance',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
+        DataCell(Text('₹$balance', style: const TextStyle(fontWeight: FontWeight.bold))),
         DataCell(
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -245,10 +236,7 @@ class _UserDataTableSource extends DataTableSource {
             ),
             child: Text(
               isBlocked ? 'BLOCKED' : 'ACTIVE',
-              style: TextStyle(
-                color: isBlocked ? AppTheme.error : AppTheme.success,
-                fontSize: 12,
-              ),
+              style: TextStyle(color: isBlocked ? AppTheme.error : AppTheme.success, fontSize: 12),
             ),
           ),
         ),
@@ -256,14 +244,12 @@ class _UserDataTableSource extends DataTableSource {
           Row(
             children: [
               IconButton(
-                icon: const Icon(
-                  Icons.remove_red_eye,
-                  color: AppTheme.primary,
-                  size: 18,
-                ),
+                icon: const Icon(Icons.remove_red_eye, color: AppTheme.primary, size: 18),
                 tooltip: 'View Details',
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Add New User tapped')));
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('Add New User tapped')));
                 },
               ),
               IconButton(
@@ -275,10 +261,9 @@ class _UserDataTableSource extends DataTableSource {
                 tooltip: isBlocked ? 'Unblock User' : 'Block User',
                 onPressed: () {
                   // Toggle block status
-                  FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(userDoc.id)
-                      .update({'isBlocked': !isBlocked});
+                  FirebaseFirestore.instance.collection('users').doc(userDoc.id).update({
+                    'isBlocked': !isBlocked,
+                  });
                 },
               ),
             ],

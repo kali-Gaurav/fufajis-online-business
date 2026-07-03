@@ -35,11 +35,11 @@ class VoiceCommand {
   });
 
   factory VoiceCommand.unknown(String text) => VoiceCommand(
-        type: VoiceCommandType.unknown,
-        parameters: const {},
-        originalText: text,
-        confidence: 0.0,
-      );
+    type: VoiceCommandType.unknown,
+    parameters: const {},
+    originalText: text,
+    confidence: 0.0,
+  );
 
   /// Human-readable confirmation string (Hindi/Hinglish)
   String get confirmationText {
@@ -92,8 +92,7 @@ class VoiceCommand {
 // ─────────────── VOICE COMMAND SERVICE ───────────────
 
 class VoiceCommandService {
-  static final VoiceCommandService _instance =
-      VoiceCommandService._internal();
+  static final VoiceCommandService _instance = VoiceCommandService._internal();
   factory VoiceCommandService() => _instance;
   VoiceCommandService._internal();
 
@@ -117,18 +116,9 @@ class VoiceCommandService {
   ];
 
   static final _checkStockPatterns = [
-    RegExp(
-      r'(.+?)\s+kitna(?:\s+hai|\s+bacha|\s+bachha)?',
-      caseSensitive: false,
-    ),
-    RegExp(
-      r'kitna\s+(.+?)\s+(?:hai|bacha|bachha|left)',
-      caseSensitive: false,
-    ),
-    RegExp(
-      r'(.+?)\s+(?:ka\s+)?stock\s+(?:check|batao|kitna)',
-      caseSensitive: false,
-    ),
+    RegExp(r'(.+?)\s+kitna(?:\s+hai|\s+bacha|\s+bachha)?', caseSensitive: false),
+    RegExp(r'kitna\s+(.+?)\s+(?:hai|bacha|bachha|left)', caseSensitive: false),
+    RegExp(r'(.+?)\s+(?:ka\s+)?stock\s+(?:check|batao|kitna)', caseSensitive: false),
   ];
 
   static final _deliverOrderPatterns = [
@@ -136,31 +126,19 @@ class VoiceCommandService {
       r'order\s+(?:number\s+)?#?(\d+)\s+(?:deliver|complete|ho\s+gaya|delivered|done)',
       caseSensitive: false,
     ),
-    RegExp(
-      r'#?(\d+)\s+(?:number\s+)?order\s+(?:deliver|complete|ho\s+gaya)',
-      caseSensitive: false,
-    ),
-    RegExp(
-      r'(?:deliver|delivered|complete)\s+order\s+#?(\d+)',
-      caseSensitive: false,
-    ),
+    RegExp(r'#?(\d+)\s+(?:number\s+)?order\s+(?:deliver|complete|ho\s+gaya)', caseSensitive: false),
+    RegExp(r'(?:deliver|delivered|complete)\s+order\s+#?(\d+)', caseSensitive: false),
   ];
 
   static final _todayOrdersPatterns = [
-    RegExp(
-      r'aaj\s+(?:kitne|ke|ke\s+saare)\s+order',
-      caseSensitive: false,
-    ),
+    RegExp(r'aaj\s+(?:kitne|ke|ke\s+saare)\s+order', caseSensitive: false),
     RegExp(r"today['s\s]+orders?", caseSensitive: false),
     RegExp(r'aaj\s+ke\s+orders?', caseSensitive: false),
     RegExp(r'orders?\s+(?:aaj|today)', caseSensitive: false),
   ];
 
   static final _revenuePatterns = [
-    RegExp(
-      r'aaj\s+(?:kitni\s+)?(?:kamai|revenue|income|sale|bikri)',
-      caseSensitive: false,
-    ),
+    RegExp(r'aaj\s+(?:kitni\s+)?(?:kamai|revenue|income|sale|bikri)', caseSensitive: false),
     RegExp(r"today['s\s]+(?:revenue|sales?|income|earning)", caseSensitive: false),
     RegExp(r"(?:aaj\s+ka|today['s\s]+)\s*(?:revenue|sale)", caseSensitive: false),
   ];
@@ -195,11 +173,17 @@ class VoiceCommandService {
   ];
 
   static final _setPricePatterns = [
-    RegExp(r'(.+?)\s+ka\s+(?:price|bhav|daam|rate)\s+(\d+)\s*(?:rupaye|rs|rupya)?\s*(?:kar|karo|set|update)', caseSensitive: false),
+    RegExp(
+      r'(.+?)\s+ka\s+(?:price|bhav|daam|rate)\s+(\d+)\s*(?:rupaye|rs|rupya)?\s*(?:kar|karo|set|update)',
+      caseSensitive: false,
+    ),
   ];
 
   static final _addProductPatterns = [
-    RegExp(r'(?:naya|new)\s+(?:product|item)\s+(?:add\s+kar|daal|bana)\s+(.+?)\s+(\d+)\s*(?:rupaye|rs|rupya)\s+(\d+)\s*(?:packet|kilo|kg|piece)', caseSensitive: false),
+    RegExp(
+      r'(?:naya|new)\s+(?:product|item)\s+(?:add\s+kar|daal|bana)\s+(.+?)\s+(\d+)\s*(?:rupaye|rs|rupya)\s+(\d+)\s*(?:packet|kilo|kg|piece)',
+      caseSensitive: false,
+    ),
   ];
 
   static final _helpPatterns = [
@@ -207,15 +191,33 @@ class VoiceCommandService {
   ];
 
   static const Map<String, double> _wordNumbers = {
-    'ek': 1.0, 'do': 2.0, 'teen': 3.0, 'char': 4.0, 'paanch': 5.0,
-    'chhe': 6.0, 'sat': 7.0, 'aath': 8.0, 'nau': 9.0, 'das': 10.0,
-    'aadha': 0.5, 'pav': 0.25,
+    'ek': 1.0,
+    'do': 2.0,
+    'teen': 3.0,
+    'char': 4.0,
+    'paanch': 5.0,
+    'chhe': 6.0,
+    'sat': 7.0,
+    'aath': 8.0,
+    'nau': 9.0,
+    'das': 10.0,
+    'aadha': 0.5,
+    'pav': 0.25,
   };
 
   static const Map<String, String> _unitNorm = {
-    'kilo': 'kg', 'kg': 'kg', 'gram': 'g', 'gm': 'g', 'g': 'g',
-    'litre': 'l', 'liter': 'l', 'l': 'l',
-    'packet': 'packet', 'bottle': 'bottle', 'piece': 'piece', 'pcs': 'piece',
+    'kilo': 'kg',
+    'kg': 'kg',
+    'gram': 'g',
+    'gm': 'g',
+    'g': 'g',
+    'litre': 'l',
+    'liter': 'l',
+    'l': 'l',
+    'packet': 'packet',
+    'bottle': 'bottle',
+    'piece': 'piece',
+    'pcs': 'piece',
   };
 
   Future<VoiceCommand> parse(String rawText) async {
@@ -359,11 +361,7 @@ class VoiceCommandService {
       final unit = _normalizeUnit(p1.group(3) ?? 'kg');
       return VoiceCommand(
         type: VoiceCommandType.updateStock,
-        parameters: {
-          'product': _translateProduct(productRaw),
-          'quantity': qty,
-          'unit': unit,
-        },
+        parameters: {'product': _translateProduct(productRaw), 'quantity': qty, 'unit': unit},
         originalText: rawText,
         confidence: 0.9,
       );
@@ -377,11 +375,7 @@ class VoiceCommandService {
       final productRaw = p2.group(3)?.trim() ?? '';
       return VoiceCommand(
         type: VoiceCommandType.updateStock,
-        parameters: {
-          'product': _translateProduct(productRaw),
-          'quantity': qty,
-          'unit': unit,
-        },
+        parameters: {'product': _translateProduct(productRaw), 'quantity': qty, 'unit': unit},
         originalText: rawText,
         confidence: 0.85,
       );
@@ -394,11 +388,7 @@ class VoiceCommandService {
       final unit = _normalizeUnit(p3.group(3) ?? 'kg');
       return VoiceCommand(
         type: VoiceCommandType.updateStock,
-        parameters: {
-          'product': _translateProduct(productRaw),
-          'quantity': qty,
-          'unit': unit,
-        },
+        parameters: {'product': _translateProduct(productRaw), 'quantity': qty, 'unit': unit},
         originalText: rawText,
         confidence: 0.8,
       );
@@ -432,11 +422,7 @@ class VoiceCommandService {
       final productRaw = p1.group(3)?.trim() ?? '';
       return VoiceCommand(
         type: VoiceCommandType.addToCart,
-        parameters: {
-          'product': _translateProduct(productRaw),
-          'quantity': qty,
-          'unit': unit,
-        },
+        parameters: {'product': _translateProduct(productRaw), 'quantity': qty, 'unit': unit},
         originalText: rawText,
         confidence: 0.9,
       );
@@ -449,11 +435,7 @@ class VoiceCommandService {
       final unit = _normalizeUnit(p2.group(3) ?? 'piece');
       return VoiceCommand(
         type: VoiceCommandType.addToCart,
-        parameters: {
-          'product': _translateProduct(productRaw),
-          'quantity': qty,
-          'unit': unit,
-        },
+        parameters: {'product': _translateProduct(productRaw), 'quantity': qty, 'unit': unit},
         originalText: rawText,
         confidence: 0.85,
       );
@@ -462,8 +444,7 @@ class VoiceCommandService {
     return null;
   }
 
-  bool _matchesAny(String text, List<RegExp> patterns) =>
-      patterns.any((p) => p.hasMatch(text));
+  bool _matchesAny(String text, List<RegExp> patterns) => patterns.any((p) => p.hasMatch(text));
 
   String _normalizeUnit(String raw) =>
       _unitNorm[raw.toLowerCase().trim()] ?? raw.toLowerCase().trim();

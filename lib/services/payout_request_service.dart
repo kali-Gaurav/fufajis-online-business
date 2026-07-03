@@ -15,8 +15,7 @@ import 'rider_payout_service.dart';
 /// "owner review and approval before write/payout" policy used across
 /// the inventory change-request flow (Tasks #116-122).
 class PayoutRequestService {
-  static final PayoutRequestService _instance =
-      PayoutRequestService._internal();
+  static final PayoutRequestService _instance = PayoutRequestService._internal();
   factory PayoutRequestService() => _instance;
   PayoutRequestService._internal();
 
@@ -32,9 +31,7 @@ class PayoutRequestService {
         .where('status', isEqualTo: PayoutRequestStatus.pending.name)
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs
-            .map((d) => PayoutRequestModel.fromMap(d.data(), d.id))
-            .toList());
+        .map((snap) => snap.docs.map((d) => PayoutRequestModel.fromMap(d.data(), d.id)).toList());
   }
 
   /// Streams all resolved (approved/paid/rejected/failed) payout requests,
@@ -42,18 +39,19 @@ class PayoutRequestService {
   Stream<List<PayoutRequestModel>> getHistoryStream({int limit = 50}) {
     return _firestore
         .collection(_collection)
-        .where('status', whereIn: [
-          PayoutRequestStatus.approved.name,
-          PayoutRequestStatus.paid.name,
-          PayoutRequestStatus.rejected.name,
-          PayoutRequestStatus.failed.name,
-        ])
+        .where(
+          'status',
+          whereIn: [
+            PayoutRequestStatus.approved.name,
+            PayoutRequestStatus.paid.name,
+            PayoutRequestStatus.rejected.name,
+            PayoutRequestStatus.failed.name,
+          ],
+        )
         .orderBy('createdAt', descending: true)
         .limit(limit)
         .snapshots()
-        .map((snap) => snap.docs
-            .map((d) => PayoutRequestModel.fromMap(d.data(), d.id))
-            .toList());
+        .map((snap) => snap.docs.map((d) => PayoutRequestModel.fromMap(d.data(), d.id)).toList());
   }
 
   /// Rejects a payout request (rider or vendor). The underlying orders

@@ -27,8 +27,7 @@ class FaqArticleCard extends StatefulWidget {
   State<FaqArticleCard> createState() => _FaqArticleCardState();
 }
 
-class _FaqArticleCardState extends State<FaqArticleCard>
-    with SingleTickerProviderStateMixin {
+class _FaqArticleCardState extends State<FaqArticleCard> with SingleTickerProviderStateMixin {
   late bool _expanded;
   bool _viewTracked = false;
   late final AnimationController _anim;
@@ -38,8 +37,7 @@ class _FaqArticleCardState extends State<FaqArticleCard>
   void initState() {
     super.initState();
     _expanded = widget.initiallyExpanded;
-    _anim = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 200));
+    _anim = AnimationController(vsync: this, duration: const Duration(milliseconds: 200));
     _fade = CurvedAnimation(parent: _anim, curve: Curves.easeIn);
     if (_expanded) _anim.value = 1.0;
   }
@@ -95,8 +93,7 @@ class _FaqArticleCardState extends State<FaqArticleCard>
                       children: [
                         // Category chip
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 1),
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                           margin: const EdgeInsets.only(bottom: 4),
                           decoration: BoxDecoration(
                             color: accent.withValues(alpha: 0.12),
@@ -129,16 +126,13 @@ class _FaqArticleCardState extends State<FaqArticleCard>
                       if (widget.onDismiss != null)
                         GestureDetector(
                           onTap: widget.onDismiss,
-                          child: const Icon(Icons.close,
-                              size: 14,
-                              color: AppTheme.grey400),
+                          child: const Icon(Icons.close, size: 14, color: AppTheme.grey400),
                         ),
                       const SizedBox(width: 4),
                       AnimatedRotation(
                         turns: _expanded ? 0.5 : 0.0,
                         duration: const Duration(milliseconds: 200),
-                        child: Icon(Icons.expand_more,
-                            color: accent, size: 18),
+                        child: Icon(Icons.expand_more, color: accent, size: 18),
                       ),
                     ],
                   ),
@@ -156,11 +150,7 @@ class _FaqArticleCardState extends State<FaqArticleCard>
                   padding: const EdgeInsets.fromLTRB(36, 0, 12, 12),
                   child: Text(
                     widget.article.answer,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppTheme.grey700,
-                      height: 1.5,
-                    ),
+                    style: const TextStyle(fontSize: 13, color: AppTheme.grey700, height: 1.5),
                   ),
                 ),
               ),
@@ -176,10 +166,7 @@ class _FaqArticleCardState extends State<FaqArticleCard>
 ///
 /// Shows all articles (active + inactive) with add/edit/toggle/delete.
 class FaqManagerSheet {
-  static Future<void> show(
-    BuildContext context, {
-    Color accentColor = AppTheme.primary,
-  }) {
+  static Future<void> show(BuildContext context, {Color accentColor = AppTheme.primary}) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -221,7 +208,8 @@ class _FaqManagerContentState extends State<_FaqManagerContent> {
           // Drag handle
           Container(
             margin: const EdgeInsets.symmetric(vertical: 10),
-            width: 40, height: 4,
+            width: 40,
+            height: 4,
             decoration: BoxDecoration(
               color: Colors.grey.shade300,
               borderRadius: BorderRadius.circular(2),
@@ -234,18 +222,17 @@ class _FaqManagerContentState extends State<_FaqManagerContent> {
               children: [
                 Icon(Icons.menu_book_outlined, color: widget.accentColor),
                 const SizedBox(width: 8),
-                const Text('FAQ Knowledgebase',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                const Text(
+                  'FAQ Knowledgebase',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
                 const Spacer(),
                 IconButton(
                   icon: Icon(Icons.add_circle_outline, color: widget.accentColor),
                   tooltip: 'Add FAQ',
                   onPressed: () => _showEditDialog(),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
-                ),
+                IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
               ],
             ),
           ),
@@ -260,8 +247,7 @@ class _FaqManagerContentState extends State<_FaqManagerContent> {
                 }
                 final all = snap.data!;
                 // Category filter chips
-                final categories = all.map((a) => a.category).toSet().toList()
-                  ..sort();
+                final categories = all.map((a) => a.category).toSet().toList()..sort();
 
                 return Column(
                   children: [
@@ -271,48 +257,44 @@ class _FaqManagerContentState extends State<_FaqManagerContent> {
                         height: 44,
                         child: ListView(
                           scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 6),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                           children: [
                             _FilterChip(
                               label: 'All',
                               selected: _filterCategory == null,
                               color: widget.accentColor,
-                              onTap: () =>
-                                  setState(() => _filterCategory = null),
+                              onTap: () => setState(() => _filterCategory = null),
                             ),
-                            ...categories.map((c) => _FilterChip(
-                                  label: c,
-                                  selected: _filterCategory == c,
-                                  color: widget.accentColor,
-                                  onTap: () =>
-                                      setState(() => _filterCategory = c),
-                                )),
+                            ...categories.map(
+                              (c) => _FilterChip(
+                                label: c,
+                                selected: _filterCategory == c,
+                                color: widget.accentColor,
+                                onTap: () => setState(() => _filterCategory = c),
+                              ),
+                            ),
                           ],
                         ),
                       ),
                     // List
                     Expanded(
                       child: ListView.builder(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                         itemCount: all
-                            .where((a) => _filterCategory == null ||
-                                a.category == _filterCategory)
+                            .where((a) => _filterCategory == null || a.category == _filterCategory)
                             .length,
                         itemBuilder: (ctx, i) {
                           final filtered = all
-                              .where((a) => _filterCategory == null ||
-                                  a.category == _filterCategory)
+                              .where(
+                                (a) => _filterCategory == null || a.category == _filterCategory,
+                              )
                               .toList();
                           return _ArticleAdminTile(
                             article: filtered[i],
                             accentColor: widget.accentColor,
                             onEdit: () => _showEditDialog(article: filtered[i]),
-                            onToggle: () => _service.update(
-                              filtered[i].id,
-                              isActive: !filtered[i].isActive,
-                            ),
+                            onToggle: () =>
+                                _service.update(filtered[i].id, isActive: !filtered[i].isActive),
                             onDelete: () => _confirmDelete(filtered[i]),
                           );
                         },
@@ -333,8 +315,7 @@ class _FaqManagerContentState extends State<_FaqManagerContent> {
     final qCtrl = TextEditingController(text: article?.question ?? '');
     final aCtrl = TextEditingController(text: article?.answer ?? '');
     final catCtrl = TextEditingController(text: article?.category ?? 'General');
-    final kwCtrl = TextEditingController(
-        text: article?.keywords.join(', ') ?? '');
+    final kwCtrl = TextEditingController(text: article?.keywords.join(', ') ?? '');
 
     showDialog(
       context: context,
@@ -385,9 +366,7 @@ class _FaqManagerContentState extends State<_FaqManagerContent> {
           ),
         ),
         actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               if (qCtrl.text.trim().isEmpty || aCtrl.text.trim().isEmpty) return;
@@ -400,9 +379,7 @@ class _FaqManagerContentState extends State<_FaqManagerContent> {
                 _service.add(
                   question: qCtrl.text,
                   answer: aCtrl.text,
-                  category: catCtrl.text.trim().isEmpty
-                      ? 'General'
-                      : catCtrl.text.trim(),
+                  category: catCtrl.text.trim().isEmpty ? 'General' : catCtrl.text.trim(),
                   keywords: keywords,
                 );
               } else {
@@ -410,9 +387,7 @@ class _FaqManagerContentState extends State<_FaqManagerContent> {
                   article.id,
                   question: qCtrl.text,
                   answer: aCtrl.text,
-                  category: catCtrl.text.trim().isEmpty
-                      ? 'General'
-                      : catCtrl.text.trim(),
+                  category: catCtrl.text.trim().isEmpty ? 'General' : catCtrl.text.trim(),
                   keywords: keywords,
                 );
               }
@@ -432,16 +407,13 @@ class _FaqManagerContentState extends State<_FaqManagerContent> {
         title: const Text('Delete FAQ'),
         content: Text('Delete "${article.question}"?'),
         actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
               _service.delete(article.id);
               Navigator.pop(context);
             },
-            child: const Text('Delete',
-                style: TextStyle(color: AppTheme.error)),
+            child: const Text('Delete', style: TextStyle(color: AppTheme.error)),
           ),
         ],
       ),
@@ -475,9 +447,7 @@ class _ArticleAdminTile extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
         side: BorderSide(
-          color: article.isActive
-              ? accentColor.withValues(alpha: 0.25)
-              : Colors.grey.shade300,
+          color: article.isActive ? accentColor.withValues(alpha: 0.25) : Colors.grey.shade300,
         ),
       ),
       child: Padding(
@@ -492,8 +462,7 @@ class _ArticleAdminTile extends StatelessWidget {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 1),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                         decoration: BoxDecoration(
                           color: accentColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(5),
@@ -501,22 +470,20 @@ class _ArticleAdminTile extends StatelessWidget {
                         child: Text(
                           article.category,
                           style: TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
-                              color: accentColor),
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            color: accentColor,
+                          ),
                         ),
                       ),
                       if (!article.isActive) ...[
                         const SizedBox(width: 6),
-                        const Text('(hidden)',
-                            style: TextStyle(
-                                fontSize: 10, color: Colors.grey)),
+                        const Text('(hidden)', style: TextStyle(fontSize: 10, color: Colors.grey)),
                       ],
                       const Spacer(),
                       Text(
                         '${article.views} views',
-                        style: const TextStyle(
-                            fontSize: 10, color: AppTheme.grey400),
+                        style: const TextStyle(fontSize: 10, color: AppTheme.grey400),
                       ),
                     ],
                   ),
@@ -526,9 +493,7 @@ class _ArticleAdminTile extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: article.isActive
-                          ? AppTheme.grey900
-                          : AppTheme.grey400,
+                      color: article.isActive ? AppTheme.grey900 : AppTheme.grey400,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -536,8 +501,7 @@ class _ArticleAdminTile extends StatelessWidget {
                     article.answer,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        fontSize: 12, color: AppTheme.grey500),
+                    style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
                   ),
                 ],
               ),
@@ -549,21 +513,17 @@ class _ArticleAdminTile extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.edit_outlined, size: 16),
                   color: Colors.grey,
-                  constraints:
-                      const BoxConstraints(minWidth: 28, minHeight: 28),
+                  constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
                   padding: EdgeInsets.zero,
                   onPressed: onEdit,
                 ),
                 IconButton(
                   icon: Icon(
-                    article.isActive
-                        ? Icons.visibility_off_outlined
-                        : Icons.visibility_outlined,
+                    article.isActive ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                     size: 16,
                   ),
                   color: AppTheme.infoGrey,
-                  constraints:
-                      const BoxConstraints(minWidth: 28, minHeight: 28),
+                  constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
                   padding: EdgeInsets.zero,
                   onPressed: onToggle,
                   tooltip: article.isActive ? 'Hide' : 'Show',
@@ -571,8 +531,7 @@ class _ArticleAdminTile extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.delete_outline, size: 16),
                   color: AppTheme.error,
-                  constraints:
-                      const BoxConstraints(minWidth: 28, minHeight: 28),
+                  constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
                   padding: EdgeInsets.zero,
                   onPressed: onDelete,
                 ),
@@ -610,8 +569,7 @@ class _FilterChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? color : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-              color: selected ? color : Colors.grey.shade300),
+          border: Border.all(color: selected ? color : Colors.grey.shade300),
         ),
         child: Text(
           label,

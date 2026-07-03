@@ -37,13 +37,10 @@ class WalletReconciliationService {
 
       // Allow for minor floating point discrepancies
       if ((balance - calculatedBalance).abs() > 0.01) {
-        debugPrint('[WalletReconciliation] Mismatch for user $userId. Stored: $balance, Calc: $calculatedBalance');
-        await _logAnomaly(
-          userId: userId,
-          level: 1,
-          stored: balance,
-          calculated: calculatedBalance,
+        debugPrint(
+          '[WalletReconciliation] Mismatch for user $userId. Stored: $balance, Calc: $calculatedBalance',
         );
+        await _logAnomaly(userId: userId, level: 1, stored: balance, calculated: calculatedBalance);
         return false;
       }
       return true;
@@ -68,13 +65,15 @@ class WalletReconciliationService {
       }
 
       if ((totalStoredBalance - calculatedSystemBalance).abs() > 0.1) {
-         debugPrint('[WalletReconciliation] SYSTEM Mismatch. Stored: $totalStoredBalance, Calc: $calculatedSystemBalance');
-         await _logAnomaly(
+        debugPrint(
+          '[WalletReconciliation] SYSTEM Mismatch. Stored: $totalStoredBalance, Calc: $calculatedSystemBalance',
+        );
+        await _logAnomaly(
           level: 2,
           stored: totalStoredBalance,
           calculated: calculatedSystemBalance,
-         );
-         return false;
+        );
+        return false;
       }
       return true;
     } catch (e) {
@@ -86,50 +85,50 @@ class WalletReconciliationService {
   /// LEVEL 3: Payment Gateway Reconciliation
   /// Razorpay Captures = Orders Paid + Wallet Topups
   Future<bool> reconcilePaymentGateway() async {
-     try {
-       final paymentsSnap = await _db.collection('payments')
-           .where('status', whereIn: ['success', 'captured'])
-           .get();
-       double totalCaptured = 0.0;
-       for (final doc in paymentsSnap.docs) {
-         totalCaptured += ((doc.data()['amount'] as num?) ?? 0.0).toDouble();
-       }
+    try {
+      final paymentsSnap = await _db
+          .collection('payments')
+          .where('status', whereIn: ['success', 'captured'])
+          .get();
+      double totalCaptured = 0.0;
+      for (final doc in paymentsSnap.docs) {
+        totalCaptured += ((doc.data()['amount'] as num?) ?? 0.0).toDouble();
+      }
 
-       final ordersPaidSnap = await _db.collection('orders')
-           .where('paymentStatus', isEqualTo: 'paid')
-           .get();
-       double totalOrdersPaid = 0.0;
-       for (final doc in ordersPaidSnap.docs) {
-         totalOrdersPaid += ((doc.data()['totalAmount'] as num?) ?? 0.0).toDouble();
-       }
+      final ordersPaidSnap = await _db
+          .collection('orders')
+          .where('paymentStatus', isEqualTo: 'paid')
+          .get();
+      double totalOrdersPaid = 0.0;
+      for (final doc in ordersPaidSnap.docs) {
+        totalOrdersPaid += ((doc.data()['totalAmount'] as num?) ?? 0.0).toDouble();
+      }
 
-       final txnsSnap = await _db.collectionGroup('wallet_transactions').get();
-       double totalTopups = 0.0;
-       for (final doc in txnsSnap.docs) {
-         final data = doc.data();
-         final desc = data['description']?.toString() ?? '';
-         final amount = ((data['amount'] as num?) ?? 0.0).toDouble();
-         if (desc.contains('Top-up') && amount > 0) {
-           totalTopups += amount;
-         }
-       }
+      final txnsSnap = await _db.collectionGroup('wallet_transactions').get();
+      double totalTopups = 0.0;
+      for (final doc in txnsSnap.docs) {
+        final data = doc.data();
+        final desc = data['description']?.toString() ?? '';
+        final amount = ((data['amount'] as num?) ?? 0.0).toDouble();
+        if (desc.contains('Top-up') && amount > 0) {
+          totalTopups += amount;
+        }
+      }
 
-       final expectedGateway = totalOrdersPaid + totalTopups;
+      final expectedGateway = totalOrdersPaid + totalTopups;
 
-       if ((totalCaptured - expectedGateway).abs() > 1.0) {
-         debugPrint('[WalletReconciliation] GATEWAY Mismatch. Captured: $totalCaptured, Expected: $expectedGateway');
-         await _logAnomaly(
-          level: 3,
-          stored: totalCaptured,
-          calculated: expectedGateway,
-         );
-         return false;
-       }
-       return true;
-     } catch (e) {
-       debugPrint('[WalletReconciliation] Error Level 3: $e');
-       return false;
-     }
+      if ((totalCaptured - expectedGateway).abs() > 1.0) {
+        debugPrint(
+          '[WalletReconciliation] GATEWAY Mismatch. Captured: $totalCaptured, Expected: $expectedGateway',
+        );
+        await _logAnomaly(level: 3, stored: totalCaptured, calculated: expectedGateway);
+        return false;
+      }
+      return true;
+    } catch (e) {
+      debugPrint('[WalletReconciliation] Error Level 3: $e');
+      return false;
+    }
   }
 
   Future<void> _logAnomaly({

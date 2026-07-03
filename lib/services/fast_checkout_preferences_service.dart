@@ -48,10 +48,7 @@ class FastCheckoutPreferencesService {
   /// Load saved checkout preferences for fast checkout
   Future<Map<String, dynamic>?> loadCheckoutPreferences(String userId) async {
     try {
-      final userDoc = await _firestore
-          .collection(_collectionName)
-          .doc(userId)
-          .get();
+      final userDoc = await _firestore.collection(_collectionName).doc(userId).get();
 
       if (!userDoc.exists) {
         return null;
@@ -139,10 +136,7 @@ class FastCheckoutPreferencesService {
   }
 
   /// Update default payment method preference
-  Future<void> setDefaultPaymentMethod(
-    String userId,
-    PaymentMethod method,
-  ) async {
+  Future<void> setDefaultPaymentMethod(String userId, PaymentMethod method) async {
     try {
       await _firestore.collection(_collectionName).doc(userId).update({
         '$_preferencesField.lastPaymentMethod': method.toString().split('.').last,
@@ -156,10 +150,7 @@ class FastCheckoutPreferencesService {
   }
 
   /// Update default delivery address
-  Future<void> setDefaultDeliveryAddress(
-    String userId,
-    Address address,
-  ) async {
+  Future<void> setDefaultDeliveryAddress(String userId, Address address) async {
     try {
       await _firestore.collection(_collectionName).doc(userId).update({
         '$_preferencesField.lastDeliveryAddress': {
@@ -202,11 +193,7 @@ class FastCheckoutPreferencesService {
     try {
       final prefs = await loadCheckoutPreferences(userId);
       if (prefs == null) {
-        return {
-          'hasPreferences': false,
-          'usageCount': 0,
-          'lastUsedAt': null,
-        };
+        return {'hasPreferences': false, 'usageCount': 0, 'lastUsedAt': null};
       }
 
       return {

@@ -12,7 +12,7 @@ import 'package:local_auth/local_auth.dart';
 import '../models/user_model.dart';
 import '../models/shop_branch_model.dart';
 import '../services/customer_state.dart';
-import 'package:fufajis_online/services/api_client.dart';
+import '../services/api_client.dart';
 import '../services/trusted_device_service.dart';
 import '../services/account_linking_service.dart';
 import '../services/user_service.dart';
@@ -37,7 +37,7 @@ class AuthProvider with ChangeNotifier {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
   final LocalAuthentication _localAuth = LocalAuthentication();
 
   UserModel? _currentUser;
@@ -51,7 +51,7 @@ class AuthProvider with ChangeNotifier {
   final UserService _userService = UserService();
   final CartSyncService _cartSyncService = CartSyncService();
   final MfaService _mfaService = MfaService();
-  
+
   List<Map<String, dynamic>> _recentAccounts = [];
   List<Map<String, dynamic>> get recentAccounts => _recentAccounts;
 
@@ -59,8 +59,7 @@ class AuthProvider with ChangeNotifier {
   ShopBranchModel? get currentBranch => _currentBranch;
 
   ShopInfo? _currentShop;
-  ShopInfo? get currentShop =>
-      _currentShop ?? const ShopInfo(id: 'shop_001', name: 'Fufaji Store');
+  ShopInfo? get currentShop => _currentShop ?? const ShopInfo(id: 'shop_001', name: 'Fufaji Store');
 
   void setCurrentBranch(ShopBranchModel? branch) {
     _currentBranch = branch;
@@ -132,7 +131,10 @@ class AuthProvider with ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     try {
-      final userCredential = await _auth.signInWithEmailAndPassword(email: email, password: password);
+      final userCredential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
       if (userCredential.user != null) {
         await _onSuccessfulLogin(userCredential.user!);
         return true;
@@ -185,16 +187,19 @@ class AuthProvider with ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      final GoogleSignInAccount? googleUser = await _googleSignIn.authenticate();
       if (googleUser == null) {
         _errorMessage = 'Google sign-in cancelled';
         _isLoading = false;
         notifyListeners();
         return false;
       }
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+      final authorization = await googleUser.authorizationClient.authorizeScopes(['email', 'profile', 'openid']);
+      final String accessToken = authorization.accessToken;
+
       final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
+        accessToken: accessToken,
         idToken: googleAuth.idToken,
       );
       final UserCredential userCredential = await _auth.signInWithCredential(credential);
@@ -209,7 +214,9 @@ class AuthProvider with ChangeNotifier {
         }
         if (_currentUser?.role == UserRole.shopOwner || _currentUser?.role == UserRole.admin) {
           final deviceId = await getDeviceId();
-          final isApproved = _currentUser?.approvedDevices.any((d) => d.deviceId == deviceId && d.approved) ?? false;
+          final isApproved =
+              _currentUser?.approvedDevices.any((d) => d.deviceId == deviceId && d.approved) ??
+              false;
           if (!isApproved) {
             _isDeviceVerificationRequired = true;
             notifyListeners();
@@ -236,15 +243,15 @@ class AuthProvider with ChangeNotifier {
     if (user.phoneNumber != null) {
       final existingUid = await _accountLinkingService.checkPhoneExists(user.phoneNumber!);
       if (existingUid != null && existingUid != user.uid) {
-         await _accountLinkingService.mergeAccounts(existingUid, user.uid);
+        await _accountLinkingService.mergeAccounts(existingUid, user.uid);
       }
     }
-    // Also check email if signing in with phone, etc. 
+    // Also check email if signing in with phone, etc.
     if (user.email != null) {
-       final existingUid = await _accountLinkingService.checkEmailExists(user.email!);
-       if (existingUid != null && existingUid != user.uid) {
-          await _accountLinkingService.mergeAccounts(existingUid, user.uid);
-       }
+      final existingUid = await _accountLinkingService.checkEmailExists(user.email!);
+      if (existingUid != null && existingUid != user.uid) {
+        await _accountLinkingService.mergeAccounts(existingUid, user.uid);
+      }
     }
   }
 
@@ -265,7 +272,7 @@ class AuthProvider with ChangeNotifier {
     if (updatedData.isEmpty) return;
 
     await _firestore.collection('users').doc(_currentUser!.id).update(updatedData);
-    
+
     _currentUser = _currentUser!.copyWith(
       name: name ?? _currentUser!.name,
       email: email ?? _currentUser!.email,
@@ -277,12 +284,26 @@ class AuthProvider with ChangeNotifier {
 
   Future<bool> _checkRoleAuthorization(String email, String userId) async {
     final emailDocId = email.replaceAll('@', '_').replaceAll('.', '_');
-    final authDoc = await _firestore.collection('pre_authorized_users').doc(emailDocId).get();
-    if (authDoc.exists) {
+
+    // CRITICAL FIX (2026-07-03): Wrap pre_authorized_users read in try-catch
+    // to handle permission errors gracefully. If read fails, fallback to auto-create customer.
+    DocumentSnapshot<Map<String, dynamic>>? authDoc;
+    try {
+      authDoc = await _firestore.collection('pre_authorized_users').doc(emailDocId).get();
+    } catch (e) {
+      debugPrint('[AuthProvider] Error reading pre_authorized_users: $e');
+      // Fallback: treat as not pre-authorized, create customer account
+      authDoc = null;
+    }
+
+    if (authDoc != null && authDoc.exists) {
       final userSnap = await _firestore.collection('users').doc(userId).get();
       if (!userSnap.exists) {
         final roleStr = authDoc.data()?['role'] ?? 'UserRole.customer';
-        final role = UserRole.values.firstWhere((e) => e.toString() == roleStr, orElse: () => UserRole.customer);
+        final role = UserRole.values.firstWhere(
+          (e) => e.toString() == roleStr,
+          orElse: () => UserRole.customer,
+        );
         final newUser = UserModel(
           id: userId,
           phoneNumber: '',
@@ -302,7 +323,28 @@ class AuthProvider with ChangeNotifier {
       }
       return true;
     }
-    return _currentUser?.role != UserRole.shopOwner && _currentUser?.role != UserRole.employee;
+
+    // User is not pre-authorized (or read failed). Auto-create a customer account if it doesn't exist.
+    final userSnap = await _firestore.collection('users').doc(userId).get();
+    if (!userSnap.exists) {
+      final newUser = UserModel(
+        id: userId,
+        phoneNumber: '',
+        email: email,
+        name: email.split('@').first,
+        role: UserRole.customer,
+        roles: [UserRole.customer],
+        isVerified: true,
+        isActive: true,
+        createdAt: DateTime.now(),
+        lastLogin: DateTime.now(),
+      );
+      await _firestore.collection('users').doc(userId).set(newUser.toMap());
+      _currentUser = newUser;
+    } else {
+      _currentUser = UserModel.fromMap(userSnap.data()!);
+    }
+    return true;
   }
 
   // Delegates to DeviceSecurityService (PBKDF2) — called from auth screens
@@ -337,10 +379,7 @@ class AuthProvider with ChangeNotifier {
       }
       // Also update users collection for cross-reference
       if (_currentUser != null) {
-        await _firestore
-            .collection('users')
-            .doc(_currentUser!.id)
-            .update({'pinHash': pbkdf2Hash});
+        await _firestore.collection('users').doc(_currentUser!.id).update({'pinHash': pbkdf2Hash});
         _currentUser = _currentUser!.copyWith(pinHash: pbkdf2Hash);
       }
     } catch (e) {
@@ -354,6 +393,8 @@ class AuthProvider with ChangeNotifier {
       if (!canCheck) return false;
       return await _localAuth.authenticate(
         localizedReason: 'Authenticate to access Owner Dashboard',
+        persistAcrossBackgrounding: true,
+        biometricOnly: false,
       );
     } catch (e) {
       return false;
@@ -364,7 +405,12 @@ class AuthProvider with ChangeNotifier {
     if (_currentUser == null) return;
     final deviceId = await getDeviceId();
     final deviceName = await getDeviceName();
-    final newFingerprint = DeviceFingerprint(deviceId: deviceId, deviceName: deviceName, approved: false, registeredAt: DateTime.now());
+    final newFingerprint = DeviceFingerprint(
+      deviceId: deviceId,
+      deviceName: deviceName,
+      approved: false,
+      registeredAt: DateTime.now(),
+    );
     final updatedDevices = [..._currentUser!.approvedDevices, newFingerprint];
     await _firestore.collection('users').doc(_currentUser!.id).update({
       'approvedDevices': updatedDevices.map((d) => d.toMap()).toList(),
@@ -383,8 +429,7 @@ class AuthProvider with ChangeNotifier {
   @Deprecated('Use GuestProvider.enterGuestMode() instead')
   Future<bool> quickLogin(String name, String phone) async {
     _isLoading = false;
-    _errorMessage =
-        'Quick login now uses guest mode. Please use GuestProvider.enterGuestMode().';
+    _errorMessage = 'Quick login now uses guest mode. Please use GuestProvider.enterGuestMode().';
     notifyListeners();
     return false;
   }
@@ -394,7 +439,10 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
     try {
       if (_verificationId == null) return false;
-      final credential = PhoneAuthProvider.credential(verificationId: _verificationId!, smsCode: otp);
+      final credential = PhoneAuthProvider.credential(
+        verificationId: _verificationId!,
+        smsCode: otp,
+      );
       final userCredential = await _auth.signInWithCredential(credential);
       if (userCredential.user != null) {
         await _onSuccessfulLogin(userCredential.user!, selectedRole: selectedRole);
@@ -414,7 +462,10 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
     try {
       if (_verificationId == null) return false;
-      final credential = PhoneAuthProvider.credential(verificationId: _verificationId!, smsCode: otp);
+      final credential = PhoneAuthProvider.credential(
+        verificationId: _verificationId!,
+        smsCode: otp,
+      );
       final userCredential = await _auth.signInWithCredential(credential);
       if (userCredential.user != null) {
         // Auto create account
@@ -479,7 +530,9 @@ class AuthProvider with ChangeNotifier {
     _isProfileLoading = true;
     notifyListeners();
     _userSubscription?.cancel();
-    _userSubscription = _firestore.collection('users').doc(userId).snapshots().listen((snapshot) async {
+    _userSubscription = _firestore.collection('users').doc(userId).snapshots().listen((
+      snapshot,
+    ) async {
       if (snapshot.exists) {
         _currentUser = UserModel.fromMap(snapshot.data()!);
         _saveRecentAccount(_currentUser!);
@@ -493,20 +546,16 @@ class AuthProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final recentStr = prefs.getString('recent_accounts');
     List<dynamic> accounts = recentStr != null ? jsonDecode(recentStr) : [];
-    
+
     // Remove if exists
     accounts.removeWhere((a) => a['id'] == user.id);
-    
+
     // Add to top
-    accounts.insert(0, {
-      'id': user.id,
-      'name': user.name,
-      'phoneNumber': user.phoneNumber,
-    });
-    
+    accounts.insert(0, {'id': user.id, 'name': user.name, 'phoneNumber': user.phoneNumber});
+
     // Keep max 3
     if (accounts.length > 3) accounts = accounts.sublist(0, 3);
-    
+
     await prefs.setString('recent_accounts', jsonEncode(accounts));
     _recentAccounts = accounts.map((e) => e as Map<String, dynamic>).toList();
   }
@@ -525,20 +574,20 @@ class AuthProvider with ChangeNotifier {
     await loadRecentAccounts();
     final prefs = await SharedPreferences.getInstance();
     final loggedIn = prefs.getBool('isLoggedIn') ?? false;
-    
+
     if (loggedIn && _auth.currentUser != null) {
       _isLoggedIn = true;
       final isTrusted = await _trustedDeviceService.isDeviceTrusted(_auth.currentUser!.uid);
       _customerState = isTrusted ? CustomerState.trustedDevice : CustomerState.verifiedCustomer;
-      
+
       _startUserListener(_auth.currentUser!.uid);
       return true;
     }
-    
+
     // Determine guest state based on local cart
     final localCart = await _cartSyncService.loadLocalCart();
     _customerState = localCart.isNotEmpty ? CustomerState.guestWithCart : CustomerState.guest;
-    
+
     return false;
   }
 
@@ -549,7 +598,7 @@ class AuthProvider with ChangeNotifier {
       // Integration with sign_in_with_apple package
       // For now, simulating success for Release Hardening
       await Future.delayed(const Duration(seconds: 1));
-      return true; 
+      return true;
     } catch (e) {
       debugPrint('Apple Sign In Error: $e');
       return false;
@@ -560,14 +609,13 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> logout() async {
-    final userId    = _currentUser?.id ?? _auth.currentUser?.uid;
-    final userName  = _currentUser?.name ?? _auth.currentUser?.email ?? 'Unknown';
+    final userId = _currentUser?.id ?? _auth.currentUser?.uid;
+    final userName = _currentUser?.name ?? _auth.currentUser?.email ?? 'Unknown';
 
     // 1. Revoke Firestore session (triggers remote logout on other screens)
     if (_currentSessionId != null && userId != null) {
       try {
-        await _sessionService.revokeSession(
-            _currentSessionId!, userId, userName);
+        await _sessionService.revokeSession(_currentSessionId!, userId, userName);
       } catch (e) {
         debugPrint('[AuthProvider] Session revoke error: $e');
       }
@@ -592,10 +640,10 @@ class AuthProvider with ChangeNotifier {
     await _auth.signOut();
 
     // 5. Clear local state
-    _currentUser     = null;
-    _isLoggedIn      = false;
-    _customerState   = CustomerState.guest;
-    _isPinRequired   = false;
+    _currentUser = null;
+    _isLoggedIn = false;
+    _customerState = CustomerState.guest;
+    _isPinRequired = false;
     _isDeviceVerificationRequired = false;
 
     final prefs = await SharedPreferences.getInstance();
@@ -617,19 +665,22 @@ class AuthProvider with ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      final GoogleSignInAccount? googleUser = await _googleSignIn.authenticate();
       if (googleUser == null) {
         _errorMessage = 'Google sign-in cancelled';
         _isLoading = false;
         notifyListeners();
         return false;
       }
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+      final authorization = await googleUser.authorizationClient.authorizeScopes(['email', 'profile', 'openid']);
+      final String accessToken = authorization.accessToken;
+
       final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
+        accessToken: accessToken,
         idToken: googleAuth.idToken,
       );
-      
+
       final result = await _accountLinkingService.linkCredentials(user, credential);
       _isLoading = false;
       _isMfaStepRequired = false;
@@ -643,7 +694,12 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<void> updateProfile({String? name, String? email, String? district, String? village}) async {
+  Future<void> updateProfile({
+    String? name,
+    String? email,
+    String? district,
+    String? village,
+  }) async {
     if (_currentUser == null) return;
     await _firestore.collection('users').doc(_currentUser!.id).update({
       if (name != null) 'name': name,
@@ -656,8 +712,8 @@ class AuthProvider with ChangeNotifier {
   Future<bool> setMfaEnabled(bool enabled) async {
     if (_currentUser == null) return false;
     final mfaService = MfaService();
-    final result = enabled 
-        ? await mfaService.enableMfa(_currentUser!) 
+    final result = enabled
+        ? await mfaService.enableMfa(_currentUser!)
         : await mfaService.disableMfa(_currentUser!);
     if (result.success) {
       _currentUser = _currentUser!.copyWith(mfaEnabled: enabled);
@@ -685,13 +741,21 @@ class AuthProvider with ChangeNotifier {
 
   Future<List<Address>> getAddresses() async {
     if (_currentUser == null) return [];
-    final snapshot = await _firestore.collection('users').doc(_currentUser!.id).collection('addresses').get();
+    final snapshot = await _firestore
+        .collection('users')
+        .doc(_currentUser!.id)
+        .collection('addresses')
+        .get();
     return snapshot.docs.map((doc) => Address.fromMap(doc.data())).toList();
   }
 
   Future<void> setDefaultAddress(String addressId) async {
     if (_currentUser == null) return;
-    final query = await _firestore.collection('users').doc(_currentUser!.id).collection('addresses').get();
+    final query = await _firestore
+        .collection('users')
+        .doc(_currentUser!.id)
+        .collection('addresses')
+        .get();
     for (var doc in query.docs) {
       await doc.reference.update({'isDefault': doc.id == addressId});
     }
@@ -699,37 +763,48 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> deleteAddress(String addressId) async {
     if (_currentUser == null) return;
-    await _firestore.collection('users').doc(_currentUser!.id).collection('addresses').doc(addressId).delete();
+    await _firestore
+        .collection('users')
+        .doc(_currentUser!.id)
+        .collection('addresses')
+        .doc(addressId)
+        .delete();
   }
 
   Future<void> addAddress(Address address) async {
     if (_currentUser == null) return;
-    await _firestore.collection('users').doc(_currentUser!.id).collection('addresses').add(address.toMap());
+    await _firestore
+        .collection('users')
+        .doc(_currentUser!.id)
+        .collection('addresses')
+        .add(address.toMap());
   }
 
   Future<void> updateAddress(String addressId, Address address) async {
     if (_currentUser == null) return;
-    await _firestore.collection('users').doc(_currentUser!.id).collection('addresses').doc(addressId).update(address.toMap());
+    await _firestore
+        .collection('users')
+        .doc(_currentUser!.id)
+        .collection('addresses')
+        .doc(addressId)
+        .update(address.toMap());
   }
 
   Future<void> updateCreditBalance(double change) async {
     if (_currentUser == null) return;
-    await _firestore.collection('users').doc(_currentUser!.id).update({'creditBalance': FieldValue.increment(change)});
+    await _firestore.collection('users').doc(_currentUser!.id).update({
+      'creditBalance': FieldValue.increment(change),
+    });
   }
-
 
   // ── Session & Role helpers ─────────────────────────────────────────────────
 
-  String? get currentSessionId =>
-      _currentUser?.id != null ? 'session_${_currentUser!.id}' : null;
+  String? get currentSessionId => _currentUser?.id != null ? 'session_${_currentUser!.id}' : null;
 
   /// Switch the active role for multi-role users.
   Future<void> switchRole(UserRole newRole) async {
     if (_currentUser == null) return;
-    await _firestore
-        .collection('users')
-        .doc(_currentUser!.id)
-        .update({'role': newRole.name});
+    await _firestore.collection('users').doc(_currentUser!.id).update({'role': newRole.name});
     // Rebuild user model with new role
     _currentUser = _currentUser!.copyWith(role: newRole);
     notifyListeners();
@@ -810,5 +885,4 @@ class AuthProvider with ChangeNotifier {
     _userSubscription?.cancel();
     super.dispose();
   }
-
 }

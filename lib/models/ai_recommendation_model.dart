@@ -1,31 +1,24 @@
-enum RecommendationStatus {
-  pending,
-  approved,
-  rejected,
-  investigating,
-  ignored,
-  executed,
-}
+enum RecommendationStatus { pending, approved, rejected, investigating, ignored, executed }
 
 class AiRecommendationModel {
   final String id;
   final String type; // Links to RecommendationRegistry
   final String entityType;
   final String entityId;
-  
+
   // What
   final String recommendedAction;
-  
+
   // Why
   final List<String> supportingFactors;
-  
+
   // Confidence
   final double confidence; // 0.0 - 1.0
-  
+
   // Impact & Risk
   final String expectedOutcome;
   final String potentialRisk;
-  
+
   // Rollback
   final String rollbackStrategy;
 

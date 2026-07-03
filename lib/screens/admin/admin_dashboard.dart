@@ -30,13 +30,27 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   void _onItemTapped(int index, BuildContext context) {
     switch (index) {
-      case 0: context.go('/admin'); break;
-      case 1: context.go('/admin/users'); break;
-      case 2: context.go('/admin/shops'); break;
-      case 3: context.go('/admin/products'); break;
-      case 4: context.go('/admin/orders'); break;
-      case 5: context.go('/admin/coupons'); break;
-      case 6: context.go('/admin/analytics'); break;
+      case 0:
+        context.go('/admin');
+        break;
+      case 1:
+        context.go('/admin/users');
+        break;
+      case 2:
+        context.go('/admin/shops');
+        break;
+      case 3:
+        context.go('/admin/products');
+        break;
+      case 4:
+        context.go('/admin/orders');
+        break;
+      case 5:
+        context.go('/admin/coupons');
+        break;
+      case 6:
+        context.go('/admin/analytics');
+        break;
     }
   }
 
@@ -52,14 +66,22 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   IconData _getIconForIndex(int index, bool isSelected) {
     switch (index) {
-      case 0: return isSelected ? Icons.dashboard : Icons.dashboard_outlined;
-      case 1: return isSelected ? Icons.people : Icons.people_outline;
-      case 2: return isSelected ? Icons.storefront : Icons.storefront_outlined;
-      case 3: return isSelected ? Icons.inventory_2 : Icons.inventory_2_outlined;
-      case 4: return isSelected ? Icons.shopping_bag : Icons.shopping_bag_outlined;
-      case 5: return isSelected ? Icons.confirmation_number : Icons.confirmation_number_outlined;
-      case 6: return isSelected ? Icons.analytics : Icons.analytics_outlined;
-      default: return Icons.circle;
+      case 0:
+        return isSelected ? Icons.dashboard : Icons.dashboard_outlined;
+      case 1:
+        return isSelected ? Icons.people : Icons.people_outline;
+      case 2:
+        return isSelected ? Icons.storefront : Icons.storefront_outlined;
+      case 3:
+        return isSelected ? Icons.inventory_2 : Icons.inventory_2_outlined;
+      case 4:
+        return isSelected ? Icons.shopping_bag : Icons.shopping_bag_outlined;
+      case 5:
+        return isSelected ? Icons.confirmation_number : Icons.confirmation_number_outlined;
+      case 6:
+        return isSelected ? Icons.analytics : Icons.analytics_outlined;
+      default:
+        return Icons.circle;
     }
   }
 
@@ -85,7 +107,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
               showDialog(
                 context: context,
                 barrierDismissible: false,
-                builder: (ctx) => const Center(child: CircularProgressIndicator(color: AppTheme.adminAccent)),
+                builder: (ctx) =>
+                    const Center(child: CircularProgressIndicator(color: AppTheme.adminAccent)),
               );
               await FirestoreSeeder.seedDatabase();
               if (mounted) Navigator.pop(context);
@@ -112,47 +135,55 @@ class _AdminDashboardState extends State<AdminDashboard> {
           ),
         ],
       ),
-      drawer: useRail ? null : Drawer(
-        child: Column(
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(color: AppTheme.primary),
-              child: Center(
-                child: Text(
-                  'Admin Dashboard',
-                  style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                itemCount: _titles.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    leading: Icon(
-                      _getIconForIndex(index, selectedIndex == index),
-                      color: selectedIndex == index ? AppTheme.primary : AppTheme.grey600,
-                    ),
-                    title: Text(
-                      _titles[index],
-                      style: TextStyle(
-                        color: selectedIndex == index ? AppTheme.primary : AppTheme.grey800,
-                        fontWeight: selectedIndex == index ? FontWeight.bold : FontWeight.normal,
+      drawer: useRail
+          ? null
+          : Drawer(
+              child: Column(
+                children: [
+                  const DrawerHeader(
+                    decoration: BoxDecoration(color: AppTheme.primary),
+                    child: Center(
+                      child: Text(
+                        'Admin Dashboard',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    selected: selectedIndex == index,
-                    onTap: () {
-                      _onItemTapped(index, context);
-                      Navigator.pop(context);
-                    },
-                  );
-                },
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      padding: EdgeInsets.zero,
+                      itemCount: _titles.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          leading: Icon(
+                            _getIconForIndex(index, selectedIndex == index),
+                            color: selectedIndex == index ? AppTheme.primary : AppTheme.grey600,
+                          ),
+                          title: Text(
+                            _titles[index],
+                            style: TextStyle(
+                              color: selectedIndex == index ? AppTheme.primary : AppTheme.grey800,
+                              fontWeight: selectedIndex == index
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                          ),
+                          selected: selectedIndex == index,
+                          onTap: () {
+                            _onItemTapped(index, context);
+                            Navigator.pop(context);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
       body: Row(
         children: [
           if (useRail)
@@ -163,29 +194,54 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     constraints: BoxConstraints(minHeight: constraints.maxHeight),
                     child: IntrinsicHeight(
                       child: NavigationRail(
-                      selectedIndex: selectedIndex,
-                      onDestinationSelected: (index) => _onItemTapped(index, context),
-                      labelType: NavigationRailLabelType.all,
-                      destinations: const [
-                        NavigationRailDestination(icon: Icon(Icons.dashboard_outlined), selectedIcon: Icon(Icons.dashboard), label: Text('Overview')),
-                        NavigationRailDestination(icon: Icon(Icons.people_outline), selectedIcon: Icon(Icons.people), label: Text('Users')),
-                        NavigationRailDestination(icon: Icon(Icons.storefront_outlined), selectedIcon: Icon(Icons.storefront), label: Text('Shops')),
-                        NavigationRailDestination(icon: Icon(Icons.inventory_2_outlined), selectedIcon: Icon(Icons.inventory_2), label: Text('Products')),
-                        NavigationRailDestination(icon: Icon(Icons.shopping_bag_outlined), selectedIcon: Icon(Icons.shopping_bag), label: Text('Orders')),
-                        NavigationRailDestination(icon: Icon(Icons.confirmation_number_outlined), selectedIcon: Icon(Icons.confirmation_number), label: Text('Coupons')),
-                        NavigationRailDestination(icon: Icon(Icons.analytics_outlined), selectedIcon: Icon(Icons.analytics), label: Text('Analytics')),
-                      ],
-                    ),
+                        selectedIndex: selectedIndex,
+                        onDestinationSelected: (index) => _onItemTapped(index, context),
+                        labelType: NavigationRailLabelType.all,
+                        destinations: const [
+                          NavigationRailDestination(
+                            icon: Icon(Icons.dashboard_outlined),
+                            selectedIcon: Icon(Icons.dashboard),
+                            label: Text('Overview'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.people_outline),
+                            selectedIcon: Icon(Icons.people),
+                            label: Text('Users'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.storefront_outlined),
+                            selectedIcon: Icon(Icons.storefront),
+                            label: Text('Shops'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.inventory_2_outlined),
+                            selectedIcon: Icon(Icons.inventory_2),
+                            label: Text('Products'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.shopping_bag_outlined),
+                            selectedIcon: Icon(Icons.shopping_bag),
+                            label: Text('Orders'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.confirmation_number_outlined),
+                            selectedIcon: Icon(Icons.confirmation_number),
+                            label: Text('Coupons'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.analytics_outlined),
+                            selectedIcon: Icon(Icons.analytics),
+                            label: Text('Analytics'),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
               },
             ),
-          if (useRail)
-            const VerticalDivider(thickness: 1, width: 1),
-          Expanded(
-            child: widget.child,
-          ),
+          if (useRail) const VerticalDivider(thickness: 1, width: 1),
+          Expanded(child: widget.child),
         ],
       ),
     );
@@ -203,7 +259,9 @@ class AdminOverviewPage extends StatelessWidget {
           return const Center(child: CircularProgressIndicator(color: AppTheme.adminAccent));
         }
         if (adminProvider.error.isNotEmpty) {
-          return Center(child: Text(adminProvider.error, style: const TextStyle(color: AppTheme.error)));
+          return Center(
+            child: Text(adminProvider.error, style: const TextStyle(color: AppTheme.error)),
+          );
         }
 
         return RefreshIndicator(
@@ -213,7 +271,10 @@ class AdminOverviewPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Platform Statistics', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Platform Statistics',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 24),
                 LayoutBuilder(
                   builder: (context, constraints) {
@@ -226,10 +287,30 @@ class AdminOverviewPage extends StatelessWidget {
                       mainAxisSpacing: 16,
                       childAspectRatio: 1.5,
                       children: [
-                        _buildStatCard('Total Users', '${adminProvider.totalUsers}', Icons.people, AppTheme.info),
-                        _buildStatCard('Active Shops', '${adminProvider.totalShops}', Icons.store, AppTheme.warning),
-                        _buildStatCard('Active Orders', '${adminProvider.totalActiveOrders}', Icons.shopping_bag, AppTheme.success),
-                        _buildStatCard('Revenue', '₹${adminProvider.totalRevenue.toStringAsFixed(0)}', Icons.currency_rupee, Colors.purple),
+                        _buildStatCard(
+                          'Total Users',
+                          '${adminProvider.totalUsers}',
+                          Icons.people,
+                          AppTheme.info,
+                        ),
+                        _buildStatCard(
+                          'Active Shops',
+                          '${adminProvider.totalShops}',
+                          Icons.store,
+                          AppTheme.warning,
+                        ),
+                        _buildStatCard(
+                          'Active Orders',
+                          '${adminProvider.totalActiveOrders}',
+                          Icons.shopping_bag,
+                          AppTheme.success,
+                        ),
+                        _buildStatCard(
+                          'Revenue',
+                          '₹${adminProvider.totalRevenue.toStringAsFixed(0)}',
+                          Icons.currency_rupee,
+                          Colors.purple,
+                        ),
                       ],
                     );
                   },
@@ -267,5 +348,3 @@ class AdminOverviewPage extends StatelessWidget {
     );
   }
 }
-
-

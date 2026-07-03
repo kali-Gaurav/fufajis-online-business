@@ -40,8 +40,7 @@ void main() {
         // Assert
         expect(transitionedOrder.status, equals(OrderStatus.confirmed));
         expect(transitionedOrder.statusHistory.length, greaterThan(0));
-        expect(transitionedOrder.statusHistory.last.status,
-            equals(OrderStatus.confirmed));
+        expect(transitionedOrder.statusHistory.last.status, equals(OrderStatus.confirmed));
       });
 
       test('Should validate status transitions correctly', () {
@@ -141,56 +140,61 @@ void main() {
     });
 
     group('Order Lifecycle Validation', () {
-      test('Complete order lifecycle: pending → confirmed → processing → packed → outForDelivery → delivered',
-          () {
-        // Arrange
-        var order = OrderModel(
-          id: 'order1',
-          orderNumber: 'ORD-001',
-          customerId: 'cust1',
-          customerName: 'John Doe',
-          customerPhone: '+919876543210',
-          items: const [],
-          subtotal: MonetaryValue(500.0),
-          totalAmount: MonetaryValue(500.0),
-          deliveryAddress: Address(
-            id: 'addr1',
-            label: 'Home',
-            street: 'Test Street',
-            city: 'Test City',
-            latitude: 0.0,
-            longitude: 0.0,
-          ),
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        );
+      test(
+        'Complete order lifecycle: pending → confirmed → processing → packed → outForDelivery → delivered',
+        () {
+          // Arrange
+          var order = OrderModel(
+            id: 'order1',
+            orderNumber: 'ORD-001',
+            customerId: 'cust1',
+            customerName: 'John Doe',
+            customerPhone: '+919876543210',
+            items: const [],
+            subtotal: MonetaryValue(500.0),
+            totalAmount: MonetaryValue(500.0),
+            deliveryAddress: Address(
+              id: 'addr1',
+              label: 'Home',
+              street: 'Test Street',
+              city: 'Test City',
+              latitude: 0.0,
+              longitude: 0.0,
+            ),
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          );
 
-        // Act - complete lifecycle
-        order = order.updateStatus(OrderStatus.confirmed, note: 'Confirmed');
-        expect(order.status, equals(OrderStatus.confirmed));
+          // Act - complete lifecycle
+          order = order.updateStatus(OrderStatus.confirmed, note: 'Confirmed');
+          expect(order.status, equals(OrderStatus.confirmed));
 
-        order = order.updateStatus(OrderStatus.processing, note: 'Processing');
-        expect(order.status, equals(OrderStatus.processing));
+          order = order.updateStatus(OrderStatus.processing, note: 'Processing');
+          expect(order.status, equals(OrderStatus.processing));
 
-        order = order.updateStatus(OrderStatus.packed, note: 'Packed');
-        expect(order.status, equals(OrderStatus.packed));
+          order = order.updateStatus(OrderStatus.packed, note: 'Packed');
+          expect(order.status, equals(OrderStatus.packed));
 
-        order = order.updateStatus(OrderStatus.outForDelivery, note: 'Out for delivery');
-        expect(order.status, equals(OrderStatus.outForDelivery));
+          order = order.updateStatus(OrderStatus.outForDelivery, note: 'Out for delivery');
+          expect(order.status, equals(OrderStatus.outForDelivery));
 
-        order = order.updateStatus(OrderStatus.delivered, note: 'Delivered');
-        expect(order.status, equals(OrderStatus.delivered));
+          order = order.updateStatus(OrderStatus.delivered, note: 'Delivered');
+          expect(order.status, equals(OrderStatus.delivered));
 
-        // Assert
-        expect(order.statusHistory.length, equals(5));
-        expect(order.statusHistory.map((StatusHistoryEntry e) => e.status).toList(), equals([
-          OrderStatus.confirmed,
-          OrderStatus.processing,
-          OrderStatus.packed,
-          OrderStatus.outForDelivery,
-          OrderStatus.delivered,
-        ]));
-      });
+          // Assert
+          expect(order.statusHistory.length, equals(5));
+          expect(
+            order.statusHistory.map((StatusHistoryEntry e) => e.status).toList(),
+            equals([
+              OrderStatus.confirmed,
+              OrderStatus.processing,
+              OrderStatus.packed,
+              OrderStatus.outForDelivery,
+              OrderStatus.delivered,
+            ]),
+          );
+        },
+      );
 
       test('Order can be cancelled at any active state', () {
         // Arrange

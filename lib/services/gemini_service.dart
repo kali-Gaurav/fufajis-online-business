@@ -7,7 +7,6 @@ import 'api_client.dart';
 
 /// Gemini AI Service for parsing and intelligence
 class GeminiService {
-
   /// Parse a list of items from plain text (WhatsApp message)
   Future<List<Map<String, dynamic>>> parseItemListFromText(String text) async {
     // Translate common Hindi names to English before processing
@@ -17,7 +16,8 @@ class GeminiService {
     });
 
     try {
-      final prompt = 'Parse the following grocery list into a JSON array with keys: name, quantity (num), unit, price, category. Text: "$translatedText"';
+      final prompt =
+          'Parse the following grocery list into a JSON array with keys: name, quantity (num), unit, price, category. Text: "$translatedText"';
       final response = await _generateContent(prompt);
       return _parseJsonList(response);
     } catch (e) {
@@ -63,7 +63,8 @@ class GeminiService {
   /// Voice-to-Inventory (Feature 35)
   Future<Map<String, dynamic>?> parseVoiceInventoryCommand(String text) async {
     try {
-      final prompt = 'Identify inventory action (ADD/UPDATE/DELETE), name, quantity, unit, price from: "$text". Return ONLY JSON.';
+      final prompt =
+          'Identify inventory action (ADD/UPDATE/DELETE), name, quantity, unit, price from: "$text". Return ONLY JSON.';
       final response = await _generateContent(prompt);
       final cleaned = response.replaceAll('```json', '').replaceAll('```', '').trim();
       return jsonDecode(cleaned) as Map<String, dynamic>?;
@@ -157,9 +158,7 @@ Rules:
   /// AI Chat Assistant (Feature 103)
   static Future<String> generateText(String prompt) async {
     try {
-      final result = await ApiClient().post('/ai/gemini', <String, dynamic>{
-        'prompt': prompt,
-      });
+      final result = await ApiClient().post('/ai/gemini', <String, dynamic>{'prompt': prompt});
       final resData = Map<String, dynamic>.from(result.data as Map);
       return resData['text']?.toString() ?? 'No response';
     } catch (e) {
@@ -170,9 +169,7 @@ Rules:
 
   Future<String> _generateContent(String prompt) async {
     try {
-      final result = await ApiClient().post('/ai/gemini', <String, dynamic>{
-        'prompt': prompt,
-      });
+      final result = await ApiClient().post('/ai/gemini', <String, dynamic>{'prompt': prompt});
       final resData = Map<String, dynamic>.from(result.data as Map);
       return resData['text']?.toString() ?? '';
     } catch (e) {
@@ -196,13 +193,14 @@ Rules:
   Future<List<Map<String, dynamic>>> parseOneClickOrder(String text) => parseItemListFromText(text);
 
   List<Map<String, dynamic>> _simulateTextParsing(String text) => [
-    {'name': 'Potato', 'quantity': 5, 'unit': 'kg', 'price': 30.0, 'category': 'vegetables'}
+    {'name': 'Potato', 'quantity': 5, 'unit': 'kg', 'price': 30.0, 'category': 'vegetables'},
   ];
 
   /// Extract keywords and intent from voice transcription (Step 6)
   Future<List<String>> extractKeywordsForSearch(String text) async {
     try {
-      final prompt = 'Extract primary searchable keywords (items like "potato", "milk") from this sentence in Hindi or English: "$text". Return ONLY a comma-separated list of English keywords.';
+      final prompt =
+          'Extract primary searchable keywords (items like "potato", "milk") from this sentence in Hindi or English: "$text". Return ONLY a comma-separated list of English keywords.';
       final response = await _generateContent(prompt);
       if (response.isEmpty) return text.split(' ').where((s) => s.length > 2).toList();
       return response.split(',').map((s) => s.trim().toLowerCase()).toList();
@@ -220,7 +218,8 @@ Rules:
     });
 
     try {
-      final prompt = '''
+      final prompt =
+          '''
 Analyze the following voice command representing a product being added to inventory: "$translatedText"
 
 Extract these details:

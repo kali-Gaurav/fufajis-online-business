@@ -1,0 +1,230 @@
+{
+  "Generic": {
+    "name": "Generic",
+    "category": "Vegetables",
+    "productCount": 80,
+    "skuCount": 96,
+    "products": [
+      "vegetables_1",
+      "vegetables_2",
+      "vegetables_3",
+      "vegetables_4",
+      "vegetables_5",
+      "vegetables_6",
+      "vegetables_7",
+      "vegetables_8",
+      "vegetables_9",
+      "vegetables_10",
+      "vegetables_11",
+      "vegetables_12",
+      "vegetables_13",
+      "vegetables_14",
+      "vegetables_15",
+      "vegetables_16",
+      "vegetables_17",
+      "vegetables_18",
+      "vegetables_19",
+      "vegetables_20",
+      "vegetables_21",
+      "vegetables_22",
+      "vegetables_23",
+      "vegetables_24",
+      "vegetables_25",
+      "vegetables_26",
+      "vegetables_27",
+      "vegetables_28",
+      "vegetables_29",
+      "vegetables_30",
+      "fruits_31",
+      "fruits_32",
+      "fruits_33",
+      "fruits_34",
+      "fruits_35",
+      "fruits_36",
+      "fruits_37",
+      "fruits_38",
+      "fruits_39",
+      "fruits_40",
+      "fruits_41",
+      "fruits_42",
+      "fruits_43",
+      "fruits_44",
+      "fruits_45",
+      "pulses_68",
+      "pulses_69",
+      "pulses_70",
+      "pulses_71",
+      "pulses_72",
+      "pulses_73",
+      "pulses_74",
+      "vegetables_75",
+      "vegetables_76",
+      "vegetables_77",
+      "vegetables_78",
+      "vegetables_79",
+      "vegetables_80",
+      "fruits_81",
+      "fruits_82",
+      "fruits_83",
+      "fruits_84",
+      "fruits_85",
+      "fruits_86",
+      "pulses_97",
+      "pulses_98",
+      "pulses_99",
+      "pulses_100",
+      "pulses_101",
+      "spices_102",
+      "spices_103",
+      "spices_104",
+      "spices_105",
+      "condiments_106",
+      "condiments_107",
+      "condiments_108",
+      "condiments_109",
+      "condiments_110",
+      "sweets_115",
+      "sweets_116"
+    ]
+  },
+  "Mother Dairy": {
+    "name": "Mother Dairy",
+    "category": "Dairy",
+    "productCount": 5,
+    "skuCount": 9,
+    "products": [
+      "dairy_46",
+      "dairy_47",
+      "dairy_52",
+      "dairy_87",
+      "dairy_88"
+    ]
+  },
+  "Amul": {
+    "name": "Amul",
+    "category": "Dairy",
+    "productCount": 3,
+    "skuCount": 5,
+    "products": [
+      "dairy_48",
+      "dairy_53",
+      "dairy_89"
+    ]
+  },
+  "Saras": {
+    "name": "Saras",
+    "category": "Dairy",
+    "productCount": 2,
+    "skuCount": 3,
+    "products": [
+      "dairy_49",
+      "dairy_51"
+    ]
+  },
+  "Nandini": {
+    "name": "Nandini",
+    "category": "Dairy",
+    "productCount": 1,
+    "skuCount": 2,
+    "products": [
+      "dairy_50"
+    ]
+  },
+  "India Gate": {
+    "name": "India Gate",
+    "category": "Rice",
+    "productCount": 6,
+    "skuCount": 8,
+    "products": [
+      "rice_54",
+      "rice_58",
+      "rice_60",
+      "rice_90",
+      "rice_91",
+      "rice_92"
+    ]
+  },
+  "Tata": {
+    "name": "Tata",
+    "category": "Rice",
+    "productCount": 4,
+    "skuCount": 6,
+    "products": [
+      "rice_55",
+      "rice_56",
+      "rice_59",
+      "beverages_113"
+    ]
+  },
+  "Daawat": {
+    "name": "Daawat",
+    "category": "Rice",
+    "productCount": 1,
+    "skuCount": 1,
+    "products": [
+      "rice_57"
+    ]
+  },
+  "Fortune": {
+    "name": "Fortune",
+    "category": "Rice",
+    "productCount": 1,
+    "skuCount": 2,
+    "products": [
+      "rice_61"
+    ]
+  },
+  "Britannia": {
+    "name": "Britannia",
+    "category": "Flour",
+    "productCount": 5,
+    "skuCount": 9,
+    "products": [
+      "flour_62",
+      "flour_63",
+      "flour_65",
+      "flour_67",
+      "snacks_111"
+    ]
+  },
+  "Pillsbury": {
+    "name": "Pillsbury",
+    "category": "Flour",
+    "productCount": 4,
+    "skuCount": 5,
+    "products": [
+      "flour_64",
+      "flour_66",
+      "flour_93",
+      "flour_96"
+    ]
+  },
+  "Aashirvaad": {
+    "name": "Aashirvaad",
+    "category": "Flour",
+    "productCount": 2,
+    "skuCount": 3,
+    "products": [
+      "flour_94",
+      "flour_95"
+    ]
+  },
+  "Lays": {
+    "name": "Lays",
+    "category": "Snacks",
+    "productCount": 1,
+    "skuCount": 2,
+    "products": [
+      "snacks_112"
+    ]
+  },
+  "Bru": {
+    "name": "Bru",
+    "category": "Beverages",
+    "productCount": 1,
+    "skuCount": 1,
+    "products": [
+      "beverages_114"
+    ]
+  }
+}

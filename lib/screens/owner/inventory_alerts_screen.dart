@@ -14,7 +14,8 @@ class InventoryAlertsScreen extends StatefulWidget {
   State<InventoryAlertsScreen> createState() => _InventoryAlertsScreenState();
 }
 
-class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with SingleTickerProviderStateMixin {
+class _InventoryAlertsScreenState extends State<InventoryAlertsScreen>
+    with SingleTickerProviderStateMixin {
   late TextEditingController _searchController;
   late TabController _tabController;
   String _selectedSeverity = 'All';
@@ -64,7 +65,10 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
       final provider = context.read<ProductProvider>();
       await provider.checkAllProductsLowStock();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Diagnostics run successfully! Stock metrics updated.'), backgroundColor: AppTheme.success),
+        const SnackBar(
+          content: Text('Diagnostics run successfully! Stock metrics updated.'),
+          backgroundColor: AppTheme.success,
+        ),
       );
       _loadAlerts();
     } catch (e) {
@@ -83,7 +87,9 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
     if (_tabController.index == 0) {
       filtered = filtered.where((alert) => alert.currentStock <= alert.minimumStock).toList();
     } else {
-      filtered = filtered.where((alert) => alert.daysUntilStockout > 0 && alert.daysUntilStockout <= 7).toList();
+      filtered = filtered
+          .where((alert) => alert.daysUntilStockout > 0 && alert.daysUntilStockout <= 7)
+          .toList();
     }
 
     // Filter by severity
@@ -108,9 +114,7 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
     try {
       final provider = context.read<ProductProvider>();
       await provider.dismissInventoryAlert(alert.id);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Alert dismissed')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Alert dismissed')));
       await _loadAlerts();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -135,26 +139,41 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Product: ${alert.productName}', style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              'Product: ${alert.productName}',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 12),
             Text('Current Stock: ${alert.currentStock} units'),
             Text('Average Daily Sales: ${alert.averageDailySales.toStringAsFixed(1)} units/day'),
             const Divider(height: 24),
-            Text('Recommended Restock: ${alert.recommendedReorderQuantity} units', style: const TextStyle(color: AppTheme.success, fontWeight: FontWeight.bold, fontSize: 16)),
+            Text(
+              'Recommended Restock: ${alert.recommendedReorderQuantity} units',
+              style: const TextStyle(
+                color: AppTheme.success,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
             const SizedBox(height: 8),
-            Text('This quantity covers ${alert.recommendedStockDays > 0 ? alert.recommendedStockDays : 14} days of future sales velocity.', style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
+            Text(
+              'This quantity covers ${alert.recommendedStockDays > 0 ? alert.recommendedStockDays : 14} days of future sales velocity.',
+              style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
+            ),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Purchase Order for ${alert.recommendedReorderQuantity} units sent to distributor!'), backgroundColor: AppTheme.success),
+                SnackBar(
+                  content: Text(
+                    'Purchase Order for ${alert.recommendedReorderQuantity} units sent to distributor!',
+                  ),
+                  backgroundColor: AppTheme.success,
+                ),
               );
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppTheme.info),
@@ -190,10 +209,13 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ProductProvider>();
-    
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Inventory Forecast & Alerts', style: TextStyle(fontWeight: FontWeight.w700)),
+        title: const Text(
+          'Inventory Forecast & Alerts',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
         actions: [
           IconButton(
             onPressed: _runDiagnostics,
@@ -229,7 +251,9 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
                           hintText: 'Search products by name...',
                           prefixIcon: const Icon(Icons.search),
                           filled: true,
-                          fillColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.grey800 : AppTheme.grey100,
+                          fillColor: Theme.of(context).brightness == Brightness.dark
+                              ? AppTheme.grey800
+                              : AppTheme.grey100,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
@@ -242,30 +266,30 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
-                          children: [
-                            'All',
-                            'Critical',
-                            'High',
-                            'Medium',
-                            'Low',
-                          ]
-                              .map((severity) => Padding(
-                                    padding: const EdgeInsets.only(right: 8),
-                                    child: FilterChip(
-                                      label: Text(severity),
-                                      selected: _selectedSeverity == severity,
-                                      selectedColor: AppTheme.info.withValues(alpha: 0.15),
-                                      checkmarkColor: AppTheme.info,
-                                      labelStyle: TextStyle(
-                                        color: _selectedSeverity == severity ? AppTheme.info : AppTheme.grey700,
-                                        fontWeight: _selectedSeverity == severity ? FontWeight.bold : FontWeight.normal,
-                                      ),
-                                      onSelected: (_) {
-                                        setState(() => _selectedSeverity = severity);
-                                        _filterAlerts(provider.lowStockAlerts);
-                                      },
+                          children: ['All', 'Critical', 'High', 'Medium', 'Low']
+                              .map(
+                                (severity) => Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: FilterChip(
+                                    label: Text(severity),
+                                    selected: _selectedSeverity == severity,
+                                    selectedColor: AppTheme.info.withValues(alpha: 0.15),
+                                    checkmarkColor: AppTheme.info,
+                                    labelStyle: TextStyle(
+                                      color: _selectedSeverity == severity
+                                          ? AppTheme.info
+                                          : AppTheme.grey700,
+                                      fontWeight: _selectedSeverity == severity
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
                                     ),
-                                  ))
+                                    onSelected: (_) {
+                                      setState(() => _selectedSeverity = severity);
+                                      _filterAlerts(provider.lowStockAlerts);
+                                    },
+                                  ),
+                                ),
+                              )
                               .toList(),
                         ),
                       ),
@@ -319,7 +343,7 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
   Widget _buildAlertCard(LowStockAlert alert) {
     final severityColor = _getSeverityColor(alert.severity);
     final daysColor = _getDaysRemainingColor(alert.daysUntilStockout);
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -360,10 +384,7 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
                       const SizedBox(height: 4),
                       Text(
                         'SKU: ${alert.productId}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.grey500,
-                        ),
+                        style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
                       ),
                     ],
                   ),
@@ -404,7 +425,9 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
                 ),
                 _buildMetricBlock(
                   _tabController.index == 1 ? 'Days Left' : 'Min Required',
-                  _tabController.index == 1 ? '${alert.daysUntilStockout} days' : '${alert.minimumStock}',
+                  _tabController.index == 1
+                      ? '${alert.daysUntilStockout} days'
+                      : '${alert.minimumStock}',
                   _tabController.index == 1 ? Icons.hourglass_bottom : Icons.warning_amber,
                   _tabController.index == 1 ? daysColor : AppTheme.warning,
                   boldText: _tabController.index == 1,
@@ -478,7 +501,13 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
     );
   }
 
-  Widget _buildMetricBlock(String label, String value, IconData icon, Color color, {bool boldText = false}) {
+  Widget _buildMetricBlock(
+    String label,
+    String value,
+    IconData icon,
+    Color color, {
+    bool boldText = false,
+  }) {
     return Expanded(
       child: Row(
         children: [
@@ -497,10 +526,7 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen> with Sing
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: AppTheme.grey500,
-                  ),
+                  style: const TextStyle(fontSize: 11, color: AppTheme.grey500),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

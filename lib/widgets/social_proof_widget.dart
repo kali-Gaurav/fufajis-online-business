@@ -12,11 +12,7 @@ class SocialProofWidget extends StatefulWidget {
   final String productId;
   final bool compact;
 
-  const SocialProofWidget({
-    super.key,
-    required this.productId,
-    this.compact = false,
-  });
+  const SocialProofWidget({super.key, required this.productId, this.compact = false});
 
   @override
   State<SocialProofWidget> createState() => _SocialProofWidgetState();
@@ -32,8 +28,7 @@ class _SocialProofWidgetState extends State<SocialProofWidget> {
     super.initState();
     _fetchCount();
     // Refresh every 60 s
-    _refreshTimer =
-        Timer.periodic(const Duration(seconds: 60), (_) => _fetchCount());
+    _refreshTimer = Timer.periodic(const Duration(seconds: 60), (_) => _fetchCount());
   }
 
   @override
@@ -44,9 +39,7 @@ class _SocialProofWidgetState extends State<SocialProofWidget> {
 
   Future<void> _fetchCount() async {
     try {
-      final cutoff = Timestamp.fromDate(
-        DateTime.now().subtract(const Duration(hours: 24)),
-      );
+      final cutoff = Timestamp.fromDate(DateTime.now().subtract(const Duration(hours: 24)));
       final snap = await FirebaseFirestore.instance
           .collection('order_items')
           .where('productId', isEqualTo: widget.productId)
@@ -69,22 +62,22 @@ class _SocialProofWidgetState extends State<SocialProofWidget> {
   Widget build(BuildContext context) {
     if (_isLoading || _count == 0) return const SizedBox.shrink();
 
-    final label = _count == 1
-        ? '1 person bought this today'
-        : '$_count people bought this in 24h';
+    final label = _count == 1 ? '1 person bought this today' : '$_count people bought this in 24h';
 
     if (widget.compact) {
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.local_fire_department,
-              size: 14, color: Color(0xFFFF5722)),
+          const Icon(Icons.local_fire_department, size: 14, color: Color(0xFFFF5722)),
           const SizedBox(width: 4),
-          Text(label,
-              style: const TextStyle(
-                  fontSize: 11,
-                  color: Color(0xFFFF5722),
-                  fontWeight: FontWeight.w600)),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              color: Color(0xFFFF5722),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       );
     }
@@ -99,8 +92,7 @@ class _SocialProofWidgetState extends State<SocialProofWidget> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.local_fire_department,
-              size: 16, color: Color(0xFFFF5722)),
+          const Icon(Icons.local_fire_department, size: 16, color: Color(0xFFFF5722)),
           const SizedBox(width: 6),
           Text(
             label,
@@ -137,25 +129,17 @@ class _LiveViewerCountState extends State<LiveViewerCount> {
   }
 
   void _trackPresence() {
-    final ref = FirebaseFirestore.instance
-        .collection('product_presence')
-        .doc(widget.productId);
+    final ref = FirebaseFirestore.instance.collection('product_presence').doc(widget.productId);
 
     // Register this viewer
     final visitorId = DateTime.now().millisecondsSinceEpoch.toString();
-    ref.collection('viewers').doc(visitorId).set({
-      'activeAt': FieldValue.serverTimestamp(),
-    });
+    ref.collection('viewers').doc(visitorId).set({'activeAt': FieldValue.serverTimestamp()});
 
     // Watch viewer count (last 2 min)
-    final cutoff = Timestamp.fromDate(
-      DateTime.now().subtract(const Duration(minutes: 2)),
-    );
-    _sub = ref
-        .collection('viewers')
-        .where('activeAt', isGreaterThan: cutoff)
-        .snapshots()
-        .listen((snap) {
+    final cutoff = Timestamp.fromDate(DateTime.now().subtract(const Duration(minutes: 2)));
+    _sub = ref.collection('viewers').where('activeAt', isGreaterThan: cutoff).snapshots().listen((
+      snap,
+    ) {
       if (mounted) setState(() => _viewers = snap.docs.length);
     });
 
@@ -178,8 +162,7 @@ class _LiveViewerCountState extends State<LiveViewerCount> {
         const SizedBox(width: 4),
         Text(
           '$_viewers viewing now',
-          style:
-              const TextStyle(fontSize: 11, color: AppTheme.grey500),
+          style: const TextStyle(fontSize: 11, color: AppTheme.grey500),
         ),
       ],
     );

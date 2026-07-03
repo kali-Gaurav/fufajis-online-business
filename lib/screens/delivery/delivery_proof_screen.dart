@@ -12,10 +12,7 @@ import '../../widgets/delivery_progress_stepper.dart';
 class DeliveryProofScreen extends StatefulWidget {
   final DeliveryTaskModel delivery;
 
-  const DeliveryProofScreen({
-    super.key,
-    required this.delivery,
-  });
+  const DeliveryProofScreen({super.key, required this.delivery});
 
   @override
   State<DeliveryProofScreen> createState() => _DeliveryProofScreenState();
@@ -99,18 +96,12 @@ class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
     VerificationMethod method = VerificationMethod.otp;
     if (!_otpVerified) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please verify OTP first'),
-          backgroundColor: AppTheme.error,
-        ),
+        const SnackBar(content: Text('Please verify OTP first'), backgroundColor: AppTheme.error),
       );
       return;
     }
 
-    final success = await provider.completeDelivery(
-      widget.delivery.deliveryId,
-      method,
-    );
+    final success = await provider.completeDelivery(widget.delivery.deliveryId, method);
 
     if (success && mounted) {
       // Show success animation
@@ -127,32 +118,19 @@ class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
                 Container(
                   width: 80,
                   height: 80,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppTheme.success,
-                  ),
-                  child: const Icon(
-                    Icons.check_circle,
-                    color: AppTheme.success,
-                    size: 50,
-                  ),
+                  decoration: const BoxDecoration(shape: BoxShape.circle, color: AppTheme.success),
+                  child: const Icon(Icons.check_circle, color: AppTheme.success, size: 50),
                 ),
                 const SizedBox(height: 20),
                 const Text(
                   'Delivery Completed!',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Order #${widget.delivery.orderNumber} delivered successfully',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
@@ -224,12 +202,8 @@ class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _currentStep < 3 ? _moveToNextStep : _completeDelivery,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.info,
-                      ),
-                      child: Text(
-                        _currentStep < 3 ? 'Next' : 'Complete Delivery',
-                      ),
+                      style: ElevatedButton.styleFrom(backgroundColor: AppTheme.info),
+                      child: Text(_currentStep < 3 ? 'Next' : 'Complete Delivery'),
                     ),
                   ),
                 ],
@@ -249,10 +223,7 @@ class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
         children: [
           const Text(
             'Step 1: OTP Verification',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
@@ -262,10 +233,7 @@ class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
           const SizedBox(height: 32),
 
           // OTP input fields
-          OTPInputField(
-            length: 6,
-            onComplete: _handleOTPComplete,
-          ),
+          OTPInputField(length: 6, onComplete: _handleOTPComplete),
           const SizedBox(height: 32),
 
           // Attempts remaining
@@ -286,9 +254,7 @@ class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
               child: TextButton(
                 onPressed: _otpResendCountdown == 0 ? _generateOTP : null,
                 child: Text(
-                  _otpResendCountdown > 0
-                      ? 'Resend OTP in ${_otpResendCountdown}s'
-                      : 'Resend OTP',
+                  _otpResendCountdown > 0 ? 'Resend OTP in ${_otpResendCountdown}s' : 'Resend OTP',
                 ),
               ),
             ),
@@ -310,10 +276,7 @@ class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
                   SizedBox(width: 12),
                   Text(
                     'OTP Verified Successfully',
-                    style: TextStyle(
-                      color: AppTheme.success,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(color: AppTheme.success, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -331,10 +294,7 @@ class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
         children: [
           const Text(
             'Step 2: Photo Proof (Optional)',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
@@ -371,10 +331,7 @@ class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
                   decoration: BoxDecoration(
                     color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(12),
-                    image: DecorationImage(
-                      image: FileImage(File(_photoPath!)),
-                      fit: BoxFit.cover,
-                    ),
+                    image: DecorationImage(image: FileImage(File(_photoPath!)), fit: BoxFit.cover),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -414,10 +371,7 @@ class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
                 children: [
                   Icon(Icons.check_circle, color: AppTheme.success),
                   SizedBox(width: 8),
-                  Text(
-                    'Photo added',
-                    style: TextStyle(color: AppTheme.success),
-                  ),
+                  Text('Photo added', style: TextStyle(color: AppTheme.success)),
                 ],
               ),
             ),
@@ -434,10 +388,7 @@ class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
         children: [
           const Text(
             'Step 3: Signature/Confirmation',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 32),
 
@@ -452,9 +403,7 @@ class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
                     border: Border.all(color: Colors.grey[300]!),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Center(
-                    child: Icon(Icons.edit, size: 48, color: Colors.grey),
-                  ),
+                  child: const Center(child: Icon(Icons.edit, size: 48, color: Colors.grey)),
                 ),
                 const SizedBox(height: 16),
                 Row(
@@ -491,8 +440,14 @@ class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
 
           // Option 2: Checkbox
           CheckboxListTile(
-            title: const Text('I confirm receipt of the order', style: TextStyle(fontWeight: FontWeight.w700)),
-            subtitle: const Text('Check if customer received the package', style: TextStyle(fontWeight: FontWeight.w700)),
+            title: const Text(
+              'I confirm receipt of the order',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+            subtitle: const Text(
+              'Check if customer received the package',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
             value: _checkboxConfirmed,
             onChanged: (value) {
               setState(() {
@@ -516,37 +471,22 @@ class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
         children: [
           const Text(
             'Delivery Summary',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
 
           // Order details
-          _buildSummaryItem(
-            'Order Number',
-            '#${widget.delivery.orderNumber}',
-          ),
+          _buildSummaryItem('Order Number', '#${widget.delivery.orderNumber}'),
           const SizedBox(height: 16),
-          _buildSummaryItem(
-            'Customer',
-            widget.delivery.customerName,
-          ),
+          _buildSummaryItem('Customer', widget.delivery.customerName),
           const SizedBox(height: 16),
-          _buildSummaryItem(
-            'Address',
-            widget.delivery.customerAddress,
-          ),
+          _buildSummaryItem('Address', widget.delivery.customerAddress),
           const SizedBox(height: 24),
 
           // Verification checklist
           const Text(
             'Delivery Verified',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           _buildChecklistItem('OTP Verification', _otpVerified),
@@ -587,20 +527,10 @@ class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
       children: [
         Text(
           label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-            fontWeight: FontWeight.w500,
-          ),
+          style: TextStyle(fontSize: 12, color: Colors.grey[600], fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
       ],
     );
   }
@@ -618,10 +548,7 @@ class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
           const SizedBox(width: 12),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 14,
-              color: isCompleted ? Colors.black : Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 14, color: isCompleted ? Colors.black : Colors.grey[600]),
           ),
         ],
       ),

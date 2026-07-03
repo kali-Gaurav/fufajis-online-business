@@ -12,8 +12,7 @@ import 'realtime_database_service.dart';
 /// Firebase Initialization Service
 /// Handles all Firebase service initialization and configuration
 class FirebaseInitializationService {
-  static final FirebaseInitializationService _instance =
-      FirebaseInitializationService._internal();
+  static final FirebaseInitializationService _instance = FirebaseInitializationService._internal();
 
   factory FirebaseInitializationService() {
     return _instance;
@@ -34,9 +33,7 @@ class FirebaseInitializationService {
 
     try {
       // Initialize Firebase Core
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
+      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
       // Configure Firestore
       _configureFirestore();
@@ -162,8 +159,7 @@ class FirebaseInitializationService {
   }
 
   /// Background message handler
-  static Future<void> _firebaseMessagingBackgroundHandler(
-      RemoteMessage message) async {
+  static Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     print('Handling a background message: ${message.messageId}');
   }
 
@@ -255,10 +251,7 @@ class FirebaseInitializationService {
   static Map<String, dynamic> getStatus() {
     return {
       'isInitialized': _isInitialized,
-      'firestore': {
-        'isConnected': FirebaseFirestore.instance.hashCode,
-        'persistenceEnabled': true,
-      },
+      'firestore': {'isConnected': FirebaseFirestore.instance.hashCode, 'persistenceEnabled': true},
       'auth': {
         'isSignedIn': FirebaseAuth.instance.currentUser != null,
         'currentUser': FirebaseAuth.instance.currentUser?.uid,
@@ -266,15 +259,9 @@ class FirebaseInitializationService {
       'messaging': {
         'hasPermission': true, // This would need actual implementation
       },
-      'analytics': {
-        'isEnabled': true,
-      },
-      'crashlytics': {
-        'isEnabled': !kDebugMode,
-      },
-      'realtime_database': {
-        'isEnabled': true,
-      },
+      'analytics': {'isEnabled': true},
+      'crashlytics': {'isEnabled': !kDebugMode},
+      'realtime_database': {'isEnabled': true},
     };
   }
 }

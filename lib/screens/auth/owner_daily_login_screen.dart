@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../services/device_security_service.dart';
+import '../../services/agent_seed_service.dart';
 import '../../models/owner_model.dart';
 import '../../utils/app_theme.dart';
 import '../owner/dynamic_pricing_console.dart'; // Placeholder for dashboard
@@ -65,7 +66,8 @@ class _OwnerDailyLoginScreenState extends State<OwnerDailyLoginScreen> {
         if (mounted) {
           setState(() {
             _remainingLockMinutes = lockout.remainingMinutes;
-            _error = 'Too many failed attempts. Device is locked for $_remainingLockMinutes minutes.';
+            _error =
+                'Too many failed attempts. Device is locked for $_remainingLockMinutes minutes.';
           });
         }
       } else {
@@ -85,7 +87,9 @@ class _OwnerDailyLoginScreenState extends State<OwnerDailyLoginScreen> {
     if (lockout.isLocked) return; // Prevent biometrics during lockout
 
     if (widget.owner.biometricEnabled) {
-      bool success = await DeviceSecurityService.authenticateBiometrics("Log in to Owner Dashboard");
+      bool success = await DeviceSecurityService.authenticateBiometrics(
+        "Log in to Owner Dashboard",
+      );
       if (success) {
         _navigateToDashboard();
       }
@@ -93,9 +97,13 @@ class _OwnerDailyLoginScreenState extends State<OwnerDailyLoginScreen> {
   }
 
   void _navigateToDashboard() {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const DynamicPricingConsole()),
-    );
+    // Fire-and-forget: seed agent_config/global and MVP roster on first run.
+    // Non-blocking — skips silently if docs already exist.
+    AgentSeedService().seedIfNeeded();
+
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => const DynamicPricingConsole()));
   }
 
   Future<void> _verifyPin() async {
@@ -106,8 +114,11 @@ class _OwnerDailyLoginScreenState extends State<OwnerDailyLoginScreen> {
       _error = '';
     });
 
-    bool isValid = await DeviceSecurityService.validatePinLocally(_pinController.text, widget.owner.email);
-    
+    bool isValid = await DeviceSecurityService.validatePinLocally(
+      _pinController.text,
+      widget.owner.email,
+    );
+
     setState(() {
       _isLoading = false;
     });
@@ -139,10 +150,7 @@ class _OwnerDailyLoginScreenState extends State<OwnerDailyLoginScreen> {
             children: [
               const Icon(Icons.lock, size: 64, color: AppTheme.info),
               const SizedBox(height: 24),
-              Text(
-                'Welcome back, ${widget.owner.email}',
-                style: const TextStyle(fontSize: 18),
-              ),
+              Text('Welcome back, ${widget.owner.email}', style: const TextStyle(fontSize: 18)),
               const SizedBox(height: 32),
               const Text('Enter your Security PIN', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
@@ -156,9 +164,9 @@ class _OwnerDailyLoginScreenState extends State<OwnerDailyLoginScreen> {
               if (_error.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 Text(
-                  _error, 
+                  _error,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppTheme.error, fontWeight: FontWeight.w500)
+                  style: const TextStyle(color: AppTheme.error, fontWeight: FontWeight.w500),
                 ),
               ],
               const SizedBox(height: 32),
@@ -168,7 +176,7 @@ class _OwnerDailyLoginScreenState extends State<OwnerDailyLoginScreen> {
                   onPressed: _checkBiometrics,
                   icon: const Icon(Icons.fingerprint),
                   label: const Text('Use Biometrics'),
-                )
+                ),
             ],
           ),
         ),

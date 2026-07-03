@@ -13,8 +13,8 @@ class FirebaseRepository {
   FirebaseRepository({
     required FirestoreDataService firestoreService,
     required FirebaseOfflineCacheService cacheService,
-  })  : _firestoreService = firestoreService,
-        _cacheService = cacheService;
+  }) : _firestoreService = firestoreService,
+       _cacheService = cacheService;
 
   // ============================================================
   // USER OPERATIONS
@@ -23,52 +23,31 @@ class FirebaseRepository {
   Future<Map<String, dynamic>?> getUserProfile(String userId) async {
     try {
       // Try cache first
-      var cached = _cacheService.getCachedDocument(
-        FirestoreCollections.USERS,
-        userId,
-      );
+      var cached = _cacheService.getCachedDocument(FirestoreCollections.USERS, userId);
       if (cached != null) {
         return cached;
       }
 
       // Fetch from Firestore
-      final userDoc = await _firestoreService.getDocument(
-        FirestoreCollections.USERS,
-        userId,
-      );
+      final userDoc = await _firestoreService.getDocument(FirestoreCollections.USERS, userId);
 
       if (userDoc != null) {
         // Cache for offline use
-        await _cacheService.cacheDocument(
-          FirestoreCollections.USERS,
-          userId,
-          userDoc,
-        );
+        await _cacheService.cacheDocument(FirestoreCollections.USERS, userId, userDoc);
       }
 
       return userDoc;
     } catch (e) {
       // Return cached version if available
-      return _cacheService.getCachedDocument(
-        FirestoreCollections.USERS,
-        userId,
-      );
+      return _cacheService.getCachedDocument(FirestoreCollections.USERS, userId);
     }
   }
 
-  Future<void> updateUserProfile(
-    String userId,
-    Map<String, dynamic> data,
-  ) async {
-    await _firestoreService.updateDocument(
-      FirestoreCollections.USERS,
-      userId,
-      {
-        ...data,
-        FirestoreDatabaseSchema.Users.UPDATED_AT:
-            FieldValue.serverTimestamp(),
-      },
-    );
+  Future<void> updateUserProfile(String userId, Map<String, dynamic> data) async {
+    await _firestoreService.updateDocument(FirestoreCollections.USERS, userId, {
+      ...data,
+      FirestoreDatabaseSchema.Users.UPDATED_AT: FieldValue.serverTimestamp(),
+    });
 
     // Invalidate cache
     await _cacheService.clearCollectionCache(FirestoreCollections.USERS);
@@ -95,25 +74,18 @@ class FirebaseRepository {
           if (inventory != null) {
             final available = (inventory['available'] as num?)?.toInt() ?? 0;
             if (available < quantity) {
-              throw Exception(
-                'Insufficient inventory for product $productId',
-              );
+              throw Exception('Insufficient inventory for product $productId');
             }
           }
         }
       }
 
       // Create order
-      final orderId = await _firestoreService.addDocument(
-        FirestoreCollections.ORDERS,
-        {
-          ...orderData,
-          FirestoreDatabaseSchema.Orders.CREATED_AT:
-              FieldValue.serverTimestamp(),
-          FirestoreDatabaseSchema.Orders.UPDATED_AT:
-              FieldValue.serverTimestamp(),
-        },
-      );
+      final orderId = await _firestoreService.addDocument(FirestoreCollections.ORDERS, {
+        ...orderData,
+        FirestoreDatabaseSchema.Orders.CREATED_AT: FieldValue.serverTimestamp(),
+        FirestoreDatabaseSchema.Orders.UPDATED_AT: FieldValue.serverTimestamp(),
+      });
 
       // Clear cache
       await _cacheService.clearCollectionCache(FirestoreCollections.ORDERS);
@@ -127,15 +99,9 @@ class FirebaseRepository {
   Future<List<Map<String, dynamic>>> getUserOrders(String userId) async {
     try {
       // Try cache first
-      var cached = _cacheService.getCachedCollection(
-        FirestoreCollections.ORDERS,
-      );
+      var cached = _cacheService.getCachedCollection(FirestoreCollections.ORDERS);
       if (cached != null && cached.isNotEmpty) {
-        return cached
-            .where(
-              (order) => order['customerId'] == userId,
-            )
-            .toList();
+        return cached.where((order) => order['customerId'] == userId).toList();
       }
 
       final orders = await _firestoreService.getCollection(
@@ -149,16 +115,14 @@ class FirebaseRepository {
 
       // Cache results
       if (orders.isNotEmpty) {
-        await _cacheService.cacheCollection(
-          FirestoreCollections.ORDERS,
-          orders,
-        );
+        await _cacheService.cacheCollection(FirestoreCollections.ORDERS, orders);
       }
 
       return orders;
     } catch (e) {
       // Return cached if available
-      return _cacheService.getCachedCollection(FirestoreCollections.ORDERS)
+      return _cacheService
+              .getCachedCollection(FirestoreCollections.ORDERS)
               ?.where((order) => order['customerId'] == userId)
               .toList() ??
           [];
@@ -166,15 +130,10 @@ class FirebaseRepository {
   }
 
   Future<void> updateOrderStatus(String orderId, String status) async {
-    await _firestoreService.updateDocument(
-      FirestoreCollections.ORDERS,
-      orderId,
-      {
-        FirestoreDatabaseSchema.Orders.ORDER_STATUS: status,
-        FirestoreDatabaseSchema.Orders.UPDATED_AT:
-            FieldValue.serverTimestamp(),
-      },
-    );
+    await _firestoreService.updateDocument(FirestoreCollections.ORDERS, orderId, {
+      FirestoreDatabaseSchema.Orders.ORDER_STATUS: status,
+      FirestoreDatabaseSchema.Orders.UPDATED_AT: FieldValue.serverTimestamp(),
+    });
 
     await _cacheService.clearCollectionCache(FirestoreCollections.ORDERS);
   }
@@ -187,54 +146,31 @@ class FirebaseRepository {
     await _firestoreService.setDocument(
       FirestoreCollections.PAYMENTS,
       paymentData['paymentId'] as String,
-      {
-        ...paymentData,
-        FirestoreDatabaseSchema.Payments.CREATED_AT:
-            FieldValue.serverTimestamp(),
-      },
+      {...paymentData, FirestoreDatabaseSchema.Payments.CREATED_AT: FieldValue.serverTimestamp()},
     );
 
-    await _cacheService.clearCollectionCache(
-      FirestoreCollections.PAYMENTS,
-    );
+    await _cacheService.clearCollectionCache(FirestoreCollections.PAYMENTS);
   }
 
   Future<Map<String, dynamic>?> getPayment(String paymentId) async {
-    return _firestoreService.getDocument(
-      FirestoreCollections.PAYMENTS,
-      paymentId,
-    );
+    return _firestoreService.getDocument(FirestoreCollections.PAYMENTS, paymentId);
   }
 
-  Future<void> updatePaymentStatus(
-    String paymentId,
-    String status, {
-    bool verified = false,
-  }) async {
-    await _firestoreService.updateDocument(
-      FirestoreCollections.PAYMENTS,
-      paymentId,
-      {
-        FirestoreDatabaseSchema.Payments.STATUS: status,
-        FirestoreDatabaseSchema.Payments.VERIFIED: verified,
-        if (verified) FirestoreDatabaseSchema.Payments.VERIFIED_AT:
-            FieldValue.serverTimestamp(),
-      },
-    );
+  Future<void> updatePaymentStatus(String paymentId, String status, {bool verified = false}) async {
+    await _firestoreService.updateDocument(FirestoreCollections.PAYMENTS, paymentId, {
+      FirestoreDatabaseSchema.Payments.STATUS: status,
+      FirestoreDatabaseSchema.Payments.VERIFIED: verified,
+      if (verified) FirestoreDatabaseSchema.Payments.VERIFIED_AT: FieldValue.serverTimestamp(),
+    });
 
-    await _cacheService.clearCollectionCache(
-      FirestoreCollections.PAYMENTS,
-    );
+    await _cacheService.clearCollectionCache(FirestoreCollections.PAYMENTS);
   }
 
   // ============================================================
   // INVENTORY OPERATIONS
   // ============================================================
 
-  Future<void> reserveInventory(
-    String productId,
-    int quantity,
-  ) async {
+  Future<void> reserveInventory(String productId, int quantity) async {
     await _firestoreService.incrementField(
       FirestoreCollections.INVENTORY,
       productId,
@@ -243,10 +179,7 @@ class FirebaseRepository {
     );
   }
 
-  Future<void> deductInventory(
-    String productId,
-    int quantity,
-  ) async {
+  Future<void> deductInventory(String productId, int quantity) async {
     await _firestoreService.incrementField(
       FirestoreCollections.INVENTORY,
       productId,
@@ -262,10 +195,7 @@ class FirebaseRepository {
     );
   }
 
-  Future<void> restoreInventory(
-    String productId,
-    int quantity,
-  ) async {
+  Future<void> restoreInventory(String productId, int quantity) async {
     await _firestoreService.incrementField(
       FirestoreCollections.INVENTORY,
       productId,
@@ -286,45 +216,27 @@ class FirebaseRepository {
   // ============================================================
 
   Future<String> createDelivery(Map<String, dynamic> deliveryData) async {
-    return _firestoreService.addDocument(
-      FirestoreCollections.DELIVERIES,
-      {
-        ...deliveryData,
-        FirestoreDatabaseSchema.Deliveries.START_TIME:
-            FieldValue.serverTimestamp(),
-      },
-    );
+    return _firestoreService.addDocument(FirestoreCollections.DELIVERIES, {
+      ...deliveryData,
+      FirestoreDatabaseSchema.Deliveries.START_TIME: FieldValue.serverTimestamp(),
+    });
   }
 
   Future<void> updateDeliveryStatus(String deliveryId, String status) async {
-    await _firestoreService.updateDocument(
-      FirestoreCollections.DELIVERIES,
-      deliveryId,
-      {
-        FirestoreDatabaseSchema.Deliveries.STATUS: status,
-        if (status == 'delivered')
-          FirestoreDatabaseSchema.Deliveries.END_TIME:
-              FieldValue.serverTimestamp(),
-      },
-    );
+    await _firestoreService.updateDocument(FirestoreCollections.DELIVERIES, deliveryId, {
+      FirestoreDatabaseSchema.Deliveries.STATUS: status,
+      if (status == 'delivered')
+        FirestoreDatabaseSchema.Deliveries.END_TIME: FieldValue.serverTimestamp(),
+    });
   }
 
-  Future<void> updateRiderLocation(
-    String riderId,
-    double latitude,
-    double longitude,
-  ) async {
+  Future<void> updateRiderLocation(String riderId, double latitude, double longitude) async {
     final locationId = riderId;
-    await _firestoreService.setDocument(
-      FirestoreCollections.RIDER_LOCATIONS,
-      locationId,
-      {
-        'riderId': riderId,
-        'currentLocation': GeoPoint(latitude, longitude),
-        'updatedAt': FieldValue.serverTimestamp(),
-      },
-      merge: true,
-    );
+    await _firestoreService.setDocument(FirestoreCollections.RIDER_LOCATIONS, locationId, {
+      'riderId': riderId,
+      'currentLocation': GeoPoint(latitude, longitude),
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, merge: true);
   }
 
   // ============================================================
@@ -332,57 +244,34 @@ class FirebaseRepository {
   // ============================================================
 
   Future<Map<String, dynamic>?> getWallet(String userId) async {
-    return _firestoreService.getDocument(
-      FirestoreCollections.WALLET,
-      userId,
-    );
+    return _firestoreService.getDocument(FirestoreCollections.WALLET, userId);
   }
 
-  Future<void> updateWalletBalance(
-    String userId,
-    num amount,
-  ) async {
-    await _firestoreService.incrementField(
-      FirestoreCollections.WALLET,
-      userId,
-      'balance',
-      amount,
-    );
+  Future<void> updateWalletBalance(String userId, num amount) async {
+    await _firestoreService.incrementField(FirestoreCollections.WALLET, userId, 'balance', amount);
   }
 
-  Future<void> createRefund(
-    String orderId,
-    num refundAmount,
-  ) async {
+  Future<void> createRefund(String orderId, num refundAmount) async {
     final refundId = '${orderId}_${DateTime.now().millisecondsSinceEpoch}';
 
-    await _firestoreService.setDocument(
-      FirestoreCollections.REFUNDS,
-      refundId,
-      {
-        'refundId': refundId,
-        'orderId': orderId,
-        'amount': refundAmount,
-        'status': 'initiated',
-        'createdAt': FieldValue.serverTimestamp(),
-      },
-    );
+    await _firestoreService.setDocument(FirestoreCollections.REFUNDS, refundId, {
+      'refundId': refundId,
+      'orderId': orderId,
+      'amount': refundAmount,
+      'status': 'initiated',
+      'createdAt': FieldValue.serverTimestamp(),
+    });
   }
 
   // ============================================================
   // TRANSACTION OPERATIONS
   // ============================================================
 
-  Future<void> processOrderTransaction(
-    String orderId,
-    Map<String, dynamic> orderData,
-  ) async {
+  Future<void> processOrderTransaction(String orderId, Map<String, dynamic> orderData) async {
     await _firestoreService.runTransaction<void>((transaction) async {
       // 1. Create order
       transaction.set(
-        FirebaseFirestore.instance
-            .collection(FirestoreCollections.ORDERS)
-            .doc(orderId),
+        FirebaseFirestore.instance.collection(FirestoreCollections.ORDERS).doc(orderId),
         orderData,
       );
 
@@ -396,9 +285,7 @@ class FirebaseRepository {
             .collection(FirestoreCollections.INVENTORY)
             .doc(productId);
 
-        transaction.update(invRef, {
-          'reserved': FieldValue.increment(quantity),
-        });
+        transaction.update(invRef, {'reserved': FieldValue.increment(quantity)});
       }
 
       // 3. Create payment record
@@ -414,9 +301,7 @@ class FirebaseRepository {
     });
 
     await _cacheService.clearCollectionCache(FirestoreCollections.ORDERS);
-    await _cacheService.clearCollectionCache(
-      FirestoreCollections.INVENTORY,
-    );
+    await _cacheService.clearCollectionCache(FirestoreCollections.INVENTORY);
   }
 
   // ============================================================
@@ -424,10 +309,7 @@ class FirebaseRepository {
   // ============================================================
 
   Stream<Map<String, dynamic>?> streamUserProfile(String userId) {
-    return _firestoreService.streamDocument(
-      FirestoreCollections.USERS,
-      userId,
-    );
+    return _firestoreService.streamDocument(FirestoreCollections.USERS, userId);
   }
 
   Stream<List<Map<String, dynamic>>> streamUserOrders(String userId) {

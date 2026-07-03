@@ -11,7 +11,10 @@ class LogisticsCommandCenter extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.cream,
       appBar: AppBar(
-        title: const Text('Logistics Command Center', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Logistics Command Center',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: AppTheme.cream,
         elevation: 0,
       ),
@@ -59,11 +62,7 @@ class LogisticsCommandCenter extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color.withValues(alpha: 0.2)),
         boxShadow: [
-          BoxShadow(
-            color: color.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          )
+          BoxShadow(color: color.withValues(alpha: 0.1), blurRadius: 8, offset: const Offset(0, 4)),
         ],
       ),
       padding: const EdgeInsets.all(16),
@@ -78,7 +77,11 @@ class LogisticsCommandCenter extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(fontSize: 12, color: AppTheme.grey600, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.grey600,
+                    fontWeight: FontWeight.w600,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -111,7 +114,10 @@ class LogisticsCommandCenter extends StatelessWidget {
             children: [
               Icon(Icons.auto_awesome, color: AppTheme.warning),
               SizedBox(width: 8),
-              Text('Logistics Intelligence', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(
+                'Logistics Intelligence',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+              ),
             ],
           ),
           SizedBox(height: 12),
@@ -143,8 +149,14 @@ class LogisticsCommandCenter extends StatelessWidget {
           ),
           child: ListTile(
             leading: const Icon(Icons.warning, color: AppTheme.error),
-            title: const Text('Vehicle Breakdown - Jodhpur Central', style: TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: const Text('Rider ID: R-849 | 10 mins ago\nTask assigned to backup Rider R-102', style: TextStyle(fontWeight: FontWeight.w700)),
+            title: const Text(
+              'Vehicle Breakdown - Jodhpur Central',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: const Text(
+              'Rider ID: R-849 | 10 mins ago\nTask assigned to backup Rider R-102',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
             isThreeLine: true,
             trailing: ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: AppTheme.error),

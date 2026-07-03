@@ -21,7 +21,6 @@ class _ReleaseManagementScreenState extends State<ReleaseManagementScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -38,11 +37,7 @@ class _ReleaseManagementScreenState extends State<ReleaseManagementScreen> {
           ),
         ),
         body: TabBarView(
-          children: [
-            _buildAdoptionStatsTab(),
-            _buildReleaseNotesTab(),
-            _buildRemoteConfigTab(),
-          ],
+          children: [_buildAdoptionStatsTab(), _buildReleaseNotesTab(), _buildRemoteConfigTab()],
         ),
       ),
     );
@@ -52,11 +47,12 @@ class _ReleaseManagementScreenState extends State<ReleaseManagementScreen> {
     return StreamBuilder<QuerySnapshot>(
       stream: _db.collection('users').snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
+        if (!snapshot.hasData)
+          return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
 
         final users = snapshot.data!.docs;
         final Map<String, int> versionCounts = {};
-        
+
         for (var doc in users) {
           final data = doc.data() as Map<String, dynamic>;
           final version = data['appVersion'] ?? 'Unknown';
@@ -76,7 +72,9 @@ class _ReleaseManagementScreenState extends State<ReleaseManagementScreen> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            ...sortedVersions.map((entry) => _buildVersionRow(entry.key, entry.value, users.length)),
+            ...sortedVersions.map(
+              (entry) => _buildVersionRow(entry.key, entry.value, users.length),
+            ),
           ],
         );
       },
@@ -127,7 +125,10 @@ class _ReleaseManagementScreenState extends State<ReleaseManagementScreen> {
     return Column(
       children: [
         Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
-        Text(value, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+        Text(
+          value,
+          style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+        ),
       ],
     );
   }
@@ -162,7 +163,10 @@ class _ReleaseManagementScreenState extends State<ReleaseManagementScreen> {
               children: [
                 Container(
                   height: 20,
-                  decoration: BoxDecoration(color: AppTheme.grey100, borderRadius: BorderRadius.circular(10)),
+                  decoration: BoxDecoration(
+                    color: AppTheme.grey100,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
                 FractionallySizedBox(
                   widthFactor: count / total,
@@ -188,11 +192,12 @@ class _ReleaseManagementScreenState extends State<ReleaseManagementScreen> {
     return StreamBuilder<QuerySnapshot>(
       stream: _db.collection('release_notes').orderBy('date', descending: true).snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
+        if (!snapshot.hasData)
+          return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
 
         final notes = snapshot.data!.docs
-          .map((doc) => ReleaseNote.fromMap(doc.data() as Map<String, dynamic>))
-          .toList();
+            .map((doc) => ReleaseNote.fromMap(doc.data() as Map<String, dynamic>))
+            .toList();
 
         return ListView(
           padding: const EdgeInsets.all(20),
@@ -203,15 +208,17 @@ class _ReleaseManagementScreenState extends State<ReleaseManagementScreen> {
               label: const Text('Add Release Note'),
             ),
             const SizedBox(height: 20),
-            ...notes.map((note) => Card(
-              margin: const EdgeInsets.only(bottom: 12),
-              child: ListTile(
-                title: Text('v${note.version} - ${note.title}'),
-                subtitle: Text(DateFormat('dd MMM yyyy').format(note.date)),
-                trailing: const Icon(Icons.edit),
-                onTap: () => _showAddReleaseNoteDialog(note: note),
+            ...notes.map(
+              (note) => Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                child: ListTile(
+                  title: Text('v${note.version} - ${note.title}'),
+                  subtitle: Text(DateFormat('dd MMM yyyy').format(note.date)),
+                  trailing: const Icon(Icons.edit),
+                  onTap: () => _showAddReleaseNoteDialog(note: note),
+                ),
               ),
-            )),
+            ),
           ],
         );
       },
@@ -231,8 +238,14 @@ class _ReleaseManagementScreenState extends State<ReleaseManagementScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(controller: versionController, decoration: const InputDecoration(labelText: 'Version (e.g. 1.3.0)')),
-              TextField(controller: titleController, decoration: const InputDecoration(labelText: 'Title')),
+              TextField(
+                controller: versionController,
+                decoration: const InputDecoration(labelText: 'Version (e.g. 1.3.0)'),
+              ),
+              TextField(
+                controller: titleController,
+                decoration: const InputDecoration(labelText: 'Title'),
+              ),
               TextField(
                 controller: notesController,
                 maxLines: 5,
@@ -286,7 +299,10 @@ class _ReleaseManagementScreenState extends State<ReleaseManagementScreen> {
   Widget _configItem(String label, String value) {
     return ListTile(
       title: Text(label),
-      trailing: Text(value, style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primary)),
+      trailing: Text(
+        value,
+        style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primary),
+      ),
     );
   }
 }

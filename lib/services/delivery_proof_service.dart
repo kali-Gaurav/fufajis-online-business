@@ -33,10 +33,7 @@ class DeliveryProofService {
   ///   - Uploads to: storage.delivery-proofs/{deliveryId}/proof.jpg
   ///   - Updates: Firestore deliveries/{deliveryId} → proofPhotoUrl
   ///   - Updates: Firestore deliveries/{deliveryId} → status = 'delivered'
-  Future<String?> uploadDeliveryProof({
-    required String deliveryId,
-    required File photoFile,
-  }) async {
+  Future<String?> uploadDeliveryProof({required String deliveryId, required File photoFile}) async {
     try {
       debugPrint('[DeliveryProofService] Starting proof upload for delivery: $deliveryId');
 
@@ -61,10 +58,7 @@ class DeliveryProofService {
       debugPrint('[DeliveryProofService] Upload complete. URL: $downloadUrl');
 
       // Get delivery details for reference
-      final deliveryDoc = await _firestore
-          .collection('deliveries')
-          .doc(deliveryId)
-          .get();
+      final deliveryDoc = await _firestore.collection('deliveries').doc(deliveryId).get();
 
       if (!deliveryDoc.exists) {
         debugPrint('[DeliveryProofService] Delivery not found: $deliveryId');
@@ -72,14 +66,18 @@ class DeliveryProofService {
       }
 
       // Update delivery status to 'delivered'
-      await _firestore.collection('deliveries').doc(deliveryId).update({
-        'proofPhotoUrl': downloadUrl,
-        'status': 'delivered',
-        'deliveredAt': FieldValue.serverTimestamp(),
-        'proofUploadedAt': FieldValue.serverTimestamp(),
-      }).catchError((e) {
-        debugPrint('[DeliveryProofService] Firestore update error: $e');
-      });
+      await _firestore
+          .collection('deliveries')
+          .doc(deliveryId)
+          .update({
+            'proofPhotoUrl': downloadUrl,
+            'status': 'delivered',
+            'deliveredAt': FieldValue.serverTimestamp(),
+            'proofUploadedAt': FieldValue.serverTimestamp(),
+          })
+          .catchError((e) {
+            debugPrint('[DeliveryProofService] Firestore update error: $e');
+          });
 
       // Cache the signed URL
       await _cacheStorageReference(
@@ -125,10 +123,7 @@ class DeliveryProofService {
   Future<void> _triggerOrderCompletionNotification(String deliveryId) async {
     try {
       // Get delivery to find associated orderId
-      final deliveryDoc = await _firestore
-          .collection('deliveries')
-          .doc(deliveryId)
-          .get();
+      final deliveryDoc = await _firestore.collection('deliveries').doc(deliveryId).get();
 
       if (!deliveryDoc.exists) return;
 
@@ -139,12 +134,13 @@ class DeliveryProofService {
       if (orderId == null) return;
 
       // Update order status
-      await _firestore.collection('orders').doc(orderId).update({
-        'status': 'delivered',
-        'deliveredAt': FieldValue.serverTimestamp(),
-      }).catchError((e) {
-        debugPrint('[DeliveryProofService] Error updating order: $e');
-      });
+      await _firestore
+          .collection('orders')
+          .doc(orderId)
+          .update({'status': 'delivered', 'deliveredAt': FieldValue.serverTimestamp()})
+          .catchError((e) {
+            debugPrint('[DeliveryProofService] Error updating order: $e');
+          });
 
       // Create customer notification
       if (customerId != null) {
@@ -175,10 +171,7 @@ class DeliveryProofService {
       final deliveryId = entry.key;
       final photoFile = entry.value;
 
-      final url = await uploadDeliveryProof(
-        deliveryId: deliveryId,
-        photoFile: photoFile,
-      );
+      final url = await uploadDeliveryProof(deliveryId: deliveryId, photoFile: photoFile);
       results[deliveryId] = url;
     }
 
@@ -188,10 +181,7 @@ class DeliveryProofService {
   /// Get delivery proof URL if it exists
   Future<String?> getDeliveryProofUrl(String deliveryId) async {
     try {
-      final doc = await _firestore
-          .collection('deliveries')
-          .doc(deliveryId)
-          .get();
+      final doc = await _firestore.collection('deliveries').doc(deliveryId).get();
 
       if (!doc.exists) return null;
 

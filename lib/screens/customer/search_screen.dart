@@ -9,7 +9,6 @@ import '../../models/user_model.dart';
 import '../../models/product_model.dart';
 import '../../utils/app_theme.dart';
 import '../../widgets/animated_widgets.dart';
-import '../../widgets/voice_search_dialog.dart';
 import 'barcode_scanner_screen.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -23,15 +22,23 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  
+
   List<ProductModel> _searchResults = [];
   bool _isSearching = false;
   String _searchQuery = '';
   List<String> _recentSearches = [];
   static const _kRecentKey = 'search_recent_v1';
   final List<String> _popularSearches = [
-    'Rice', 'Wheat Flour', 'Sugar', 'Milk', 'Bread', 
-    'Vegetables', 'Fruits', 'Oil', 'Spices', 'Dal',
+    'Rice',
+    'Wheat Flour',
+    'Sugar',
+    'Milk',
+    'Bread',
+    'Vegetables',
+    'Fruits',
+    'Oil',
+    'Spices',
+    'Dal',
   ];
 
   @override
@@ -109,31 +116,18 @@ class _SearchScreenState extends State<SearchScreen> {
     _focusNode.requestFocus();
   }
 
-  void _startVoiceSearch() async {
-    final result = await showDialog<String>(
-      context: context,
-      builder: (ctx) => const VoiceSearchDialog(),
-    );
-    if (result != null && result.isNotEmpty && mounted) {
-      _searchController.text = result;
-      _performSearch(result);
-    }
-  }
-
   void _startBarcodeScanner() async {
     final result = await Navigator.push<String>(
       context,
-      MaterialPageRoute(
-        builder: (context) => const BarcodeScannerScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const BarcodeScannerScreen()),
     );
     if (result != null && result.trim().isNotEmpty) {
       final query = result.trim();
       if (!mounted) return;
-      
+
       final productProvider = Provider.of<ProductProvider>(context, listen: false);
       final matchedProducts = productProvider.searchProducts(query);
-      
+
       if (matchedProducts.isNotEmpty) {
         // Step 7.4: Instant "Add to Cart" pop-up
         _showInstantAddDialog(matchedProducts.first);
@@ -145,7 +139,7 @@ class _SearchScreenState extends State<SearchScreen> {
         } else {
           _searchController.text = query;
           _performSearch(query);
-          
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text("Barcode '$query' scanned. No exact match."),
@@ -171,10 +165,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
           ElevatedButton(
             onPressed: () {
               Provider.of<CartProvider>(context, listen: false).addToCart(product);
@@ -193,12 +184,11 @@ class _SearchScreenState extends State<SearchScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Product Not Found', style: TextStyle(fontWeight: FontWeight.w700)),
-        content: Text('The product with barcode $barcode was not found in our catalog. Would you like to add it to your shop?'),
+        content: Text(
+          'The product with barcode $barcode was not found in our catalog. Would you like to add it to your shop?',
+        ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Not Now'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Not Now')),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
@@ -225,10 +215,10 @@ class _SearchScreenState extends State<SearchScreen> {
               child: _searchQuery.isEmpty
                   ? _buildInitialContent()
                   : _isSearching
-                      ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
-                      : _searchResults.isEmpty
-                          ? _buildNoResults()
-                          : _buildSearchResults(),
+                  ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
+                  : _searchResults.isEmpty
+                  ? _buildNoResults()
+                  : _buildSearchResults(),
             ),
           ],
         ),
@@ -278,21 +268,17 @@ class _SearchScreenState extends State<SearchScreen> {
                       icon: const Icon(Icons.qr_code_scanner, color: AppTheme.grey500),
                       tooltip: 'Scan Barcode',
                     ),
-                    IconButton(
-                      onPressed: _startVoiceSearch,
-                      icon: const Icon(Icons.mic, color: AppTheme.primary),
-                      tooltip: 'Voice Search',
-                    ),
                   ],
                 ),
                 filled: true,
-                fillColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.grey800 : AppTheme.grey100,
+                fillColor: Theme.of(context).brightness == Brightness.dark
+                    ? AppTheme.grey800
+                    : AppTheme.grey100,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
             ),
           ),
@@ -322,10 +308,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
                 TextButton(
                   onPressed: _clearAllRecent,
-                  child: const Text(
-                    'Clear All',
-                    style: TextStyle(color: AppTheme.primary),
-                  ),
+                  child: const Text('Clear All', style: TextStyle(color: AppTheme.primary)),
                 ),
               ],
             ),
@@ -350,11 +333,7 @@ class _SearchScreenState extends State<SearchScreen> {
           // Popular Searches
           const Text(
             'Popular Searches',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.grey900,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.grey900),
           ),
           const SizedBox(height: 8),
           Wrap(
@@ -369,11 +348,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 },
                 backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
                 labelStyle: const TextStyle(color: AppTheme.primary),
-                avatar: const Icon(
-                  Icons.trending_up,
-                  size: 16,
-                  color: AppTheme.primary,
-                ),
+                avatar: const Icon(Icons.trending_up, size: 16, color: AppTheme.primary),
               );
             }).toList(),
           ),
@@ -387,27 +362,16 @@ class _SearchScreenState extends State<SearchScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.search_off,
-            size: 80,
-            color: AppTheme.grey300,
-          ),
+          Icon(Icons.search_off, size: 80, color: AppTheme.grey300),
           SizedBox(height: 16),
           Text(
             'No products found',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.grey700,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey700),
           ),
           SizedBox(height: 8),
           Text(
             'Try different keywords or browse categories',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppTheme.grey500,
-            ),
+            style: TextStyle(fontSize: 14, color: AppTheme.grey500),
             textAlign: TextAlign.center,
           ),
         ],
@@ -433,7 +397,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget _buildSearchResultItem(ProductModel product) {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
-    
+
     return GestureDetector(
       onTap: () => context.go('/customer/product/${product.id}'),
       child: Container(
@@ -486,13 +450,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    product.unit,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.grey500,
-                    ),
-                  ),
+                  Text(product.unit, style: const TextStyle(fontSize: 12, color: AppTheme.grey500)),
                   const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -528,11 +486,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             color: AppTheme.primary,
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Icon(
-                            Icons.add,
-                            color: Colors.white,
-                            size: 20,
-                          ),
+                          child: const Icon(Icons.add, color: Colors.white, size: 20),
                         ),
                       ),
                     ],
@@ -546,4 +500,3 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 }
-

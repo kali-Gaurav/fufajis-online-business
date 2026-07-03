@@ -30,7 +30,7 @@ class SmartKitchenService {
       if (snapshot.docs.isEmpty) return [];
 
       final orders = snapshot.docs.map((doc) => OrderModel.fromMap(doc.data())).toList();
-      
+
       // 2. Map occurrences and purchase dates per product
       final Map<String, List<DateTime>> productPurchaseDates = {};
       final Map<String, OrderItem> productDetails = {};
@@ -50,7 +50,7 @@ class SmartKitchenService {
         if (dates.length >= 3) {
           // Dates are in descending order (latest first)
           final latestDate = dates.first;
-          
+
           double totalDays = 0;
           int intervalCount = 0;
 
@@ -65,30 +65,32 @@ class SmartKitchenService {
           if (intervalCount > 0) {
             final avgIntervalDays = totalDays / intervalCount;
             final nextPredictedDate = latestDate.add(Duration(days: avgIntervalDays.round()));
-            
+
             final daysRemaining = nextPredictedDate.difference(DateTime.now()).inDays;
             final isRunningLow = daysRemaining <= 2;
 
             final item = productDetails[productId]!;
 
-            predictions.add(StaplePrediction(
-              productId: productId,
-              productName: item.productName,
-              productImage: item.productImage,
-              avgIntervalDays: avgIntervalDays,
-              lastPurchasedAt: latestDate,
-              nextPredictedDate: nextPredictedDate,
-              daysRemaining: daysRemaining,
-              isRunningLow: isRunningLow,
-              purchaseCount: dates.length,
-            ));
+            predictions.add(
+              StaplePrediction(
+                productId: productId,
+                productName: item.productName,
+                productImage: item.productImage,
+                avgIntervalDays: avgIntervalDays,
+                lastPurchasedAt: latestDate,
+                nextPredictedDate: nextPredictedDate,
+                daysRemaining: daysRemaining,
+                isRunningLow: isRunningLow,
+                purchaseCount: dates.length,
+              ),
+            );
           }
         }
       });
 
       // Sort by urgency (days remaining)
       predictions.sort((a, b) => a.daysRemaining.compareTo(b.daysRemaining));
-      
+
       return predictions;
     } catch (e) {
       debugPrint('[SmartKitchenService] Error predicting needs: $e');
@@ -101,9 +103,9 @@ class SmartKitchenService {
     try {
       final predictions = await predictReplenishmentNeeds(userId);
       final batch = _db.batch();
-      
+
       final kitchenRef = _db.collection('users').doc(userId).collection('smart_kitchen');
-      
+
       // Clear old (optional, or just overwrite)
       final existing = await kitchenRef.get();
       for (var doc in existing.docs) {

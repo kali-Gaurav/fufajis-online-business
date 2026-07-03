@@ -21,11 +21,7 @@ class PaymentResult {
   });
 
   /// Creates a successful payment result
-  factory PaymentResult.success({
-    required String paymentId,
-    String? orderId,
-    String? signature,
-  }) {
+  factory PaymentResult.success({required String paymentId, String? orderId, String? signature}) {
     return PaymentResult(
       status: PaymentStatus.success,
       paymentId: paymentId,
@@ -60,10 +56,7 @@ class PaymentResult {
   }
 
   /// Creates an external wallet result
-  factory PaymentResult.externalWallet({
-    required String walletName,
-    String? orderId,
-  }) {
+  factory PaymentResult.externalWallet({required String walletName, String? orderId}) {
     return PaymentResult(
       status: PaymentStatus.externalWallet,
       walletName: walletName,
@@ -99,9 +92,7 @@ class PaymentResult {
       errorCode: map['errorCode'] as String?,
       errorMessage: map['errorMessage'] as String?,
       walletName: map['walletName'] as String?,
-      timestamp: map['timestamp'] != null
-          ? DateTime.tryParse(map['timestamp'] as String)
-          : null,
+      timestamp: map['timestamp'] != null ? DateTime.tryParse(map['timestamp'] as String) : null,
     );
   }
 

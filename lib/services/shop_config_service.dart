@@ -22,21 +22,9 @@ class ShopConfigService {
   // Seeding default configuration
   ShopConfigModel _getDefaultConfig() {
     final Map<String, OperatingHours> hours = {};
-    final days = [
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-      'Sunday',
-    ];
+    final days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     for (var day in days) {
-      hours[day] = OperatingHours(
-        isOpen: true,
-        openTime: '09:00',
-        closeTime: '21:00',
-      );
+      hours[day] = OperatingHours(isOpen: true, openTime: '09:00', closeTime: '21:00');
     }
 
     final zones = [
@@ -71,7 +59,7 @@ class ShopConfigService {
 
     return ShopConfigModel(
       shopName: "Fufaji Online Store",
-      shopAddress: "Jaipur, Rajasthan, India",
+      shopAddress: "Baran, Rajasthan, India",
       shopPhone: "+91 9876543210",
       shopEmail: "owner@fufajionline.com",
       shopLogoUrl: null,
@@ -142,9 +130,7 @@ class ShopConfigService {
 
   // Stream of Shop Config updates
   Stream<ShopConfigModel> getShopConfigStream() {
-    return _db.collection('settings').doc('shop_config').snapshots().map((
-      snapshot,
-    ) {
+    return _db.collection('settings').doc('shop_config').snapshots().map((snapshot) {
       if (snapshot.exists && snapshot.data() != null) {
         final config = ShopConfigModel.fromMap(snapshot.data()!);
         _cachedConfig = config;
@@ -161,9 +147,7 @@ class ShopConfigService {
     const p = 0.017453292519943295; // Math.PI / 180
     const c = cos;
     final a =
-        0.5 -
-        c((lat2 - lat1) * p) / 2 +
-        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+        0.5 - c((lat2 - lat1) * p) / 2 + c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
     return 12742 * asin(sqrt(a)); // 2 * R; R = 6371 km
   }
 
@@ -178,12 +162,7 @@ class ShopConfigService {
     if (branches.isNotEmpty) {
       for (var branch in branches) {
         if (!branch.isActive) continue;
-        final dist = calculateDistance(
-          branch.latitude,
-          branch.longitude,
-          lat,
-          lng,
-        );
+        final dist = calculateDistance(branch.latitude, branch.longitude, lat, lng);
         if (dist <= branch.deliveryRadiusKm) {
           return true;
         }
@@ -192,21 +171,12 @@ class ShopConfigService {
     }
 
     // Otherwise, check main shop
-    final distance = calculateDistance(
-      config.shopLatitude,
-      config.shopLongitude,
-      lat,
-      lng,
-    );
+    final distance = calculateDistance(config.shopLatitude, config.shopLongitude, lat, lng);
     return distance <= config.maxDeliveryRadiusKm;
   }
 
   // Find nearest branch for delivery
-  ShopBranchModel? getNearestBranch(
-    double lat,
-    double lng,
-    List<ShopBranchModel> branches,
-  ) {
+  ShopBranchModel? getNearestBranch(double lat, double lng, List<ShopBranchModel> branches) {
     if (branches.isEmpty) return null;
 
     ShopBranchModel? nearest;
@@ -214,12 +184,7 @@ class ShopConfigService {
 
     for (var branch in branches) {
       if (!branch.isActive) continue;
-      final dist = calculateDistance(
-        branch.latitude,
-        branch.longitude,
-        lat,
-        lng,
-      );
+      final dist = calculateDistance(branch.latitude, branch.longitude, lat, lng);
       if (dist <= branch.deliveryRadiusKm && dist < minDistance) {
         minDistance = dist;
         nearest = branch;
@@ -249,9 +214,7 @@ class ShopConfigService {
         if (orderAmount >= freeThreshold) {
           return 0.0;
         }
-        final charge = config.isEmergencyMode
-            ? zone.deliveryCharge * 2.0
-            : zone.deliveryCharge;
+        final charge = config.isEmergencyMode ? zone.deliveryCharge * 2.0 : zone.deliveryCharge;
         return charge;
       }
     }
@@ -277,9 +240,7 @@ class ShopConfigService {
           .doc('shop_config')
           .collection('branches')
           .get();
-      final branchesList = snapshot.docs
-          .map((doc) => ShopBranchModel.fromMap(doc.data()))
-          .toList();
+      final branchesList = snapshot.docs.map((doc) => ShopBranchModel.fromMap(doc.data())).toList();
       _cachedBranches = branchesList;
       return branchesList;
     } catch (e) {
@@ -289,18 +250,13 @@ class ShopConfigService {
   }
 
   Stream<List<ShopBranchModel>> getBranchesStream() {
-    return _db
-        .collection('settings')
-        .doc('shop_config')
-        .collection('branches')
-        .snapshots()
-        .map((snapshot) {
-          final branchesList = snapshot.docs
-              .map((doc) => ShopBranchModel.fromMap(doc.data()))
-              .toList();
-          _cachedBranches = branchesList;
-          return branchesList;
-        });
+    return _db.collection('settings').doc('shop_config').collection('branches').snapshots().map((
+      snapshot,
+    ) {
+      final branchesList = snapshot.docs.map((doc) => ShopBranchModel.fromMap(doc.data())).toList();
+      _cachedBranches = branchesList;
+      return branchesList;
+    });
   }
 
   Future<void> addBranch(ShopBranchModel branch) async {

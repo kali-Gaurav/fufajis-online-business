@@ -11,6 +11,7 @@
 library;
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -47,7 +48,7 @@ class PushNotificationService {
     // 6. Set up background message handler
     FirebaseMessaging.onBackgroundMessage(_handleBackgroundMessage);
 
-    print('[PushNotificationService] Initialized');
+    debugPrint('[PushNotificationService] Initialized');
   }
 
   /// Request notification permission from user
@@ -62,9 +63,9 @@ class PushNotificationService {
     );
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      print('[PushNotificationService] Notifications authorized');
+      debugPrint('[PushNotificationService] Notifications authorized');
     } else {
-      print('[PushNotificationService] Notifications denied or provisional');
+      debugPrint('[PushNotificationService] Notifications denied or provisional');
     }
   }
 
@@ -121,23 +122,23 @@ class PushNotificationService {
         // Send to backend
         // await _registerTokenWithBackend(token);
 
-        print('[PushNotificationService] FCM token saved: ${token.substring(0, 20)}...');
+        debugPrint('[PushNotificationService] FCM token saved: ${token.substring(0, 20)}...');
       }
 
       // Listen for token refreshes
       _firebaseMessaging.onTokenRefresh.listen((newToken) async {
         await prefs.setString('fcm_token', newToken);
-        print('[PushNotificationService] FCM token refreshed');
+        debugPrint('[PushNotificationService] FCM token refreshed');
         // await _registerTokenWithBackend(newToken);
       });
     } catch (error) {
-      print('[PushNotificationService] Error saving FCM token: $error');
+      debugPrint('[PushNotificationService] Error saving FCM token: $error');
     }
   }
 
   /// Handle notification received while app is in foreground
   Future<void> _handleForegroundMessage(RemoteMessage message) async {
-    print('[PushNotificationService] Foreground message: ${message.notification?.title}');
+    debugPrint('[PushNotificationService] Foreground message: ${message.notification?.title}');
 
     // Show local notification even if app is in foreground
     await _showLocalNotification(
@@ -150,13 +151,13 @@ class PushNotificationService {
   /// Handle background message (when app is closed or in background)
   @pragma('vm:entry-point')
   static Future<void> _handleBackgroundMessage(RemoteMessage message) async {
-    print('[PushNotificationService] Background message: ${message.notification?.title}');
+    debugPrint('[PushNotificationService] Background message: ${message.notification?.title}');
     // Background message is automatically shown by Firebase
   }
 
   /// Handle notification tap (both foreground and background)
   Future<void> _handleNotificationTap(RemoteMessage message) async {
-    print('[PushNotificationService] Notification tapped: ${message.data}');
+    debugPrint('[PushNotificationService] Notification tapped: ${message.data}');
     await _routeToDeepLink(message.data);
   }
 
@@ -164,7 +165,7 @@ class PushNotificationService {
   void _handleNotificationResponse(NotificationResponse response) {
     final payload = response.payload;
     if (payload != null) {
-      print('[PushNotificationService] Local notification tapped: $payload');
+      debugPrint('[PushNotificationService] Local notification tapped: $payload');
       // Parse and route to deep link
     }
   }
@@ -212,7 +213,7 @@ class PushNotificationService {
     final deepLink = data['deepLink'];
     final action = data['action'];
 
-    print('[PushNotificationService] Routing to: $deepLink, action: $action');
+    debugPrint('[PushNotificationService] Routing to: $deepLink, action: $action');
 
     // This would be implemented in the app's navigation/routing layer
     // Example:
@@ -245,6 +246,6 @@ class PushNotificationService {
     await _firebaseMessaging.deleteToken();
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('fcm_token');
-    print('[PushNotificationService] Notifications disabled');
+    debugPrint('[PushNotificationService] Notifications disabled');
   }
 }

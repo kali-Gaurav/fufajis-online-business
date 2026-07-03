@@ -38,7 +38,9 @@ class _RiderRouteScreenState extends State<RiderRouteScreen> {
         // Find the matching rider profile first
         final riders = await _ledgerService.getAvailableRiders();
         final riderProfile = riders.firstWhere(
-          (r) => r['phone'] == authProvider.currentUser?.phoneNumber || r['name'] == authProvider.currentUser?.name,
+          (r) =>
+              r['phone'] == authProvider.currentUser?.phoneNumber ||
+              r['name'] == authProvider.currentUser?.name,
           orElse: () => <String, dynamic>{},
         );
 
@@ -67,10 +69,7 @@ class _RiderRouteScreenState extends State<RiderRouteScreen> {
     }
   }
 
-  Future<void> _transitionTaskStatus(
-    Map<String, dynamic> task,
-    String toStatus,
-  ) async {
+  Future<void> _transitionTaskStatus(Map<String, dynamic> task, String toStatus) async {
     final taskId = task['id'] as String;
     final routeId = task['route_id'] as String;
     final fromStatus = task['status'] as String;
@@ -88,7 +87,10 @@ class _RiderRouteScreenState extends State<RiderRouteScreen> {
 
       if (res.success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Status updated to $toStatus!'), backgroundColor: AppTheme.success),
+          SnackBar(
+            content: Text('Status updated to $toStatus!'),
+            backgroundColor: AppTheme.success,
+          ),
         );
         // Refresh tasks and routes
         final updatedTasks = await _ledgerService.getRouteTasks(routeId);
@@ -112,52 +114,49 @@ class _RiderRouteScreenState extends State<RiderRouteScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Route Manifests', style: TextStyle(fontWeight: FontWeight.w700)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadRoutes,
-          ),
-        ],
+        actions: [IconButton(icon: const Icon(Icons.refresh), onPressed: _loadRoutes)],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : _routes.isEmpty
-              ? const Center(child: Text('No active routes assigned to you.'))
-              : ListView.builder(
-                  itemCount: _routes.length,
-                  itemBuilder: (context, index) {
-                    final route = _routes[index];
-                    final routeId = route['id'] as String;
-                    final isExpanded = _expandedRouteId == routeId;
-                    final tasks = _routeTasks[routeId] ?? [];
+          ? const Center(child: Text('No active routes assigned to you.'))
+          : ListView.builder(
+              itemCount: _routes.length,
+              itemBuilder: (context, index) {
+                final route = _routes[index];
+                final routeId = route['id'] as String;
+                final isExpanded = _expandedRouteId == routeId;
+                final tasks = _routeTasks[routeId] ?? [];
 
-                    return Card(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: Column(
-                        children: [
-                          ListTile(
-                            leading: Icon(
-                              Icons.local_shipping,
-                              color: route['status'] == 'active' ? AppTheme.success : AppTheme.info,
-                            ),
-                            title: Text(route['route_name'] as String? ?? 'Route Manifest'),
-                            subtitle: Text('Distance: ${(route['total_distance'] as num?)?.toStringAsFixed(1) ?? '0'} km | Est. Time: ${route['estimated_duration_minutes'] ?? '0'} mins'),
-                            trailing: Icon(isExpanded ? Icons.expand_less : Icons.expand_more),
-                            onTap: () {
-                              setState(() {
-                                _expandedRouteId = isExpanded ? null : routeId;
-                              });
-                            },
-                          ),
-                          if (isExpanded) ...[
-                            const Divider(height: 1),
-                            ...tasks.map((task) => _buildTaskTile(task)),
-                          ],
-                        ],
+                return Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: Icon(
+                          Icons.local_shipping,
+                          color: route['status'] == 'active' ? AppTheme.success : AppTheme.info,
+                        ),
+                        title: Text(route['route_name'] as String? ?? 'Route Manifest'),
+                        subtitle: Text(
+                          'Distance: ${(route['total_distance'] as num?)?.toStringAsFixed(1) ?? '0'} km | Est. Time: ${route['estimated_duration_minutes'] ?? '0'} mins',
+                        ),
+                        trailing: Icon(isExpanded ? Icons.expand_less : Icons.expand_more),
+                        onTap: () {
+                          setState(() {
+                            _expandedRouteId = isExpanded ? null : routeId;
+                          });
+                        },
                       ),
-                    );
-                  },
-                ),
+                      if (isExpanded) ...[
+                        const Divider(height: 1),
+                        ...tasks.map((task) => _buildTaskTile(task)),
+                      ],
+                    ],
+                  ),
+                );
+              },
+            ),
     );
   }
 
@@ -206,7 +205,11 @@ class _RiderRouteScreenState extends State<RiderRouteScreen> {
                       ),
                       child: Text(
                         status.toUpperCase(),
-                        style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          color: statusColor,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
@@ -246,7 +249,10 @@ class _RiderRouteScreenState extends State<RiderRouteScreen> {
       return Row(
         children: [
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.success, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.success,
+              foregroundColor: Colors.white,
+            ),
             onPressed: () => _transitionTaskStatus(task, 'delivered'),
             child: const Text('Mark Delivered'),
           ),

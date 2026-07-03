@@ -105,7 +105,12 @@ class _AutomationRulesScreenState extends State<AutomationRulesScreen> {
     );
   }
 
-  void _openEditor(BuildContext context, AutomationRuleModel? rule, String adminId, String adminName) {
+  void _openEditor(
+    BuildContext context,
+    AutomationRuleModel? rule,
+    String adminId,
+    String adminName,
+  ) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => _RuleEditorScreen(rule: rule, adminId: adminId, adminName: adminName),
@@ -113,7 +118,12 @@ class _AutomationRulesScreenState extends State<AutomationRulesScreen> {
     );
   }
 
-  void _confirmDelete(BuildContext context, AutomationRuleModel rule, String adminId, String adminName) {
+  void _confirmDelete(
+    BuildContext context,
+    AutomationRuleModel rule,
+    String adminId,
+    String adminName,
+  ) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -169,7 +179,11 @@ class _RuleCard extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ),
-                Switch(value: rule.enabled, onChanged: onToggle, activeThumbColor: AppTheme.primary),
+                Switch(
+                  value: rule.enabled,
+                  onChanged: onToggle,
+                  activeThumbColor: AppTheme.primary,
+                ),
               ],
             ),
             if (rule.description.isNotEmpty) ...[
@@ -182,12 +196,13 @@ class _RuleCard extends StatelessWidget {
               runSpacing: 8,
               children: [
                 _chip(Icons.flash_on, 'Trigger: ${rule.triggerType.label}', AppTheme.primary),
-                ...rule.actions.map(
-                  (a) => _chip(Icons.bolt, a.type.label, AppTheme.info),
-                ),
+                ...rule.actions.map((a) => _chip(Icons.bolt, a.type.label, AppTheme.info)),
                 if (rule.conditions.isNotEmpty)
-                  _chip(Icons.filter_alt, '${rule.conditions.length} condition${rule.conditions.length == 1 ? '' : 's'}',
-                      AppTheme.grey600),
+                  _chip(
+                    Icons.filter_alt,
+                    '${rule.conditions.length} condition${rule.conditions.length == 1 ? '' : 's'}',
+                    AppTheme.grey600,
+                  ),
               ],
             ),
             const SizedBox(height: 12),
@@ -231,7 +246,10 @@ class _RuleCard extends StatelessWidget {
         children: [
           Icon(icon, size: 14, color: color),
           const SizedBox(width: 4),
-          Text(label, style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w600)),
+          Text(
+            label,
+            style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w600),
+          ),
         ],
       ),
     );
@@ -284,15 +302,15 @@ class _RuleEditorScreenState extends State<_RuleEditorScreen> {
 
   Future<void> _save() async {
     if (_nameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a rule name')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter a rule name')));
       return;
     }
     if (_actions.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Add at least one action')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Add at least one action')));
       return;
     }
 
@@ -339,72 +357,77 @@ class _RuleEditorScreenState extends State<_RuleEditorScreen> {
           if (_saving)
             const Padding(
               padding: EdgeInsets.all(16),
-              child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
             )
           else
-            TextButton(
-              onPressed: _save,
-              child: const Text('Save'),
-            ),
+            TextButton(onPressed: _save, child: const Text('Save')),
         ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _section(
-            'Basics',
-            [
-              TextField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Rule name', hintText: 'e.g. Notify on cancelled orders'),
+          _section('Basics', [
+            TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(
+                labelText: 'Rule name',
+                hintText: 'e.g. Notify on cancelled orders',
               ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _descController,
-                decoration: const InputDecoration(labelText: 'Description (optional)'),
-                maxLines: 2,
-              ),
-              const SizedBox(height: 12),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Enabled', style: TextStyle(fontWeight: FontWeight.w700)),
-                value: _enabled,
-                onChanged: (v) => setState(() => _enabled = v),
-                activeThumbColor: AppTheme.primary,
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _descController,
+              decoration: const InputDecoration(labelText: 'Description (optional)'),
+              maxLines: 2,
+            ),
+            const SizedBox(height: 12),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Enabled', style: TextStyle(fontWeight: FontWeight.w700)),
+              value: _enabled,
+              onChanged: (v) => setState(() => _enabled = v),
+              activeThumbColor: AppTheme.primary,
+            ),
+          ]),
           _section('Trigger — when should this run?', [_buildTriggerSection()]),
-          _section(
-            'Conditions — only run if (optional)',
-            [
-              ..._conditions.asMap().entries.map((e) => _ConditionRow(
-                    condition: e.value,
-                    onChanged: (c) => setState(() => _conditions[e.key] = c),
-                    onDelete: () => setState(() => _conditions.removeAt(e.key)),
-                  )),
-              TextButton.icon(
-                onPressed: () => setState(() => _conditions.add(const AutomationCondition(field: '', operator: '=='))),
-                icon: const Icon(Icons.add),
-                label: const Text('Add condition'),
+          _section('Conditions — only run if (optional)', [
+            ..._conditions.asMap().entries.map(
+              (e) => _ConditionRow(
+                condition: e.value,
+                onChanged: (c) => setState(() => _conditions[e.key] = c),
+                onDelete: () => setState(() => _conditions.removeAt(e.key)),
               ),
-            ],
-          ),
-          _section(
-            'Actions — then do this',
-            [
-              ..._actions.asMap().entries.map((e) => _ActionRow(
-                    action: e.value,
-                    onChanged: (a) => setState(() => _actions[e.key] = a),
-                    onDelete: () => setState(() => _actions.removeAt(e.key)),
-                  )),
-              TextButton.icon(
-                onPressed: () => setState(() => _actions.add(const AutomationAction(type: AutomationActionType.sendPush, config: {}))),
-                icon: const Icon(Icons.add),
-                label: const Text('Add action'),
+            ),
+            TextButton.icon(
+              onPressed: () => setState(
+                () => _conditions.add(const AutomationCondition(field: '', operator: '==')),
               ),
-            ],
-          ),
+              icon: const Icon(Icons.add),
+              label: const Text('Add condition'),
+            ),
+          ]),
+          _section('Actions — then do this', [
+            ..._actions.asMap().entries.map(
+              (e) => _ActionRow(
+                action: e.value,
+                onChanged: (a) => setState(() => _actions[e.key] = a),
+                onDelete: () => setState(() => _actions.removeAt(e.key)),
+              ),
+            ),
+            TextButton.icon(
+              onPressed: () => setState(
+                () => _actions.add(
+                  const AutomationAction(type: AutomationActionType.sendPush, config: {}),
+                ),
+              ),
+              icon: const Icon(Icons.add),
+              label: const Text('Add action'),
+            ),
+          ]),
           const SizedBox(height: 24),
         ],
       ),
@@ -471,23 +494,33 @@ class _RuleEditorScreenState extends State<_RuleEditorScreen> {
         return [
           TextFormField(
             initialValue: (_triggerConfig['hours'] ?? 3).toString(),
-            decoration: const InputDecoration(labelText: 'Hours of inactivity before considered abandoned'),
+            decoration: const InputDecoration(
+              labelText: 'Hours of inactivity before considered abandoned',
+            ),
             keyboardType: TextInputType.number,
             onChanged: (v) => _triggerConfig = {..._triggerConfig, 'hours': int.tryParse(v) ?? 3},
           ),
           const SizedBox(height: 4),
-          const Text('Checked hourly by a scheduled function.', style: TextStyle(fontSize: 12, color: AppTheme.grey500)),
+          const Text(
+            'Checked hourly by a scheduled function.',
+            style: TextStyle(fontSize: 12, color: AppTheme.grey500),
+          ),
         ];
       case AutomationTriggerType.customerInactive:
         return [
           TextFormField(
             initialValue: (_triggerConfig['days'] ?? 14).toString(),
-            decoration: const InputDecoration(labelText: 'Days since last order before considered inactive'),
+            decoration: const InputDecoration(
+              labelText: 'Days since last order before considered inactive',
+            ),
             keyboardType: TextInputType.number,
             onChanged: (v) => _triggerConfig = {..._triggerConfig, 'days': int.tryParse(v) ?? 14},
           ),
           const SizedBox(height: 4),
-          const Text('Checked hourly by a scheduled function.', style: TextStyle(fontSize: 12, color: AppTheme.grey500)),
+          const Text(
+            'Checked hourly by a scheduled function.',
+            style: TextStyle(fontSize: 12, color: AppTheme.grey500),
+          ),
         ];
     }
   }
@@ -505,7 +538,14 @@ class _RuleEditorScreenState extends State<_RuleEditorScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey800)),
+            Text(
+              title,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: AppTheme.grey800,
+              ),
+            ),
             const SizedBox(height: 12),
             ...children,
           ],
@@ -516,8 +556,17 @@ class _RuleEditorScreenState extends State<_RuleEditorScreen> {
 }
 
 const _conditionFieldHints = [
-  'orderId', 'customerId', 'orderNumber', 'status', 'previousStatus', 'totalAmount', 'shopId',
-  'productId', 'productName', 'stockQuantity', 'severity',
+  'orderId',
+  'customerId',
+  'orderNumber',
+  'status',
+  'previousStatus',
+  'totalAmount',
+  'shopId',
+  'productId',
+  'productName',
+  'stockQuantity',
+  'severity',
 ];
 
 const _operatorOptions = ['==', '!=', '>', '>=', '<', '<=', 'contains', 'exists', 'not_exists'];
@@ -541,7 +590,8 @@ class _ConditionRow extends StatelessWidget {
             flex: 3,
             child: Autocomplete<String>(
               initialValue: TextEditingValue(text: condition.field),
-              optionsBuilder: (v) => _conditionFieldHints.where((h) => h.toLowerCase().contains(v.text.toLowerCase())),
+              optionsBuilder: (v) =>
+                  _conditionFieldHints.where((h) => h.toLowerCase().contains(v.text.toLowerCase())),
               fieldViewBuilder: (context, controller, focusNode, onSubmit) {
                 controller.text = condition.field;
                 return TextField(
@@ -561,7 +611,14 @@ class _ConditionRow extends StatelessWidget {
               initialValue: condition.operator,
               isExpanded: true,
               decoration: const InputDecoration(isDense: true, labelText: 'Op'),
-              items: _operatorOptions.map((o) => DropdownMenuItem(value: o, child: Text(o, overflow: TextOverflow.ellipsis))).toList(),
+              items: _operatorOptions
+                  .map(
+                    (o) => DropdownMenuItem(
+                      value: o,
+                      child: Text(o, overflow: TextOverflow.ellipsis),
+                    ),
+                  )
+                  .toList(),
               onChanged: (v) {
                 if (v == null) return;
                 onChanged(condition.copyWith(operator: v));
@@ -609,12 +666,20 @@ class _ActionRowState extends State<_ActionRow> {
         return [
           const _ConfigField('title', 'Title', '{{orderNumber}} update'),
           const _ConfigField('body', 'Message', 'Your order is now {{status}}'),
-          const _ConfigField('deepLink', 'Deep link (optional)', '/customer/order-detail/{{orderId}}'),
+          const _ConfigField(
+            'deepLink',
+            'Deep link (optional)',
+            '/customer/order-detail/{{orderId}}',
+          ),
         ];
       case AutomationActionType.sendEmail:
         return [
           const _ConfigField('subject', 'Subject', 'Update on order {{orderNumber}}'),
-          const _ConfigField('html', 'Email body (HTML)', '<p>Hi! Your order {{orderNumber}} is now {{status}}.</p>'),
+          const _ConfigField(
+            'html',
+            'Email body (HTML)',
+            '<p>Hi! Your order {{orderNumber}} is now {{status}}.</p>',
+          ),
         ];
       case AutomationActionType.applyCoupon:
         return [
@@ -623,9 +688,7 @@ class _ActionRowState extends State<_ActionRow> {
           const _ConfigField('expiresInDays', 'Expires in (days)', '7'),
         ];
       case AutomationActionType.addUserTag:
-        return [
-          const _ConfigField('tag', 'Tag to add', 'vip'),
-        ];
+        return [const _ConfigField('tag', 'Tag to add', 'vip')];
       case AutomationActionType.notifyOwner:
         return [
           const _ConfigField('title', 'Alert title', 'Action needed'),
@@ -677,11 +740,7 @@ class _ActionRowState extends State<_ActionRow> {
               child: TextField(
                 controller: TextEditingController(text: value)
                   ..selection = TextSelection.collapsed(offset: value.length),
-                decoration: InputDecoration(
-                  labelText: f.label,
-                  hintText: f.hint,
-                  isDense: true,
-                ),
+                decoration: InputDecoration(labelText: f.label, hintText: f.hint, isDense: true),
                 maxLines: f.key == 'html' || f.key == 'body' || f.key == 'message' ? 3 : 1,
                 onChanged: (v) {
                   final newConfig = Map<String, dynamic>.from(widget.action.config);

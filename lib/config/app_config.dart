@@ -9,9 +9,16 @@ class AppConfig {
     // 1. Try --dart-define (compile-time)
     final fromEnv = String.fromEnvironment(key);
     if (fromEnv.isNotEmpty) return fromEnv;
-    
+
     // 2. Try .env file (runtime)
-    return dotenv.env[key] ?? defaultValue;
+    try {
+      if (dotenv.isInitialized) {
+        return dotenv.env[key] ?? defaultValue;
+      }
+    } catch (_) {
+      // Fallback if dotenv is in a weird state
+    }
+    return defaultValue;
   }
 
   // Shop: Jalawar Road, Tel Factory, Baran, Rajasthan 325205
@@ -85,6 +92,5 @@ class AppConfig {
 
   static double get deliveryRadiusMeters => deliveryRadiusKm * 1000;
 
-  static String get shopPhone =>
-      ShopConfigService().cachedConfig?.shopPhone ?? '+91 9876543210';
+  static String get shopPhone => ShopConfigService().cachedConfig?.shopPhone ?? '+91 9876543210';
 }

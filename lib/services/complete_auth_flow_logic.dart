@@ -1257,10 +1257,7 @@ Future<GoogleSigninResponse> signInWithGoogle({
 /// }
 ///
 
-Future<LogoutResponse> logout({
-  required String token,
-  String? clientIp,
-}) async {
+Future<LogoutResponse> logout({required String token, String? clientIp}) async {
   // VERIFY JWT TOKEN
   // Extract token from Authorization header
   // Verify signature with SECRET_KEY
@@ -1303,10 +1300,7 @@ Future<LogoutResponse> logout({
   // UPDATE users SET last_activity_at = NOW()
 
   // RETURN SUCCESS RESPONSE
-  return LogoutResponse(
-    success: true,
-    message: 'Logged out successfully',
-  );
+  return LogoutResponse(success: true, message: 'Logged out successfully');
 }
 
 /// ============================================================================
@@ -1801,10 +1795,7 @@ Future<PasswordResetVerifyResponse> verifyPasswordReset({
 /// }
 ///
 
-Future<RefreshTokenResponse> refreshToken({
-  required String token,
-  String? clientIp,
-}) async {
+Future<RefreshTokenResponse> refreshToken({required String token, String? clientIp}) async {
   // VALIDATE TOKEN FORMAT
   // Check JWT structure
   // Decode header + payload
@@ -1969,10 +1960,7 @@ class LogoutResponse {
   final bool success;
   final String message;
 
-  LogoutResponse({
-    required this.success,
-    required this.message,
-  });
+  LogoutResponse({required this.success, required this.message});
 }
 
 class PasswordResetRequestResponse {
@@ -1980,21 +1968,14 @@ class PasswordResetRequestResponse {
   final String message;
   final String note;
 
-  PasswordResetRequestResponse({
-    required this.success,
-    required this.message,
-    required this.note,
-  });
+  PasswordResetRequestResponse({required this.success, required this.message, required this.note});
 }
 
 class PasswordResetVerifyResponse {
   final bool success;
   final String message;
 
-  PasswordResetVerifyResponse({
-    required this.success,
-    required this.message,
-  });
+  PasswordResetVerifyResponse({required this.success, required this.message});
 }
 
 class RefreshTokenResponse {
@@ -2002,9 +1983,5 @@ class RefreshTokenResponse {
   final String token;
   final int expiresIn;
 
-  RefreshTokenResponse({
-    required this.success,
-    required this.token,
-    required this.expiresIn,
-  });
+  RefreshTokenResponse({required this.success, required this.token, required this.expiresIn});
 }

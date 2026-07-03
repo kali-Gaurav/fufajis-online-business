@@ -197,7 +197,8 @@ class FamilyAccountService {
       // Notify via WhatsApp
       WhatsAppNotificationService.sendOrderUpdate(
         phoneNumber: newUserPhone,
-        message: '🏠 Welcome to ${group.familyName}! You have been added as a ${role.name} member by ${requester.name}. You can now share carts and place orders together.',
+        message:
+            '🏠 Welcome to ${group.familyName}! You have been added as a ${role.name} member by ${requester.name}. You can now share carts and place orders together.',
       );
     } catch (e) {
       debugPrint('Error adding family member: $e');
@@ -403,8 +404,7 @@ class FamilyAccountService {
       );
       if (item == null) return;
 
-      if (item.addedByUserId != userId &&
-          !member.hasPermission(FamilyPermission.manageMembers)) {
+      if (item.addedByUserId != userId && !member.hasPermission(FamilyPermission.manageMembers)) {
         throw Exception('You can only remove items you added');
       }
 
@@ -485,13 +485,15 @@ class FamilyAccountService {
       final group = await getFamilyGroup(familyId);
       if (group != null) {
         final approvers = group.members.where(
-          (m) => m.hasPermission(FamilyPermission.approveChildOrders) && m.userId != requestedByUserId,
+          (m) =>
+              m.hasPermission(FamilyPermission.approveChildOrders) && m.userId != requestedByUserId,
         );
 
         for (final approver in approvers) {
           WhatsAppNotificationService.sendOrderUpdate(
             phoneNumber: approver.phoneNumber,
-            message: '🔔 $requestedByName wants to order ${itemNames.length} items for ₹${orderAmount.toStringAsFixed(0)}. Reply APPROVE or REJECT.',
+            message:
+                '🔔 $requestedByName wants to order ${itemNames.length} items for ₹${orderAmount.toStringAsFixed(0)}. Reply APPROVE or REJECT.',
           );
         }
       }
@@ -530,11 +532,11 @@ class FamilyAccountService {
           .collection('approval_requests')
           .doc(approvalId)
           .update({
-        'status': approved ? 'approved' : 'rejected',
-        'approvedBy': resolverUserId,
-        'rejectionReason': rejectionReason,
-        'resolvedAt': DateTime.now(),
-      });
+            'status': approved ? 'approved' : 'rejected',
+            'approvedBy': resolverUserId,
+            'rejectionReason': rejectionReason,
+            'resolvedAt': DateTime.now(),
+          });
 
       // Remove from pendingApprovals array
       final updatedApprovals = group.pendingApprovals.where((a) => a.id != approvalId).toList();
@@ -557,7 +559,8 @@ class FamilyAccountService {
           final status = approved ? '✅ Approved' : '❌ Rejected';
           WhatsAppNotificationService.sendOrderUpdate(
             phoneNumber: requesterMember.phoneNumber,
-            message: '$status: Your order request for ₹${request.orderAmount.toStringAsFixed(0)} has been ${approved ? 'approved' : 'rejected'} by ${resolver.name}.${rejectionReason != null ? ' Reason: $rejectionReason' : ''}',
+            message:
+                '$status: Your order request for ₹${request.orderAmount.toStringAsFixed(0)} has been ${approved ? 'approved' : 'rejected'} by ${resolver.name}.${rejectionReason != null ? ' Reason: $rejectionReason' : ''}',
           );
         }
       }
@@ -576,8 +579,8 @@ class FamilyAccountService {
         .where('status', isEqualTo: 'pending')
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) => FamilyApprovalRequest.fromMap(doc.data())).toList();
-    });
+          return snapshot.docs.map((doc) => FamilyApprovalRequest.fromMap(doc.data())).toList();
+        });
   }
 
   // ===== SPENDING TRACKING =====
@@ -625,7 +628,8 @@ class FamilyAccountService {
         if (owner != null) {
           WhatsAppNotificationService.sendOrderUpdate(
             phoneNumber: owner.phoneNumber,
-            message: '⚠️ ${member.name} has used ${((member.currentMonthSpending / member.monthlySpendingLimit) * 100).toStringAsFixed(0)}% of their monthly limit (₹${member.monthlySpendingLimit.toStringAsFixed(0)}).',
+            message:
+                '⚠️ ${member.name} has used ${((member.currentMonthSpending / member.monthlySpendingLimit) * 100).toStringAsFixed(0)}% of their monthly limit (₹${member.monthlySpendingLimit.toStringAsFixed(0)}).',
           );
         }
       }
@@ -752,7 +756,10 @@ class FamilyAccountService {
   }
 
   /// Get family order history
-  Future<List<Map<String, dynamic>>> getFamilyOrderHistory(String familyId, {int limit = 20}) async {
+  Future<List<Map<String, dynamic>>> getFamilyOrderHistory(
+    String familyId, {
+    int limit = 20,
+  }) async {
     try {
       final group = await getFamilyGroup(familyId);
       if (group == null) return [];
@@ -767,14 +774,13 @@ class FamilyAccountService {
 
       return snapshot.docs.map((doc) {
         final data = doc.data();
-        final memberName = group.members
-            .cast<FamilyMember?>()
-            .firstWhere((m) => m?.userId == data['customerId'], orElse: () => null)
-            ?.name ?? 'Unknown';
-        return {
-          ...data,
-          'memberName': memberName,
-        };
+        final memberName =
+            group.members
+                .cast<FamilyMember?>()
+                .firstWhere((m) => m?.userId == data['customerId'], orElse: () => null)
+                ?.name ??
+            'Unknown';
+        return {...data, 'memberName': memberName};
       }).toList();
     } catch (e) {
       debugPrint('Error getting family order history: $e');

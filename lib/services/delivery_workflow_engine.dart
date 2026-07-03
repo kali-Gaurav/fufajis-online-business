@@ -26,8 +26,7 @@ class DeliveryTransitionResult {
 }
 
 class DeliveryWorkflowEngine {
-  static final DeliveryWorkflowEngine _instance =
-      DeliveryWorkflowEngine._internal();
+  static final DeliveryWorkflowEngine _instance = DeliveryWorkflowEngine._internal();
   factory DeliveryWorkflowEngine() => _instance;
   DeliveryWorkflowEngine._internal();
 
@@ -43,11 +42,7 @@ class DeliveryWorkflowEngine {
     'cancelled': <String>{},
   };
 
-  static const Set<String> terminalStatuses = {
-    'delivered',
-    'failed',
-    'cancelled',
-  };
+  static const Set<String> terminalStatuses = {'delivered', 'failed', 'cancelled'};
 
   bool isTerminal(String status) => terminalStatuses.contains(status);
 
@@ -70,8 +65,7 @@ class DeliveryWorkflowEngine {
     String? notes,
   }) async {
     if (!canTransition(fromStatus, toStatus)) {
-      final msg =
-          'Invalid delivery transition: $fromStatus -> $toStatus (tracking $trackingId)';
+      final msg = 'Invalid delivery transition: $fromStatus -> $toStatus (tracking $trackingId)';
       debugPrint('[DeliveryWorkflowEngine] $msg');
       return DeliveryTransitionResult.failure(msg);
     }
@@ -79,14 +73,12 @@ class DeliveryWorkflowEngine {
     // Delivery proof should accompany the terminal "delivered" status.
     if (toStatus == 'delivered' && proofImageUrl == null) {
       debugPrint(
-          '[DeliveryWorkflowEngine] Warning: marking delivered without proofImageUrl (tracking $trackingId)');
+        '[DeliveryWorkflowEngine] Warning: marking delivered without proofImageUrl (tracking $trackingId)',
+      );
     }
 
     try {
-      await FirebaseFirestore.instance
-          .collection('delivery_tracking')
-          .doc(trackingId)
-          .update({
+      await FirebaseFirestore.instance.collection('delivery_tracking').doc(trackingId).update({
         'status': toStatus,
         if (latitude != null) 'latitude': latitude,
         if (longitude != null) 'longitude': longitude,
@@ -96,8 +88,7 @@ class DeliveryWorkflowEngine {
       });
       return const DeliveryTransitionResult.ok();
     } catch (e) {
-      return DeliveryTransitionResult.failure(
-          'Failed to persist delivery status change: $e');
+      return DeliveryTransitionResult.failure('Failed to persist delivery status change: $e');
     }
   }
 
@@ -114,8 +105,7 @@ class DeliveryWorkflowEngine {
     String? actorId,
   }) async {
     if (!canTransition(fromStatus, toStatus)) {
-      final msg =
-          'Invalid delivery transition: $fromStatus -> $toStatus (task $taskId)';
+      final msg = 'Invalid delivery transition: $fromStatus -> $toStatus (task $taskId)';
       debugPrint('[DeliveryWorkflowEngine] $msg');
       return DeliveryTransitionResult.failure(msg);
     }
@@ -134,7 +124,8 @@ class DeliveryWorkflowEngine {
 
     if (!ok) {
       return const DeliveryTransitionResult.failure(
-          'Failed to persist delivery task status change');
+        'Failed to persist delivery task status change',
+      );
     }
     return const DeliveryTransitionResult.ok();
   }

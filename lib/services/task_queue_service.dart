@@ -30,13 +30,15 @@ class TaskQueueService {
     }
 
     return query.snapshots().map((snapshot) {
-      final tasks = snapshot.docs.map((doc) => TaskQueueModel.fromMap(doc.data() as Map<String, dynamic>, doc.id)).toList();
-      
+      final tasks = snapshot.docs
+          .map((doc) => TaskQueueModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+          .toList();
+
       // Calculate dynamic priority score
       for (var task in tasks) {
         task.priorityScore = _healthEngine.calculatePriorityScore(task);
       }
-      
+
       // Sort by priority score descending
       tasks.sort((a, b) => b.priorityScore.compareTo(a.priorityScore));
       return tasks;

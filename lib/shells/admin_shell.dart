@@ -46,17 +46,11 @@ class _AdminShellState extends State<AdminShell> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: _systemStatusColor.withAlpha((255 * 0.1).toInt()),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: _systemStatusColor,
-                    width: 1,
-                  ),
+                  border: Border.all(color: _systemStatusColor, width: 1),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -64,10 +58,7 @@ class _AdminShellState extends State<AdminShell> {
                     Container(
                       width: 8,
                       height: 8,
-                      decoration: BoxDecoration(
-                        color: _systemStatusColor,
-                        shape: BoxShape.circle,
-                      ),
+                      decoration: BoxDecoration(color: _systemStatusColor, shape: BoxShape.circle),
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -96,9 +87,7 @@ class _AdminShellState extends State<AdminShell> {
           children: [
             // Drawer Header
             DrawerHeader(
-              decoration: const BoxDecoration(
-                color: AppTheme.primary,
-              ),
+              decoration: const BoxDecoration(color: AppTheme.primary),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -268,10 +257,7 @@ class _AdminShellState extends State<AdminShell> {
   }) {
     final isSelected = _isRouteSelected(route);
     return ListTile(
-      leading: Icon(
-        isSelected ? selectedIcon : icon,
-        color: isSelected ? AppTheme.primary : null,
-      ),
+      leading: Icon(isSelected ? selectedIcon : icon, color: isSelected ? AppTheme.primary : null),
       title: Text(
         label,
         style: TextStyle(

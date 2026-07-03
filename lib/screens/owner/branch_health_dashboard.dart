@@ -13,7 +13,10 @@ class BranchHealthDashboard extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.cream,
       appBar: AppBar(
-        title: Text('${health.branchId} Health', style: const TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(
+          '${health.branchId} Health',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: AppTheme.cream,
         elevation: 0,
       ),
@@ -42,7 +45,11 @@ class BranchHealthDashboard extends StatelessWidget {
                     children: [
                       Text(
                         health.overallScore.toInt().toString(),
-                        style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: _getColor(health.overallScore)),
+                        style: TextStyle(
+                          fontSize: 48,
+                          fontWeight: FontWeight.bold,
+                          color: _getColor(health.overallScore),
+                        ),
                       ),
                       const Text('Overall Score', style: TextStyle(color: AppTheme.grey600)),
                     ],
@@ -53,24 +60,53 @@ class BranchHealthDashboard extends StatelessWidget {
             const SizedBox(height: 32),
 
             // Detailed Breakdown
-            const Text('HEALTH BREAKDOWN', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey600)),
+            const Text(
+              'HEALTH BREAKDOWN',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey600),
+            ),
             const SizedBox(height: 16),
             _buildHealthCategory('Inventory Health', health.inventoryHealth, Icons.inventory),
-            _buildHealthCategory('Delivery Operations', health.deliveryHealth, Icons.local_shipping),
+            _buildHealthCategory(
+              'Delivery Operations',
+              health.deliveryHealth,
+              Icons.local_shipping,
+            ),
             _buildHealthCategory('Workforce & Staffing', health.employeeHealth, Icons.people),
             _buildHealthCategory('Supplier Reliability', health.supplierHealth, Icons.business),
             _buildHealthCategory('Customer Satisfaction', health.customerHealth, Icons.favorite),
-            _buildHealthCategory('Financial Performance', health.financialHealth, Icons.attach_money),
+            _buildHealthCategory(
+              'Financial Performance',
+              health.financialHealth,
+              Icons.attach_money,
+            ),
 
             const SizedBox(height: 32),
-            const Text('RECOMMENDED ACTIONS', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey600)),
+            const Text(
+              'RECOMMENDED ACTIONS',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey600),
+            ),
             const SizedBox(height: 16),
             if (health.inventoryHealth < 80)
-              _buildActionCard(context, 'Inventory Low', 'Audit top 10 fast-moving SKUs. Order pending PRs.', OperationalStatus.critical),
+              _buildActionCard(
+                context,
+                'Inventory Low',
+                'Audit top 10 fast-moving SKUs. Order pending PRs.',
+                OperationalStatus.critical,
+              ),
             if (health.deliveryHealth < 80)
-              _buildActionCard(context, 'SLA Breaches', 'Rebalance riders. 3 riders have > 5 tasks.', OperationalStatus.warning),
+              _buildActionCard(
+                context,
+                'SLA Breaches',
+                'Rebalance riders. 3 riders have > 5 tasks.',
+                OperationalStatus.warning,
+              ),
             if (health.employeeHealth < 80)
-              _buildActionCard(context, 'Staff Absenteeism', 'Contact 2 employees currently marked as absent.', OperationalStatus.warning),
+              _buildActionCard(
+                context,
+                'Staff Absenteeism',
+                'Contact 2 employees currently marked as absent.',
+                OperationalStatus.warning,
+              ),
           ],
         ),
       ),
@@ -94,7 +130,10 @@ class BranchHealthDashboard extends StatelessWidget {
                   Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
                 ],
               ),
-              Text('${score.toInt()}%', style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(
+                '${score.toInt()}%',
+                style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 16),
+              ),
             ],
           ),
           const SizedBox(height: 8),
@@ -106,13 +145,18 @@ class BranchHealthDashboard extends StatelessWidget {
               color: color,
               minHeight: 10,
             ),
-          )
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildActionCard(BuildContext context, String title, String description, OperationalStatus status) {
+  Widget _buildActionCard(
+    BuildContext context,
+    String title,
+    String description,
+    OperationalStatus status,
+  ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
@@ -125,9 +169,14 @@ class BranchHealthDashboard extends StatelessWidget {
         subtitle: Text(description),
         trailing: ElevatedButton(
           onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Contact Manager tapped')));
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('Contact Manager tapped')));
           },
-          style: ElevatedButton.styleFrom(backgroundColor: status.color, foregroundColor: Colors.white),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: status.color,
+            foregroundColor: Colors.white,
+          ),
           child: const Text('Fix'),
         ),
       ),

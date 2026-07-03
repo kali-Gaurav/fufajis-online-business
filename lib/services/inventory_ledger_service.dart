@@ -26,12 +26,11 @@ class InventoryLedgerService {
         VALUES (\$1, \$2, \$3, \$4, 'pending')
         RETURNING request_id;
       ''';
-      final res = await _rds.query(sql, params: [
-        entityType,
-        entityId,
-        jsonEncode(proposedChange),
-        submittedByUserId,
-      ], allowWrite: true);
+      final res = await _rds.query(
+        sql,
+        params: [entityType, entityId, jsonEncode(proposedChange), submittedByUserId],
+        allowWrite: true,
+      );
 
       if (res.isNotEmpty) {
         return res[0]['request_id'] as String?;
@@ -51,21 +50,22 @@ class InventoryLedgerService {
     String? queryId,
   }) async {
     try {
-      final operationData = {
-        'filter': filterJson,
-        'change': proposedChange,
-      };
+      final operationData = {'filter': filterJson, 'change': proposedChange};
 
       const sql = '''
         INSERT INTO bulk_operations (query_id, operation_type, operation_data, created_by)
         VALUES (\$1, 'UPDATE', \$2, \$3)
         RETURNING operation_id;
       ''';
-      final res = await _rds.query(sql, params: [
-        queryId, // Can be null
-        jsonEncode(operationData),
-        submittedByUserId,
-      ], allowWrite: true);
+      final res = await _rds.query(
+        sql,
+        params: [
+          queryId, // Can be null
+          jsonEncode(operationData),
+          submittedByUserId,
+        ],
+        allowWrite: true,
+      );
 
       if (res.isNotEmpty) {
         return res[0]['operation_id'] as String?;
@@ -90,7 +90,7 @@ class InventoryLedgerService {
     String? actorRole,
     String? source,
     String? approvedBy,
-    String? referenceId,   // order_id / task_id / request_id
+    String? referenceId, // order_id / task_id / request_id
     String? referenceType, // 'order' | 'bulk_op' | 'manual'
   }) async {
     try {
@@ -101,19 +101,23 @@ class InventoryLedgerService {
         VALUES (\$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11)
         RETURNING event_id;
       ''';
-      final res = await _rds.query(sql, params: [
-        productId,
-        eventType,
-        quantityChange,
-        oldValue,
-        newValue,
-        actorId,
-        actorRole,
-        source,
-        approvedBy,
-        referenceId,
-        referenceType,
-      ], allowWrite: true);
+      final res = await _rds.query(
+        sql,
+        params: [
+          productId,
+          eventType,
+          quantityChange,
+          oldValue,
+          newValue,
+          actorId,
+          actorRole,
+          source,
+          approvedBy,
+          referenceId,
+          referenceType,
+        ],
+        allowWrite: true,
+      );
 
       if (res.isNotEmpty) {
         return res[0]['event_id'] as String?;
@@ -128,7 +132,8 @@ class InventoryLedgerService {
   /// Fetch history of events for a specific product.
   Future<List<Map<String, dynamic>>> getProductLedger(String productId, {int limit = 50}) async {
     try {
-      const sql = 'SELECT * FROM inventory_events WHERE product_id = \$1 ORDER BY timestamp DESC LIMIT \$2';
+      const sql =
+          'SELECT * FROM inventory_events WHERE product_id = \$1 ORDER BY timestamp DESC LIMIT \$2';
       return await _rds.rows(sql, params: [productId, limit]);
     } catch (e) {
       debugPrint('[InventoryLedger] Error fetching product ledger: $e');
@@ -214,11 +219,7 @@ class InventoryLedgerService {
     );
   }
 
-  Future<void> logRefund({
-    required String orderId,
-    required double amount,
-    String? reason,
-  }) async {
+  Future<void> logRefund({required String orderId, required double amount, String? reason}) async {
     await recordInventoryEvent(
       productId: 'N/A',
       eventType: 'REFUND_PROCESSED',
@@ -230,34 +231,18 @@ class InventoryLedgerService {
   }
 
   Future<void> reserve(String productId, int quantity, String orderId) async {
-    await logInventoryReservation(
-      orderId: orderId,
-      productId: productId,
-      quantity: quantity,
-    );
+    await logInventoryReservation(orderId: orderId, productId: productId, quantity: quantity);
   }
 
   Future<void> deduct(String productId, int quantity, String orderId) async {
-    await logInventoryDeduction(
-      orderId: orderId,
-      productId: productId,
-      quantity: quantity,
-    );
+    await logInventoryDeduction(orderId: orderId, productId: productId, quantity: quantity);
   }
 
   Future<void> release(String productId, int quantity, String orderId) async {
-    await logInventoryRestoration(
-      orderId: orderId,
-      productId: productId,
-      quantity: quantity,
-    );
+    await logInventoryRestoration(orderId: orderId, productId: productId, quantity: quantity);
   }
 
   Future<void> restore(String productId, int quantity, String orderId) async {
-    await logInventoryRestoration(
-      orderId: orderId,
-      productId: productId,
-      quantity: quantity,
-    );
+    await logInventoryRestoration(orderId: orderId, productId: productId, quantity: quantity);
   }
 }

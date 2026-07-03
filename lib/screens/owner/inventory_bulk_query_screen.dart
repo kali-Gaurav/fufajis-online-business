@@ -84,13 +84,24 @@ class _InventoryBulkQueryScreenState extends State<InventoryBulkQueryScreen> {
 
   List<FilterCondition> _activeConditions() {
     return _conditions
-        .where((c) => c.value.trim().isNotEmpty || c.operator == FilterOperator.isEmpty || c.operator == FilterOperator.isNotEmpty)
-        .map((c) => FilterCondition(
-              field: c.field,
-              operator: c.operator,
-              value: c.operator == FilterOperator.between ? num.tryParse(c.value) ?? c.value : c.value,
-              value2: c.operator == FilterOperator.between ? (num.tryParse(c.value2) ?? c.value2) : null,
-            ))
+        .where(
+          (c) =>
+              c.value.trim().isNotEmpty ||
+              c.operator == FilterOperator.isEmpty ||
+              c.operator == FilterOperator.isNotEmpty,
+        )
+        .map(
+          (c) => FilterCondition(
+            field: c.field,
+            operator: c.operator,
+            value: c.operator == FilterOperator.between
+                ? num.tryParse(c.value) ?? c.value
+                : c.value,
+            value2: c.operator == FilterOperator.between
+                ? (num.tryParse(c.value2) ?? c.value2)
+                : null,
+          ),
+        )
         .toList();
   }
 
@@ -127,18 +138,18 @@ class _InventoryBulkQueryScreenState extends State<InventoryBulkQueryScreen> {
       case _EditValueType.number:
         final parsed = num.tryParse(_editValueController.text.trim());
         if (parsed == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Enter a valid number for the new value.')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Enter a valid number for the new value.')));
           return;
         }
         newValue = parsed;
         break;
       case _EditValueType.text:
         if (_editValueController.text.trim().isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Enter a new value.')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Enter a new value.')));
           return;
         }
         newValue = _editValueController.text.trim();
@@ -200,13 +211,15 @@ class _InventoryBulkQueryScreenState extends State<InventoryBulkQueryScreen> {
             oldValue = p.isAvailable;
             break;
         }
-        fieldChanges.add(InventoryFieldChange(
-          productId: p.id,
-          productName: p.name,
-          field: firestoreField,
-          oldValue: oldValue,
-          newValue: newValue,
-        ));
+        fieldChanges.add(
+          InventoryFieldChange(
+            productId: p.id,
+            productName: p.name,
+            field: firestoreField,
+            oldValue: oldValue,
+            newValue: newValue,
+          ),
+        );
       }
 
       final requestModel = InventoryChangeRequestModel(
@@ -221,7 +234,9 @@ class _InventoryBulkQueryScreenState extends State<InventoryBulkQueryScreen> {
         createdAt: DateTime.now(),
       );
 
-      final changeRequestId = await InventoryChangeRequestService().createChangeRequest(requestModel);
+      final changeRequestId = await InventoryChangeRequestService().createChangeRequest(
+        requestModel,
+      );
 
       if (mounted) {
         if (opId != null && changeRequestId.isNotEmpty) {
@@ -304,16 +319,20 @@ class _InventoryBulkQueryScreenState extends State<InventoryBulkQueryScreen> {
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-          ElevatedButton(onPressed: () => Navigator.pop(ctx, controller.text), child: const Text('Save')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, controller.text),
+            child: const Text('Save'),
+          ),
         ],
       ),
     );
-    
+
     if (name != null && name.trim().isNotEmpty) {
       final user = Provider.of<AuthProvider>(context, listen: false).currentUser;
       if (user != null) {
         await _queryService.saveQuery(name, _activeConditions(), _logic, user.id);
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Query saved!')));
+        if (mounted)
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Query saved!')));
       }
     }
   }
@@ -325,7 +344,9 @@ class _InventoryBulkQueryScreenState extends State<InventoryBulkQueryScreen> {
     if (!mounted) return;
 
     if (queries.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No saved queries found.')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No saved queries found.')));
       return;
     }
 
@@ -372,12 +393,23 @@ class _InventoryBulkQueryScreenState extends State<InventoryBulkQueryScreen> {
     return Scaffold(
       backgroundColor: AppTheme.cream,
       appBar: AppBar(
-        title: const Text('Bulk Inventory Query & Update', style: TextStyle(fontWeight: FontWeight.w700)),
+        title: const Text(
+          'Bulk Inventory Query & Update',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
         backgroundColor: AppTheme.primary,
         foregroundColor: AppTheme.white,
         actions: [
-          IconButton(icon: const Icon(Icons.bookmark_add), onPressed: _saveQueryDialog, tooltip: 'Save Query'),
-          IconButton(icon: const Icon(Icons.folder_open), onPressed: _loadQueryDialog, tooltip: 'Load Query'),
+          IconButton(
+            icon: const Icon(Icons.bookmark_add),
+            onPressed: _saveQueryDialog,
+            tooltip: 'Save Query',
+          ),
+          IconButton(
+            icon: const Icon(Icons.folder_open),
+            onPressed: _loadQueryDialog,
+            tooltip: 'Load Query',
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -406,8 +438,10 @@ class _InventoryBulkQueryScreenState extends State<InventoryBulkQueryScreen> {
             Row(
               children: [
                 const Expanded(
-                  child: Text('Filter conditions (SQL)',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                  child: Text(
+                    'Filter conditions (SQL)',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
                 ),
                 const Text('Combine with:'),
                 const SizedBox(width: 8),
@@ -439,7 +473,10 @@ class _InventoryBulkQueryScreenState extends State<InventoryBulkQueryScreen> {
                 onPressed: _loading ? null : _runQuery,
                 icon: _loading
                     ? const SizedBox(
-                        width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
                     : const Icon(Icons.search),
                 label: const Text('Run SQL Query'),
                 style: ElevatedButton.styleFrom(
@@ -457,7 +494,8 @@ class _InventoryBulkQueryScreenState extends State<InventoryBulkQueryScreen> {
   Widget _buildConditionRow(int index) {
     final c = _conditions[index];
     final needsValue2 = c.operator == FilterOperator.between;
-    final needsValue = c.operator != FilterOperator.isEmpty && c.operator != FilterOperator.isNotEmpty;
+    final needsValue =
+        c.operator != FilterOperator.isEmpty && c.operator != FilterOperator.isNotEmpty;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -472,7 +510,12 @@ class _InventoryBulkQueryScreenState extends State<InventoryBulkQueryScreen> {
               initialValue: c.field,
               decoration: const InputDecoration(labelText: 'Field', isDense: true),
               items: InventoryQueryService.queryableFields.entries
-                  .map((e) => DropdownMenuItem(value: e.value, child: Text(e.key, overflow: TextOverflow.ellipsis)))
+                  .map(
+                    (e) => DropdownMenuItem(
+                      value: e.value,
+                      child: Text(e.key, overflow: TextOverflow.ellipsis),
+                    ),
+                  )
                   .toList(),
               onChanged: (v) => setState(() => c.field = v ?? c.field),
             ),
@@ -483,7 +526,12 @@ class _InventoryBulkQueryScreenState extends State<InventoryBulkQueryScreen> {
               initialValue: c.operator,
               decoration: const InputDecoration(labelText: 'Condition', isDense: true),
               items: FilterOperator.values
-                  .map((op) => DropdownMenuItem(value: op, child: Text(op.label, overflow: TextOverflow.ellipsis)))
+                  .map(
+                    (op) => DropdownMenuItem(
+                      value: op,
+                      child: Text(op.label, overflow: TextOverflow.ellipsis),
+                    ),
+                  )
                   .toList(),
               onChanged: (v) => setState(() => c.operator = v ?? c.operator),
             ),
@@ -523,11 +571,16 @@ class _InventoryBulkQueryScreenState extends State<InventoryBulkQueryScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Found ${_matched.length} product(s) (Limited to 500)',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            Text(
+              'Found ${_matched.length} product(s) (Limited to 500)',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+            ),
             const SizedBox(height: 8),
             if (_matched.isEmpty)
-              const Text('No products match this filter.', style: TextStyle(color: AppTheme.grey500))
+              const Text(
+                'No products match this filter.',
+                style: TextStyle(color: AppTheme.grey500),
+              )
             else
               ConstrainedBox(
                 constraints: const BoxConstraints(maxHeight: 260),
@@ -559,8 +612,10 @@ class _InventoryBulkQueryScreenState extends State<InventoryBulkQueryScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Bulk update matched products',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            const Text(
+              'Bulk update matched products',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+            ),
             const SizedBox(height: 4),
             const Text(
               'Choose a field and a new value to apply to EVERY matched product atomically.',
@@ -596,8 +651,9 @@ class _InventoryBulkQueryScreenState extends State<InventoryBulkQueryScreen> {
                         )
                       : TextFormField(
                           controller: _editValueController,
-                          keyboardType:
-                              editType == _EditValueType.number ? TextInputType.number : TextInputType.text,
+                          keyboardType: editType == _EditValueType.number
+                              ? TextInputType.number
+                              : TextInputType.text,
                           decoration: const InputDecoration(labelText: 'New value', isDense: true),
                         ),
                 ),
@@ -610,7 +666,10 @@ class _InventoryBulkQueryScreenState extends State<InventoryBulkQueryScreen> {
                 onPressed: _submitting ? null : _submitForApproval,
                 icon: _submitting
                     ? const SizedBox(
-                        width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
                     : const Icon(Icons.send),
                 label: const Text('Submit Bulk Operation for Owner Approval'),
                 style: ElevatedButton.styleFrom(

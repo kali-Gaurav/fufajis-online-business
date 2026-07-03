@@ -2,14 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// Status of a payment dispute / chargeback raised by the payment gateway
 /// (Razorpay `payment.dispute.*` webhook events).
-enum DisputeStatus {
-  open,
-  underReview,
-  evidenceSubmitted,
-  won,
-  lost,
-  closed,
-}
+enum DisputeStatus { open, underReview, evidenceSubmitted, won, lost, closed }
 
 extension DisputeStatusX on DisputeStatus {
   String get label {
@@ -147,8 +140,7 @@ class PaymentDispute {
   }
 
   /// Whether this dispute still requires owner action (evidence/response).
-  bool get needsAction =>
-      status == DisputeStatus.open || status == DisputeStatus.underReview;
+  bool get needsAction => status == DisputeStatus.open || status == DisputeStatus.underReview;
 
   /// Days remaining to respond, or null if no deadline / already resolved.
   int? get daysRemaining {

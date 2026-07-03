@@ -14,11 +14,7 @@ class LocationProviderExtended extends ChangeNotifier {
   double? speed;
 
   /// Start tracking a delivery
-  Future<void> startTracking(
-    String deliveryId,
-    double destLat,
-    double destLng,
-  ) async {
+  Future<void> startTracking(String deliveryId, double destLat, double destLng) async {
     isTracking = true;
     error = null;
     notifyListeners();
@@ -68,7 +64,12 @@ class LocationProviderExtended extends ChangeNotifier {
   }
 
   /// Update ETA
-  Future<void> _updateETA(double currentLat, double currentLng, double destLat, double destLng) async {
+  Future<void> _updateETA(
+    double currentLat,
+    double currentLng,
+    double destLat,
+    double destLng,
+  ) async {
     try {
       eta = await _locationService.calculateETA(
         currentLat: currentLat,

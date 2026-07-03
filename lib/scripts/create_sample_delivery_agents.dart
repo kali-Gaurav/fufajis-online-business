@@ -77,10 +77,7 @@ Future<void> createSampleDeliveryAgents() async {
 
   try {
     for (var agent in sampleAgents) {
-      await db
-          .collection('delivery_agents')
-          .doc(agent.id)
-          .set(agent.toMap());
+      await db.collection('delivery_agents').doc(agent.id).set(agent.toMap());
       print('Created agent: ${agent.name} (${agent.id})');
     }
     print('Successfully created ${sampleAgents.length} sample delivery agents');
@@ -121,14 +118,11 @@ Future<void> updateAgentLocations() async {
 
   try {
     for (var entry in updatedLocations.entries) {
-      await db
-          .collection('delivery_agents')
-          .doc(entry.key)
-          .update({
-            'currentLat': entry.value['lat'],
-            'currentLng': entry.value['lng'],
-            'lastLocationUpdate': FieldValue.serverTimestamp(),
-          });
+      await db.collection('delivery_agents').doc(entry.key).update({
+        'currentLat': entry.value['lat'],
+        'currentLng': entry.value['lng'],
+        'lastLocationUpdate': FieldValue.serverTimestamp(),
+      });
       print('Updated location for ${entry.key}');
     }
     print('Successfully updated agent locations');
@@ -143,12 +137,9 @@ Future<List<DeliveryAgent>> getAllDeliveryAgents() async {
   final db = FirebaseFirestore.instance;
 
   try {
-    final snapshot =
-        await db.collection('delivery_agents').get();
+    final snapshot = await db.collection('delivery_agents').get();
 
-    final agents = snapshot.docs
-        .map((doc) => DeliveryAgent.fromMap(doc.data()))
-        .toList();
+    final agents = snapshot.docs.map((doc) => DeliveryAgent.fromMap(doc.data())).toList();
 
     print('Retrieved ${agents.length} delivery agents');
     return agents;

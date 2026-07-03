@@ -76,10 +76,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
               const SizedBox(height: 16),
               Text(_error ?? 'Unknown error', style: const TextStyle(color: Colors.white70)),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _loadFamilyGroup,
-                child: const Text('Retry'),
-              ),
+              ElevatedButton(onPressed: _loadFamilyGroup, child: const Text('Retry')),
             ],
           ),
         ),
@@ -149,9 +146,21 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
             const SizedBox(height: 32),
 
             // Features List
-            _buildFeatureRow(Icons.shopping_cart, 'Shared Family Cart', 'Everyone adds items, checkout together'),
-            _buildFeatureRow(Icons.approval, 'Parental Approval', 'Kids need approval to place orders'),
-            _buildFeatureRow(Icons.account_balance_wallet, 'Spending Limits', 'Set monthly budgets per member'),
+            _buildFeatureRow(
+              Icons.shopping_cart,
+              'Shared Family Cart',
+              'Everyone adds items, checkout together',
+            ),
+            _buildFeatureRow(
+              Icons.approval,
+              'Parental Approval',
+              'Kids need approval to place orders',
+            ),
+            _buildFeatureRow(
+              Icons.account_balance_wallet,
+              'Spending Limits',
+              'Set monthly budgets per member',
+            ),
             _buildFeatureRow(Icons.analytics, 'Family Analytics', 'Track who spends what'),
 
             const SizedBox(height: 32),
@@ -202,9 +211,9 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
               child: ElevatedButton(
                 onPressed: () async {
                   if (nameController.text.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please enter a family name')),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(const SnackBar(content: Text('Please enter a family name')));
                     return;
                   }
                   final user = FirebaseAuth.instance.currentUser;
@@ -221,17 +230,15 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                     _loadFamilyGroup();
                   } catch (e) {
                     if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error: $e')),
-                      );
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text('Error: $e')));
                     }
                   }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
                 child: const Text(
                   'Create Family Group',
@@ -273,10 +280,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                 ),
                 Text(
                   subtitle,
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.5),
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 13),
                 ),
               ],
             ),
@@ -337,9 +341,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppTheme.primaryDark, Theme.of(context).cardColor],
-              ),
+              gradient: LinearGradient(colors: [AppTheme.primaryDark, Theme.of(context).cardColor]),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
@@ -348,9 +350,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                 _buildStatItem('Members', '${group.activeMemberCount}', Icons.people),
                 _buildStatItem(
                   'Budget',
-                  group.monthlyBudget > 0
-                      ? '₹${group.monthlyBudget.toStringAsFixed(0)}'
-                      : '∞',
+                  group.monthlyBudget > 0 ? '₹${group.monthlyBudget.toStringAsFixed(0)}' : '∞',
                   Icons.account_balance_wallet,
                 ),
                 _buildStatItem(
@@ -377,9 +377,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.all(16),
                   side: const BorderSide(color: AppTheme.primary, width: 1.5),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
             ),
@@ -393,7 +391,10 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
       children: [
         Icon(icon, color: AppTheme.primary, size: 28),
         const SizedBox(height: 8),
-        Text(value, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+        Text(
+          value,
+          style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+        ),
         Text(label, style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12)),
       ],
     );
@@ -452,7 +453,9 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: (roleColors[member.role] ?? AppTheme.primary).withValues(alpha: 0.15),
+                        color: (roleColors[member.role] ?? AppTheme.primary).withValues(
+                          alpha: 0.15,
+                        ),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -471,17 +474,17 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                   member.monthlySpendingLimit > 0
                       ? 'Budget: ₹${member.currentMonthSpending.toStringAsFixed(0)} / ₹${member.monthlySpendingLimit.toStringAsFixed(0)}'
                       : 'Unlimited budget',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.5),
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12),
                 ),
                 if (member.monthlySpendingLimit > 0) ...[
                   const SizedBox(height: 6),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
-                      value: (member.currentMonthSpending / member.monthlySpendingLimit).clamp(0, 1),
+                      value: (member.currentMonthSpending / member.monthlySpendingLimit).clamp(
+                        0,
+                        1,
+                      ),
                       backgroundColor: AppTheme.cream.withValues(alpha: 0.1),
                       valueColor: AlwaysStoppedAnimation(
                         member.currentMonthSpending > member.monthlySpendingLimit * 0.9
@@ -499,11 +502,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
               member.role != FamilyRole.owner)
             IconButton(
               onPressed: () => _showMemberSettingsDialog(member),
-              icon: Icon(
-                Icons.settings,
-                color: Colors.white.withValues(alpha: 0.4),
-                size: 20,
-              ),
+              icon: Icon(Icons.settings, color: Colors.white.withValues(alpha: 0.4), size: 20),
             ),
         ],
       ),
@@ -517,7 +516,11 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.white.withValues(alpha: 0.2)),
+            Icon(
+              Icons.shopping_cart_outlined,
+              size: 64,
+              color: Colors.white.withValues(alpha: 0.2),
+            ),
             const SizedBox(height: 16),
             Text(
               'Family cart is empty',
@@ -540,9 +543,7 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [AppTheme.primary, AppTheme.primaryDark],
-            ),
+            gradient: const LinearGradient(colors: [AppTheme.primary, AppTheme.primaryDark]),
             borderRadius: BorderRadius.circular(14),
           ),
           child: Row(
@@ -563,43 +564,56 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
         const SizedBox(height: 16),
 
         // Cart items
-        ...group.sharedCart.map((item) => Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.productName,
-                      style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Added by ${item.addedByName} • Qty: ${item.quantity}',
-                      style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12),
-                    ),
-                    if (item.note != null)
+        ...group.sharedCart.map(
+          (item) => Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        '📝 ${item.note}',
-                        style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 11),
+                        item.productName,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                  ],
+                      const SizedBox(height: 4),
+                      Text(
+                        'Added by ${item.addedByName} • Qty: ${item.quantity}',
+                        style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12),
+                      ),
+                      if (item.note != null)
+                        Text(
+                          '📝 ${item.note}',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.4),
+                            fontSize: 11,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
-              ),
-              Text(
-                '₹${(item.price * item.quantity).toStringAsFixed(0)}',
-                style: const TextStyle(color: AppTheme.primary, fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ],
+                Text(
+                  '₹${(item.price * item.quantity).toStringAsFixed(0)}',
+                  style: const TextStyle(
+                    color: AppTheme.primary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
-        )),
+        ),
 
         const SizedBox(height: 16),
         SizedBox(
@@ -623,9 +637,9 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                 );
                 return;
               }
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('$added items moved to your cart')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('$added items moved to your cart')));
               context.push('/customer/cart');
             },
             icon: const Icon(Icons.payment, color: Colors.white),
@@ -656,7 +670,11 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.check_circle_outline, size: 64, color: AppTheme.success.withValues(alpha: 0.3)),
+            Icon(
+              Icons.check_circle_outline,
+              size: 64,
+              color: AppTheme.success.withValues(alpha: 0.3),
+            ),
             const SizedBox(height: 16),
             Text(
               'No pending approvals',
@@ -715,12 +733,19 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
               Wrap(
                 spacing: 6,
                 runSpacing: 4,
-                children: approval.itemNames.map((name) => Chip(
-                  label: Text(name, style: const TextStyle(fontSize: 11, color: Colors.white70)),
-                  backgroundColor: AppTheme.primaryDark,
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                )).toList(),
+                children: approval.itemNames
+                    .map(
+                      (name) => Chip(
+                        label: Text(
+                          name,
+                          style: const TextStyle(fontSize: 11, color: Colors.white70),
+                        ),
+                        backgroundColor: AppTheme.primaryDark,
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    )
+                    .toList(),
               ),
               if (approval.isPending &&
                   currentMember?.hasPermission(FamilyPermission.approveChildOrders) == true) ...[
@@ -810,8 +835,8 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                           budgetUsed > 0.9
                               ? AppTheme.error
                               : budgetUsed > 0.7
-                                  ? AppTheme.warning
-                                  : AppTheme.primary,
+                              ? AppTheme.warning
+                              : AppTheme.primary,
                         ),
                       ),
                     ),
@@ -830,7 +855,10 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                           group.monthlyBudget > 0
                               ? 'of ₹${group.monthlyBudget.toStringAsFixed(0)}'
                               : 'This Month',
-                          style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 13),
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.5),
+                            fontSize: 13,
+                          ),
                         ),
                       ],
                     ),
@@ -853,43 +881,49 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
           style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
-        ...group.members.map((m) => Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 18,
-                backgroundColor: AppTheme.primary.withValues(alpha: 0.2),
-                child: Text(
-                  m.name.isNotEmpty ? m.name[0] : '?',
-                  style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold),
+        ...group.members.map(
+          (m) => Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 18,
+                  backgroundColor: AppTheme.primary.withValues(alpha: 0.2),
+                  child: Text(
+                    m.name.isNotEmpty ? m.name[0] : '?',
+                    style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(m.name, style: const TextStyle(color: Colors.white, fontSize: 14)),
-                    Text(
-                      m.role.name,
-                      style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 11),
-                    ),
-                  ],
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(m.name, style: const TextStyle(color: Colors.white, fontSize: 14)),
+                      Text(
+                        m.role.name,
+                        style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 11),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Text(
-                '₹${m.currentMonthSpending.toStringAsFixed(0)}',
-                style: const TextStyle(color: AppTheme.primary, fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ],
+                Text(
+                  '₹${m.currentMonthSpending.toStringAsFixed(0)}',
+                  style: const TextStyle(
+                    color: AppTheme.primary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
-        )),
+        ),
       ],
     );
   }
@@ -919,7 +953,10 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                     labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                     filled: true,
                     fillColor: Theme.of(context).scaffoldBackgroundColor,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -932,7 +969,10 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                     labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                     filled: true,
                     fillColor: Theme.of(context).scaffoldBackgroundColor,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -945,13 +985,16 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                     labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                     filled: true,
                     fillColor: Theme.of(context).scaffoldBackgroundColor,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                   items: [FamilyRole.parent, FamilyRole.adult, FamilyRole.child, FamilyRole.guest]
-                      .map((role) => DropdownMenuItem(
-                            value: role,
-                            child: Text(role.name.toUpperCase()),
-                          ))
+                      .map(
+                        (role) =>
+                            DropdownMenuItem(value: role, child: Text(role.name.toUpperCase())),
+                      )
                       .toList(),
                   onChanged: (val) => setDialogState(() => selectedRole = val!),
                 ),
@@ -965,7 +1008,10 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                     labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                     filled: true,
                     fillColor: Theme.of(context).scaffoldBackgroundColor,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                 ),
               ],
@@ -984,7 +1030,8 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
 
                 try {
                   // For demo, we use phone as userId lookup
-                  final newUserId = 'user_${phoneController.text.replaceAll('+', '').replaceAll(' ', '')}';
+                  final newUserId =
+                      'user_${phoneController.text.replaceAll('+', '').replaceAll(' ', '')}';
                   await _familyService.addMember(
                     familyId: group.id,
                     requestingUserId: user.uid,
@@ -997,15 +1044,13 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                   _loadFamilyGroup();
                 } catch (e) {
                   if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error: $e')),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text('Error: $e')));
                   }
                 }
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primary,
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary),
               child: const Text('Add', style: TextStyle(color: Colors.white)),
             ),
           ],
@@ -1038,13 +1083,15 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                   labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                   filled: true,
                   fillColor: Theme.of(context).scaffoldBackgroundColor,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
                 items: [FamilyRole.parent, FamilyRole.adult, FamilyRole.child, FamilyRole.guest]
-                    .map((role) => DropdownMenuItem(
-                          value: role,
-                          child: Text(role.name.toUpperCase()),
-                        ))
+                    .map(
+                      (role) => DropdownMenuItem(value: role, child: Text(role.name.toUpperCase())),
+                    )
                     .toList(),
                 onChanged: (val) => setDialogState(() => selectedRole = val!),
               ),
@@ -1058,7 +1105,10 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                   labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
                   filled: true,
                   fillColor: Theme.of(context).scaffoldBackgroundColor,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
             ],
@@ -1085,9 +1135,9 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
                   _loadFamilyGroup();
                 } catch (e) {
                   if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error: $e')),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text('Error: $e')));
                   }
                 }
               },
@@ -1100,4 +1150,3 @@ class _FamilyManagementScreenState extends State<FamilyManagementScreen>
     );
   }
 }
-

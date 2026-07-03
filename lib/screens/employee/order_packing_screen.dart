@@ -41,12 +41,12 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
   OrderModel? _currentOrder;
   final List<String> _verifiedItems = [];
   bool _isLoading = false;
-  bool _allWeightsVerified = false;
   String? _parcelId;
   Map<String, ProductBatch?> _suggestedBatches = {};
   Map<String, Map<String, dynamic>> _productLocations = {};
   List<OrderItem> _sortedItems = [];
   bool _autoPrintOnComplete = true;
+  bool _allWeightsVerified = false;
   static const String _keyAutoPrintPacking = 'auto_print_receipt_on_packing';
 
   // --- Barcode Mapping and Inputs ---
@@ -64,8 +64,9 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
   final Map<String, double> _packedWeights = {};
   // Items that need weight verification (vegetables/fruits)
   List<OrderItem> get _weightVerificationItems => _sortedItems
-      .where((item) => _weightService.requiresWeightVerification(
-          _getProductCategory(item.productId)))
+      .where(
+        (item) => _weightService.requiresWeightVerification(_getProductCategory(item.productId)),
+      )
       .toList();
 
   @override
@@ -145,14 +146,14 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
       final orderProvider = context.read<OrderProvider>();
       final order = await orderProvider.getOrderById(orderId);
       if (order == null) throw Exception('Order not found');
-      
+
       final authProvider = context.read<AuthProvider>();
       final shopId = authProvider.currentShop?.id ?? '';
       final branchId = authProvider.currentBranch?.id ?? '';
-      
+
       final Map<String, ProductBatch?> suggestions = {};
       final Map<String, Map<String, dynamic>> locations = {};
-      
+
       if (shopId.isNotEmpty && branchId.isNotEmpty) {
         for (var item in order.items) {
           final querySnapshot = await FirebaseFirestore.instance
@@ -163,12 +164,12 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
               .collection('inventory_batches')
               .where('productId', isEqualTo: item.productId)
               .get();
-              
+
           final batches = querySnapshot.docs
               .map((doc) => ProductBatch.fromMap(doc.data()))
               .where((batch) => batch.quantity > 0 && batch.expiryDate.isAfter(DateTime.now()))
               .toList();
-              
+
           if (batches.isNotEmpty) {
             batches.sort((a, b) => a.expiryDate.compareTo(b.expiryDate));
             suggestions[item.productId] = batches.first;
@@ -219,7 +220,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
 
   Future<void> _printParcelLabel() async {
     if (_parcelId == null || _currentOrder == null) return;
-    
+
     final printerService = PrinterService();
     final device = await printerService.getSavedDevice();
     if (device != null && await printerService.connectToSavedDevice()) {
@@ -243,7 +244,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
 
   Future<void> _printOrderReceipt() async {
     if (_currentOrder == null) return;
-    
+
     final printerService = PrinterService();
     final device = await printerService.getSavedDevice();
     if (device != null && await printerService.connectToSavedDevice()) {
@@ -317,11 +318,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
       SnackBar(
         content: Text(message),
         backgroundColor: AppTheme.warning,
-        action: SnackBarAction(
-          label: actionLabel,
-          textColor: Colors.white,
-          onPressed: onAction,
-        ),
+        action: SnackBarAction(label: actionLabel, textColor: Colors.white, onPressed: onAction),
       ),
     );
   }
@@ -341,15 +338,15 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: AppTheme.error));
   }
 
   void _showSuccess(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: AppTheme.success),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: AppTheme.success));
   }
 
   Future<void> _processBarcodeScan(String barcode) async {
@@ -361,32 +358,28 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
 
     final productId = _barcodeToProductId[cleanBarcode];
     if (productId != null) {
-      final hasItem =
-          _sortedItems.any((item) => item.productId == productId);
+      final hasItem = _sortedItems.any((item) => item.productId == productId);
       if (hasItem) {
         if (_verifiedItems.contains(productId)) {
           // Already verified — warn with double buzz
           await SmartScanService.hapticError();
-          final name = _sortedItems
-              .firstWhere((i) => i.productId == productId)
-              .productName;
+          final name = _sortedItems.firstWhere((i) => i.productId == productId).productName;
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text('⚠ "$name" already scanned'),
-              backgroundColor: AppTheme.warning,
-              duration: const Duration(seconds: 2),
-            ));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('⚠ "$name" already scanned'),
+                backgroundColor: AppTheme.warning,
+                duration: const Duration(seconds: 2),
+              ),
+            );
           }
         } else {
           // ✓ Verify item
           await _verifyItem(productId);
           await SmartScanService.hapticSuccess();
 
-          final name = _sortedItems
-              .firstWhere((i) => i.productId == productId)
-              .productName;
-          final remaining =
-              _sortedItems.length - _verifiedItems.length;
+          final name = _sortedItems.firstWhere((i) => i.productId == productId).productName;
+          final remaining = _sortedItems.length - _verifiedItems.length;
 
           if (mounted) {
             // Check if order is now fully packed
@@ -395,12 +388,15 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
               await SmartScanService.hapticComplete();
               _showAllPackedDialog();
             } else {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(
-                    '✓ $name packed  •  $remaining item${remaining == 1 ? '' : 's'} left'),
-                backgroundColor: AppTheme.success,
-                duration: const Duration(seconds: 1),
-              ));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    '✓ $name packed  •  $remaining item${remaining == 1 ? '' : 's'} left',
+                  ),
+                  backgroundColor: AppTheme.success,
+                  duration: const Duration(seconds: 1),
+                ),
+              );
             }
           }
         }
@@ -428,18 +424,13 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16)),
-        contentPadding:
-            const EdgeInsets.fromLTRB(20, 16, 20, 0),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
         title: const Row(
           children: [
             Icon(Icons.check_circle, color: AppTheme.success, size: 26),
             SizedBox(width: 8),
-            Expanded(
-              child: Text('Packed! Show to Dispatch',
-                  style: TextStyle(fontSize: 16)),
-            ),
+            Expanded(child: Text('Packed! Show to Dispatch', style: TextStyle(fontSize: 16))),
           ],
         ),
         content: Column(
@@ -452,19 +443,12 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
             ),
             const SizedBox(height: 16),
             // DISPATCH QR — scanned by dispatch team
-            ScanQrWidget.dispatch(
-              orderId: orderId,
-              orderNumber: orderNumber,
-              size: 200,
-            ),
+            ScanQrWidget.dispatch(orderId: orderId, orderNumber: orderNumber, size: 200),
             const SizedBox(height: 8),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Done'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Done')),
           ElevatedButton.icon(
             icon: const Icon(Icons.local_shipping_outlined, size: 16),
             label: const Text('Go to Dispatch'),
@@ -476,10 +460,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
               Navigator.pop(ctx);
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) =>
-                      DispatchScannerScreen(orderId: orderId),
-                ),
+                MaterialPageRoute(builder: (_) => DispatchScannerScreen(orderId: orderId)),
               );
             },
           ),
@@ -495,8 +476,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Row(
           children: [
             Icon(Icons.check_circle, color: AppTheme.success, size: 28),
@@ -509,10 +489,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
           'Mark this order as packed and ready for dispatch?',
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Review First'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Review First')),
           ElevatedButton.icon(
             icon: const Icon(Icons.local_shipping_outlined),
             label: const Text('Mark Packed & Seal'),
@@ -560,10 +537,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
   Future<void> _openCameraScanner() async {
     final code = await Navigator.push<String>(
       context,
-      MaterialPageRoute(
-        fullscreenDialog: true,
-        builder: (_) => const _PackingItemScanPage(),
-      ),
+      MaterialPageRoute(fullscreenDialog: true, builder: (_) => const _PackingItemScanPage()),
     );
     if (code != null && code.isNotEmpty) {
       await _processBarcodeScan(code);
@@ -588,11 +562,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
       employeeName: employeeName,
     );
 
-    await service.verifyPackingItem(
-      orderId: _currentOrder!.id,
-      productId: productId,
-      quantity: 1,
-    );
+    await service.verifyPackingItem(orderId: _currentOrder!.id, productId: productId, quantity: 1);
 
     // Update Realtime Database for Customer View
     final itemName = _sortedItems.firstWhere((i) => i.productId == productId).productName;
@@ -715,10 +685,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
               )
             : null,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.print),
-            onPressed: _showPrinterSettings,
-          ),
+          IconButton(icon: const Icon(Icons.print), onPressed: _showPrinterSettings),
           IconButton(
             icon: const Icon(Icons.qr_code_scanner),
             onPressed: () => _showScannerDialog(),
@@ -728,8 +695,8 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : _currentOrder == null
-              ? _buildNoOrderView()
-              : _buildOrderView(),
+          ? _buildNoOrderView()
+          : _buildOrderView(),
     );
   }
 
@@ -772,7 +739,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                 if (snapshot.hasError) {
                   return Center(child: Text('Error loading tasks: ${snapshot.error}'));
                 }
-                
+
                 final docs = snapshot.data?.docs ?? [];
                 final List<OrderModel> allOrders = docs
                     .map((doc) => OrderModel.fromMap(doc.data() as Map<String, dynamic>))
@@ -793,7 +760,11 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                 return TabBarView(
                   children: [
                     _buildOrderListTab(confirmed, 'No newly confirmed orders'),
-                    _buildOrderListTab(processing, 'No orders currently being packed', isReview: true),
+                    _buildOrderListTab(
+                      processing,
+                      'No orders currently being packed',
+                      isReview: true,
+                    ),
                     _buildOrderListTab(packed, 'No packed orders yet'),
                   ],
                 );
@@ -834,17 +805,21 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                   final authProvider = context.read<AuthProvider>();
                   final employeeId = authProvider.currentUser?.uid ?? '';
                   final employeeName = authProvider.currentUser?.name ?? 'Employee';
-                  
+
                   // 1. Attempt to Acquire Lock
-                  final lockAcquired = await PresenceService().startTaskLock(order.id, employeeId, employeeName);
-                  
+                  final lockAcquired = await PresenceService().startTaskLock(
+                    order.id,
+                    employeeId,
+                    employeeName,
+                  );
+
                   if (!lockAcquired) {
                     if (mounted) {
                       _showError('This order is currently being packed by someone else.');
                     }
                     return;
                   }
-                  
+
                   _loadOrder(order.id);
                 },
           child: ListTile(
@@ -866,7 +841,11 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                     ),
                     child: const Text(
                       'Rejected',
-                      style: TextStyle(color: AppTheme.error, fontSize: 10, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: AppTheme.error,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
               ],
@@ -887,7 +866,11 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                     ),
                     child: Text(
                       'Reason: ${order.packingRejectionReason}',
-                      style: const TextStyle(color: AppTheme.error, fontSize: 11, fontStyle: FontStyle.italic),
+                      style: const TextStyle(
+                        color: AppTheme.error,
+                        fontSize: 11,
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
                   ),
                 ],
@@ -930,7 +913,11 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                       children: [
                         const Text(
                           'PACKING REJECTED BY OWNER',
-                          style: TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold, fontSize: 12),
+                          style: TextStyle(
+                            color: AppTheme.error,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -989,10 +976,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                                     'Parcel QR Code',
                                     style: TextStyle(fontWeight: FontWeight.bold),
                                   ),
-                                  Text(
-                                    _parcelId!,
-                                    style: const TextStyle(fontFamily: 'monospace'),
-                                  ),
+                                  Text(_parcelId!, style: const TextStyle(fontFamily: 'monospace')),
                                 ],
                               ),
                             ),
@@ -1085,9 +1069,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                                 )
                               : null,
                           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: const BorderSide(color: AppTheme.warning, width: 2),
@@ -1108,7 +1090,11 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                 const SizedBox(height: 4),
                 Text(
                   'Tip: Hardware scanners work automatically when cursor is focused in input box.',
-                  style: TextStyle(fontSize: 10, color: Colors.grey.shade600, fontStyle: FontStyle.italic),
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Colors.grey.shade600,
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
               ],
             ),
@@ -1116,10 +1102,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
           const SizedBox(height: 16),
 
           // Packing Checklist
-          Text(
-            'Packing Checklist',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text('Packing Checklist', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
 
           ..._sortedItems.map((item) {
@@ -1180,7 +1163,8 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                         ],
                       ),
                     ],
-                    if (_productLocations[item.productId] != null && _productLocations[item.productId]!.isNotEmpty) ...[
+                    if (_productLocations[item.productId] != null &&
+                        _productLocations[item.productId]!.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Row(
                         children: [
@@ -1240,7 +1224,8 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
           const SizedBox(height: 8),
 
           // Complete Button
-          if (_currentOrder?.packingStatus != 'approved' && _currentOrder?.status != OrderStatus.packed)
+          if (_currentOrder?.packingStatus != 'approved' &&
+              _currentOrder?.status != OrderStatus.packed)
             FjButton(
               label: allVerified ? 'Mark Packed & Seal' : 'Verify All Items First',
               onPressed: allVerified && !_isLoading ? _completePacking : null,
@@ -1258,10 +1243,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
   Future<void> _showScannerDialog() async {
     final code = await Navigator.push<String>(
       context,
-      MaterialPageRoute(
-        fullscreenDialog: true,
-        builder: (_) => const _OrderQrScanPage(),
-      ),
+      MaterialPageRoute(fullscreenDialog: true, builder: (_) => const _OrderQrScanPage()),
     );
     if (code == null || code.isEmpty) return;
     final orderId = code.startsWith('ORDER-') ? code : 'ORDER-$code';
@@ -1278,7 +1260,10 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
           children: [
             const Icon(Icons.camera_alt, size: 18, color: AppTheme.infoGrey),
             const SizedBox(width: 8),
-            const Text('Packing Photo Proof', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            const Text(
+              'Packing Photo Proof',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
             const Spacer(),
             if (_packingPhoto != null)
               const Icon(Icons.check_circle, color: AppTheme.success, size: 18),
@@ -1293,7 +1278,10 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
               decoration: BoxDecoration(
                 color: AppTheme.infoGrey.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppTheme.infoGrey.withValues(alpha: 0.1), style: BorderStyle.solid),
+                border: Border.all(
+                  color: AppTheme.infoGrey.withValues(alpha: 0.1),
+                  style: BorderStyle.solid,
+                ),
               ),
               child: const Center(
                 child: Column(
@@ -1301,8 +1289,14 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                   children: [
                     Icon(Icons.add_a_photo, color: AppTheme.infoGrey, size: 28),
                     SizedBox(height: 4),
-                    Text('Take Packing Photo', style: TextStyle(color: AppTheme.infoGrey, fontSize: 12)),
-                    Text('Required before completing', style: TextStyle(color: Colors.grey, fontSize: 10)),
+                    Text(
+                      'Take Packing Photo',
+                      style: TextStyle(color: AppTheme.infoGrey, fontSize: 12),
+                    ),
+                    Text(
+                      'Required before completing',
+                      style: TextStyle(color: Colors.grey, fontSize: 10),
+                    ),
                   ],
                 ),
               ),
@@ -1321,7 +1315,9 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                   errorBuilder: (_, __, ___) => Container(
                     height: 120,
                     color: AppTheme.success.withValues(alpha: 0.1),
-                    child: const Center(child: Icon(Icons.check_circle, color: AppTheme.success, size: 40)),
+                    child: const Center(
+                      child: Icon(Icons.check_circle, color: AppTheme.success, size: 40),
+                    ),
                   ),
                 ),
               ),
@@ -1336,7 +1332,10 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                       color: Colors.black54,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Text('Retake', style: TextStyle(color: Colors.white, fontSize: 11)),
+                    child: const Text(
+                      'Retake',
+                      style: TextStyle(color: Colors.white, fontSize: 11),
+                    ),
                   ),
                 ),
               ),
@@ -1383,10 +1382,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
           .child(_currentOrder!.id)
           .child('photo.jpg');
 
-      final task = await storageRef.putData(
-        bytes,
-        SettableMetadata(contentType: 'image/jpeg'),
-      );
+      final task = await storageRef.putData(bytes, SettableMetadata(contentType: 'image/jpeg'));
       final downloadUrl = await task.ref.getDownloadURL();
       return downloadUrl;
     } catch (e) {
@@ -1398,10 +1394,13 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
   // ─────────────── WEIGHT VERIFICATION HELPERS ───────────────
 
   void _showWeightEntryDialog(String productId) {
-    final item = _sortedItems.firstWhere((i) => i.productId == productId,
-        orElse: () => _sortedItems.first);
+    final item = _sortedItems.firstWhere(
+      (i) => i.productId == productId,
+      orElse: () => _sortedItems.first,
+    );
     final controller = TextEditingController(
-        text: _packedWeights[productId]?.toStringAsFixed(2) ?? item.quantity.toStringAsFixed(2));
+      text: _packedWeights[productId]?.toStringAsFixed(2) ?? item.quantity.toStringAsFixed(2),
+    );
 
     showDialog(
       context: context,
@@ -1432,18 +1431,16 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Skip'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Skip')),
           ElevatedButton(
             onPressed: () {
               final val = double.tryParse(controller.text);
               if (val != null && val > 0) {
                 setState(() {
                   _packedWeights[productId] = val;
-                  _allWeightsVerified = _weightVerificationItems
-                      .every((i) => _packedWeights.containsKey(i.productId));
+                  _allWeightsVerified = _weightVerificationItems.every(
+                    (i) => _packedWeights.containsKey(i.productId),
+                  );
                 });
               }
               Navigator.pop(ctx);
@@ -1513,8 +1510,7 @@ class _OrderQrScanPageState extends State<_OrderQrScanPage> {
               width: 240,
               height: 240,
               decoration: BoxDecoration(
-                border: Border.all(
-                    color: const Color(0xFF6A1B9A), width: 3),
+                border: Border.all(color: const Color(0xFF6A1B9A), width: 3),
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
@@ -1523,8 +1519,7 @@ class _OrderQrScanPageState extends State<_OrderQrScanPage> {
           // Top bar
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 16, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Row(
                 children: [
                   IconButton(
@@ -1535,9 +1530,10 @@ class _OrderQrScanPageState extends State<_OrderQrScanPage> {
                     child: Text(
                       'Scan Order QR',
                       style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold),
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -1563,16 +1559,14 @@ class _OrderQrScanPageState extends State<_OrderQrScanPage> {
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 40),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 20, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.black54,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Text(
                     'Point at ORDER-{id} QR on the packing label',
-                    style: TextStyle(
-                        color: Colors.white70, fontSize: 13),
+                    style: TextStyle(color: Colors.white70, fontSize: 13),
                   ),
                 ),
               ),
@@ -1633,8 +1627,7 @@ class _PackingItemScanPageState extends State<_PackingItemScanPage> {
               width: 240,
               height: 240,
               decoration: BoxDecoration(
-                border: Border.all(
-                    color: const Color(0xFF6A1B9A), width: 3),
+                border: Border.all(color: const Color(0xFF6A1B9A), width: 3),
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
@@ -1642,8 +1635,7 @@ class _PackingItemScanPageState extends State<_PackingItemScanPage> {
 
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 16, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Row(
                 children: [
                   IconButton(
@@ -1654,9 +1646,10 @@ class _PackingItemScanPageState extends State<_PackingItemScanPage> {
                     child: Text(
                       'Scan Item Barcode',
                       style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold),
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -1681,16 +1674,14 @@ class _PackingItemScanPageState extends State<_PackingItemScanPage> {
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 40),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 20, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   decoration: BoxDecoration(
                     color: const Color(0xCC6A1B9A),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Text(
                     'Scan each product barcode to verify',
-                    style: TextStyle(
-                        color: Colors.white, fontSize: 13),
+                    style: TextStyle(color: Colors.white, fontSize: 13),
                   ),
                 ),
               ),

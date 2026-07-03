@@ -22,7 +22,13 @@ class OperationalHealthModel {
   });
 
   double get overallScore {
-    return (inventoryHealth + deliveryHealth + employeeHealth + supplierHealth + customerHealth + financialHealth) / 6;
+    return (inventoryHealth +
+            deliveryHealth +
+            employeeHealth +
+            supplierHealth +
+            customerHealth +
+            financialHealth) /
+        6;
   }
 
   Map<String, dynamic> toMap() {

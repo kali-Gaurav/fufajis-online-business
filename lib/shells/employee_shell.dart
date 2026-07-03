@@ -27,8 +27,7 @@ class _EmployeeShellState extends State<EmployeeShell> {
     final String location = GoRouterState.of(context).uri.path;
 
     // Tasks tab: task priority, scanner hub
-    if (location.startsWith('/employee/tasks') ||
-        location.startsWith('/employee/hub')) {
+    if (location.startsWith('/employee/tasks') || location.startsWith('/employee/hub')) {
       return 0;
     }
 
@@ -81,17 +80,11 @@ class _EmployeeShellState extends State<EmployeeShell> {
     final l10n = AppLocalizations.of(context);
 
     // Only show bottom nav on main tabs, not on detail screens
-    final isMainTab = location == '/employee' ||
-        location == '/employee/tasks' ||
-        location == '/employee/hub';
+    final isMainTab =
+        location == '/employee' || location == '/employee/tasks' || location == '/employee/hub';
 
     return Scaffold(
-      appBar: isMainTab
-          ? null
-          : AppBar(
-              elevation: 1,
-              automaticallyImplyLeading: true,
-            ),
+      appBar: isMainTab ? null : AppBar(elevation: 1, automaticallyImplyLeading: true),
       body: widget.child,
       bottomNavigationBar: NavigationBar(
         selectedIndex: selectedIndex,
@@ -129,22 +122,19 @@ class _EmployeeShellState extends State<EmployeeShell> {
           // Inventory Tab
           NavigationDestination(
             icon: const Icon(Icons.inventory_2_outlined),
-            selectedIcon:
-                const Icon(Icons.inventory_2, color: AppTheme.primary),
+            selectedIcon: const Icon(Icons.inventory_2, color: AppTheme.primary),
             label: l10n?.translate('inventory') ?? 'Inventory',
           ),
           // Delivery Tab
           NavigationDestination(
             icon: const Icon(Icons.local_shipping_outlined),
-            selectedIcon: const Icon(Icons.local_shipping,
-                color: AppTheme.primary),
+            selectedIcon: const Icon(Icons.local_shipping, color: AppTheme.primary),
             label: l10n?.translate('delivery') ?? 'Delivery',
           ),
           // Profile Tab
           NavigationDestination(
             icon: const Icon(Icons.person_outline),
-            selectedIcon:
-                const Icon(Icons.person, color: AppTheme.primary),
+            selectedIcon: const Icon(Icons.person, color: AppTheme.primary),
             label: l10n?.translate('profile') ?? 'Profile',
           ),
         ],

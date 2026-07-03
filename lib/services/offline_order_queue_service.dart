@@ -8,11 +8,11 @@ import 'sqlite_service.dart';
 
 /// Queue Status Enum
 enum QueueItemStatus {
-  queued,      // Waiting to sync
-  syncing,     // Currently being uploaded
-  synced,      // Successfully synced to Firestore
-  failed,      // Sync failed, waiting for retry
-  conflicted,  // Conflict resolution needed
+  queued, // Waiting to sync
+  syncing, // Currently being uploaded
+  synced, // Successfully synced to Firestore
+  failed, // Sync failed, waiting for retry
+  conflicted, // Conflict resolution needed
 }
 
 /// Offline Order Queue Service
@@ -27,8 +27,7 @@ enum QueueItemStatus {
 /// - Queue stats and monitoring
 /// - Automatic cleanup of synced orders after 7 days
 class OfflineOrderQueueService {
-  static final OfflineOrderQueueService _instance =
-      OfflineOrderQueueService._internal();
+  static final OfflineOrderQueueService _instance = OfflineOrderQueueService._internal();
   factory OfflineOrderQueueService() => _instance;
   OfflineOrderQueueService._internal();
 
@@ -79,14 +78,10 @@ class OfflineOrderQueueService {
       _checkConnectivity(currentResults);
 
       // Listen for connectivity changes
-      _connectivitySubscription =
-          _connectivity.onConnectivityChanged.listen(_checkConnectivity);
+      _connectivitySubscription = _connectivity.onConnectivityChanged.listen(_checkConnectivity);
 
       // Set up periodic sync every 5 minutes
-      _autoSyncTimer = Timer.periodic(
-        const Duration(minutes: 5),
-        (_) => _autoSyncIfOnline(),
-      );
+      _autoSyncTimer = Timer.periodic(const Duration(minutes: 5), (_) => _autoSyncIfOnline());
 
       debugPrint('[OfflineOrderQueueService] Initialized successfully');
     } catch (e) {
@@ -185,12 +180,15 @@ class OfflineOrderQueueService {
 
       final rowData = {
         'id': order.id,
-        'order_json': jsonEncode(order.toMap(), toEncodable: (val) {
-          if (val is DateTime) return val.toIso8601String();
-          if (val is Timestamp) return val.toDate().toIso8601String();
-          if (val is GeoPoint) return {'latitude': val.latitude, 'longitude': val.longitude};
-          return val.toString();
-        }),
+        'order_json': jsonEncode(
+          order.toMap(),
+          toEncodable: (val) {
+            if (val is DateTime) return val.toIso8601String();
+            if (val is Timestamp) return val.toDate().toIso8601String();
+            if (val is GeoPoint) return {'latitude': val.latitude, 'longitude': val.longitude};
+            return val.toString();
+          },
+        ),
         'status': 'queued',
         'retry_count': 0,
         'created_at': now,
@@ -241,11 +239,7 @@ class OfflineOrderQueueService {
       List<Map<String, dynamic>> results;
 
       if (status != null) {
-        results = await db.query(
-          'offline_orders',
-          where: 'status = ?',
-          whereArgs: [status],
-        );
+        results = await db.query('offline_orders', where: 'status = ?', whereArgs: [status]);
       } else {
         results = await db.query('offline_orders');
       }
@@ -305,10 +299,7 @@ class OfflineOrderQueueService {
       await _updateOrderStatus(order.id, 'syncing');
 
       // Check if order exists in Firestore (conflict detection)
-      final firestoreDoc = await _firestore
-          .collection('orders')
-          .doc(order.id)
-          .get();
+      final firestoreDoc = await _firestore.collection('orders').doc(order.id).get();
 
       if (firestoreDoc.exists) {
         // Conflict: order exists on server - apply merge strategy
@@ -348,10 +339,7 @@ class OfflineOrderQueueService {
 
   /// Resolve conflict when order exists in both local and Firestore
   /// Strategy: Server-wins merge (preserve server updates, add local timestamps)
-  Future<void> _resolveConflict(
-    OrderModel localOrder,
-    Map<String, dynamic> serverData,
-  ) async {
+  Future<void> _resolveConflict(OrderModel localOrder, Map<String, dynamic> serverData) async {
     try {
       final db = await _sqlite.database;
       final serverOrder = OrderModel.fromMap(serverData);
@@ -390,9 +378,7 @@ class OfflineOrderQueueService {
         whereArgs: [localOrder.id],
       );
 
-      debugPrint(
-        '[OfflineOrderQueueService] Conflict resolved for ${localOrder.id}',
-      );
+      debugPrint('[OfflineOrderQueueService] Conflict resolved for ${localOrder.id}');
     } catch (e) {
       debugPrint('[OfflineOrderQueueService] Conflict resolution failed: $e');
       rethrow;
@@ -422,11 +408,7 @@ class OfflineOrderQueueService {
   Future<void> _retryFailedOrder(String orderId) async {
     try {
       final db = await _sqlite.database;
-      final result = await db.query(
-        'offline_orders',
-        where: 'id = ?',
-        whereArgs: [orderId],
-      );
+      final result = await db.query('offline_orders', where: 'id = ?', whereArgs: [orderId]);
 
       if (result.isEmpty) return;
 
@@ -448,9 +430,7 @@ class OfflineOrderQueueService {
         );
         _queueCache[orderId]?['status'] = 'failed';
 
-        debugPrint(
-          '[OfflineOrderQueueService] Max retries reached for $orderId',
-        );
+        debugPrint('[OfflineOrderQueueService] Max retries reached for $orderId');
         return;
       }
 
@@ -489,11 +469,7 @@ class OfflineOrderQueueService {
   Future<OrderModel?> _getOrderFromQueue(String orderId) async {
     try {
       final db = await _sqlite.database;
-      final results = await db.query(
-        'offline_orders',
-        where: 'id = ?',
-        whereArgs: [orderId],
-      );
+      final results = await db.query('offline_orders', where: 'id = ?', whereArgs: [orderId]);
 
       if (results.isEmpty) return null;
 
@@ -511,11 +487,7 @@ class OfflineOrderQueueService {
 
     try {
       final db = await _sqlite.database;
-      final result = await db.delete(
-        'offline_orders',
-        where: 'id = ?',
-        whereArgs: [orderId],
-      );
+      final result = await db.delete('offline_orders', where: 'id = ?', whereArgs: [orderId]);
 
       _queueCache.remove(orderId);
       await _refreshCounts();
@@ -567,12 +539,7 @@ class OfflineOrderQueueService {
       );
     } catch (e) {
       debugPrint('[OfflineOrderQueueService] Failed to get queue stats: $e');
-      return QueueStats(
-        queuedCount: 0,
-        failedCount: 0,
-        syncedCount: 0,
-        totalSize: 0,
-      );
+      return QueueStats(queuedCount: 0, failedCount: 0, syncedCount: 0, totalSize: 0);
     }
   }
 
@@ -582,10 +549,7 @@ class OfflineOrderQueueService {
       final db = await _sqlite.database;
       await db.update(
         'offline_orders',
-        {
-          'status': status,
-          'updated_at': DateTime.now().millisecondsSinceEpoch,
-        },
+        {'status': status, 'updated_at': DateTime.now().millisecondsSinceEpoch},
         where: 'id = ?',
         whereArgs: [orderId],
       );
@@ -647,8 +611,9 @@ class OfflineOrderQueueService {
 
     try {
       final db = await _sqlite.database;
-      final sevenDaysAgoMs =
-          DateTime.now().subtract(const Duration(days: 7)).millisecondsSinceEpoch;
+      final sevenDaysAgoMs = DateTime.now()
+          .subtract(const Duration(days: 7))
+          .millisecondsSinceEpoch;
 
       final result = await db.delete(
         'offline_orders',

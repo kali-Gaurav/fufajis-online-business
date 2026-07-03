@@ -1,0 +1,1214 @@
+[
+  {
+    "familyId": "spices_102",
+    "name": "Turmeric Powder",
+    "hindiName": "हल्दी पाउडर",
+    "category": "Spices",
+    "brand": "MDH",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "turmeric",
+        "हल्दी पाउडर",
+        "haldi",
+        "spices"
+      ],
+      "aliases": [
+        "turmeric",
+        "haldi"
+      ],
+      "phonetics": [
+        "turmeric"
+      ],
+      "regional": [
+        "turmeric"
+      ],
+      "hindiKeywords": [
+        "हल्दी पाउडर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "spices_102_sku1",
+        "familyId": "spices_102",
+        "displayName": "Turmeric Powder 0.5kg",
+        "hindiName": "हल्दी पाउडर 0.5kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 117,
+          "sellingPrice": 109
+        },
+        "inventory": {
+          "totalStock": 40,
+          "reservedStock": 4,
+          "availableStock": 129
+        }
+      },
+      {
+        "skuId": "spices_102_sku2",
+        "familyId": "spices_102",
+        "displayName": "Turmeric Powder 1kg",
+        "hindiName": "हल्दी पाउडर 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 165,
+          "sellingPrice": 153
+        },
+        "inventory": {
+          "totalStock": 93,
+          "reservedStock": 8,
+          "availableStock": 82
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "spices_103",
+    "name": "Coriander Powder",
+    "hindiName": "धनिया पाउडर",
+    "category": "Spices",
+    "brand": "Everest",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "dhanya",
+        "धनिया पाउडर",
+        "coriander",
+        "spices"
+      ],
+      "aliases": [
+        "coriander",
+        "dhanya"
+      ],
+      "phonetics": [
+        "coriander"
+      ],
+      "regional": [
+        "coriander"
+      ],
+      "hindiKeywords": [
+        "धनिया पाउडर"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "spices_103_sku1",
+        "familyId": "spices_103",
+        "displayName": "Coriander Powder 0.5kg",
+        "hindiName": "धनिया पाउडर 0.5kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 164,
+          "sellingPrice": 152
+        },
+        "inventory": {
+          "totalStock": 117,
+          "reservedStock": 17,
+          "availableStock": 74
+        }
+      },
+      {
+        "skuId": "spices_103_sku2",
+        "familyId": "spices_103",
+        "displayName": "Coriander Powder 1kg",
+        "hindiName": "धनिया पाउडर 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 303,
+          "sellingPrice": 281
+        },
+        "inventory": {
+          "totalStock": 70,
+          "reservedStock": 10,
+          "availableStock": 44
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "spices_104",
+    "name": "Cumin Seeds",
+    "hindiName": "जीरा",
+    "category": "Spices",
+    "brand": "MDH",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "cumin",
+        "जीरा",
+        "jeera",
+        "spices"
+      ],
+      "aliases": [
+        "cumin",
+        "jeera"
+      ],
+      "phonetics": [
+        "cumin"
+      ],
+      "regional": [
+        "cumin"
+      ],
+      "hindiKeywords": [
+        "जीरा"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "spices_104_sku1",
+        "familyId": "spices_104",
+        "displayName": "Cumin Seeds 0.5kg",
+        "hindiName": "जीरा 0.5kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 138,
+          "sellingPrice": 128
+        },
+        "inventory": {
+          "totalStock": 61,
+          "reservedStock": 2,
+          "availableStock": 69
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "spices_105",
+    "name": "Black Pepper",
+    "hindiName": "काली मिर्च",
+    "category": "Spices",
+    "brand": "Everest",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "pepper",
+        "mirch",
+        "काली मिर्च",
+        "black"
+      ],
+      "aliases": [
+        "pepper",
+        "mirch"
+      ],
+      "phonetics": [
+        "black"
+      ],
+      "regional": [
+        "pepper"
+      ],
+      "hindiKeywords": [
+        "काली मिर्च"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "spices_105_sku1",
+        "familyId": "spices_105",
+        "displayName": "Black Pepper 0.1kg",
+        "hindiName": "काली मिर्च 0.1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.1,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 140,
+          "sellingPrice": 130
+        },
+        "inventory": {
+          "totalStock": 51,
+          "reservedStock": 8,
+          "availableStock": 62
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "condiments_106",
+    "name": "Salt",
+    "hindiName": "नमक",
+    "category": "Condiments",
+    "brand": "Badshah",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "नमक",
+        "namak",
+        "salt",
+        "condiments"
+      ],
+      "aliases": [
+        "salt",
+        "namak"
+      ],
+      "phonetics": [
+        "salt"
+      ],
+      "regional": [
+        "salt"
+      ],
+      "hindiKeywords": [
+        "नमक"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "condiments_106_sku1",
+        "familyId": "condiments_106",
+        "displayName": "Salt 0.5kg",
+        "hindiName": "नमक 0.5kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 101,
+          "sellingPrice": 95
+        },
+        "inventory": {
+          "totalStock": 82,
+          "reservedStock": 3,
+          "availableStock": 39
+        }
+      },
+      {
+        "skuId": "condiments_106_sku2",
+        "familyId": "condiments_106",
+        "displayName": "Salt 1kg",
+        "hindiName": "नमक 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 122,
+          "sellingPrice": 114
+        },
+        "inventory": {
+          "totalStock": 118,
+          "reservedStock": 0,
+          "availableStock": 22
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "condiments_107",
+    "name": "Sugar",
+    "hindiName": "चीनी",
+    "category": "Condiments",
+    "brand": "Shan",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "sugar",
+        "चीनी",
+        "cheeni",
+        "condiments"
+      ],
+      "aliases": [
+        "sugar",
+        "cheeni"
+      ],
+      "phonetics": [
+        "sugar"
+      ],
+      "regional": [
+        "sugar"
+      ],
+      "hindiKeywords": [
+        "चीनी"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "condiments_107_sku1",
+        "familyId": "condiments_107",
+        "displayName": "Sugar 1kg",
+        "hindiName": "चीनी 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 30,
+          "sellingPrice": 30
+        },
+        "inventory": {
+          "totalStock": 93,
+          "reservedStock": 9,
+          "availableStock": 71
+        }
+      },
+      {
+        "skuId": "condiments_107_sku2",
+        "familyId": "condiments_107",
+        "displayName": "Sugar 5kg",
+        "hindiName": "चीनी 5kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 5.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 122,
+          "sellingPrice": 114
+        },
+        "inventory": {
+          "totalStock": 128,
+          "reservedStock": 13,
+          "availableStock": 123
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "condiments_108",
+    "name": "Cooking Oil",
+    "hindiName": "तेल",
+    "category": "Condiments",
+    "brand": "Badshah",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "tel",
+        "oil",
+        "तेल",
+        "cooking"
+      ],
+      "aliases": [
+        "oil",
+        "tel"
+      ],
+      "phonetics": [
+        "cooking"
+      ],
+      "regional": [
+        "oil"
+      ],
+      "hindiKeywords": [
+        "तेल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "condiments_108_sku1",
+        "familyId": "condiments_108",
+        "displayName": "Cooking Oil 1L",
+        "hindiName": "तेल 1L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 1.0,
+        "unit": "L",
+        "pricing": {
+          "mrp": 35,
+          "sellingPrice": 35
+        },
+        "inventory": {
+          "totalStock": 92,
+          "reservedStock": 8,
+          "availableStock": 122
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "condiments_109",
+    "name": "Mustard Oil",
+    "hindiName": "सरसों का तेल",
+    "category": "Condiments",
+    "brand": "Shan",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "सरसों का तेल",
+        "mustard oil",
+        "tel",
+        "mustard"
+      ],
+      "aliases": [
+        "mustard oil",
+        "tel"
+      ],
+      "phonetics": [
+        "mustard"
+      ],
+      "regional": [
+        "mustard oil"
+      ],
+      "hindiKeywords": [
+        "सरसों का तेल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "condiments_109_sku1",
+        "familyId": "condiments_109",
+        "displayName": "Mustard Oil 1L",
+        "hindiName": "सरसों का तेल 1L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 1.0,
+        "unit": "L",
+        "pricing": {
+          "mrp": 95,
+          "sellingPrice": 90
+        },
+        "inventory": {
+          "totalStock": 108,
+          "reservedStock": 5,
+          "availableStock": 97
+        }
+      },
+      {
+        "skuId": "condiments_109_sku2",
+        "familyId": "condiments_109",
+        "displayName": "Mustard Oil 2L",
+        "hindiName": "सरसों का तेल 2L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 2.0,
+        "unit": "L",
+        "pricing": {
+          "mrp": 175,
+          "sellingPrice": 166
+        },
+        "inventory": {
+          "totalStock": 64,
+          "reservedStock": 3,
+          "availableStock": 58
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "condiments_110",
+    "name": "Coconut Oil",
+    "hindiName": "नारियल का तेल",
+    "category": "Condiments",
+    "brand": "Badshah",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "coconut",
+        "nariyal tel",
+        "नारियल का तेल",
+        "coconut oil"
+      ],
+      "aliases": [
+        "coconut oil",
+        "nariyal tel"
+      ],
+      "phonetics": [
+        "coconut"
+      ],
+      "regional": [
+        "coconut oil"
+      ],
+      "hindiKeywords": [
+        "नारियल का तेल"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "condiments_110_sku1",
+        "familyId": "condiments_110",
+        "displayName": "Coconut Oil 1L",
+        "hindiName": "नारियल का तेल 1L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 1.0,
+        "unit": "L",
+        "pricing": {
+          "mrp": 124,
+          "sellingPrice": 116
+        },
+        "inventory": {
+          "totalStock": 132,
+          "reservedStock": 8,
+          "availableStock": 74
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "snacks_111",
+    "name": "Biscuits",
+    "hindiName": "बिस्किट",
+    "category": "Snacks",
+    "brand": "Britannia",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "बिस्किट",
+        "biscuits",
+        "cookies",
+        "snacks"
+      ],
+      "aliases": [
+        "biscuits",
+        "cookies"
+      ],
+      "phonetics": [
+        "biscuits"
+      ],
+      "regional": [
+        "biscuits"
+      ],
+      "hindiKeywords": [
+        "बिस्किट"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "snacks_111_sku1",
+        "familyId": "snacks_111",
+        "displayName": "Biscuits 0.5kg",
+        "hindiName": "बिस्किट 0.5kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 125,
+          "sellingPrice": 117
+        },
+        "inventory": {
+          "totalStock": 124,
+          "reservedStock": 15,
+          "availableStock": 122
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "snacks_112",
+    "name": "Wafers",
+    "hindiName": "वेफर्स",
+    "category": "Snacks",
+    "brand": "Lays",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "वेफर्स",
+        "wafers",
+        "chips",
+        "snacks"
+      ],
+      "aliases": [
+        "wafers",
+        "chips"
+      ],
+      "phonetics": [
+        "wafers"
+      ],
+      "regional": [
+        "wafers"
+      ],
+      "hindiKeywords": [
+        "वेफर्स"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "snacks_112_sku1",
+        "familyId": "snacks_112",
+        "displayName": "Wafers 0.5kg",
+        "hindiName": "वेफर्स 0.5kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 67,
+          "sellingPrice": 64
+        },
+        "inventory": {
+          "totalStock": 80,
+          "reservedStock": 17,
+          "availableStock": 34
+        }
+      },
+      {
+        "skuId": "snacks_112_sku2",
+        "familyId": "snacks_112",
+        "displayName": "Wafers 1kg",
+        "hindiName": "वेफर्स 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 123,
+          "sellingPrice": 118
+        },
+        "inventory": {
+          "totalStock": 48,
+          "reservedStock": 10,
+          "availableStock": 20
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "beverages_113",
+    "name": "Tea",
+    "hindiName": "चाय",
+    "category": "Beverages",
+    "brand": "Tata",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "चाय",
+        "chai",
+        "tea",
+        "beverages"
+      ],
+      "aliases": [
+        "tea",
+        "chai"
+      ],
+      "phonetics": [
+        "tea"
+      ],
+      "regional": [
+        "tea"
+      ],
+      "hindiKeywords": [
+        "चाय"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "beverages_113_sku1",
+        "familyId": "beverages_113",
+        "displayName": "Tea 0.5kg",
+        "hindiName": "चाय 0.5kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 104,
+          "sellingPrice": 98
+        },
+        "inventory": {
+          "totalStock": 59,
+          "reservedStock": 14,
+          "availableStock": 61
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "beverages_114",
+    "name": "Coffee",
+    "hindiName": "कॉफी",
+    "category": "Beverages",
+    "brand": "Bru",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "kaafi",
+        "कॉफी",
+        "coffee",
+        "beverages"
+      ],
+      "aliases": [
+        "coffee",
+        "kaafi"
+      ],
+      "phonetics": [
+        "coffee"
+      ],
+      "regional": [
+        "coffee"
+      ],
+      "hindiKeywords": [
+        "कॉफी"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "beverages_114_sku1",
+        "familyId": "beverages_114",
+        "displayName": "Coffee 0.25kg",
+        "hindiName": "कॉफी 0.25kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.25,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 213,
+          "sellingPrice": 196
+        },
+        "inventory": {
+          "totalStock": 47,
+          "reservedStock": 6,
+          "availableStock": 45
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "sweets_115",
+    "name": "Jaggery",
+    "hindiName": "गुड़",
+    "category": "Sweets",
+    "brand": "Generic",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "gud",
+        "गुड़",
+        "jaggery",
+        "sweets"
+      ],
+      "aliases": [
+        "jaggery",
+        "gud"
+      ],
+      "phonetics": [
+        "jaggery"
+      ],
+      "regional": [
+        "jaggery"
+      ],
+      "hindiKeywords": [
+        "गुड़"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "sweets_115_sku1",
+        "familyId": "sweets_115",
+        "displayName": "Jaggery 0.5kg",
+        "hindiName": "गुड़ 0.5kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.5,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 241,
+          "sellingPrice": 221
+        },
+        "inventory": {
+          "totalStock": 67,
+          "reservedStock": 6,
+          "availableStock": 28
+        }
+      },
+      {
+        "skuId": "sweets_115_sku2",
+        "familyId": "sweets_115",
+        "displayName": "Jaggery 1kg",
+        "hindiName": "गुड़ 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 1.0,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 445,
+          "sellingPrice": 408
+        },
+        "inventory": {
+          "totalStock": 40,
+          "reservedStock": 3,
+          "availableStock": 16
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "sweets_116",
+    "name": "Honey",
+    "hindiName": "शहद",
+    "category": "Sweets",
+    "brand": "Generic",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "शहद",
+        "honey",
+        "shahad",
+        "sweets"
+      ],
+      "aliases": [
+        "honey",
+        "shahad"
+      ],
+      "phonetics": [
+        "honey"
+      ],
+      "regional": [
+        "honey"
+      ],
+      "hindiKeywords": [
+        "शहद"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "sweets_116_sku1",
+        "familyId": "sweets_116",
+        "displayName": "Honey 0.5L",
+        "hindiName": "शहद 0.5L",
+        "productType": "packaged",
+        "unitType": "volume",
+        "quantity": 0.5,
+        "unit": "L",
+        "pricing": {
+          "mrp": 143,
+          "sellingPrice": 133
+        },
+        "inventory": {
+          "totalStock": 133,
+          "reservedStock": 14,
+          "availableStock": 54
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "spices_extra_125",
+    "name": "Everest Chaat Masala",
+    "hindiName": "एवेरेस्ट चाट मसाला",
+    "category": "Spices",
+    "brand": "Everest",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "everest",
+        "everest"
+      ],
+      "aliases": [
+        "everest chaat masala"
+      ],
+      "phonetics": [
+        "everest"
+      ],
+      "regional": [
+        "everest"
+      ],
+      "hindiKeywords": [
+        "एवेरेस्ट चाट मसाला"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "spices_extra_125_sku1",
+        "familyId": "spices_extra_125",
+        "displayName": "Everest Chaat Masala 100g",
+        "hindiName": "एवेरेस्ट चाट मसाला 100g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.1,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 52,
+          "sellingPrice": 46
+        },
+        "inventory": {
+          "totalStock": 80,
+          "reservedStock": 5,
+          "availableStock": 75
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "condiments_extra_126",
+    "name": "Shan Biryani Masala",
+    "hindiName": "शान बिरयानी मसाला",
+    "category": "Condiments",
+    "brand": "Shan",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "shan",
+        "shan"
+      ],
+      "aliases": [
+        "shan biryani masala"
+      ],
+      "phonetics": [
+        "shan"
+      ],
+      "regional": [
+        "shan"
+      ],
+      "hindiKeywords": [
+        "शान बिरयानी मसाला"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "condiments_extra_126_sku1",
+        "familyId": "condiments_extra_126",
+        "displayName": "Shan Biryani Masala 50g",
+        "hindiName": "शान बिरयानी मसाला 50g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.05,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 51,
+          "sellingPrice": 45
+        },
+        "inventory": {
+          "totalStock": 80,
+          "reservedStock": 5,
+          "availableStock": 75
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "snacks_extra_127",
+    "name": "Haldiram Nagpur Bhujia",
+    "hindiName": "हलदीराम भुजिया",
+    "category": "Snacks",
+    "brand": "Haldiram",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "haldiram",
+        "haldiram"
+      ],
+      "aliases": [
+        "haldiram nagpur bhujia"
+      ],
+      "phonetics": [
+        "haldiram"
+      ],
+      "regional": [
+        "haldiram"
+      ],
+      "hindiKeywords": [
+        "हलदीराम भुजिया"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "snacks_extra_127_sku1",
+        "familyId": "snacks_extra_127",
+        "displayName": "Haldiram Nagpur Bhujia 0kg",
+        "hindiName": "हलदीराम भुजिया 0kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.0005,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 50.0,
+          "sellingPrice": 45
+        },
+        "inventory": {
+          "totalStock": 80,
+          "reservedStock": 5,
+          "availableStock": 75
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "snacks_extra_128",
+    "name": "Bikano Mix",
+    "hindiName": "बिकानो मिक्स",
+    "category": "Snacks",
+    "brand": "Bikano",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "bikano",
+        "bikano"
+      ],
+      "aliases": [
+        "bikano mix"
+      ],
+      "phonetics": [
+        "bikano"
+      ],
+      "regional": [
+        "bikano"
+      ],
+      "hindiKeywords": [
+        "बिकानो मिक्स"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "snacks_extra_128_sku1",
+        "familyId": "snacks_extra_128",
+        "displayName": "Bikano Mix 0kg",
+        "hindiName": "बिकानो मिक्स 0kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.00025,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 50.0,
+          "sellingPrice": 45
+        },
+        "inventory": {
+          "totalStock": 80,
+          "reservedStock": 5,
+          "availableStock": 75
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "beverages_extra_129",
+    "name": "Taj Tea Premium",
+    "hindiName": "ताज चाय प्रीमियम",
+    "category": "Beverages",
+    "brand": "Taj",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "taj",
+        "taj"
+      ],
+      "aliases": [
+        "taj tea premium"
+      ],
+      "phonetics": [
+        "taj"
+      ],
+      "regional": [
+        "taj"
+      ],
+      "hindiKeywords": [
+        "ताज चाय प्रीमियम"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "beverages_extra_129_sku1",
+        "familyId": "beverages_extra_129",
+        "displayName": "Taj Tea Premium 0kg",
+        "hindiName": "ताज चाय प्रीमियम 0kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.0005,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 50.0,
+          "sellingPrice": 45
+        },
+        "inventory": {
+          "totalStock": 80,
+          "reservedStock": 5,
+          "availableStock": 75
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "condiments_extra_130",
+    "name": "ACI Pure Salt",
+    "hindiName": "एसीआई शुद्ध नमक",
+    "category": "Condiments",
+    "brand": "ACI",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "aci",
+        "aci"
+      ],
+      "aliases": [
+        "aci pure salt"
+      ],
+      "phonetics": [
+        "aci"
+      ],
+      "regional": [
+        "aci"
+      ],
+      "hindiKeywords": [
+        "एसीआई शुद्ध नमक"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "condiments_extra_130_sku1",
+        "familyId": "condiments_extra_130",
+        "displayName": "ACI Pure Salt 1kg",
+        "hindiName": "एसीआई शुद्ध नमक 1kg",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.001,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 50.0,
+          "sellingPrice": 45
+        },
+        "inventory": {
+          "totalStock": 80,
+          "reservedStock": 5,
+          "availableStock": 75
+        }
+      }
+    ]
+  },
+  {
+    "familyId": "spices_extra_131",
+    "name": "Sona Masala",
+    "hindiName": "सोना मसाला",
+    "category": "Spices",
+    "brand": "Sona",
+    "productType": "packaged",
+    "voiceMetadata": {
+      "keywords": [
+        "sona",
+        "sona"
+      ],
+      "aliases": [
+        "sona masala"
+      ],
+      "phonetics": [
+        "sona"
+      ],
+      "regional": [
+        "sona"
+      ],
+      "hindiKeywords": [
+        "सोना मसाला"
+      ]
+    },
+    "skus": [
+      {
+        "skuId": "spices_extra_131_sku1",
+        "familyId": "spices_extra_131",
+        "displayName": "Sona Masala 50g",
+        "hindiName": "सोना मसाला 50g",
+        "productType": "packaged",
+        "unitType": "weight",
+        "quantity": 0.05,
+        "unit": "kg",
+        "pricing": {
+          "mrp": 51,
+          "sellingPrice": 45
+        },
+        "inventory": {
+          "totalStock": 80,
+          "reservedStock": 5,
+          "availableStock": 75
+        }
+      }
+    ]
+  }
+]

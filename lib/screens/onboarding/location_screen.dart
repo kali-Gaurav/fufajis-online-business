@@ -20,8 +20,7 @@ class LocationScreen extends StatefulWidget {
   State<LocationScreen> createState() => _LocationScreenState();
 }
 
-class _LocationScreenState extends State<LocationScreen>
-    with TickerProviderStateMixin {
+class _LocationScreenState extends State<LocationScreen> with TickerProviderStateMixin {
   late final AnimationController _fadeCtrl;
   late final Animation<double> _fadeAnim;
 
@@ -60,14 +59,12 @@ class _LocationScreenState extends State<LocationScreen>
   }
 
   void _initAnimations() {
-    _fadeCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    );
+    _fadeCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1000));
 
-    _fadeAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut),
-    );
+    _fadeAnim = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut));
   }
 
   Future<void> _runAnimations() async {
@@ -99,13 +96,12 @@ class _LocationScreenState extends State<LocationScreen>
 
   Future<void> _getCurrentLocation() async {
     try {
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.best,
-      );
+      final position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
 
       setState(() {
         // In a real app, you'd use a geocoding service to convert to address
-        _selectedAddress = 'Current Location (${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)})';
+        _selectedAddress =
+            'Current Location (${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)})';
         _isLoadingLocation = false;
         _locationError = null;
       });
@@ -163,9 +159,7 @@ class _LocationScreenState extends State<LocationScreen>
                       decoration: BoxDecoration(
                         color: isDark ? const Color(0xFF1F1F1F) : const Color(0xFFF5F5F5),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: const Color(0xFFFF6B00).withValues(alpha: 0.3),
-                        ),
+                        border: Border.all(color: const Color(0xFFFF6B00).withValues(alpha: 0.3)),
                       ),
                       child: Stack(
                         alignment: Alignment.center,
@@ -210,10 +204,12 @@ class _LocationScreenState extends State<LocationScreen>
                               ),
                               const SizedBox(height: 12),
                               Text(
-                                _isLoadingLocation ? 'Getting your location...' : 'Drag to adjust location',
+                                _isLoadingLocation
+                                    ? 'Getting your location...'
+                                    : 'Drag to adjust location',
                                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                      color: isDark ? Colors.grey[400] : Colors.grey[600],
-                                    ),
+                                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                ),
                               ),
                             ],
                           ),
@@ -228,9 +224,9 @@ class _LocationScreenState extends State<LocationScreen>
                       Text(
                         'Selected Address',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-                            ),
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                        ),
                       ),
                       const SizedBox(height: 12),
                       Container(
@@ -238,9 +234,7 @@ class _LocationScreenState extends State<LocationScreen>
                         decoration: BoxDecoration(
                           color: const Color(0xFFFF6B00).withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: const Color(0xFFFF6B00).withValues(alpha: 0.3),
-                          ),
+                          border: Border.all(color: const Color(0xFFFF6B00).withValues(alpha: 0.3)),
                         ),
                         child: Row(
                           children: [
@@ -257,9 +251,9 @@ class _LocationScreenState extends State<LocationScreen>
                                   Text(
                                     _selectedAddress ?? 'No address selected',
                                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                          fontWeight: FontWeight.w500,
-                                          color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-                                        ),
+                                      fontWeight: FontWeight.w500,
+                                      color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                                    ),
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -267,10 +261,8 @@ class _LocationScreenState extends State<LocationScreen>
                                   Text(
                                     'Tap to change',
                                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                          color: isDark
-                                              ? Colors.grey[400]
-                                              : Colors.grey[600],
-                                        ),
+                                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                    ),
                                   ),
                                 ],
                               ),
@@ -288,24 +280,18 @@ class _LocationScreenState extends State<LocationScreen>
                         decoration: BoxDecoration(
                           color: Colors.red.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: Colors.red.withValues(alpha: 0.3),
-                          ),
+                          border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
                         ),
                         child: Row(
                           children: [
-                            const Icon(
-                              Icons.error_outline,
-                              color: Colors.red,
-                              size: 20,
-                            ),
+                            const Icon(Icons.error_outline, color: Colors.red, size: 20),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
                                 _locationError!,
-                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                      color: Colors.red,
-                                    ),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.labelSmall?.copyWith(color: Colors.red),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -320,9 +306,9 @@ class _LocationScreenState extends State<LocationScreen>
                     Text(
                       'Suggested Addresses',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-                          ),
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                      ),
                     ),
                     const SizedBox(height: 12),
                     ListView.separated(
@@ -342,8 +328,8 @@ class _LocationScreenState extends State<LocationScreen>
                               color: isSelected
                                   ? const Color(0xFFFF6B00).withValues(alpha: 0.1)
                                   : isDark
-                                      ? const Color(0xFF1F1F1F)
-                                      : const Color(0xFFF5F5F5),
+                                  ? const Color(0xFF1F1F1F)
+                                  : const Color(0xFFF5F5F5),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: isSelected
@@ -375,9 +361,9 @@ class _LocationScreenState extends State<LocationScreen>
                                       Text(
                                         address['address']!,
                                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                              fontWeight: FontWeight.w500,
-                                              color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-                                            ),
+                                          fontWeight: FontWeight.w500,
+                                          color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                                        ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -385,19 +371,14 @@ class _LocationScreenState extends State<LocationScreen>
                                       Text(
                                         address['area']!,
                                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                              color: isDark
-                                                  ? Colors.grey[400]
-                                                  : Colors.grey[600],
-                                            ),
+                                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                        ),
                                       ),
                                     ],
                                   ),
                                 ),
                                 if (isSelected)
-                                  const Icon(
-                                    Icons.check_circle,
-                                    color: Color(0xFFFF6B00),
-                                  ),
+                                  const Icon(Icons.check_circle, color: Color(0xFFFF6B00)),
                               ],
                             ),
                           ),
@@ -418,18 +399,16 @@ class _LocationScreenState extends State<LocationScreen>
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFFF6B00),
                           foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           elevation: 0,
                         ),
                         child: Text(
                           'Confirm Address',
                           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                              ),
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                     ),

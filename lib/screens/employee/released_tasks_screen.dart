@@ -25,16 +25,15 @@ class _ReleasedTasksScreenState extends State<ReleasedTasksScreen> {
     final branchId = auth.currentBranch?.id ?? '';
 
     try {
-      final assigned = await _taskService.autoAssignTasks(
-        shopId: shopId,
-        branchId: branchId,
-      );
+      final assigned = await _taskService.autoAssignTasks(shopId: shopId, branchId: branchId);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(assigned > 0
-                ? '✓ Successfully auto-assigned $assigned tasks to employees!'
-                : 'No unassigned tasks or checked-in employees found.'),
+            content: Text(
+              assigned > 0
+                  ? '✓ Successfully auto-assigned $assigned tasks to employees!'
+                  : 'No unassigned tasks or checked-in employees found.',
+            ),
             backgroundColor: assigned > 0 ? AppTheme.success : AppTheme.grey800,
           ),
         );
@@ -65,10 +64,7 @@ class _ReleasedTasksScreenState extends State<ReleasedTasksScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Claimed: ${task.title}'),
-            backgroundColor: AppTheme.success,
-          ),
+          SnackBar(content: Text('Claimed: ${task.title}'), backgroundColor: AppTheme.success),
         );
       }
     } catch (e) {
@@ -115,7 +111,12 @@ class _ReleasedTasksScreenState extends State<ReleasedTasksScreen> {
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}', style: const TextStyle(color: AppTheme.error)));
+            return Center(
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: const TextStyle(color: AppTheme.error),
+              ),
+            );
           }
 
           final tasks = snapshot.data ?? [];
@@ -130,11 +131,19 @@ class _ReleasedTasksScreenState extends State<ReleasedTasksScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.assignment_turned_in_outlined, size: 64, color: AppTheme.grey400),
+                        Icon(
+                          Icons.assignment_turned_in_outlined,
+                          size: 64,
+                          color: AppTheme.grey400,
+                        ),
                         SizedBox(height: 16),
                         Text(
                           'No Released Tasks!',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey700),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.grey700,
+                          ),
                         ),
                         SizedBox(height: 8),
                         Text(
@@ -144,7 +153,11 @@ class _ReleasedTasksScreenState extends State<ReleasedTasksScreen> {
                         SizedBox(height: 16),
                         Text(
                           'Pull down to refresh and run dispatcher',
-                          style: TextStyle(fontSize: 11, color: AppTheme.grey400, fontStyle: FontStyle.italic),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppTheme.grey400,
+                            fontStyle: FontStyle.italic,
+                          ),
                         ),
                       ],
                     ),
@@ -198,7 +211,11 @@ class _ReleasedTasksScreenState extends State<ReleasedTasksScreen> {
                     children: [
                       Text(
                         task.title,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppTheme.grey900),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          color: AppTheme.grey900,
+                        ),
                       ),
                       const SizedBox(height: 2),
                       Text(
@@ -227,10 +244,7 @@ class _ReleasedTasksScreenState extends State<ReleasedTasksScreen> {
               ],
             ),
             const Divider(height: 24),
-            Text(
-              task.description,
-              style: const TextStyle(fontSize: 13, color: AppTheme.grey700),
-            ),
+            Text(task.description, style: const TextStyle(fontSize: 13, color: AppTheme.grey700)),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,

@@ -48,8 +48,8 @@ class OrderTimelineModel {
       status: map['status'] as String? ?? '',
       timestamp: map['timestamp'] != null
           ? (map['timestamp'] is Timestamp
-              ? (map['timestamp'] as Timestamp).toDate()
-              : DateTime.parse(map['timestamp'].toString()))
+                ? (map['timestamp'] as Timestamp).toDate()
+                : DateTime.parse(map['timestamp'].toString()))
           : DateTime.now(),
       notes: map['notes'] as String?,
       actor: map['actor'] as String?,

@@ -20,8 +20,10 @@ class _NotificationCenterState extends State<NotificationCenter> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       if (authProvider.currentUser != null) {
-        Provider.of<NotificationProvider>(context, listen: false)
-            .initialize(authProvider.currentUser!.id);
+        Provider.of<NotificationProvider>(
+          context,
+          listen: false,
+        ).initialize(authProvider.currentUser!.id);
       }
     });
   }
@@ -84,10 +86,7 @@ class _NotificationCenterState extends State<NotificationCenter> {
           children: [
             Icon(Icons.notifications_none, size: 64, color: AppTheme.grey400),
             SizedBox(height: 16),
-            Text(
-              'No notifications yet',
-              style: TextStyle(color: AppTheme.grey600, fontSize: 16),
-            ),
+            Text('No notifications yet', style: TextStyle(color: AppTheme.grey600, fontSize: 16)),
             SizedBox(height: 8),
             Text(
               'You\'ll see updates about orders, promotions, and more here',
@@ -210,12 +209,7 @@ class _NotificationTile extends StatelessWidget {
           ],
         ),
         trailing: PopupMenuButton(
-          itemBuilder: (context) => [
-            PopupMenuItem(
-              onTap: onDelete,
-              child: const Text('Delete'),
-            ),
-          ],
+          itemBuilder: (context) => [PopupMenuItem(onTap: onDelete, child: const Text('Delete'))],
         ),
       ),
     );

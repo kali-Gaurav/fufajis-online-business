@@ -7,14 +7,14 @@ import 'rds_database_service.dart';
 
 class DeliveryTaskService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
-  
+
   static final DeliveryTaskService _instance = DeliveryTaskService._internal();
   factory DeliveryTaskService() => _instance;
   DeliveryTaskService._internal();
 
   Future<void> createTask(DeliveryTaskModel task) async {
     final batch = _db.batch();
-    
+
     // Create the task
     final taskRef = _db.collection('delivery_tasks').doc(task.id);
     batch.set(taskRef, task.toJson());
@@ -35,7 +35,12 @@ class DeliveryTaskService {
     await batch.commit();
   }
 
-  Future<void> updateTaskStatus(String taskId, String orderId, DeliveryTaskStatus newStatus, {String? riderId}) async {
+  Future<void> updateTaskStatus(
+    String taskId,
+    String orderId,
+    DeliveryTaskStatus newStatus, {
+    String? riderId,
+  }) async {
     final batch = _db.batch();
     final taskRef = _db.collection('delivery_tasks').doc(taskId);
 
@@ -104,9 +109,9 @@ class DeliveryTaskService {
       description: desc,
       timestamp: DateTime.now(),
     );
-    
+
     batch.set(eventRef, event.toMap());
-    
+
     try {
       await batch.commit();
       debugPrint('[DeliveryTaskService] Task $taskId updated to ${newStatus.name}');
@@ -119,12 +124,13 @@ class DeliveryTaskService {
 
   Future<void> logException(DeliveryExceptionModel exception) async {
     final batch = _db.batch();
-    
+
     final exRef = _db.collection('delivery_exceptions').doc(exception.id);
     batch.set(exRef, exception.toMap());
 
     // Automatically transition the task state to failed if the exception is critical
-    final bool isCritical = exception.type == ExceptionType.customer_unreachable ||
+    final bool isCritical =
+        exception.type == ExceptionType.customer_unreachable ||
         exception.type == ExceptionType.vehicle_breakdown ||
         exception.type == ExceptionType.wrong_address;
 
@@ -157,10 +163,7 @@ class DeliveryTaskService {
 
             // Also mark failed status on the deliveries collection
             final deliveryRef = _db.collection('deliveries').doc(exception.deliveryTaskId);
-            batch.update(deliveryRef, {
-              'status': 'failed',
-              'failureReason': exception.type.name,
-            });
+            batch.update(deliveryRef, {'status': 'failed', 'failureReason': exception.type.name});
           }
         }
       } catch (e) {
@@ -226,13 +229,18 @@ class DeliveryTaskService {
     return _db
         .collection('delivery_tasks')
         .where('deliveryAgentId', isEqualTo: riderId)
-        .where('status', whereIn: [
-          DeliveryTaskStatus.assigned.value,
-          DeliveryTaskStatus.accepted.value,
-          DeliveryTaskStatus.picked_up.value,
-          DeliveryTaskStatus.out_for_delivery.value,
-        ])
+        .where(
+          'status',
+          whereIn: [
+            DeliveryTaskStatus.assigned.value,
+            DeliveryTaskStatus.accepted.value,
+            DeliveryTaskStatus.picked_up.value,
+            DeliveryTaskStatus.out_for_delivery.value,
+          ],
+        )
         .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => DeliveryTaskModel.fromJson(doc.data())).toList());
+        .map(
+          (snapshot) => snapshot.docs.map((doc) => DeliveryTaskModel.fromJson(doc.data())).toList(),
+        );
   }
 }

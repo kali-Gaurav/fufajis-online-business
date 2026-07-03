@@ -27,8 +27,7 @@ class InventorySyncService {
 
   /// Stream controllers for broadcasting updates
   final Map<String, StreamController<ProductModel>> _productControllers = {};
-  final Map<String, StreamController<List<ProductModel>>>
-      _productsListControllers = {};
+  final Map<String, StreamController<List<ProductModel>>> _productsListControllers = {};
 
   /// Debounce duration (500ms) to prevent rapid successive updates
   static const Duration _debounceDuration = Duration(milliseconds: 500);
@@ -68,10 +67,7 @@ class InventorySyncService {
     final listenerId = 'product_$productId';
     _listenerCount++;
 
-    return _createProductStream(
-      listenerId,
-      _db.collection('products').doc(productId),
-    );
+    return _createProductStream(listenerId, _db.collection('products').doc(productId));
   }
 
   /// Watch products in a specific category with real-time updates.
@@ -108,8 +104,7 @@ class InventorySyncService {
     return _createProductsListStream(
       listenerId,
       query: _db.collection('products').where('shopId', isEqualTo: shopId),
-      clientSideFilter: (product) =>
-          product.stockQuantity < product.minimumStock,
+      clientSideFilter: (product) => product.stockQuantity < product.minimumStock,
     );
   }
 
@@ -117,9 +112,7 @@ class InventorySyncService {
   ///
   /// Returns a stream that emits all products that are currently available.
   /// Useful for displaying purchasable inventory.
-  Stream<List<ProductModel>> watchAvailableProducts({
-    required String shopId,
-  }) {
+  Stream<List<ProductModel>> watchAvailableProducts({required String shopId}) {
     final listenerId = 'available_$shopId';
     _listenerCount++;
 
@@ -148,8 +141,7 @@ class InventorySyncService {
       listenerId,
       query: _db.collection('products').where('shopId', isEqualTo: shopId),
       clientSideFilter: (product) =>
-          product.branchStock.containsKey(branchId) &&
-          product.branchStock[branchId]! > 0,
+          product.branchStock.containsKey(branchId) && product.branchStock[branchId]! > 0,
     );
   }
 
@@ -177,22 +169,18 @@ class InventorySyncService {
             }
 
             final product = ProductModel.fromMap(data);
-            _debounceProductUpdate(
-              product,
-              () {
-                _localCache[product.id] = product;
-                controller.add(product);
-                onProductStockUpdate?.call(product);
-              },
-            );
+            _debounceProductUpdate(product, () {
+              _localCache[product.id] = product;
+              controller.add(product);
+              onProductStockUpdate?.call(product);
+            });
           } catch (e, stack) {
             _logger.error('Error parsing product snapshot', e, stack);
             controller.addError(e, stack);
           }
         },
         onError: (Object error, StackTrace stackTrace) {
-          _logger.error('Firestore listener error for $listenerId', error,
-              stackTrace);
+          _logger.error('Firestore listener error for $listenerId', error, stackTrace);
           controller.addError(error, stackTrace);
         },
       );
@@ -240,21 +228,17 @@ class InventorySyncService {
             }
 
             // Debounce the emission
-            _debounceProductsUpdate(
-              filteredProducts,
-              () {
-                controller.add(filteredProducts);
-                onProductsUpdate?.call(filteredProducts);
-              },
-            );
+            _debounceProductsUpdate(filteredProducts, () {
+              controller.add(filteredProducts);
+              onProductsUpdate?.call(filteredProducts);
+            });
           } catch (e, stack) {
             _logger.error('Error parsing products snapshot', e, stack);
             controller.addError(e, stack);
           }
         },
         onError: (Object error, StackTrace stackTrace) {
-          _logger.error('Firestore listener error for $listenerId', error,
-              stackTrace);
+          _logger.error('Firestore listener error for $listenerId', error, stackTrace);
           controller.addError(error, stackTrace);
         },
       );
@@ -269,8 +253,7 @@ class InventorySyncService {
 
       return controller.stream;
     } catch (e, stack) {
-      _logger.error('Error creating products stream for $listenerId', e,
-          stack);
+      _logger.error('Error creating products stream for $listenerId', e, stack);
       controller.addError(e, stack);
       return controller.stream;
     }
@@ -279,10 +262,7 @@ class InventorySyncService {
   /// Debounce updates for a single product.
   ///
   /// Prevents rapid successive updates from flooding the UI. Max 1 update per 500ms.
-  void _debounceProductUpdate(
-    ProductModel product,
-    VoidCallback onUpdate,
-  ) {
+  void _debounceProductUpdate(ProductModel product, VoidCallback onUpdate) {
     // Cancel existing timer for this product
     _debounceTimers[product.id]?.cancel();
 
@@ -299,10 +279,7 @@ class InventorySyncService {
   /// Debounce updates for multiple products.
   ///
   /// Uses a single debounce for all products to avoid individual timer overhead.
-  void _debounceProductsUpdate(
-    List<ProductModel> products,
-    VoidCallback onUpdate,
-  ) {
+  void _debounceProductsUpdate(List<ProductModel> products, VoidCallback onUpdate) {
     const listenerId = '_all_products_debounce';
 
     // Cancel existing timer
@@ -356,8 +333,7 @@ class InventorySyncService {
   /// After calling this, the service should not be used.
   Future<void> stopAllListeners() async {
     try {
-      debugPrint(
-          '[InventorySyncService] Stopping all listeners. Active: $_listenerCount');
+      debugPrint('[InventorySyncService] Stopping all listeners. Active: $_listenerCount');
 
       // Cancel all debounce timers
       for (final timer in _debounceTimers.values) {
@@ -383,8 +359,7 @@ class InventorySyncService {
       _productsListControllers.clear();
 
       _listenerCount = 0;
-      _logger.info(
-          '[InventorySyncService] All listeners stopped and resources cleaned up');
+      _logger.info('[InventorySyncService] All listeners stopped and resources cleaned up');
     } catch (e, stack) {
       _logger.error('Error stopping listeners', e, stack);
     }
@@ -417,10 +392,7 @@ class InventorySyncService {
   /// Returns true if connected, false otherwise.
   Future<bool> isFirestoreConnected() async {
     try {
-      await _db
-          .collection('products')
-          .limit(1)
-          .get(const GetOptions(source: Source.server));
+      await _db.collection('products').limit(1).get(const GetOptions(source: Source.server));
       return true;
     } catch (e) {
       debugPrint('[InventorySyncService] Firestore connectivity check failed: $e');
@@ -470,21 +442,14 @@ class InventorySyncService {
   /// Get inventory statistics for a shop.
   ///
   /// Calculates metrics like total stock, low stock items, etc.
-  Future<Map<String, dynamic>> getInventoryStats({
-    required String shopId,
-  }) async {
+  Future<Map<String, dynamic>> getInventoryStats({required String shopId}) async {
     try {
-      final snapshot =
-          await _db.collection('products').where('shopId', isEqualTo: shopId).get();
+      final snapshot = await _db.collection('products').where('shopId', isEqualTo: shopId).get();
 
-      final products =
-          snapshot.docs.map((doc) => ProductModel.fromMap(doc.data())).toList();
+      final products = snapshot.docs.map((doc) => ProductModel.fromMap(doc.data())).toList();
 
-      final totalStock =
-          products.fold<int>(0, (sum, p) => sum + p.stockQuantity);
-      final lowStockCount = products
-          .where((p) => p.stockQuantity < p.minimumStock)
-          .length;
+      final totalStock = products.fold<int>(0, (sum, p) => sum + p.stockQuantity);
+      final lowStockCount = products.where((p) => p.stockQuantity < p.minimumStock).length;
       final outOfStock = products.where((p) => p.stockQuantity == 0).length;
       final totalValue = products.fold<double>(
         0,
@@ -497,16 +462,12 @@ class InventorySyncService {
         'totalValue': totalValue,
         'lowStockCount': lowStockCount,
         'outOfStockCount': outOfStock,
-        'averageStockPerProduct':
-            products.isEmpty ? 0 : totalStock / products.length,
+        'averageStockPerProduct': products.isEmpty ? 0 : totalStock / products.length,
         'lastUpdated': DateTime.now().toIso8601String(),
       };
     } catch (e, stack) {
       _logger.error('Error calculating inventory stats', e, stack);
-      return {
-        'error': 'Failed to calculate inventory stats',
-        'message': e.toString(),
-      };
+      return {'error': 'Failed to calculate inventory stats', 'message': e.toString()};
     }
   }
 
@@ -572,11 +533,13 @@ class InventorySyncService {
 
     // Periodic updates
     final timer = Timer.periodic(updateInterval, (_) {
-      getInventoryStats(shopId: shopId).then((stats) {
-        controller.add(stats);
-      }).catchError((Object e, StackTrace stack) {
-        _logger.error('Error getting inventory metrics', e, stack);
-      });
+      getInventoryStats(shopId: shopId)
+          .then((stats) {
+            controller.add(stats);
+          })
+          .catchError((Object e, StackTrace stack) {
+            _logger.error('Error getting inventory metrics', e, stack);
+          });
     });
 
     controller.onCancel = () {

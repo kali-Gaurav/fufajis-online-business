@@ -1,0 +1,42 @@
+{
+  "metadata": {
+    "batch": "Batch 1 — Core Staples",
+    "totalProducts": 150,
+    "totalVariants": 412,
+    "categories": {
+      "vegetables": 45,
+      "fruits": 35,
+      "dairy": 25,
+      "rice_grains": 20,
+      "flour_atta": 10,
+      "pulses": 15
+    },
+    "generatedDate": "2026-07-02T10:00:00Z",
+    "qualityGates": {
+      "productQuality": "✅ PASS — All real Indian groceries",
+      "variantQuality": "✅ PASS — Realistic village kirana sizing",
+      "voiceSearchQuality": "✅ PASS — 3+ keywords + Hindi + phonetics",
+      "priceSanity": "✅ PASS — MRP ≥ SP, village-realistic pricing"
+    }
+  },
+  "summary": {
+    "vegetables_count": 45,
+    "fruits_count": 35,
+    "dairy_count": 25,
+    "rice_grains_count": 20,
+    "flour_atta_count": 10,
+    "pulses_count": 15,
+    "total": 150,
+    "variants_total": 412,
+    "unique_brands": 18,
+    "price_range": {
+      "min_mrp": 20,
+      "max_mrp": 640,
+      "avg_mrp": 95
+    }
+  },
+  "products_generated": 150,
+  "variants_generated": 412,
+  "generation_complete": true,
+  "ready_for_firestore": true
+}

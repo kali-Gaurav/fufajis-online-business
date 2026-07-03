@@ -19,6 +19,9 @@ import { assertAgentsEnabled } from '../lib/permissions';
 import { computeDailyMetrics, computeWeeklyMetrics } from './metrics';
 import { runBusinessAnalystShift, BUSINESS_ANALYST_AGENT_ID } from './businessAnalyst';
 import { runInventoryCatalogShift, INVENTORY_CATALOG_AGENT_ID } from './inventoryCatalog';
+import { runPricingExpertShift, PRICING_EXPERT_AGENT_ID } from './pricingExpert';
+import { runCustomerAnalystShift, CUSTOMER_ANALYST_AGENT_ID } from './customerAnalyst';
+import { runOpsManagerShift, OPS_MANAGER_AGENT_ID } from './opsManager';
 
 const db = admin.firestore();
 
@@ -123,6 +126,60 @@ export const businessAnalystDailyShift = functions
   });
 
 /**
+ * Pricing Expert - daily shift.
+ * Runs at 9:00 AM IST.
+ */
+export const pricingExpertDailyShift = functions
+  .region('asia-south1')
+  .pubsub.schedule('0 9 * * *')
+  .timeZone('Asia/Kolkata')
+  .onRun(async () => {
+    await withAgentRun(PRICING_EXPERT_AGENT_ID, 'daily_pricing_audit', async () => {
+      const result = await runPricingExpertShift({
+        agentId: PRICING_EXPERT_AGENT_ID,
+      });
+      return { tasksCreated: result.tasksCreated, productsAnalyzed: result.productsAnalyzed };
+    });
+    return null;
+  });
+
+/**
+ * Customer Analyst - weekly shift.
+ * Runs Monday 11:00 AM IST.
+ */
+export const customerAnalystWeeklyShift = functions
+  .region('asia-south1')
+  .pubsub.schedule('0 11 * * 1')
+  .timeZone('Asia/Kolkata')
+  .onRun(async () => {
+    await withAgentRun(CUSTOMER_ANALYST_AGENT_ID, 'weekly_retention_audit', async () => {
+      const result = await runCustomerAnalystShift({
+        agentId: CUSTOMER_ANALYST_AGENT_ID,
+      });
+      return { tasksCreated: result.tasksCreated, segmentsProcessed: result.segmentsProcessed };
+    });
+    return null;
+  });
+
+/**
+ * Operations Manager - periodic health check.
+ * Runs every 30 minutes.
+ */
+export const opsManagerHeartbeat = functions
+  .region('asia-south1')
+  .pubsub.schedule('*/30 * * * *')
+  .timeZone('Asia/Kolkata')
+  .onRun(async () => {
+    await withAgentRun(OPS_MANAGER_AGENT_ID, 'ops_health_check', async () => {
+      const result = await runOpsManagerShift({
+        agentId: OPS_MANAGER_AGENT_ID,
+      });
+      return { tasksCreated: result.tasksCreated, alertsFlagged: result.alertsFlagged };
+    });
+    return null;
+  });
+
+/**
  * Business Analyst - weekly report shift.
  * Runs Monday 6:45 AM IST, covering the last 7 days vs. the 7 before.
  */
@@ -149,6 +206,60 @@ export const businessAnalystWeeklyShift = functions
   });
 
 /**
+ * Pricing Expert - daily shift.
+ * Runs at 9:00 AM IST.
+ */
+export const pricingExpertDailyShift = functions
+  .region('asia-south1')
+  .pubsub.schedule('0 9 * * *')
+  .timeZone('Asia/Kolkata')
+  .onRun(async () => {
+    await withAgentRun(PRICING_EXPERT_AGENT_ID, 'daily_pricing_audit', async () => {
+      const result = await runPricingExpertShift({
+        agentId: PRICING_EXPERT_AGENT_ID,
+      });
+      return { tasksCreated: result.tasksCreated, productsAnalyzed: result.productsAnalyzed };
+    });
+    return null;
+  });
+
+/**
+ * Customer Analyst - weekly shift.
+ * Runs Monday 11:00 AM IST.
+ */
+export const customerAnalystWeeklyShift = functions
+  .region('asia-south1')
+  .pubsub.schedule('0 11 * * 1')
+  .timeZone('Asia/Kolkata')
+  .onRun(async () => {
+    await withAgentRun(CUSTOMER_ANALYST_AGENT_ID, 'weekly_retention_audit', async () => {
+      const result = await runCustomerAnalystShift({
+        agentId: CUSTOMER_ANALYST_AGENT_ID,
+      });
+      return { tasksCreated: result.tasksCreated, segmentsProcessed: result.segmentsProcessed };
+    });
+    return null;
+  });
+
+/**
+ * Operations Manager - periodic health check.
+ * Runs every 30 minutes.
+ */
+export const opsManagerHeartbeat = functions
+  .region('asia-south1')
+  .pubsub.schedule('*/30 * * * *')
+  .timeZone('Asia/Kolkata')
+  .onRun(async () => {
+    await withAgentRun(OPS_MANAGER_AGENT_ID, 'ops_health_check', async () => {
+      const result = await runOpsManagerShift({
+        agentId: OPS_MANAGER_AGENT_ID,
+      });
+      return { tasksCreated: result.tasksCreated, alertsFlagged: result.alertsFlagged };
+    });
+    return null;
+  });
+
+/**
  * Inventory & Catalog - scheduled scan shift.
  * Runs every 4 hours to detect stockouts, low inventory, and missing catalog info.
  */
@@ -165,6 +276,60 @@ export const inventoryCatalogShift = functions
         tasksCreated: result.tasksCreated,
         scannedProducts: result.scannedProducts,
       };
+    });
+    return null;
+  });
+
+/**
+ * Pricing Expert - daily shift.
+ * Runs at 9:00 AM IST.
+ */
+export const pricingExpertDailyShift = functions
+  .region('asia-south1')
+  .pubsub.schedule('0 9 * * *')
+  .timeZone('Asia/Kolkata')
+  .onRun(async () => {
+    await withAgentRun(PRICING_EXPERT_AGENT_ID, 'daily_pricing_audit', async () => {
+      const result = await runPricingExpertShift({
+        agentId: PRICING_EXPERT_AGENT_ID,
+      });
+      return { tasksCreated: result.tasksCreated, productsAnalyzed: result.productsAnalyzed };
+    });
+    return null;
+  });
+
+/**
+ * Customer Analyst - weekly shift.
+ * Runs Monday 11:00 AM IST.
+ */
+export const customerAnalystWeeklyShift = functions
+  .region('asia-south1')
+  .pubsub.schedule('0 11 * * 1')
+  .timeZone('Asia/Kolkata')
+  .onRun(async () => {
+    await withAgentRun(CUSTOMER_ANALYST_AGENT_ID, 'weekly_retention_audit', async () => {
+      const result = await runCustomerAnalystShift({
+        agentId: CUSTOMER_ANALYST_AGENT_ID,
+      });
+      return { tasksCreated: result.tasksCreated, segmentsProcessed: result.segmentsProcessed };
+    });
+    return null;
+  });
+
+/**
+ * Operations Manager - periodic health check.
+ * Runs every 30 minutes.
+ */
+export const opsManagerHeartbeat = functions
+  .region('asia-south1')
+  .pubsub.schedule('*/30 * * * *')
+  .timeZone('Asia/Kolkata')
+  .onRun(async () => {
+    await withAgentRun(OPS_MANAGER_AGENT_ID, 'ops_health_check', async () => {
+      const result = await runOpsManagerShift({
+        agentId: OPS_MANAGER_AGENT_ID,
+      });
+      return { tasksCreated: result.tasksCreated, alertsFlagged: result.alertsFlagged };
     });
     return null;
   });

@@ -31,21 +31,14 @@ class _CartScreenState extends State<CartScreen> {
     super.dispose();
   }
 
-  void _showRemoveConfirmation(
-    BuildContext context,
-    CartItem item,
-    CartProvider cartProvider,
-  ) {
+  void _showRemoveConfirmation(BuildContext context, CartItem item, CartProvider cartProvider) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Remove from Cart?'),
         content: Text('Remove ${item.productName} from your cart?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
               cartProvider.removeFromCart(item.id);
@@ -79,10 +72,7 @@ class _CartScreenState extends State<CartScreen> {
                 ),
               );
             },
-            child: const Text(
-              'Remove',
-              style: TextStyle(color: AppTheme.error),
-            ),
+            child: const Text('Remove', style: TextStyle(color: AppTheme.error)),
           ),
         ],
       ),
@@ -94,9 +84,7 @@ class _CartScreenState extends State<CartScreen> {
     final cartProvider = Provider.of<CartProvider>(context);
 
     return Scaffold(
-      body: cartProvider.cartItems.isEmpty
-          ? _buildEmptyCart()
-          : _buildCartContent(cartProvider),
+      body: cartProvider.cartItems.isEmpty ? _buildEmptyCart() : _buildCartContent(cartProvider),
     );
   }
 
@@ -195,14 +183,13 @@ class _CartScreenState extends State<CartScreen> {
               SliverPadding(
                 padding: const EdgeInsets.all(16),
                 sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final item = cartProvider.cartItems[index];
-                      // Step 16.2: Swipe-to-delete — wrapped in spring entrance
-                      return SpringCard(
-                        delay: Duration(milliseconds: index * 60),
-                        springDistance: 50,
-                        child: Dismissible(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final item = cartProvider.cartItems[index];
+                    // Step 16.2: Swipe-to-delete — wrapped in spring entrance
+                    return SpringCard(
+                      delay: Duration(milliseconds: index * 60),
+                      springDistance: 50,
+                      child: Dismissible(
                         key: Key(item.id),
                         direction: DismissDirection.endToStart,
                         onDismissed: (_) {
@@ -221,18 +208,15 @@ class _CartScreenState extends State<CartScreen> {
                         ),
                         child: _buildCartItem(item, cartProvider),
                       ),
-                      ); // SpringCard
-                    },
-                    childCount: cartProvider.cartItems.length,
-                  ),
+                    ); // SpringCard
+                  }, childCount: cartProvider.cartItems.length),
                 ),
               ),
               if (recommendedProducts.isNotEmpty)
                 SliverPadding(
                   padding: const EdgeInsets.only(bottom: 24),
                   sliver: SliverToBoxAdapter(
-                    child:
-                        _buildUpSellSection(recommendedProducts, cartProvider),
+                    child: _buildUpSellSection(recommendedProducts, cartProvider),
                   ),
                 ),
             ],
@@ -244,8 +228,7 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _buildUpSellSection(
-      List<ProductModel> recommendedProducts, CartProvider cartProvider) {
+  Widget _buildUpSellSection(List<ProductModel> recommendedProducts, CartProvider cartProvider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -294,8 +277,7 @@ class _CartScreenState extends State<CartScreen> {
                   children: [
                     // Product Image
                     ClipRRect(
-                      borderRadius:
-                          const BorderRadius.vertical(top: Radius.circular(16)),
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                       child: Stack(
                         children: [
                           CachedNetworkImage(
@@ -308,20 +290,17 @@ class _CartScreenState extends State<CartScreen> {
                               color: AppTheme.grey100,
                               child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
                             ),
-                            errorWidget: (context, error, stackTrace) =>
-                                Container(
+                            errorWidget: (context, error, stackTrace) => Container(
                               height: 85,
                               color: AppTheme.grey100,
-                              child: const Icon(Icons.image_not_supported,
-                                  size: 30),
+                              child: const Icon(Icons.image_not_supported, size: 30),
                             ),
                           ),
                           Positioned(
                             top: 4,
                             left: 4,
                             child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 4, vertical: 2),
+                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                               decoration: BoxDecoration(
                                 color: AppTheme.success.withValues(alpha: 0.9),
                                 borderRadius: BorderRadius.circular(6),
@@ -358,10 +337,7 @@ class _CartScreenState extends State<CartScreen> {
                           const SizedBox(height: 2),
                           Text(
                             product.unit,
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: AppTheme.grey500,
-                            ),
+                            style: const TextStyle(fontSize: 10, color: AppTheme.grey500),
                           ),
                           const SizedBox(height: 6),
                           Row(
@@ -394,14 +370,12 @@ class _CartScreenState extends State<CartScreen> {
                                   cartProvider.addToCart(product);
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(
-                                          '${product.name} added to cart!'),
+                                      content: Text('${product.name} added to cart!'),
                                       duration: const Duration(seconds: 1),
                                       action: SnackBarAction(
                                         label: 'UNDO',
                                         onPressed: () {
-                                          cartProvider
-                                              .removeFromCart(product.id);
+                                          cartProvider.removeFromCart(product.id);
                                         },
                                       ),
                                     ),
@@ -413,11 +387,7 @@ class _CartScreenState extends State<CartScreen> {
                                     color: AppTheme.primary,
                                     shape: BoxShape.circle,
                                   ),
-                                  child: const Icon(
-                                    Icons.add,
-                                    color: Colors.white,
-                                    size: 16,
-                                  ),
+                                  child: const Icon(Icons.add, color: Colors.white, size: 16),
                                 ),
                               ),
                             ],
@@ -463,19 +433,25 @@ class _CartScreenState extends State<CartScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: item.productImage.isNotEmpty
-                    ? CachedNetworkImage(
-                        imageUrl: item.productImage,
-                        fit: BoxFit.cover,
-                        placeholder: (_, __) => Container(
-                          color: AppTheme.grey100,
-                          child: const Center(child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primary)),
-                        ),
-                        errorWidget: (_, __, ___) => const Icon(Icons.image_not_supported, color: AppTheme.grey400),
-                      )
-                    : const Icon(Icons.image, color: AppTheme.grey400),
-              ),
+                  borderRadius: BorderRadius.circular(12),
+                  child: item.productImage.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: item.productImage,
+                          fit: BoxFit.cover,
+                          placeholder: (_, __) => Container(
+                            color: AppTheme.grey100,
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppTheme.primary,
+                              ),
+                            ),
+                          ),
+                          errorWidget: (_, __, ___) =>
+                              const Icon(Icons.image_not_supported, color: AppTheme.grey400),
+                        )
+                      : const Icon(Icons.image, color: AppTheme.grey400),
+                ),
               ),
               const SizedBox(width: 12),
               // Product Info
@@ -496,10 +472,7 @@ class _CartScreenState extends State<CartScreen> {
                     if (item.selectedVariant != null)
                       Text(
                         item.selectedVariant!,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.grey500,
-                        ),
+                        style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
                       ),
                     const SizedBox(height: 8),
                     Row(
@@ -524,18 +497,13 @@ class _CartScreenState extends State<CartScreen> {
                             children: [
                               GestureDetector(
                                 onTap: item.quantity > 1
-                                    ? () => cartProvider.updateQuantity(
-                                        item.id, item.quantity - 1)
+                                    ? () => cartProvider.updateQuantity(item.id, item.quantity - 1)
                                     : null,
                                 child: Container(
                                   width: 44,
                                   height: 44,
                                   alignment: Alignment.center,
-                                  child: const Icon(
-                                    Icons.remove,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
+                                  child: const Icon(Icons.remove, color: Colors.white, size: 20),
                                 ),
                               ),
                               Padding(
@@ -550,17 +518,13 @@ class _CartScreenState extends State<CartScreen> {
                                 ),
                               ),
                               GestureDetector(
-                                onTap: () => cartProvider.updateQuantity(
-                                    item.id, item.quantity + 1),
+                                onTap: () =>
+                                    cartProvider.updateQuantity(item.id, item.quantity + 1),
                                 child: Container(
                                   width: 44,
                                   height: 44,
                                   alignment: Alignment.center,
-                                  child: const Icon(
-                                    Icons.add,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
+                                  child: const Icon(Icons.add, color: Colors.white, size: 20),
                                 ),
                               ),
                             ],
@@ -578,11 +542,7 @@ class _CartScreenState extends State<CartScreen> {
                   width: 44,
                   height: 44,
                   alignment: Alignment.center,
-                  child: const Icon(
-                    Icons.delete_outline,
-                    color: AppTheme.error,
-                    size: 20,
-                  ),
+                  child: const Icon(Icons.delete_outline, color: AppTheme.error, size: 20),
                 ),
               ),
             ],
@@ -596,7 +556,10 @@ class _CartScreenState extends State<CartScreen> {
               hintText: 'Add notes (e.g. "Green bananas only")',
               isDense: true,
               contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: AppTheme.grey200)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: AppTheme.grey200),
+              ),
               prefixIcon: const Icon(Icons.edit_note, size: 16),
             ),
           ),
@@ -644,26 +607,24 @@ class _CartScreenState extends State<CartScreen> {
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
                           ),
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         ),
                       ),
                     ),
                     const SizedBox(width: 8),
                     ElevatedButton(
                       onPressed: () {
-                        final success =
-                            cartProvider.applyCoupon(_couponController.text);
+                        final success = cartProvider.applyCoupon(_couponController.text);
                         if (!success) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Invalid coupon code')),
-                          );
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(const SnackBar(content: Text('Invalid coupon code')));
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                                content: Text('Coupon applied!'),
-                                backgroundColor: AppTheme.success),
+                              content: Text('Coupon applied!'),
+                              backgroundColor: AppTheme.success,
+                            ),
                           );
                         }
                         setState(() => _showCouponField = false);
@@ -676,18 +637,14 @@ class _CartScreenState extends State<CartScreen> {
                   onTap: () => setState(() => _showCouponField = true),
                   child: const Row(
                     children: [
-                      Icon(Icons.discount_outlined,
-                          color: AppTheme.primary),
+                      Icon(Icons.discount_outlined, color: AppTheme.primary),
                       SizedBox(width: 8),
                       Text(
                         'Apply Coupon',
-                        style: TextStyle(
-                            color: AppTheme.primary,
-                            fontWeight: FontWeight.w500),
+                        style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w500),
                       ),
                       Spacer(),
-                      Icon(Icons.arrow_forward_ios,
-                          size: 16, color: AppTheme.grey400),
+                      Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.grey400),
                     ],
                   ),
                 ),
@@ -701,19 +658,16 @@ class _CartScreenState extends State<CartScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.check_circle,
-                      color: AppTheme.success, size: 18),
+                  const Icon(Icons.check_circle, color: AppTheme.success, size: 18),
                   const SizedBox(width: 8),
                   Text(
                     '${cartProvider.appliedCoupon!.code} applied (₹${cartProvider.discount.round()})',
-                    style: const TextStyle(
-                        color: AppTheme.success, fontWeight: FontWeight.w500),
+                    style: const TextStyle(color: AppTheme.success, fontWeight: FontWeight.w500),
                   ),
                   const Spacer(),
                   IconButton(
                     onPressed: () => cartProvider.removeCoupon(),
-                    icon: const Icon(Icons.close,
-                        size: 18, color: AppTheme.success),
+                    icon: const Icon(Icons.close, size: 18, color: AppTheme.success),
                   ),
                 ],
               ),
@@ -723,18 +677,18 @@ class _CartScreenState extends State<CartScreen> {
           _buildPriceRow('Subtotal', cartProvider.subtotal),
           const SizedBox(height: 8),
           _buildPriceRow(
-              'Delivery', cartProvider.deliveryCharge == 0 ? 'FREE' : null,
-              isFree: cartProvider.deliveryCharge == 0),
+            'Delivery',
+            cartProvider.deliveryCharge == 0 ? 'FREE' : null,
+            isFree: cartProvider.deliveryCharge == 0,
+          ),
           if (cartProvider.deliveryCharge > 0)
             Text(
               'Free delivery on orders above ₹500',
-              style: TextStyle(
-                  fontSize: 12, color: AppTheme.success.withValues(alpha: 0.8)),
+              style: TextStyle(fontSize: 12, color: AppTheme.success.withValues(alpha: 0.8)),
             ),
           const SizedBox(height: 8),
           if (cartProvider.discount > 0)
-            _buildPriceRow('Discount', -cartProvider.discount,
-                isDiscount: true),
+            _buildPriceRow('Discount', -cartProvider.discount, isDiscount: true),
           const Divider(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -766,18 +720,11 @@ class _CartScreenState extends State<CartScreen> {
               decoration: BoxDecoration(
                 color: AppTheme.warning.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppTheme.warning.withValues(alpha: 0.3),
-                  width: 1.5,
-                ),
+                border: Border.all(color: AppTheme.warning.withValues(alpha: 0.3), width: 1.5),
               ),
               child: const Row(
                 children: [
-                  Icon(
-                    Icons.info_outline,
-                    color: AppTheme.warning,
-                    size: 18,
-                  ),
+                  Icon(Icons.info_outline, color: AppTheme.warning, size: 18),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -796,18 +743,14 @@ class _CartScreenState extends State<CartScreen> {
           ScaleBounce(
             onTap: canCheckout ? () => context.push('/customer/checkout') : null,
             child: ParticlesBurst(
-              colors: const [
-                Color(0xFFFF6B00),
-                Color(0xFFFFD700),
-                Color(0xFFFF8C42),
-              ],
+              colors: const [Color(0xFFFF6B00), Color(0xFFFFD700), Color(0xFFFF8C42)],
               child: Container(
                 width: double.infinity,
                 height: 56,
                 decoration: BoxDecoration(
-                  gradient: canCheckout ? AppTheme.buttonGradient : const LinearGradient(
-                    colors: [AppTheme.grey300, AppTheme.grey400],
-                  ),
+                  gradient: canCheckout
+                      ? AppTheme.buttonGradient
+                      : const LinearGradient(colors: [AppTheme.grey300, AppTheme.grey400]),
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: canCheckout ? AppTheme.primaryGlowShadows() : null,
                 ),
@@ -841,32 +784,33 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _buildPriceRow(String label, dynamic value,
-      {bool isFree = false, bool isDiscount = false}) {
+  Widget _buildPriceRow(
+    String label,
+    dynamic value, {
+    bool isFree = false,
+    bool isDiscount = false,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
-          style: TextStyle(
-            fontSize: 14,
-            color: isFree ? AppTheme.success : AppTheme.grey600,
-          ),
+          style: TextStyle(fontSize: 14, color: isFree ? AppTheme.success : AppTheme.grey600),
         ),
         Text(
           value is String
               ? value
               : isDiscount
-                  ? '- ₹${value.abs().round()}'
-                  : '₹${value.round()}',
+              ? '- ₹${value.abs().round()}'
+              : '₹${value.round()}',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
             color: isFree
                 ? AppTheme.success
                 : isDiscount
-                    ? AppTheme.success
-                    : AppTheme.grey900,
+                ? AppTheme.success
+                : AppTheme.grey900,
           ),
         ),
       ],
@@ -882,9 +826,8 @@ class _CartScreenState extends State<CartScreen> {
       color: AppTheme.warning.withValues(alpha: 0.15),
       child: const Row(
         children: [
-          Icon
-          (Icons.warning_amber_rounded, color: AppTheme.warning),
-          const SizedBox(width: 8),
+          Icon(Icons.warning_amber_rounded, color: AppTheme.warning),
+          SizedBox(width: 8),
           Expanded(
             child: Text(
               'Your cart contains items from multiple shops. '

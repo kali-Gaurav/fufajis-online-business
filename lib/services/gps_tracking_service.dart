@@ -111,16 +111,15 @@ class GpsTrackingService {
       distanceFilter: 10, // Update every 10 meters or every 10 seconds
     );
 
-    _positionStreamSubscription = Geolocator.getPositionStream(
-      locationSettings: locationSettings,
-    ).listen(
-      (Position position) async {
-        await _sendLocationUpdate(position);
-      },
-      onError: (e) {
-        print('Location stream error: $e');
-      },
-    );
+    _positionStreamSubscription = Geolocator.getPositionStream(locationSettings: locationSettings)
+        .listen(
+          (Position position) async {
+            await _sendLocationUpdate(position);
+          },
+          onError: (e) {
+            print('Location stream error: $e');
+          },
+        );
   }
 
   /// Start background GPS tracking
@@ -197,16 +196,13 @@ class GpsTrackingService {
   /// Send location to backend API
   Future<bool> _sendToBackend(Map<String, dynamic> locationData) async {
     try {
-      final response = await http.post(
-        Uri.parse('$_backendUrl/api/delivery/location'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(locationData),
-      ).timeout(
-        const Duration(seconds: 10),
-        onTimeout: () => http.Response('timeout', 408),
-      );
+      final response = await http
+          .post(
+            Uri.parse('$_backendUrl/api/delivery/location'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode(locationData),
+          )
+          .timeout(const Duration(seconds: 10), onTimeout: () => http.Response('timeout', 408));
 
       if (response.statusCode == 200) {
         // Clear offline queue if sync successful
@@ -227,22 +223,16 @@ class GpsTrackingService {
       await _firestore
           .collection('delivery_locations')
           .doc('$_riderId-${DateTime.now().millisecondsSinceEpoch}')
-          .set({
-        ...locationData,
-        'created_at': FieldValue.serverTimestamp(),
-      });
+          .set({...locationData, 'created_at': FieldValue.serverTimestamp()});
 
       // Update rider's current location
-      await _firestore.collection('rider_locations').doc(_riderId).set(
-        {
-          'rider_id': _riderId,
-          'latitude': locationData['latitude'],
-          'longitude': locationData['longitude'],
-          'accuracy': locationData['accuracy'],
-          'updated_at': FieldValue.serverTimestamp(),
-        },
-        SetOptions(merge: true),
-      );
+      await _firestore.collection('rider_locations').doc(_riderId).set({
+        'rider_id': _riderId,
+        'latitude': locationData['latitude'],
+        'longitude': locationData['longitude'],
+        'accuracy': locationData['accuracy'],
+        'updated_at': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
     } catch (e) {
       print('Error saving to Firestore: $e');
     }
@@ -269,10 +259,7 @@ class GpsTrackingService {
       }
 
       // Persist to local storage
-      await _prefs.setString(
-        'offline_location_queue',
-        jsonEncode(_offlineQueue),
-      );
+      await _prefs.setString('offline_location_queue', jsonEncode(_offlineQueue));
     } catch (e) {
       print('Error adding to offline queue: $e');
     }
@@ -284,9 +271,7 @@ class GpsTrackingService {
       final queueJson = _prefs.getString('offline_location_queue');
       if (queueJson == null || queueJson.isEmpty) return;
 
-      final queue = List<Map<String, dynamic>>.from(
-        jsonDecode(queueJson),
-      );
+      final queue = List<Map<String, dynamic>>.from(jsonDecode(queueJson));
 
       for (final location in queue) {
         await _sendToBackend(location);
@@ -328,9 +313,7 @@ class GpsTrackingService {
   /// Get current rider location
   Future<Position?> getCurrentLocation() async {
     try {
-      return await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.best,
-      );
+      return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
     } catch (e) {
       print('Error getting current location: $e');
       return null;
@@ -349,11 +332,11 @@ class GpsTrackingService {
         .where('type', isEqualTo: 'tracking_event')
         .snapshots()
         .map((snapshot) {
-      if (snapshot.docs.isEmpty) {
-        return {};
-      }
-      return snapshot.docs.first.data();
-    });
+          if (snapshot.docs.isEmpty) {
+            return {};
+          }
+          return snapshot.docs.first.data();
+        });
   }
 
   /// Check if currently tracking

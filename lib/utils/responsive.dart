@@ -18,20 +18,18 @@
 import 'package:flutter/material.dart';
 
 class Responsive {
-  static const double _mobileBreak  = 600;
-  static const double _tabletBreak  = 1200;
+  static const double _mobileBreak = 600;
+  static const double _tabletBreak = 1200;
 
   // ── Breakpoint checks ─────────────────────────────────────
-  static bool isMobile(BuildContext context) =>
-      MediaQuery.of(context).size.width < _mobileBreak;
+  static bool isMobile(BuildContext context) => MediaQuery.of(context).size.width < _mobileBreak;
 
   static bool isTablet(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
     return w >= _mobileBreak && w < _tabletBreak;
   }
 
-  static bool isDesktop(BuildContext context) =>
-      MediaQuery.of(context).size.width >= _tabletBreak;
+  static bool isDesktop(BuildContext context) => MediaQuery.of(context).size.width >= _tabletBreak;
 
   static bool isTabletOrDesktop(BuildContext context) =>
       MediaQuery.of(context).size.width >= _mobileBreak;
@@ -39,14 +37,9 @@ class Responsive {
   // ── Adaptive value helper ──────────────────────────────────
   /// Returns [mobile], [tablet], or [desktop] value based on current width.
   /// Falls back: desktop → tablet → mobile if specific value is omitted.
-  static T value<T>(
-    BuildContext context, {
-    required T mobile,
-    T? tablet,
-    T? desktop,
-  }) {
+  static T value<T>(BuildContext context, {required T mobile, T? tablet, T? desktop}) {
     if (isDesktop(context)) return desktop ?? tablet ?? mobile;
-    if (isTablet(context))  return tablet ?? mobile;
+    if (isTablet(context)) return tablet ?? mobile;
     return mobile;
   }
 
@@ -65,8 +58,7 @@ class Responsive {
       value(context, mobile: 16.0, tablet: 24.0, desktop: 32.0);
 
   /// Number of grid columns for product grids.
-  static int gridColumns(BuildContext context) =>
-      value(context, mobile: 2, tablet: 3, desktop: 4);
+  static int gridColumns(BuildContext context) => value(context, mobile: 2, tablet: 3, desktop: 4);
 
   /// Number of grid columns for KPI cards.
   static int kpiColumns(BuildContext context) {
@@ -119,17 +111,13 @@ class ResponsivePage extends StatelessWidget {
   final double? maxWidth;
   final EdgeInsetsGeometry? padding;
 
-  const ResponsivePage({
-    super.key,
-    required this.child,
-    this.maxWidth,
-    this.padding,
-  });
+  const ResponsivePage({super.key, required this.child, this.maxWidth, this.padding});
 
   @override
   Widget build(BuildContext context) {
     final effectiveMax = maxWidth ?? Responsive.contentMaxWidth(context);
-    final effectivePad = padding ??
+    final effectivePad =
+        padding ??
         EdgeInsets.symmetric(
           horizontal: Responsive.horizontalPadding(context),
           vertical: Responsive.verticalPadding(context),
@@ -138,10 +126,7 @@ class ResponsivePage extends StatelessWidget {
     return Center(
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: effectiveMax),
-        child: Padding(
-          padding: effectivePad,
-          child: child,
-        ),
+        child: Padding(padding: effectivePad, child: child),
       ),
     );
   }
@@ -154,17 +139,12 @@ class ResponsiveLayout extends StatelessWidget {
   final Widget? tablet;
   final Widget? desktop;
 
-  const ResponsiveLayout({
-    super.key,
-    required this.mobile,
-    this.tablet,
-    this.desktop,
-  });
+  const ResponsiveLayout({super.key, required this.mobile, this.tablet, this.desktop});
 
   @override
   Widget build(BuildContext context) {
     if (Responsive.isDesktop(context)) return desktop ?? tablet ?? mobile;
-    if (Responsive.isTablet(context))  return tablet ?? mobile;
+    if (Responsive.isTablet(context)) return tablet ?? mobile;
     return mobile;
   }
 }

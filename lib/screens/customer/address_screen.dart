@@ -34,7 +34,7 @@ class _AddressScreenState extends State<AddressScreen> {
   double? _capturedLatitude;
   double? _capturedLongitude;
   String _addressType = 'House'; // Step 18.3
-  
+
   // Voice Tagging (Step 18.1)
   final _audioRecorder = AudioRecorder();
   bool _isRecording = false;
@@ -88,7 +88,11 @@ class _AddressScreenState extends State<AddressScreen> {
       _deliveryInstructionsController.text = address.deliveryInstructions ?? '';
       _capturedLatitude = address.latitude;
       _capturedLongitude = address.longitude;
-      _addressType = address.id.contains('shop') ? 'Shop' : address.id.contains('apt') ? 'Apartment' : 'House';
+      _addressType = address.id.contains('shop')
+          ? 'Shop'
+          : address.id.contains('apt')
+          ? 'Apartment'
+          : 'House';
     } else {
       _editingAddress = null;
       _labelController.text = 'Home';
@@ -123,19 +127,27 @@ class _AddressScreenState extends State<AddressScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
-      backgroundColor: AppTheme.cream,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(l10n.translate('savedAddresses')),
-        backgroundColor: AppTheme.cream,
-        foregroundColor: AppTheme.grey900,
+        title: Text(
+          l10n.translate('savedAddresses'),
+          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+        ),
+        backgroundColor: isDark ? const Color(0xFF1E1E1E) : AppTheme.cream,
+        foregroundColor: isDark ? Colors.white : AppTheme.grey900,
         elevation: 0,
         actions: [
           if (!_isFormOpen)
             TextButton.icon(
               onPressed: () => _openAddressForm(),
               icon: const Icon(Icons.add, size: 18),
-              label: Text(l10n.translate('addNew'), style: const TextStyle(fontWeight: FontWeight.bold)),
+              label: Text(
+                l10n.translate('addNew'),
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
               style: TextButton.styleFrom(foregroundColor: AppTheme.primary),
             ),
         ],
@@ -143,8 +155,8 @@ class _AddressScreenState extends State<AddressScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : _isFormOpen
-              ? _buildAddressForm()
-              : _buildAddressesList(),
+          ? _buildAddressForm()
+          : _buildAddressesList(),
     );
   }
 
@@ -161,7 +173,11 @@ class _AddressScreenState extends State<AddressScreen> {
               const SizedBox(height: 16),
               Text(
                 l10n.translate('noSavedAddresses'),
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey700),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.grey700,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
@@ -198,22 +214,23 @@ class _AddressScreenState extends State<AddressScreen> {
   }
 
   Widget _buildAddressCard(Address address) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.04),
+            color: AppTheme.black.withValues(alpha: isDark ? 0.2 : 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
         border: address.isDefault
             ? Border.all(color: AppTheme.primary, width: 2)
-            : Border.all(color: AppTheme.grey200, width: 1),
+            : Border.all(color: isDark ? AppTheme.grey800 : AppTheme.grey200, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,7 +240,7 @@ class _AddressScreenState extends State<AddressScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: address.isDefault ? AppTheme.primary : AppTheme.grey100,
+                  color: address.isDefault ? AppTheme.primary : (isDark ? AppTheme.grey900 : AppTheme.grey100),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -231,7 +248,7 @@ class _AddressScreenState extends State<AddressScreen> {
                     Icon(
                       _getIconForLabel(address.label),
                       size: 16,
-                      color: address.isDefault ? Colors.white : AppTheme.grey700,
+                      color: address.isDefault ? Colors.white : (isDark ? AppTheme.grey300 : AppTheme.grey700),
                     ),
                     const SizedBox(width: 6),
                     Text(
@@ -239,7 +256,7 @@ class _AddressScreenState extends State<AddressScreen> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: address.isDefault ? Colors.white : AppTheme.grey800,
+                        color: address.isDefault ? Colors.white : (isDark ? AppTheme.grey200 : AppTheme.grey800),
                       ),
                     ),
                   ],
@@ -280,9 +297,9 @@ class _AddressScreenState extends State<AddressScreen> {
           const SizedBox(height: 16),
           Text(
             address.fullAddress,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
-              color: AppTheme.grey900,
+              color: isDark ? Colors.white : AppTheme.grey900,
               fontWeight: FontWeight.w500,
               height: 1.4,
             ),
@@ -294,7 +311,7 @@ class _AddressScreenState extends State<AddressScreen> {
                 const SizedBox(width: 6),
                 Text(
                   'Village/Colony: ${address.village}',
-                  style: const TextStyle(fontSize: 13, color: AppTheme.grey600),
+                  style: TextStyle(fontSize: 13, color: isDark ? AppTheme.grey400 : AppTheme.grey600),
                 ),
               ],
             ),
@@ -308,7 +325,7 @@ class _AddressScreenState extends State<AddressScreen> {
                 Expanded(
                   child: Text(
                     'Landmark: ${address.landmark}',
-                    style: const TextStyle(fontSize: 13, color: AppTheme.grey600),
+                    style: TextStyle(fontSize: 13, color: isDark ? AppTheme.grey400 : AppTheme.grey600),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -322,7 +339,7 @@ class _AddressScreenState extends State<AddressScreen> {
               const SizedBox(width: 6),
               Text(
                 'PIN Code: ${address.pincode}',
-                style: const TextStyle(fontSize: 13, color: AppTheme.grey600),
+                style: TextStyle(fontSize: 13, color: isDark ? AppTheme.grey400 : AppTheme.grey600),
               ),
             ],
           ),
@@ -343,7 +360,11 @@ class _AddressScreenState extends State<AddressScreen> {
                   Expanded(
                     child: Text(
                       address.deliveryInstructions!,
-                      style: const TextStyle(fontSize: 12, color: AppTheme.warning, fontStyle: FontStyle.italic),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.warning,
+                        fontStyle: FontStyle.italic,
+                      ),
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -369,7 +390,7 @@ class _AddressScreenState extends State<AddressScreen> {
                   ),
                 ),
               ],
-            )
+            ),
           ],
         ],
       ),
@@ -380,7 +401,8 @@ class _AddressScreenState extends State<AddressScreen> {
     final l = label.toLowerCase();
     final l10n = AppLocalizations.of(context)!;
     if (l.contains('home') || l == l10n.labelHome.toLowerCase()) return Icons.home;
-    if (l.contains('work') || l == l10n.labelWork.toLowerCase() || l.contains('office')) return Icons.business;
+    if (l.contains('work') || l == l10n.labelWork.toLowerCase() || l.contains('office'))
+      return Icons.business;
     if (l.contains('farm') || l == l10n.labelFarm.toLowerCase()) return Icons.agriculture;
     return Icons.location_on;
   }
@@ -388,11 +410,16 @@ class _AddressScreenState extends State<AddressScreen> {
   String _getLocalizedLabel(String label) {
     final l10n = AppLocalizations.of(context)!;
     switch (label) {
-      case 'Home': return l10n.labelHome;
-      case 'Work': return l10n.labelWork;
-      case 'Village-Home': return l10n.labelVillageHome;
-      case 'Farm': return l10n.labelFarm;
-      default: return label;
+      case 'Home':
+        return l10n.labelHome;
+      case 'Work':
+        return l10n.labelWork;
+      case 'Village-Home':
+        return l10n.labelVillageHome;
+      case 'Farm':
+        return l10n.labelFarm;
+      default:
+        return label;
     }
   }
 
@@ -402,16 +429,14 @@ class _AddressScreenState extends State<AddressScreen> {
     try {
       await authProvider.setDefaultAddress(addressId);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Default address updated!')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Default address updated!')));
       }
       await _loadAddresses();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       setState(() => _isLoading = false);
@@ -426,14 +451,11 @@ class _AddressScreenState extends State<AddressScreen> {
         content: const Text('Are you sure you want to delete this address preset?'),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.error, 
+              backgroundColor: AppTheme.error,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
@@ -448,17 +470,14 @@ class _AddressScreenState extends State<AddressScreen> {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       try {
         await authProvider.deleteAddress(addressId);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Address deleted!')),
-          );
-        }
-        await _loadAddresses();
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Address deleted!')));
+        _loadAddresses();
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e')),
-          );
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
         }
       } finally {
         if (mounted) {
@@ -471,6 +490,7 @@ class _AddressScreenState extends State<AddressScreen> {
   Widget _buildAddressForm() {
     final l10n = AppLocalizations.of(context)!;
     final isEditing = _editingAddress != null;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -479,11 +499,11 @@ class _AddressScreenState extends State<AddressScreen> {
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -497,44 +517,87 @@ class _AddressScreenState extends State<AddressScreen> {
                   IconButton(
                     onPressed: _closeAddressForm,
                     icon: const Icon(Icons.close),
-                    style: IconButton.styleFrom(backgroundColor: AppTheme.grey100),
+                    style: IconButton.styleFrom(
+                      backgroundColor: isDark ? AppTheme.grey900 : AppTheme.grey100,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Text(
                     isEditing ? 'Edit Address' : 'Add New Address',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.grey900,
+                      color: isDark ? Colors.white : AppTheme.grey900,
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 24),
-              
+
               // Step 18.3: Address Type Classification
-              Text(l10n.translate('propertyType'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              Text(
+                l10n.translate('propertyType'),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
               const SizedBox(height: 8),
               Row(
                 children: [
-                  _PropertyTypeChip(label: l10n.typeHouse, value: 'House', groupValue: _addressType, onSelected: (v) => setState(() => _addressType = v)),
-                  _PropertyTypeChip(label: l10n.typeApartment, value: 'Apartment', groupValue: _addressType, onSelected: (v) => setState(() => _addressType = v)),
-                  _PropertyTypeChip(label: l10n.typeShop, value: 'Shop', groupValue: _addressType, onSelected: (v) => setState(() => _addressType = v)),
+                  _PropertyTypeChip(
+                    label: l10n.typeHouse,
+                    value: 'House',
+                    groupValue: _addressType,
+                    onSelected: (v) => setState(() => _addressType = v),
+                  ),
+                  _PropertyTypeChip(
+                    label: l10n.typeApartment,
+                    value: 'Apartment',
+                    groupValue: _addressType,
+                    onSelected: (v) => setState(() => _addressType = v),
+                  ),
+                  _PropertyTypeChip(
+                    label: l10n.typeShop,
+                    value: 'Shop',
+                    groupValue: _addressType,
+                    onSelected: (v) => setState(() => _addressType = v),
+                  ),
                 ],
               ),
               const SizedBox(height: 24),
 
               // Quick Preset Chips
-              Text(l10n.translate('addressType'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              Text(
+                l10n.translate('addressType'),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  _LabelPresetChip(label: l10n.labelHome, value: 'Home', current: _labelController.text, onSelected: (v) => setState(() => _labelController.text = v)),
-                  _LabelPresetChip(label: l10n.labelWork, value: 'Work', current: _labelController.text, onSelected: (v) => setState(() => _labelController.text = v)),
-                  _LabelPresetChip(label: l10n.labelVillageHome, value: 'Village-Home', current: _labelController.text, onSelected: (v) => setState(() => _labelController.text = v)),
-                  _LabelPresetChip(label: l10n.labelFarm, value: 'Farm', current: _labelController.text, onSelected: (v) => setState(() => _labelController.text = v)),
+                  _LabelPresetChip(
+                    label: l10n.labelHome,
+                    value: 'Home',
+                    current: _labelController.text,
+                    onSelected: (v) => setState(() => _labelController.text = v),
+                  ),
+                  _LabelPresetChip(
+                    label: l10n.labelWork,
+                    value: 'Work',
+                    current: _labelController.text,
+                    onSelected: (v) => setState(() => _labelController.text = v),
+                  ),
+                  _LabelPresetChip(
+                    label: l10n.labelVillageHome,
+                    value: 'Village-Home',
+                    current: _labelController.text,
+                    onSelected: (v) => setState(() => _labelController.text = v),
+                  ),
+                  _LabelPresetChip(
+                    label: l10n.labelFarm,
+                    value: 'Farm',
+                    current: _labelController.text,
+                    onSelected: (v) => setState(() => _labelController.text = v),
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
@@ -546,7 +609,8 @@ class _AddressScreenState extends State<AddressScreen> {
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.tag),
                 ),
-                validator: (val) => val == null || val.trim().isEmpty ? l10n.translate('invalidLabel') : null,
+                validator: (val) =>
+                    val == null || val.trim().isEmpty ? l10n.translate('invalidLabel') : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -558,7 +622,8 @@ class _AddressScreenState extends State<AddressScreen> {
                   prefixIcon: const Icon(Icons.home_work_outlined),
                   alignLabelWithHint: true,
                 ),
-                validator: (val) => val == null || val.trim().isEmpty ? l10n.translate('invalidAddress') : null,
+                validator: (val) =>
+                    val == null || val.trim().isEmpty ? l10n.translate('invalidAddress') : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -569,7 +634,8 @@ class _AddressScreenState extends State<AddressScreen> {
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.location_city),
                 ),
-                validator: (val) => val == null || val.trim().isEmpty ? l10n.translate('invalidVillage') : null,
+                validator: (val) =>
+                    val == null || val.trim().isEmpty ? l10n.translate('invalidVillage') : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -580,7 +646,8 @@ class _AddressScreenState extends State<AddressScreen> {
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.assistant_navigation),
                 ),
-                validator: (val) => val == null || val.trim().isEmpty ? l10n.translate('invalidLandmark') : null,
+                validator: (val) =>
+                    val == null || val.trim().isEmpty ? l10n.translate('invalidLandmark') : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -633,44 +700,57 @@ class _AddressScreenState extends State<AddressScreen> {
                 Center(
                   child: Text(
                     'GPS Captured: ${_capturedLatitude!.toStringAsFixed(5)}, ${_capturedLongitude!.toStringAsFixed(5)}',
-                    style: const TextStyle(fontSize: 11, color: AppTheme.success, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppTheme.success,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
               const SizedBox(height: 24),
-              
-              Text(l10n.translate('voiceInstructions'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+
+              Text(
+                l10n.translate('voiceInstructions'),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppTheme.grey100,
+                  color: isDark ? AppTheme.grey900 : AppTheme.grey100,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.grey200),
+                  border: Border.all(color: isDark ? AppTheme.grey800 : AppTheme.grey200),
                 ),
                 child: Row(
                   children: [
                     IconButton(
                       onPressed: _toggleRecording,
-                      icon: Icon(_isRecording ? Icons.stop_circle : Icons.mic, color: _isRecording ? AppTheme.error : AppTheme.primary),
+                      icon: Icon(
+                        _isRecording ? Icons.stop_circle : Icons.mic,
+                        color: _isRecording ? AppTheme.error : AppTheme.primary,
+                      ),
                       iconSize: 32,
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        _isRecording 
-                            ? l10n.translate('recordingStop') 
-                            : _voiceTagPath != null 
-                                ? l10n.translate('voiceTagAttached') 
-                                : l10n.translate('recordDirectionHints'),
-                        style: TextStyle(fontSize: 12, color: _isRecording ? AppTheme.error : AppTheme.grey600),
+                        _isRecording
+                            ? l10n.translate('recordingStop')
+                            : _voiceTagPath != null
+                            ? l10n.translate('voiceTagAttached')
+                            : l10n.translate('recordDirectionHints'),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: _isRecording ? AppTheme.error : (isDark ? AppTheme.grey400 : AppTheme.grey600),
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               TextFormField(
                 controller: _deliveryInstructionsController,
                 maxLines: 2,
@@ -685,7 +765,10 @@ class _AddressScreenState extends State<AddressScreen> {
 
               const SizedBox(height: 12),
               CheckboxListTile(
-                title: Text(l10n.translate('setAsDefault'), style: const TextStyle(fontWeight: FontWeight.w500)),
+                title: Text(
+                  l10n.translate('setAsDefault'),
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                ),
                 value: _isDefault,
                 onChanged: (val) => setState(() => _isDefault = val ?? false),
                 controlAffinity: ListTileControlAffinity.leading,
@@ -699,9 +782,7 @@ class _AddressScreenState extends State<AddressScreen> {
                   backgroundColor: AppTheme.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   elevation: 2,
                 ),
                 child: Text(
@@ -733,7 +814,7 @@ class _AddressScreenState extends State<AddressScreen> {
         _capturedLongitude = result['lng'] as double?;
         _fullAddressController.text = result['address'] as String;
       });
-      
+
       // Auto-extract pincode if possible from address
       final RegExp pincodeRegex = RegExp(r'\b\d{6}\b');
       final match = pincodeRegex.firstMatch(result['address'] as String);
@@ -745,12 +826,16 @@ class _AddressScreenState extends State<AddressScreen> {
 
   Future<void> _saveAddress() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     setState(() => _isLoading = true);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     try {
-      final String idSuffix = _addressType == 'Shop' ? '_shop' : _addressType == 'Apartment' ? '_apt' : '_house';
+      final String idSuffix = _addressType == 'Shop'
+          ? '_shop'
+          : _addressType == 'Apartment'
+          ? '_apt'
+          : '_house';
       final address = Address(
         id: _editingAddress?.id ?? 'addr_${DateTime.now().millisecondsSinceEpoch}$idSuffix',
         label: _labelController.text.trim(),
@@ -767,16 +852,16 @@ class _AddressScreenState extends State<AddressScreen> {
       if (_editingAddress != null) {
         await authProvider.updateAddress(_editingAddress!.id, address);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Address updated successfully!')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Address updated successfully!')));
         }
       } else {
         await authProvider.addAddress(address);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Address saved successfully!')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Address saved successfully!')));
         }
       }
 
@@ -784,9 +869,9 @@ class _AddressScreenState extends State<AddressScreen> {
       await _loadAddresses();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save address: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to save address: $e')));
       }
     } finally {
       setState(() => _isLoading = false);
@@ -795,18 +880,14 @@ class _AddressScreenState extends State<AddressScreen> {
 
   Future<void> _useCurrentLocation() async {
     setState(() => _isLoading = true);
-    final locationProvider =
-        Provider.of<LocationProvider>(context, listen: false);
+    final locationProvider = Provider.of<LocationProvider>(context, listen: false);
 
     try {
       await locationProvider.getCurrentLocation();
       if (locationProvider.currentPosition == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content:
-                  Text(locationProvider.errorMessage ?? 'Unable to get location'),
-            ),
+            SnackBar(content: Text(locationProvider.errorMessage ?? 'Unable to get location')),
           );
         }
         return;
@@ -827,9 +908,7 @@ class _AddressScreenState extends State<AddressScreen> {
 
       final probeAddress = Address(
         id: 'probe',
-        label: _labelController.text.trim().isEmpty
-            ? 'Home'
-            : _labelController.text.trim(),
+        label: _labelController.text.trim().isEmpty ? 'Home' : _labelController.text.trim(),
         fullAddress: _fullAddressController.text.trim(),
         village: _villageController.text.trim(),
         landmark: _landmarkController.text.trim(),
@@ -842,8 +921,7 @@ class _AddressScreenState extends State<AddressScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(locationProvider.deliveryZoneMessageFor(probeAddress)),
-            backgroundColor: locationProvider
-                    .isAddressWithinDeliveryRadius(probeAddress)
+            backgroundColor: locationProvider.isAddressWithinDeliveryRadius(probeAddress)
                 ? AppTheme.success
                 : AppTheme.error,
           ),
@@ -873,6 +951,7 @@ class _PropertyTypeChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isSelected = value == groupValue;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -881,9 +960,13 @@ class _PropertyTypeChip extends StatelessWidget {
           selected: isSelected,
           onSelected: (val) => onSelected(value),
           selectedColor: AppTheme.primary,
+          backgroundColor: isDark ? AppTheme.grey900 : AppTheme.grey100,
           labelStyle: TextStyle(
-            color: isSelected ? Colors.white : AppTheme.grey700,
+            color: isSelected ? Colors.white : (isDark ? AppTheme.grey400 : AppTheme.grey700),
             fontSize: 12,
+          ),
+          side: BorderSide(
+            color: isSelected ? AppTheme.primary : (isDark ? AppTheme.grey800 : Colors.transparent),
           ),
         ),
       ),
@@ -907,6 +990,7 @@ class _LabelPresetChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isSelected = value == current;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return ChoiceChip(
       label: Text(label),
       selected: isSelected,
@@ -914,16 +998,13 @@ class _LabelPresetChip extends StatelessWidget {
         if (selected) onSelected(value);
       },
       selectedColor: AppTheme.primary.withValues(alpha: 0.15),
-      backgroundColor: AppTheme.grey100,
+      backgroundColor: isDark ? AppTheme.grey900 : AppTheme.grey100,
       labelStyle: TextStyle(
-        color: isSelected ? AppTheme.primary : AppTheme.grey700,
+        color: isSelected ? AppTheme.primary : (isDark ? AppTheme.grey400 : AppTheme.grey700),
         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
         fontSize: 12,
       ),
-      side: BorderSide(
-        color: isSelected ? AppTheme.primary : Colors.transparent,
-      ),
+      side: BorderSide(color: isSelected ? AppTheme.primary : (isDark ? AppTheme.grey800 : Colors.transparent)),
     );
   }
 }
-

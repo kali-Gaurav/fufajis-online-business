@@ -27,10 +27,7 @@ class FjEmptyState extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                color: AppTheme.grey100,
-                shape: BoxShape.circle,
-              ),
+              decoration: const BoxDecoration(color: AppTheme.grey100, shape: BoxShape.circle),
               child: Icon(icon, size: 64, color: AppTheme.grey400),
             ),
             const SizedBox(height: 24),
@@ -46,11 +43,7 @@ class FjEmptyState extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               subtitle,
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppTheme.grey600,
-                height: 1.5,
-              ),
+              style: const TextStyle(fontSize: 14, color: AppTheme.grey600, height: 1.5),
               textAlign: TextAlign.center,
             ),
             if (actionLabel != null && onAction != null) ...[
@@ -61,14 +54,9 @@ class FjEmptyState extends StatelessWidget {
                   backgroundColor: AppTheme.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                child: Text(
-                  actionLabel!,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
+                child: Text(actionLabel!, style: const TextStyle(fontWeight: FontWeight.bold)),
               ),
             ],
           ],

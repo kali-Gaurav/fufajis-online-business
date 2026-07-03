@@ -18,9 +18,7 @@ class CategoryChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final locale = Localizations.localeOf(context).languageCode;
-    final color = Color(
-      int.parse(category.color.replaceFirst('#', '0xFF')),
-    );
+    final color = Color(int.parse(category.color.replaceFirst('#', '0xFF')));
 
     return GestureDetector(
       onTap: onTap,
@@ -75,12 +73,7 @@ class SectionHeader extends StatelessWidget {
   final String subtitle;
   final VoidCallback? onTap;
 
-  const SectionHeader({
-    super.key,
-    required this.title,
-    required this.subtitle,
-    this.onTap,
-  });
+  const SectionHeader({super.key, required this.title, required this.subtitle, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -89,10 +82,7 @@ class SectionHeader extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-          ),
+          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
           if (subtitle.isNotEmpty && onTap != null)
             GestureDetector(
               onTap: onTap,
@@ -129,11 +119,7 @@ class StatusBadge extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(
-          color: color,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
+        style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -145,12 +131,7 @@ class PriceDisplay extends StatelessWidget {
   final double? mrp;
   final double fontSize;
 
-  const PriceDisplay({
-    super.key,
-    required this.price,
-    this.mrp,
-    this.fontSize = 16,
-  });
+  const PriceDisplay({super.key, required this.price, this.mrp, this.fontSize = 16});
 
   @override
   Widget build(BuildContext context) {

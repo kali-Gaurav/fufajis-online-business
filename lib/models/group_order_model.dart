@@ -56,9 +56,11 @@ class GroupOrderModel {
       district: map['district'] as String? ?? '',
       village: map['village'] as String? ?? '',
       memberIds: List<String>.from(map['memberIds'] as Iterable? ?? []),
-      memberContributions: (map['memberContributions'] as Map?)?.map(
-        (key, value) => MapEntry(key as String, (value as num).toDouble()),
-      ) ?? {},
+      memberContributions:
+          (map['memberContributions'] as Map?)?.map(
+            (key, value) => MapEntry(key as String, (value as num).toDouble()),
+          ) ??
+          {},
       totalAmount: (map['totalAmount'] as num? ?? 0.0).toDouble(),
       goalAmount: (map['goalAmount'] as num? ?? 0.0).toDouble(),
       discountPercentage: (map['discountPercentage'] as num? ?? 20.0).toDouble(),

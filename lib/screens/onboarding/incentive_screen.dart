@@ -19,8 +19,7 @@ class IncentiveScreen extends StatefulWidget {
   State<IncentiveScreen> createState() => _IncentiveScreenState();
 }
 
-class _IncentiveScreenState extends State<IncentiveScreen>
-    with TickerProviderStateMixin {
+class _IncentiveScreenState extends State<IncentiveScreen> with TickerProviderStateMixin {
   late final AnimationController _fadeCtrl;
   late final AnimationController _scaleCtrl;
   late final AnimationController _bounceCtrl;
@@ -38,32 +37,27 @@ class _IncentiveScreenState extends State<IncentiveScreen>
   }
 
   void _initAnimations() {
-    _fadeCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    );
+    _fadeCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1000));
 
-    _fadeAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut),
-    );
+    _fadeAnim = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut));
 
-    _scaleCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1400),
-    );
+    _scaleCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400));
 
-    _scaleAnim = Tween<double>(begin: 0.7, end: 1.0).animate(
-      CurvedAnimation(parent: _scaleCtrl, curve: Curves.elasticOut),
-    );
+    _scaleAnim = Tween<double>(
+      begin: 0.7,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _scaleCtrl, curve: Curves.elasticOut));
 
-    _bounceCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2000),
-    )..repeat(reverse: true);
+    _bounceCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 2000))
+      ..repeat(reverse: true);
 
-    _bounceAnim = Tween<double>(begin: 0.0, end: 8.0).animate(
-      CurvedAnimation(parent: _bounceCtrl, curve: Curves.easeInOut),
-    );
+    _bounceAnim = Tween<double>(
+      begin: 0.0,
+      end: 8.0,
+    ).animate(CurvedAnimation(parent: _bounceCtrl, curve: Curves.easeInOut));
   }
 
   Future<void> _runAnimations() async {
@@ -156,10 +150,7 @@ class _IncentiveScreenState extends State<IncentiveScreen>
                         // ── Confetti effect ──────────────────────
                         Opacity(
                           opacity: _fadeAnim.value,
-                          child: _ConfettiWidget(
-                            size: size,
-                            fadeAnim: _fadeAnim,
-                          ),
+                          child: _ConfettiWidget(size: size, fadeAnim: _fadeAnim),
                         ),
 
                         const SizedBox(height: 32),
@@ -176,16 +167,12 @@ class _IncentiveScreenState extends State<IncentiveScreen>
                                 gradient: const LinearGradient(
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
-                                  colors: [
-                                    Color(0xFFFF6B00),
-                                    Color(0xFFFF8C42),
-                                  ],
+                                  colors: [Color(0xFFFF6B00), Color(0xFFFF8C42)],
                                 ),
                                 borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
-                                    color:
-                                        const Color(0xFFFF6B00).withValues(alpha: 0.3),
+                                    color: const Color(0xFFFF6B00).withValues(alpha: 0.3),
                                     blurRadius: 24,
                                     spreadRadius: 4,
                                   ),
@@ -195,40 +182,31 @@ class _IncentiveScreenState extends State<IncentiveScreen>
                                 children: [
                                   Text(
                                     'Welcome!',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w500,
-                                          letterSpacing: 1.2,
-                                        ),
+                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500,
+                                      letterSpacing: 1.2,
+                                    ),
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
                                     '₹50 Off',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .displayMedium
-                                        ?.copyWith(
-                                          color: Colors.white,
-                                          fontSize: 56,
-                                          fontWeight: FontWeight.w800,
-                                          letterSpacing: -1,
-                                        ),
+                                    style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                                      color: Colors.white,
+                                      fontSize: 56,
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: -1,
+                                    ),
                                   ),
                                   const SizedBox(height: 12),
                                   Text(
                                     'Your First Order',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge
-                                        ?.copyWith(
-                                          color: Colors.white.withValues(alpha: 0.95),
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                        ),
+                                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      color: Colors.white.withValues(alpha: 0.95),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -246,28 +224,22 @@ class _IncentiveScreenState extends State<IncentiveScreen>
                               Text(
                                 'Use Code',
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: isDark
-                                          ? Colors.grey[400]
-                                          : Colors.grey[600],
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      letterSpacing: 0.5,
-                                    ),
+                                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 0.5,
+                                ),
                               ),
                               const SizedBox(height: 12),
                               GestureDetector(
                                 onTap: _copyCode,
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 24,
-                                    vertical: 16,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                                   decoration: BoxDecoration(
                                     color: const Color(0xFFFF6B00).withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(16),
                                     border: Border.all(
-                                      color: const Color(0xFFFF6B00)
-                                          .withValues(alpha: 0.3),
+                                      color: const Color(0xFFFF6B00).withValues(alpha: 0.3),
                                       width: 2,
                                     ),
                                   ),
@@ -276,21 +248,16 @@ class _IncentiveScreenState extends State<IncentiveScreen>
                                     children: [
                                       Text(
                                         'WELCOME50',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyLarge
-                                            ?.copyWith(
-                                              color: const Color(0xFFFF6B00),
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w700,
-                                              letterSpacing: 2.4,
-                                            ),
+                                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                          color: const Color(0xFFFF6B00),
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w700,
+                                          letterSpacing: 2.4,
+                                        ),
                                       ),
                                       const SizedBox(width: 12),
                                       Icon(
-                                        _codeCopied
-                                            ? Icons.check_circle
-                                            : Icons.content_copy,
+                                        _codeCopied ? Icons.check_circle : Icons.content_copy,
                                         color: const Color(0xFFFF6B00),
                                         size: 20,
                                       ),
@@ -310,9 +277,7 @@ class _IncentiveScreenState extends State<IncentiveScreen>
                           child: Container(
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                              color: isDark
-                                  ? const Color(0xFF1F1F1F)
-                                  : const Color(0xFFFAFAFA),
+                              color: isDark ? const Color(0xFF1F1F1F) : const Color(0xFFFAFAFA),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Column(
@@ -320,15 +285,10 @@ class _IncentiveScreenState extends State<IncentiveScreen>
                               children: [
                                 Text(
                                   'How to use',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                        color: isDark
-                                            ? Colors.white
-                                            : const Color(0xFF1A1A1A),
-                                      ),
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                                  ),
                                 ),
                                 const SizedBox(height: 16),
                                 _DetailRow(
@@ -367,11 +327,9 @@ class _IncentiveScreenState extends State<IncentiveScreen>
                               width: double.infinity,
                               height: 56,
                               child: ElevatedButton(
-                                onPressed: () =>
-                                    context.go('/customer/home'),
+                                onPressed: () => context.go('/customer/home'),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      const Color(0xFFFF6B00),
+                                  backgroundColor: const Color(0xFFFF6B00),
                                   foregroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
@@ -380,14 +338,11 @@ class _IncentiveScreenState extends State<IncentiveScreen>
                                 ),
                                 child: Text(
                                   'Start Shopping',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyLarge
-                                      ?.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 16,
-                                      ),
+                                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ),
                             ),
@@ -428,17 +383,13 @@ class _DetailRow extends StatelessWidget {
         Container(
           width: 36,
           height: 36,
-          decoration: const BoxDecoration(
-            color: Color(0xFFFF6B00),
-            shape: BoxShape.circle,
-          ),
+          decoration: const BoxDecoration(color: Color(0xFFFF6B00), shape: BoxShape.circle),
           child: Center(
             child: Text(
               '$number',
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.labelMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
             ),
           ),
         ),
@@ -450,16 +401,16 @@ class _DetailRow extends StatelessWidget {
               Text(
                 title,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-                    ),
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                ),
               ),
               const SizedBox(height: 4),
               Text(
                 subtitle,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
-                    ),
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
               ),
             ],
           ),
@@ -473,46 +424,40 @@ class _ConfettiWidget extends StatelessWidget {
   final Size size;
   final Animation<double> fadeAnim;
 
-  const _ConfettiWidget({
-    required this.size,
-    required this.fadeAnim,
-  });
+  const _ConfettiWidget({required this.size, required this.fadeAnim});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 120,
       child: Stack(
-        children: List.generate(
-          12,
-          (index) {
-            final angle = (index / 12) * math.pi * 2;
-            const distance = 60.0;
-            final x = math.cos(angle) * distance;
-            final y = math.sin(angle) * distance;
+        children: List.generate(12, (index) {
+          final angle = (index / 12) * math.pi * 2;
+          const distance = 60.0;
+          final x = math.cos(angle) * distance;
+          final y = math.sin(angle) * distance;
 
-            return Positioned(
-              left: size.width / 2 - 8 + x * fadeAnim.value,
-              top: 60 - y * fadeAnim.value,
-              child: Opacity(
-                opacity: (1.0 - fadeAnim.value).clamp(0.0, 1.0),
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: [
-                      const Color(0xFFFF6B00),
-                      const Color(0xFFFFB366),
-                      const Color(0xFFE55B00),
-                      Colors.yellow,
-                    ][index % 4],
-                  ),
+          return Positioned(
+            left: size.width / 2 - 8 + x * fadeAnim.value,
+            top: 60 - y * fadeAnim.value,
+            child: Opacity(
+              opacity: (1.0 - fadeAnim.value).clamp(0.0, 1.0),
+              child: Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: [
+                    const Color(0xFFFF6B00),
+                    const Color(0xFFFFB366),
+                    const Color(0xFFE55B00),
+                    Colors.yellow,
+                  ][index % 4],
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        }),
       ),
     );
   }

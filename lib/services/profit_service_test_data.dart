@@ -60,7 +60,7 @@ final ProfitTestCase basicTestCase = ProfitTestCase(
           'quantity': 1,
           'price': 100.0,
           'totalPrice': 100.0,
-        }
+        },
       ],
       'subtotal': 100.0,
       'deliveryCharge': 0.0,
@@ -91,7 +91,7 @@ final ProfitTestCase basicTestCase = ProfitTestCase(
       'tipAmount': 0.0,
       'packagingFee': 0.0,
       'isGift': false,
-    }
+    },
   ],
 );
 
@@ -131,7 +131,7 @@ final ProfitTestCase complexMultiItemCase = ProfitTestCase(
           'quantity': 3,
           'price': 30.0,
           'totalPrice': 90.0,
-        }
+        },
       ],
       'subtotal': 190.0,
       'deliveryCharge': 0.0,
@@ -179,7 +179,7 @@ final ProfitTestCase complexMultiItemCase = ProfitTestCase(
           'quantity': 5,
           'price': 40.0,
           'totalPrice': 200.0,
-        }
+        },
       ],
       'subtotal': 200.0,
       'deliveryCharge': 0.0,
@@ -227,7 +227,7 @@ final ProfitTestCase complexMultiItemCase = ProfitTestCase(
           'quantity': 1,
           'price': 110.0,
           'totalPrice': 110.0,
-        }
+        },
       ],
       'subtotal': 110.0,
       'deliveryCharge': 0.0,
@@ -300,7 +300,7 @@ final ProfitTestCase negativeProfitCase = ProfitTestCase(
           'quantity': 1,
           'price': 100.0,
           'totalPrice': 100.0,
-        }
+        },
       ],
       'subtotal': 100.0,
       'deliveryCharge': 0.0,
@@ -331,7 +331,7 @@ final ProfitTestCase negativeProfitCase = ProfitTestCase(
       'tipAmount': 0.0,
       'packagingFee': 0.0,
       'isGift': false,
-    }
+    },
   ],
 );
 

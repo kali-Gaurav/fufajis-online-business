@@ -32,7 +32,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
         .where('orderId', isEqualTo: widget.orderId)
         .limit(1)
         .get();
-    
+
     if (snap.docs.isNotEmpty) {
       setState(() {
         _deliveryId = snap.docs.first.id;
@@ -57,12 +57,17 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
       stream: _fleetService.getDeliveryStream(_deliveryId!),
       builder: (context, snapshot) {
         if (!snapshot.hasData || snapshot.data == null) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppTheme.primary)));
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator(color: AppTheme.primary)),
+          );
         }
 
         final delivery = snapshot.data!;
         final riderPos = LatLng(delivery.currentLatitude, delivery.currentLongitude);
-        final destPos = LatLng(delivery.destinationLocation.latitude, delivery.destinationLocation.longitude);
+        final destPos = LatLng(
+          delivery.destinationLocation.latitude,
+          delivery.destinationLocation.longitude,
+        );
 
         if (_mapController != null) {
           _mapController!.animateCamera(CameraUpdate.newLatLng(riderPos));
@@ -95,12 +100,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
                   ),
                 },
               ),
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: _buildInfoCard(delivery),
-              ),
+              Positioned(bottom: 0, left: 0, right: 0, child: _buildInfoCard(delivery)),
             ],
           ),
         );
@@ -138,10 +138,17 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
                   children: [
                     Text(
                       delivery.status.displayName,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppTheme.grey900),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: AppTheme.grey900,
+                      ),
                     ),
                     const SizedBox(height: 2),
-                    const Text('Delivery Partner is on the way', style: TextStyle(color: AppTheme.grey600, fontSize: 13)),
+                    const Text(
+                      'Delivery Partner is on the way',
+                      style: TextStyle(color: AppTheme.grey600, fontSize: 13),
+                    ),
                   ],
                 ),
               ),
@@ -165,9 +172,17 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStatItem('ETA', delivery.estimatedArrival != null ? DateFormat('hh:mm a').format(delivery.estimatedArrival!) : '12 mins'),
+              _buildStatItem(
+                'ETA',
+                delivery.estimatedArrival != null
+                    ? DateFormat('hh:mm a').format(delivery.estimatedArrival!)
+                    : '12 mins',
+              ),
               Container(width: 1, height: 50, color: AppTheme.grey200),
-              _buildStatItem('Distance', '${delivery.distanceRemaining?.toStringAsFixed(1) ?? '--'} km'),
+              _buildStatItem(
+                'Distance',
+                '${delivery.distanceRemaining?.toStringAsFixed(1) ?? '--'} km',
+              ),
             ],
           ),
         ],
@@ -179,9 +194,23 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
     return Expanded(
       child: Column(
         children: [
-          Text(label, style: const TextStyle(fontSize: 12, color: AppTheme.grey600, fontWeight: FontWeight.w500)),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppTheme.grey600,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
           const SizedBox(height: 6),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: AppTheme.grey900)),
+          Text(
+            value,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
+              color: AppTheme.grey900,
+            ),
+          ),
         ],
       ),
     );

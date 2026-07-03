@@ -79,15 +79,18 @@ class OperationalIntelligenceProvider with ChangeNotifier {
     _dispatchQueueSub?.cancel();
     _dispatchQueueSub = _taskQueueService
         .streamTasks(branchId: branchId)
-        .listen((tasks) {
-      _dispatchQueue = tasks;
-      // We can also compute SLA risks count from tasks if taskType is sla_breach_risk
-      _slaRisksCount = tasks.where((t) => t.taskType == TaskQueueType.sla_breach_risk).length;
-      notifyListeners();
-    }, onError: (e) {
-      _errorMessage = e.toString();
-      notifyListeners();
-    });
+        .listen(
+          (tasks) {
+            _dispatchQueue = tasks;
+            // We can also compute SLA risks count from tasks if taskType is sla_breach_risk
+            _slaRisksCount = tasks.where((t) => t.taskType == TaskQueueType.sla_breach_risk).length;
+            notifyListeners();
+          },
+          onError: (e) {
+            _errorMessage = e.toString();
+            notifyListeners();
+          },
+        );
   }
 
   void _listenToOrderMetrics(String branchId) {
@@ -99,9 +102,9 @@ class OperationalIntelligenceProvider with ChangeNotifier {
         .where('deliveryAgentId', isNull: true)
         .snapshots()
         .listen((snapshot) {
-      _unassignedOrdersCount = snapshot.docs.length;
-      notifyListeners();
-    });
+          _unassignedOrdersCount = snapshot.docs.length;
+          notifyListeners();
+        });
   }
 
   void _listenToRiderMetrics(String branchId) {
@@ -113,35 +116,41 @@ class OperationalIntelligenceProvider with ChangeNotifier {
         .where('isOnline', isEqualTo: true)
         .snapshots()
         .listen((snapshot) {
-      _activeRidersCount = snapshot.docs.length;
-      notifyListeners();
-    });
+          _activeRidersCount = snapshot.docs.length;
+          notifyListeners();
+        });
   }
 
   void _listenToOwnerQueue() {
     _ownerQueueSub?.cancel();
     _ownerQueueSub = _taskQueueService
         .streamTasks(assignedRole: 'owner')
-        .listen((tasks) {
-      _ownerQueue = tasks;
-      notifyListeners();
-    }, onError: (e) {
-      _errorMessage = e.toString();
-      notifyListeners();
-    });
+        .listen(
+          (tasks) {
+            _ownerQueue = tasks;
+            notifyListeners();
+          },
+          onError: (e) {
+            _errorMessage = e.toString();
+            notifyListeners();
+          },
+        );
   }
 
   void _listenToBranchManagerQueue(String branchId) {
     _branchManagerQueueSub?.cancel();
     _branchManagerQueueSub = _taskQueueService
         .streamTasks(branchId: branchId, assignedRole: 'branchManager')
-        .listen((tasks) {
-      _branchManagerQueue = tasks;
-      notifyListeners();
-    }, onError: (e) {
-      _errorMessage = e.toString();
-      notifyListeners();
-    });
+        .listen(
+          (tasks) {
+            _branchManagerQueue = tasks;
+            notifyListeners();
+          },
+          onError: (e) {
+            _errorMessage = e.toString();
+            notifyListeners();
+          },
+        );
   }
 
   void _listenToBranchHealth(String branchId) {
@@ -153,33 +162,33 @@ class OperationalIntelligenceProvider with ChangeNotifier {
         .doc('latest')
         .snapshots()
         .listen((snapshot) {
-      if (snapshot.exists && snapshot.data() != null) {
-        // Fallback for missing mapping
-        _branchHealth = OperationalHealthModel(
-          branchId: branchId,
-          inventoryHealth: ((snapshot.data()!['inventoryHealth'] as num?) ?? 80).toDouble(),
-          deliveryHealth: ((snapshot.data()!['deliveryHealth'] as num?) ?? 90).toDouble(),
-          employeeHealth: ((snapshot.data()!['employeeHealth'] as num?) ?? 85).toDouble(),
-          supplierHealth: ((snapshot.data()!['supplierHealth'] as num?) ?? 95).toDouble(),
-          customerHealth: ((snapshot.data()!['customerHealth'] as num?) ?? 88).toDouble(),
-          financialHealth: ((snapshot.data()!['financialHealth'] as num?) ?? 92).toDouble(),
-          lastUpdated: DateTime.now(),
-        );
-      } else {
-        // Mock fallback if doesn't exist
-        _branchHealth = OperationalHealthModel(
-          branchId: branchId,
-          inventoryHealth: 82.0,
-          deliveryHealth: 95.0,
-          employeeHealth: 88.0,
-          supplierHealth: 100.0,
-          customerHealth: 91.0,
-          financialHealth: 94.0,
-          lastUpdated: DateTime.now(),
-        );
-      }
-      notifyListeners();
-    });
+          if (snapshot.exists && snapshot.data() != null) {
+            // Fallback for missing mapping
+            _branchHealth = OperationalHealthModel(
+              branchId: branchId,
+              inventoryHealth: ((snapshot.data()!['inventoryHealth'] as num?) ?? 80).toDouble(),
+              deliveryHealth: ((snapshot.data()!['deliveryHealth'] as num?) ?? 90).toDouble(),
+              employeeHealth: ((snapshot.data()!['employeeHealth'] as num?) ?? 85).toDouble(),
+              supplierHealth: ((snapshot.data()!['supplierHealth'] as num?) ?? 95).toDouble(),
+              customerHealth: ((snapshot.data()!['customerHealth'] as num?) ?? 88).toDouble(),
+              financialHealth: ((snapshot.data()!['financialHealth'] as num?) ?? 92).toDouble(),
+              lastUpdated: DateTime.now(),
+            );
+          } else {
+            // Mock fallback if doesn't exist
+            _branchHealth = OperationalHealthModel(
+              branchId: branchId,
+              inventoryHealth: 82.0,
+              deliveryHealth: 95.0,
+              employeeHealth: 88.0,
+              supplierHealth: 100.0,
+              customerHealth: 91.0,
+              financialHealth: 94.0,
+              lastUpdated: DateTime.now(),
+            );
+          }
+          notifyListeners();
+        });
   }
 
   Future<void> resolveTask(String taskId) async {

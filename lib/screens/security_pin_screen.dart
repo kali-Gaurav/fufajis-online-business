@@ -52,12 +52,10 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> with SingleTicker
       vsync: this,
       duration: const Duration(milliseconds: 500),
     );
-    _shakeAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _shakeController,
-        curve: _ShakeCurve(),
-      ),
-    );
+    _shakeAnim = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _shakeController, curve: _ShakeCurve()));
 
     _checkLockout();
   }
@@ -274,11 +272,7 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> with SingleTicker
     final defaultTheme = PinTheme(
       width: 50,
       height: 56,
-      textStyle: TextStyle(
-        fontSize: 22,
-        fontWeight: FontWeight.bold,
-        color: textColor,
-      ),
+      textStyle: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: textColor),
       decoration: BoxDecoration(
         color: isDark ? AppTheme.grey800 : AppTheme.white,
         borderRadius: BorderRadius.circular(12),
@@ -327,22 +321,18 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> with SingleTicker
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               FadeSlideIn(
                 duration: AppTheme.durationMedium,
                 delay: const Duration(milliseconds: 100),
                 child: Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
-                  ),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: textColor),
                 ),
               ),
               const SizedBox(height: 8),
-              
+
               FadeSlideIn(
                 duration: AppTheme.durationMedium,
                 delay: const Duration(milliseconds: 150),
@@ -366,10 +356,7 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> with SingleTicker
                       animation: _shakeAnim,
                       builder: (context, child) {
                         final dx = _shakeAnim.value * 24.0;
-                        return Transform.translate(
-                          offset: Offset(dx, 0),
-                          child: child,
-                        );
+                        return Transform.translate(offset: Offset(dx, 0), child: child);
                       },
                       child: Pinput(
                         length: 6,
@@ -464,7 +451,11 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> with SingleTicker
                   onPressed: () => context.push('/pin-reset'),
                   child: const Text(
                     'Forgot PIN?',
-                    style: TextStyle(color: AppTheme.primary, fontSize: 13, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      color: AppTheme.primary,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
 
@@ -489,8 +480,8 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> with SingleTicker
                               content: Text(
                                 ok
                                     ? (value
-                                        ? 'Two-factor authentication enabled.'
-                                        : 'Two-factor authentication disabled.')
+                                          ? 'Two-factor authentication enabled.'
+                                          : 'Two-factor authentication disabled.')
                                     : (auth.errorMessage ?? 'Failed to update setting.'),
                               ),
                             ),
@@ -532,10 +523,8 @@ class _LockoutViewState extends State<_LockoutView> with SingleTickerProviderSta
   @override
   void initState() {
     super.initState();
-    _clockController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 12),
-    )..repeat();
+    _clockController = AnimationController(vsync: this, duration: const Duration(seconds: 12))
+      ..repeat();
   }
 
   @override
@@ -569,22 +558,14 @@ class _LockoutViewState extends State<_LockoutView> with SingleTickerProviderSta
               Center(
                 child: RotationTransition(
                   turns: _clockController,
-                  child: const Icon(
-                    Icons.lock_clock_outlined,
-                    size: 80,
-                    color: AppTheme.error,
-                  ),
+                  child: const Icon(Icons.lock_clock_outlined, size: 80, color: AppTheme.error),
                 ),
               ),
               const SizedBox(height: 24),
               const Text(
                 'Account Locked',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.error,
-                ),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.error),
               ),
               const SizedBox(height: 12),
               Text(
@@ -603,7 +584,7 @@ class _LockoutViewState extends State<_LockoutView> with SingleTickerProviderSta
                       color: Colors.black.withValues(alpha: 0.04),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
-                    )
+                    ),
                   ],
                 ),
                 child: Column(
@@ -664,20 +645,12 @@ class _DevicePendingView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Icon(
-                Icons.phonelink_lock_outlined,
-                size: 80,
-                color: AppTheme.warning,
-              ),
+              const Icon(Icons.phonelink_lock_outlined, size: 80, color: AppTheme.warning),
               const SizedBox(height: 24),
               Text(
                 'New Device Detected',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: textColor,
-                ),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: textColor),
               ),
               const SizedBox(height: 12),
               Text(

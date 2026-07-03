@@ -67,10 +67,7 @@ class OwnerAnalyticsProvider with ChangeNotifier {
     _currentView = branchId != null ? 'Branch View' : 'Global View';
     _selectedCity = null;
     _selectedState = null;
-    loadMetrics(
-      DateTime.now().subtract(const Duration(days: 30)),
-      DateTime.now(),
-    );
+    loadMetrics(DateTime.now().subtract(const Duration(days: 30)), DateTime.now());
   }
 
   void setRegionalFilters(String? state, String? city) {
@@ -78,10 +75,7 @@ class OwnerAnalyticsProvider with ChangeNotifier {
     _selectedCity = city;
     _selectedBranchId = null;
     _currentView = 'Regional View';
-    loadMetrics(
-      DateTime.now().subtract(const Duration(days: 30)),
-      DateTime.now(),
-    );
+    loadMetrics(DateTime.now().subtract(const Duration(days: 30)), DateTime.now());
   }
 
   void setGlobalView() {
@@ -90,10 +84,7 @@ class OwnerAnalyticsProvider with ChangeNotifier {
     _selectedCity = null;
     _selectedFranchiseId = null;
     _currentView = 'Global View';
-    loadMetrics(
-      DateTime.now().subtract(const Duration(days: 30)),
-      DateTime.now(),
-    );
+    loadMetrics(DateTime.now().subtract(const Duration(days: 30)), DateTime.now());
   }
 
   // Getters for filtered data
@@ -103,8 +94,7 @@ class OwnerAnalyticsProvider with ChangeNotifier {
   List<AlertModel> get warningAlerts =>
       _alerts.where((a) => a.severity == AlertSeverity.warning).toList();
 
-  int get pendingOrdersCount =>
-      _orders.where((o) => o.status == OrderStatus.pending).length;
+  int get pendingOrdersCount => _orders.where((o) => o.status == OrderStatus.pending).length;
 
   int get activeDeliveriesCount =>
       _orders.where((o) => o.status == OrderStatus.outForDelivery).length;
@@ -203,11 +193,7 @@ class OwnerAnalyticsProvider with ChangeNotifier {
   }
 
   /// Fetch orders from Firestore for given date range
-  Future<List<OrderModel>> _fetchOrders(
-    String shopId,
-    DateTime from,
-    DateTime to,
-  ) async {
+  Future<List<OrderModel>> _fetchOrders(String shopId, DateTime from, DateTime to) async {
     try {
       var query = _firestore
           .collection('orders')
@@ -227,7 +213,7 @@ class OwnerAnalyticsProvider with ChangeNotifier {
       }).toList();
 
       // For Regional View, since OrderModel lacks city/state directly,
-      // in a full implementation we'd first fetch branches in that city/state 
+      // in a full implementation we'd first fetch branches in that city/state
       // and filter orders by those branchIds.
       // (This assumes we fetch branch list and then `whereIn` or post-filter).
       if (_currentView == 'Regional View') {
@@ -305,23 +291,22 @@ class OwnerAnalyticsProvider with ChangeNotifier {
 
       // Customer metrics
       uniqueCustomers.add(order.customerId);
-      customerOrderCount[order.customerId] =
-          (customerOrderCount[order.customerId] ?? 0) + 1;
+      customerOrderCount[order.customerId] = (customerOrderCount[order.customerId] ?? 0) + 1;
 
       // Revenue by category (from items)
       for (final item in order.items) {
         final product = productMap[item.productId];
         final category = product?.categoryId ?? 'Uncategorized';
         final itemTotal = (item.price * item.quantity).toDouble();
-        revenueByCategory[category] =
-            (revenueByCategory[category] ?? 0.0) + itemTotal;
+        revenueByCategory[category] = (revenueByCategory[category] ?? 0.0) + itemTotal;
       }
     }
 
     // Customer metrics calculation
     int repeatCustomers = customerOrderCount.values.where((count) => count > 1).length;
-    double repeatPurchaseRate =
-        uniqueCustomers.isEmpty ? 0 : (repeatCustomers / uniqueCustomers.length) * 100;
+    double repeatPurchaseRate = uniqueCustomers.isEmpty
+        ? 0
+        : (repeatCustomers / uniqueCustomers.length) * 100;
 
     // Top sellers and low performers
     final topSellers = _getTopSellers(orders, 5);
@@ -407,8 +392,7 @@ class OwnerAnalyticsProvider with ChangeNotifier {
       }
     }
 
-    final sorted = productMetrics.values.toList()
-      ..sort((a, b) => b.revenue.compareTo(a.revenue));
+    final sorted = productMetrics.values.toList()..sort((a, b) => b.revenue.compareTo(a.revenue));
     return sorted.take(limit).toList();
   }
 
@@ -485,9 +469,7 @@ class OwnerAnalyticsProvider with ChangeNotifier {
       dailyRevenue[dateKey] = (dailyRevenue[dateKey] ?? 0.0) + order.totalAmount.toDouble();
     }
 
-    return dailyRevenue.entries
-        .map((e) => RevenueDataPoint(date: e.key, revenue: e.value))
-        .toList()
+    return dailyRevenue.entries.map((e) => RevenueDataPoint(date: e.key, revenue: e.value)).toList()
       ..sort((a, b) => a.date.compareTo(b.date));
   }
 
@@ -541,9 +523,7 @@ class OwnerAnalyticsProvider with ChangeNotifier {
       dailyOrders[dateKey] = (dailyOrders[dateKey] ?? 0) + 1;
     }
 
-    return dailyOrders.entries
-        .map((e) => OrderDataPoint(date: e.key, count: e.value))
-        .toList()
+    return dailyOrders.entries.map((e) => OrderDataPoint(date: e.key, count: e.value)).toList()
       ..sort((a, b) => a.date.compareTo(b.date));
   }
 
@@ -574,12 +554,8 @@ class OwnerAnalyticsProvider with ChangeNotifier {
       final from = DateTime(now.year, now.month, now.day);
       final orders = await _fetchOrders(userId, from, now);
 
-      int onTime = orders
-          .where((o) => o.status == OrderStatus.delivered)
-          .length;
-      int failed = orders
-          .where((o) => o.status == OrderStatus.cancelled)
-          .length;
+      int onTime = orders.where((o) => o.status == OrderStatus.delivered).length;
+      int failed = orders.where((o) => o.status == OrderStatus.cancelled).length;
 
       return DeliveryStats(
         onTimeRate: orders.isEmpty ? 0 : (onTime / orders.length) * 100,
@@ -589,12 +565,7 @@ class OwnerAnalyticsProvider with ChangeNotifier {
       );
     } catch (e) {
       debugPrint('Error fetching delivery stats: $e');
-      return DeliveryStats(
-        onTimeRate: 0,
-        failureRate: 0,
-        avgDeliveryTime: 0,
-        totalDeliveries: 0,
-      );
+      return DeliveryStats(onTimeRate: 0, failureRate: 0, avgDeliveryTime: 0, totalDeliveries: 0);
     }
   }
 
@@ -614,39 +585,45 @@ class OwnerAnalyticsProvider with ChangeNotifier {
       for (final order in orders.where((o) => o.status == OrderStatus.pending)) {
         final age = now.difference(order.createdAt);
         if (age.inHours >= 2) {
-          _alerts.add(AlertModel(
-            alertId: order.id,
-            type: AlertType.orderStuck,
-            severity: AlertSeverity.critical,
-            title: 'Stuck Order',
-            message: 'Order #${order.orderNumber} stuck for ${age.inHours} hours',
-            action: 'Assign Employee',
-            timestamp: now,
-          ));
+          _alerts.add(
+            AlertModel(
+              alertId: order.id,
+              type: AlertType.orderStuck,
+              severity: AlertSeverity.critical,
+              title: 'Stuck Order',
+              message: 'Order #${order.orderNumber} stuck for ${age.inHours} hours',
+              action: 'Assign Employee',
+              timestamp: now,
+            ),
+          );
         }
       }
 
       // Check for payment failures (mock)
-      _alerts.add(AlertModel(
-        alertId: 'alert_1',
-        type: AlertType.paymentFailed,
-        severity: AlertSeverity.critical,
-        title: 'Payment Failed',
-        message: 'Payment failed for order #FJ1144',
-        action: 'Retry',
-        timestamp: now,
-      ));
+      _alerts.add(
+        AlertModel(
+          alertId: 'alert_1',
+          type: AlertType.paymentFailed,
+          severity: AlertSeverity.critical,
+          title: 'Payment Failed',
+          message: 'Payment failed for order #FJ1144',
+          action: 'Retry',
+          timestamp: now,
+        ),
+      );
 
       // Success alerts (mock)
-      _alerts.add(AlertModel(
-        alertId: 'alert_2',
-        type: AlertType.systemAlert,
-        severity: AlertSeverity.info,
-        title: 'New Review',
-        message: 'New 5-star review from customer',
-        action: 'View',
-        timestamp: now,
-      ));
+      _alerts.add(
+        AlertModel(
+          alertId: 'alert_2',
+          type: AlertType.systemAlert,
+          severity: AlertSeverity.info,
+          title: 'New Review',
+          message: 'New 5-star review from customer',
+          action: 'View',
+          timestamp: now,
+        ),
+      );
 
       notifyListeners();
     } catch (e) {

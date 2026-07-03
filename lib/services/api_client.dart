@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import '../config/app_config.dart';
+import '../services/runtime_config_service.dart';
 
 class ApiResult {
   final dynamic data;
@@ -13,7 +13,7 @@ class ApiResult {
 /// Handles authentication, base URL injection, and error handling.
 class ApiClient {
   static final ApiClient _instance = ApiClient._internal();
-  
+
   /// Factory constructor to support legacy ApiClient() calls while maintaining a singleton.
   factory ApiClient() => _instance;
 
@@ -25,7 +25,7 @@ class ApiClient {
   final http.Client _client = http.Client();
 
   Future<ApiResult> post(String path, [Map<String, dynamic>? data]) async {
-    final baseUrl = AppConfig.apiBaseUrl;
+    final baseUrl = RuntimeConfig.instance.apiBaseUrl;
     if (baseUrl.isEmpty) {
       throw Exception('API_BASE_URL is not configured in AppConfig.');
     }
@@ -33,9 +33,7 @@ class ApiClient {
     final cleanPath = path.startsWith('/') ? path : '/$path';
     final uri = Uri.parse('$baseUrl$cleanPath');
 
-    final headers = <String, String>{
-      'Content-Type': 'application/json',
-    };
+    final headers = <String, String>{'Content-Type': 'application/json'};
 
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -68,14 +66,12 @@ class ApiClient {
         return ApiResult(responseBody);
       }
     } else {
-      throw Exception(
-        'API Request failed with status ${response.statusCode}: ${response.body}',
-      );
+      throw Exception('API Request failed with status ${response.statusCode}: ${response.body}');
     }
   }
 
   Future<ApiResult> get(String path) async {
-    final baseUrl = AppConfig.apiBaseUrl;
+    final baseUrl = RuntimeConfig.instance.apiBaseUrl;
     if (baseUrl.isEmpty) {
       throw Exception('API_BASE_URL is not configured in AppConfig.');
     }
@@ -83,9 +79,7 @@ class ApiClient {
     final cleanPath = path.startsWith('/') ? path : '/$path';
     final uri = Uri.parse('$baseUrl$cleanPath');
 
-    final headers = <String, String>{
-      'Content-Type': 'application/json',
-    };
+    final headers = <String, String>{'Content-Type': 'application/json'};
 
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -114,9 +108,7 @@ class ApiClient {
         return ApiResult(responseBody);
       }
     } else {
-      throw Exception(
-        'API Request failed with status ${response.statusCode}: ${response.body}',
-      );
+      throw Exception('API Request failed with status ${response.statusCode}: ${response.body}');
     }
   }
 }

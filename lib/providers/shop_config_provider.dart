@@ -97,11 +97,7 @@ class ShopConfigProvider with ChangeNotifier {
   }
 
   // Update shop location coordinates & address
-  Future<void> updateShopLocation(
-    double lat,
-    double lng,
-    String address,
-  ) async {
+  Future<void> updateShopLocation(double lat, double lng, String address) async {
     if (_shopConfig == null) return;
     try {
       final updated = _shopConfig!.copyWith(
@@ -138,9 +134,7 @@ class ShopConfigProvider with ChangeNotifier {
   Future<void> toggleEmergencyMode() async {
     if (_shopConfig == null) return;
     try {
-      final updated = _shopConfig!.copyWith(
-        isEmergencyMode: !_shopConfig!.isEmergencyMode,
-      );
+      final updated = _shopConfig!.copyWith(isEmergencyMode: !_shopConfig!.isEmergencyMode);
       await _service.updateShopConfig(updated);
     } catch (e) {
       _error = 'Failed to toggle emergency mode: $e';
@@ -153,9 +147,7 @@ class ShopConfigProvider with ChangeNotifier {
   Future<void> addDeliveryZone(DeliveryZone zone) async {
     if (_shopConfig == null) return;
     try {
-      final List<DeliveryZone> updatedZones = List.from(
-        _shopConfig!.deliveryZones,
-      );
+      final List<DeliveryZone> updatedZones = List.from(_shopConfig!.deliveryZones);
       updatedZones.add(zone);
 
       // Calculate max delivery radius from the zones
@@ -181,9 +173,7 @@ class ShopConfigProvider with ChangeNotifier {
   Future<void> updateDeliveryZone(DeliveryZone zone) async {
     if (_shopConfig == null) return;
     try {
-      final List<DeliveryZone> updatedZones = _shopConfig!.deliveryZones.map((
-        z,
-      ) {
+      final List<DeliveryZone> updatedZones = _shopConfig!.deliveryZones.map((z) {
         return z.id == zone.id ? zone : z;
       }).toList();
 
@@ -196,9 +186,7 @@ class ShopConfigProvider with ChangeNotifier {
 
       final updated = _shopConfig!.copyWith(
         deliveryZones: updatedZones,
-        maxDeliveryRadiusKm: maxRadius > 0.0
-            ? maxRadius
-            : _shopConfig!.maxDeliveryRadiusKm,
+        maxDeliveryRadiusKm: maxRadius > 0.0 ? maxRadius : _shopConfig!.maxDeliveryRadiusKm,
       );
       await _service.updateShopConfig(updated);
     } catch (e) {
@@ -270,9 +258,7 @@ class ShopConfigProvider with ChangeNotifier {
   Future<void> updateOperatingHours(String day, OperatingHours hours) async {
     if (_shopConfig == null) return;
     try {
-      final Map<String, OperatingHours> updatedHours = Map.from(
-        _shopConfig!.operatingHours,
-      );
+      final Map<String, OperatingHours> updatedHours = Map.from(_shopConfig!.operatingHours);
       updatedHours[day] = hours;
       final updated = _shopConfig!.copyWith(operatingHours: updatedHours);
       await _service.updateShopConfig(updated);
@@ -284,11 +270,7 @@ class ShopConfigProvider with ChangeNotifier {
   }
 
   // --- Convenience / Helper methods ---
-  double calculateDeliveryCharge(
-    double distanceKm,
-    double orderAmount, {
-    ShopBranchModel? branch,
-  }) {
+  double calculateDeliveryCharge(double distanceKm, double orderAmount, {ShopBranchModel? branch}) {
     if (_shopConfig == null) return 40.0;
     return _service.calculateDeliveryChargeForDistance(
       distanceKm: distanceKm,

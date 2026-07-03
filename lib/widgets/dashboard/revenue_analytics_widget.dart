@@ -12,20 +12,12 @@ class RevenueAnalyticsWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Revenue Trends',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
+          const Text('Revenue Trends', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: 8),
           const Text(
             'Last 7 days performance',
@@ -81,17 +73,11 @@ class RevenueAnalyticsWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 11, color: AppTheme.grey600),
-        ),
+        Text(label, style: const TextStyle(fontSize: 11, color: AppTheme.grey600)),
         const SizedBox(height: 4),
         Row(
           children: [
-            Text(
-              value,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+            Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(width: 4),
             Text(
               growth,

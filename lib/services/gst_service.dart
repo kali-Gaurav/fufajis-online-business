@@ -102,11 +102,7 @@ class GSTService {
 
   /// Format amount in Indian currency
   static String formatCurrency(double amount) {
-    final formatter = NumberFormat.currency(
-      locale: 'en_IN',
-      symbol: '₹',
-      decimalDigits: 2,
-    );
+    final formatter = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 2);
     return formatter.format(amount);
   }
 
@@ -159,14 +155,11 @@ class GSTReport {
 
     for (final rate in GSTService.getUniqueGSTRates(taxByRate.keys.toList())) {
       final tax = taxByRate[rate] ?? 0;
-      buffer.writeln(
-        '${GSTService.getGSTRateCategory(rate)}: ${GSTService.formatCurrency(tax)}',
-      );
+      buffer.writeln('${GSTService.getGSTRateCategory(rate)}: ${GSTService.formatCurrency(tax)}');
     }
 
     buffer.writeln('─' * 50);
-    buffer.writeln(
-        'Total GST Liability: ${GSTService.formatCurrency(totalTaxLiability)}');
+    buffer.writeln('Total GST Liability: ${GSTService.formatCurrency(totalTaxLiability)}');
 
     if (remarks != null && remarks!.isNotEmpty) {
       buffer.writeln('Remarks: $remarks');

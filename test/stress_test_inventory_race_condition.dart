@@ -26,8 +26,9 @@ void main() {
       // Point to emulator if running locally
       if (const bool.fromEnvironment('USE_EMULATOR')) {
         FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
-        FirebaseFunctions.instanceFor(region: 'us-central1')
-            .useFunctionsEmulator('localhost', 5001);
+        FirebaseFunctions.instanceFor(
+          region: 'us-central1',
+        ).useFunctionsEmulator('localhost', 5001);
       }
     });
 
@@ -46,10 +47,7 @@ void main() {
         const int quantityPerOrder = 1;
 
         // Setup: Create product with stock=5
-        await _setupTestProduct(
-          productId: testProductId,
-          initialStock: initialStock,
-        );
+        await _setupTestProduct(productId: testProductId, initialStock: initialStock);
 
         // Action: Fire 10 concurrent orders
         final futures = <Future<bool>>[];
@@ -80,11 +78,7 @@ void main() {
 
         // Verify: Exactly 5 failed
         final failCount = results.where((r) => r == false).length;
-        expect(
-          failCount,
-          5,
-          reason: 'Expected exactly 5 orders to fail, got $failCount',
-        );
+        expect(failCount, 5, reason: 'Expected exactly 5 orders to fail, got $failCount');
 
         // Verify: Final stock is NOT negative
         final finalStock = await _getProductStock(testProductId);
@@ -113,10 +107,7 @@ void main() {
         const int initialStock = 3;
 
         // Setup: Product with stock=3
-        await _setupTestProduct(
-          productId: testProductId,
-          initialStock: initialStock,
-        );
+        await _setupTestProduct(productId: testProductId, initialStock: initialStock);
 
         // Try to deduct more than available
         final result = await _attemptDeductInventory(
@@ -139,8 +130,7 @@ void main() {
         expect(
           finalStock,
           initialStock,
-          reason:
-              'Stock should remain $initialStock after failed order, got $finalStock',
+          reason: 'Stock should remain $initialStock after failed order, got $finalStock',
         );
       },
     );
@@ -153,10 +143,7 @@ void main() {
         const int initialStock = 10;
 
         // Setup
-        await _setupTestProduct(
-          productId: testProductId,
-          initialStock: initialStock,
-        );
+        await _setupTestProduct(productId: testProductId, initialStock: initialStock);
 
         // Simulate stale lock by manually creating one
         await firestore.collection('product_locks').doc(testProductId).set({
@@ -202,18 +189,11 @@ void main() {
         const int initialStock = 10;
 
         // Setup
-        await _setupTestProduct(
-          productId: testProductId,
-          initialStock: initialStock,
-        );
+        await _setupTestProduct(productId: testProductId, initialStock: initialStock);
 
         // Perform deduction
         const String orderId = 'audit_test_order';
-        await _attemptDeductInventory(
-          productId: testProductId,
-          quantity: 3,
-          orderId: orderId,
-        );
+        await _attemptDeductInventory(productId: testProductId, quantity: 3, orderId: orderId);
 
         // Verify event logged
         final events = await firestore
@@ -249,10 +229,7 @@ void main() {
           'name': 'Branch Test Product',
           'price': 100.0,
           'stockQuantity': 10,
-          'branchStock': {
-            'primary': 8,
-            'branch_b': 2,
-          },
+          'branchStock': {'primary': 8, 'branch_b': 2},
         });
 
         // Deduct from primary branch
@@ -291,10 +268,7 @@ void main() {
         const int initialStock = 10;
 
         // Setup
-        await _setupTestProduct(
-          productId: testProductId,
-          initialStock: initialStock,
-        );
+        await _setupTestProduct(productId: testProductId, initialStock: initialStock);
 
         // Create test order
         await firestore.collection('orders').doc(testOrderId).set({
@@ -307,7 +281,7 @@ void main() {
               'quantity': 3,
               'productName': 'Test Product',
               'price': 100.0,
-            }
+            },
           ],
           'status': 'confirmed',
           'totalAmount': 300.0,
@@ -315,21 +289,14 @@ void main() {
         });
 
         // Deduct stock (simulating order fulfillment)
-        await _attemptDeductInventory(
-          productId: testProductId,
-          quantity: 3,
-          orderId: testOrderId,
-        );
+        await _attemptDeductInventory(productId: testProductId, quantity: 3, orderId: testOrderId);
 
         var stock = await _getProductStock(testProductId);
         expect(stock, initialStock - 3, reason: 'Stock should be 7 after deduction');
 
         // Process refund (would normally call Cloud Function)
         // For now, manually restore to verify logic
-        await _manualRestoreStock(
-          productId: testProductId,
-          quantity: 3,
-        );
+        await _manualRestoreStock(productId: testProductId, quantity: 3);
 
         // Verify stock restored
         stock = await _getProductStock(testProductId);
@@ -347,10 +314,7 @@ void main() {
 // HELPER FUNCTIONS
 // ============================================================================
 
-Future<void> _setupTestProduct({
-  required String productId,
-  required int initialStock,
-}) async {
+Future<void> _setupTestProduct({required String productId, required int initialStock}) async {
   final firestore = FirebaseFirestore.instance;
 
   await firestore.collection('products').doc(productId).set({
@@ -358,9 +322,7 @@ Future<void> _setupTestProduct({
     'name': 'Test Product',
     'price': 100.0,
     'stockQuantity': initialStock,
-    'branchStock': {
-      'primary': initialStock,
-    },
+    'branchStock': {'primary': initialStock},
     'isAvailable': true,
     'category': 'Test',
     'createdAt': Timestamp.now(),
@@ -400,10 +362,7 @@ Future<int> _getProductStock(String productId) async {
   return (doc['stockQuantity'] ?? 0) as int;
 }
 
-Future<void> _manualRestoreStock({
-  required String productId,
-  required int quantity,
-}) async {
+Future<void> _manualRestoreStock({required String productId, required int quantity}) async {
   final firestore = FirebaseFirestore.instance;
   final doc = await firestore.collection('products').doc(productId).get();
 
@@ -414,9 +373,7 @@ Future<void> _manualRestoreStock({
 
   await firestore.collection('products').doc(productId).update({
     'stockQuantity': newStock,
-    'branchStock': {
-      'primary': newStock,
-    },
+    'branchStock': {'primary': newStock},
   });
 }
 
@@ -424,8 +381,7 @@ Future<void> _cleanupTestData() async {
   final firestore = FirebaseFirestore.instance;
 
   // Delete test products
-  final productSnapshots =
-      await firestore.collection('products').get();
+  final productSnapshots = await firestore.collection('products').get();
   for (final doc in productSnapshots.docs) {
     if (doc.id.startsWith('test_product_')) {
       await doc.reference.delete();

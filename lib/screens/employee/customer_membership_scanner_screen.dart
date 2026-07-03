@@ -24,12 +24,10 @@ class CustomerMembershipScannerScreen extends StatefulWidget {
   const CustomerMembershipScannerScreen({super.key, this.customerId});
 
   @override
-  State<CustomerMembershipScannerScreen> createState() =>
-      _CustomerMembershipScannerScreenState();
+  State<CustomerMembershipScannerScreen> createState() => _CustomerMembershipScannerScreenState();
 }
 
-class _CustomerMembershipScannerScreenState
-    extends State<CustomerMembershipScannerScreen> {
+class _CustomerMembershipScannerScreenState extends State<CustomerMembershipScannerScreen> {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final ScannerService _scanner = ScannerService();
 
@@ -71,8 +69,7 @@ class _CustomerMembershipScannerScreenState
       final shopId = auth.currentShop?.id ?? 'shop_001';
 
       // Load user profile
-      final userSnap =
-          await _db.collection('users').doc(customerId).get();
+      final userSnap = await _db.collection('users').doc(customerId).get();
 
       if (!userSnap.exists) {
         setState(() {
@@ -94,9 +91,7 @@ class _CustomerMembershipScannerScreenState
 
       setState(() {
         _customer = {'id': userSnap.id, ...userSnap.data()!};
-        _recentOrders = ordersSnap.docs
-            .map((d) => {'id': d.id, ...d.data()})
-            .toList();
+        _recentOrders = ordersSnap.docs.map((d) => {'id': d.id, ...d.data()}).toList();
         _loading = false;
         _scanMode = false;
       });
@@ -120,10 +115,7 @@ class _CustomerMembershipScannerScreenState
     HapticFeedback.mediumImpact();
     await _scanner.stopScanning();
 
-    final customerId = raw
-        .replaceFirst('MEMBER-', '')
-        .replaceFirst('USER-', '')
-        .trim();
+    final customerId = raw.replaceFirst('MEMBER-', '').replaceFirst('USER-', '').trim();
 
     setState(() => _scanMode = false);
     await _loadCustomer(customerId);
@@ -163,10 +155,7 @@ class _CustomerMembershipScannerScreenState
     return Stack(
       fit: StackFit.expand,
       children: [
-        MobileScanner(
-          controller: _scanner.controller,
-          onDetect: _onBarcodeDetected,
-        ),
+        MobileScanner(controller: _scanner.controller, onDetect: _onBarcodeDetected),
         Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -175,15 +164,13 @@ class _CustomerMembershipScannerScreenState
                 width: 220,
                 height: 220,
                 decoration: BoxDecoration(
-                  border: Border.all(
-                      color: const Color(0xFFAD1457), width: 3),
+                  border: Border.all(color: const Color(0xFFAD1457), width: 3),
                   borderRadius: BorderRadius.circular(16),
                 ),
               ),
               const SizedBox(height: 24),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 20, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
                   color: Colors.black54,
                   borderRadius: BorderRadius.circular(20),
@@ -214,9 +201,7 @@ class _CustomerMembershipScannerScreenState
             children: [
               const Icon(Icons.person_off, size: 64, color: AppTheme.error),
               const SizedBox(height: 12),
-              Text(_errorMsg!,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16)),
+              Text(_errorMsg!, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
               const SizedBox(height: 20),
               ElevatedButton.icon(
                 icon: const Icon(Icons.qr_code_scanner),
@@ -239,17 +224,12 @@ class _CustomerMembershipScannerScreenState
     if (_customer == null) return const SizedBox.shrink();
 
     final name = _customer!['name'] as String? ?? 'Customer';
-    final phone = _customer!['phone'] as String? ??
-        _customer!['phoneNumber'] as String? ??
-        '—';
-    final tier = _customer!['membershipTier'] as String? ??
-        _customer!['tier'] as String? ??
-        'regular';
-    final points = _customer!['loyaltyPoints'] as int? ??
-        (_customer!['loyaltyPoints'] as num?)?.toInt() ??
-        0;
-    final totalOrders = _customer!['totalOrders'] as int? ??
-        _recentOrders.length;
+    final phone = _customer!['phone'] as String? ?? _customer!['phoneNumber'] as String? ?? '—';
+    final tier =
+        _customer!['membershipTier'] as String? ?? _customer!['tier'] as String? ?? 'regular';
+    final points =
+        _customer!['loyaltyPoints'] as int? ?? (_customer!['loyaltyPoints'] as num?)?.toInt() ?? 0;
+    final totalOrders = _customer!['totalOrders'] as int? ?? _recentOrders.length;
     final totalSpent = (_customer!['totalSpent'] as num?)?.toDouble() ?? 0.0;
 
     return SingleChildScrollView(
@@ -259,8 +239,7 @@ class _CustomerMembershipScannerScreenState
         children: [
           // Profile card
           Card(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -268,8 +247,7 @@ class _CustomerMembershipScannerScreenState
                   // Avatar + name
                   CircleAvatar(
                     radius: 36,
-                    backgroundColor:
-                        const Color(0xFFAD1457).withValues(alpha: 0.15),
+                    backgroundColor: const Color(0xFFAD1457).withValues(alpha: 0.15),
                     child: Text(
                       name.isNotEmpty ? name[0].toUpperCase() : '?',
                       style: const TextStyle(
@@ -280,14 +258,9 @@ class _CustomerMembershipScannerScreenState
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Text(
-                    name,
-                    style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
+                  Text(name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text(phone,
-                      style: const TextStyle(color: Colors.grey)),
+                  Text(phone, style: const TextStyle(color: Colors.grey)),
                   const SizedBox(height: 12),
                   _TierBadge(tier: tier),
                 ],
@@ -350,8 +323,7 @@ class _CustomerMembershipScannerScreenState
               foregroundColor: const Color(0xFFAD1457),
               side: const BorderSide(color: Color(0xFFAD1457)),
               padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             onPressed: () {
               setState(() {
@@ -386,8 +358,7 @@ class _TierBadge extends StatelessWidget {
       'regular': (Colors.grey, Icons.person, 'Regular'),
     };
 
-    final (color, icon, label) =
-        tierConfig[tier.toLowerCase()] ?? tierConfig['regular']!;
+    final (color, icon, label) = tierConfig[tier.toLowerCase()] ?? tierConfig['regular']!;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -403,8 +374,7 @@ class _TierBadge extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             label,
-            style: TextStyle(
-                color: color, fontWeight: FontWeight.w600, fontSize: 13),
+            style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 13),
           ),
         ],
       ),
@@ -440,8 +410,7 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             value,
-            style: TextStyle(
-                fontWeight: FontWeight.bold, fontSize: 14, color: color),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: color),
           ),
           const SizedBox(height: 2),
           Text(
@@ -463,13 +432,12 @@ class _OrderRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final number = order['orderNumber'] as String? ?? order['id'];
     final status = order['status'] as String? ?? '';
-    final amount =
-        (order['totalAmount'] as num?)?.toDouble() ?? 0.0;
+    final amount = (order['totalAmount'] as num?)?.toDouble() ?? 0.0;
     final ts = (order['createdAt'] as Timestamp?)?.toDate();
-    final dateStr =
-        ts != null ? DateFormat('dd MMM yy').format(ts) : '—';
+    final dateStr = ts != null ? DateFormat('dd MMM yy').format(ts) : '—';
 
-    final statusColor = {
+    final statusColor =
+        {
           'delivered': AppTheme.success,
           'dispatched': AppTheme.info,
           'packed': Colors.purple,
@@ -492,30 +460,20 @@ class _OrderRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '#$number',
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  dateStr,
-                  style: const TextStyle(color: Colors.grey, fontSize: 12),
-                ),
+                Text('#$number', style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(dateStr, style: const TextStyle(color: Colors.grey, fontSize: 12)),
               ],
             ),
           ),
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
               color: statusColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               status.toUpperCase(),
-              style: TextStyle(
-                  color: statusColor,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold),
+              style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold),
             ),
           ),
           const SizedBox(width: 10),

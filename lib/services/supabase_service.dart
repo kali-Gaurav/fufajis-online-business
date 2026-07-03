@@ -13,10 +13,7 @@ class SupabaseService {
   /// Phone login with OTP
   Future<void> phoneLogin(String phone) async {
     try {
-      await _client.auth.signInWithOtp(
-        phone: phone,
-        shouldCreateUser: true,
-      );
+      await _client.auth.signInWithOtp(phone: phone, shouldCreateUser: true);
     } catch (e) {
       throw Exception('Phone login failed: $e');
     }
@@ -25,10 +22,7 @@ class SupabaseService {
   /// Email login
   Future<void> emailLogin(String email, String password) async {
     try {
-      await _client.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
+      await _client.auth.signInWithPassword(email: email, password: password);
     } catch (e) {
       throw Exception('Email login failed: $e');
     }
@@ -37,10 +31,7 @@ class SupabaseService {
   /// Sign up new user
   Future<void> signUp(String email, String password) async {
     try {
-      await _client.auth.signUp(
-        email: email,
-        password: password,
-      );
+      await _client.auth.signUp(email: email, password: password);
     } catch (e) {
       throw Exception('Sign up failed: $e');
     }
@@ -95,11 +86,7 @@ class SupabaseService {
   /// Get user profile
   Future<Map<String, dynamic>?> getUserProfile(String userId) async {
     try {
-      final response = await _client
-          .from('users')
-          .select()
-          .eq('id', userId)
-          .single();
+      final response = await _client.from('users').select().eq('id', userId).single();
       return response;
     } catch (e) {
       if (e.toString().contains('no rows')) {
@@ -110,16 +97,10 @@ class SupabaseService {
   }
 
   /// Update user profile
-  Future<void> updateUserProfile(
-    String userId,
-    Map<String, dynamic> data,
-  ) async {
+  Future<void> updateUserProfile(String userId, Map<String, dynamic> data) async {
     try {
       data['updated_at'] = DateTime.now().toIso8601String();
-      await _client
-          .from('users')
-          .update(data)
-          .eq('id', userId);
+      await _client.from('users').update(data).eq('id', userId);
     } catch (e) {
       throw Exception('Failed to update user profile: $e');
     }
@@ -144,8 +125,7 @@ class SupabaseService {
       final response = await _client
           .from('orders')
           .insert({
-            'order_number':
-                'ORD-${DateTime.now().millisecondsSinceEpoch}',
+            'order_number': 'ORD-${DateTime.now().millisecondsSinceEpoch}',
             'customer_id': customerId,
             'shop_id': shopId,
             'items': items,
@@ -172,11 +152,7 @@ class SupabaseService {
   /// Get order
   Future<Map<String, dynamic>?> getOrder(String orderId) async {
     try {
-      final response = await _client
-          .from('orders')
-          .select()
-          .eq('id', orderId)
-          .single();
+      final response = await _client.from('orders').select().eq('id', orderId).single();
       return response;
     } catch (e) {
       if (e.toString().contains('no rows')) {
@@ -201,16 +177,10 @@ class SupabaseService {
   }
 
   /// Update order
-  Future<void> updateOrder(
-    String orderId,
-    Map<String, dynamic> data,
-  ) async {
+  Future<void> updateOrder(String orderId, Map<String, dynamic> data) async {
     try {
       data['updated_at'] = DateTime.now().toIso8601String();
-      await _client
-          .from('orders')
-          .update(data)
-          .eq('id', orderId);
+      await _client.from('orders').update(data).eq('id', orderId);
     } catch (e) {
       throw Exception('Failed to update order: $e');
     }
@@ -239,10 +209,7 @@ class SupabaseService {
   /// Update product
   Future<void> updateProduct(String firestoreId, Map<String, dynamic> data) async {
     try {
-      await _client
-          .from('products')
-          .update(data)
-          .eq('firestore_id', firestoreId);
+      await _client.from('products').update(data).eq('firestore_id', firestoreId);
     } catch (e) {
       throw Exception('Failed to update product: $e');
     }
@@ -251,10 +218,7 @@ class SupabaseService {
   /// Delete product
   Future<void> deleteProduct(String firestoreId) async {
     try {
-      await _client
-          .from('products')
-          .delete()
-          .eq('firestore_id', firestoreId);
+      await _client.from('products').delete().eq('firestore_id', firestoreId);
     } catch (e) {
       throw Exception('Failed to delete product: $e');
     }
@@ -277,11 +241,7 @@ class SupabaseService {
   /// Get product by ID
   Future<Map<String, dynamic>?> getProduct(String productId) async {
     try {
-      final response = await _client
-          .from('products')
-          .select()
-          .eq('id', productId)
-          .single();
+      final response = await _client.from('products').select().eq('id', productId).single();
       return response;
     } catch (e) {
       if (e.toString().contains('no rows')) {
@@ -322,25 +282,16 @@ class SupabaseService {
   }
 
   /// Update payment status
-  Future<void> updatePaymentStatus(
-    String paymentId,
-    String status,
-  ) async {
+  Future<void> updatePaymentStatus(String paymentId, String status) async {
     try {
-      await _client
-          .from('payments')
-          .update({'status': status})
-          .eq('id', paymentId);
+      await _client.from('payments').update({'status': status}).eq('id', paymentId);
     } catch (e) {
       throw Exception('Failed to update payment: $e');
     }
   }
 
   /// Verify payment
-  Future<void> verifyPayment(
-    String paymentId,
-    String signature,
-  ) async {
+  Future<void> verifyPayment(String paymentId, String signature) async {
     try {
       await _client
           .from('payments')
@@ -386,10 +337,7 @@ class SupabaseService {
   }
 
   /// Update delivery status
-  Future<void> updateDeliveryStatus(
-    String deliveryId,
-    String status,
-  ) async {
+  Future<void> updateDeliveryStatus(String deliveryId, String status) async {
     try {
       final data = {'status': status};
       if (status == 'delivered') {
@@ -397,10 +345,7 @@ class SupabaseService {
       } else if (status == 'picked_up') {
         data['start_time'] = DateTime.now().toIso8601String();
       }
-      await _client
-          .from('delivery_tasks')
-          .update(data)
-          .eq('id', deliveryId);
+      await _client.from('delivery_tasks').update(data).eq('id', deliveryId);
     } catch (e) {
       throw Exception('Failed to update delivery: $e');
     }
@@ -411,11 +356,7 @@ class SupabaseService {
   /// Get loyalty balance
   Future<Map<String, dynamic>?> getLoyaltyBalance(String userId) async {
     try {
-      final response = await _client
-          .from('loyalty')
-          .select()
-          .eq('user_id', userId)
-          .single();
+      final response = await _client.from('loyalty').select().eq('user_id', userId).single();
       return response;
     } catch (e) {
       if (e.toString().contains('no rows')) {
@@ -445,23 +386,18 @@ class SupabaseService {
       } else {
         await _client
             .from('loyalty')
-            .update({
-              'balance': currentBalance + points,
-              'lifetime': currentLifetime + points,
-            })
+            .update({'balance': currentBalance + points, 'lifetime': currentLifetime + points})
             .eq('user_id', userId);
       }
 
       // Record transaction
-      await _client
-          .from('loyalty_transactions')
-          .insert({
-            'user_id': userId,
-            'type': type,
-            'amount': points,
-            'order_reference': orderReference,
-            'timestamp': DateTime.now().toIso8601String(),
-          });
+      await _client.from('loyalty_transactions').insert({
+        'user_id': userId,
+        'type': type,
+        'amount': points,
+        'order_reference': orderReference,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
     } catch (e) {
       throw Exception('Failed to add loyalty points: $e');
     }
@@ -470,17 +406,11 @@ class SupabaseService {
   // ==================== CHATS ====================
 
   /// Get or create chat
-  Future<Map<String, dynamic>> getOrCreateChat(
-    String userId1,
-    String userId2,
-  ) async {
+  Future<Map<String, dynamic>> getOrCreateChat(String userId1, String userId2) async {
     try {
       final participants = [userId1, userId2]..sort();
 
-      final existing = await _client
-          .from('chats')
-          .select()
-          .contains('participants', participants);
+      final existing = await _client.from('chats').select().contains('participants', participants);
 
       if (existing.isNotEmpty) {
         return existing.first;
@@ -488,10 +418,7 @@ class SupabaseService {
 
       final response = await _client
           .from('chats')
-          .insert({
-            'participants': participants,
-            'created_at': DateTime.now().toIso8601String(),
-          })
+          .insert({'participants': participants, 'created_at': DateTime.now().toIso8601String()})
           .select()
           .single();
       return response;
@@ -522,10 +449,7 @@ class SupabaseService {
       // Update last message in chat
       await _client
           .from('chats')
-          .update({
-            'last_message': text,
-            'last_message_time': DateTime.now().toIso8601String(),
-          })
+          .update({'last_message': text, 'last_message_time': DateTime.now().toIso8601String()})
           .eq('id', chatId);
 
       return response;
@@ -551,9 +475,7 @@ class SupabaseService {
   // ==================== REAL-TIME SUBSCRIPTIONS ====================
 
   /// Stream orders for customer
-  Stream<List<Map<String, dynamic>>> streamCustomerOrders(
-    String customerId,
-  ) {
+  Stream<List<Map<String, dynamic>>> streamCustomerOrders(String customerId) {
     return _client
         .from('orders')
         .stream(primaryKey: ['id'])
@@ -699,11 +621,7 @@ class SupabaseService {
   }
 
   /// Update return status
-  Future<void> updateReturnStatus(
-    String returnId,
-    String status,
-    double? refundAmount,
-  ) async {
+  Future<void> updateReturnStatus(String returnId, String status, double? refundAmount) async {
     try {
       final Map<String, dynamic> data = {'status': status};
       if (refundAmount != null) {
@@ -712,10 +630,7 @@ class SupabaseService {
       if (status == 'refunded' || status == 'rejected') {
         data['resolved_at'] = DateTime.now().toIso8601String();
       }
-      await _client
-          .from('returns')
-          .update(data)
-          .eq('id', returnId);
+      await _client.from('returns').update(data).eq('id', returnId);
     } catch (e) {
       throw Exception('Failed to update return: $e');
     }

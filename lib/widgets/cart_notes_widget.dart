@@ -26,7 +26,6 @@ class _CartNotesWidgetState extends State<CartNotesWidget> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Padding(

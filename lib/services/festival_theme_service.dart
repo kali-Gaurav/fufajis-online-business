@@ -13,8 +13,7 @@ import 'remote_config_service.dart';
 /// Festival calendar covers 20+ Indian occasions and 3 regional ones.
 /// Remote Config can override the detected festival for flash theming.
 class FestivalThemeService {
-  static final FestivalThemeService _instance =
-      FestivalThemeService._internal();
+  static final FestivalThemeService _instance = FestivalThemeService._internal();
   factory FestivalThemeService() => _instance;
   FestivalThemeService._internal();
 
@@ -31,12 +30,12 @@ class FestivalThemeService {
     '06-21': 'fathers_day',
     '08-15': 'independence_day',
     '08-19': 'raksha_bandhan', // approximate
-    '08-26': 'janmashtami',    // approximate
+    '08-26': 'janmashtami', // approximate
     '09-07': 'ganesh_chaturthi',
     '09-14': 'onam',
     '10-02': 'gandhi_jayanti',
     '10-24': 'navratri',
-    '11-01': 'diwali',         // approximate - varies by year
+    '11-01': 'diwali', // approximate - varies by year
     '11-05': 'bhai_dooj',
     '11-15': 'guru_nanak_jayanti',
     '12-24': 'christmas_eve',
@@ -174,8 +173,7 @@ class FestivalThemeService {
     return 'none';
   }
 
-  FestivalTheme get currentTheme =>
-      _themes[currentFestivalId] ?? _defaultTheme;
+  FestivalTheme get currentTheme => _themes[currentFestivalId] ?? _defaultTheme;
 
   bool get hasFestival => currentFestivalId != 'none';
 
@@ -184,16 +182,16 @@ class FestivalThemeService {
       hasFestival ? currentTheme.primaryColor : Theme.of(context).primaryColor;
 
   LinearGradient get heroGradient => LinearGradient(
-        colors: currentTheme.gradientColors,
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
+    colors: currentTheme.gradientColors,
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 
   LinearGradient get softBgGradient => LinearGradient(
-        colors: currentTheme.bgColors,
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      );
+    colors: currentTheme.bgColors,
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
 
   BoxDecoration? getBannerDecoration() {
     if (!hasFestival) return null;
@@ -238,11 +236,7 @@ class FestivalThemeService {
       decoration: BoxDecoration(gradient: heroGradient),
       child: Text(
         '${currentTheme.emoji}  ${currentTheme.tagLine}',
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w600,
-          fontSize: 13,
-        ),
+        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13),
         textAlign: TextAlign.center,
       ),
     );

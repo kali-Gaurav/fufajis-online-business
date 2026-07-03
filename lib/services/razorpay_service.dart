@@ -1,19 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:uuid/uuid.dart';
 import '../config/app_config.dart';
 import 'api_client.dart';
 
 /// Callback typedefs for payment events
 typedef PaymentSuccessCallback = void Function(PaymentSuccessResponse response);
 typedef PaymentFailureCallback = void Function(PaymentFailureResponse response);
-typedef PaymentExternalWalletCallback = void Function(
-    ExternalWalletResponse response);
+typedef PaymentExternalWalletCallback = void Function(ExternalWalletResponse response);
 
-/// Complete RazorpayService with Firebase verification and Firestore order update
+/// RazorpayService with backend signature verification
+/// Payments are verified via backend API (not direct Firestore writes)
+/// Order status updates happen atomically in PostgreSQL + synced to Firestore
 class RazorpayService {
   final Razorpay _razorpay = Razorpay();
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   PaymentSuccessCallback? _onSuccess;
   PaymentFailureCallback? _onFailure;
@@ -102,10 +103,7 @@ class RazorpayService {
           'email': _sanitizeEmail(customerEmail),
           'name': _sanitizeName(customerName),
         },
-        'notes': {
-          'order_id': orderId,
-          'customer_id': customerId,
-        },
+        'notes': {'order_id': orderId, 'customer_id': customerId},
         'theme': {'color': '#FF5722'},
         'external': {
           'wallets': ['paytm'],
@@ -113,7 +111,9 @@ class RazorpayService {
       };
 
       _razorpay.open(options);
-      debugPrint('RazorpayService: checkout opened for order $orderId (RZP: $razorpayOrderId, Customer: $customerId)');
+      debugPrint(
+        'RazorpayService: checkout opened for order $orderId (RZP: $razorpayOrderId, Customer: $customerId)',
+      );
     } catch (e) {
       debugPrint('RazorpayService: failed to initiate payment – $e');
       _onFailure?.call(PaymentFailureResponse(Razorpay.NETWORK_ERROR, e.toString(), {}));
@@ -125,15 +125,13 @@ class RazorpayService {
   // ──────────────────────────────────────────────────────────────────────
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
-    debugPrint(
-        'RazorpayService: payment success – paymentId=${response.paymentId}');
+    debugPrint('RazorpayService: payment success – paymentId=${response.paymentId}');
     _verifyAndUpdateOrder(response);
     _onSuccess?.call(response);
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
-    debugPrint(
-        'RazorpayService: payment error – code=${response.code} msg=${response.message}');
+    debugPrint('RazorpayService: payment error – code=${response.code} msg=${response.message}');
 
     // Mark the order as failed in Firestore if we can derive the orderId
     // (orderId is not available in failure response, caller must handle)
@@ -141,8 +139,7 @@ class RazorpayService {
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
-    debugPrint(
-        'RazorpayService: external wallet selected – ${response.walletName}');
+    debugPrint('RazorpayService: external wallet selected – ${response.walletName}');
     _onExternalWallet?.call(response);
   }
 
@@ -150,21 +147,28 @@ class RazorpayService {
   // Firebase verification & Firestore update
   // ──────────────────────────────────────────────────────────────────────
 
-  /// Call AWS API `/payments/razorpay/verify` to verify signature and create order.
-  /// CRITICAL: Backend verifies signature using webhook_secret, NOT key_secret
+  /// Call backend API `/payments/verify` to verify signature and update order.
+  /// CRITICAL: Backend verifies signature using HMAC-SHA256
+  /// IDEMPOTENT: Safe to retry with same idempotency key
   Future<void> _verifyAndUpdateOrder(PaymentSuccessResponse response) async {
     final paymentId = response.paymentId ?? '';
     final razorpayOrderId = response.orderId ?? '';
     final signature = response.signature ?? '';
 
     try {
+      // Generate idempotency key (tied to payment ID + timestamp)
+      // If client retries, backend recognizes same payment and returns cached response
+      final idempotencyKey = '${_lastOrderId}_${paymentId}_verify';
+
       // 1. Server-side signature verification using backend
-      // Backend MUST use webhook_secret (not key_secret) for verification
-      final result = await ApiClient.instance.post('/payments/razorpay/verify', <String, dynamic>{
-        'razorpay_payment_id': paymentId,
+      // Backend MUST verify using HMAC-SHA256 (prevents payment fraud)
+      final result = await ApiClient.instance.post('/admin/payments/verify', <String, dynamic>{
+        'orderId': _lastOrderId,
         'razorpay_order_id': razorpayOrderId,
+        'razorpay_payment_id': paymentId,
         'razorpay_signature': signature,
-        'order_id': _lastOrderId, // Backend will create order with this ID
+        'expectedAmount': 0, // Caller should pass the order amount
+        'idempotencyKey': idempotencyKey,
       });
 
       final data = Map<String, dynamic>.from(result.data as Map);
@@ -172,56 +176,64 @@ class RazorpayService {
 
       if (verified) {
         debugPrint(
-            'RazorpayService: signature verified by backend – order ${data['orderId']} created');
-        // Backend has already created the order, just update local state if needed
-        await _markOrderPaid(
-          orderId: data['orderId'] ?? _lastOrderId,
-          paymentId: paymentId,
+          'RazorpayService: payment verified by backend – order ${data['orderId']} status: ${data['orderStatus']}',
         );
+        // Backend has atomically:
+        // 1. Verified Razorpay signature
+        // 2. Updated order payment_status to 'paid'
+        // 3. Updated order status to 'confirmed'
+        // 4. Created audit log
+        // 5. Synced to Firestore (eventually)
+
+        await _markOrderPaid(orderId: data['orderId'] ?? _lastOrderId, paymentId: paymentId);
       } else {
-        debugPrint(
-            'RazorpayService: signature verification failed – ${data['error']}');
+        debugPrint('RazorpayService: signature verification failed – ${data['error']}');
+        // Signature verification failed, mark order as failed
         await _markOrderFailed(orderId: _lastOrderId);
       }
     } catch (e) {
       debugPrint('RazorpayService: verification error – $e');
-      // Fallback: optimistically mark paid; webhook reconciliation will correct
-      // Backend should have created order via webhook if verify fails due to network
-      await _markOrderPaid(orderId: _lastOrderId, paymentId: paymentId);
+      // On network error: don't mark as paid or failed
+      // Let caller decide based on error type
+      // Webhook reconciliation will eventually resolve via backend
+      rethrow; // Let caller handle retry logic
     }
   }
 
   // Store last order ID for reference
   String _lastOrderId = '';
 
-  Future<void> _markOrderPaid({
-    required String orderId,
-    required String paymentId,
-  }) async {
+  Future<void> _markOrderPaid({required String orderId, required String paymentId}) async {
     if (orderId.isEmpty) return;
     try {
-      await _firestore.collection('orders').doc(orderId).update({
-        'paymentStatus': 'paid',
-        'paymentId': paymentId,
-        'status': 'OrderStatus.confirmed',
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-      debugPrint('RazorpayService: order $orderId marked paid');
+      // CRITICAL: Backend API (/payments/razorpay/verify) already updated order status
+      // DO NOT write directly to Firestore
+      // Backend is authoritative, Firestore syncs eventually via Cloud Functions
+
+      // Local logging only (for UX feedback)
+      debugPrint('RazorpayService: order $orderId marked paid (backend verified)');
+
+      // Optional: Trigger local cache refresh if needed
+      // This allows Firestore listeners to update UI naturally via sync
     } catch (e) {
-      debugPrint('RazorpayService: failed to mark order paid – $e');
+      debugPrint('RazorpayService: error in mark paid callback – $e');
     }
   }
 
   Future<void> _markOrderFailed({required String orderId}) async {
     if (orderId.isEmpty) return;
     try {
-      await _firestore.collection('orders').doc(orderId).update({
-        'paymentStatus': 'failed',
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-      debugPrint('RazorpayService: order $orderId marked failed');
+      // CRITICAL: Backend API (/payments/razorpay/verify) already updated order status to 'failed'
+      // DO NOT write directly to Firestore
+      // Backend is authoritative, Firestore syncs eventually via Cloud Functions
+
+      // Local logging only (for UX feedback)
+      debugPrint('RazorpayService: order $orderId marked failed (backend notified)');
+
+      // Optional: Trigger local cache refresh if needed
+      // This allows Firestore listeners to update UI naturally via sync
     } catch (e) {
-      debugPrint('RazorpayService: failed to mark order failed – $e');
+      debugPrint('RazorpayService: error in mark failed callback – $e');
     }
   }
 

@@ -27,12 +27,8 @@ class WeatherAlert {
 
 class WeatherService {
   // Free-tier OpenWeatherMap API key (set via env or config)
-  static const String _apiKey = String.fromEnvironment(
-    'OPENWEATHER_API_KEY',
-    defaultValue: '',
-  );
-  static const String _baseUrl =
-      'https://api.openweathermap.org/data/2.5/weather';
+  static const String _apiKey = String.fromEnvironment('OPENWEATHER_API_KEY', defaultValue: '');
+  static const String _baseUrl = 'https://api.openweathermap.org/data/2.5/weather';
 
   /// Fetches current weather for a given lat/lng.
   /// Falls back to a safe default if the API key is missing or the call fails.
@@ -46,9 +42,7 @@ class WeatherService {
     }
 
     try {
-      final url = Uri.parse(
-        '$_baseUrl?lat=$latitude&lon=$longitude&appid=$_apiKey&units=metric',
-      );
+      final url = Uri.parse('$_baseUrl?lat=$latitude&lon=$longitude&appid=$_apiKey&units=metric');
       final response = await http.get(url).timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200) {
@@ -84,16 +78,14 @@ class WeatherService {
           '⚠️ Severe weather alert! Deliveries may be delayed by 30-60 minutes due to $description.';
     } else if (condition == 'Rain' || condition == 'Drizzle') {
       hasWarning = true;
-      warningMessage =
-          '🌧️ Rain expected in your area. Deliveries may take 15-30 extra minutes.';
+      warningMessage = '🌧️ Rain expected in your area. Deliveries may take 15-30 extra minutes.';
     } else if (temp >= 45) {
       hasWarning = true;
       warningMessage =
           '🔥 Extreme heat (${temp.round()}°C)! Perishable items will use insulated packaging.';
     } else if (windSpeed > 15) {
       hasWarning = true;
-      warningMessage =
-          '💨 High winds detected. Rider safety measures may add 10-20 min delay.';
+      warningMessage = '💨 High winds detected. Rider safety measures may add 10-20 min delay.';
     }
 
     return WeatherAlert(

@@ -47,7 +47,6 @@ class _ChatWithSuggestionsState extends State<ChatWithSuggestions> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -65,8 +64,7 @@ class _ChatWithSuggestionsState extends State<ChatWithSuggestions> {
         ),
 
         // Suggested questions (shown if no message typed and suggestions available)
-        if (_showSuggestions && widget.messageController.text.isEmpty)
-          _buildSuggestionsPanel(),
+        if (_showSuggestions && widget.messageController.text.isEmpty) _buildSuggestionsPanel(),
 
         // Message input area
         _buildMessageInput(),
@@ -90,10 +88,7 @@ class _ChatWithSuggestionsState extends State<ChatWithSuggestions> {
             children: [
               Text(
                 'Order #${widget.order.orderNumber.toUpperCase()}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
               const SizedBox(height: 4),
               Text(
@@ -209,10 +204,7 @@ class _ChatWithSuggestionsState extends State<ChatWithSuggestions> {
             Flexible(
               child: Text(
                 suggestion.question,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.grey900,
-                ),
+                style: const TextStyle(fontSize: 12, color: AppTheme.grey900),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -256,10 +248,7 @@ class _ChatWithSuggestionsState extends State<ChatWithSuggestions> {
                   decoration: const InputDecoration(
                     hintText: 'Type your message...',
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     hintStyle: TextStyle(color: AppTheme.grey500),
                   ),
                   maxLines: null,
@@ -290,11 +279,7 @@ class _ChatWithSuggestionsState extends State<ChatWithSuggestions> {
                       : AppTheme.primary,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.send,
-                  color: Colors.white,
-                  size: 20,
-                ),
+                child: const Icon(Icons.send, color: Colors.white, size: 20),
               ),
             ),
           ],
@@ -336,10 +321,7 @@ class _ChatWithSuggestionsState extends State<ChatWithSuggestions> {
         ),
         content: Text(suggestion.autoResponse ?? ''),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Got it'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Got it')),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
@@ -403,11 +385,7 @@ class ChatInvoiceMessage extends StatelessWidget {
   final Map<String, dynamic> invoice;
   final VoidCallback? onDownload;
 
-  const ChatInvoiceMessage({
-    super.key,
-    required this.invoice,
-    this.onDownload,
-  });
+  const ChatInvoiceMessage({super.key, required this.invoice, this.onDownload});
 
   @override
   Widget build(BuildContext context) {
@@ -416,32 +394,20 @@ class ChatInvoiceMessage extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppTheme.grey50,
-        border: const Border(
-          left: BorderSide(color: AppTheme.primary, width: 4),
-        ),
+        border: const Border(left: BorderSide(color: AppTheme.primary, width: 4)),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            '📄 Invoice',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
-          ),
+          const Text('📄 Invoice', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
           const SizedBox(height: 12),
           _buildInvoiceRow('Subtotal', invoice['amount']),
           _buildInvoiceRow('Tax', invoice['tax']),
           _buildInvoiceRow('Delivery', invoice['delivery'], optional: true),
           _buildInvoiceRow('Discount', invoice['discount'], optional: true),
           const Divider(height: 16),
-          _buildInvoiceRow(
-            'Total',
-            invoice['total'],
-            bold: true,
-          ),
+          _buildInvoiceRow('Total', invoice['total'], bold: true),
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,

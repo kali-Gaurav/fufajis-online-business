@@ -36,9 +36,7 @@ class CustomButton extends StatelessWidget {
     final effectiveColor = color ?? AppTheme.primary;
     final isDisabled = onPressed == null || isLoading;
 
-    final shape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(borderRadius),
-    );
+    final shape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius));
 
     final labelContent = isLoading
         ? SizedBox(
@@ -56,16 +54,13 @@ class CustomButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (icon != null) ...[
-                Icon(
-                  icon,
-                  size: 20,
-                  color: isOutlined ? effectiveColor : AppTheme.white,
-                ),
+                Icon(icon, size: 20, color: isOutlined ? effectiveColor : AppTheme.white),
                 const SizedBox(width: 8),
               ],
               Text(
                 text,
-                style: textStyle ??
+                style:
+                    textStyle ??
                     TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -82,10 +77,7 @@ class CustomButton extends StatelessWidget {
               onPressed: isDisabled ? null : onPressed,
               style: OutlinedButton.styleFrom(
                 foregroundColor: effectiveColor,
-                side: BorderSide(
-                  color: isDisabled ? AppTheme.grey300 : effectiveColor,
-                  width: 1.5,
-                ),
+                side: BorderSide(color: isDisabled ? AppTheme.grey300 : effectiveColor, width: 1.5),
                 padding: EdgeInsets.symmetric(vertical: verticalPadding),
                 shape: shape,
               ),

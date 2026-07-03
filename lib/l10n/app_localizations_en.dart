@@ -736,7 +736,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noSavedAddresses => 'No saved addresses';
 
   @override
-  String get noSavedAddressesSubtitle => 'You haven\'t saved any addresses yet. Add one to speed up checkout.';
+  String get noSavedAddressesSubtitle =>
+      'You haven\'t saved any addresses yet. Add one to speed up checkout.';
 
   @override
   String get addShippingAddress => 'Add Shipping Address';

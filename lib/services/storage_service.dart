@@ -66,8 +66,7 @@ class StorageService {
   /// Uploads an image to Firebase Storage (Cloud fallback)
   Future<String?> uploadImage(File file, String folder) async {
     try {
-      final fileName =
-          '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
       final ref = _firebaseStorage.ref().child(folder).child(fileName);
       final uploadTask = await ref.putFile(file);
       return await uploadTask.ref.getDownloadURL();

@@ -22,8 +22,7 @@ class VoiceOrderScreen extends StatefulWidget {
   State<VoiceOrderScreen> createState() => _VoiceOrderScreenState();
 }
 
-class _VoiceOrderScreenState extends State<VoiceOrderScreen>
-    with SingleTickerProviderStateMixin {
+class _VoiceOrderScreenState extends State<VoiceOrderScreen> with SingleTickerProviderStateMixin {
   final SpeechToTextService _stt = SpeechToTextService();
   final VoiceOrderParser _parser = VoiceOrderParser();
 
@@ -40,16 +39,12 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
   @override
   void initState() {
     super.initState();
-    _pulse = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1100),
-    )..repeat(reverse: true);
+    _pulse = AnimationController(vsync: this, duration: const Duration(milliseconds: 1100))
+      ..repeat(reverse: true);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final ap = context.read<AccessibilityProvider>();
       _hindi = ap.preferredLanguage != 'en';
-      _stt.setLocale(_hindi
-          ? SpeechToTextService.localeHindi
-          : SpeechToTextService.localeEnglish);
+      _stt.setLocale(_hindi ? SpeechToTextService.localeHindi : SpeechToTextService.localeEnglish);
     });
   }
 
@@ -74,9 +69,7 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
     });
     await _stt.startListening(
       longForm: true,
-      overrideLocale: _hindi
-          ? SpeechToTextService.localeHindi
-          : SpeechToTextService.localeEnglish,
+      overrideLocale: _hindi ? SpeechToTextService.localeHindi : SpeechToTextService.localeEnglish,
       onPartialResult: (text) {
         if (mounted) setState(() => _liveText = text);
       },
@@ -90,8 +83,7 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
         if (mounted) {
           setState(() {
             _phase = _Phase.idle;
-            _error = _t('Mic error. Please try again.',
-                'माइक में दिक्कत। दोबारा कोशिश करें।');
+            _error = _t('Mic error. Please try again.', 'माइक में दिक्कत। दोबारा कोशिश करें।');
           });
         }
       },
@@ -108,8 +100,7 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
     if (text.trim().isEmpty) {
       setState(() {
         _phase = _Phase.idle;
-        _error = _t('I did not catch that. Try again.',
-            'सुनाई नहीं दिया। दोबारा बोलें।');
+        _error = _t('I did not catch that. Try again.', 'सुनाई नहीं दिया। दोबारा बोलें।');
       });
       return;
     }
@@ -174,9 +165,7 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
         foregroundColor: AppTheme.grey900,
         elevation: 0,
         title: Text(_t('Voice Order', 'बोलकर ऑर्डर करें')),
-        actions: [
-          if (_phase == _Phase.idle) _buildLangToggle(),
-        ],
+        actions: [if (_phase == _Phase.idle) _buildLangToggle()],
       ),
       body: SafeArea(child: _buildBody()),
       bottomNavigationBar: _phase == _Phase.review ? _buildBottomBar() : null,
@@ -190,9 +179,9 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
         child: GestureDetector(
           onTap: () {
             setState(() => _hindi = !_hindi);
-            _stt.setLocale(_hindi
-                ? SpeechToTextService.localeHindi
-                : SpeechToTextService.localeEnglish);
+            _stt.setLocale(
+              _hindi ? SpeechToTextService.localeHindi : SpeechToTextService.localeEnglish,
+            );
           },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -203,7 +192,10 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
             child: Text(
               _hindi ? 'हिंदी' : 'EN',
               style: const TextStyle(
-                  color: AppTheme.primary, fontWeight: FontWeight.bold, fontSize: 13),
+                color: AppTheme.primary,
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+              ),
             ),
           ),
         ),
@@ -237,12 +229,14 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
             _t('Tap the mic and say your order', 'माइक दबाएँ और अपना ऑर्डर बोलें'),
             textAlign: TextAlign.center,
             style: const TextStyle(
-                fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey900),
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.grey900,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
-            _t('You can say a whole list at once.',
-                'आप एक साथ पूरी लिस्ट बोल सकते हैं।'),
+            _t('You can say a whole list at once.', 'आप एक साथ पूरी लिस्ट बोल सकते हैं।'),
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 13, color: AppTheme.grey600),
           ),
@@ -250,9 +244,11 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
           _exampleCard(),
           if (_error.isNotEmpty) ...[
             const SizedBox(height: 16),
-            Text(_error,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: AppTheme.error, fontSize: 13)),
+            Text(
+              _error,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppTheme.error, fontSize: 13),
+            ),
           ],
         ],
       ),
@@ -278,17 +274,23 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(_t('Example', 'उदाहरण'),
-                    style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.grey700)),
+                Text(
+                  _t('Example', 'उदाहरण'),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.grey700,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(ex,
-                    style: const TextStyle(
-                        fontSize: 13,
-                        fontStyle: FontStyle.italic,
-                        color: AppTheme.grey800)),
+                Text(
+                  ex,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontStyle: FontStyle.italic,
+                    color: AppTheme.grey800,
+                  ),
+                ),
               ],
             ),
           ),
@@ -307,7 +309,10 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
         Text(
           _t('Listening… tap to finish', 'सुन रहे हैं… रोकने के लिए दबाएँ'),
           style: const TextStyle(
-              fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.primary),
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.primary,
+          ),
         ),
         const SizedBox(height: 20),
         Expanded(
@@ -322,9 +327,7 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
             ),
             child: SingleChildScrollView(
               child: Text(
-                _liveText.isEmpty
-                    ? _t('Speak now…', 'अब बोलें…')
-                    : _liveText,
+                _liveText.isEmpty ? _t('Speak now…', 'अब बोलें…') : _liveText,
                 style: TextStyle(
                   fontSize: 20,
                   height: 1.4,
@@ -363,18 +366,23 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
         children: [
           const CircularProgressIndicator(color: AppTheme.primary),
           const SizedBox(height: 20),
-          Text(_t('Understanding your order…', 'आपका ऑर्डर समझ रहे हैं…'),
-              style: const TextStyle(fontSize: 15, color: AppTheme.grey700)),
+          Text(
+            _t('Understanding your order…', 'आपका ऑर्डर समझ रहे हैं…'),
+            style: const TextStyle(fontSize: 15, color: AppTheme.grey700),
+          ),
           if (_finalText.isNotEmpty) ...[
             const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Text('"$_finalText"',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      fontSize: 13,
-                      fontStyle: FontStyle.italic,
-                      color: AppTheme.grey500)),
+              child: Text(
+                '"$_finalText"',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontStyle: FontStyle.italic,
+                  color: AppTheme.grey500,
+                ),
+              ),
             ),
           ],
         ],
@@ -391,16 +399,23 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
           children: [
             const Icon(Icons.search_off_rounded, size: 56, color: AppTheme.grey400),
             const SizedBox(height: 12),
-            Text(_t('No items recognised', 'कोई आइटम नहीं मिला'),
-                style: const TextStyle(
-                    fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.grey800)),
+            Text(
+              _t('No items recognised', 'कोई आइटम नहीं मिला'),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.grey800,
+              ),
+            ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: _reset,
               icon: const Icon(Icons.mic),
               label: Text(_t('Try again', 'दोबारा बोलें')),
               style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primary, foregroundColor: Colors.white),
+                backgroundColor: AppTheme.primary,
+                foregroundColor: Colors.white,
+              ),
             ),
           ],
         ),
@@ -420,9 +435,10 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                      fontSize: 12.5,
-                      fontStyle: FontStyle.italic,
-                      color: AppTheme.grey600),
+                    fontSize: 12.5,
+                    fontStyle: FontStyle.italic,
+                    color: AppTheme.grey600,
+                  ),
                 ),
               ),
               TextButton.icon(
@@ -454,9 +470,7 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: item.selected && matched
-              ? AppTheme.info.withValues(alpha: 0.5)
-              : AppTheme.grey200,
+          color: item.selected && matched ? AppTheme.info.withValues(alpha: 0.5) : AppTheme.grey200,
         ),
         boxShadow: AppTheme.cardShadows,
       ),
@@ -468,9 +482,7 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
             width: 32,
             child: Checkbox(
               value: item.selected && matched,
-              onChanged: matched
-                  ? (v) => setState(() => item.selected = v ?? false)
-                  : null,
+              onChanged: matched ? (v) => setState(() => item.selected = v ?? false) : null,
               activeColor: AppTheme.primary,
             ),
           ),
@@ -478,11 +490,13 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: matched && item.product!.imageUrl.isNotEmpty
-                ? Image.network(item.product!.imageUrl,
+                ? Image.network(
+                    item.product!.imageUrl,
                     width: 48,
                     height: 48,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _thumbFallback())
+                    errorBuilder: (_, __, ___) => _thumbFallback(),
+                  )
                 : _thumbFallback(),
           ),
           const SizedBox(width: 12),
@@ -494,9 +508,10 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
                 Text(
                   matched ? item.product!.name : item.spokenName,
                   style: const TextStyle(
-                      fontSize: 14.5,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.grey900),
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.grey900,
+                  ),
                 ),
                 const SizedBox(height: 2),
                 if (matched)
@@ -508,7 +523,10 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
                   Text(
                     _t('Not found — tap to pick', 'नहीं मिला — चुनने के लिए दबाएँ'),
                     style: const TextStyle(
-                        fontSize: 12, color: AppTheme.error, fontWeight: FontWeight.w600),
+                      fontSize: 12,
+                      color: AppTheme.error,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 const SizedBox(height: 6),
                 _confidenceBar(item.confidence, matched),
@@ -542,12 +560,11 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
   }
 
   Widget _thumbFallback() => Container(
-        width: 48,
-        height: 48,
-        color: AppTheme.grey100,
-        child: const Icon(Icons.shopping_basket_outlined,
-            color: AppTheme.grey400, size: 24),
-      );
+    width: 48,
+    height: 48,
+    color: AppTheme.grey100,
+    child: const Icon(Icons.shopping_basket_outlined, color: AppTheme.grey400, size: 24),
+  );
 
   Widget _confidenceBar(double c, bool matched) {
     if (!matched) {
@@ -565,8 +582,10 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Text(label,
-          style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: color)),
+      child: Text(
+        label,
+        style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: color),
+      ),
     );
   }
 
@@ -584,8 +603,7 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: AppTheme.grey200),
             ),
-            child: Text(p.name,
-                style: const TextStyle(fontSize: 11.5, color: AppTheme.grey800)),
+            child: Text(p.name, style: const TextStyle(fontSize: 11.5, color: AppTheme.grey800)),
           ),
         );
       }).toList(),
@@ -594,10 +612,7 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
 
   Widget _qtyStepper(ParsedVoiceItem item) {
     return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.grey100,
-        borderRadius: BorderRadius.circular(20),
-      ),
+      decoration: BoxDecoration(color: AppTheme.grey100, borderRadius: BorderRadius.circular(20)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -608,9 +623,14 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
           }),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Text('${item.quantity}',
-                style: const TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.grey900)),
+            child: Text(
+              '${item.quantity}',
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.grey900,
+              ),
+            ),
           ),
           _stepBtn(Icons.add, () {
             setState(() {
@@ -649,13 +669,18 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('$n ${_t('items selected', 'आइटम चुने')}',
-                      style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
-                  Text('₹${_selectedTotal.toStringAsFixed(0)}',
-                      style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.grey900)),
+                  Text(
+                    '$n ${_t('items selected', 'आइटम चुने')}',
+                    style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
+                  ),
+                  Text(
+                    '₹${_selectedTotal.toStringAsFixed(0)}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.grey900,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -727,16 +752,14 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen>
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: (active ? AppTheme.primary : AppTheme.grey300)
-                        .withValues(alpha: active ? 0.3 : 0.1),
+                    color: (active ? AppTheme.primary : AppTheme.grey300).withValues(
+                      alpha: active ? 0.3 : 0.1,
+                    ),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
-                  )
+                  ),
                 ],
-                border: Border.all(
-                  color: active ? Colors.white : AppTheme.primary,
-                  width: 3,
-                ),
+                border: Border.all(color: active ? Colors.white : AppTheme.primary, width: 3),
               ),
               child: Icon(
                 active ? Icons.stop : Icons.mic,
@@ -815,7 +838,9 @@ class _ProductPickerSheetState extends State<_ProductPickerSheet> {
                 hintText: 'Search products…',
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
-                fillColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.grey800 : AppTheme.grey100,
+                fillColor: Theme.of(context).brightness == Brightness.dark
+                    ? AppTheme.grey800
+                    : AppTheme.grey100,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -826,8 +851,8 @@ class _ProductPickerSheetState extends State<_ProductPickerSheet> {
             Expanded(
               child: _results.isEmpty
                   ? const Center(
-                      child: Text('No products found',
-                          style: TextStyle(color: AppTheme.grey500)))
+                      child: Text('No products found', style: TextStyle(color: AppTheme.grey500)),
+                    )
                   : ListView.builder(
                       itemCount: _results.length,
                       itemBuilder: (_, i) {
@@ -836,21 +861,29 @@ class _ProductPickerSheetState extends State<_ProductPickerSheet> {
                           leading: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: p.imageUrl.isNotEmpty
-                                ? Image.network(p.imageUrl,
+                                ? Image.network(
+                                    p.imageUrl,
                                     width: 44,
                                     height: 44,
                                     fit: BoxFit.cover,
                                     errorBuilder: (_, __, ___) => const Icon(
-                                        Icons.shopping_basket_outlined,
-                                        color: AppTheme.grey400))
-                                : const Icon(Icons.shopping_basket_outlined,
-                                    color: AppTheme.grey400),
+                                      Icons.shopping_basket_outlined,
+                                      color: AppTheme.grey400,
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.shopping_basket_outlined,
+                                    color: AppTheme.grey400,
+                                  ),
                           ),
-                          title: Text(p.name,
-                              style: const TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w600)),
-                          subtitle: Text('₹${p.price.toStringAsFixed(0)} · ${p.unit}',
-                              style: const TextStyle(fontSize: 12)),
+                          title: Text(
+                            p.name,
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: Text(
+                            '₹${p.price.toStringAsFixed(0)} · ${p.unit}',
+                            style: const TextStyle(fontSize: 12),
+                          ),
                           onTap: () => widget.onPick(p),
                         );
                       },

@@ -3,6 +3,7 @@ import '../../utils/app_theme.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/rider_shift_model.dart';
+
 // import 'rider_map_screen.dart';
 
 class RiderShell extends StatefulWidget {
@@ -25,14 +26,19 @@ class _RiderShellState extends State<RiderShell> {
     return Scaffold(
       backgroundColor: AppTheme.cream,
       appBar: AppBar(
-        title: const Text('Rider Command Center', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        title: const Text(
+          'Rider Command Center',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
         backgroundColor: AppTheme.cream,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.sos, color: AppTheme.error, size: 30),
           onPressed: () {
             // Trigger SOS Workflow
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('SOS Triggered. Dispatcher Alerted.')));
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('SOS Triggered. Dispatcher Alerted.')));
           },
         ),
         actions: [
@@ -50,11 +56,11 @@ class _RiderShellState extends State<RiderShell> {
             child: Row(
               children: [
                 Text(
-                  _shiftState == RiderShiftState.offline ? 'Offline' : 'Online', 
+                  _shiftState == RiderShiftState.offline ? 'Offline' : 'Online',
                   style: TextStyle(
-                    color: _shiftState == RiderShiftState.offline ? Colors.grey : AppTheme.success, 
+                    color: _shiftState == RiderShiftState.offline ? Colors.grey : AppTheme.success,
                     fontWeight: FontWeight.bold,
-                  )
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Switch(
@@ -65,9 +71,14 @@ class _RiderShellState extends State<RiderShell> {
                     });
                     if (user != null) {
                       try {
-                        await Provider.of<AuthProvider>(context, listen: false).updateOnlineStatus(val);
+                        await Provider.of<AuthProvider>(
+                          context,
+                          listen: false,
+                        ).updateOnlineStatus(val);
                       } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to update status')));
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('Failed to update status')));
                       }
                     }
                   },
@@ -75,7 +86,7 @@ class _RiderShellState extends State<RiderShell> {
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
       body: widget.child,

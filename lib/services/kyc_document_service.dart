@@ -62,13 +62,17 @@ class KYCDocumentService {
 
       // Update Firestore with document URL and pending status
       final now = DateTime.now();
-      await _firestore.collection('users').doc(userId).update({
-        'kycDocumentUrl': downloadUrl,
-        'kycDocumentStatus': 'pending',
-        'kycDocumentUploadedAt': FieldValue.serverTimestamp(),
-      }).catchError((e) {
-        debugPrint('[KYCDocumentService] Firestore update error: $e');
-      });
+      await _firestore
+          .collection('users')
+          .doc(userId)
+          .update({
+            'kycDocumentUrl': downloadUrl,
+            'kycDocumentStatus': 'pending',
+            'kycDocumentUploadedAt': FieldValue.serverTimestamp(),
+          })
+          .catchError((e) {
+            debugPrint('[KYCDocumentService] Firestore update error: $e');
+          });
 
       // Trigger KYC verification workflow via admin notification
       await _triggerKYCVerificationWorkflow(userId, downloadUrl);
@@ -84,11 +88,7 @@ class KYCDocumentService {
 
       debugPrint('[KYCDocumentService] KYC verification workflow triggered');
 
-      return {
-        'signedUrl': downloadUrl,
-        'expiryTime': expiryTime,
-        'status': 'pending',
-      };
+      return {'signedUrl': downloadUrl, 'expiryTime': expiryTime, 'status': 'pending'};
     } catch (e) {
       debugPrint('[KYCDocumentService] Error uploading KYC document: $e');
       return null;
@@ -98,10 +98,7 @@ class KYCDocumentService {
   /// Internal: Trigger KYC verification workflow
   ///
   /// Creates an admin task for verifying the uploaded KYC document
-  Future<void> _triggerKYCVerificationWorkflow(
-    String userId,
-    String documentUrl,
-  ) async {
+  Future<void> _triggerKYCVerificationWorkflow(String userId, String documentUrl) async {
     try {
       // Create notification for admins to verify KYC
       await _firestore.collection('admin_notifications').add({

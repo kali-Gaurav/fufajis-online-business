@@ -32,11 +32,7 @@ class FarmMapWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.eco_outlined,
-                color: AppTheme.info,
-                size: 24,
-              ),
+              const Icon(Icons.eco_outlined, color: AppTheme.info, size: 24),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -44,17 +40,11 @@ class FarmMapWidget extends StatelessWidget {
                   children: [
                     const Text(
                       'Farm to Fork',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                     Text(
                       'Sourced directly from ${product.sourceName}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.grey600,
-                      ),
+                      style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
                     ),
                   ],
                 ),
@@ -83,13 +73,7 @@ class FarmMapWidget extends StatelessWidget {
                     color: Colors.black.withValues(alpha: 0.2),
                   ),
                 ),
-                const Center(
-                  child: Icon(
-                    Icons.location_on,
-                    color: AppTheme.error,
-                    size: 40,
-                  ),
-                ),
+                const Center(child: Icon(Icons.location_on, color: AppTheme.error, size: 40)),
               ],
             ),
           ),

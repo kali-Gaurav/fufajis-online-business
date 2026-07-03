@@ -24,10 +24,7 @@ class ProductSearchService {
   ///   - batchSize: Process in batches to avoid memory issues (default 500)
   ///
   /// Returns: Number of products indexed
-  Future<int> indexProductsForSearch(
-    String shopId, {
-    int batchSize = 500,
-  }) async {
+  Future<int> indexProductsForSearch(String shopId, {int batchSize = 500}) async {
     try {
       final productsRef = _firestore.collection('shops/$shopId/products');
       int totalIndexed = 0;
@@ -42,16 +39,10 @@ class ProductSearchService {
         for (var doc in snapshot.docs) {
           final productName = (doc['name'] ?? '').toString().toLowerCase();
           final category = (doc['category'] ?? '').toString().toLowerCase();
-          final sku = (doc['sku'] ?? doc['barcode'] ?? '')
-              .toString()
-              .toLowerCase();
+          final sku = (doc['sku'] ?? doc['barcode'] ?? '').toString().toLowerCase();
 
           // Create searchable keywords
-          List<String> searchKeywords = [
-            productName,
-            category,
-            sku,
-          ];
+          List<String> searchKeywords = [productName, category, sku];
 
           // Also add brand if available
           final brand = (doc['brand'] ?? '').toString().toLowerCase();
@@ -77,16 +68,11 @@ class ProductSearchService {
         // Commit this batch
         await batch.commit();
         batchCount++;
-        LoggingService().info(
-          '$logTag Indexed batch $batchCount: $totalIndexed products',
-        );
+        LoggingService().info('$logTag Indexed batch $batchCount: $totalIndexed products');
 
         // Get next batch
         DocumentSnapshot? lastDoc = snapshot.docs.last;
-        snapshot = await productsRef
-            .startAfterDocument(lastDoc)
-            .limit(batchSize)
-            .get();
+        snapshot = await productsRef.startAfterDocument(lastDoc).limit(batchSize).get();
       }
 
       LoggingService().info(
@@ -111,11 +97,7 @@ class ProductSearchService {
   ///   - limit: Max results to return (default 20)
   ///
   /// Returns: List of matching Product objects
-  Future<List<ProductModel>> searchProducts(
-    String shopId,
-    String query, {
-    int limit = 20,
-  }) async {
+  Future<List<ProductModel>> searchProducts(String shopId, String query, {int limit = 20}) async {
     try {
       if (query.isEmpty) return [];
 
@@ -217,7 +199,10 @@ class ProductSearchService {
         return null;
       }
 
-      final product = ProductModel.fromMap({...results.docs.first.data(), 'id': results.docs.first.id});
+      final product = ProductModel.fromMap({
+        ...results.docs.first.data(),
+        'id': results.docs.first.id,
+      });
 
       LoggingService().log(
         '$logTag Barcode match: ${product.name} (${stopwatch.elapsedMilliseconds}ms)',
@@ -272,10 +257,7 @@ class ProductSearchService {
   ///   - limit: Max results
   ///
   /// Returns: List of low-stock products
-  Future<List<ProductModel>> searchLowStock(
-    String shopId, {
-    int limit = 50,
-  }) async {
+  Future<List<ProductModel>> searchLowStock(String shopId, {int limit = 50}) async {
     try {
       final results = await _firestore
           .collection('shops/$shopId/products')
@@ -355,13 +337,7 @@ class ProductSearchService {
 }
 
 /// Scanner action type for barcode parsing
-enum ScanActionType {
-  productSearch,
-  orderPacking,
-  dispatch,
-  deliveryPOD,
-  inventoryReceiving,
-}
+enum ScanActionType { productSearch, orderPacking, dispatch, deliveryPOD, inventoryReceiving }
 
 /// Represents a parsed scan action with type and payload
 class ScanAction {
@@ -369,42 +345,23 @@ class ScanAction {
   final String barcode;
   final Map<String, dynamic> metadata;
 
-  ScanAction({
-    required this.type,
-    required this.barcode,
-    this.metadata = const {},
-  });
+  ScanAction({required this.type, required this.barcode, this.metadata = const {}});
 
   /// Parse raw barcode string to determine action type
   static ScanAction parse(String rawBarcode) {
     final upper = rawBarcode.toUpperCase();
 
     if (upper.startsWith('ORDER-')) {
-      return ScanAction(
-        type: ScanActionType.orderPacking,
-        barcode: rawBarcode,
-      );
+      return ScanAction(type: ScanActionType.orderPacking, barcode: rawBarcode);
     } else if (upper.startsWith('DISPATCH-')) {
-      return ScanAction(
-        type: ScanActionType.dispatch,
-        barcode: rawBarcode,
-      );
+      return ScanAction(type: ScanActionType.dispatch, barcode: rawBarcode);
     } else if (upper.startsWith('PARCEL-')) {
-      return ScanAction(
-        type: ScanActionType.deliveryPOD,
-        barcode: rawBarcode,
-      );
+      return ScanAction(type: ScanActionType.deliveryPOD, barcode: rawBarcode);
     } else if (upper.startsWith('INBOUND-')) {
-      return ScanAction(
-        type: ScanActionType.inventoryReceiving,
-        barcode: rawBarcode,
-      );
+      return ScanAction(type: ScanActionType.inventoryReceiving, barcode: rawBarcode);
     }
 
     // Default to product search
-    return ScanAction(
-      type: ScanActionType.productSearch,
-      barcode: rawBarcode,
-    );
+    return ScanAction(type: ScanActionType.productSearch, barcode: rawBarcode);
   }
 }

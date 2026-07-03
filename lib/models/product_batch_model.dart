@@ -26,12 +26,10 @@ class ProductBatch {
       quantity: map['quantity'] as int? ?? 0,
       expiryDate: map['expiryDate'] is Timestamp
           ? (map['expiryDate'] as Timestamp).toDate()
-          : DateTime.tryParse(map['expiryDate']?.toString() ?? '') ??
-                DateTime.now(),
+          : DateTime.tryParse(map['expiryDate']?.toString() ?? '') ?? DateTime.now(),
       receivedDate: map['receivedDate'] is Timestamp
           ? (map['receivedDate'] as Timestamp).toDate()
-          : DateTime.tryParse(map['receivedDate']?.toString() ?? '') ??
-                DateTime.now(),
+          : DateTime.tryParse(map['receivedDate']?.toString() ?? '') ?? DateTime.now(),
       costPrice: (map['costPrice'] as num? ?? 0.0).toDouble(),
       branchId: map['branchId'] as String? ?? '',
     );

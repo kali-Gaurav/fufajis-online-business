@@ -20,12 +20,7 @@ class ToastUtils {
     _showToast(context, message, AppTheme.warning, Icons.warning_amber_rounded);
   }
 
-  static void _showToast(
-    BuildContext context,
-    String message,
-    Color bgColor,
-    IconData icon,
-  ) {
+  static void _showToast(BuildContext context, String message, Color bgColor, IconData icon) {
     try {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -50,9 +45,7 @@ class ToastUtils {
           backgroundColor: bgColor,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 3),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           margin: const EdgeInsets.all(16),
         ),
       );
@@ -63,11 +56,7 @@ class ToastUtils {
 
   /// Show validation error below a form field
   /// Use in onChanged callback after validation
-  static void showFieldError(
-    BuildContext context,
-    String fieldName,
-    String errorMessage,
-  ) {
+  static void showFieldError(BuildContext context, String fieldName, String errorMessage) {
     showError(context, '$fieldName: $errorMessage');
   }
 

@@ -31,7 +31,9 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
               stream: _auditService.getLogsStream(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent));
+                  return const Center(
+                    child: CircularProgressIndicator(color: AppTheme.ownerAccent),
+                  );
                 }
                 if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
@@ -41,12 +43,10 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
 
                 // Filter logs to only show stockAdjustment and matching search query
                 logs = logs.where((log) {
-                  final isStockAction =
-                      log['action'] == 'AuditAction.stockAdjustment';
-                  final matchesSearch = log['description']
-                      .toString()
-                      .toLowerCase()
-                      .contains(_searchQuery.toLowerCase());
+                  final isStockAction = log['action'] == 'AuditAction.stockAdjustment';
+                  final matchesSearch = log['description'].toString().toLowerCase().contains(
+                    _searchQuery.toLowerCase(),
+                  );
                   return isStockAction && matchesSearch;
                 }).toList();
 
@@ -81,7 +81,9 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
           hintText: 'Search by product name...',
           prefixIcon: const Icon(Icons.search),
           filled: true,
-          fillColor: Theme.of(context).brightness == Brightness.dark ? AppTheme.grey800 : AppTheme.grey100,
+          fillColor: Theme.of(context).brightness == Brightness.dark
+              ? AppTheme.grey800
+              : AppTheme.grey100,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
@@ -106,14 +108,9 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
             child: Icon(
-              diff >= 0
-                  ? Icons.add_circle_outline
-                  : Icons.remove_circle_outline,
+              diff >= 0 ? Icons.add_circle_outline : Icons.remove_circle_outline,
               color: color,
               size: 20,
             ),
@@ -125,10 +122,7 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
               children: [
                 Text(
                   log['description'] as String? ?? 'Stock Adjustment',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -141,20 +135,13 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                     children: [
                       _buildStockChip('Old: $oldStock', AppTheme.grey500),
                       const SizedBox(width: 8),
-                      const Icon(
-                        Icons.arrow_forward,
-                        size: 12,
-                        color: AppTheme.grey400,
-                      ),
+                      const Icon(Icons.arrow_forward, size: 12, color: AppTheme.grey400),
                       const SizedBox(width: 8),
                       _buildStockChip('New: $newStock', color),
                       const Spacer(),
                       Text(
                         '${diff >= 0 ? "+" : ""}$diff',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: color,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold, color: color),
                       ),
                     ],
                   ),
@@ -176,11 +163,7 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
       ),
       child: Text(
         label,
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          color: color,
-        ),
+        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: color),
       ),
     );
   }

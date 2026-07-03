@@ -8,12 +8,7 @@ class CartBadge extends StatelessWidget {
   final VoidCallback onTap;
   final bool animate;
 
-  const CartBadge({
-    super.key,
-    required this.count,
-    required this.onTap,
-    this.animate = true,
-  });
+  const CartBadge({super.key, required this.count, required this.onTap, this.animate = true});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +20,7 @@ class CartBadge extends StatelessWidget {
           onPressed: onTap,
           tooltip: 'कार्ट',
         ),
-        
+
         // Badge (only show if count > 0)
         if (count > 0)
           Positioned(
@@ -78,17 +73,10 @@ class NotificationBadge extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: BoxDecoration(color: backgroundColor, borderRadius: BorderRadius.circular(12)),
       child: Text(
         count > 99 ? '99+' : count.toString(),
-        style: TextStyle(
-          color: textColor,
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-        ),
+        style: TextStyle(color: textColor, fontSize: 11, fontWeight: FontWeight.w700),
       ),
     );
   }

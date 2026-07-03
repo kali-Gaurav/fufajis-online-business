@@ -15,11 +15,7 @@ class PaymentStatusScreen extends StatefulWidget {
   final String paymentId;
   final String orderId;
 
-  const PaymentStatusScreen({
-    super.key,
-    required this.paymentId,
-    required this.orderId,
-  });
+  const PaymentStatusScreen({super.key, required this.paymentId, required this.orderId});
 
   @override
   State<PaymentStatusScreen> createState() => _PaymentStatusScreenState();
@@ -56,27 +52,21 @@ class _PaymentStatusScreenState extends State<PaymentStatusScreen> {
             return _buildErrorState('Payment not found');
           }
 
-          final paymentData =
-              snapshot.data!.data() as Map<String, dynamic>;
+          final paymentData = snapshot.data!.data() as Map<String, dynamic>;
 
           final status = paymentData['status'] as String? ?? 'pending';
           final amount = paymentData['amount'] as num? ?? 0;
-          final paymentMethod =
-              paymentData['paymentMethod'] as String? ?? 'unknown';
+          final paymentMethod = paymentData['paymentMethod'] as String? ?? 'unknown';
           final createdAt = paymentData['createdAt'];
           final completedAt = paymentData['completedAt'];
-          final errorMessage =
-              paymentData['errorMessage'] as String?;
+          final errorMessage = paymentData['errorMessage'] as String?;
 
           // Auto-navigate when payment is completed
-          if (status == 'completed' &&
-              !_hasNavigated) {
+          if (status == 'completed' && !_hasNavigated) {
             _hasNavigated = true;
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (mounted) {
-                context.pushReplacement(
-                  '/customer/order-confirmation/${widget.orderId}',
-                );
+                context.pushReplacement('/customer/order-confirmation/${widget.orderId}');
               }
             });
           }
@@ -90,10 +80,7 @@ class _PaymentStatusScreenState extends State<PaymentStatusScreen> {
                 const SizedBox(height: 24),
 
                 // Amount and details
-                _buildAmountCard(
-                  amount: amount,
-                  paymentMethod: paymentMethod,
-                ),
+                _buildAmountCard(amount: amount, paymentMethod: paymentMethod),
                 const SizedBox(height: 24),
 
                 // Transaction timeline
@@ -105,17 +92,14 @@ class _PaymentStatusScreenState extends State<PaymentStatusScreen> {
                 const SizedBox(height: 24),
 
                 // Error message if payment failed
-                if (errorMessage != null)
-                  _buildErrorMessageCard(errorMessage),
+                if (errorMessage != null) _buildErrorMessageCard(errorMessage),
 
                 const SizedBox(height: 24),
 
                 // Action buttons
-                if (status == 'failed' || status == 'pending')
-                  _buildRetryButton(),
+                if (status == 'failed' || status == 'pending') _buildRetryButton(),
 
-                if (status == 'completed')
-                  _buildSuccessMessage(),
+                if (status == 'completed') _buildSuccessMessage(),
               ],
             ),
           );
@@ -129,15 +113,9 @@ class _PaymentStatusScreenState extends State<PaymentStatusScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(
-            color: AppTheme.primary,
-            strokeWidth: 2,
-          ),
+          const CircularProgressIndicator(color: AppTheme.primary, strokeWidth: 2),
           const SizedBox(height: 16),
-          Text(
-            'Processing payment...',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text('Processing payment...', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           Text(
             'Please wait, do not close this screen',
@@ -155,27 +133,13 @@ class _PaymentStatusScreenState extends State<PaymentStatusScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline,
-              size: 64,
-              color: AppTheme.error,
-            ),
+            const Icon(Icons.error_outline, size: 64, color: AppTheme.error),
             const SizedBox(height: 16),
-            Text(
-              'Unable to load payment status',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            Text('Unable to load payment status', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
-            Text(
-              error,
-              style: Theme.of(context).textTheme.bodySmall,
-              textAlign: TextAlign.center,
-            ),
+            Text(error, style: Theme.of(context).textTheme.bodySmall, textAlign: TextAlign.center),
             const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () => context.pop(),
-              child: const Text('Go Back'),
-            ),
+            ElevatedButton(onPressed: () => context.pop(), child: const Text('Go Back')),
           ],
         ),
       ),
@@ -218,10 +182,7 @@ class _PaymentStatusScreenState extends State<PaymentStatusScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            statusColor.withAlpha(200),
-            statusColor.withAlpha(100),
-          ],
+          colors: [statusColor.withAlpha(200), statusColor.withAlpha(100)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -233,11 +194,7 @@ class _PaymentStatusScreenState extends State<PaymentStatusScreen> {
           const SizedBox(height: 16),
           Text(
             statusText,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
         ],
@@ -245,10 +202,7 @@ class _PaymentStatusScreenState extends State<PaymentStatusScreen> {
     );
   }
 
-  Widget _buildAmountCard({
-    required num amount,
-    required String paymentMethod,
-  }) {
+  Widget _buildAmountCard({required num amount, required String paymentMethod}) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -259,13 +213,7 @@ class _PaymentStatusScreenState extends State<PaymentStatusScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Payment Amount',
-            style: TextStyle(
-              color: AppTheme.grey600,
-              fontSize: 12,
-            ),
-          ),
+          const Text('Payment Amount', style: TextStyle(color: AppTheme.grey600, fontSize: 12)),
           const SizedBox(height: 8),
           Text(
             '₹${amount.toStringAsFixed(2)}',
@@ -281,19 +229,10 @@ class _PaymentStatusScreenState extends State<PaymentStatusScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Payment Method',
-                style: TextStyle(
-                  color: AppTheme.grey600,
-                  fontSize: 13,
-                ),
-              ),
+              const Text('Payment Method', style: TextStyle(color: AppTheme.grey600, fontSize: 13)),
               Text(
                 paymentMethod.replaceAll('_', ' ').toUpperCase(),
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -325,24 +264,19 @@ class _PaymentStatusScreenState extends State<PaymentStatusScreen> {
         children: [
           const Text(
             'Transaction Timeline',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
           ),
           const SizedBox(height: 16),
           ...steps.indexed.map((entry) {
             final i = entry.$1;
             final step = entry.$2;
-            final isCompleted =
-                _isStatusCompleted(step.$2, status);
+            final isCompleted = _isStatusCompleted(step.$2, status);
             final timestamp = step.$3;
             final isLast = i == steps.length - 1;
 
             String timeText = '–';
             if (timestamp is Timestamp) {
-              timeText =
-                  DateFormat('h:mm a').format(timestamp.toDate());
+              timeText = DateFormat('h:mm a').format(timestamp.toDate());
             }
 
             return Row(
@@ -352,23 +286,14 @@ class _PaymentStatusScreenState extends State<PaymentStatusScreen> {
                   children: [
                     CircleAvatar(
                       radius: 14,
-                      backgroundColor: isCompleted
-                          ? AppTheme.primary
-                          : AppTheme.grey300,
+                      backgroundColor: isCompleted ? AppTheme.primary : AppTheme.grey300,
                       child: Icon(
-                        isCompleted
-                            ? Icons.check
-                            : Icons.schedule,
+                        isCompleted ? Icons.check : Icons.schedule,
                         size: 12,
                         color: Colors.white,
                       ),
                     ),
-                    if (!isLast)
-                      Container(
-                        width: 2,
-                        height: 30,
-                        color: AppTheme.grey300,
-                      ),
+                    if (!isLast) Container(width: 2, height: 30, color: AppTheme.grey300),
                   ],
                 ),
                 const SizedBox(width: 12),
@@ -381,21 +306,14 @@ class _PaymentStatusScreenState extends State<PaymentStatusScreen> {
                         step.$1,
                         style: TextStyle(
                           fontSize: 13,
-                          fontWeight: isCompleted
-                              ? FontWeight.bold
-                              : FontWeight.w500,
-                          color: isCompleted
-                              ? AppTheme.primary
-                              : AppTheme.grey600,
+                          fontWeight: isCompleted ? FontWeight.bold : FontWeight.w500,
+                          color: isCompleted ? AppTheme.primary : AppTheme.grey600,
                         ),
                       ),
                       if (timestamp != null)
                         Text(
                           timeText,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: AppTheme.grey600,
-                          ),
+                          style: const TextStyle(fontSize: 11, color: AppTheme.grey600),
                         ),
                     ],
                   ),
@@ -414,17 +332,11 @@ class _PaymentStatusScreenState extends State<PaymentStatusScreen> {
       decoration: BoxDecoration(
         color: AppTheme.error.withAlpha(25),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppTheme.error.withAlpha(100),
-        ),
+        border: Border.all(color: AppTheme.error.withAlpha(100)),
       ),
       child: Row(
         children: [
-          const Icon(
-            Icons.error_outline,
-            color: AppTheme.error,
-            size: 24,
-          ),
+          const Icon(Icons.error_outline, color: AppTheme.error, size: 24),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -439,13 +351,7 @@ class _PaymentStatusScreenState extends State<PaymentStatusScreen> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  errorMessage,
-                  style: const TextStyle(
-                    color: AppTheme.error,
-                    fontSize: 12,
-                  ),
-                ),
+                Text(errorMessage, style: const TextStyle(color: AppTheme.error, fontSize: 12)),
               ],
             ),
           ),
@@ -461,9 +367,7 @@ class _PaymentStatusScreenState extends State<PaymentStatusScreen> {
         onPressed: () {
           // Trigger retry logic - typically this would call
           // a payment service or redirect to payment gateway
-          context.push(
-            '/customer/payment/${widget.paymentId}',
-          );
+          context.push('/customer/payment/${widget.paymentId}');
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.primary,
@@ -481,17 +385,11 @@ class _PaymentStatusScreenState extends State<PaymentStatusScreen> {
       decoration: BoxDecoration(
         color: AppTheme.success.withAlpha(25),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppTheme.success.withAlpha(100),
-        ),
+        border: Border.all(color: AppTheme.success.withAlpha(100)),
       ),
       child: const Row(
         children: [
-          Icon(
-            Icons.check_circle_outline,
-            color: AppTheme.success,
-            size: 24,
-          ),
+          Icon(Icons.check_circle_outline, color: AppTheme.success, size: 24),
           SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -508,10 +406,7 @@ class _PaymentStatusScreenState extends State<PaymentStatusScreen> {
                 SizedBox(height: 4),
                 Text(
                   'Your payment has been processed successfully.',
-                  style: TextStyle(
-                    color: AppTheme.success,
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: AppTheme.success, fontSize: 12),
                 ),
               ],
             ),

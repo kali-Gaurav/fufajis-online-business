@@ -1,228 +1,221 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'dart:math';
+import 'api_client.dart';
+import 'package:uuid/uuid.dart';
 
-/// Checkout Inventory Service
-/// Handles inventory reservation during checkout (Task #9 FIX)
+/// Checkout Inventory Service (Refactored to Backend API)
 ///
-/// CRITICAL FIX: The original checkout flow attempted to reserve inventory
-/// but never created the actual Firestore documents. This service ensures
-/// reservation documents are atomically created during order confirmation.
+/// CRITICAL REDESIGN (Sprint 2B-P0):
+/// Previous implementation used client-side Firestore transactions which cannot guarantee
+/// atomicity across multiple domains (products, reservations, orders, payments, audit logs).
 ///
-/// Reservation flow:
-/// 1. Create reservation doc in products/{productId}/reservations/{reservationId}
-/// 2. Update product available_quantity
-/// 3. Set 30-minute TTL for auto-cleanup if checkout abandoned
+/// NEW ARCHITECTURE:
+/// - All inventory operations route through backend API
+/// - Backend uses PostgreSQL transactions with row-level locks (SELECT...FOR UPDATE)
+/// - Reservation states: active → confirmed/released/expired
+/// - TTL cleanup job (cron) expires stale reservations every 5 minutes
+///
+/// This class is now a pure API router, not a transaction executor.
 class CheckoutInventoryService {
   static final CheckoutInventoryService _instance = CheckoutInventoryService._internal();
   factory CheckoutInventoryService() => _instance;
   CheckoutInventoryService._internal();
 
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final ApiClient _apiClient = ApiClient.instance;
+  static const _uuid = Uuid();
 
-  /// Generates unique reservation ID
-  String _generateReservationId() {
-    return 'RESERVATION_${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(10000)}';
+  // ──────────────────────────────────────────────────────────────
+  // CHECKOUT FLOW (Primary Entry Point)
+  // ──────────────────────────────────────────────────────────────
+
+  /// Create order with inventory reservation in one atomic backend transaction
+  ///
+  /// CRITICAL: This is the ONLY entry point for checkout.
+  /// Backend guarantees:
+  /// 1. Cart items validated
+  /// 2. Inventory locked (SELECT...FOR UPDATE)
+  /// 3. Stock verified for ALL items
+  /// 4. Reservation created
+  /// 5. Order created
+  /// 6. Audit log created
+  /// 7. Sync event triggered
+  /// All in one PostgreSQL transaction or none.
+  ///
+  /// Returns: { orderId, paymentOrderId, reservationId, expiresAt }
+  /// Throws: Exception if any step fails
+  Future<Map<String, dynamic>> createOrderWithReservation({
+    required String customerId,
+    required List<Map<String, dynamic>> items, // [{ productId, quantity }, ...]
+    required String paymentMethod,
+    String? paymentMethodId,
+    String? couponCode,
+    double? discountAmount,
+  }) async {
+    try {
+      final idempotencyKey = '${customerId}_${DateTime.now().millisecondsSinceEpoch}_${_uuid.v4().substring(0, 8)}';
+
+      // CRITICAL: All operations happen on backend in one transaction
+      final result = await _apiClient.post(
+        '/checkout/create-order',
+        {
+          'customerId': customerId,
+          'items': items,
+          'paymentMethod': paymentMethod,
+          'paymentMethodId': paymentMethodId,
+          'couponCode': couponCode,
+          'discountAmount': discountAmount,
+          'idempotencyKey': idempotencyKey,
+        },
+      );
+
+      if (result.data?['success'] != true) {
+        throw Exception('Checkout failed: ${result.data?['error'] ?? 'Unknown error'}');
+      }
+
+      final data = result.data as Map<String, dynamic>;
+
+      debugPrint(
+        '[CheckoutInventoryService] ✅ Order created atomically: '
+        'orderId=${data['orderId']}, reservationId=${data['reservationId']}, '
+        'expiresAt=${data['expiresAt']}',
+      );
+
+      return {
+        'orderId': data['orderId'],
+        'paymentOrderId': data['paymentOrderId'],
+        'reservationId': data['reservationId'],
+        'expiresAt': data['expiresAt'],
+      };
+    } catch (e) {
+      debugPrint('[CheckoutInventoryService] ❌ Checkout failed: $e');
+      rethrow;
+    }
   }
 
-  /// Reserve inventory for checkout (CRITICAL FIX: Actually creates Firestore docs)
+  // ──────────────────────────────────────────────────────────────
+  // RESERVATION LIFECYCLE (After Payment)
+  // ──────────────────────────────────────────────────────────────
+
+  /// Confirm reservation after successful payment
+  /// Called by: RazorpayService after webhook verification
   ///
-  /// This function:
-  /// 1. Verifies sufficient inventory exists
-  /// 2. Creates reservation document at products/{productId}/reservations/{reservationId}
-  /// 3. Decrements available_quantity atomically
-  /// 4. Sets expiration time for auto-cleanup
+  /// Backend updates reservation status: active → confirmed
+  /// Stock remains locked in inventory (won't auto-expire)
+  Future<void> confirmReservation({
+    required String reservationId,
+    required String orderId,
+    required String paymentId,
+  }) async {
+    try {
+      final result = await _apiClient.post(
+        '/inventory/confirm',
+        {
+          'reservationId': reservationId,
+          'orderId': orderId,
+          'paymentId': paymentId,
+          'confirmedAt': DateTime.now().toIso8601String(),
+        },
+      );
+
+      if (result.data?['success'] != true) {
+        throw Exception('Confirmation failed: ${result.data?['error'] ?? 'Unknown error'}');
+      }
+
+      debugPrint('[CheckoutInventoryService] ✅ Reservation confirmed: $reservationId');
+    } catch (e) {
+      debugPrint('[CheckoutInventoryService] ❌ Confirmation failed: $e');
+      rethrow;
+    }
+  }
+
+  /// Release reservation (customer cancelled checkout)
+  /// Called by: Checkout screen cancel button
   ///
-  /// Returns: reservationId for tracking; throws if inventory insufficient
+  /// Backend updates reservation status: active → released
+  /// Stock is immediately returned to available pool
+  Future<void> releaseReservation({
+    required String reservationId,
+    required String orderId,
+  }) async {
+    try {
+      final result = await _apiClient.post(
+        '/inventory/release',
+        {
+          'reservationId': reservationId,
+          'orderId': orderId,
+          'releasedAt': DateTime.now().toIso8601String(),
+        },
+      );
+
+      if (result.data?['success'] != true) {
+        throw Exception('Release failed: ${result.data?['error'] ?? 'Unknown error'}');
+      }
+
+      debugPrint('[CheckoutInventoryService] ✅ Reservation released: $reservationId');
+    } catch (e) {
+      debugPrint('[CheckoutInventoryService] ❌ Release failed: $e');
+      rethrow;
+    }
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  // DEPRECATED METHODS (Do Not Use)
+  // ──────────────────────────────────────────────────────────────
+
+  /// DEPRECATED: Client-side Firestore transactions are no longer used.
+  /// Use createOrderWithReservation() instead, which routes through backend API.
+  @deprecated
   Future<String> reserveInventory({
     required String productId,
     required String customerId,
     required int quantity,
     required String orderId,
   }) async {
-    final reservationId = _generateReservationId();
-    final expiresAt = DateTime.now().add(const Duration(minutes: 30));
-
-    try {
-      await _db.runTransaction((transaction) async {
-        final productRef = _db.collection('products').doc(productId);
-        final productSnapshot = await transaction.get(productRef);
-
-        if (!productSnapshot.exists) {
-          throw Exception('Product $productId not found');
-        }
-
-        final productData = productSnapshot.data()!;
-        final currentStock = (productData['stockQuantity'] as num? ?? 0).toInt();
-
-        // Check if sufficient inventory
-        if (currentStock < quantity) {
-          throw Exception(
-            'Insufficient stock. Available: $currentStock, Requested: $quantity'
-          );
-        }
-
-        // FIXED: Create reservation document (was missing in original)
-        final reservationRef = productRef
-            .collection('reservations')
-            .doc(reservationId);
-
-        transaction.set(reservationRef, {
-          'customerId': customerId,
-          'orderId': orderId,
-          'productId': productId,
-          'quantity': quantity,
-          'reservedAt': FieldValue.serverTimestamp(),
-          'expiresAt': Timestamp.fromDate(expiresAt),
-          'status': 'active',
-          // TTL: Firestore will auto-delete after 30 minutes via TTL policy
-        });
-
-        // Decrement available stock (reserved_quantity tracks reserved amounts)
-        final currentReserved = (productData['reserved_quantity'] as num? ?? 0).toInt();
-        final newReserved = currentReserved + quantity;
-
-        transaction.update(productRef, {
-          'reserved_quantity': newReserved,
-          'available_quantity': currentStock - quantity,
-          'lastReservationAt': FieldValue.serverTimestamp(),
-        });
-
-        debugPrint(
-          '[CheckoutInventoryService] Reserved $quantity units of $productId '
-          'for order $orderId (reservation: $reservationId)'
-        );
-      });
-
-      return reservationId;
-    } catch (e) {
-      debugPrint('[CheckoutInventoryService] Reservation failed: $e');
-      rethrow;
-    }
+    throw UnsupportedError(
+      'Client-side inventory reservation is no longer allowed. '
+      'Use createOrderWithReservation() which atomically: '
+      'validates cart, locks inventory, creates order, processes payment in PostgreSQL transaction.'
+    );
   }
 
-  /// Release reservation (called on checkout cancel or timeout)
-  Future<void> releaseReservation({
+  /// DEPRECATED: Use releaseReservation() instead.
+  @deprecated
+  Future<void> releaseReservation_old({
     required String productId,
     required String reservationId,
     required int quantity,
   }) async {
-    try {
-      await _db.runTransaction((transaction) async {
-        final productRef = _db.collection('products').doc(productId);
-        final reservationRef = productRef.collection('reservations').doc(reservationId);
-
-        final reservationSnapshot = await transaction.get(reservationRef);
-        if (!reservationSnapshot.exists) {
-          debugPrint('[CheckoutInventoryService] Reservation $reservationId not found');
-          return;
-        }
-
-        // Delete reservation document
-        transaction.delete(reservationRef);
-
-        // Restore available quantity
-        final productSnapshot = await transaction.get(productRef);
-        if (productSnapshot.exists) {
-          final productData = productSnapshot.data()!;
-          final currentReserved = (productData['reserved_quantity'] as num? ?? 0).toInt();
-          final currentAvailable = (productData['available_quantity'] as num? ?? 0).toInt();
-
-          transaction.update(productRef, {
-            'reserved_quantity': max(0, currentReserved - quantity),
-            'available_quantity': currentAvailable + quantity,
-          });
-
-          debugPrint(
-            '[CheckoutInventoryService] Released reservation $reservationId '
-            '($quantity units of $productId)'
-          );
-        }
-      });
-    } catch (e) {
-      debugPrint('[CheckoutInventoryService] Release failed: $e');
-      rethrow;
-    }
+    throw UnsupportedError(
+      'Old release method removed. Use releaseReservation() which routes through /inventory/release API.'
+    );
   }
 
-  /// Confirm reservation → Convert to order stock deduction
-  /// Called when order payment is successful
-  Future<void> confirmReservation({
+  /// DEPRECATED: Use confirmReservation() instead.
+  @deprecated
+  Future<void> confirmReservation_old({
     required String productId,
     required String reservationId,
     required String orderId,
   }) async {
-    try {
-      await _db.runTransaction((transaction) async {
-        final productRef = _db.collection('products').doc(productId);
-        final reservationRef = productRef.collection('reservations').doc(reservationId);
-
-        final reservationSnapshot = await transaction.get(reservationRef);
-        if (!reservationSnapshot.exists) {
-          throw Exception('Reservation not found');
-        }
-
-        final reservationData = reservationSnapshot.data()!;
-        final quantity = (reservationData['quantity'] as num? ?? 0).toInt();
-
-        // Delete reservation (stock already deducted during reservation)
-        transaction.delete(reservationRef);
-
-        // Mark as confirmed in order
-        final orderRef = _db.collection('orders').doc(orderId);
-        transaction.update(orderRef, {
-          'inventoryReservationConfirmed': true,
-          'inventoryReservationId': reservationId,
-          'confirmedAt': FieldValue.serverTimestamp(),
-        });
-
-        debugPrint(
-          '[CheckoutInventoryService] Confirmed reservation $reservationId '
-          'for order $orderId ($quantity units)'
-        );
-      });
-    } catch (e) {
-      debugPrint('[CheckoutInventoryService] Confirmation failed: $e');
-      rethrow;
-    }
+    throw UnsupportedError(
+      'Old confirm method removed. Use confirmReservation() which routes through /inventory/confirm API.'
+    );
   }
 
-  /// Check if inventory is currently available (excluding reservations)
-  Future<bool> isInventoryAvailable({
-    required String productId,
-    required int quantity,
-  }) async {
-    try {
-      final productDoc = await _db.collection('products').doc(productId).get();
-      if (!productDoc.exists) return false;
-
-      final data = productDoc.data()!;
-      final available = (data['available_quantity'] as num? ?? 0).toInt();
-      return available >= quantity;
-    } catch (e) {
-      debugPrint('[CheckoutInventoryService] Availability check failed: $e');
-      return false;
-    }
+  /// DEPRECATED: Availability checks now happen on backend.
+  @deprecated
+  Future<bool> isInventoryAvailable({required String productId, required int quantity}) async {
+    throw UnsupportedError(
+      'Client-side availability checks are unreliable. '
+      'Backend validates during checkout atomically via /checkout/create-order.'
+    );
   }
 
-  /// Get current reservation status
+  /// DEPRECATED: Reservations are managed by backend TTL job.
+  @deprecated
   Future<Map<String, dynamic>?> getReservation(String reservationId) async {
-    try {
-      // Reservation IDs contain productId info, but we need to search across products
-      // For now, query from order reference
-      final result = await _db
-          .collectionGroup('reservations')
-          .where('status', isEqualTo: 'active')
-          .limit(1)
-          .get();
-
-      if (result.docs.isNotEmpty) {
-        return result.docs.first.data();
-      }
-      return null;
-    } catch (e) {
-      debugPrint('[CheckoutInventoryService] Get reservation failed: $e');
-      return null;
-    }
+    throw UnsupportedError(
+      'Reservation queries removed from client. '
+      'Use order status instead: /orders/:orderId returns reservation state.'
+    );
   }
 }

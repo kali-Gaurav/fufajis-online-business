@@ -10,19 +10,18 @@ class CustomerAiAssistantService {
   CustomerAiAssistantService() {
     _model = FirebaseAI.googleAI().generativeModel(
       model: 'gemini-1.5-flash',
-      generationConfig: GenerationConfig(
-        temperature: 0.7,
-      ),
+      generationConfig: GenerationConfig(temperature: 0.7),
     );
   }
 
   /// Initializes the chat session with system instructions and current cart context
   void initializeSession(String userName, List<model.CartItem> cartItems) {
-    String cartContext = cartItems.isEmpty 
+    String cartContext = cartItems.isEmpty
         ? "The user's cart is currently empty."
         : "The user currently has these items in their cart: ${cartItems.map((i) => '${i.quantity}x ${i.productName}').join(', ')}.";
 
-    final systemPrompt = '''
+    final systemPrompt =
+        '''
 You are "Fufaji AI", a friendly, helpful, and highly intelligent shopping assistant for the Fufaji Online Business app (a hyperlocal grocery and daily needs delivery service in India).
 You speak primarily in a warm, conversational tone (Hinglish or English).
 
@@ -42,7 +41,9 @@ Capabilities & Rules:
     _chatSession = _model.startChat(
       history: [
         Content.text(systemPrompt),
-        Content.model([const TextPart("Understood. I am Fufaji AI and I am ready to help the user.")]),
+        Content.model([
+          const TextPart("Understood. I am Fufaji AI and I am ready to help the user."),
+        ]),
       ],
     );
   }
@@ -69,7 +70,8 @@ Capabilities & Rules:
     if (cartItems.isEmpty) return {'error': 'Add some items to your cart first!'};
 
     final ingredients = cartItems.map((i) => i.productName).join(', ');
-    final prompt = '''
+    final prompt =
+        '''
 I have these ingredients: $ingredients.
 Suggest exactly ONE quick Indian recipe I can make. 
 Also, list up to 3 additional ingredients I might need to buy.

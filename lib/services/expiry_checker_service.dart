@@ -34,9 +34,9 @@ class ExpiryCheckerService {
 
     try {
       // Get all products with expiry dates
-      final snapshot = await _productsCollection(shopId)
-          .where('expiryDate', isNotEqualTo: null)
-          .get();
+      final snapshot = await _productsCollection(
+        shopId,
+      ).where('expiryDate', isNotEqualTo: null).get();
 
       for (final doc in snapshot.docs) {
         final product = ProductModel.fromMap(doc.data() as Map<String, dynamic>);
@@ -45,7 +45,7 @@ class ExpiryCheckerService {
         if (expiryDate == null) continue;
 
         // Skip if already discounted to max
-        if (product.discountPercentage != null && 
+        if (product.discountPercentage != null &&
             product.discountPercentage!.toDouble() >= _maxDiscountRate * 100) {
           continue;
         }
@@ -150,11 +150,12 @@ class ExpiryCheckerService {
     final cost = product.costPrice ?? 0.0;
     if (cost > 0.0 && newPrice < cost) {
       final category = product.category.toLowerCase().trim();
-      final allowBelowCost = category == 'dairy' || 
-                             category == 'bakery' || 
-                             category == 'bread' || 
-                             category == 'prepared food' || 
-                             category == 'prepared_food';
+      final allowBelowCost =
+          category == 'dairy' ||
+          category == 'bakery' ||
+          category == 'bread' ||
+          category == 'prepared food' ||
+          category == 'prepared_food';
       if (!allowBelowCost) {
         newPrice = cost;
         finalDiscount = ((product.price.toDouble() - cost) / product.price.toDouble() * 100);
@@ -177,10 +178,7 @@ class ExpiryCheckerService {
   }
 
   /// Get products expiring soon
-  Future<List<ProductModel>> getExpiringProducts(
-    String shopId, {
-    int daysAhead = 7,
-  }) async {
+  Future<List<ProductModel>> getExpiringProducts(String shopId, {int daysAhead = 7}) async {
     final now = DateTime.now();
     final futureDate = now.add(Duration(days: daysAhead));
 
@@ -205,9 +203,9 @@ class ExpiryCheckerService {
     final now = DateTime.now();
 
     try {
-      final snapshot = await _productsCollection(shopId)
-          .where('expiryDate', isLessThan: Timestamp.fromDate(now))
-          .get();
+      final snapshot = await _productsCollection(
+        shopId,
+      ).where('expiryDate', isLessThan: Timestamp.fromDate(now)).get();
 
       return snapshot.docs
           .map((doc) => ProductModel.fromMap(doc.data() as Map<String, dynamic>))
@@ -227,11 +225,9 @@ class ExpiryCheckerService {
     });
 
     // Log the expiry
-    await _expiryLogsCollection(shopId).add({
-      'productId': productId,
-      'action': 'marked_expired',
-      'timestamp': Timestamp.now(),
-    });
+    await _expiryLogsCollection(
+      shopId,
+    ).add({'productId': productId, 'action': 'marked_expired', 'timestamp': Timestamp.now()});
   }
 
   /// Remove expired products from sale
@@ -251,11 +247,7 @@ class ExpiryCheckerService {
   }
 
   /// Set expiry date for a product
-  Future<void> setExpiryDate(
-    String productId,
-    DateTime expiryDate,
-    String shopId,
-  ) async {
+  Future<void> setExpiryDate(String productId, DateTime expiryDate, String shopId) async {
     await _firestore.collection('products').doc(productId).update({
       'expiryDate': Timestamp.fromDate(expiryDate),
       'updatedAt': Timestamp.now(),
@@ -282,9 +274,9 @@ class ExpiryCheckerService {
           .where('expiryDate', isLessThan: Timestamp.fromDate(weekFromNow))
           .get();
 
-      final expiredSnapshot = await _productsCollection(shopId)
-          .where('expiryDate', isLessThan: Timestamp.fromDate(now))
-          .get();
+      final expiredSnapshot = await _productsCollection(
+        shopId,
+      ).where('expiryDate', isLessThan: Timestamp.fromDate(now)).get();
 
       // Calculate potential waste value
       double potentialWasteValue = 0;
@@ -297,7 +289,10 @@ class ExpiryCheckerService {
       final discountSnapshot = await _firestore
           .collectionGroup('discount_history')
           .where('reason', isEqualTo: 'expiry_dynamic')
-          .where('createdAt', isGreaterThan: Timestamp.fromDate(now.subtract(const Duration(days: 7))))
+          .where(
+            'createdAt',
+            isGreaterThan: Timestamp.fromDate(now.subtract(const Duration(days: 7))),
+          )
           .get();
 
       double savedFromDiscounts = 0;
@@ -356,11 +351,7 @@ class ExpiryCheckerService {
           userId: ownerId,
           title: '🚨 Expiring Soon!',
           body: '$names expiring within 24 hours! Dynamic discounts applied.',
-          data: {
-            'type': 'expiry_critical',
-            'shopId': shopId,
-            'count': critical.length.toString(),
-          },
+          data: {'type': 'expiry_critical', 'shopId': shopId, 'count': critical.length.toString()},
         );
       }
 
@@ -370,11 +361,7 @@ class ExpiryCheckerService {
           userId: ownerId,
           title: '⚠️ Products Expiring Soon',
           body: '${warning.length} products expiring in the next 3 days.',
-          data: {
-            'type': 'expiry_warning',
-            'shopId': shopId,
-            'count': warning.length.toString(),
-          },
+          data: {'type': 'expiry_warning', 'shopId': shopId, 'count': warning.length.toString()},
         );
       }
     } catch (e) {
@@ -384,10 +371,9 @@ class ExpiryCheckerService {
 
   /// Get discount history for a product
   Stream<List<Map<String, dynamic>>> getDiscountHistory(String productId) {
-    return _discountHistoryCollection(productId)
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _discountHistoryCollection(
+      productId,
+    ).orderBy('createdAt', descending: true).snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
         data['id'] = doc.id;
@@ -468,9 +454,7 @@ class ExpiryCheckerService {
         .orderBy('expiryDate', descending: false)
         .get();
 
-    return snapshot.docs
-        .map((doc) => ProductBatch.fromMap(doc.data()))
-        .toList();
+    return snapshot.docs.map((doc) => ProductBatch.fromMap(doc.data())).toList();
   }
 
   /// Deduct stock from batches in FIFO order and update product stock
@@ -499,9 +483,7 @@ class ExpiryCheckerService {
 
     // Decrement from the product's main stockQuantity
     final productRef = _firestore.collection('products').doc(productId);
-    batch.update(productRef, {
-      'stockQuantity': FieldValue.increment(-quantityToDeduct),
-    });
+    batch.update(productRef, {'stockQuantity': FieldValue.increment(-quantityToDeduct)});
 
     await batch.commit();
   }
@@ -513,7 +495,7 @@ class ExpiryCheckerService {
   }) async {
     final now = DateTime.now();
     final thresholdDate = now.add(Duration(days: daysBeforeExpiry));
-    
+
     // Get all products expiring before the threshold date
     final snapshot = await _firestore
         .collection('products')
@@ -525,29 +507,30 @@ class ExpiryCheckerService {
     for (var doc in snapshot.docs) {
       final data = doc.data();
       final currentDiscount = (data['discountPercentage'] as num?)?.toDouble() ?? 0.0;
-      
+
       // If current discount is less than the near-expiry discount, apply it
       if (currentDiscount < discountPercent) {
         final originalPrice = (data['price'] as num?)?.toDouble() ?? 0.0;
         final costPrice = (data['costPrice'] as num?)?.toDouble() ?? 0.0;
         final category = (data['category']?.toString() ?? '').toLowerCase().trim();
-        
+
         double newPrice = originalPrice * (1 - discountPercent / 100);
         double finalDiscount = discountPercent;
-        
+
         if (costPrice > 0.0 && newPrice < costPrice) {
-          final allowBelowCost = category == 'dairy' || 
-                                 category == 'bakery' || 
-                                 category == 'bread' || 
-                                 category == 'prepared food' || 
-                                 category == 'prepared_food';
+          final allowBelowCost =
+              category == 'dairy' ||
+              category == 'bakery' ||
+              category == 'bread' ||
+              category == 'prepared food' ||
+              category == 'prepared_food';
           if (!allowBelowCost) {
             newPrice = costPrice;
             finalDiscount = ((originalPrice - costPrice) / originalPrice * 100);
             if (finalDiscount < 0) finalDiscount = 0;
           }
         }
-        
+
         batch.update(doc.reference, {
           'discountPercentage': finalDiscount,
           'originalPrice': originalPrice,

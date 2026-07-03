@@ -34,20 +34,16 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   Future<void> _getCurrentLocationThenAutoAct() async {
     await _getCurrentLocation();
     // Only auto-act when opened by the scanner (qrCodeId passed in)
-    if (widget.qrCodeId != null &&
-        widget.qrCodeId!.isNotEmpty &&
-        !_autoCheckInDone) {
+    if (widget.qrCodeId != null && widget.qrCodeId!.isNotEmpty && !_autoCheckInDone) {
       _autoCheckInDone = true;
-      await Future.delayed(
-          const Duration(milliseconds: 300)); // let UI render first
+      await Future.delayed(const Duration(milliseconds: 300)); // let UI render first
       if (mounted) await _autoActFromQr();
     }
   }
 
   /// Auto check-in or check-out depending on today's record — no button needed.
   Future<void> _autoActFromQr() async {
-    final isCheckedIn = _todayRecord?.isCheckedIn == true &&
-        !(_todayRecord?.isCheckedOut == true);
+    final isCheckedIn = _todayRecord?.isCheckedIn == true && !(_todayRecord?.isCheckedOut == true);
 
     if (isCheckedIn) {
       await _checkOut();
@@ -69,8 +65,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       barrierDismissible: true,
       builder: (_) => _AttendanceConfirmOverlay(
         type: type,
-        employeeName:
-            context.read<AuthProvider>().currentUser?.name ?? 'Employee',
+        employeeName: context.read<AuthProvider>().currentUser?.name ?? 'Employee',
         onDismiss: () => Navigator.pop(context),
       ),
     );
@@ -107,15 +102,15 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: AppTheme.error),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: AppTheme.error));
   }
 
   void _showSuccess(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: AppTheme.success),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: AppTheme.success));
   }
 
   Future<void> _checkIn() async {
@@ -130,13 +125,9 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         employeeName: authProvider.currentUser?.name ?? 'Employee',
       );
 
-      final qrCodeId = widget.qrCodeId ??
-          'ATTENDANCE-${DateTime.now().millisecondsSinceEpoch}';
+      final qrCodeId = widget.qrCodeId ?? 'ATTENDANCE-${DateTime.now().millisecondsSinceEpoch}';
 
-      await service.checkIn(
-        qrCodeId: qrCodeId,
-        location: _currentLocation,
-      );
+      await service.checkIn(qrCodeId: qrCodeId, location: _currentLocation);
 
       await _loadTodayAttendance();
       _showSuccess('Checked in successfully!');
@@ -164,10 +155,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         employeeName: authProvider.currentUser?.name ?? 'Employee',
       );
 
-      await service.checkOut(
-        attendanceId: _todayRecord!.id,
-        location: _currentLocation,
-      );
+      await service.checkOut(attendanceId: _todayRecord!.id, location: _currentLocation);
 
       await _loadTodayAttendance();
       _showSuccess('Checked out successfully!');
@@ -214,10 +202,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Text(
-                      employeeName,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
+                    Text(employeeName, style: Theme.of(context).textTheme.titleLarge),
                     Text(
                       authProvider.currentBranch?.name ?? 'Branch',
                       style: const TextStyle(color: Colors.grey),
@@ -236,22 +221,15 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 child: Row(
                   children: [
                     Icon(
-                      _currentLocation != null
-                          ? Icons.location_on
-                          : Icons.location_off,
-                      color:
-                          _currentLocation != null ? AppTheme.success : Colors.grey,
+                      _currentLocation != null ? Icons.location_on : Icons.location_off,
+                      color: _currentLocation != null ? AppTheme.success : Colors.grey,
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        _currentLocation != null
-                            ? 'Location captured'
-                            : 'Getting location...',
+                        _currentLocation != null ? 'Location captured' : 'Getting location...',
                         style: TextStyle(
-                          color: _currentLocation != null
-                              ? AppTheme.success
-                              : Colors.grey,
+                          color: _currentLocation != null ? AppTheme.success : Colors.grey,
                         ),
                       ),
                     ),
@@ -277,18 +255,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                     const SizedBox(height: 24),
                     if (isCheckedIn && !isCheckedOut) ...[
                       // Show check-in time
-                      _buildTimeDisplay(
-                        'Check-in Time',
-                        _todayRecord?.checkInTime,
-                      ),
+                      _buildTimeDisplay('Check-in Time', _todayRecord?.checkInTime),
                       const SizedBox(height: 16),
                       // Working hours
                       if (_todayRecord?.workingHours != null)
                         _buildTimeDisplay(
                           'Working Hours',
                           null,
-                          customValue:
-                              '${_todayRecord!.workingHours!.toStringAsFixed(1)} hrs',
+                          customValue: '${_todayRecord!.workingHours!.toStringAsFixed(1)} hrs',
                         ),
                       const SizedBox(height: 24),
                       // Check-out button
@@ -324,18 +298,15 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                       ),
                     ] else ...[
                       // Show complete record
-                      _buildTimeDisplay(
-                          'Check-in Time', _todayRecord?.checkInTime),
+                      _buildTimeDisplay('Check-in Time', _todayRecord?.checkInTime),
                       const SizedBox(height: 8),
-                      _buildTimeDisplay(
-                          'Check-out Time', _todayRecord?.checkOutTime),
+                      _buildTimeDisplay('Check-out Time', _todayRecord?.checkOutTime),
                       const SizedBox(height: 8),
                       if (_todayRecord?.workingHours != null)
                         _buildTimeDisplay(
                           'Total Hours',
                           null,
-                          customValue:
-                              '${_todayRecord!.workingHours!.toStringAsFixed(1)} hrs',
+                          customValue: '${_todayRecord!.workingHours!.toStringAsFixed(1)} hrs',
                         ),
                     ],
                   ],
@@ -358,8 +329,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     );
   }
 
-  Widget _buildTimeDisplay(String label, DateTime? time,
-      {String? customValue}) {
+  Widget _buildTimeDisplay(String label, DateTime? time, {String? customValue}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -369,10 +339,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               (time != null
                   ? '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}'
                   : '--:--'),
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
       ],
     );
@@ -395,19 +362,12 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               // Navigate to self with QR code
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => AttendanceScreen(qrCodeId: value),
-                ),
+                MaterialPageRoute(builder: (context) => AttendanceScreen(qrCodeId: value)),
               );
             }
           },
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-        ],
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel'))],
       ),
     );
   }
@@ -421,7 +381,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _AttendanceConfirmOverlay extends StatefulWidget {
-  final String type;          // 'In' or 'Out'
+  final String type; // 'In' or 'Out'
   final String employeeName;
   final VoidCallback onDismiss;
 
@@ -432,12 +392,10 @@ class _AttendanceConfirmOverlay extends StatefulWidget {
   });
 
   @override
-  State<_AttendanceConfirmOverlay> createState() =>
-      _AttendanceConfirmOverlayState();
+  State<_AttendanceConfirmOverlay> createState() => _AttendanceConfirmOverlayState();
 }
 
-class _AttendanceConfirmOverlayState
-    extends State<_AttendanceConfirmOverlay> {
+class _AttendanceConfirmOverlayState extends State<_AttendanceConfirmOverlay> {
   int _countdown = 3;
 
   @override
@@ -466,8 +424,7 @@ class _AttendanceConfirmOverlayState
         '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
 
     return AlertDialog(
-      shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       contentPadding: const EdgeInsets.all(28),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -475,45 +432,29 @@ class _AttendanceConfirmOverlayState
           Container(
             width: 72,
             height: 72,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.12), shape: BoxShape.circle),
             child: Icon(icon, color: color, size: 36),
           ),
           const SizedBox(height: 16),
           Text(
             label,
-            style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: color),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color),
           ),
           const SizedBox(height: 6),
-          Text(
-            widget.employeeName,
-            style: const TextStyle(fontSize: 16),
-          ),
+          Text(widget.employeeName, style: const TextStyle(fontSize: 16)),
           Text(
             timeStr,
             style: const TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87),
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
           ),
           const SizedBox(height: 16),
-          Text(
-            'Closing in $_countdown…',
-            style: const TextStyle(color: Colors.grey, fontSize: 12),
-          ),
+          Text('Closing in $_countdown…', style: const TextStyle(color: Colors.grey, fontSize: 12)),
         ],
       ),
-      actions: [
-        TextButton(
-          onPressed: widget.onDismiss,
-          child: const Text('OK'),
-        ),
-      ],
+      actions: [TextButton(onPressed: widget.onDismiss, child: const Text('OK'))],
     );
   }
 }

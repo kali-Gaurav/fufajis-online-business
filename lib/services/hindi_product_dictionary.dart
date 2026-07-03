@@ -55,11 +55,7 @@ class ParsedVoiceOrder {
   final String unit;
   final String productKeyword;
 
-  ParsedVoiceOrder({
-    required this.quantity,
-    required this.unit,
-    required this.productKeyword,
-  });
+  ParsedVoiceOrder({required this.quantity, required this.unit, required this.productKeyword});
 
   @override
   String toString() => 'Qty: $quantity, Unit: $unit, Product: $productKeyword';
@@ -129,9 +125,5 @@ ParsedVoiceOrder parseVoiceInput(String text) {
   // Translate product name using helper
   productKeyword = translateHindiProduct(productKeyword);
 
-  return ParsedVoiceOrder(
-    quantity: quantity,
-    unit: unit,
-    productKeyword: productKeyword,
-  );
+  return ParsedVoiceOrder(quantity: quantity, unit: unit, productKeyword: productKeyword);
 }

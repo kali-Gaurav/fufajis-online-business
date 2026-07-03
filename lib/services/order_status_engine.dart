@@ -1,10 +1,8 @@
 import 'package:flutter/foundation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/order_model.dart';
-import '../models/cart_item.dart';
-import '../repositories/order_repository.dart';
-import '../repositories/inventory_repository.dart';
 import '../constants/order_status.dart';
+import 'api_client.dart';
+import 'package:uuid/uuid.dart';
 
 /// Exception thrown when an invalid status transition is attempted
 class InvalidStatusTransitionException implements Exception {
@@ -12,12 +10,8 @@ class InvalidStatusTransitionException implements Exception {
   final String to;
   final String message;
 
-  InvalidStatusTransitionException({
-    required this.from,
-    required this.to,
-    String? customMessage,
-  }) : message = customMessage ??
-       'Invalid transition from $from to $to';
+  InvalidStatusTransitionException({required this.from, required this.to, String? customMessage})
+    : message = customMessage ?? 'Invalid transition from $from to $to';
 
   @override
   String toString() => message;
@@ -33,19 +27,26 @@ class UnauthorizedWorkflowException implements Exception {
     required this.role,
     required this.transition,
     String? customMessage,
-  }) : message = customMessage ??
-       'Role $role is not authorized to perform transition: $transition';
+  }) : message = customMessage ?? 'Role $role is not authorized to perform transition: $transition';
 
   @override
   String toString() => message;
 }
 
 /// OrderStatusEngine enforces valid order state transitions
-/// Implements a state machine for order lifecycle management
-/// Prevents invalid transitions and handles side effects
+/// Implements a PURE state orchestration layer (no business logic side effects)
+///
+/// CRITICAL: This class ONLY validates state transitions and routes through backend API.
+/// - ❌ NO direct Firestore writes
+/// - ❌ NO payment/refund processing
+/// - ❌ NO inventory updates
+/// - ❌ NO loyalty point calculations
+/// - ❌ NO customer wallet updates
+///
+/// All side effects are handled atomically by the backend via PostgreSQL transactions.
 class OrderStatusEngine {
-  final OrderRepository _repository = OrderRepository();
-  final InventoryRepository _inventoryRepo = InventoryRepository();
+  final ApiClient _apiClient = ApiClient.instance;
+  static const _uuid = Uuid();
 
   static final OrderStatusEngine _instance = OrderStatusEngine._internal();
   factory OrderStatusEngine() => _instance;
@@ -120,7 +121,8 @@ class OrderStatusEngine {
       throw InvalidStatusTransitionException(
         from: from.toString(),
         to: to.toString(),
-        customMessage: 'Cannot transition from ${from.displayName} '
+        customMessage:
+            'Cannot transition from ${from.displayName} '
             'to ${to.displayName}',
       );
     }
@@ -128,8 +130,8 @@ class OrderStatusEngine {
     // RBAC Check
     final allowedRoles = _allowedRolesForState[to] ?? [];
     // Allow 'admin' and 'super_admin' universally as a fallback safety
-    if (!allowedRoles.contains(actorRole.toLowerCase()) && 
-        actorRole.toLowerCase() != 'admin' && 
+    if (!allowedRoles.contains(actorRole.toLowerCase()) &&
+        actorRole.toLowerCase() != 'admin' &&
         actorRole.toLowerCase() != 'super_admin') {
       throw UnauthorizedWorkflowException(
         role: actorRole,
@@ -142,15 +144,18 @@ class OrderStatusEngine {
   // TRANSITION WITH SIDE EFFECTS
   // ──────────────────────────────────────────────────────────────
 
-  /// Transitions an order to a new status with side effects
-  /// Handles all related updates atomically
+  /// Transitions an order to a new status via backend API
+  /// CRITICAL: All state changes are atomic in the backend via PostgreSQL transactions
   ///
-  /// Side effects include:
-  /// - Updating order status
-  /// - Recording timeline entry
-  /// - Triggering notifications
-  /// - Updating related entities (inventory, payments, etc.)
-  Future<OrderModel> transitionWithSideEffects(
+  /// Backend handles:
+  /// - Validating state machine transitions
+  /// - Updating order status atomically
+  /// - Executing all side effects (inventory, payments, notifications) in one transaction
+  /// - Creating audit logs
+  /// - Syncing to Firestore eventually
+  ///
+  /// This client only validates schema and routing.
+  Future<void> transitionStatus(
     String orderId,
     OrderStatus newStatus, {
     required String actorId,
@@ -159,73 +164,57 @@ class OrderStatusEngine {
     String? note,
     bool isOtpVerified = false,
     bool managerOverride = false,
-    String? managerPin,
   }) async {
     try {
-      // Step 1: Get current order
-      final currentOrder = await _repository.getOrderById(orderId);
-      if (currentOrder == null) {
-        throw Exception('Order $orderId not found');
-      }
+      // IMPORTANT: We validate locally for UX feedback, but backend is authoritative
+      // (Duplicate validation is safe and expected)
 
-      // Step 2: Validate transition & roles
-      validateTransition(currentOrder.status, newStatus, actorRole);
-
-      // OTP Verification Rule
+      // For OTP verification at delivery, check here too
       if (newStatus == OrderStatus.delivered) {
-        if (!isOtpVerified) {
-          if (managerOverride) {
-             // Example: verify managerPin here if required in the future
-             if (actorRole.toLowerCase() != 'manager' && actorRole.toLowerCase() != 'admin') {
-                throw Exception('Only Managers and Admins can override OTP requirements.');
-             }
-             debugPrint('[OrderStatusEngine] Manager override used for OTP on order $orderId');
-          } else {
-            throw Exception('Cannot transition to DELIVERED without verifying OTP.');
-          }
+        if (!isOtpVerified && !managerOverride) {
+          throw Exception('Cannot transition to DELIVERED without OTP verification or manager override');
+        }
+        if (managerOverride && actorRole.toLowerCase() != 'manager' && actorRole.toLowerCase() != 'admin') {
+          throw Exception('Only managers and admins can override OTP requirements');
         }
       }
 
-      // Step 3: Execute side effects based on new status
-      await _executeSideEffects(
-        order: currentOrder,
-        newStatus: newStatus,
-        actorId: actorId,
-        actorRole: actorRole,
-        actorName: actorName,
-        note: note,
+      // Generate idempotency key to prevent duplicate transitions on retry
+      final idempotencyKey = '${orderId}_${newStatus.name}_${DateTime.now().millisecondsSinceEpoch}_${_uuid.v4().substring(0, 8)}';
+
+      // CRITICAL: Route ALL state transitions through backend API
+      // Backend is the single source of truth for order state
+      final result = await _apiClient.post(
+        '/orders/$orderId/status-transition',
+        {
+          'targetStatus': newStatus.name,
+          'actorId': actorId,
+          'actorRole': actorRole,
+          'actorName': actorName ?? 'System',
+          'note': note ?? '',
+          'isOtpVerified': isOtpVerified,
+          'managerOverride': managerOverride,
+          'idempotencyKey': idempotencyKey,
+        },
       );
 
-      // Step 4: Update order status in repository
-      await _repository.updateOrderStatus(
-        orderId,
-        newStatus.toString(),
-        note: note,
-        actorId: actorId,
-        actorRole: actorRole,
-        actorName: actorName,
-      );
-
-      // Step 5: Fetch and return updated order
-      final updatedOrder = await _repository.getOrderById(orderId);
-      if (updatedOrder == null) {
-        throw Exception('Failed to retrieve updated order');
+      if (result.data?['success'] != true) {
+        throw Exception('Backend rejected transition: ${result.data?['error'] ?? 'Unknown error'}');
       }
 
       debugPrint(
-        '[OrderStatusEngine] Transitioned order $orderId: '
-        '${currentOrder.status.displayName} → ${newStatus.displayName} '
-        'by $actorRole $actorName',
+        '[OrderStatusEngine] ✅ Transitioned order $orderId to ${newStatus.displayName} '
+        'via backend API (idempotency: $idempotencyKey)',
       );
-
-      return updatedOrder;
     } catch (e) {
-      debugPrint('[OrderStatusEngine] Transition failed: $e');
+      debugPrint('[OrderStatusEngine] ❌ Transition failed: $e');
       rethrow;
     }
   }
 
-  /// Executes side effects for each status transition
+  /// DEPRECATED: Side effects are now handled exclusively by backend API
+  /// DO NOT call this method. Backend (/orders/:id/status-transition) is the source of truth.
+  @deprecated
   Future<void> _executeSideEffects({
     required OrderModel order,
     required OrderStatus newStatus,
@@ -234,461 +223,114 @@ class OrderStatusEngine {
     String? actorName,
     String? note,
   }) async {
-    switch (newStatus) {
-      case OrderStatus.confirmed:
-        await _onOrderConfirmed(order);
-        break;
-
-      case OrderStatus.processing:
-        await _onOrderProcessing(order);
-        break;
-
-      case OrderStatus.packed:
-        await _onOrderPacked(order);
-        break;
-
-      case OrderStatus.outForDelivery:
-      case OrderStatus.shipped:
-        await _onOrderOutForDelivery(order);
-        break;
-
-      case OrderStatus.delivered:
-      case OrderStatus.completed:
-        await _onOrderDelivered(order);
-        break;
-
-      case OrderStatus.cancelled:
-        await _onOrderCancelled(order, note ?? 'No reason provided');
-        break;
-
-      case OrderStatus.returned:
-        await _onOrderReturned(order);
-        break;
-
-      case OrderStatus.refunded:
-        await _onOrderRefunded(order);
-        break;
-
-      case OrderStatus.pending:
-        // No side effects for pending
-        break;
-    }
+    throw UnsupportedError(
+      'Direct side effect execution is no longer allowed. '
+      'Use transitionStatus() which routes through backend API. '
+      'Backend handles: inventory, payments, refunds, notifications, loyalty atomically.'
+    );
   }
 
   // ──────────────────────────────────────────────────────────────
-  // SIDE EFFECT HANDLERS
+  // SIDE EFFECT HANDLERS (DEPRECATED - Backend Handles All)
   // ──────────────────────────────────────────────────────────────
+  //
+  // CRITICAL: The following methods are deprecated and should NOT be called.
+  // All business logic side effects are now handled atomically by the backend via PostgreSQL.
+  //
+  // This includes:
+  // - Inventory locking/reservation/commitment
+  // - Refund processing and wallet updates
+  // - Loyalty point calculations
+  // - Payment gateway interactions
+  // - Notification delivery
+  // - Audit logging
 
-  /// Called when order is confirmed (payment received)
-  /// - Lock inventory
-  /// - Create packing list
-  /// - Send confirmation to shop
+  /// DEPRECATED: Order confirmation side effects now handled by backend
+  /// Backend atomically: validates payment, reserves inventory, creates packing list, sends notifications
+  @deprecated
   Future<void> _onOrderConfirmed(OrderModel order) async {
-    debugPrint('[OrderStatusEngine] Executing side effects for CONFIRMED: ${order.id}');
-
-    // Lock inventory commitment
-    final cartItems = order.items.map((item) => CartItem(
-      id: item.productId,
-      productId: item.productId,
-      productName: item.productName,
-      productImage: item.productImage,
-      unit: item.unit,
-      quantity: item.quantity,
-      price: item.price,
-      stockQuantity: 0,
-      shopId: item.shopId ?? '',
-      shopName: item.shopName ?? '',
-      addedAt: DateTime.now(),
-    )).toList();
-    await _inventoryRepo.reserveInventory(cartItems, branchId: order.branchId ?? 'default');
-    
-    // - Create packing list
-    // - Notify shop owner
-    // - Send confirmation SMS/email to customer
+    throw UnsupportedError(
+      'Client-side confirmation side effects are no longer allowed. '
+      'Backend API (/orders/:id/status-transition) handles atomically: '
+      'payment verification, inventory reservation, packing list creation, notifications.'
+    );
   }
 
-  /// Called when order moves to processing
-  /// - Employee starts working
-  /// - Kitchen receives order
-  // ✅ FIXED: Implement processing side effects
+  /// DEPRECATED: Order processing side effects now handled by backend
+  /// Backend atomically: records start time, notifies kitchen, starts SLA timer
+  @deprecated
   Future<void> _onOrderProcessing(OrderModel order) async {
-    debugPrint('[OrderStatusEngine] Executing side effects for PROCESSING: ${order.id}');
-
-    try {
-      // 1. Record processing start time
-      await _repository.recordProcessingStart(order.id);
-
-      // 2. Notify kitchen/employee via Firestore
-      await FirebaseFirestore.instance
-          .collection('order_notifications')
-          .doc('${order.id}_processing')
-          .set({
-        'orderId': order.id,
-        'type': 'processing',
-        'status': 'processing',
-        'items': order.items.map((item) => {
-          'productName': item.productName,
-          'quantity': item.quantity,
-          'unit': item.unit,
-          'specialInstructions': item.specialInstructions ?? 'None',
-        }).toList(),
-        'createdAt': FieldValue.serverTimestamp(),
-        'read': false,
-      });
-
-      // 3. Start SLA timer (30 minutes to pack)
-      await FirebaseFirestore.instance
-          .collection('sla_timers')
-          .doc(order.id)
-          .set({
-        'orderId': order.id,
-        'startedAt': FieldValue.serverTimestamp(),
-        'slaMinutes': 30,
-        'status': 'active',
-      }, SetOptions(merge: true));
-
-      debugPrint('[OrderStatusEngine] ✅ Processing started for ${order.id}');
-    } catch (e) {
-      debugPrint('[OrderStatusEngine] ❌ Error in _onOrderProcessing: $e');
-    }
+    throw UnsupportedError(
+      'Client-side processing side effects are no longer allowed. '
+      'Backend API handles: start time recording, kitchen notifications, SLA timers.'
+    );
   }
 
-  /// Called when order is packed
-  /// - Verify contents
-  /// - Generate barcode
-  /// - Ready for pickup
+  /// DEPRECATED: Order packing side effects now handled by backend
+  /// Backend atomically: validates inventory, commits stock, generates packing slip, creates shipping label
+  @deprecated
   Future<void> _onOrderPacked(OrderModel order) async {
-    debugPrint('[OrderStatusEngine] Executing side effects for PACKED: ${order.id}');
-
-    // Convert reserved inventory to committed
-    final cartItems = order.items.map((item) => CartItem(
-      id: item.productId,
-      productId: item.productId,
-      productName: item.productName,
-      productImage: item.productImage,
-      unit: item.unit,
-      quantity: item.quantity,
-      price: item.price,
-      stockQuantity: 0,
-      shopId: item.shopId ?? '',
-      shopName: item.shopName ?? '',
-      addedAt: DateTime.now(),
-    )).toList();
-    await _inventoryRepo.commitInventory(cartItems, branchId: order.branchId ?? 'default');
-    
-    // - Generate packing slip
-    // - Create shipping label
-    // - Notify delivery partner
+    throw UnsupportedError(
+      'Client-side packing side effects are no longer allowed. '
+      'Backend API handles: inventory validation, stock commitment, packing slip, shipping label.'
+    );
   }
 
-  /// Called when order is out for delivery
-  /// - Delivery agent receives assignment
-  /// - Real-time tracking starts
-  // ✅ FIXED: Implement out-for-delivery side effects
+  /// DEPRECATED: Delivery assignment side effects now handled by backend
+  /// Backend atomically: assigns delivery agent via TaskRouter, creates delivery task, notifies agent, sends tracking
+  @deprecated
   Future<void> _onOrderOutForDelivery(OrderModel order) async {
-    debugPrint('[OrderStatusEngine] Executing side effects for OUT_FOR_DELIVERY/SHIPPED: ${order.id}');
-
-    try {
-      // 1. Get nearest delivery agent (simplified - production should use TaskRouter)
-      final agentsSnapshot = await FirebaseFirestore.instance
-          .collection('delivery_agents')
-          .where('status', isEqualTo: 'available')
-          .limit(1)
-          .get();
-
-      if (agentsSnapshot.docs.isEmpty) {
-        debugPrint('[OrderStatusEngine] ⚠️ No available delivery agents');
-        return;
-      }
-
-      final agent = agentsSnapshot.docs.first;
-      final agentId = agent.id;
-      final agentName = agent['name'] ?? 'Unknown';
-
-      // 2. Create delivery task
-      await FirebaseFirestore.instance
-          .collection('delivery_tasks')
-          .doc(order.id)
-          .set({
-        'orderId': order.id,
-        'customerId': order.customerId,
-        'customerName': order.customerName,
-        'customerPhone': order.customerPhone,
-        'deliveryAddress': order.deliveryAddress,
-        'assignedAgentId': agentId,
-        'assignedAgentName': agentName,
-        'assignedAt': FieldValue.serverTimestamp(),
-        'status': 'assigned',
-        'items': order.items.map((item) => {
-          'productName': item.productName,
-          'quantity': item.quantity,
-        }).toList(),
-        'totalAmount': order.totalAmount.toDouble(),
-      });
-
-      // 3. Notify delivery agent
-      await FirebaseFirestore.instance
-          .collection('delivery_notifications')
-          .doc('${agentId}_${order.id}')
-          .set({
-        'agentId': agentId,
-        'orderId': order.id,
-        'type': 'new_delivery',
-        'customerName': order.customerName,
-        'address': order.deliveryAddress,
-        'createdAt': FieldValue.serverTimestamp(),
-        'read': false,
-      });
-
-      // 4. Send customer tracking link
-      await FirebaseFirestore.instance
-          .collection('chat_messages')
-          .add({
-        'customerId': order.customerId,
-        'type': 'tracking',
-        'trackingUrl': 'https://fufaji.app/track/${order.id}',
-        'trackingCode': order.id,
-        'agentName': agentName,
-        'agentPhone': agent['phone'],
-        'message': 'Your order is out for delivery! Track: https://fufaji.app/track/${order.id}',
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-
-      debugPrint('[OrderStatusEngine] ✅ Delivery assigned to $agentName (${order.id})');
-    } catch (e) {
-      debugPrint('[OrderStatusEngine] ❌ Error in _onOrderOutForDelivery: $e');
-    }
+    throw UnsupportedError(
+      'Client-side delivery assignment is no longer allowed. '
+      'Backend API uses TaskRouter to assign delivery partner atomically, '
+      'creates delivery tasks, sends notifications, and shares tracking links.'
+    );
   }
 
-  /// Called when order is delivered
-  /// - Update customer loyalty points
-  /// - Collect payment if COD
-  /// - Trigger post-delivery survey
-  // ✅ FIXED: Implement delivered side effects
+  /// DEPRECATED: Delivery completion side effects now handled by backend
+  /// Backend atomically: updates loyalty, handles COD settlement, opens return window, creates rating prompt
+  @deprecated
   Future<void> _onOrderDelivered(OrderModel order) async {
-    debugPrint('[OrderStatusEngine] Executing side effects for DELIVERED/COMPLETED: ${order.id}');
-
-    try {
-      // 1. Update customer loyalty points (1 point per rupee spent)
-      final loyaltyPoints = (order.totalAmount * 1).toInt();
-      await FirebaseFirestore.instance
-          .collection('customers')
-          .doc(order.customerId)
-          .update({
-        'loyaltyPoints': FieldValue.increment(loyaltyPoints),
-        'totalSpent': FieldValue.increment(order.totalAmount.toDouble()),
-      });
-
-      // 2. Handle COD payment if applicable
-      if (order.paymentMethod == 'cod') {
-        await FirebaseFirestore.instance
-            .collection('cod_collections')
-            .doc(order.id)
-            .set({
-          'orderId': order.id,
-          'customerId': order.customerId,
-          'amount': order.totalAmount.toDouble(),
-          'status': 'collected',
-          'collectedAt': FieldValue.serverTimestamp(),
-          'collectedBy': 'delivery_agent',
-        });
-      }
-
-      // 3. Send delivery confirmation
-      await FirebaseFirestore.instance
-          .collection('order_confirmations')
-          .doc(order.id)
-          .set({
-        'orderId': order.id,
-        'customerId': order.customerId,
-        'deliveredAt': FieldValue.serverTimestamp(),
-        'items': order.items.length,
-        'totalAmount': order.totalAmount.toDouble(),
-        'status': 'delivered',
-      });
-
-      // 4. Start 7-day return window
-      final returnDeadline = DateTime.now().add(const Duration(days: 7));
-      await FirebaseFirestore.instance
-          .collection('return_windows')
-          .doc(order.id)
-          .set({
-        'orderId': order.id,
-        'customerId': order.customerId,
-        'openedAt': FieldValue.serverTimestamp(),
-        'deadline': Timestamp.fromDate(returnDeadline),
-        'status': 'active',
-        'eligible': true,
-      });
-
-      // 5. Enable ratings/reviews - create rating prompt
-      await FirebaseFirestore.instance
-          .collection('rating_prompts')
-          .doc(order.id)
-          .set({
-        'orderId': order.id,
-        'customerId': order.customerId,
-        'shopName': order.shopName ?? 'Fufaji Store',
-        'createdAt': FieldValue.serverTimestamp(),
-        'status': 'pending',
-        'expiresAt': Timestamp.fromDate(DateTime.now().add(const Duration(days: 30))),
-      });
-
-      debugPrint('[OrderStatusEngine] ✅ Post-delivery processing complete for ${order.id}');
-    } catch (e) {
-      debugPrint('[OrderStatusEngine] ❌ Error in _onOrderDelivered: $e');
-    }
+    throw UnsupportedError(
+      'Client-side delivery completion is no longer allowed. '
+      'Backend API handles atomically: loyalty point accrual, COD settlement via payment gateway, '
+      'return window creation, rating prompts, post-delivery notifications.'
+    );
   }
 
-  /// Called when order is cancelled
-  /// - Restore inventory
-  /// - Process refund
-  /// - Notify customer
+  /// DEPRECATED: Order cancellation side effects now handled by backend
+  /// Backend atomically: restores inventory, initiates refund, cancels deliveries, sends notifications
+  @deprecated
   Future<void> _onOrderCancelled(OrderModel order, String reason) async {
-    debugPrint('[OrderStatusEngine] Executing side effects for CANCELLED: ${order.id}, reason: $reason');
-
-    // Restore inventory from reserved state (assuming cancelled before packed)
-    // If it was packed and then cancelled, it should be from committed, but we'll default to reserved for now
-    final cartItems = order.items.map((item) => CartItem(
-      id: item.productId,
-      productId: item.productId,
-      productName: item.productName,
-      productImage: item.productImage,
-      unit: item.unit,
-      quantity: item.quantity,
-      price: item.price,
-      stockQuantity: 0,
-      shopId: item.shopId ?? '',
-      shopName: item.shopName ?? '',
-      addedAt: DateTime.now(),
-    )).toList();
-    await _inventoryRepo.restoreInventory(cartItems, branchId: order.branchId ?? 'default');
-
-    // - Initiate refund (async process)
-    // - Cancel any pending deliveries
-    // - Send cancellation notice to customer
-    // - Log cancellation reason for analytics
+    throw UnsupportedError(
+      'Client-side cancellation is no longer allowed. '
+      'Backend API handles atomically: inventory restoration based on current state, '
+      'refund initiation, delivery cancellation, customer notifications.'
+    );
   }
 
-  /// Called when order is marked for return
-  /// - Open return window
-  /// - Generate return label
-  /// - Notify shop
+  /// DEPRECATED: Return processing side effects now handled by backend
+  /// Backend atomically: transitions inventory to QC state, creates RMA, generates return label, schedules pickup
+  @deprecated
   Future<void> _onOrderReturned(OrderModel order) async {
-    debugPrint('[OrderStatusEngine] Executing side effects for RETURNED: ${order.id}');
-
-    // Move inventory to QC state
-    final cartItems = order.items.map((item) => CartItem(
-      id: item.productId,
-      productId: item.productId,
-      productName: item.productName,
-      productImage: item.productImage,
-      unit: item.unit,
-      quantity: item.quantity,
-      price: item.price,
-      stockQuantity: 0,
-      shopId: item.shopId ?? '',
-      shopName: item.shopName ?? '',
-      addedAt: DateTime.now(),
-    )).toList();
-    await _inventoryRepo.qcInventory(cartItems, branchId: order.branchId ?? 'default');
-
-    // - Create return RMA number
-    // - Generate return shipping label
-    // - Notify shop to prepare for pickup
-    // - Schedule return pickup
+    throw UnsupportedError(
+      'Client-side return processing is no longer allowed. '
+      'Backend API handles atomically: inventory QC transition, RMA creation, '
+      'return label generation, pickup scheduling, shop notifications.'
+    );
   }
 
-  /// Called when refund is processed
-  /// - Update wallet/payment method
-  /// - Send refund confirmation
-  /// - Update accounting records
-  // ✅ FIXED: Implement refund side effects
+  /// DEPRECATED: Refund processing side effects now handled by backend
+  /// Backend atomically: verifies refund eligibility, processes to original payment method,
+  /// updates wallet, creates audit records, closes return window
+  @deprecated
   Future<void> _onOrderRefunded(OrderModel order) async {
-    debugPrint('[OrderStatusEngine] Executing side effects for REFUNDED: ${order.id}');
-
-    try {
-      // 1. Process refund to original payment method
-      if (order.paymentMethod == 'razorpay' || order.paymentMethod == 'card') {
-        await FirebaseFirestore.instance
-            .collection('refund_transactions')
-            .add({
-          'orderId': order.id,
-          'customerId': order.customerId,
-          'amount': order.totalAmount.toDouble(),
-          'paymentMethod': order.paymentMethod,
-          'originalPaymentId': order.paymentId,
-          'status': 'initiated',
-          'createdAt': FieldValue.serverTimestamp(),
-          'processedAt': null,
-        });
-      }
-
-      // 2. Update customer wallet
-      await FirebaseFirestore.instance
-          .collection('wallets')
-          .doc(order.customerId)
-          .set({
-        'balance': FieldValue.increment(order.totalAmount.toDouble()),
-        'lastRefund': order.id,
-        'lastRefundAmount': order.totalAmount.toDouble(),
-        'lastUpdated': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-
-      // 3. Send refund receipt
-      await FirebaseFirestore.instance
-          .collection('refund_receipts')
-          .doc(order.id)
-          .set({
-        'orderId': order.id,
-        'customerId': order.customerId,
-        'refundAmount': order.totalAmount.toDouble(),
-        'refundDate': FieldValue.serverTimestamp(),
-        'paymentMethod': order.paymentMethod,
-        'status': 'completed',
-        'items': order.items.map((item) => {
-          'productName': item.productName,
-          'quantity': item.quantity,
-          'refundAmount': (item.price * item.quantity).toDouble(),
-        }).toList(),
-      });
-
-      // 4. Close return window
-      await FirebaseFirestore.instance
-          .collection('return_windows')
-          .doc(order.id)
-          .update({
-        'status': 'closed',
-        'refundProcessedAt': FieldValue.serverTimestamp(),
-      });
-
-      // 5. Update business accounting records
-      await FirebaseFirestore.instance
-          .collection('accounting_records')
-          .add({
-        'type': 'refund',
-        'orderId': order.id,
-        'customerId': order.customerId,
-        'amount': -order.totalAmount.toDouble(), // Negative for outflow
-        'createdAt': FieldValue.serverTimestamp(),
-        'bookingDate': FieldValue.serverTimestamp(),
-        'description': 'Refund for order ${order.id}',
-      });
-
-      // 6. Deduct loyalty points if applicable
-      if (order.loyaltyPointsUsed > 0) {
-        await FirebaseFirestore.instance
-            .collection('customers')
-            .doc(order.customerId)
-            .update({
-          'loyaltyPoints': FieldValue.increment(order.loyaltyPointsUsed),
-        });
-      }
-
-      debugPrint('[OrderStatusEngine] ✅ Refund processed for ${order.id} (₹${order.totalAmount})');
-    } catch (e) {
-      debugPrint('[OrderStatusEngine] ❌ Error in _onOrderRefunded: $e');
-    }
+    throw UnsupportedError(
+      'Client-side refund processing is ABSOLUTELY FORBIDDEN (payment fraud risk). '
+      'Backend API handles exclusively: refund verification, payment gateway interaction, '
+      'wallet updates, loyalty point reversal, accounting records, audit logging. '
+      'All in a single PostgreSQL transaction.'
+    );
   }
 
   // ──────────────────────────────────────────────────────────────
@@ -724,9 +366,7 @@ class OrderStatusEngine {
 
     for (final entry in _validTransitions.entries) {
       final from = entry.key.displayName;
-      final tos = entry.value
-          .map((s) => s.displayName ?? '')
-          .join(', ');
+      final tos = entry.value.map((s) => s.displayName ?? '').join(', ');
       buffer.writeln('  $from → ${tos.isEmpty ? '(terminal)' : tos}');
     }
 

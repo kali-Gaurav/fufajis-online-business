@@ -15,6 +15,7 @@ class CampaignManagementScreen extends StatefulWidget {
   @override
   State<CampaignManagementScreen> createState() => _CampaignManagementScreenState();
 }
+
 class _CampaignManagementScreenState extends State<CampaignManagementScreen> {
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
@@ -27,7 +28,6 @@ class _CampaignManagementScreenState extends State<CampaignManagementScreen> {
     _messageController.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -79,14 +79,16 @@ class _CampaignManagementScreenState extends State<CampaignManagementScreen> {
                   const SizedBox(height: 16),
                   Text('No Campaigns Yet', style: Theme.of(context).textTheme.titleLarge),
                   const SizedBox(height: 8),
-                  const Text('Create your first marketing campaign to boost sales!', 
-                    style: TextStyle(color: AppTheme.grey600)),
+                  const Text(
+                    'Create your first marketing campaign to boost sales!',
+                    style: TextStyle(color: AppTheme.grey600),
+                  ),
                   const SizedBox(height: 24),
                   ElevatedButton.icon(
                     onPressed: () => _showCreateCampaignWizard(context),
                     icon: const Icon(Icons.add),
                     label: const Text('Create Campaign'),
-                  )
+                  ),
                 ],
               ),
             );
@@ -116,7 +118,11 @@ class _CampaignManagementScreenState extends State<CampaignManagementScreen> {
           padding: const EdgeInsets.symmetric(vertical: 12),
           child: Text(
             title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey800),
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.grey800,
+            ),
           ),
         ),
         ...campaigns.map((c) => _CampaignCard(campaign: c)),
@@ -143,7 +149,7 @@ class _CampaignCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('MMM dd, yyyy - hh:mm a');
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -184,23 +190,30 @@ class _CampaignCard extends StatelessWidget {
                 children: [
                   const Icon(Icons.people_outline, size: 16, color: AppTheme.grey500),
                   const SizedBox(width: 4),
-                  Text('${campaign.estimatedAudienceSize} target audience', 
-                    style: const TextStyle(color: AppTheme.grey600, fontSize: 12)),
+                  Text(
+                    '${campaign.estimatedAudienceSize} target audience',
+                    style: const TextStyle(color: AppTheme.grey600, fontSize: 12),
+                  ),
                   const Spacer(),
                   if (campaign.scheduledAt != null) ...[
                     const Icon(Icons.schedule, size: 16, color: AppTheme.grey500),
                     const SizedBox(width: 4),
-                    Text(dateFormat.format(campaign.scheduledAt!), 
-                      style: const TextStyle(color: AppTheme.grey600, fontSize: 12)),
+                    Text(
+                      dateFormat.format(campaign.scheduledAt!),
+                      style: const TextStyle(color: AppTheme.grey600, fontSize: 12),
+                    ),
                   ] else if (campaign.sentAt != null) ...[
                     const Icon(Icons.send_outlined, size: 16, color: AppTheme.grey500),
                     const SizedBox(width: 4),
-                    Text(dateFormat.format(campaign.sentAt!), 
-                      style: const TextStyle(color: AppTheme.grey600, fontSize: 12)),
+                    Text(
+                      dateFormat.format(campaign.sentAt!),
+                      style: const TextStyle(color: AppTheme.grey600, fontSize: 12),
+                    ),
                   ],
                 ],
               ),
-              if (campaign.status == CampaignStatus.completed || campaign.status == CampaignStatus.active) ...[
+              if (campaign.status == CampaignStatus.completed ||
+                  campaign.status == CampaignStatus.active) ...[
                 const Divider(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -290,18 +303,18 @@ class _CampaignWizardBottomSheet extends StatefulWidget {
 
 class _CampaignWizardBottomSheetState extends State<_CampaignWizardBottomSheet> {
   int _currentStep = 0;
-  
+
   // Data collection
   String _goal = '';
   List<String> _selectedSegments = ['all'];
   String _offerDetails = '';
   bool _sendTimeOptimization = false;
-  
+
   // AI Generation state
   bool _isGenerating = false;
   List<Map<String, String>> _generatedOptions = [];
   int _selectedOptionIndex = -1;
-  
+
   // Manual text edits
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _bodyController = TextEditingController();
@@ -310,12 +323,14 @@ class _CampaignWizardBottomSheetState extends State<_CampaignWizardBottomSheet> 
     setState(() {
       _isGenerating = true;
     });
-    
+
     try {
       final generator = AiCampaignGeneratorService();
-      
+
       // Suggest segment if not set
-      if (_selectedSegments.contains('all') && _selectedSegments.length == 1 && _offerDetails.isNotEmpty) {
+      if (_selectedSegments.contains('all') &&
+          _selectedSegments.length == 1 &&
+          _offerDetails.isNotEmpty) {
         final suggestions = await generator.suggestAudienceSegment(_offerDetails);
         if (suggestions.isNotEmpty) {
           setState(() {
@@ -323,14 +338,14 @@ class _CampaignWizardBottomSheetState extends State<_CampaignWizardBottomSheet> 
           });
         }
       }
-      
+
       // Generate copy
       final options = await generator.generateCampaignCopy(
         goal: _goal.isEmpty ? "Increase sales" : _goal,
         audience: _selectedSegments.join(', '),
         offerDetails: _offerDetails.isEmpty ? "General promotion" : _offerDetails,
       );
-      
+
       setState(() {
         _generatedOptions = options;
         _isGenerating = false;
@@ -340,7 +355,9 @@ class _CampaignWizardBottomSheetState extends State<_CampaignWizardBottomSheet> 
         _isGenerating = false;
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error generating AI copy: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error generating AI copy: $e')));
       }
     }
   }
@@ -348,9 +365,11 @@ class _CampaignWizardBottomSheetState extends State<_CampaignWizardBottomSheet> 
   void _saveDraft() async {
     final provider = context.read<CampaignProvider>();
     final auth = context.read<AuthProvider>();
-    
+
     if (_titleController.text.isEmpty || _bodyController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select or write a title and body')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select or write a title and body')));
       return;
     }
 
@@ -367,13 +386,15 @@ class _CampaignWizardBottomSheetState extends State<_CampaignWizardBottomSheet> 
 
     try {
       await provider.createDraft(
-        campaign, 
-        auth.currentUser?.id ?? 'admin', 
-        auth.currentUser?.name ?? 'Admin'
+        campaign,
+        auth.currentUser?.id ?? 'admin',
+        auth.currentUser?.name ?? 'Admin',
       );
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Campaign saved as draft')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Campaign saved as draft')));
       }
     } catch (e) {
       if (mounted) {
@@ -435,7 +456,7 @@ class _CampaignWizardBottomSheetState extends State<_CampaignWizardBottomSheet> 
                             child: const Text('Back'),
                           ),
                         ),
-                      ]
+                      ],
                     ],
                   ),
                 );
@@ -473,11 +494,11 @@ class _CampaignWizardBottomSheetState extends State<_CampaignWizardBottomSheet> 
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text('Create Campaign', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () => Navigator.pop(context),
+          const Text(
+            'Create Campaign',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
+          IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
         ],
       ),
     );
@@ -487,7 +508,10 @@ class _CampaignWizardBottomSheetState extends State<_CampaignWizardBottomSheet> 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('What is the goal of this campaign?', style: TextStyle(fontWeight: FontWeight.bold)),
+        const Text(
+          'What is the goal of this campaign?',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 8),
         TextField(
           decoration: const InputDecoration(
@@ -543,7 +567,10 @@ class _CampaignWizardBottomSheetState extends State<_CampaignWizardBottomSheet> 
               margin: const EdgeInsets.only(bottom: 12),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                border: Border.all(color: isSelected ? AppTheme.primary : AppTheme.grey300, width: isSelected ? 2 : 1),
+                border: Border.all(
+                  color: isSelected ? AppTheme.primary : AppTheme.grey300,
+                  width: isSelected ? 2 : 1,
+                ),
                 borderRadius: BorderRadius.circular(12),
                 color: isSelected ? AppTheme.primary.withValues(alpha: 0.05) : null,
               ),
@@ -552,9 +579,15 @@ class _CampaignWizardBottomSheetState extends State<_CampaignWizardBottomSheet> 
                 children: [
                   Row(
                     children: [
-                      if (isSelected) const Icon(Icons.check_circle, color: AppTheme.primary, size: 20),
+                      if (isSelected)
+                        const Icon(Icons.check_circle, color: AppTheme.primary, size: 20),
                       if (isSelected) const SizedBox(width: 8),
-                      Expanded(child: Text(_generatedOptions[index]['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold))),
+                      Expanded(
+                        child: Text(
+                          _generatedOptions[index]['title'] ?? '',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -575,10 +608,11 @@ class _CampaignWizardBottomSheetState extends State<_CampaignWizardBottomSheet> 
         const Text('Target Segments:', style: TextStyle(fontWeight: FontWeight.bold)),
         Wrap(
           spacing: 8,
-          children: _selectedSegments.map((s) => Chip(
-            label: Text(s),
-            backgroundColor: AppTheme.info.withValues(alpha: 0.1),
-          )).toList(),
+          children: _selectedSegments
+              .map(
+                (s) => Chip(label: Text(s), backgroundColor: AppTheme.info.withValues(alpha: 0.1)),
+              )
+              .toList(),
         ),
         const SizedBox(height: 24),
         const Text('Title', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -606,7 +640,10 @@ class _CampaignWizardBottomSheetState extends State<_CampaignWizardBottomSheet> 
           ),
           child: SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('Optimize send time per recipient', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            title: const Text(
+              'Optimize send time per recipient',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            ),
             subtitle: const Text(
               'Delivers this campaign to each customer at their personal best-engagement hour instead of immediately.',
               style: TextStyle(fontSize: 11, color: AppTheme.grey500),

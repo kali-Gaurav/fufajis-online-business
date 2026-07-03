@@ -109,20 +109,12 @@ class _OTPVerificationDialogState extends State<OTPVerificationDialog> {
                 shape: BoxShape.circle,
                 color: AppTheme.primary.withValues(alpha: 0.1),
               ),
-              child: const Icon(
-                Icons.verified_user,
-                color: AppTheme.primary,
-                size: 32,
-              ),
+              child: const Icon(Icons.verified_user, color: AppTheme.primary, size: 32),
             ),
             const SizedBox(height: 16),
             const Text(
               'Verify Delivery',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.grey900,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.grey900),
             ),
             const SizedBox(height: 8),
             Text(
@@ -163,24 +155,15 @@ class _OTPVerificationDialogState extends State<OTPVerificationDialog> {
                       counterText: '',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(
-                          color: AppTheme.grey300,
-                          width: 2,
-                        ),
+                        borderSide: const BorderSide(color: AppTheme.grey300, width: 2),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(
-                          color: AppTheme.primary,
-                          width: 2,
-                        ),
+                        borderSide: const BorderSide(color: AppTheme.primary, width: 2),
                       ),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(
-                          color: AppTheme.error,
-                          width: 2,
-                        ),
+                        borderSide: const BorderSide(color: AppTheme.error, width: 2),
                       ),
                     ),
                     style: const TextStyle(
@@ -217,25 +200,16 @@ class _OTPVerificationDialogState extends State<OTPVerificationDialog> {
                 decoration: BoxDecoration(
                   color: AppTheme.error.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: AppTheme.error.withValues(alpha: 0.3),
-                  ),
+                  border: Border.all(color: AppTheme.error.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(
-                      Icons.error_outline,
-                      color: AppTheme.error,
-                      size: 18,
-                    ),
+                    const Icon(Icons.error_outline, color: AppTheme.error, size: 18),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         _errorMessage!,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.error,
-                        ),
+                        style: const TextStyle(fontSize: 12, color: AppTheme.error),
                       ),
                     ),
                   ],
@@ -275,9 +249,7 @@ class _OTPVerificationDialogState extends State<OTPVerificationDialog> {
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white,
-                              ),
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
                         : const Text('Verify'),

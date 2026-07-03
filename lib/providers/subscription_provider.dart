@@ -17,8 +17,7 @@ class SubscriptionProvider with ChangeNotifier {
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      final List<String> rawList =
-          prefs.getStringList('customer_subscriptions_$userId') ?? [];
+      final List<String> rawList = prefs.getStringList('customer_subscriptions_$userId') ?? [];
 
       _subscriptions = rawList
           .map((item) => SubscriptionModel.fromMap(json.decode(item) as Map<String, dynamic>))
@@ -68,9 +67,7 @@ class SubscriptionProvider with ChangeNotifier {
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      final List<String> rawList = _subscriptions
-          .map((item) => json.encode(item.toMap()))
-          .toList();
+      final List<String> rawList = _subscriptions.map((item) => json.encode(item.toMap())).toList();
       await prefs.setStringList('customer_subscriptions_$customerId', rawList);
       return true;
     } catch (e) {
@@ -80,10 +77,7 @@ class SubscriptionProvider with ChangeNotifier {
   }
 
   /// Pauses or cancels an active subscription
-  Future<void> updateSubscriptionStatus(
-    String subscriptionId,
-    SubscriptionStatus status,
-  ) async {
+  Future<void> updateSubscriptionStatus(String subscriptionId, SubscriptionStatus status) async {
     final index = _subscriptions.indexWhere((sub) => sub.id == subscriptionId);
     if (index >= 0) {
       final updated = _subscriptions[index].copyWith(status: status);
@@ -95,10 +89,7 @@ class SubscriptionProvider with ChangeNotifier {
         final List<String> rawList = _subscriptions
             .map((item) => json.encode(item.toMap()))
             .toList();
-        await prefs.setStringList(
-          'customer_subscriptions_${updated.customerId}',
-          rawList,
-        );
+        await prefs.setStringList('customer_subscriptions_${updated.customerId}', rawList);
       } catch (e) {
         debugPrint('Error updating subscription status: $e');
       }
@@ -118,9 +109,7 @@ class SubscriptionProvider with ChangeNotifier {
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      final List<String> rawList = _subscriptions
-          .map((item) => json.encode(item.toMap()))
-          .toList();
+      final List<String> rawList = _subscriptions.map((item) => json.encode(item.toMap())).toList();
       await prefs.setStringList('customer_subscriptions_$userId', rawList);
     } catch (e) {
       debugPrint('Error setting vacation mode: $e');
@@ -150,10 +139,7 @@ class SubscriptionProvider with ChangeNotifier {
           return date.difference(sub.startDate).inDays % 2 == 0;
         case SubscriptionFrequency.custom:
           return sub.deliveryDates.any(
-            (d) =>
-                d.year == date.year &&
-                d.month == date.month &&
-                d.day == date.day,
+            (d) => d.year == date.year && d.month == date.month && d.day == date.day,
           );
       }
     }).toList();

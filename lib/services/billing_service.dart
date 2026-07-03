@@ -40,7 +40,7 @@ class BillingService {
 
     // 2. Dynamic Delivery Charge logic
     double deliveryChargeVal = 0.0;
-    
+
     if (deliveryType == DeliveryType.express) {
       deliveryChargeVal = config.expressDeliveryFee;
     } else {
@@ -49,7 +49,7 @@ class BillingService {
         deliveryChargeVal = config.standardDeliveryFee;
       }
     }
-    
+
     // Distance surcharge for far locations
     if (distanceKm > config.baseDeliveryRadiusKm) {
       deliveryChargeVal += (distanceKm - config.baseDeliveryRadiusKm) * config.deliveryFeePerKm;
@@ -68,10 +68,14 @@ class BillingService {
     MonetaryValue totalDiscount = MonetaryValue(totalDiscountVal);
 
     // 5. Grand Total
-    MonetaryValue grandTotal = (subtotal + deliveryCharge + tax - totalDiscount).clamp(MonetaryValue(0.0), MonetaryValue(1000000.0));
+    MonetaryValue grandTotal = (subtotal + deliveryCharge + tax - totalDiscount).clamp(
+      MonetaryValue(0.0),
+      MonetaryValue(1000000.0),
+    );
 
     // 6. Generate Provisional Invoice ID
-    String invoiceId = "INV-${DateTime.now().year}-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}";
+    String invoiceId =
+        "INV-${DateTime.now().year}-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}";
 
     return BillingDetails(
       items: items,

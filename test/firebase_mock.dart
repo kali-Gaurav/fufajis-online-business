@@ -7,8 +7,7 @@ typedef Callback = void Function(MethodCall call);
 void setupFirebaseCoreMocks([Callback? customHandlers]) {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-      .setMockMethodCallHandler(
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
     const MethodChannel('plugins.flutter.io/firebase_core'),
     (MethodCall methodCall) async {
       if (methodCall.method == 'Firebase#initializeCore') {
@@ -22,7 +21,7 @@ void setupFirebaseCoreMocks([Callback? customHandlers]) {
               'projectId': '123',
             },
             'pluginConstants': {},
-          }
+          },
         ];
       }
 

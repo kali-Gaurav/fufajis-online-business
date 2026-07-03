@@ -9,9 +9,13 @@ import 'package:fufajis_online/services/logging_service.dart';
 
 // Mock classes
 class MockFirebaseFirestore extends Mock implements FirebaseFirestore {}
+
 class MockDocumentReference extends Mock implements DocumentReference {}
+
 class MockQuery extends Mock implements Query {}
+
 class MockLoggingService extends Mock implements LoggingService {}
+
 class MockProductModel extends Mock implements ProductModel {}
 
 void main() {
@@ -77,10 +81,7 @@ void main() {
 
     // Test 7: Watch products by branch creates a stream
     test('watchProductsByBranch should return a broadcast stream', () {
-      final stream = syncService.watchProductsByBranch(
-        shopId: 'shop_001',
-        branchId: 'branch_001',
-      );
+      final stream = syncService.watchProductsByBranch(shopId: 'shop_001', branchId: 'branch_001');
       expect(stream, isNotNull);
       expect(stream.isBroadcast, true);
     });
@@ -89,10 +90,7 @@ void main() {
     test('Should track multiple listeners without duplication', () {
       syncService.watchAllProducts(shopId: 'shop_001');
       syncService.watchProductById('prod_001');
-      syncService.watchProductsByCategory(
-        shopId: 'shop_001',
-        category: 'vegetables',
-      );
+      syncService.watchProductsByCategory(shopId: 'shop_001', category: 'vegetables');
 
       expect(syncService.getActiveListenerCount(), 3);
       expect(syncService.getActiveListenerIds().length, 3);
@@ -100,11 +98,7 @@ void main() {
 
     // Test 9: Local cache works correctly
     test('Local cache should store and retrieve products', () {
-      final product = _createMockProduct(
-        id: 'prod_001',
-        name: 'Test Product',
-        stockQuantity: 50,
-      );
+      final product = _createMockProduct(id: 'prod_001', name: 'Test Product', stockQuantity: 50);
 
       // Manually cache a product
       syncService.getLocalCache('prod_001');
@@ -213,8 +207,7 @@ void main() {
 
     // Test 19: Network error handling
     test('handleNetworkError should identify error types', () {
-      final permissionError =
-          syncService.handleNetworkError('PERMISSION_DENIED');
+      final permissionError = syncService.handleNetworkError('PERMISSION_DENIED');
       expect(permissionError, 'PERMISSION_DENIED');
 
       final networkError = syncService.handleNetworkError('Network error');
@@ -229,26 +222,17 @@ void main() {
       final stats = await syncService.getInventoryStats(shopId: 'shop_001');
 
       expect(stats, isA<Map<String, dynamic>>());
-      expect(stats.keys, containsAll([
-        'totalProducts',
-        'totalStock',
-        'totalValue',
-      ]));
+      expect(stats.keys, containsAll(['totalProducts', 'totalStock', 'totalValue']));
     });
 
     // Test 21: Batch update inventory
     test('batchUpdateInventory should update multiple products', () async {
-      final updates = {
-        'prod_001': 100,
-        'prod_002': 50,
-        'prod_003': 25,
-      };
+      final updates = {'prod_001': 100, 'prod_002': 50, 'prod_003': 25};
 
-      final result =
-          await syncService.batchUpdateInventory(
-            productIdToQuantity: updates,
-            shopId: 'shop_001',
-          );
+      final result = await syncService.batchUpdateInventory(
+        productIdToQuantity: updates,
+        shopId: 'shop_001',
+      );
 
       expect(result, isA<Map<String, dynamic>>());
       expect(result.keys, contains('successful'));
@@ -296,94 +280,75 @@ void main() {
 
     // Integration test: Stream updates propagate correctly
     group('Integration Tests', () {
-      test(
-        'Product updates should propagate through stream',
-        () async {
-          final product = _createMockProduct(
-            id: 'prod_001',
-            name: 'Test Product',
-            stockQuantity: 100,
-          );
+      test('Product updates should propagate through stream', () async {
+        final product = _createMockProduct(
+          id: 'prod_001',
+          name: 'Test Product',
+          stockQuantity: 100,
+        );
 
-          expect(product.id, 'prod_001');
-          expect(product.stockQuantity, 100);
-        },
-      );
+        expect(product.id, 'prod_001');
+        expect(product.stockQuantity, 100);
+      });
 
-      test(
-        'Multiple concurrent listeners should work',
-        () async {
-          final stream1 = syncService.watchAllProducts(shopId: 'shop_001');
-          final stream2 = syncService.watchProductById('prod_001');
-          final stream3 = syncService.watchProductsByCategory(
-            shopId: 'shop_001',
-            category: 'vegetables',
-          );
+      test('Multiple concurrent listeners should work', () async {
+        final stream1 = syncService.watchAllProducts(shopId: 'shop_001');
+        final stream2 = syncService.watchProductById('prod_001');
+        final stream3 = syncService.watchProductsByCategory(
+          shopId: 'shop_001',
+          category: 'vegetables',
+        );
 
-          final sub1 = stream1.listen((_) {});
-          final sub2 = stream2.listen((_) {});
-          final sub3 = stream3.listen((_) {});
+        final sub1 = stream1.listen((_) {});
+        final sub2 = stream2.listen((_) {});
+        final sub3 = stream3.listen((_) {});
 
-          expect(syncService.getActiveListenerCount(), 3);
+        expect(syncService.getActiveListenerCount(), 3);
 
-          await Future.wait([
-            sub1.cancel(),
-            sub2.cancel(),
-            sub3.cancel(),
-          ]);
-        },
-      );
+        await Future.wait([sub1.cancel(), sub2.cancel(), sub3.cancel()]);
+      });
 
-      test(
-        'Debounce should batch rapid updates',
-        () async {
-          int emissionCount = 0;
-          final stream = syncService.watchAllProducts(shopId: 'shop_001');
+      test('Debounce should batch rapid updates', () async {
+        int emissionCount = 0;
+        final stream = syncService.watchAllProducts(shopId: 'shop_001');
 
-          final subscription = stream.listen((_) {
-            emissionCount++;
-          });
+        final subscription = stream.listen((_) {
+          emissionCount++;
+        });
 
-          // Simulate rapid changes
-          await Future.delayed(const Duration(milliseconds: 50));
-          await Future.delayed(const Duration(milliseconds: 50));
-          await Future.delayed(const Duration(milliseconds: 50));
+        // Simulate rapid changes
+        await Future.delayed(const Duration(milliseconds: 50));
+        await Future.delayed(const Duration(milliseconds: 50));
+        await Future.delayed(const Duration(milliseconds: 50));
 
-          // Wait for debounce
-          await Future.delayed(const Duration(milliseconds: 600));
+        // Wait for debounce
+        await Future.delayed(const Duration(milliseconds: 600));
 
-          await subscription.cancel();
+        await subscription.cancel();
 
-          // Should have received minimal updates due to debouncing
-          expect(emissionCount, lessThanOrEqualTo(2));
-        },
-      );
+        // Should have received minimal updates due to debouncing
+        expect(emissionCount, lessThanOrEqualTo(2));
+      });
 
-      test(
-        'Branch stock filtering should exclude zero-stock items',
-        () async {
-          final stream = syncService.watchProductsByBranch(
-            shopId: 'shop_001',
-            branchId: 'branch_001',
-          );
+      test('Branch stock filtering should exclude zero-stock items', () async {
+        final stream = syncService.watchProductsByBranch(
+          shopId: 'shop_001',
+          branchId: 'branch_001',
+        );
 
-          expect(stream, isNotNull);
-        },
-      );
+        expect(stream, isNotNull);
+      });
 
-      test(
-        'Low stock products stream should handle empty results',
-        () async {
-          final stream = syncService.watchLowStockProducts(shopId: 'shop_001');
+      test('Low stock products stream should handle empty results', () async {
+        final stream = syncService.watchLowStockProducts(shopId: 'shop_001');
 
-          final firstEvent = await stream.first.timeout(
-            const Duration(seconds: 5),
-            onTimeout: () => [],
-          );
+        final firstEvent = await stream.first.timeout(
+          const Duration(seconds: 5),
+          onTimeout: () => [],
+        );
 
-          expect(firstEvent, isA<List<ProductModel>>());
-        },
-      );
+        expect(firstEvent, isA<List<ProductModel>>());
+      });
     });
 
     // Performance tests
@@ -405,22 +370,17 @@ void main() {
           updates['prod_$i'] = i % 100;
         }
 
-        final result =
-            await syncService.batchUpdateInventory(
-              productIdToQuantity: updates,
-              shopId: 'shop_001',
-            );
+        final result = await syncService.batchUpdateInventory(
+          productIdToQuantity: updates,
+          shopId: 'shop_001',
+        );
 
         expect(result, isA<Map<String, dynamic>>());
       });
 
       test('Cache should efficiently store product data', () async {
         for (int i = 0; i < 1000; i++) {
-          final product = _createMockProduct(
-            id: 'prod_$i',
-            name: 'Product $i',
-            stockQuantity: i,
-          );
+          final product = _createMockProduct(id: 'prod_$i', name: 'Product $i', stockQuantity: i);
           // In real scenario, cache would be updated by stream
         }
 
@@ -457,8 +417,6 @@ ProductModel _createMockProduct({
     district: 'Test District',
     createdAt: DateTime.now(),
     updatedAt: DateTime.now(),
-    branchStock: {
-      'branch_001': stockQuantity,
-    },
+    branchStock: {'branch_001': stockQuantity},
   );
 }

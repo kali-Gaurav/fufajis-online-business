@@ -40,10 +40,7 @@ class SignedUrlService {
   ///   - path: File path in bucket (e.g., 'shop_123/prod_456/image.jpg')
   ///
   /// Returns: Signed URL (always valid) or null if generation fails
-  Future<String?> getSignedUrl({
-    required String bucket,
-    required String path,
-  }) async {
+  Future<String?> getSignedUrl({required String bucket, required String path}) async {
     try {
       final cacheKey = '$bucket/$path';
       debugPrint('[SignedUrlService] Fetching signed URL for: $cacheKey');
@@ -64,17 +61,13 @@ class SignedUrlService {
       if (cachedUrl != null) {
         // Verify it's still valid before returning
         if (cachedUrl['expiresAt'] is Timestamp) {
-          final expiresAt =
-              (cachedUrl['expiresAt'] as Timestamp).toDate();
+          final expiresAt = (cachedUrl['expiresAt'] as Timestamp).toDate();
           if (DateTime.now().isBefore(expiresAt)) {
             debugPrint('[SignedUrlService] Returning from Firestore cache');
             final url = cachedUrl['signedUrl'] as String;
 
             // Also cache in memory for this session
-            _memoryCache[cacheKey] = CachedUrl(
-              url: url,
-              expiresAt: expiresAt,
-            );
+            _memoryCache[cacheKey] = CachedUrl(url: url, expiresAt: expiresAt);
 
             return url;
           }
@@ -96,10 +89,7 @@ class SignedUrlService {
         );
 
         // Also cache in memory
-        _memoryCache[cacheKey] = CachedUrl(
-          url: newUrl,
-          expiresAt: expiryTime,
-        );
+        _memoryCache[cacheKey] = CachedUrl(url: newUrl, expiresAt: expiryTime);
 
         return newUrl;
       }
@@ -112,10 +102,7 @@ class SignedUrlService {
   }
 
   /// Internal: Get cached URL from Firestore storage_references
-  Future<Map<String, dynamic>?> _getCachedUrlFromFirestore(
-    String bucket,
-    String path,
-  ) async {
+  Future<Map<String, dynamic>?> _getCachedUrlFromFirestore(String bucket, String path) async {
     try {
       final query = await _firestore
           .collection('storage_references')
@@ -185,10 +172,7 @@ class SignedUrlService {
   /// Refresh a signed URL (invalidate cache and generate new one)
   ///
   /// Use this when you need a fresh URL (e.g., if the current URL stops working)
-  Future<String?> refreshSignedUrl({
-    required String bucket,
-    required String path,
-  }) async {
+  Future<String?> refreshSignedUrl({required String bucket, required String path}) async {
     try {
       final cacheKey = '$bucket/$path';
 
@@ -202,10 +186,10 @@ class SignedUrlService {
           .where('path', isEqualTo: path)
           .get()
           .then((query) {
-        for (final doc in query.docs) {
-          doc.reference.delete();
-        }
-      });
+            for (final doc in query.docs) {
+              doc.reference.delete();
+            }
+          });
 
       // Generate and cache new URL
       return await getSignedUrl(bucket: bucket, path: path);
@@ -227,10 +211,10 @@ class SignedUrlService {
           .where('expiresAt', isLessThan: now)
           .get()
           .then((query) {
-        for (final doc in query.docs) {
-          doc.reference.delete();
-        }
-      });
+            for (final doc in query.docs) {
+              doc.reference.delete();
+            }
+          });
 
       debugPrint('[SignedUrlService] Cleared expired URLs');
     } catch (e) {
@@ -250,10 +234,10 @@ class SignedUrlService {
           .where('bucket', isEqualTo: bucket)
           .get()
           .then((query) {
-        for (final doc in query.docs) {
-          doc.reference.delete();
-        }
-      });
+            for (final doc in query.docs) {
+              doc.reference.delete();
+            }
+          });
 
       debugPrint('[SignedUrlService] Cleared cache for bucket: $bucket');
     } catch (e) {

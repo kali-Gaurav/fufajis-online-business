@@ -40,7 +40,10 @@ class ApprovalWorkflowService {
   }) async {
     try {
       // 1. Fetch the request (request_id is parameterized)
-      final requestRows = await _rds.rows('SELECT * FROM change_requests WHERE request_id = \$1', params: [requestId]);
+      final requestRows = await _rds.rows(
+        'SELECT * FROM change_requests WHERE request_id = \$1',
+        params: [requestId],
+      );
       if (requestRows.isEmpty) return false;
 
       final requestRes = requestRows.first;
@@ -54,7 +57,12 @@ class ApprovalWorkflowService {
       if (entityType == 'inventory') {
         // SECURITY FIX: Use parameterized query with safe field validation
         // Validate field names against allowed inventory fields
-        final allowedInventoryFields = {'current_stock', 'reorder_level', 'reserved_stock', 'damaged_units'};
+        final allowedInventoryFields = {
+          'current_stock',
+          'reorder_level',
+          'reserved_stock',
+          'damaged_units',
+        };
 
         final validUpdates = <String, dynamic>{};
         for (final entry in proposedChange.entries) {
@@ -81,12 +89,16 @@ class ApprovalWorkflowService {
         });
 
         params.add(entityId);
-        final updateSql = 'UPDATE inventory SET ${setClauses.join(', ')} WHERE inventory_id = \$$paramIndex';
+        final updateSql =
+            'UPDATE inventory SET ${setClauses.join(', ')} WHERE inventory_id = \$$paramIndex';
 
         await _rds.query(updateSql, params: params, allowWrite: true);
 
         // Find product_id for ledger (entity_id is parameterized)
-        final invRows = await _rds.rows('SELECT product_id FROM inventory WHERE inventory_id = \$1', params: [entityId]);
+        final invRows = await _rds.rows(
+          'SELECT product_id FROM inventory WHERE inventory_id = \$1',
+          params: [entityId],
+        );
         if (invRows.isEmpty) return false;
         final productId = invRows.first['product_id'] as String;
 
@@ -172,13 +184,13 @@ class ApprovalWorkflowService {
   /// Reconstructs the dynamic SQL WHERE clause, applies the update,
   /// and writes the corresponding events into `inventory_events` via an INSERT INTO ... SELECT
   /// SECURITY: Field names and values are validated, WHERE clause comes from parameterized service
-  Future<bool> approveBulkOperation({
-    required String operationId,
-    required String ownerId,
-  }) async {
+  Future<bool> approveBulkOperation({required String operationId, required String ownerId}) async {
     try {
       // 1. Fetch the bulk operation (operationId is parameterized)
-      final rows = await _rds.rows('SELECT * FROM bulk_operations WHERE operation_id = \$1', params: [operationId]);
+      final rows = await _rds.rows(
+        'SELECT * FROM bulk_operations WHERE operation_id = \$1',
+        params: [operationId],
+      );
       if (rows.isEmpty) return false;
 
       final opRes = rows.first;
@@ -192,10 +204,16 @@ class ApprovalWorkflowService {
       // 2. Reconstruct WHERE clause (delegated to InventoryQueryService which should parameterize)
       final logicStr = filterJson['logic'] as String? ?? 'and';
       final logic = logicStr == 'or' ? FilterLogic.or : FilterLogic.and;
-      final conditionsList = (filterJson['conditions'] as List).map((c) => FilterCondition.fromMap(c as Map<String, dynamic>)).toList();
+      final conditionsList = (filterJson['conditions'] as List)
+          .map((c) => FilterCondition.fromMap(c as Map<String, dynamic>))
+          .toList();
 
       final queryService = InventoryQueryService();
-      final whereResult = queryService.buildWhereClause(conditionsList, logic: logic, startParamIndex: 1);
+      final whereResult = queryService.buildWhereClause(
+        conditionsList,
+        logic: logic,
+        startParamIndex: 1,
+      );
       final whereSql = whereResult['sql'] as String;
       final params = whereResult['params'] as List<dynamic>;
       int nextParamIndex = whereResult['nextParamIndex'] as int;
@@ -206,7 +224,12 @@ class ApprovalWorkflowService {
       final newValue = proposedChange.values.first;
 
       // Whitelist of allowed fields for bulk updates
-      final allowedInventoryFields = {'current_stock', 'reorder_level', 'reserved_stock', 'damaged_units'};
+      final allowedInventoryFields = {
+        'current_stock',
+        'reorder_level',
+        'reserved_stock',
+        'damaged_units',
+      };
       final allowedProductFields = {'price', 'category', 'brand'};
 
       bool isInventoryField = allowedInventoryFields.contains(targetField);
@@ -227,7 +250,8 @@ class ApprovalWorkflowService {
       params.add(newValue);
 
       // The safe UPDATE syntax for Postgres with JOIN uses parameterized values
-      final updateSql = '''
+      final updateSql =
+          '''
         UPDATE $targetTable $updateAlias
         SET $setClause
         FROM $joinTable
@@ -239,7 +263,8 @@ class ApprovalWorkflowService {
       // 4. Record Audit Events via bulk INSERT INTO ... SELECT
       // SECURITY: Field and value are now validated, ownerId is parameterized
       int eventParamIndex = nextParamIndex + 1;
-      final eventSql = '''
+      final eventSql =
+          '''
         INSERT INTO inventory_events (product_id, event_type, quantity_change, actor_id, actor_role, source, approved_by)
         SELECT p.id, 'BULK_UPDATE_APPROVED', 0, \$$eventParamIndex, 'owner', 'BulkOperations', \$$eventParamIndex
         FROM products p

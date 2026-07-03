@@ -21,10 +21,7 @@ class UnitSelectorWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Select Size/Unit',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        const Text('Select Size/Unit', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Wrap(
           spacing: 10,

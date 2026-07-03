@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'l10n/app_localizations.dart';
 
 import 'providers/theme_provider.dart';
@@ -68,21 +69,27 @@ import 'services/gps_tracking_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  final mainStartTime = DateTime.now();
+  // Fix 9: Use SentryWidgetsFlutterBinding to enable frame tracking and correct initialization sequence
+  SentryWidgetsFlutterBinding.ensureInitialized();
+  
+  // Fix 12: Record precise start time for startup metrics
+  PerformanceMonitor.setAppStartTime(mainStartTime);
 
-  // Load environment variables from .env file
-  try {
-    await dotenv.load(fileName: ".env");
-    debugPrint('[main] .env loaded successfully');
-  } catch (e) {
-    debugPrint('[main] Warning: .env file not found or could not be loaded: $e');
+  // Load environment variables from .env file (Development only)
+  // Note: .env is NOT bundled in release (see pubspec.yaml assets)
+  if (kDebugMode) {
+    try {
+      await dotenv.load(fileName: ".env");
+      debugPrint('[main] .env loaded successfully');
+    } catch (e) {
+      // Quietly ignore missing .env in environments where it's not needed
+      debugPrint('[main] Info: .env not loaded (using defaults/remote config)');
+    }
   }
 
   // Initialize Workmanager for background tasks
-  Workmanager().initialize(
-    callbackDispatcher,
-    isInDebugMode: kDebugMode,
-  );
+  Workmanager().initialize(callbackDispatcher, isInDebugMode: kDebugMode);
 
   // CRITICAL: Load runtime configuration from backend
   // This ensures secrets (RAZORPAY_KEY_SECRET, etc.) are NEVER embedded in APK
@@ -100,67 +107,49 @@ void main() async {
   final sentryDsn = RuntimeConfig.instance.sentryDsn;
 
   if (sentryDsn.isEmpty) {
-    debugPrint(
-      '[Warning] SENTRY_DSN is not configured. Crash reporting is disabled.',
-    );
+    debugPrint('[main] SENTRY_DSN not configured. Running without crash reporting.');
+    _runAppOnly();
+    return;
   }
 
   // Initialize Sentry for error tracking, performance monitoring, and crash reporting
-  // Features:
-  // - Captures unhandled exceptions and crashes
-  // - Monitors performance with 20% sampling rate
-  // - Tracks breadcrumbs for debugging
-  // - Reports user context and device info
   await SentryFlutter.init(
     (options) {
       options.dsn = sentryDsn;
-      // Performance sampling rate: 10% of transactions to track performance metrics
-      // while minimizing overhead. Adjust based on traffic volume.
       options.tracesSampleRate = 0.1;
-
-      // Set environment (development vs production)
       options.environment = kDebugMode ? 'development' : 'production';
-
-      // Enable attachment collection for crash reports
       options.attachStacktrace = true;
-
-      // Capture breadcrumbs for better debugging
       options.maxBreadcrumbs = 100;
-
-      // Filter out noisy errors
       options.beforeSend = (event, hint) {
-        // Ignore certain common non-critical errors
         if (event.throwable?.toString().contains('Connection refused') == true) {
-          return null; // Don't send connection errors
+          return null;
         }
         return event;
       };
     },
-    appRunner: () async {
-      // Global Flutter error handler - captures all Flutter errors
-      FlutterError.onError = (details) {
-        LoggingService().error(
-          'Flutter Error: ${details.exceptionAsString()}',
-          details.exception,
-          details.stack,
-        );
-      };
-
-      // Platform dispatcher error handler - captures async errors
-      // These are errors that occur outside the Flutter zone
-      PlatformDispatcher.instance.onError = (error, stack) {
-        LoggingService().error(
-          'Platform Error: $error',
-          error,
-          stack,
-        );
-        return true; // Prevent app crash
-      };
-
-      final appWidget = await _initializeApp();
-      runApp(appWidget);
-    },
+    appRunner: () => _runAppOnly(),
   );
+}
+
+/// Extracted app runner to avoid duplication when Sentry is disabled
+Future<void> _runAppOnly() async {
+  // Global Flutter error handler
+  FlutterError.onError = (details) {
+    LoggingService().error(
+      'Flutter Error: ${details.exceptionAsString()}',
+      details.exception,
+      details.stack,
+    );
+  };
+
+  // Platform dispatcher error handler
+  PlatformDispatcher.instance.onError = (error, stack) {
+    LoggingService().error('Platform Error: $error', error, stack);
+    return true; 
+  };
+
+  final appWidget = await _initializeApp();
+  runApp(appWidget);
 }
 
 dynamic _securityInitError;
@@ -169,13 +158,11 @@ StackTrace? _securityInitStack;
 Future<void> _initializeSecurity() async {
   try {
     if (Firebase.apps.isEmpty) {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
+      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
     }
 
     await FirebaseAppCheck.instance.activate(
-      androidProvider: AndroidProvider.playIntegrity,
+      androidProvider: kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
       appleProvider: AppleProvider.deviceCheck,
     );
     LoggingService().info('Firebase App Check activated.');
@@ -218,8 +205,7 @@ Future<Widget> _initializeApp() async {
       cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
     );
 
-    // Initialize Mobile Ads (lightweight)
-    await MobileAds.instance.initialize();
+    // Fix 10: Moved MobileAds to Tier 2 to reduce main thread blocking during startup
     LoggingService().info('Core Firebase services configured.');
   } catch (e, stack) {
     LoggingService().error('Firebase Configuration error', e, stack);
@@ -231,11 +217,19 @@ Future<Widget> _initializeApp() async {
   // Record application startup time
   PerformanceMonitor.recordAppStartupTime();
 
-  // TIER 2: MEDIUM-PRIORITY SERVICES (initialize in postFrame)
-  // Time budget: 1-2 seconds
-  // These services are needed shortly after app appears but not immediately
-  Future<void> _initializeTier2() async {
+  // Fix 10: Moved RuntimeConfig to post-first-frame to eliminate cold-start blocking.
+  Future<void> initializeTier2() async {
     try {
+      try {
+        await RuntimeConfigService.instance.load();
+        debugPrint('[main] Runtime configuration loaded successfully');
+      } catch (e) {
+        debugPrint('[main] Warning: Could not load runtime config: $e');
+      }
+
+      // Fix 10.1: Moved MobileAds and Ads init to Tier 2 to eliminate main-thread blocking
+      await MobileAds.instance.initialize();
+
       // Initialize Cache Service (Firestore read + Redis connectivity test)
       await CacheService().init();
 
@@ -255,7 +249,7 @@ Future<Widget> _initializeApp() async {
   // TIER 3: HEAVY SERVICES (initialize after first frame)
   // Time budget: 2-3 seconds
   // These are AI engines, analytics, and heavy background services
-  Future<void> _initializeTier3() async {
+  Future<void> initializeTier3() async {
     try {
       // Initialize Supabase (hybrid architecture)
       await SupabaseConfig.initialize();
@@ -265,6 +259,9 @@ Future<Widget> _initializeApp() async {
 
       // Initialize Shorebird update check (background)
       ShorebirdService().checkForUpdates();
+
+      // Initialize Google Sign-In (Identity singleton)
+      await GoogleSignIn.instance.initialize();
     } catch (e, stack) {
       LoggingService().error('Tier 3 initialization error', e, stack);
     }
@@ -272,7 +269,7 @@ Future<Widget> _initializeApp() async {
 
   // TIER 4: VERIFICATION & STARTUP CHECKS (after first frame + 1s)
   // These checks validate app state and should not block startup
-  Future<void> _initializeTier4() async {
+  Future<void> initializeTier4() async {
     try {
       // Run Workflow Verification (Feature: Production Guard)
       await WorkflowVerificationService().verifyWorkflow();
@@ -298,8 +295,7 @@ Future<Widget> _initializeApp() async {
       ChangeNotifierProvider(create: (_) => CartProvider()..loadCart()),
       ChangeNotifierProxyProvider<AuthProvider, ProductProvider>(
         create: (_) => ProductProvider(prefs),
-        update: (_, auth, product) =>
-            product!..updateShopId(auth.currentUser?.id),
+        update: (_, auth, product) => product!..updateShopId(auth.currentUser?.id),
       ),
       ChangeNotifierProvider(create: (_) => OrderProvider()),
       ChangeNotifierProvider(create: (_) => PaymentProvider()),
@@ -336,9 +332,9 @@ Future<Widget> _initializeApp() async {
       ChangeNotifierProvider(create: (_) => ForecastProvider()),
     ],
     child: FufajiAppWithAsyncInit(
-      onInitTier2: _initializeTier2,
-      onInitTier3: _initializeTier3,
-      onInitTier4: _initializeTier4,
+      onInitTier2: initializeTier2,
+      onInitTier3: initializeTier3,
+      onInitTier4: initializeTier4,
     ),
   );
 }
@@ -448,11 +444,15 @@ class _FufajiAppState extends State<FufajiApp> {
           debugShowCheckedModeBanner: false,
           builder: (context, child) {
             final mediaQuery = MediaQuery.of(context);
+            
+            // Safety: Handle edge case where layout is not yet calculated (Width is zero log)
+            if (mediaQuery.size.width == 0 || mediaQuery.size.height == 0) {
+              return const SizedBox.shrink();
+            }
+
             // Apply scale factor dynamically using textScaler
             final scaledMediaQuery = mediaQuery.copyWith(
-              textScaler: TextScaler.linear(
-                accessibilityProvider.effectiveFontScale,
-              ),
+              textScaler: TextScaler.linear(accessibilityProvider.effectiveFontScale),
             );
 
             return MediaQuery(
@@ -460,12 +460,11 @@ class _FufajiAppState extends State<FufajiApp> {
               child: FutureBuilder<bool>(
                 future: _forceUpdateFuture,
                 builder: (context, snapshot) {
+                  // Safety: Ensure snapshot data is available
                   final bool forceUpdate = snapshot.data ?? false;
 
                   if (forceUpdate) {
-                    return ForceUpdateOverlay(
-                      updateUrl: remoteConfig.forceUpdateUrl,
-                    );
+                    return ForceUpdateOverlay(updateUrl: remoteConfig.forceUpdateUrl);
                   }
 
                   if (remoteConfig.isMaintenanceMode) {

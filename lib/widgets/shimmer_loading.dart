@@ -11,21 +11,19 @@ class FjShimmer extends StatefulWidget {
   State<FjShimmer> createState() => _FjShimmerState();
 }
 
-class _FjShimmerState extends State<FjShimmer>
-    with SingleTickerProviderStateMixin {
+class _FjShimmerState extends State<FjShimmer> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _anim;
 
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1400),
-    )..repeat();
-    _anim = Tween<double>(begin: -2, end: 2).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOutSine),
-    );
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400))
+      ..repeat();
+    _anim = Tween<double>(
+      begin: -2,
+      end: 2,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOutSine));
   }
 
   @override
@@ -42,11 +40,7 @@ class _FjShimmerState extends State<FjShimmer>
         return ShaderMask(
           blendMode: BlendMode.srcATop,
           shaderCallback: (bounds) => LinearGradient(
-            colors: const [
-              AppTheme.shimmerBase,
-              AppTheme.shimmerHighlight,
-              AppTheme.shimmerBase,
-            ],
+            colors: const [AppTheme.shimmerBase, AppTheme.shimmerHighlight, AppTheme.shimmerBase],
             stops: const [0.0, 0.5, 1.0],
             begin: Alignment(_anim.value - 1, 0),
             end: Alignment(_anim.value + 1, 0),
@@ -66,12 +60,7 @@ class ShimmerBox extends StatelessWidget {
   final double height;
   final double radius;
 
-  const ShimmerBox({
-    super.key,
-    required this.width,
-    required this.height,
-    this.radius = 8,
-  });
+  const ShimmerBox({super.key, required this.width, required this.height, this.radius = 8});
 
   @override
   Widget build(BuildContext context) {
@@ -99,10 +88,7 @@ class ShimmerCircle extends StatelessWidget {
       child: Container(
         width: size,
         height: size,
-        decoration: const BoxDecoration(
-          color: AppTheme.shimmerBase,
-          shape: BoxShape.circle,
-        ),
+        decoration: const BoxDecoration(color: AppTheme.shimmerBase, shape: BoxShape.circle),
       ),
     );
   }
@@ -147,11 +133,7 @@ class _ProductCardSkeleton extends StatelessWidget {
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ShimmerBox(
-            width: double.infinity,
-            height: 130,
-            radius: 0,
-          ),
+          ShimmerBox(width: double.infinity, height: 130, radius: 0),
           Padding(
             padding: EdgeInsets.all(10),
             child: Column(

@@ -13,12 +13,7 @@ class EmptyProductsState extends StatelessWidget {
   final String? subtitle;
   final VoidCallback? onRetry;
 
-  const EmptyProductsState({
-    super.key,
-    this.title,
-    this.subtitle,
-    this.onRetry,
-  });
+  const EmptyProductsState({super.key, this.title, this.subtitle, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -26,11 +21,7 @@ class EmptyProductsState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.inventory_2_outlined,
-            size: 80,
-            color: AppTheme.grey300,
-          ),
+          const Icon(Icons.inventory_2_outlined, size: 80, color: AppTheme.grey300),
           const SizedBox(height: 24),
           Text(
             title ?? 'No products available',
@@ -43,9 +34,7 @@ class EmptyProductsState extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             subtitle ?? 'We are restocking. Check back soon!',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppTheme.grey600,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.grey600),
             textAlign: TextAlign.center,
           ),
           if (onRetry != null) ...[
@@ -74,12 +63,7 @@ class NetworkErrorState extends StatelessWidget {
   final String? subtitle;
   final VoidCallback? onRetry;
 
-  const NetworkErrorState({
-    super.key,
-    this.title,
-    this.subtitle,
-    this.onRetry,
-  });
+  const NetworkErrorState({super.key, this.title, this.subtitle, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -87,11 +71,7 @@ class NetworkErrorState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.cloud_off_outlined,
-            size: 80,
-            color: AppTheme.error.withValues(alpha: 0.5),
-          ),
+          Icon(Icons.cloud_off_outlined, size: 80, color: AppTheme.error.withValues(alpha: 0.5)),
           const SizedBox(height: 24),
           Text(
             title ?? 'No internet connection',
@@ -104,9 +84,7 @@ class NetworkErrorState extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             subtitle ?? 'Please check your connection and try again.',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppTheme.grey600,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.grey600),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
@@ -131,10 +109,7 @@ class NetworkErrorState extends StatelessWidget {
 class OfflineIndicatorBanner extends StatelessWidget {
   final bool isOffline;
 
-  const OfflineIndicatorBanner({
-    super.key,
-    required this.isOffline,
-  });
+  const OfflineIndicatorBanner({super.key, required this.isOffline});
 
   @override
   Widget build(BuildContext context) {
@@ -146,26 +121,18 @@ class OfflineIndicatorBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.warning.withValues(alpha: 0.1),
         border: Border(
-          bottom: BorderSide(
-            color: AppTheme.warning.withValues(alpha: 0.3),
-            width: 1,
-          ),
+          bottom: BorderSide(color: AppTheme.warning.withValues(alpha: 0.3), width: 1),
         ),
       ),
       child: Row(
         children: [
-          const Icon(
-            Icons.cloud_off,
-            size: 16,
-            color: AppTheme.warning,
-          ),
+          const Icon(Icons.cloud_off, size: 16, color: AppTheme.warning),
           const SizedBox(width: 8),
           Text(
             'You are offline. Browsing cached products.',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.warning,
-              fontWeight: FontWeight.w600,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: AppTheme.warning, fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -181,11 +148,7 @@ class ShopClosedState extends StatelessWidget {
   final DateTime? reopensAt;
   final VoidCallback? onNotifyMe;
 
-  const ShopClosedState({
-    super.key,
-    this.reopensAt,
-    this.onNotifyMe,
-  });
+  const ShopClosedState({super.key, this.reopensAt, this.onNotifyMe});
 
   @override
   Widget build(BuildContext context) {
@@ -197,11 +160,7 @@ class ShopClosedState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.lock_clock_outlined,
-            size: 80,
-            color: AppTheme.grey400,
-          ),
+          const Icon(Icons.lock_clock_outlined, size: 80, color: AppTheme.grey400),
           const SizedBox(height: 24),
           Text(
             'Shop is Closed',
@@ -214,9 +173,7 @@ class ShopClosedState extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             reopensText,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppTheme.grey600,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppTheme.grey600),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
@@ -226,10 +183,7 @@ class ShopClosedState extends StatelessWidget {
               minimumSize: const Size(140, 48),
               side: const BorderSide(color: AppTheme.primary, width: 2),
             ),
-            child: const Text(
-              'Notify Me',
-              style: TextStyle(fontSize: 16),
-            ),
+            child: const Text('Notify Me', style: TextStyle(fontSize: 16)),
           ),
         ],
       ),

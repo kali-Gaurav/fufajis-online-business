@@ -8,11 +8,7 @@ class MapPickerScreen extends StatefulWidget {
   final double initialLat;
   final double initialLng;
 
-  const MapPickerScreen({
-    super.key,
-    required this.initialLat,
-    required this.initialLng,
-  });
+  const MapPickerScreen({super.key, required this.initialLat, required this.initialLng});
 
   @override
   State<MapPickerScreen> createState() => _MapPickerScreenState();
@@ -43,8 +39,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
       if (placemarks.isNotEmpty) {
         final p = placemarks.first;
         setState(() {
-          _address =
-              "${p.street}, ${p.subLocality}, ${p.locality}, ${p.postalCode}";
+          _address = "${p.street}, ${p.subLocality}, ${p.locality}, ${p.postalCode}";
         });
       }
     } catch (e) {
@@ -105,9 +100,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
             left: 20,
             right: 20,
             child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -119,13 +112,8 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            _isReverseGeocoding
-                                ? "Fetching address..."
-                                : _address,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
+                            _isReverseGeocoding ? "Fetching address..." : _address,
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                           ),
                         ),
                       ],
@@ -145,9 +133,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                           backgroundColor: AppTheme.primary,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
                         child: const Text(
                           'Confirm Location',

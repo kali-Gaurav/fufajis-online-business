@@ -24,59 +24,175 @@ class AccountPickerScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Select an account to continue',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 24),
-            Expanded(
-              child: ListView.builder(
-                itemCount: accounts.length,
-                itemBuilder: (context, index) {
-                  final account = accounts[index];
-                  return Card(
-                    elevation: 2,
-                    margin: const EdgeInsets.only(bottom: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      leading: const CircleAvatar(
-                        backgroundColor: AppTheme.primary,
-                        child: Icon(Icons.person, color: Colors.white),
-                      ),
-                      title: Text(
-                        account['name'] as String? ?? 'Guest',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text(account['phoneNumber'] as String? ?? ''),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () {
-                        // Normally this would trigger OTP login or auto-login if token is valid.
-                        // For now, if we have their token we might be able to auto-login.
-                        // If not, redirect to login with phone number prefilled.
-                        context.push('/login');
-                      },
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppTheme.primary.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Select an account to continue',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.grey900,
                     ),
-                  );
-                },
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'We found ${accounts.length} previous account${accounts.length != 1 ? 's' : ''} on this device',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.grey600,
+                    ),
+                  ),
+                ],
               ),
             ),
-            OutlinedButton(
+            const SizedBox(height: 20),
+            Expanded(
+              child: accounts.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.person_outline, size: 64, color: AppTheme.grey300),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'No accounts found',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Create a new account to get started',
+                            style: TextStyle(color: AppTheme.grey600, fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: accounts.length,
+                      itemBuilder: (context, index) {
+                        final account = accounts[index];
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: AppTheme.grey200),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.04),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () => context.push('/login'),
+                              borderRadius: BorderRadius.circular(14),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                                child: Row(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 26,
+                                      backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
+                                      child: const Icon(
+                                        Icons.person_rounded,
+                                        color: AppTheme.primary,
+                                        size: 28,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 14),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            account['name'] as String? ?? 'Guest Account',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 15,
+                                              color: AppTheme.grey900,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 3),
+                                          Text(
+                                            account['phoneNumber'] as String? ?? 'No phone linked',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: AppTheme.grey600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.primary.withValues(alpha: 0.08),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.arrow_forward_ios_rounded,
+                                        color: AppTheme.primary,
+                                        size: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
               onPressed: () {
                 context.push('/login');
               },
-              style: OutlinedButton.styleFrom(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primary,
+                foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text('Add another account'),
+              child: const Text(
+                'Use Different Account',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+              ),
             ),
             const SizedBox(height: 12),
-            TextButton(
+            OutlinedButton(
               onPressed: () {
                 context.go('/customer/home');
               },
-              child: const Text('Browse as Guest'),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                side: const BorderSide(color: AppTheme.grey300),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text(
+                'Browse as Guest',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+              ),
             ),
             const SizedBox(height: 24),
           ],

@@ -42,7 +42,11 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
               children: [
                 _buildLedgerTypeChip(0, 'COD Cash Settlements', Icons.monetization_on_outlined),
                 const SizedBox(width: 12),
-                _buildLedgerTypeChip(1, 'Cancellations & Refunds Ledger', Icons.receipt_long_outlined),
+                _buildLedgerTypeChip(
+                  1,
+                  'Cancellations & Refunds Ledger',
+                  Icons.receipt_long_outlined,
+                ),
                 const SizedBox(width: 12),
                 _buildLedgerTypeChip(2, 'Fleet Payouts (Instant)', Icons.rocket_launch_outlined),
               ],
@@ -74,9 +78,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
         decoration: BoxDecoration(
           color: isSelected ? AppTheme.primary : AppTheme.white,
           borderRadius: BorderRadius.circular(30),
-          border: Border.all(
-            color: isSelected ? AppTheme.primary : AppTheme.grey300,
-          ),
+          border: Border.all(color: isSelected ? AppTheme.primary : AppTheme.grey300),
           boxShadow: [
             if (isSelected)
               BoxShadow(
@@ -110,19 +112,12 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
       children: [
         Text(
           'COD Cash Settlements',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: AppTheme.grey900,
-          ),
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.grey900),
         ),
         SizedBox(height: 4),
         Text(
           'Verify and reconcile Cash on Delivery collections from riders.',
-          style: TextStyle(
-            fontSize: 14,
-            color: AppTheme.grey600,
-          ),
+          style: TextStyle(fontSize: 14, color: AppTheme.grey600),
         ),
       ],
     );
@@ -134,19 +129,12 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
       children: [
         Text(
           'Cancellations & Refunds Ledger',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: AppTheme.grey900,
-          ),
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.grey900),
         ),
         SizedBox(height: 4),
         Text(
           'Process customer refunds, manage returned product catalogs, and review feedback.',
-          style: TextStyle(
-            fontSize: 14,
-            color: AppTheme.grey600,
-          ),
+          style: TextStyle(fontSize: 14, color: AppTheme.grey600),
         ),
       ],
     );
@@ -158,19 +146,12 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
       children: [
         Text(
           'Fleet Payouts (Instant)',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: AppTheme.grey900,
-          ),
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.grey900),
         ),
         SizedBox(height: 4),
         Text(
           'Send earnings and incentives to riders via Razorpay Route. Instant bank transfers.',
-          style: TextStyle(
-            fontSize: 14,
-            color: AppTheme.grey600,
-          ),
+          style: TextStyle(fontSize: 14, color: AppTheme.grey600),
         ),
       ],
     );
@@ -191,7 +172,13 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
               decoration: BoxDecoration(
                 color: AppTheme.ownerAccent,
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: AppTheme.ownerAccent.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 6))],
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.ownerAccent.withValues(alpha: 0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
               ),
               child: Row(
                 children: [
@@ -200,9 +187,19 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Total Settled via Route', style: TextStyle(color: Colors.white70, fontSize: 14)),
+                      const Text(
+                        'Total Settled via Route',
+                        style: TextStyle(color: Colors.white70, fontSize: 14),
+                      ),
                       const SizedBox(height: 4),
-                      Text('₹${totalSettled.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                      Text(
+                        '₹${totalSettled.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                   const Spacer(),
@@ -210,16 +207,23 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
                     onPressed: () => _showInitiatePayoutDialog(context),
                     icon: const Icon(Icons.add, size: 18),
                     label: const Text('New Payout'),
-                    style: ElevatedButton.styleFrom(backgroundColor: AppTheme.cream, foregroundColor: AppTheme.ownerAccent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.cream,
+                      foregroundColor: AppTheme.ownerAccent,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
                   ),
                 ],
               ),
             );
-          }
+          },
         ),
         const SizedBox(height: 24),
-        
-        const Text('Payout History (Bahi Khata)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+
+        const Text(
+          'Payout History (Bahi Khata)',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 12),
 
         StreamBuilder<List<RiderPayoutModel>>(
@@ -227,11 +231,11 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
           builder: (context, snapshot) {
             final payouts = snapshot.data ?? [];
             if (payouts.isEmpty) {
-               return _buildEmptyState(
-                 icon: Icons.history_edu,
-                 title: 'No payout history yet',
-                 subtitle: 'Start rewarding your fleet with instant bank transfers.',
-               );
+              return _buildEmptyState(
+                icon: Icons.history_edu,
+                title: 'No payout history yet',
+                subtitle: 'Start rewarding your fleet with instant bank transfers.',
+              );
             }
             return ListView.builder(
               shrinkWrap: true,
@@ -242,7 +246,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
                 return _buildPayoutRecordCard(p);
               },
             );
-          }
+          },
         ),
       ],
     );
@@ -260,7 +264,9 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Transfer funds instantly to a rider\'s linked bank account via Razorpay Route.'),
+            const Text(
+              'Transfer funds instantly to a rider\'s linked bank account via Razorpay Route.',
+            ),
             const SizedBox(height: 20),
             // Rider Selector
             StreamBuilder<List<Map<String, dynamic>>>(
@@ -268,23 +274,34 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
               builder: (context, snap) {
                 final riders = snap.data ?? [];
                 return DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: 'Select Rider', border: OutlineInputBorder()),
-                  items: riders.map((r) => DropdownMenuItem(
-                    value: r['phoneNumber'] as String,
-                    child: Text(r['name'] as String),
-                  )).toList(),
+                  decoration: const InputDecoration(
+                    labelText: 'Select Rider',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: riders
+                      .map(
+                        (r) => DropdownMenuItem(
+                          value: r['phoneNumber'] as String,
+                          child: Text(r['name'] as String),
+                        ),
+                      )
+                      .toList(),
                   onChanged: (val) {
                     selectedRiderId = val;
                     selectedRiderName = riders.firstWhere((r) => r['phoneNumber'] == val)['name'];
                   },
                 );
-              }
+              },
             ),
             const SizedBox(height: 16),
             TextField(
               controller: amountController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Amount (₹)', border: OutlineInputBorder(), prefixIcon: Icon(Icons.currency_rupee)),
+              decoration: const InputDecoration(
+                labelText: 'Amount (₹)',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.currency_rupee),
+              ),
             ),
           ],
         ),
@@ -294,7 +311,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
             onPressed: () async {
               if (selectedRiderId == null || amountController.text.isEmpty) return;
               final amount = double.tryParse(amountController.text) ?? 0;
-              
+
               Navigator.pop(context);
               final result = await _payoutService.initiateInstantPayout(
                 riderId: selectedRiderId!,
@@ -305,13 +322,20 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(result.success ? 'Payout of ₹$amount successful!' : 'Error: ${result.message}'),
+                    content: Text(
+                      result.success
+                          ? 'Payout of ₹$amount successful!'
+                          : 'Error: ${result.message}',
+                    ),
                     backgroundColor: result.success ? AppTheme.success : AppTheme.error,
                   ),
                 );
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.ownerAccent, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.ownerAccent,
+              foregroundColor: Colors.white,
+            ),
             child: const Text('Transfer Now'),
           ),
         ],
@@ -331,24 +355,45 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
       child: Row(
         children: [
           CircleAvatar(
-            backgroundColor: p.status == PayoutStatus.processed ? AppTheme.success.withValues(alpha: 0.1) : AppTheme.error.withValues(alpha: 0.1),
-            child: Icon(p.status == PayoutStatus.processed ? Icons.check : Icons.priority_high, color: p.status == PayoutStatus.processed ? AppTheme.success : AppTheme.error),
+            backgroundColor: p.status == PayoutStatus.processed
+                ? AppTheme.success.withValues(alpha: 0.1)
+                : AppTheme.error.withValues(alpha: 0.1),
+            child: Icon(
+              p.status == PayoutStatus.processed ? Icons.check : Icons.priority_high,
+              color: p.status == PayoutStatus.processed ? AppTheme.success : AppTheme.error,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(p.riderName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                Text('Txn: ${p.transactionId ?? 'Failed'}', style: const TextStyle(fontSize: 12, color: AppTheme.grey500)),
+                Text(
+                  p.riderName,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                Text(
+                  'Txn: ${p.transactionId ?? 'Failed'}',
+                  style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
+                ),
               ],
             ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('₹${p.amount}', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: AppTheme.ownerAccent)),
-              Text(DateFormat('MMM dd, hh:mm a').format(p.timestamp), style: const TextStyle(fontSize: 10, color: AppTheme.grey400)),
+              Text(
+                '₹${p.amount}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 18,
+                  color: AppTheme.ownerAccent,
+                ),
+              ),
+              Text(
+                DateFormat('MMM dd, hh:mm a').format(p.timestamp),
+                style: const TextStyle(fontSize: 10, color: AppTheme.grey400),
+              ),
             ],
           ),
         ],
@@ -413,7 +458,9 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
             if (list.isEmpty) {
               return _buildEmptyState(
                 icon: _selectedTab == 0 ? Icons.done_all : Icons.history,
-                title: _selectedTab == 0 ? 'No pending settlement requests!' : 'No matching records.',
+                title: _selectedTab == 0
+                    ? 'No pending settlement requests!'
+                    : 'No matching records.',
                 subtitle: 'All rider submissions have been reviewed and balanced.',
               );
             }
@@ -460,8 +507,8 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
 
   Widget _buildSettlementCard(CodSettlementModel item) {
     final dateStr = DateFormat('MMM dd, yyyy • hh:mm a').format(item.submittedAt);
-    final resolvedStr = item.resolvedAt != null 
-        ? DateFormat('MMM dd, yyyy • hh:mm a').format(item.resolvedAt!) 
+    final resolvedStr = item.resolvedAt != null
+        ? DateFormat('MMM dd, yyyy • hh:mm a').format(item.resolvedAt!)
         : null;
 
     Color statusColor = AppTheme.warning;
@@ -482,7 +529,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
             color: AppTheme.black.withValues(alpha: 0.03),
             blurRadius: 8,
             offset: const Offset(0, 2),
-          )
+          ),
         ],
         border: Border.all(color: AppTheme.grey100),
       ),
@@ -495,11 +542,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
               color: AppTheme.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.directions_run,
-              color: AppTheme.primary,
-              size: 24,
-            ),
+            child: const Icon(Icons.directions_run, color: AppTheme.primary, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -637,7 +680,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
       stream: _orderService.getAllReturnRequestsStream(),
       builder: (context, snapshot) {
         final requests = snapshot.data ?? [];
-        
+
         // Computes summary stats
         final totalCancelled = requests.length;
         final pendingCount = requests.where((r) => r['status'] == 'pending').length;
@@ -663,10 +706,30 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
           children: [
             Row(
               children: [
-                _buildStatCard('Total Returns', totalCancelled.toString(), AppTheme.primary, Icons.cancel_outlined),
-                _buildStatCard('Pending', '₹${pendingTotalAmount.toStringAsFixed(0)}', AppTheme.warning, Icons.hourglass_empty_rounded),
-                _buildStatCard('Processed', '₹${refundedTotalAmount.toStringAsFixed(0)}', AppTheme.success, Icons.check_circle_outline),
-                _buildStatCard('Active Cases', pendingCount.toString(), AppTheme.info, Icons.pending_actions_outlined),
+                _buildStatCard(
+                  'Total Returns',
+                  totalCancelled.toString(),
+                  AppTheme.primary,
+                  Icons.cancel_outlined,
+                ),
+                _buildStatCard(
+                  'Pending',
+                  '₹${pendingTotalAmount.toStringAsFixed(0)}',
+                  AppTheme.warning,
+                  Icons.hourglass_empty_rounded,
+                ),
+                _buildStatCard(
+                  'Processed',
+                  '₹${refundedTotalAmount.toStringAsFixed(0)}',
+                  AppTheme.success,
+                  Icons.check_circle_outline,
+                ),
+                _buildStatCard(
+                  'Active Cases',
+                  pendingCount.toString(),
+                  AppTheme.info,
+                  Icons.pending_actions_outlined,
+                ),
               ],
             ),
             const SizedBox(height: 24),
@@ -704,7 +767,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
               ),
           ],
         );
-      }
+      },
     );
   }
 
@@ -722,7 +785,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
               color: AppTheme.black.withValues(alpha: 0.02),
               blurRadius: 4,
               offset: const Offset(0, 1),
-            )
+            ),
           ],
         ),
         child: Row(
@@ -826,7 +889,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
             color: AppTheme.black.withValues(alpha: 0.03),
             blurRadius: 8,
             offset: const Offset(0, 2),
-          )
+          ),
         ],
         border: Border.all(color: AppTheme.grey100),
       ),
@@ -855,10 +918,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    dateStr,
-                    style: const TextStyle(fontSize: 11, color: AppTheme.grey500),
-                  ),
+                  Text(dateStr, style: const TextStyle(fontSize: 11, color: AppTheme.grey500)),
                 ],
               ),
               Container(
@@ -896,7 +956,11 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
                 children: [
                   Text(
                     refund['customerName'] as String,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppTheme.grey800),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: AppTheme.grey800,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -907,7 +971,11 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
               ),
               Text(
                 '₹${(refund['amount'] as num).toDouble().toStringAsFixed(1)}',
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppTheme.info),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: AppTheme.info,
+                ),
               ),
             ],
           ),
@@ -975,10 +1043,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: AppTheme.grey200),
-                        image: DecorationImage(
-                          image: NetworkImage(imageUrl),
-                          fit: BoxFit.cover,
-                        ),
+                        image: DecorationImage(image: NetworkImage(imageUrl), fit: BoxFit.cover),
                       ),
                     ),
                   );
@@ -1000,7 +1065,11 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
               ),
               child: Text(
                 'Refunding Log: ${refund['notes']}',
-                style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: AppTheme.grey700),
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontStyle: FontStyle.italic,
+                  color: AppTheme.grey700,
+                ),
               ),
             ),
           ],
@@ -1045,11 +1114,14 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
   void _processInstantRefund(Map<String, dynamic> refund) {
     setState(() {
       refund['status'] = 'refunded';
-      refund['notes'] = 'Refunded instantly to Paytm Wallet on ${DateFormat('hh:mm a').format(DateTime.now())}. Transaction ID: TXN_${DateTime.now().millisecondsSinceEpoch.toString().substring(6)}';
+      refund['notes'] =
+          'Refunded instantly to Paytm Wallet on ${DateFormat('hh:mm a').format(DateTime.now())}. Transaction ID: TXN_${DateTime.now().millisecondsSinceEpoch.toString().substring(6)}';
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Refund of ₹${refund['amount']} processed successfully for order ${refund['orderNumber']}!'),
+        content: Text(
+          'Refund of ₹${refund['amount']} processed successfully for order ${refund['orderNumber']}!',
+        ),
         backgroundColor: AppTheme.success,
       ),
     );
@@ -1065,7 +1137,9 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Input reason for rejecting refund of ₹${refund['amount']} for ${refund['customerName']}:'),
+            Text(
+              'Input reason for rejecting refund of ₹${refund['amount']} for ${refund['customerName']}:',
+            ),
             const SizedBox(height: 12),
             TextField(
               controller: controller,
@@ -1078,20 +1152,20 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               setState(() {
                 refund['status'] = 'rejected';
-                refund['notes'] = 'Disputed: ${controller.text.trim().isNotEmpty ? controller.text.trim() : 'Reason not provided.'}';
+                refund['notes'] =
+                    'Disputed: ${controller.text.trim().isNotEmpty ? controller.text.trim() : 'Reason not provided.'}';
               });
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Refund request for ${refund['orderNumber']} marked as disputed/rejected.'),
+                  content: Text(
+                    'Refund request for ${refund['orderNumber']} marked as disputed/rejected.',
+                  ),
                   backgroundColor: AppTheme.error,
                 ),
               );
@@ -1143,7 +1217,12 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
     );
   }
 
-  Future<void> _updateStatus(BuildContext context, CodSettlementModel item, String status, {String? notes}) async {
+  Future<void> _updateStatus(
+    BuildContext context,
+    CodSettlementModel item,
+    String status, {
+    String? notes,
+  }) async {
     try {
       await _fleetService.updateCodSettlementStatus(item.id, status, notes: notes);
       if (context.mounted) {
@@ -1157,10 +1236,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to update status: $e'),
-            backgroundColor: AppTheme.error,
-          ),
+          SnackBar(content: Text('Failed to update status: $e'), backgroundColor: AppTheme.error),
         );
       }
     }
@@ -1172,12 +1248,17 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Reject Cash Submission', style: TextStyle(fontWeight: FontWeight.w700)),
+          title: const Text(
+            'Reject Cash Submission',
+            style: TextStyle(fontWeight: FontWeight.w700),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Are you sure you want to reject the submission of ₹${item.amount.toStringAsFixed(0)} by ${item.riderName}?'),
+              Text(
+                'Are you sure you want to reject the submission of ₹${item.amount.toStringAsFixed(0)} by ${item.riderName}?',
+              ),
               const SizedBox(height: 16),
               TextField(
                 controller: noteController,
@@ -1190,10 +1271,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
             ],
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
             ElevatedButton(
               onPressed: () {
                 final reason = noteController.text.trim();
@@ -1267,4 +1345,3 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
     );
   }
 }
-

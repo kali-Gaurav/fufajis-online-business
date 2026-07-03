@@ -56,7 +56,7 @@ class RetentionProvider extends ChangeNotifier {
         adminId: adminId,
         adminName: adminName,
       );
-      
+
       // Refresh the lists to show updated stats/users
       await loadRetentionData();
     } catch (e) {

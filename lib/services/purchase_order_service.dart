@@ -7,13 +7,8 @@ class PurchaseOrderService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   /// Generates a draft PO based on items below reorder threshold
-  Future<PurchaseOrder?> generateDraftPO(
-    String shopId,
-    List<ProductModel> catalog,
-  ) async {
-    final lowStockItems = catalog
-        .where((p) => p.stockQuantity <= p.minimumStock)
-        .toList();
+  Future<PurchaseOrder?> generateDraftPO(String shopId, List<ProductModel> catalog) async {
+    final lowStockItems = catalog.where((p) => p.stockQuantity <= p.minimumStock).toList();
 
     if (lowStockItems.isEmpty) return null;
 
@@ -22,9 +17,7 @@ class PurchaseOrderService {
           (p) => PurchaseOrderItem(
             productId: p.id,
             productName: p.name,
-            quantity:
-                (p.minimumStock * 2) -
-                p.stockQuantity, // Heuristic: fill to 2x min
+            quantity: (p.minimumStock * 2) - p.stockQuantity, // Heuristic: fill to 2x min
             unit: p.unit,
             estimatedCost:
                 MonetaryValue(p.costPrice ?? (p.price * 0.8)).toDouble() *
@@ -33,10 +26,7 @@ class PurchaseOrderService {
         )
         .toList();
 
-    double total = poItems.fold(
-      0.0,
-      (total, item) => total + item.estimatedCost,
-    );
+    double total = poItems.fold(0.0, (total, item) => total + item.estimatedCost);
 
     return PurchaseOrder(
       id: 'po_${DateTime.now().millisecondsSinceEpoch}',
@@ -60,18 +50,19 @@ class PurchaseOrderService {
     required String billDate,
     required List<Map<String, dynamic>> items,
   }) async {
-    final poItems = items.map((item) => PurchaseOrderItem(
-      productId: item['matchedProductId']?.toString() ?? '',
-      productName: item['name']?.toString() ?? 'Unknown',
-      quantity: (item['quantity'] as num?)?.toInt() ?? 1,
-      unit: item['unit']?.toString() ?? 'kg',
-      estimatedCost: (item['total'] as num?)?.toDouble() ?? 0.0,
-    )).toList();
+    final poItems = items
+        .map(
+          (item) => PurchaseOrderItem(
+            productId: item['matchedProductId']?.toString() ?? '',
+            productName: item['name']?.toString() ?? 'Unknown',
+            quantity: (item['quantity'] as num?)?.toInt() ?? 1,
+            unit: item['unit']?.toString() ?? 'kg',
+            estimatedCost: (item['total'] as num?)?.toDouble() ?? 0.0,
+          ),
+        )
+        .toList();
 
-    final total = poItems.fold<double>(
-      0.0,
-      (sum, item) => sum + item.estimatedCost,
-    );
+    final total = poItems.fold<double>(0.0, (sum, item) => sum + item.estimatedCost);
 
     final po = PurchaseOrder(
       id: 'po_${DateTime.now().millisecondsSinceEpoch}',

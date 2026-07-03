@@ -133,10 +133,83 @@ async function initializeServices() {
     await secrets.loadSecrets();
     console.log('✅ Secrets loaded');
 
+    // Initialize database pool
+    const pool = require('./db/pool');
+    await pool.init();
+    console.log('✅ Database pool initialized');
+
+    // Schedule Phase 1 cron jobs
+    await scheduleCronJobs();
+    console.log('✅ Cron jobs scheduled');
+
     return true;
   } catch (e) {
     console.error('❌ Failed to initialize services:', e.message);
     throw e;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// PHASE 5a: Schedule Cron Jobs
+// ═══════════════════════════════════════════════════════════════════════
+
+async function scheduleCronJobs() {
+  const cron = require('node-cron');
+  const CleanupCron = require('./jobs/cleanup-cron');
+  const ReconciliationCron = require('./jobs/reconciliation-cron');
+
+  console.log('📅 Scheduling Phase 1 cron jobs...');
+
+  // Cleanup cron: Run every 5 minutes (expire stale reservations, cleanup idempotency keys)
+  cron.schedule('*/5 * * * *', async () => {
+    try {
+      console.log('[Cron] Running cleanup job (every 5 min)...');
+      await CleanupCron.execute();
+    } catch (err) {
+      console.error('[Cron] Cleanup job failed:', err.message);
+    }
+  });
+  console.log('  ✅ Cleanup cron scheduled: every 5 minutes');
+
+  // Reconciliation cron: Run every 1 hour (check stale payments)
+  cron.schedule('0 * * * *', async () => {
+    try {
+      console.log('[Cron] Running reconciliation job (every 1 hour)...');
+      await ReconciliationCron.execute();
+    } catch (err) {
+      console.error('[Cron] Reconciliation job failed:', err.message);
+    }
+  });
+  console.log('  ✅ Reconciliation cron scheduled: every 1 hour');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// PHASE 5b: Start Event Worker
+// ═══════════════════════════════════════════════════════════════════════
+
+async function startEventWorker() {
+  try {
+    const EventWorker = require('./workers/event-worker');
+    const worker = new EventWorker(`worker-${process.pid}`);
+
+    console.log('⚡ Starting Phase 1 event worker...');
+    await worker.start();
+    console.log('✅ Event worker started (polling for events every 2 seconds)');
+
+    // Graceful shutdown hook for worker
+    process.on('SIGTERM', async () => {
+      console.log('\n⏹️  Stopping event worker...');
+      await worker.stop();
+    });
+
+    process.on('SIGINT', async () => {
+      console.log('\n⏹️  Stopping event worker...');
+      await worker.stop();
+    });
+  } catch (err) {
+    console.error('⚠️  Failed to start event worker:', err.message);
+    console.error('   Event processing disabled. Stale events will accumulate.');
+    // Don't exit - event worker is not critical, system can function without it
   }
 }
 
@@ -154,12 +227,17 @@ async function startServer() {
     const app = require('./app');
     const port = process.env.PORT || 3001;
 
-    app.listen(port, () => {
+    app.listen(port, async () => {
       console.log(`\n🚀 ════════════════════════════════════════════════════════`);
       console.log(`🚀 Fufaji Backend Server running on port ${port}`);
       console.log(`🚀 Environment: ${process.env.NODE_ENV}`);
       console.log(`🚀 Health check: GET /health`);
       console.log(`🚀 ════════════════════════════════════════════════════════\n`);
+
+      // Start event worker (non-blocking)
+      startEventWorker().catch(err => {
+        console.error('Failed to start event worker:', err.message);
+      });
     });
 
     // Graceful shutdown

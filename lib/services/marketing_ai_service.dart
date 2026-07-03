@@ -12,20 +12,16 @@ class MarketingAiService {
     try {
       final docRef = _firestore.collection('marketing_campaigns').doc(campaignId);
       final docSnap = await docRef.get();
-      
+
       if (!docSnap.exists) return;
-      
+
       final campaign = MarketingCampaignModel.fromMap(docSnap.data()!, campaignId);
 
-      await docRef.update({
-        'status': MarketingCampaignStatus.approved.name,
-      });
+      await docRef.update({'status': MarketingCampaignStatus.approved.name});
 
       // Execute campaign: If Wallet Cashback, could invoke a cloud function or batch write.
       // We will simulate execution by marking it as executed and logging.
-      await docRef.update({
-        'status': MarketingCampaignStatus.executed.name,
-      });
+      await docRef.update({'status': MarketingCampaignStatus.executed.name});
 
       await _auditLogger.logAdminAction(
         'Marketing Campaign Executed',
@@ -48,9 +44,7 @@ class MarketingAiService {
   Future<void> rejectCampaign(String campaignId, String ownerId) async {
     try {
       final docRef = _firestore.collection('marketing_campaigns').doc(campaignId);
-      await docRef.update({
-        'status': MarketingCampaignStatus.rejected.name,
-      });
+      await docRef.update({'status': MarketingCampaignStatus.rejected.name});
 
       await _auditLogger.logAdminAction(
         'Marketing Campaign Rejected',

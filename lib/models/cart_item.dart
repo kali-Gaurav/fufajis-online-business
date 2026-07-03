@@ -1,7 +1,7 @@
 import '../utils/monetary_value.dart';
 
 class CartItem {
-  final String id; 
+  final String id;
 
   final String productId;
   final String productName;
@@ -96,7 +96,9 @@ class CartItem {
       quantity: map['quantity'] as int? ?? 1,
       price: MonetaryValue(map['price'] ?? 0.0),
       originalPrice: map['originalPrice'] != null ? MonetaryValue(map['originalPrice']) : null,
-      discountPercentage: map['discountPercentage'] != null ? MonetaryValue(map['discountPercentage']) : null,
+      discountPercentage: map['discountPercentage'] != null
+          ? MonetaryValue(map['discountPercentage'])
+          : null,
       stockQuantity: map['stockQuantity'] as int? ?? 0,
       shopId: map['shopId'] as String? ?? '',
       shopName: map['shopName'] as String? ?? '',
@@ -104,9 +106,7 @@ class CartItem {
       selectedSize: map['selectedSize'] as String?,
       selectedColor: map['selectedColor'] as String?,
       itemNotes: map['itemNotes'] as String?,
-      addedAt: map['addedAt'] != null
-          ? DateTime.parse(map['addedAt'] as String)
-          : DateTime.now(),
+      addedAt: map['addedAt'] != null ? DateTime.parse(map['addedAt'] as String) : DateTime.now(),
     );
   }
 }

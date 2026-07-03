@@ -11,7 +11,7 @@ enum AdminActionType {
   deleteAccount,
   manualPaymentApproval,
   fraudAlert,
-  other
+  other,
 }
 
 extension AdminActionTypeExtension on AdminActionType {

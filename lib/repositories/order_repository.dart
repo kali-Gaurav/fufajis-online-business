@@ -13,8 +13,7 @@ class OrderRepository {
   OrderRepository._internal();
 
   // Collection references
-  CollectionReference<Map<String, dynamic>> get _ordersCollection =>
-      _db.collection('orders');
+  CollectionReference<Map<String, dynamic>> get _ordersCollection => _db.collection('orders');
 
   // ──────────────────────────────────────────────────────────────
   // CREATE OPERATIONS
@@ -61,7 +60,7 @@ class OrderRepository {
           if (currentStock < entry.value) {
             throw Exception(
               'Insufficient stock for product ${entry.key}: '
-              'available=$currentStock, requested=${entry.value}'
+              'available=$currentStock, requested=${entry.value}',
             );
           }
           inventoryValidation[entry.key] = true;
@@ -130,25 +129,19 @@ class OrderRepository {
   }
 
   /// Gets pending orders assigned to an employee
-  Future<List<OrderModel>> getPendingOrdersForEmployee(
-    String employeeId, {
-    int limit = 50,
-  }) async {
+  Future<List<OrderModel>> getPendingOrdersForEmployee(String employeeId, {int limit = 50}) async {
     try {
       final snapshot = await _ordersCollection
           .where('employeeId', isEqualTo: employeeId)
-          .where('orderStatus', whereIn: [
-            'OrderStatus.pending',
-            'OrderStatus.confirmed',
-            'OrderStatus.processing',
-          ])
+          .where(
+            'orderStatus',
+            whereIn: ['OrderStatus.pending', 'OrderStatus.confirmed', 'OrderStatus.processing'],
+          )
           .orderBy('createdAt')
           .limit(limit)
           .get();
 
-      return snapshot.docs
-          .map((doc) => OrderModel.fromMap(doc.data()))
-          .toList();
+      return snapshot.docs.map((doc) => OrderModel.fromMap(doc.data())).toList();
     } catch (e) {
       rethrow;
     }
@@ -162,19 +155,20 @@ class OrderRepository {
     try {
       final snapshot = await _ordersCollection
           .where('deliveryAgentId', isEqualTo: deliveryAgentId)
-          .where('orderStatus', whereIn: [
-            'OrderStatus.packed',
-            'OrderStatus.ready',
-            'OrderStatus.shipped',
-            'OrderStatus.in_transit',
-          ])
+          .where(
+            'orderStatus',
+            whereIn: [
+              'OrderStatus.packed',
+              'OrderStatus.ready',
+              'OrderStatus.shipped',
+              'OrderStatus.in_transit',
+            ],
+          )
           .orderBy('createdAt')
           .limit(limit)
           .get();
 
-      return snapshot.docs
-          .map((doc) => OrderModel.fromMap(doc.data()))
-          .toList();
+      return snapshot.docs.map((doc) => OrderModel.fromMap(doc.data())).toList();
     } catch (e) {
       rethrow;
     }
@@ -221,9 +215,7 @@ class OrderRepository {
         }
       }
 
-      return results.docs
-          .map((doc) => OrderModel.fromMap(doc.data()))
-          .toList();
+      return results.docs.map((doc) => OrderModel.fromMap(doc.data())).toList();
     } catch (e) {
       rethrow;
     }
@@ -263,10 +255,7 @@ class OrderRepository {
   }
 
   /// Updates multiple order fields in one operation
-  Future<void> updateOrder(
-    String orderId,
-    Map<String, dynamic> updates,
-  ) async {
+  Future<void> updateOrder(String orderId, Map<String, dynamic> updates) async {
     try {
       updates['updatedAt'] = FieldValue.serverTimestamp();
       await _ordersCollection.doc(orderId).update(updates);
@@ -308,11 +297,7 @@ class OrderRepository {
   }
 
   /// Cancels an order with reason
-  Future<void> cancelOrder(
-    String orderId, {
-    required String reason,
-    String? actorId,
-  }) async {
+  Future<void> cancelOrder(String orderId, {required String reason, String? actorId}) async {
     try {
       await _db.runTransaction((transaction) async {
         final orderRef = _ordersCollection.doc(orderId);
@@ -325,12 +310,11 @@ class OrderRepository {
         final order = OrderModel.fromMap(orderSnapshot.data() ?? {});
 
         // Restore inventory if order was confirmed/processing
-        if (order.status.index < 4) { // before packed
+        if (order.status.index < 4) {
+          // before packed
           for (final item in order.items) {
             final productRef = _db.collection('products').doc(item.productId);
-            transaction.update(productRef, {
-              'stockQuantity': FieldValue.increment(item.quantity),
-            });
+            transaction.update(productRef, {'stockQuantity': FieldValue.increment(item.quantity)});
           }
         }
 
@@ -345,7 +329,7 @@ class OrderRepository {
               'timestamp': FieldValue.serverTimestamp(),
               'note': reason,
               'actorId': actorId,
-            }
+            },
           ]),
         });
       });
@@ -355,11 +339,7 @@ class OrderRepository {
   }
 
   /// Assigns an order to an employee for packing
-  Future<void> assignToEmployee(
-    String orderId,
-    String employeeId,
-    String employeeName,
-  ) async {
+  Future<void> assignToEmployee(String orderId, String employeeId, String employeeName) async {
     try {
       await _ordersCollection.doc(orderId).update({
         'employeeId': employeeId,
@@ -464,9 +444,7 @@ class OrderRepository {
         .orderBy('createdAt', descending: true)
         .limit(50)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => OrderModel.fromMap(doc.data()))
-            .toList());
+        .map((snapshot) => snapshot.docs.map((doc) => OrderModel.fromMap(doc.data())).toList());
   }
 
   /// Real-time stream of orders with specific status
@@ -476,9 +454,7 @@ class OrderRepository {
         .orderBy('createdAt', descending: true)
         .limit(100)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => OrderModel.fromMap(doc.data()))
-            .toList());
+        .map((snapshot) => snapshot.docs.map((doc) => OrderModel.fromMap(doc.data())).toList());
   }
 
   // ──────────────────────────────────────────────────────────────
@@ -488,9 +464,7 @@ class OrderRepository {
   /// Gets order statistics for a customer
   Future<OrderStats> getCustomerOrderStats(String customerId) async {
     try {
-      final snapshot = await _ordersCollection
-          .where('customerId', isEqualTo: customerId)
-          .get();
+      final snapshot = await _ordersCollection.where('customerId', isEqualTo: customerId).get();
 
       int totalOrders = 0;
       double totalSpent = 0.0;
@@ -593,11 +567,7 @@ class OrderStats {
   final double totalSpent;
   final DateTime? lastOrderDate;
 
-  OrderStats({
-    required this.totalOrders,
-    required this.totalSpent,
-    this.lastOrderDate,
-  });
+  OrderStats({required this.totalOrders, required this.totalSpent, this.lastOrderDate});
 
   double get averageOrderValue {
     if (totalOrders == 0) return 0.0;

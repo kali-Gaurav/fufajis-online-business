@@ -53,19 +53,22 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Amount: ₹${order.totalAmount.round()}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            Text(
+              'Amount: ₹${order.totalAmount.round()}',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
             const SizedBox(height: 16),
             SizedBox(
               width: 200,
               height: 200,
-              child: QrImageView(
-                data: upiUri,
-                version: QrVersions.auto,
-                size: 200.0,
-              ),
+              child: QrImageView(data: upiUri, version: QrVersions.auto, size: 200.0),
             ),
             const SizedBox(height: 16),
-            const Text('Customer can pay using GPay, PhonePe, or Paytm', textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: AppTheme.grey600)),
+            const Text(
+              'Customer can pay using GPay, PhonePe, or Paytm',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12, color: AppTheme.grey600),
+            ),
           ],
         ),
         actions: [
@@ -89,7 +92,9 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
     if (mounted) {
       setState(() => _isLoading = false);
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Payment recorded successfully!')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Payment recorded successfully!')));
         _loadOrder();
       }
     }
@@ -101,13 +106,14 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     final orderProvider = Provider.of<OrderProvider>(context);
 
     if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppTheme.deliveryAccent)));
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator(color: AppTheme.deliveryAccent)),
+      );
     }
     if (_order == null) {
       return const Scaffold(body: Center(child: Text('Order not found')));
@@ -117,7 +123,13 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
     final isUnpaid = order.paymentStatus != 'paid';
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Verify Delivery', style: TextStyle(fontWeight: FontWeight.w700)), backgroundColor: AppTheme.cream, foregroundColor: AppTheme.grey900, elevation: 0, centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Verify Delivery', style: TextStyle(fontWeight: FontWeight.w700)),
+        backgroundColor: AppTheme.cream,
+        foregroundColor: AppTheme.grey900,
+        elevation: 0,
+        centerTitle: true,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -131,18 +143,35 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    Text('Order #${order.orderNumber}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.primary)),
+                    Text(
+                      'Order #${order.orderNumber}',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primary,
+                      ),
+                    ),
                     const SizedBox(height: 8),
-                    Text('Total Amount: ₹${order.totalAmount.round()}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+                    Text(
+                      'Total Amount: ₹${order.totalAmount.round()}',
+                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
+                    ),
                   ],
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
 
             if (isUnpaid) ...[
-              const Text('PAYMENT COLLECTION', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.grey600)),
+              const Text(
+                'PAYMENT COLLECTION',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.grey600,
+                ),
+              ),
               const SizedBox(height: 12),
               Row(
                 children: [
@@ -151,7 +180,10 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                       onPressed: () => _markAsPaid(order.id, 'cash'),
                       icon: const Icon(Icons.money),
                       label: const Text('Cash Received'),
-                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), side: const BorderSide(color: AppTheme.success)),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: const BorderSide(color: AppTheme.success),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -160,7 +192,10 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                       onPressed: () => _showUPIQRCode(order),
                       icon: const Icon(Icons.qr_code),
                       label: const Text('Show QR'),
-                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), side: const BorderSide(color: AppTheme.ownerAccent)),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: const BorderSide(color: AppTheme.ownerAccent),
+                      ),
                     ),
                   ),
                 ],
@@ -168,7 +203,10 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
               const SizedBox(height: 32),
             ],
 
-            const Text('DELIVERY VERIFICATION', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.grey600)),
+            const Text(
+              'DELIVERY VERIFICATION',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.grey600),
+            ),
             const SizedBox(height: 12),
             TextField(
               controller: _otpController,
@@ -183,45 +221,62 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: (isUnpaid) ? null : () async {
-                setState(() => _isLoading = true);
-                try {
-                  final position = await Geolocator.getCurrentPosition(
-                    locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
-                  );
+              onPressed: (isUnpaid)
+                  ? null
+                  : () async {
+                      setState(() => _isLoading = true);
+                      try {
+                        final position = await Geolocator.getCurrentPosition(
+                          locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+                        );
 
-                  final success = await orderProvider.verifyAndDeliverOrder(
-                    orderId: order.id,
-                    otp: _otpController.text,
-                    riderLatitude: position.latitude,
-                    riderLongitude: position.longitude,
-                  );
+                        final success = await orderProvider.verifyAndDeliverOrder(
+                          orderId: order.id,
+                          otp: _otpController.text,
+                          riderLatitude: position.latitude,
+                          riderLongitude: position.longitude,
+                        );
 
-                  if (success && mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Order Delivered! 🎉')));
-                    context.pop();
-                  } else if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(orderProvider.errorMessage ?? 'Invalid OTP or Too far from location'), backgroundColor: AppTheme.error),
-                    );
-                  }
-                } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
-                    );
-                  }
-                } finally {
-                  if (mounted) setState(() => _isLoading = false);
-                }
-              },
+                        if (success && mounted) {
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(const SnackBar(content: Text('Order Delivered! 🎉')));
+                          context.pop();
+                        } else if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                orderProvider.errorMessage ??
+                                    'Invalid OTP or Too far from location',
+                              ),
+                              backgroundColor: AppTheme.error,
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
+                          );
+                        }
+                      } finally {
+                        if (mounted) setState(() => _isLoading = false);
+                      }
+                    },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 backgroundColor: AppTheme.primary,
                 disabledBackgroundColor: AppTheme.grey300,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: Text(isUnpaid ? 'Collect Payment First' : 'Confirm Delivery', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+              child: Text(
+                isUnpaid ? 'Collect Payment First' : 'Confirm Delivery',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
             ),
 
             // ── Scan QR alternative — recommended for GPS + photo proof ──────
@@ -231,9 +286,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => DeliveryPodScannerScreen(
-                      parcelId: order.id,
-                    ),
+                    builder: (_) => DeliveryPodScannerScreen(parcelId: order.id),
                     fullscreenDialog: true,
                   ),
                 ),
@@ -246,8 +299,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
                   foregroundColor: const Color(0xFF2E7D32),
                   side: const BorderSide(color: Color(0xFF2E7D32)),
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
             ],

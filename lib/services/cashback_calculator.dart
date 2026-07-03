@@ -48,8 +48,7 @@ class CashbackCalculator {
       // Get user's membership tier to determine cashback multiplier
       final tier = await _tierCalculator.getUserTier(userId);
       final tierBenefits = _tierCalculator.getTierBenefits(tier);
-      final cashbackMultiplier =
-          ((tierBenefits['cashbackPercentage'] as num?) ?? 1.0).toDouble();
+      final cashbackMultiplier = ((tierBenefits['cashbackPercentage'] as num?) ?? 1.0).toDouble();
 
       // Calculate cashback amount using config percentage
       final baseCashbackPct = config.cashbackPercentage / 100.0;
@@ -77,10 +76,7 @@ class CashbackCalculator {
   }
 
   /// Gets cashback amount for an order based on user's tier
-  Future<double> getCashbackAmount({
-    required String userId,
-    required double orderAmount,
-  }) async {
+  Future<double> getCashbackAmount({required String userId, required double orderAmount}) async {
     try {
       final config = await ShopConfigService().getShopConfig();
       if (!config.enableCashback) return 0.0;
@@ -94,9 +90,7 @@ class CashbackCalculator {
     } catch (e) {
       debugPrint('Error getting cashback amount: $e');
       final config = ShopConfigService().cachedConfig;
-      final basePct = config != null
-          ? config.cashbackPercentage / 100.0
-          : baseCashbackPercentage;
+      final basePct = config != null ? config.cashbackPercentage / 100.0 : baseCashbackPercentage;
       return orderAmount * basePct;
     }
   }

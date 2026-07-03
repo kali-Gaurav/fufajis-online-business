@@ -227,8 +227,8 @@ class OwnerInsight {
     this.wasViewed,
     this.wasActedOn,
     this.actionTaken,
-  })  : insightId = insightId ?? _generateInsightId(),
-        generatedAt = generatedAt ?? DateTime.now();
+  }) : insightId = insightId ?? _generateInsightId(),
+       generatedAt = generatedAt ?? DateTime.now();
 
   /// Convert from Firestore document
   factory OwnerInsight.fromMap(Map<String, dynamic> map) {

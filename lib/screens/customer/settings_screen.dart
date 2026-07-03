@@ -44,18 +44,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final accessibilityProvider = Provider.of<AccessibilityProvider>(context);
 
-    // Get localized language string
-    final currentLang = accessibilityProvider.isElderlyMode
-        ? accessibilityProvider.preferredLanguage
-        : themeProvider.locale.languageCode;
+    // Get localized language string directly from accessibility provider
+    final currentLang = accessibilityProvider.preferredLanguage;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          accessibilityProvider.label(en: 'Settings', hi: 'सेटिंग्स'),
-        ),
-        backgroundColor: AppTheme.cream,
-        foregroundColor: AppTheme.grey900,
+        title: Text(accessibilityProvider.label(en: 'Settings', hi: 'सेटिंग्स')),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -65,23 +59,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                accessibilityProvider.label(
-                  en: 'Profile Information',
-                  hi: 'प्रोफ़ाइल जानकारी',
-                ),
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                accessibilityProvider.label(en: 'Profile Information', hi: 'प्रोफ़ाइल जानकारी'),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
-                  labelText: accessibilityProvider.label(
-                    en: 'Display Name',
-                    hi: 'नाम',
-                  ),
+                  labelText: accessibilityProvider.label(en: 'Display Name', hi: 'नाम'),
                   border: const OutlineInputBorder(),
                 ),
               ),
@@ -89,10 +74,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               TextFormField(
                 controller: _emailController,
                 decoration: InputDecoration(
-                  labelText: accessibilityProvider.label(
-                    en: 'Email Address',
-                    hi: 'ईमेल पता',
-                  ),
+                  labelText: accessibilityProvider.label(en: 'Email Address', hi: 'ईमेल पता'),
                   border: const OutlineInputBorder(),
                 ),
               ),
@@ -109,14 +91,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const SizedBox(height: 32),
               Text(
-                accessibilityProvider.label(
-                  en: 'Preferences',
-                  hi: 'पसंद (सेटिंग्स)',
-                ),
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                accessibilityProvider.label(en: 'Preferences', hi: 'पसंद (सेटिंग्स)'),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               SwitchListTile(
@@ -141,10 +117,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
-                    accessibilityProvider.label(
-                      en: 'Text Size',
-                      hi: 'अक्षर का आकार',
-                    ),
+                    accessibilityProvider.label(en: 'Text Size', hi: 'अक्षर का आकार'),
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -160,10 +133,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
               SwitchListTile(
                 title: Text(
-                  accessibilityProvider.label(
-                    en: 'Push Notifications',
-                    hi: 'पुश नोटिफिकेशन',
-                  ),
+                  accessibilityProvider.label(en: 'Push Notifications', hi: 'पुश नोटिफिकेशन'),
                 ),
                 subtitle: Text(
                   accessibilityProvider.label(
@@ -176,12 +146,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 activeThumbColor: AppTheme.primary,
               ),
               ListTile(
-                title: Text(
-                  accessibilityProvider.label(
-                    en: 'App Language',
-                    hi: 'ऐप की भाषा',
-                  ),
-                ),
+                title: Text(accessibilityProvider.label(en: 'App Language', hi: 'ऐप की भाषा')),
                 subtitle: Text(
                   accessibilityProvider.label(
                     en: 'Selected: ${currentLang == 'en' ? 'English' : 'हिन्दी'}',
@@ -196,7 +161,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         ListTile(
-                          title: const Text('English', style: TextStyle(fontWeight: FontWeight.w700)),
+                          title: const Text(
+                            'English',
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
                           onTap: () {
                             themeProvider.setLocale(const Locale('en'));
                             accessibilityProvider.setPreferredLanguage('en');
@@ -204,7 +172,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           },
                         ),
                         ListTile(
-                          title: const Text('हिन्दी', style: TextStyle(fontWeight: FontWeight.w700)),
+                          title: const Text(
+                            'हिन्दी',
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
                           onTap: () {
                             themeProvider.setLocale(const Locale('hi'));
                             accessibilityProvider.setPreferredLanguage('hi');
@@ -218,32 +189,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               SwitchListTile(
                 title: Text(
-                  accessibilityProvider.label(
-                    en: 'Dark Mode',
-                    hi: 'डार्क मोड (काली स्क्रीन)',
-                  ),
+                  accessibilityProvider.label(en: 'Dark Mode', hi: 'डार्क मोड (काली स्क्रीन)'),
                 ),
                 value: themeProvider.themeMode == ThemeModeType.dark,
-                onChanged: (val) => themeProvider.setThemeMode(
-                  val ? ThemeModeType.dark : ThemeModeType.light,
-                ),
+                onChanged: (val) =>
+                    themeProvider.setThemeMode(val ? ThemeModeType.dark : ThemeModeType.light),
                 activeThumbColor: AppTheme.primary,
               ),
               const SizedBox(height: 24),
               Text(
                 accessibilityProvider.label(en: 'System', hi: 'सिस्टम'),
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               ListTile(
                 title: Text(
-                  accessibilityProvider.label(
-                    en: 'Check for Updates',
-                    hi: 'अपडेट के लिए जांचें',
-                  ),
+                  accessibilityProvider.label(en: 'Check for Updates', hi: 'अपडेट के लिए जांचें'),
                 ),
                 subtitle: FutureBuilder<PackageInfo>(
                   future: PackageInfo.fromPlatform(),
@@ -276,9 +237,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                   );
-                  final hasUpdate = await UpdateService().handleVersionCheck(
-                    context,
-                  );
+                  final hasUpdate = await UpdateService().handleVersionCheck(context);
                   if (hasUpdate && mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -325,10 +284,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     foregroundColor: Colors.white,
                   ),
                   child: Text(
-                    accessibilityProvider.label(
-                      en: 'SAVE SETTINGS',
-                      hi: 'सेटिंग्स सुरक्षित करें',
-                    ),
+                    accessibilityProvider.label(en: 'SAVE SETTINGS', hi: 'सेटिंग्स सुरक्षित करें'),
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -338,14 +294,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onPressed: () => authProvider.logout(),
                 child: Center(
                   child: Text(
-                    accessibilityProvider.label(
-                      en: 'Logout from App',
-                      hi: 'ऐप से लॉगआउट करें',
-                    ),
-                    style: const TextStyle(
-                      color: AppTheme.error,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    accessibilityProvider.label(en: 'Logout from App', hi: 'ऐप से लॉगआउट करें'),
+                    style: const TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),

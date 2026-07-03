@@ -54,21 +54,13 @@ class OfflineNotificationQueueService {
   }
 
   // Get all queued notifications for a user
-  Future<List<OfflineNotificationQueueModel>> getQueuedNotifications(
-    String userId,
-  ) async {
+  Future<List<OfflineNotificationQueueModel>> getQueuedNotifications(String userId) async {
     try {
       final notifications = <OfflineNotificationQueueModel>[];
       for (var key in _queueBox.keys) {
         final data = _queueBox.get(key);
-        if (data != null &&
-            data['userId'] == userId &&
-            !(data['isDelivered'] ?? false)) {
-          notifications.add(
-            OfflineNotificationQueueModel.fromMap(
-              Map<String, dynamic>.from(data),
-            ),
-          );
+        if (data != null && data['userId'] == userId && !(data['isDelivered'] ?? false)) {
+          notifications.add(OfflineNotificationQueueModel.fromMap(Map<String, dynamic>.from(data)));
         }
       }
       return notifications;
@@ -86,19 +78,15 @@ class OfflineNotificationQueueService {
       for (var notification in queuedNotifications) {
         try {
           // Add to Firestore
-          await _firestore
-              .collection('users')
-              .doc(userId)
-              .collection('notifications')
-              .add({
-                'title': notification.title,
-                'body': notification.body,
-                'type': notification.type,
-                'timestamp': Timestamp.fromDate(notification.createdAt),
-                'isRead': false,
-                'data': notification.data,
-                'deepLink': notification.deepLink,
-              });
+          await _firestore.collection('users').doc(userId).collection('notifications').add({
+            'title': notification.title,
+            'body': notification.body,
+            'type': notification.type,
+            'timestamp': Timestamp.fromDate(notification.createdAt),
+            'isRead': false,
+            'data': notification.data,
+            'deepLink': notification.deepLink,
+          });
 
           // Mark as delivered in local queue
           final updatedNotification = notification.copyWith(
@@ -172,9 +160,7 @@ class OfflineNotificationQueueService {
         await _queueBox.delete(key);
       }
 
-      debugPrint(
-        'Cleared ${keysToDelete.length} queued notifications for user $userId',
-      );
+      debugPrint('Cleared ${keysToDelete.length} queued notifications for user $userId');
     } catch (e) {
       debugPrint('Error clearing queued notifications: $e');
     }
@@ -191,9 +177,7 @@ class OfflineNotificationQueueService {
       int count = 0;
       for (var key in _queueBox.keys) {
         final data = _queueBox.get(key);
-        if (data != null &&
-            data['userId'] == userId &&
-            !(data['isDelivered'] ?? false)) {
+        if (data != null && data['userId'] == userId && !(data['isDelivered'] ?? false)) {
           count++;
         }
       }

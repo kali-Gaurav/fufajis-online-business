@@ -28,7 +28,7 @@ class ContactModel {
       email: map['email'] as String?,
       relationship: map['relationship'] as String? ?? 'primary',
       address: map['address'] as String?,
-      createdAt: map['created_at'] != null 
+      createdAt: map['created_at'] != null
           ? DateTime.parse(map['created_at'].toString())
           : DateTime.now(),
     );

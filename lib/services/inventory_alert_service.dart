@@ -27,18 +27,15 @@ class InventoryAlertService {
 
   /// Calculate sales velocity for a product
   /// Returns average daily sales based on historical data
-  Future<double> calculateSalesVelocity(
-    String productId, {
-    int days = 30,
-  }) async {
+  Future<double> calculateSalesVelocity(String productId, {int days = 30}) async {
     try {
       final now = DateTime.now();
       final startDate = now.subtract(Duration(days: days));
 
       // Get sales history
-      final snapshot = await _salesHistoryCollection(productId)
-          .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
-          .get();
+      final snapshot = await _salesHistoryCollection(
+        productId,
+      ).where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate)).get();
 
       if (snapshot.docs.isEmpty) {
         // Fallback: Query from actual completed orders in '/orders'
@@ -92,9 +89,9 @@ class InventoryAlertService {
           .get();
 
       // Get second half sales
-      var secondHalfSnapshot = await _salesHistoryCollection(productId)
-          .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(midDate))
-          .get();
+      var secondHalfSnapshot = await _salesHistoryCollection(
+        productId,
+      ).where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(midDate)).get();
 
       int firstHalfUnits = 0;
       int secondHalfUnits = 0;
@@ -172,12 +169,7 @@ class InventoryAlertService {
       };
     } catch (e) {
       print('Error calculating sales velocity with trend: $e');
-      return {
-        'velocity': 0.0,
-        'trend': 'stable',
-        'trendPercentage': 0,
-        'confidence': 0.0,
-      };
+      return {'velocity': 0.0, 'trend': 'stable', 'trendPercentage': 0, 'confidence': 0.0};
     }
   }
 
@@ -202,7 +194,11 @@ class InventoryAlertService {
   }
 
   /// Predict days until stockout
-  Future<int> predictDaysUntilStockout(String productId, int currentStock, {Map<String, dynamic>? precalculatedVelocity}) async {
+  Future<int> predictDaysUntilStockout(
+    String productId,
+    int currentStock, {
+    Map<String, dynamic>? precalculatedVelocity,
+  }) async {
     final velocityData = precalculatedVelocity ?? await calculateSalesVelocityWithTrend(productId);
     final velocity = velocityData['velocity'] as double;
 
@@ -262,7 +258,7 @@ class InventoryAlertService {
 
       for (final doc in snapshot.docs) {
         final product = ProductModel.fromMap(doc.data() as Map<String, dynamic>);
-        
+
         // Skip unavailable products
         if (!product.isAvailable) continue;
 
@@ -273,7 +269,11 @@ class InventoryAlertService {
         final confidence = velocityData['confidence'] as double;
 
         // Calculate days until stockout
-        final daysUntilStockout = await predictDaysUntilStockout(product.id, product.stockQuantity, precalculatedVelocity: velocityData);
+        final daysUntilStockout = await predictDaysUntilStockout(
+          product.id,
+          product.stockQuantity,
+          precalculatedVelocity: velocityData,
+        );
 
         // Check if low stock alert needed
         if (daysUntilStockout <= _defaultForecastDays) {
@@ -285,7 +285,11 @@ class InventoryAlertService {
             'daysUntilStockout': daysUntilStockout,
             'trend': trend,
             'confidence': confidence,
-            'reorderQuantity': await calculateReorderQuantity(product.id, product.stockQuantity, precalculatedVelocity: velocityData),
+            'reorderQuantity': await calculateReorderQuantity(
+              product.id,
+              product.stockQuantity,
+              precalculatedVelocity: velocityData,
+            ),
             'createdAt': now,
             'severity': _calculateSeverity(daysUntilStockout, confidence),
           };
@@ -293,10 +297,9 @@ class InventoryAlertService {
           alerts.add(alert);
 
           // Save alert to Firestore
-          await _alertsCollection(shopId).doc(product.id).set({
-            ...alert,
-            'createdAt': Timestamp.fromDate(now),
-          });
+          await _alertsCollection(
+            shopId,
+          ).doc(product.id).set({...alert, 'createdAt': Timestamp.fromDate(now)});
         }
       }
 
@@ -324,7 +327,7 @@ class InventoryAlertService {
   Future<void> sendLowStockNotifications(String shopId) async {
     try {
       final alerts = await checkLowStock(shopId);
-      
+
       if (alerts.isEmpty) return;
 
       // Get shop owner info
@@ -366,11 +369,7 @@ class InventoryAlertService {
           userId: ownerId,
           title: '⚠️ Stock Running Low',
           body: '$count items need restocking soon. Check your inventory.',
-          data: {
-            'type': 'low_stock_warning',
-            'shopId': shopId,
-            'alertCount': count.toString(),
-          },
+          data: {'type': 'low_stock_warning', 'shopId': shopId, 'alertCount': count.toString()},
         );
       }
 
@@ -399,10 +398,9 @@ class InventoryAlertService {
 
   /// Get active alerts for a shop
   Stream<List<Map<String, dynamic>>> getActiveAlerts(String shopId) {
-    return _alertsCollection(shopId)
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _alertsCollection(shopId).orderBy('createdAt', descending: true).snapshots().map((
+      snapshot,
+    ) {
       return snapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
         data['id'] = doc.id;
@@ -427,16 +425,15 @@ class InventoryAlertService {
   /// Record a sale for velocity tracking
   Future<void> recordSale(String productId, int quantity) async {
     try {
-      await _salesHistoryCollection(productId).add({
-        'quantity': quantity,
-        'createdAt': Timestamp.now(),
-      });
+      await _salesHistoryCollection(
+        productId,
+      ).add({'quantity': quantity, 'createdAt': Timestamp.now()});
 
       // Keep only last 90 days of data
       final cutoff = DateTime.now().subtract(const Duration(days: 90));
-      final oldDocs = await _salesHistoryCollection(productId)
-          .where('createdAt', isLessThan: Timestamp.fromDate(cutoff))
-          .get();
+      final oldDocs = await _salesHistoryCollection(
+        productId,
+      ).where('createdAt', isLessThan: Timestamp.fromDate(cutoff)).get();
 
       for (final doc in oldDocs.docs) {
         await doc.reference.delete();
@@ -524,7 +521,7 @@ class InventoryAlertService {
     final healthScore = await getInventoryHealthScore(shopId);
 
     final now = DateTime.now();
-    
+
     // Group by urgency
     final critical = alerts.where((a) => a['severity'] >= 4).toList();
     final important = alerts.where((a) => a['severity'] == 3).toList();
@@ -573,7 +570,9 @@ class InventoryAlertService {
     // Check for trending items
     final trendingUp = alerts.where((a) => a['trend'] == 'increasing').length;
     if (trendingUp > 0) {
-      recommendations.add('📈 $trendingUp items have increasing demand. Consider increasing stock.');
+      recommendations.add(
+        '📈 $trendingUp items have increasing demand. Consider increasing stock.',
+      );
     }
 
     // Check for seasonal patterns
@@ -590,7 +589,7 @@ class InventoryAlertService {
     // Advanced heuristic: Moving average of daily demand + lead time safety buffer
     final now = DateTime.now();
     final thirtyDaysAgo = now.subtract(const Duration(days: 30));
-    
+
     final salesSnapshot = await _firestore
         .collection('orders')
         .where('status', isEqualTo: 'delivered')
@@ -610,9 +609,9 @@ class InventoryAlertService {
     final dailyDemand = totalSold / 30;
     final productDoc = await _firestore.collection('products').doc(productId).get();
     final currentStock = (productDoc.data()?['stockQuantity'] ?? 0).toDouble();
-    
+
     final daysRemaining = dailyDemand > 0 ? currentStock / dailyDemand : 999.0;
-    
+
     return {
       'dailyDemand': dailyDemand.toStringAsFixed(2),
       'daysUntilStockout': daysRemaining.toStringAsFixed(1),

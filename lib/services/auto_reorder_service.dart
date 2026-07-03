@@ -22,7 +22,9 @@ class AutoReorderService {
       final int suggestedPurchaseQty = recommendedStock - currentStock;
 
       if (suggestedPurchaseQty <= 0) {
-        debugPrint('[AutoReorder] No purchase needed for $productId. Current: $currentStock, Recommended: $recommendedStock');
+        debugPrint(
+          '[AutoReorder] No purchase needed for $productId. Current: $currentStock, Recommended: $recommendedStock',
+        );
         return;
       }
 
@@ -36,7 +38,8 @@ class AutoReorderService {
         predictedDemand: predictedDemand,
         recommendedOrderQty: suggestedPurchaseQty,
         confidenceScore: 0.85, // Mock confidence
-        reason: 'Predicted demand ($predictedDemand) exceeds current stock ($currentStock) + safety buffer.',
+        reason:
+            'Predicted demand ($predictedDemand) exceeds current stock ($currentStock) + safety buffer.',
         status: InventoryRecommendationStatus.pending,
         createdAt: DateTime.now(),
       );
@@ -64,15 +67,13 @@ class AutoReorderService {
     try {
       final docRef = _firestore.collection('inventory_recommendations').doc(recommendationId);
       final docSnap = await docRef.get();
-      
+
       if (!docSnap.exists) return;
-      
+
       final rec = InventoryRecommendationModel.fromMap(docSnap.data()!, recommendationId);
-      
+
       // Update recommendation status
-      await docRef.update({
-        'status': InventoryRecommendationStatus.approved.name,
-      });
+      await docRef.update({'status': InventoryRecommendationStatus.approved.name});
 
       // Now create the Purchase Request
       final String mockSupplierId = 'supplier_${DateTime.now().millisecondsSinceEpoch % 100}';
@@ -91,7 +92,7 @@ class AutoReorderService {
         status: PurchaseRequestStatus.ordered, // Directly to ordered as approved
         createdAt: DateTime.now(),
       );
-      
+
       await prRef.set(pr.toMap());
 
       await _auditLogger.logFinancialEvent(
@@ -100,7 +101,7 @@ class AutoReorderService {
           'amount': expectedCost,
           'recommendationId': recommendationId,
           'purchaseRequestId': prRef.id,
-          'approvedBy': ownerId
+          'approvedBy': ownerId,
         },
       );
     } catch (e) {
@@ -112,16 +113,11 @@ class AutoReorderService {
   Future<void> rejectRecommendation(String recommendationId, String ownerId) async {
     try {
       final docRef = _firestore.collection('inventory_recommendations').doc(recommendationId);
-      await docRef.update({
-        'status': InventoryRecommendationStatus.rejected.name,
-      });
+      await docRef.update({'status': InventoryRecommendationStatus.rejected.name});
 
       await _auditLogger.logAdminAction(
         'Inventory Recommendation Rejected',
-        metadata: {
-          'targetUserId': ownerId,
-          'recommendationId': recommendationId
-        },
+        metadata: {'targetUserId': ownerId, 'recommendationId': recommendationId},
       );
     } catch (e) {
       debugPrint('[AutoReorder] Error rejecting recommendation: $e');

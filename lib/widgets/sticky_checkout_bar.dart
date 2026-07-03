@@ -60,23 +60,15 @@ class StickyCheckoutBar extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: AppTheme.primaryColor,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     elevation: 0,
                   ),
                   child: const Row(
                     children: [
                       Text(
                         'QUICK BOOK (3 STEPS)',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
                       ),
                       SizedBox(width: 8),
                       Icon(Icons.arrow_forward_ios, size: 14),

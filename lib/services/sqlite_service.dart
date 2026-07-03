@@ -268,11 +268,7 @@ class SqliteService {
   Future<List<Map<String, dynamic>>> getCachedProducts() async {
     final db = await database;
     final rows = await db.query('products');
-    return rows
-        .map(
-          (r) => jsonDecode(r['data_json'] as String) as Map<String, dynamic>,
-        )
-        .toList();
+    return rows.map((r) => jsonDecode(r['data_json'] as String) as Map<String, dynamic>).toList();
   }
 
   Future<void> clearProductCache() async {
@@ -302,16 +298,8 @@ class SqliteService {
 
   Future<List<Map<String, dynamic>>> getUnsyncedOrders() async {
     final db = await database;
-    final rows = await db.query(
-      'orders',
-      where: 'is_synced = ?',
-      whereArgs: [0],
-    );
-    return rows
-        .map(
-          (r) => jsonDecode(r['data_json'] as String) as Map<String, dynamic>,
-        )
-        .toList();
+    final rows = await db.query('orders', where: 'is_synced = ?', whereArgs: [0]);
+    return rows.map((r) => jsonDecode(r['data_json'] as String) as Map<String, dynamic>).toList();
   }
 
   Future<void> markOrderSynced(String orderId) async {
@@ -348,11 +336,7 @@ class SqliteService {
   Future<List<Map<String, dynamic>>> getCartItems() async {
     final db = await database;
     final rows = await db.query('cart');
-    return rows
-        .map(
-          (r) => jsonDecode(r['data_json'] as String) as Map<String, dynamic>,
-        )
-        .toList();
+    return rows.map((r) => jsonDecode(r['data_json'] as String) as Map<String, dynamic>).toList();
   }
 
   Future<void> updateCartItemQuantity(String itemId, int quantity) async {
@@ -362,9 +346,7 @@ class SqliteService {
     } else {
       final rows = await db.query('cart', where: 'id = ?', whereArgs: [itemId]);
       if (rows.isNotEmpty) {
-        final item =
-            jsonDecode(rows.first['data_json'] as String)
-                as Map<String, dynamic>;
+        final item = jsonDecode(rows.first['data_json'] as String) as Map<String, dynamic>;
         item['quantity'] = quantity;
         await db.update(
           'cart',
@@ -407,26 +389,13 @@ class SqliteService {
 
   Future<List<Map<String, dynamic>>> getUnsyncedInventoryActions() async {
     final db = await database;
-    final rows = await db.query(
-      'inventory',
-      where: 'is_synced = ?',
-      whereArgs: [0],
-    );
-    return rows
-        .map(
-          (r) => jsonDecode(r['data_json'] as String) as Map<String, dynamic>,
-        )
-        .toList();
+    final rows = await db.query('inventory', where: 'is_synced = ?', whereArgs: [0]);
+    return rows.map((r) => jsonDecode(r['data_json'] as String) as Map<String, dynamic>).toList();
   }
 
   Future<void> markInventoryActionSynced(String actionId) async {
     final db = await database;
-    await db.update(
-      'inventory',
-      {'is_synced': 1},
-      where: 'id = ?',
-      whereArgs: [actionId],
-    );
+    await db.update('inventory', {'is_synced': 1}, where: 'id = ?', whereArgs: [actionId]);
   }
 
   // ─────────────── PENDING SYNC QUEUE ───────────────
@@ -450,9 +419,7 @@ class SqliteService {
       'created_at': DateTime.now().millisecondsSinceEpoch,
       'last_tried_at': null,
     }, conflictAlgorithm: ConflictAlgorithm.replace);
-    debugPrint(
-      '[SqliteService] Enqueued sync: $actionType/$collection/$documentId',
-    );
+    debugPrint('[SqliteService] Enqueued sync: $actionType/$collection/$documentId');
   }
 
   Future<List<Map<String, dynamic>>> getPendingSyncItems() async {
@@ -479,21 +446,12 @@ class SqliteService {
 
   Future<void> markSyncDone(String syncId) async {
     final db = await database;
-    await db.update(
-      'pending_sync',
-      {'status': 'synced'},
-      where: 'id = ?',
-      whereArgs: [syncId],
-    );
+    await db.update('pending_sync', {'status': 'synced'}, where: 'id = ?', whereArgs: [syncId]);
   }
 
   Future<void> markSyncFailed(String syncId, {int maxRetries = 5}) async {
     final db = await database;
-    final rows = await db.query(
-      'pending_sync',
-      where: 'id = ?',
-      whereArgs: [syncId],
-    );
+    final rows = await db.query('pending_sync', where: 'id = ?', whereArgs: [syncId]);
     if (rows.isEmpty) return;
     final retryCount = (rows.first['retry_count'] as int) + 1;
     final newStatus = retryCount >= maxRetries ? 'dead_letter' : 'queued';
@@ -546,18 +504,12 @@ class SqliteService {
 
   Future<List<Map<String, dynamic>>> getAuditLogs({int limit = 100}) async {
     final db = await database;
-    return await db.query(
-      'audit_logs',
-      orderBy: 'timestamp DESC',
-      limit: limit,
-    );
+    return await db.query('audit_logs', orderBy: 'timestamp DESC', limit: limit);
   }
 
   Future<void> clearOldAuditLogs({int keepDays = 30}) async {
     final db = await database;
-    final cutoff = DateTime.now()
-        .subtract(Duration(days: keepDays))
-        .millisecondsSinceEpoch;
+    final cutoff = DateTime.now().subtract(Duration(days: keepDays)).millisecondsSinceEpoch;
     await db.delete('audit_logs', where: 'timestamp < ?', whereArgs: [cutoff]);
   }
 
@@ -611,31 +563,26 @@ class SqliteService {
       where: "status = 'queued' OR status = 'processing'",
       orderBy: 'created_at ASC',
     );
-    return rows.map((r) => {
-      'id': r['id'],
-      'sql': r['sql_query'],
-      'params': jsonDecode(r['params_json'] as String) as List<dynamic>,
-      'retryCount': r['retry_count'],
-    }).toList();
+    return rows
+        .map(
+          (r) => {
+            'id': r['id'],
+            'sql': r['sql_query'],
+            'params': jsonDecode(r['params_json'] as String) as List<dynamic>,
+            'retryCount': r['retry_count'],
+          },
+        )
+        .toList();
   }
 
   Future<void> markRDSWriteSynced(String id) async {
     final db = await database;
-    await db.update(
-      'rds_write_queue',
-      {'status': 'synced'},
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    await db.update('rds_write_queue', {'status': 'synced'}, where: 'id = ?', whereArgs: [id]);
   }
 
   Future<void> markRDSWriteFailed(String id, {int maxRetries = 5}) async {
     final db = await database;
-    final rows = await db.query(
-      'rds_write_queue',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    final rows = await db.query('rds_write_queue', where: 'id = ?', whereArgs: [id]);
     if (rows.isEmpty) return;
     final retryCount = (rows.first['retry_count'] as int) + 1;
     final newStatus = retryCount >= maxRetries ? 'dead_letter' : 'queued';
@@ -668,8 +615,14 @@ class SqliteService {
       'rider_id': shift['riderId'],
       'branch_id': shift['branchId'],
       'current_state': shift['currentState'] ?? 'offline',
-      'started_at': shift['startedAt'] is int ? shift['startedAt'] : (shift['startedAt'] as DateTime).millisecondsSinceEpoch,
-      'ended_at': shift['endedAt'] == null ? null : (shift['endedAt'] is int ? shift['endedAt'] : (shift['endedAt'] as DateTime).millisecondsSinceEpoch),
+      'started_at': shift['startedAt'] is int
+          ? shift['startedAt']
+          : (shift['startedAt'] as DateTime).millisecondsSinceEpoch,
+      'ended_at': shift['endedAt'] == null
+          ? null
+          : (shift['endedAt'] is int
+                ? shift['endedAt']
+                : (shift['endedAt'] as DateTime).millisecondsSinceEpoch),
       'total_deliveries': shift['totalDeliveries'] ?? 0,
       'total_earnings': (shift['totalEarnings'] ?? 0.0).toDouble(),
       'total_distance': (shift['totalDistance'] ?? 0.0).toDouble(),
@@ -680,21 +633,12 @@ class SqliteService {
 
   Future<List<Map<String, dynamic>>> getUnsyncedRiderShifts() async {
     final db = await database;
-    return await db.query(
-      'rider_shifts',
-      where: 'is_synced = ?',
-      whereArgs: [0],
-    );
+    return await db.query('rider_shifts', where: 'is_synced = ?', whereArgs: [0]);
   }
 
   Future<void> markRiderShiftSynced(String id) async {
     final db = await database;
-    await db.update(
-      'rider_shifts',
-      {'is_synced': 1},
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    await db.update('rider_shifts', {'is_synced': 1}, where: 'id = ?', whereArgs: [id]);
   }
 
   // ─────────────── RIDER LOCATION LOGS ───────────────
@@ -708,18 +652,16 @@ class SqliteService {
       'longitude': loc['longitude'],
       'speed': loc['speed'] ?? 0.0,
       'accuracy': loc['accuracy'] ?? 0.0,
-      'timestamp': loc['timestamp'] is int ? loc['timestamp'] : (loc['timestamp'] as DateTime).millisecondsSinceEpoch,
+      'timestamp': loc['timestamp'] is int
+          ? loc['timestamp']
+          : (loc['timestamp'] as DateTime).millisecondsSinceEpoch,
       'is_synced': 0,
     }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<List<Map<String, dynamic>>> getUnsyncedLocations() async {
     final db = await database;
-    return await db.query(
-      'rider_location_logs',
-      where: 'is_synced = ?',
-      whereArgs: [0],
-    );
+    return await db.query('rider_location_logs', where: 'is_synced = ?', whereArgs: [0]);
   }
 
   Future<void> markLocationsSynced(List<String> ids) async {
@@ -727,22 +669,13 @@ class SqliteService {
     final db = await database;
     final batch = db.batch();
     for (final id in ids) {
-      batch.update(
-        'rider_location_logs',
-        {'is_synced': 1},
-        where: 'id = ?',
-        whereArgs: [id],
-      );
+      batch.update('rider_location_logs', {'is_synced': 1}, where: 'id = ?', whereArgs: [id]);
     }
     await batch.commit(noResult: true);
   }
 
   Future<void> clearSyncedLocations() async {
     final db = await database;
-    await db.delete(
-      'rider_location_logs',
-      where: 'is_synced = ?',
-      whereArgs: [1],
-    );
+    await db.delete('rider_location_logs', where: 'is_synced = ?', whereArgs: [1]);
   }
 }

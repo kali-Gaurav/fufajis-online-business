@@ -68,11 +68,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector> {
       children: [
         const Text(
           'Payment Method',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: AppTheme.grey900,
-          ),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.grey900),
         ),
         const SizedBox(height: 12),
         ...availableMethods.map((option) => _buildPaymentOption(option)),
@@ -112,9 +108,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector> {
               : AppTheme.grey100,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: option.isAvailable
-                ? (isSelected ? color : AppTheme.grey300)
-                : AppTheme.grey200,
+            color: option.isAvailable ? (isSelected ? color : AppTheme.grey300) : AppTheme.grey200,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: [
@@ -168,10 +162,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector> {
                           if (option.showBadge && option.badgeText != null) ...[
                             const SizedBox(width: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
                                 color: color.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(4),
@@ -191,10 +182,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector> {
                       const SizedBox(height: 4),
                       Text(
                         option.description,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.grey600,
-                        ),
+                        style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
                       ),
                       if (option.subLabel != null) ...[
                         const SizedBox(height: 4),
@@ -203,8 +191,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: option.method == PaymentMethod.wallet &&
-                                    widget.walletBalance > 0
+                            color: option.method == PaymentMethod.wallet && widget.walletBalance > 0
                                 ? AppTheme.success
                                 : AppTheme.grey500,
                           ),
@@ -213,10 +200,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector> {
                       if (unavailabilityReason != null) ...[
                         const SizedBox(height: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: AppTheme.error.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(6),
@@ -224,18 +208,11 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(
-                                Icons.info_outline,
-                                size: 12,
-                                color: AppTheme.error,
-                              ),
+                              const Icon(Icons.info_outline, size: 12, color: AppTheme.error),
                               const SizedBox(width: 4),
                               Text(
                                 unavailabilityReason,
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: AppTheme.error,
-                                ),
+                                style: const TextStyle(fontSize: 11, color: AppTheme.error),
                               ),
                             ],
                           ),
@@ -256,16 +233,10 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector> {
                           : AppTheme.grey300,
                       width: 2,
                     ),
-                    color: option.isAvailable && isSelected
-                        ? color
-                        : Colors.transparent,
+                    color: option.isAvailable && isSelected ? color : Colors.transparent,
                   ),
                   child: option.isAvailable && isSelected
-                      ? const Icon(
-                          Icons.check,
-                          color: Colors.white,
-                          size: 14,
-                        )
+                      ? const Icon(Icons.check, color: Colors.white, size: 14)
                       : null,
                 ),
               ],
@@ -291,9 +262,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector> {
         decoration: BoxDecoration(
           color: AppTheme.primary.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: AppTheme.primary.withValues(alpha: 0.2),
-          ),
+          border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
         ),
         child: Row(
           children: [
@@ -315,16 +284,13 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector> {
     }
 
     // Show Pay Later hint if eligible but not selected
-    if (widget.isPayLaterEligible &&
-        _selectedMethod != PaymentMethod.payLater) {
+    if (widget.isPayLaterEligible && _selectedMethod != PaymentMethod.payLater) {
       return Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: const Color(0xFFE91E63).withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: const Color(0xFFE91E63).withValues(alpha: 0.2),
-          ),
+          border: Border.all(color: const Color(0xFFE91E63).withValues(alpha: 0.2)),
         ),
         child: const Row(
           children: [
@@ -352,9 +318,7 @@ class _PaymentMethodSelectorState extends State<PaymentMethodSelector> {
         decoration: BoxDecoration(
           color: AppTheme.success.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: AppTheme.success.withValues(alpha: 0.3),
-          ),
+          border: Border.all(color: AppTheme.success.withValues(alpha: 0.3)),
         ),
         child: const Row(
           children: [
@@ -509,11 +473,7 @@ class PaymentMethodSummary extends StatelessWidget {
               color: color.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(
-              option.icon,
-              color: color,
-              size: 20,
-            ),
+            child: Icon(option.icon, color: color, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -530,10 +490,7 @@ class PaymentMethodSummary extends StatelessWidget {
                 ),
                 Text(
                   option.description,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: AppTheme.grey600,
-                  ),
+                  style: const TextStyle(fontSize: 11, color: AppTheme.grey600),
                 ),
               ],
             ),

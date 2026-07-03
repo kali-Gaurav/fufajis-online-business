@@ -42,17 +42,8 @@ class FjButton extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (icon != null) ...[
-                Icon(icon, size: 18),
-                const SizedBox(width: 8),
-              ],
-              Text(
-                label,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                ),
-              ),
+              if (icon != null) ...[Icon(icon, size: 18), const SizedBox(width: 8)],
+              Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
             ],
           );
 
@@ -70,9 +61,7 @@ class FjButton extends StatelessWidget {
                 backgroundColor: AppTheme.primary,
                 foregroundColor: Colors.white,
                 padding: padding,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 elevation: 0,
               ),
               child: content,
@@ -92,9 +81,7 @@ class FjButton extends StatelessWidget {
                 backgroundColor: AppTheme.grey100,
                 foregroundColor: Colors.white,
                 padding: padding,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 elevation: 0,
               ),
               child: content,
@@ -114,9 +101,7 @@ class FjButton extends StatelessWidget {
                 foregroundColor: AppTheme.primary,
                 padding: padding,
                 side: const BorderSide(color: AppTheme.primary),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: content,
             ),
@@ -135,9 +120,7 @@ class FjButton extends StatelessWidget {
                 backgroundColor: AppTheme.error,
                 foregroundColor: Colors.white,
                 padding: padding,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 elevation: 0,
               ),
               child: content,
@@ -150,10 +133,7 @@ class FjButton extends StatelessWidget {
           label: label,
           child: TextButton(
             onPressed: isLoading ? null : onPressed,
-          style: TextButton.styleFrom(
-            foregroundColor: AppTheme.primary,
-            padding: padding,
-          ),
+            style: TextButton.styleFrom(foregroundColor: AppTheme.primary, padding: padding),
             child: content,
           ),
         );
@@ -170,9 +150,7 @@ class FjButton extends StatelessWidget {
                 backgroundColor: AppTheme.success,
                 foregroundColor: Colors.white,
                 padding: padding,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 elevation: 0,
               ),
               child: content,
@@ -192,9 +170,7 @@ class FjButton extends StatelessWidget {
                 backgroundColor: AppTheme.info,
                 foregroundColor: Colors.white,
                 padding: padding,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 elevation: 0,
               ),
               child: content,

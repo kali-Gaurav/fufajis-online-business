@@ -1,10 +1,6 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-enum VerificationMethod {
-  otp,
-  signature,
-  checkbox,
-}
+enum VerificationMethod { otp, signature, checkbox }
 
 extension VerificationMethodExtension on VerificationMethod {
   String get value {
@@ -119,8 +115,9 @@ class ProofOfDeliveryModel {
       signatureUrl: json['signatureUrl'] as String?,
       deliveryLatitude: (json['deliveryLatitude'] as num?)?.toDouble(),
       deliveryLongitude: (json['deliveryLongitude'] as num?)?.toDouble(),
-      verificationMethod:
-          VerificationMethodExtension.fromString(json['verificationMethod'] as String),
+      verificationMethod: VerificationMethodExtension.fromString(
+        json['verificationMethod'] as String,
+      ),
       timestamp: DateTime.parse(json['timestamp'] as String),
       isVerified: json['isVerified'] as bool? ?? false,
       agentSignature: json['agentSignature'] as String?,

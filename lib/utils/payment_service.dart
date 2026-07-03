@@ -7,11 +7,7 @@ class PaymentService {
   final Function(PaymentSuccessResponse) onSuccess;
   final Function(PaymentFailureResponse) onFailure;
 
-  PaymentService({
-    required this.razorpayKeyId,
-    required this.onSuccess,
-    required this.onFailure,
-  }) {
+  PaymentService({required this.razorpayKeyId, required this.onSuccess, required this.onFailure}) {
     _razorpay = Razorpay();
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, onSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, onFailure);
@@ -53,13 +49,8 @@ class PaymentService {
           'email': customerEmail.isEmpty ? 'customer@fufaji.com' : customerEmail,
           'name': customerName.isEmpty ? 'Customer' : customerName,
         },
-        'notes': {
-          'order_id': orderId,
-          'customer_name': customerName,
-        },
-        'theme': {
-          'color': '#FF5722',
-        },
+        'notes': {'order_id': orderId, 'customer_name': customerName},
+        'theme': {'color': '#FF5722'},
       };
       _razorpay.open(options);
     } catch (e) {

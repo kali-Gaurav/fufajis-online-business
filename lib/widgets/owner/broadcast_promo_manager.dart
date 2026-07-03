@@ -22,7 +22,6 @@ class _BroadcastPromoManagerState extends State<BroadcastPromoManager> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -35,24 +34,36 @@ class _BroadcastPromoManagerState extends State<BroadcastPromoManager> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Broadcast Promo (Area-Specific)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text(
+            'Broadcast Promo (Area-Specific)',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
             initialValue: _selectedVillage,
-            decoration: const InputDecoration(labelText: 'Target Village', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+              labelText: 'Target Village',
+              border: OutlineInputBorder(),
+            ),
             items: _villages.map((v) => DropdownMenuItem(value: v, child: Text(v))).toList(),
             onChanged: (v) => setState(() => _selectedVillage = v!),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _titleController,
-            decoration: const InputDecoration(labelText: 'Offer Title', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+              labelText: 'Offer Title',
+              border: OutlineInputBorder(),
+            ),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _msgController,
             maxLines: 2,
-            decoration: const InputDecoration(labelText: 'Message (WhatsApp/App)', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+              labelText: 'Message (WhatsApp/App)',
+              border: OutlineInputBorder(),
+            ),
           ),
           const SizedBox(height: 16),
           SizedBox(
@@ -61,12 +72,18 @@ class _BroadcastPromoManagerState extends State<BroadcastPromoManager> {
             child: ElevatedButton.icon(
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('📢 Promo sent to all users in $_selectedVillage'), backgroundColor: AppTheme.success),
+                  SnackBar(
+                    content: Text('📢 Promo sent to all users in $_selectedVillage'),
+                    backgroundColor: AppTheme.success,
+                  ),
                 );
               },
               icon: const Icon(Icons.send),
               label: const Text('BROADCAST TO AREA'),
-              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, foregroundColor: Colors.white),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primary,
+                foregroundColor: Colors.white,
+              ),
             ),
           ),
         ],

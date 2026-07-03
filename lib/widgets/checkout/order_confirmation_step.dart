@@ -25,10 +25,7 @@ class _OrderConfirmationStepState extends State<OrderConfirmationStep> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('orders')
-          .doc(widget.order.id)
-          .snapshots(),
+      stream: FirebaseFirestore.instance.collection('orders').doc(widget.order.id).snapshots(),
       builder: (context, snapshot) {
         OrderModel currentOrder = widget.order;
         if (snapshot.hasData && snapshot.data!.exists) {
@@ -86,11 +83,7 @@ class _OrderConfirmationStepState extends State<OrderConfirmationStep> {
                   padding: EdgeInsets.all(24.0),
                   child: CircularProgressIndicator(color: AppTheme.warning),
                 )
-              : const Icon(
-                  Icons.check_circle,
-                  color: AppTheme.success,
-                  size: 80,
-                ),
+              : const Icon(Icons.check_circle, color: AppTheme.success, size: 80),
         ),
         const SizedBox(height: 24),
         Text(
@@ -114,10 +107,7 @@ class _OrderConfirmationStepState extends State<OrderConfirmationStep> {
         const SizedBox(height: 8),
         Text(
           'Order #${order.orderNumber}',
-          style: const TextStyle(
-            fontSize: 16,
-            color: AppTheme.grey600,
-          ),
+          style: const TextStyle(fontSize: 16, color: AppTheme.grey600),
         ),
         const SizedBox(height: 8),
         Container(
@@ -269,32 +259,33 @@ class _OrderConfirmationStepState extends State<OrderConfirmationStep> {
     );
   }
 
-  Widget _buildOrderSummaryRow(String label, double value,
-      {bool isFree = false, bool isDiscount = false}) {
+  Widget _buildOrderSummaryRow(
+    String label,
+    double value, {
+    bool isFree = false,
+    bool isDiscount = false,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
-          style: TextStyle(
-            fontSize: 13,
-            color: isFree ? AppTheme.success : AppTheme.grey600,
-          ),
+          style: TextStyle(fontSize: 13, color: isFree ? AppTheme.success : AppTheme.grey600),
         ),
         Text(
           isDiscount
               ? '- ₹${value.abs().round()}'
               : isFree
-                  ? 'FREE'
-                  : '₹${value.round()}',
+              ? 'FREE'
+              : '₹${value.round()}',
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w500,
             color: isFree
                 ? AppTheme.success
                 : isDiscount
-                    ? AppTheme.success
-                    : AppTheme.grey900,
+                ? AppTheme.success
+                : AppTheme.grey900,
           ),
         ),
       ],
@@ -302,8 +293,8 @@ class _OrderConfirmationStepState extends State<OrderConfirmationStep> {
   }
 
   Widget _buildDeliveryInfoCard(OrderModel order) {
-    final estimatedDate = order.scheduledDeliveryDate ??
-        DateTime.now().add(const Duration(days: 2));
+    final estimatedDate =
+        order.scheduledDeliveryDate ?? DateTime.now().add(const Duration(days: 2));
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -428,10 +419,7 @@ class _OrderConfirmationStepState extends State<OrderConfirmationStep> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Method',
-                style: TextStyle(fontSize: 13, color: AppTheme.grey600),
-              ),
+              const Text('Method', style: TextStyle(fontSize: 13, color: AppTheme.grey600)),
               Text(
                 paymentMethodName.toUpperCase(),
                 style: const TextStyle(
@@ -478,16 +466,11 @@ class _OrderConfirmationStepState extends State<OrderConfirmationStep> {
               backgroundColor: AppTheme.primary,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             child: const Text(
               'Track Order',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
         ),
@@ -500,16 +483,11 @@ class _OrderConfirmationStepState extends State<OrderConfirmationStep> {
               foregroundColor: AppTheme.primary,
               side: const BorderSide(color: AppTheme.primary),
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             child: const Text(
               'Continue Shopping',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
         ),
@@ -520,10 +498,7 @@ class _OrderConfirmationStepState extends State<OrderConfirmationStep> {
   Widget _buildHelpSection() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.grey100,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      decoration: BoxDecoration(color: AppTheme.grey100, borderRadius: BorderRadius.circular(16)),
       child: Column(
         children: [
           const Row(
@@ -564,24 +539,13 @@ class _OrderConfirmationStepState extends State<OrderConfirmationStep> {
           Container(
             width: 48,
             height: 48,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-            ),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
             child: Icon(icon, color: AppTheme.primary),
           ),
           const SizedBox(height: 4),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              color: AppTheme.grey600,
-            ),
-          ),
+          Text(label, style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
         ],
       ),
     );
   }
 }
-
-

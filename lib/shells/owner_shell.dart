@@ -54,19 +54,13 @@ class _OwnerShellState extends State<OwnerShell> {
           PopupMenuButton<String>(
             onSelected: (value) {
               // Handle shop selection
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Selected shop: $value')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('Selected shop: $value')));
             },
             itemBuilder: (BuildContext context) => [
-              const PopupMenuItem(
-                value: 'shop1',
-                child: Text('Shop 1'),
-              ),
-              const PopupMenuItem(
-                value: 'shop2',
-                child: Text('Shop 2'),
-              ),
+              const PopupMenuItem(value: 'shop1', child: Text('Shop 1')),
+              const PopupMenuItem(value: 'shop2', child: Text('Shop 2')),
             ],
             icon: const Icon(Icons.store),
           ),
@@ -83,9 +77,7 @@ class _OwnerShellState extends State<OwnerShell> {
           children: [
             // Drawer Header
             DrawerHeader(
-              decoration: const BoxDecoration(
-                color: AppTheme.primary,
-              ),
+              decoration: const BoxDecoration(color: AppTheme.primary),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -268,10 +260,7 @@ class _OwnerShellState extends State<OwnerShell> {
   }) {
     final isSelected = _isRouteSelected(route);
     return ListTile(
-      leading: Icon(
-        isSelected ? selectedIcon : icon,
-        color: isSelected ? AppTheme.primary : null,
-      ),
+      leading: Icon(isSelected ? selectedIcon : icon, color: isSelected ? AppTheme.primary : null),
       title: Text(
         label,
         style: TextStyle(

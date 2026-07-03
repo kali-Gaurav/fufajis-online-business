@@ -13,8 +13,7 @@ class FinancialDashboardScreen extends StatefulWidget {
   const FinancialDashboardScreen({super.key});
 
   @override
-  State<FinancialDashboardScreen> createState() =>
-      _FinancialDashboardScreenState();
+  State<FinancialDashboardScreen> createState() => _FinancialDashboardScreenState();
 }
 
 class _FinancialDashboardScreenState extends State<FinancialDashboardScreen> {
@@ -59,10 +58,7 @@ class _FinancialDashboardScreenState extends State<FinancialDashboardScreen> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                BiRangeSelector(
-                  selected: p.range,
-                  onSelected: (r) => p.setRange(r),
-                ),
+                BiRangeSelector(selected: p.range, onSelected: (r) => p.setRange(r)),
                 const SizedBox(height: 16),
                 if (p.isLoading)
                   const Padding(
@@ -123,9 +119,7 @@ class _FinancialDashboardScreenState extends State<FinancialDashboardScreen> {
       const SizedBox(height: 16),
       BiSectionCard(
         title: 'Daily Revenue Trend',
-        child: BiLineChart(
-          values: f.dailyRevenue.map((d) => d.value).toList(),
-        ),
+        child: BiLineChart(values: f.dailyRevenue.map((d) => d.value).toList()),
       ),
       const SizedBox(height: 16),
       BiSectionCard(
@@ -143,23 +137,19 @@ class _FinancialDashboardScreenState extends State<FinancialDashboardScreen> {
         child: Column(
           children: [
             _row('Gross Revenue', kInr.format(f.grossRevenue)),
-            _row('Less: Refunds', '-${kInr.format(f.refunds)}',
-                color: AppTheme.error),
+            _row('Less: Refunds', '-${kInr.format(f.refunds)}', color: AppTheme.error),
             const Divider(),
             _row('Net Revenue', kInr.format(f.netRevenue), bold: true),
-            _row('Less: COGS', '-${kInr.format(f.cogs)}',
-                color: AppTheme.error),
+            _row('Less: COGS', '-${kInr.format(f.cogs)}', color: AppTheme.error),
             const Divider(),
-            _row('Gross Profit', kInr.format(f.grossProfit),
-                bold: true, color: AppTheme.success),
+            _row('Gross Profit', kInr.format(f.grossProfit), bold: true, color: AppTheme.success),
             const SizedBox(height: 8),
             _row('Delivery Fees Collected', kInr.format(f.deliveryFeeRevenue)),
             _row('Tips Collected', kInr.format(f.tips)),
             _row('Packaging Fees', kInr.format(f.packagingFees)),
             _row('Tax Collected', kInr.format(f.taxCollected)),
             _row('Wallet Usage', kInr.format(f.walletUsage)),
-            _row('Discounts Given', '-${kInr.format(f.discountsGiven)}',
-                color: AppTheme.warning),
+            _row('Discounts Given', '-${kInr.format(f.discountsGiven)}', color: AppTheme.warning),
           ],
         ),
       ),
@@ -174,8 +164,7 @@ class _FinancialDashboardScreenState extends State<FinancialDashboardScreen> {
     ];
   }
 
-  Widget _row(String label, String value,
-      {bool bold = false, Color? color}) {
+  Widget _row(String label, String value, {bool bold = false, Color? color}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
@@ -216,13 +205,16 @@ class _ErrorBox extends StatelessWidget {
         children: [
           const Icon(Icons.error_outline, size: 48, color: AppTheme.error),
           const SizedBox(height: 12),
-          const Text('Could not load data',
-              style: TextStyle(
-                  fontWeight: FontWeight.bold, color: AppTheme.grey800)),
+          const Text(
+            'Could not load data',
+            style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.grey800),
+          ),
           const SizedBox(height: 4),
-          Text(message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
+          ),
           const SizedBox(height: 16),
           ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
         ],

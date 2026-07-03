@@ -10,13 +10,7 @@ class AlertCard extends StatelessWidget {
   final VoidCallback? onResolve;
   final VoidCallback? onTap;
 
-  const AlertCard({
-    super.key,
-    required this.alert,
-    this.onDismiss,
-    this.onResolve,
-    this.onTap,
-  });
+  const AlertCard({super.key, required this.alert, this.onDismiss, this.onResolve, this.onTap});
 
   Color _getSeverityColor() {
     switch (alert.severity) {
@@ -50,10 +44,7 @@ class AlertCard extends StatelessWidget {
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(
-            color: severityColor.withValues(alpha: 0.3),
-            width: 1,
-          ),
+          side: BorderSide(color: severityColor.withValues(alpha: 0.3), width: 1),
         ),
         child: Padding(
           padding: const EdgeInsets.all(12.0),
@@ -70,11 +61,7 @@ class AlertCard extends StatelessWidget {
                       color: severityColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(
-                      _getSeverityIcon(),
-                      color: severityColor,
-                      size: 20,
-                    ),
+                    child: Icon(_getSeverityIcon(), color: severityColor, size: 20),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -86,35 +73,26 @@ class AlertCard extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 alert.title,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleSmall
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.black87,
-                                    ),
+                                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
                                 color: severityColor.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
                                 alert.severity.displayName,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelSmall
-                                    ?.copyWith(
-                                      color: severityColor,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  color: severityColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ],
@@ -122,12 +100,9 @@ class AlertCard extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           alert.timeSinceCreated,
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelSmall
-                              ?.copyWith(
-                                color: Colors.grey[500],
-                              ),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.labelSmall?.copyWith(color: Colors.grey[500]),
                         ),
                       ],
                     ),
@@ -139,10 +114,9 @@ class AlertCard extends StatelessWidget {
               // Message
               Text(
                 alert.message,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[700],
-                      height: 1.4,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Colors.grey[700], height: 1.4),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),

@@ -50,14 +50,17 @@ class _MandiPricingDashboardState extends State<MandiPricingDashboard> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Updated $count products successfully!'), backgroundColor: AppTheme.success),
+          SnackBar(
+            content: Text('Updated $count products successfully!'),
+            backgroundColor: AppTheme.success,
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -67,8 +70,9 @@ class _MandiPricingDashboardState extends State<MandiPricingDashboard> {
   @override
   Widget build(BuildContext context) {
     final productProvider = Provider.of<ProductProvider>(context);
-    final vegAndFruits = productProvider.products.where((p) =>
-      p.categoryId == 'vegetables' || p.categoryId == 'fruits').toList();
+    final vegAndFruits = productProvider.products
+        .where((p) => p.categoryId == 'vegetables' || p.categoryId == 'fruits')
+        .toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -77,14 +81,19 @@ class _MandiPricingDashboardState extends State<MandiPricingDashboard> {
         foregroundColor: Colors.white,
         actions: [
           if (_isSaving)
-            const Center(child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-            ))
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+              ),
+            )
           else
             TextButton(
               onPressed: () => _updatePrices(vegAndFruits),
-              child: const Text('SAVE ALL', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              child: const Text(
+                'SAVE ALL',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
             ),
         ],
       ),
@@ -100,7 +109,11 @@ class _MandiPricingDashboardState extends State<MandiPricingDashboard> {
                 Expanded(
                   child: Text(
                     'Set today\'s Mandi prices. The app will update customer prices instantly.',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.success),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.success,
+                    ),
                   ),
                 ),
               ],
@@ -113,8 +126,11 @@ class _MandiPricingDashboardState extends State<MandiPricingDashboard> {
               separatorBuilder: (_, __) => const Divider(),
               itemBuilder: (context, index) {
                 final p = vegAndFruits[index];
-                _controllers.putIfAbsent(p.id, () => TextEditingController(text: p.price.toString()));
-                
+                _controllers.putIfAbsent(
+                  p.id,
+                  () => TextEditingController(text: p.price.toString()),
+                );
+
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Row(
@@ -126,7 +142,12 @@ class _MandiPricingDashboardState extends State<MandiPricingDashboard> {
                           color: AppTheme.grey100,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Center(child: Text(p.categoryId == 'vegetables' ? '🥦' : '🍎', style: const TextStyle(fontSize: 24))),
+                        child: Center(
+                          child: Text(
+                            p.categoryId == 'vegetables' ? '🥦' : '🍎',
+                            style: const TextStyle(fontSize: 24),
+                          ),
+                        ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
@@ -134,7 +155,10 @@ class _MandiPricingDashboardState extends State<MandiPricingDashboard> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(p.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                            Text('Unit: ${p.unit}', style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
+                            Text(
+                              'Unit: ${p.unit}',
+                              style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
+                            ),
                           ],
                         ),
                       ),

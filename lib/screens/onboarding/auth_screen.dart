@@ -21,8 +21,7 @@ class AuthScreen extends StatefulWidget {
   State<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _AuthScreenState extends State<AuthScreen>
-    with TickerProviderStateMixin {
+class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
   late final AnimationController _fadeCtrl;
   late final Animation<double> _fadeAnim;
 
@@ -48,14 +47,12 @@ class _AuthScreenState extends State<AuthScreen>
   }
 
   void _initAnimations() {
-    _fadeCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    );
+    _fadeCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1000));
 
-    _fadeAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut),
-    );
+    _fadeAnim = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeOut));
   }
 
   Future<void> _runAnimations() async {
@@ -258,10 +255,10 @@ class _AuthScreenState extends State<AuthScreen>
                     Text(
                       _isOtpSent ? 'Enter OTP' : 'Phone Number',
                       style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 28,
-                            color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-                          ),
+                        fontWeight: FontWeight.w800,
+                        fontSize: 28,
+                        color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -269,8 +266,8 @@ class _AuthScreenState extends State<AuthScreen>
                           ? 'We\'ve sent a 6-digit code to your phone'
                           : 'Enter your phone number to sign up',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: isDark ? Colors.grey[400] : Colors.grey[600],
-                          ),
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      ),
                     ),
 
                     const SizedBox(height: 32),
@@ -283,24 +280,18 @@ class _AuthScreenState extends State<AuthScreen>
                         decoration: BoxDecoration(
                           color: Colors.red.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: Colors.red.withValues(alpha: 0.3),
-                          ),
+                          border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
                         ),
                         child: Row(
                           children: [
-                            const Icon(
-                              Icons.error_outline,
-                              color: Colors.red,
-                              size: 20,
-                            ),
+                            const Icon(Icons.error_outline, color: Colors.red, size: 20),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
                                 _errorMessage!,
-                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                      color: Colors.red,
-                                    ),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.labelSmall?.copyWith(color: Colors.red),
                               ),
                             ),
                           ],
@@ -315,24 +306,18 @@ class _AuthScreenState extends State<AuthScreen>
                         decoration: BoxDecoration(
                           color: Colors.green.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: Colors.green.withValues(alpha: 0.3),
-                          ),
+                          border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
                         ),
                         child: Row(
                           children: [
-                            const Icon(
-                              Icons.check_circle_outline,
-                              color: Colors.green,
-                              size: 20,
-                            ),
+                            const Icon(Icons.check_circle_outline, color: Colors.green, size: 20),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
                                 _successMessage!,
-                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                      color: Colors.green,
-                                    ),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.labelSmall?.copyWith(color: Colors.green),
                               ),
                             ),
                           ],
@@ -349,17 +334,13 @@ class _AuthScreenState extends State<AuthScreen>
                         decoration: InputDecoration(
                           prefixText: '+91 ',
                           hintText: 'Enter phone number',
-                          hintStyle: TextStyle(
-                            color: isDark ? Colors.grey[600] : Colors.grey[400],
-                          ),
+                          hintStyle: TextStyle(color: isDark ? Colors.grey[600] : Colors.grey[400]),
                           counterText: '',
                           filled: true,
                           fillColor: isDark ? const Color(0xFF1F1F1F) : const Color(0xFFF5F5F5),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFE0E0E0),
-                            ),
+                            borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -369,15 +350,12 @@ class _AuthScreenState extends State<AuthScreen>
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFFF6B00),
-                              width: 2,
-                            ),
+                            borderSide: const BorderSide(color: Color(0xFFFF6B00), width: 2),
                           ),
                         ),
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-                            ),
+                          color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                        ),
                       ),
 
                       const SizedBox(height: 24),
@@ -386,15 +364,11 @@ class _AuthScreenState extends State<AuthScreen>
                         width: double.infinity,
                         height: 56,
                         child: ElevatedButton(
-                          onPressed: _isPhoneEntered && !_isVerifying
-                              ? _sendOtp
-                              : null,
+                          onPressed: _isPhoneEntered && !_isVerifying ? _sendOtp : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFFF6B00),
                             foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             elevation: 0,
                           ),
                           child: _isVerifying
@@ -403,18 +377,16 @@ class _AuthScreenState extends State<AuthScreen>
                                   height: 24,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2.5,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                   ),
                                 )
                               : Text(
                                   'Send OTP',
                                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 16,
-                                      ),
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
                                 ),
                         ),
                       ),
@@ -447,9 +419,7 @@ class _AuthScreenState extends State<AuthScreen>
                                     : const Color(0xFFF5F5F5),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(
-                                    color: Color(0xFFE0E0E0),
-                                  ),
+                                  borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -461,11 +431,9 @@ class _AuthScreenState extends State<AuthScreen>
                                 ),
                               ),
                               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                    color: isDark
-                                        ? Colors.white
-                                        : const Color(0xFF1A1A1A),
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ),
@@ -477,15 +445,11 @@ class _AuthScreenState extends State<AuthScreen>
                         width: double.infinity,
                         height: 56,
                         child: ElevatedButton(
-                          onPressed: _otpCtrl.text.length == 6 && !_isVerifying
-                              ? _verifyOtp
-                              : null,
+                          onPressed: _otpCtrl.text.length == 6 && !_isVerifying ? _verifyOtp : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFFF6B00),
                             foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             elevation: 0,
                           ),
                           child: _isVerifying
@@ -494,18 +458,16 @@ class _AuthScreenState extends State<AuthScreen>
                                   height: 24,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2.5,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                   ),
                                 )
                               : Text(
                                   'Verify OTP',
                                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 16,
-                                      ),
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
                                 ),
                         ),
                       ),
@@ -520,11 +482,11 @@ class _AuthScreenState extends State<AuthScreen>
                                 ? 'Resend OTP in ${_resendCountdown}s'
                                 : 'Resend OTP',
                             style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                                  color: _resendCountdown > 0
-                                      ? Colors.grey[500]
-                                      : const Color(0xFFFF6B00),
-                                  fontWeight: FontWeight.w600,
-                                ),
+                              color: _resendCountdown > 0
+                                  ? Colors.grey[500]
+                                  : const Color(0xFFFF6B00),
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
@@ -536,25 +498,21 @@ class _AuthScreenState extends State<AuthScreen>
                       Text(
                         'Profile Details',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-                            ),
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                        ),
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: _nameCtrl,
                         decoration: InputDecoration(
                           hintText: 'Your name',
-                          hintStyle: TextStyle(
-                            color: isDark ? Colors.grey[600] : Colors.grey[400],
-                          ),
+                          hintStyle: TextStyle(color: isDark ? Colors.grey[600] : Colors.grey[400]),
                           filled: true,
                           fillColor: isDark ? const Color(0xFF1F1F1F) : const Color(0xFFF5F5F5),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFE0E0E0),
-                            ),
+                            borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -564,15 +522,12 @@ class _AuthScreenState extends State<AuthScreen>
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFFF6B00),
-                              width: 2,
-                            ),
+                            borderSide: const BorderSide(color: Color(0xFFFF6B00), width: 2),
                           ),
                         ),
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-                            ),
+                          color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                        ),
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
@@ -580,16 +535,12 @@ class _AuthScreenState extends State<AuthScreen>
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
                           hintText: 'Email (optional)',
-                          hintStyle: TextStyle(
-                            color: isDark ? Colors.grey[600] : Colors.grey[400],
-                          ),
+                          hintStyle: TextStyle(color: isDark ? Colors.grey[600] : Colors.grey[400]),
                           filled: true,
                           fillColor: isDark ? const Color(0xFF1F1F1F) : const Color(0xFFF5F5F5),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFE0E0E0),
-                            ),
+                            borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -599,15 +550,12 @@ class _AuthScreenState extends State<AuthScreen>
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFFF6B00),
-                              width: 2,
-                            ),
+                            borderSide: const BorderSide(color: Color(0xFFFF6B00), width: 2),
                           ),
                         ),
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: isDark ? Colors.white : const Color(0xFF1A1A1A),
-                            ),
+                          color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                        ),
                       ),
 
                       const SizedBox(height: 32),
@@ -620,9 +568,7 @@ class _AuthScreenState extends State<AuthScreen>
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFFF6B00),
                             foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             elevation: 0,
                           ),
                           child: _isSigningUp
@@ -631,18 +577,16 @@ class _AuthScreenState extends State<AuthScreen>
                                   height: 24,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2.5,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                   ),
                                 )
                               : Text(
                                   'Create Account',
                                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 16,
-                                      ),
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
                                 ),
                         ),
                       ),

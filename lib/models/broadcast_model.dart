@@ -1,12 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-enum BroadcastStatus {
-  draft,
-  scheduled,
-  sending,
-  sent,
-  cancelled,
-}
+enum BroadcastStatus { draft, scheduled, sending, sent, cancelled }
 
 BroadcastStatus broadcastStatusFromString(String? value) {
   switch (value) {
@@ -29,11 +23,7 @@ class BroadcastAudience {
   final String? segmentId;
   final List<String> userIds;
 
-  const BroadcastAudience({
-    required this.type,
-    this.segmentId,
-    this.userIds = const [],
-  });
+  const BroadcastAudience({required this.type, this.segmentId, this.userIds = const []});
 
   factory BroadcastAudience.fromMap(Map<String, dynamic>? map) {
     if (map == null) return const BroadcastAudience(type: 'all');
@@ -46,11 +36,7 @@ class BroadcastAudience {
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      'type': type,
-      if (segmentId != null) 'segmentId': segmentId,
-      'userIds': userIds,
-    };
+    return {'type': type, if (segmentId != null) 'segmentId': segmentId, 'userIds': userIds};
   }
 }
 
@@ -60,12 +46,7 @@ class BroadcastStats {
   final int clicked;
   final int optOuts;
 
-  const BroadcastStats({
-    this.delivered = 0,
-    this.opened = 0,
-    this.clicked = 0,
-    this.optOuts = 0,
-  });
+  const BroadcastStats({this.delivered = 0, this.opened = 0, this.clicked = 0, this.optOuts = 0});
 
   factory BroadcastStats.fromMap(Map<String, dynamic>? map) {
     if (map == null) return const BroadcastStats();

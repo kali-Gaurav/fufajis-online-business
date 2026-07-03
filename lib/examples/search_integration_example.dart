@@ -52,10 +52,7 @@ class BarcodeSearchExample {
 
   /// Use this when barcode is scanned by camera
   /// Returns instantly if found (O(1) indexed lookup)
-  static Future<ProductModel?> findProductByBarcode(
-    String shopId,
-    String barcode,
-  ) async {
+  static Future<ProductModel?> findProductByBarcode(String shopId, String barcode) async {
     final product = await _searchService.searchByBarcode(shopId, barcode);
 
     if (product != null) {
@@ -68,25 +65,19 @@ class BarcodeSearchExample {
   }
 
   /// Example: Integrate into barcode scanner callback
-  static Future<void> onBarcodeScanned(
-    String barcode,
-    String shopId,
-    BuildContext context,
-  ) async {
+  static Future<void> onBarcodeScanned(String barcode, String shopId, BuildContext context) async {
     final product = await findProductByBarcode(shopId, barcode);
 
     if (product == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Product not found: $barcode')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Product not found: $barcode')));
       return;
     }
 
     // Auto-add to POS cart
     // cart.addItem(product);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Added: ${product.name}')),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Added: ${product.name}')));
   }
 }
 
@@ -99,17 +90,10 @@ class KeywordSearchExample {
 
   /// Search by name (handles typos automatically)
   /// Try exact match first, then fuzzy
-  static Future<List<ProductModel>> searchByName(
-    String shopId,
-    String name,
-  ) async {
+  static Future<List<ProductModel>> searchByName(String shopId, String name) async {
     print('Searching for: $name');
 
-    final results = await _searchService.searchProducts(
-      shopId,
-      name,
-      limit: 20,
-    );
+    final results = await _searchService.searchProducts(shopId, name, limit: 20);
 
     print('Found ${results.length} results');
     return results;
@@ -143,8 +127,7 @@ class FullScreenSearchExample extends StatefulWidget {
   const FullScreenSearchExample({super.key, required this.shopId});
 
   @override
-  State<FullScreenSearchExample> createState() =>
-      _FullScreenSearchExampleState();
+  State<FullScreenSearchExample> createState() => _FullScreenSearchExampleState();
 }
 
 class _FullScreenSearchExampleState extends State<FullScreenSearchExample> {
@@ -152,9 +135,7 @@ class _FullScreenSearchExampleState extends State<FullScreenSearchExample> {
   void openSearchScreen() async {
     final selectedProduct = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => ProductSearchScreen(shopId: widget.shopId),
-      ),
+      MaterialPageRoute(builder: (context) => ProductSearchScreen(shopId: widget.shopId)),
     );
 
     if (selectedProduct != null) {
@@ -186,28 +167,16 @@ class CategoryBrowseExample {
   static final _searchService = ProductSearchService();
 
   /// Get all products in a category
-  static Future<List<ProductModel>> browseCategory(
-    String shopId,
-    String category,
-  ) async {
-    final products = await _searchService.searchByCategory(
-      shopId,
-      category,
-      limit: 50,
-    );
+  static Future<List<ProductModel>> browseCategory(String shopId, String category) async {
+    final products = await _searchService.searchByCategory(shopId, category, limit: 50);
 
     print('Found ${products.length} products in category: $category');
     return products;
   }
 
   /// Example: Low-stock products (for reorder alerts)
-  static Future<List<ProductModel>> getLowStockProducts(
-    String shopId,
-  ) async {
-    final products = await _searchService.searchLowStock(
-      shopId,
-      limit: 50,
-    );
+  static Future<List<ProductModel>> getLowStockProducts(String shopId) async {
+    final products = await _searchService.searchLowStock(shopId, limit: 50);
 
     print('⚠️  ${products.length} products out of stock');
     return products;
@@ -231,11 +200,7 @@ class AdvancedFilterExample {
     // - isAvailable: true
     // - stockQuantity > 0
 
-    final results = await _searchService.searchWithFilters(
-      shopId,
-      filters,
-      limit: 100,
-    );
+    final results = await _searchService.searchWithFilters(shopId, filters, limit: 100);
 
     print('Found ${results.length} matching products');
     return results;
@@ -359,10 +324,7 @@ class ErrorHandlingExample {
   static final _searchService = ProductSearchService();
 
   /// Graceful error handling with fallbacks
-  static Future<List<ProductModel>> safeSearch(
-    String shopId,
-    String query,
-  ) async {
+  static Future<List<ProductModel>> safeSearch(String shopId, String query) async {
     try {
       // Try optimized search first
       final results = await _searchService.searchProducts(shopId, query);
@@ -390,10 +352,7 @@ class ErrorHandlingExample {
   }
 
   /// Handle specific error types
-  static Future<ProductModel?> safeBarcodeLookup(
-    String shopId,
-    String barcode,
-  ) async {
+  static Future<ProductModel?> safeBarcodeLookup(String shopId, String barcode) async {
     try {
       return await _searchService.searchByBarcode(shopId, barcode);
     } on FirebaseException catch (e) {
@@ -428,9 +387,7 @@ class _RealWorldPOSExampleState extends State<RealWorldPOSExample> {
     // Open search screen
     final ProductModel? product = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => ProductSearchScreen(shopId: widget.shopId),
-      ),
+      MaterialPageRoute(builder: (context) => ProductSearchScreen(shopId: widget.shopId)),
     );
 
     if (product != null) {
@@ -439,10 +396,7 @@ class _RealWorldPOSExampleState extends State<RealWorldPOSExample> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Added: ${product.name}'),
-          duration: const Duration(seconds: 2),
-        ),
+        SnackBar(content: Text('Added: ${product.name}'), duration: const Duration(seconds: 2)),
       );
     }
   }

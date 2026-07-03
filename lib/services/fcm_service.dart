@@ -16,14 +16,14 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
           .collection('notifications')
           .doc(message.messageId ?? DateTime.now().millisecondsSinceEpoch.toString())
           .set({
-        'title': message.notification?.title ?? message.data['title'],
-        'body': message.notification?.body ?? message.data['body'],
-        'type': message.data['type'] ?? 'systemAlert',
-        'timestamp': FieldValue.serverTimestamp(),
-        'isRead': false,
-        'data': message.data,
-        'deepLink': message.data['deepLink'],
-      });
+            'title': message.notification?.title ?? message.data['title'],
+            'body': message.notification?.body ?? message.data['body'],
+            'type': message.data['type'] ?? 'systemAlert',
+            'timestamp': FieldValue.serverTimestamp(),
+            'isRead': false,
+            'data': message.data,
+            'deepLink': message.data['deepLink'],
+          });
     } catch (e) {
       debugPrint('Error saving background notification: $e');
     }
@@ -207,9 +207,7 @@ class FCMService {
   }
 
   /// Handle foreground notification (when app is open)
-  void setupForegroundNotificationHandler(
-    Function(RemoteMessage) onMessageHandler,
-  ) {
+  void setupForegroundNotificationHandler(Function(RemoteMessage) onMessageHandler) {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       debugPrint('Foreground notification received: ${message.notification?.title}');
       onMessageHandler(message);
@@ -217,9 +215,7 @@ class FCMService {
   }
 
   /// Handle notification when app is opened from background
-  void setupMessageOpenedHandler(
-    Function(RemoteMessage) onMessageOpenedHandler,
-  ) {
+  void setupMessageOpenedHandler(Function(RemoteMessage) onMessageOpenedHandler) {
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       debugPrint('Message opened from background: ${message.notification?.title}');
       onMessageOpenedHandler(message);

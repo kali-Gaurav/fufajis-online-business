@@ -36,8 +36,7 @@ class UnifiedScannerHub extends StatefulWidget {
   State<UnifiedScannerHub> createState() => _UnifiedScannerHubState();
 }
 
-class _UnifiedScannerHubState extends State<UnifiedScannerHub>
-    with SingleTickerProviderStateMixin {
+class _UnifiedScannerHubState extends State<UnifiedScannerHub> with SingleTickerProviderStateMixin {
   final ScannerService _scanner = ScannerService();
 
   String? _activeMode; // null = mode-picker visible
@@ -51,13 +50,12 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
   @override
   void initState() {
     super.initState();
-    _pulseCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..repeat(reverse: true);
-    _pulseAnim = Tween<double>(begin: 0.85, end: 1.0).animate(
-      CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
-    );
+    _pulseCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 900))
+      ..repeat(reverse: true);
+    _pulseAnim = Tween<double>(
+      begin: 0.85,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
 
     if (widget.initialMode != null) {
       _activeMode = widget.initialMode;
@@ -111,9 +109,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
       employeeId: auth.currentUser?.uid ?? '',
       employeeName: auth.currentUser?.name ?? 'Employee',
       employeeRole: auth.currentUser?.role.name ?? 'employee',
-      action: _activeMode != null
-          ? _scanner.parseScanAction(raw)
-          : ScanAction.productScan(raw),
+      action: _activeMode != null ? _scanner.parseScanAction(raw) : ScanAction.productScan(raw),
     );
 
     await _scanner.stopScanning();
@@ -187,9 +183,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
         await Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => OrderPackingScreen(
-              orderId: action.metadata['orderId'] as String?,
-            ),
+            builder: (_) => OrderPackingScreen(orderId: action.metadata['orderId'] as String?),
           ),
         );
         break;
@@ -198,9 +192,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
         await Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => DispatchScannerScreen(
-              orderId: action.metadata['orderId'] as String?,
-            ),
+            builder: (_) => DispatchScannerScreen(orderId: action.metadata['orderId'] as String?),
           ),
         );
         break;
@@ -209,9 +201,8 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
         await Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => DeliveryPodScannerScreen(
-              parcelId: action.metadata['parcelId'] as String?,
-            ),
+            builder: (_) =>
+                DeliveryPodScannerScreen(parcelId: action.metadata['parcelId'] as String?),
           ),
         );
         break;
@@ -220,9 +211,8 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
         await Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => InventoryReceivingScreen(
-              barcode: action.metadata['barcode'] as String?,
-            ),
+            builder: (_) =>
+                InventoryReceivingScreen(barcode: action.metadata['barcode'] as String?),
           ),
         );
         break;
@@ -230,17 +220,12 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
       case ScanMode.inventoryAudit:
         await Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => const InventoryAuditScreen(),
-          ),
+          MaterialPageRoute(builder: (_) => const InventoryAuditScreen()),
         );
         break;
 
       case ScanMode.shelfAudit:
-        await Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const ShelfRefillScreen()),
-        );
+        await Navigator.push(context, MaterialPageRoute(builder: (_) => const ShelfRefillScreen()));
         break;
 
       case ScanMode.customerMembership:
@@ -262,9 +247,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
         await Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => AttendanceScreen(
-              qrCodeId: action.metadata['attendanceId'] as String?,
-            ),
+            builder: (_) => AttendanceScreen(qrCodeId: action.metadata['attendanceId'] as String?),
           ),
         );
         break;
@@ -308,18 +291,14 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
           Navigator.pop(context);
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => InventoryReceivingScreen(barcode: barcode),
-            ),
+            MaterialPageRoute(builder: (_) => InventoryReceivingScreen(barcode: barcode)),
           );
         },
         onAudit: () {
           Navigator.pop(context);
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => InventoryAuditScreen(barcode: barcode),
-            ),
+            MaterialPageRoute(builder: (_) => InventoryAuditScreen(barcode: barcode)),
           );
         },
       ),
@@ -346,8 +325,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
           children: [
             const Icon(Icons.help_outline, size: 48, color: AppTheme.warning),
             const SizedBox(height: 12),
-            const Text('Unknown Code',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text('Unknown Code', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Text(code, style: const TextStyle(fontFamily: 'monospace')),
           ],
@@ -365,9 +343,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
 
     return Scaffold(
       backgroundColor: Colors.black,
-      body: _activeMode == null
-          ? _buildModePicker(role)
-          : _buildScannerView(),
+      body: _activeMode == null ? _buildModePicker(role) : _buildScannerView(),
     );
   }
 
@@ -382,8 +358,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
         children: [
           // Header
           Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
                 IconButton(
@@ -397,14 +372,12 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
                     Text(
                       'Scanner Hub',
                       style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold),
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    Text(
-                      'Select scan mode',
-                      style: TextStyle(color: Colors.white60, fontSize: 13),
-                    ),
+                    Text('Select scan mode', style: TextStyle(color: Colors.white60, fontSize: 13)),
                   ],
                 ),
               ],
@@ -421,10 +394,8 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
                 childAspectRatio: 1.25,
               ),
               itemCount: modes.length,
-              itemBuilder: (_, i) => _ModeTile(
-                config: modes[i],
-                onTap: () => _selectMode(modes[i].id),
-              ),
+              itemBuilder: (_, i) =>
+                  _ModeTile(config: modes[i], onTap: () => _selectMode(modes[i].id)),
             ),
           ),
         ],
@@ -441,10 +412,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
       fit: StackFit.expand,
       children: [
         // Camera
-        MobileScanner(
-          controller: _scanner.controller,
-          onDetect: _onBarcodeDetected,
-        ),
+        MobileScanner(controller: _scanner.controller, onDetect: _onBarcodeDetected),
 
         // Dark vignette
         Container(
@@ -461,22 +429,16 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
         Center(
           child: AnimatedBuilder(
             animation: _pulseAnim,
-            builder: (_, child) => Transform.scale(
-              scale: _processing ? 1.08 : _pulseAnim.value,
-              child: child,
-            ),
-            child: _ScanFrame(
-              color: modeConfig?.color ?? AppTheme.warning,
-              size: 240,
-            ),
+            builder: (_, child) =>
+                Transform.scale(scale: _processing ? 1.08 : _pulseAnim.value, child: child),
+            child: _ScanFrame(color: modeConfig?.color ?? AppTheme.warning, size: 240),
           ),
         ),
 
         // Top bar
         SafeArea(
           child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               children: [
                 // Back to modes
@@ -488,8 +450,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
                       color: Colors.black54,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.arrow_back,
-                        color: Colors.white, size: 22),
+                    child: const Icon(Icons.arrow_back, color: Colors.white, size: 22),
                   ),
                 ),
 
@@ -498,8 +459,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
                 // Mode label
                 if (modeConfig != null)
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: modeConfig.color.withValues(alpha: 0.85),
                       borderRadius: BorderRadius.circular(20),
@@ -507,15 +467,15 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(modeConfig.icon,
-                            color: Colors.white, size: 16),
+                        Icon(modeConfig.icon, color: Colors.white, size: 16),
                         const SizedBox(width: 6),
                         Text(
                           modeConfig.label,
                           style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13),
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
                         ),
                       ],
                     ),
@@ -532,9 +492,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: _flashOn
-                          ? AppTheme.warning.withValues(alpha: 0.85)
-                          : Colors.black54,
+                      color: _flashOn ? AppTheme.warning.withValues(alpha: 0.85) : Colors.black54,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
@@ -562,14 +520,12 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub>
                     const SizedBox(
                       width: 28,
                       height: 28,
-                      child: CircularProgressIndicator(
-                          color: Colors.white, strokeWidth: 2.5),
+                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
                     )
                   else
                     Text(
                       modeConfig?.description ?? 'Point camera at code',
-                      style: const TextStyle(
-                          color: Colors.white70, fontSize: 13),
+                      style: const TextStyle(color: Colors.white70, fontSize: 13),
                       textAlign: TextAlign.center,
                     ),
                 ],
@@ -600,8 +556,7 @@ class _ModeTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: config.color.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-              color: config.color.withValues(alpha: 0.4), width: 1.5),
+          border: Border.all(color: config.color.withValues(alpha: 0.4), width: 1.5),
         ),
         padding: const EdgeInsets.all(14),
         child: Column(
@@ -619,15 +574,15 @@ class _ModeTile extends StatelessWidget {
             Text(
               config.label,
               style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 13),
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+              ),
             ),
             const SizedBox(height: 2),
             Text(
               config.labelHi,
-              style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.55), fontSize: 11),
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.55), fontSize: 11),
             ),
           ],
         ),
@@ -675,8 +630,11 @@ class _CornerPainter extends CustomPainter {
       final path = Path()
         ..moveTo(x + dx * len, y)
         ..lineTo(x + dx * r, y)
-        ..arcToPoint(Offset(x, y + dy * r),
-            radius: const Radius.circular(r), clockwise: dx * dy < 0)
+        ..arcToPoint(
+          Offset(x, y + dy * r),
+          radius: const Radius.circular(r),
+          clockwise: dx * dy < 0,
+        )
         ..lineTo(x, y + dy * len);
       canvas.drawPath(path, paint);
     }
@@ -731,18 +689,19 @@ class _ProductResultSheet extends StatelessWidget {
           if (product == null) ...[
             const Row(
               children: [
-                Icon(Icons.warning_amber_rounded,
-                    color: AppTheme.warning, size: 28),
+                Icon(Icons.warning_amber_rounded, color: AppTheme.warning, size: 28),
                 SizedBox(width: 10),
-                Text('Product Not Found',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(
+                  'Product Not Found',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
               ],
             ),
             const SizedBox(height: 8),
-            Text('Barcode: $barcode',
-                style: const TextStyle(
-                    fontFamily: 'monospace', color: Colors.grey)),
+            Text(
+              'Barcode: $barcode',
+              style: const TextStyle(fontFamily: 'monospace', color: Colors.grey),
+            ),
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
@@ -761,8 +720,7 @@ class _ProductResultSheet extends StatelessWidget {
                     color: AppTheme.info.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child:
-                      const Icon(Icons.inventory_2, color: AppTheme.info, size: 28),
+                  child: const Icon(Icons.inventory_2, color: AppTheme.info, size: 28),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -771,14 +729,10 @@ class _ProductResultSheet extends StatelessWidget {
                     children: [
                       Text(
                         product!.name,
-                        style: const TextStyle(
-                            fontSize: 17, fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 2),
-                      Text(
-                        product!.name,
-                        style: const TextStyle(color: Colors.grey, fontSize: 13),
-                      ),
+                      Text(product!.name, style: const TextStyle(color: Colors.grey, fontSize: 13)),
                     ],
                   ),
                 ),
@@ -790,22 +744,18 @@ class _ProductResultSheet extends StatelessWidget {
             Row(
               children: [
                 _Stat(
-                    label: 'Price',
-                    value: '₹${product!.price.toDouble().toStringAsFixed(0)}',
-                    color: AppTheme.success),
+                  label: 'Price',
+                  value: '₹${product!.price.toDouble().toStringAsFixed(0)}',
+                  color: AppTheme.success,
+                ),
                 const SizedBox(width: 12),
                 _Stat(
                   label: 'Stock',
                   value: '${product!.stockQuantity}',
-                  color: product!.stockQuantity < 10
-                      ? AppTheme.error
-                      : AppTheme.info,
+                  color: product!.stockQuantity < 10 ? AppTheme.error : AppTheme.info,
                 ),
                 const SizedBox(width: 12),
-                _Stat(
-                    label: 'Category',
-                    value: product!.category,
-                    color: Colors.purple),
+                _Stat(label: 'Category', value: product!.category, color: Colors.purple),
               ],
             ),
             const SizedBox(height: 16),
@@ -841,8 +791,7 @@ class _Stat extends StatelessWidget {
   final String value;
   final Color color;
 
-  const _Stat(
-      {required this.label, required this.value, required this.color});
+  const _Stat({required this.label, required this.value, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -852,20 +801,16 @@ class _Stat extends StatelessWidget {
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(10),
-          border:
-              Border.all(color: color.withValues(alpha: 0.25)),
+          border: Border.all(color: color.withValues(alpha: 0.25)),
         ),
         child: Column(
           children: [
-            Text(value,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    color: color)),
+            Text(
+              value,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: color),
+            ),
             const SizedBox(height: 2),
-            Text(label,
-                style:
-                    const TextStyle(fontSize: 11, color: Colors.grey)),
+            Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
           ],
         ),
       ),
@@ -887,7 +832,9 @@ class _PaymentQrSheet extends StatelessWidget {
     Uri? uri;
     try {
       uri = Uri.parse(upiUrl.replaceFirst('upi:', 'https:'));
-    } catch (e, stack) { LoggingService().error('Silent error caught', e, stack); }
+    } catch (e, stack) {
+      LoggingService().error('Silent error caught', e, stack);
+    }
 
     final pa = uri?.queryParameters['pa'] ?? '—';
     final pn = uri?.queryParameters['pn'] ?? '—';
@@ -899,16 +846,17 @@ class _PaymentQrSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2))),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
           const SizedBox(height: 20),
           const Icon(Icons.qr_code_scanner, size: 48, color: Colors.deepPurple),
           const SizedBox(height: 12),
-          const Text('UPI Payment QR',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text('UPI Payment QR', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           _Row(label: 'UPI ID', value: pa),
           _Row(label: 'Name', value: pn),
@@ -920,8 +868,9 @@ class _PaymentQrSheet extends StatelessWidget {
               icon: const Icon(Icons.check_circle_outline),
               label: const Text('Payment Verified'),
               style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  foregroundColor: Colors.white),
+                backgroundColor: Colors.deepPurple,
+                foregroundColor: Colors.white,
+              ),
               onPressed: () => Navigator.pop(context),
             ),
           ),

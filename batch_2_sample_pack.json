@@ -1,0 +1,1118 @@
+{
+  "batchMetadata": {
+    "batchId": "batch-2-sample",
+    "version": "1.0",
+    "generatedDate": "2026-07-03",
+    "totalProducts": 20,
+    "categories": {
+      "spices": 5,
+      "oils": 5,
+      "snacks": 5,
+      "beverages": 5
+    },
+    "validationPhase": true,
+    "qualityGate": "sample-pack-audit"
+  },
+  "products": [
+    {
+      "productId": "spice-mdh-chaat-masala",
+      "familyId": "chaat-masala-001",
+      "name": "MDH Chaat Masala",
+      "hindiName": "एमडीएच चाट मसाला",
+      "brand": "MDH",
+      "category": "Spices",
+      "productType": "packaged",
+      "unitType": "weight",
+      "voiceMetadata": {
+        "keywords": ["chaat masala", "masala", "mdh", "spice mix"],
+        "aliases": ["chat masala", "chatmasala", "street food masala"],
+        "phonetics": ["chaat muh-SAH-luh", "chait masala"],
+        "regional": ["सड़क स्पाइस", "फास्ट फूड मसाला"],
+        "hindiKeywords": ["चाट", "मसाला", "एमडीएच", "मसाला मिश्रण"]
+      },
+      "skus": [
+        {
+          "skuId": "MDH-CHAAT-100G",
+          "familyId": "chaat-masala-001",
+          "displayName": "MDH Chaat Masala 100g",
+          "hindiName": "एमडीएच चाट मसाला 100ग्राम",
+          "quantity": 100,
+          "unit": "g",
+          "pricing": {
+            "mrp": 50,
+            "sellingPrice": 45,
+            "gst": 5
+          },
+          "inventory": {
+            "totalStock": 500,
+            "reservedStock": 0,
+            "availableStock": 500
+          }
+        },
+        {
+          "skuId": "MDH-CHAAT-200G",
+          "familyId": "chaat-masala-001",
+          "displayName": "MDH Chaat Masala 200g",
+          "hindiName": "एमडीएच चाट मसाला 200ग्राम",
+          "quantity": 200,
+          "unit": "g",
+          "pricing": {
+            "mrp": 90,
+            "sellingPrice": 80,
+            "gst": 10
+          },
+          "inventory": {
+            "totalStock": 300,
+            "reservedStock": 0,
+            "availableStock": 300
+          }
+        }
+      ]
+    },
+    {
+      "productId": "spice-everest-turmeric",
+      "familyId": "turmeric-powder-001",
+      "name": "Everest Turmeric Powder",
+      "hindiName": "एवरेस्ट हल्दी पाउडर",
+      "brand": "Everest",
+      "category": "Spices",
+      "productType": "packaged",
+      "unitType": "weight",
+      "voiceMetadata": {
+        "keywords": ["turmeric powder", "haldi", "everest", "spice"],
+        "aliases": ["turmeric", "haldi powder", "golden spice"],
+        "phonetics": ["TUR-mer-ik POW-der", "hal-dee"],
+        "regional": ["हल्दी", "हल्दी पाउडर"],
+        "hindiKeywords": ["हल्दी", "पाउडर", "एवरेस्ट", "मसाला"]
+      },
+      "skus": [
+        {
+          "skuId": "EVEREST-HALDI-100G",
+          "familyId": "turmeric-powder-001",
+          "displayName": "Everest Turmeric Powder 100g",
+          "hindiName": "एवरेस्ट हल्दी पाउडर 100ग्राम",
+          "quantity": 100,
+          "unit": "g",
+          "pricing": {
+            "mrp": 40,
+            "sellingPrice": 36,
+            "gst": 4
+          },
+          "inventory": {
+            "totalStock": 600,
+            "reservedStock": 0,
+            "availableStock": 600
+          }
+        },
+        {
+          "skuId": "EVEREST-HALDI-200G",
+          "familyId": "turmeric-powder-001",
+          "displayName": "Everest Turmeric Powder 200g",
+          "hindiName": "एवरेस्ट हल्दी पाउडर 200ग्राम",
+          "quantity": 200,
+          "unit": "g",
+          "pricing": {
+            "mrp": 75,
+            "sellingPrice": 67,
+            "gst": 8
+          },
+          "inventory": {
+            "totalStock": 400,
+            "reservedStock": 0,
+            "availableStock": 400
+          }
+        }
+      ]
+    },
+    {
+      "productId": "spice-tata-sampann-coriander",
+      "familyId": "coriander-powder-001",
+      "name": "Tata Sampann Coriander Powder",
+      "hindiName": "टाटा सम्पन्न धनिया पाउडर",
+      "brand": "Tata Sampann",
+      "category": "Spices",
+      "productType": "packaged",
+      "unitType": "weight",
+      "voiceMetadata": {
+        "keywords": ["coriander powder", "dhania", "tata sampann", "spice"],
+        "aliases": ["dhania powder", "coriander", "cilantro spice"],
+        "phonetics": ["KOR-ee-an-der POW-der", "dha-nee-uh"],
+        "regional": ["धनिया", "धनिया पाउडर"],
+        "hindiKeywords": ["धनिया", "पाउडर", "टाटा", "सम्पन्न"]
+      },
+      "skus": [
+        {
+          "skuId": "TATA-DHANIA-100G",
+          "familyId": "coriander-powder-001",
+          "displayName": "Tata Sampann Coriander Powder 100g",
+          "hindiName": "टाटा सम्पन्न धनिया पाउडर 100ग्राम",
+          "quantity": 100,
+          "unit": "g",
+          "pricing": {
+            "mrp": 45,
+            "sellingPrice": 40,
+            "gst": 5
+          },
+          "inventory": {
+            "totalStock": 550,
+            "reservedStock": 0,
+            "availableStock": 550
+          }
+        },
+        {
+          "skuId": "TATA-DHANIA-200G",
+          "familyId": "coriander-powder-001",
+          "displayName": "Tata Sampann Coriander Powder 200g",
+          "hindiName": "टाटा सम्पन्न धनिया पाउडर 200ग्राम",
+          "quantity": 200,
+          "unit": "g",
+          "pricing": {
+            "mrp": 85,
+            "sellingPrice": 76,
+            "gst": 9
+          },
+          "inventory": {
+            "totalStock": 350,
+            "reservedStock": 0,
+            "availableStock": 350
+          }
+        }
+      ]
+    },
+    {
+      "productId": "spice-catch-black-pepper",
+      "familyId": "black-pepper-001",
+      "name": "Catch Black Pepper",
+      "hindiName": "कैच काली मिर्च",
+      "brand": "Catch",
+      "category": "Spices",
+      "productType": "packaged",
+      "unitType": "weight",
+      "voiceMetadata": {
+        "keywords": ["black pepper", "kali mirch", "catch", "seasoning"],
+        "aliases": ["pepper", "black spice", "peppercorn"],
+        "phonetics": ["blak PEP-er", "kaa-lee mir-ch"],
+        "regional": ["काली मिर्च", "मिर्च"],
+        "hindiKeywords": ["काली", "मिर्च", "कैच", "मसाला"]
+      },
+      "skus": [
+        {
+          "skuId": "CATCH-PEPPER-100G",
+          "familyId": "black-pepper-001",
+          "displayName": "Catch Black Pepper 100g",
+          "hindiName": "कैच काली मिर्च 100ग्राम",
+          "quantity": 100,
+          "unit": "g",
+          "pricing": {
+            "mrp": 60,
+            "sellingPrice": 54,
+            "gst": 6
+          },
+          "inventory": {
+            "totalStock": 480,
+            "reservedStock": 0,
+            "availableStock": 480
+          }
+        },
+        {
+          "skuId": "CATCH-PEPPER-200G",
+          "familyId": "black-pepper-001",
+          "displayName": "Catch Black Pepper 200g",
+          "hindiName": "कैच काली मिर्च 200ग्राम",
+          "quantity": 200,
+          "unit": "g",
+          "pricing": {
+            "mrp": 110,
+            "sellingPrice": 99,
+            "gst": 11
+          },
+          "inventory": {
+            "totalStock": 320,
+            "reservedStock": 0,
+            "availableStock": 320
+          }
+        }
+      ]
+    },
+    {
+      "productId": "spice-shan-biryani-masala",
+      "familyId": "biryani-masala-001",
+      "name": "Shan Biryani Masala",
+      "hindiName": "शान बिरयानी मसाला",
+      "brand": "Shan",
+      "category": "Spices",
+      "productType": "packaged",
+      "unitType": "weight",
+      "voiceMetadata": {
+        "keywords": ["biryani masala", "shan", "masala mix", "biryani spice"],
+        "aliases": ["biryani", "biryanee", "rice masala"],
+        "phonetics": ["bir-YAH-nee muh-SAH-luh", "shahn"],
+        "regional": ["बिरयानी", "बिरयानी मसाला"],
+        "hindiKeywords": ["बिरयानी", "मसाला", "शान", "चावल"]
+      },
+      "skus": [
+        {
+          "skuId": "SHAN-BIRYANI-100G",
+          "familyId": "biryani-masala-001",
+          "displayName": "Shan Biryani Masala 100g",
+          "hindiName": "शान बिरयानी मसाला 100ग्राम",
+          "quantity": 100,
+          "unit": "g",
+          "pricing": {
+            "mrp": 55,
+            "sellingPrice": 49,
+            "gst": 6
+          },
+          "inventory": {
+            "totalStock": 520,
+            "reservedStock": 0,
+            "availableStock": 520
+          }
+        },
+        {
+          "skuId": "SHAN-BIRYANI-200G",
+          "familyId": "biryani-masala-001",
+          "displayName": "Shan Biryani Masala 200g",
+          "hindiName": "शान बिरयानी मसाला 200ग्राम",
+          "quantity": 200,
+          "unit": "g",
+          "pricing": {
+            "mrp": 100,
+            "sellingPrice": 90,
+            "gst": 10
+          },
+          "inventory": {
+            "totalStock": 380,
+            "reservedStock": 0,
+            "availableStock": 380
+          }
+        }
+      ]
+    },
+    {
+      "productId": "oil-fortune-sunflower",
+      "familyId": "sunflower-oil-001",
+      "name": "Fortune Sunflower Oil",
+      "hindiName": "फॉर्च्यून सूरजमुखी तेल",
+      "brand": "Fortune",
+      "category": "Oils",
+      "productType": "packaged",
+      "unitType": "volume",
+      "voiceMetadata": {
+        "keywords": ["sunflower oil", "fortune sunflower", "refined cooking oil", "surajmukhi tel", "तेल", "खाना पकाने का तेल"],
+        "aliases": ["surajmukhi tel", "light oil", "cooking oil"],
+        "phonetics": ["sun-flow-er oil", "soo-raj-moo-kee"],
+        "regional": ["सूरजमुखी तेल", "खाना पकाने का तेल"],
+        "hindiKeywords": ["सूरजमुखी", "तेल", "फॉर्च्यून", "पकाना"]
+      },
+      "skus": [
+        {
+          "skuId": "FORTUNE-SUNFLOWER-1L",
+          "familyId": "sunflower-oil-001",
+          "displayName": "Fortune Sunflower Oil 1L",
+          "hindiName": "फॉर्च्यून सूरजमुखी तेल 1 लीटर",
+          "quantity": 1,
+          "unit": "L",
+          "pricing": {
+            "mrp": 180,
+            "sellingPrice": 165,
+            "gst": 15
+          },
+          "inventory": {
+            "totalStock": 800,
+            "reservedStock": 0,
+            "availableStock": 800
+          }
+        },
+        {
+          "skuId": "FORTUNE-SUNFLOWER-2L",
+          "familyId": "sunflower-oil-001",
+          "displayName": "Fortune Sunflower Oil 2L",
+          "hindiName": "फॉर्च्यून सूरजमुखी तेल 2 लीटर",
+          "quantity": 2,
+          "unit": "L",
+          "pricing": {
+            "mrp": 345,
+            "sellingPrice": 310,
+            "gst": 35
+          },
+          "inventory": {
+            "totalStock": 600,
+            "reservedStock": 0,
+            "availableStock": 600
+          }
+        }
+      ]
+    },
+    {
+      "productId": "oil-fortune-mustard",
+      "familyId": "mustard-oil-001",
+      "name": "Fortune Mustard Oil",
+      "hindiName": "फॉर्च्यून सरसों का तेल",
+      "brand": "Fortune",
+      "category": "Oils",
+      "productType": "packaged",
+      "unitType": "volume",
+      "voiceMetadata": {
+        "keywords": ["mustard oil", "sarson oil", "fortune", "cooking oil"],
+        "aliases": ["sarson tel", "mustard", "traditional oil"],
+        "phonetics": ["MUS-terd OYL", "sar-son"],
+        "regional": ["सरसों का तेल", "तेल"],
+        "hindiKeywords": ["सरसों", "तेल", "फॉर्च्यून", "खाना"]
+      },
+      "skus": [
+        {
+          "skuId": "FORTUNE-MUSTARD-1L",
+          "familyId": "mustard-oil-001",
+          "displayName": "Fortune Mustard Oil 1L",
+          "hindiName": "फॉर्च्यून सरसों का तेल 1 लीटर",
+          "quantity": 1,
+          "unit": "L",
+          "pricing": {
+            "mrp": 195,
+            "sellingPrice": 175,
+            "gst": 20
+          },
+          "inventory": {
+            "totalStock": 750,
+            "reservedStock": 0,
+            "availableStock": 750
+          }
+        },
+        {
+          "skuId": "FORTUNE-MUSTARD-2L",
+          "familyId": "mustard-oil-001",
+          "displayName": "Fortune Mustard Oil 2L",
+          "hindiName": "फॉर्च्यून सरसों का तेल 2 लीटर",
+          "quantity": 2,
+          "unit": "L",
+          "pricing": {
+            "mrp": 375,
+            "sellingPrice": 335,
+            "gst": 40
+          },
+          "inventory": {
+            "totalStock": 550,
+            "reservedStock": 0,
+            "availableStock": 550
+          }
+        }
+      ]
+    },
+    {
+      "productId": "oil-dhara-refined",
+      "familyId": "refined-oil-001",
+      "name": "Dhara Refined Oil",
+      "hindiName": "धारा परिष्कृत तेल",
+      "brand": "Dhara",
+      "category": "Oils",
+      "productType": "packaged",
+      "unitType": "volume",
+      "voiceMetadata": {
+        "keywords": ["refined oil", "cooking oil", "dhara", "vegetable oil"],
+        "aliases": ["dhara tel", "light oil", "standard cooking oil"],
+        "phonetics": ["ri-FINED OYL", "dha-rah"],
+        "regional": ["परिष्कृत तेल", "खाना पकाने का तेल"],
+        "hindiKeywords": ["परिष्कृत", "तेल", "धारा", "पकाना"]
+      },
+      "skus": [
+        {
+          "skuId": "DHARA-REFINED-1L",
+          "familyId": "refined-oil-001",
+          "displayName": "Dhara Refined Oil 1L",
+          "hindiName": "धारा परिष्कृत तेल 1 लीटर",
+          "quantity": 1,
+          "unit": "L",
+          "pricing": {
+            "mrp": 160,
+            "sellingPrice": 145,
+            "gst": 15
+          },
+          "inventory": {
+            "totalStock": 900,
+            "reservedStock": 0,
+            "availableStock": 900
+          }
+        },
+        {
+          "skuId": "DHARA-REFINED-2L",
+          "familyId": "refined-oil-001",
+          "displayName": "Dhara Refined Oil 2L",
+          "hindiName": "धारा परिष्कृत तेल 2 लीटर",
+          "quantity": 2,
+          "unit": "L",
+          "pricing": {
+            "mrp": 305,
+            "sellingPrice": 275,
+            "gst": 30
+          },
+          "inventory": {
+            "totalStock": 700,
+            "reservedStock": 0,
+            "availableStock": 700
+          }
+        }
+      ]
+    },
+    {
+      "productId": "oil-parachute-coconut",
+      "familyId": "coconut-oil-001",
+      "name": "Parachute Coconut Oil",
+      "hindiName": "पैराशूट नारियल का तेल",
+      "brand": "Parachute",
+      "category": "Oils",
+      "productType": "packaged",
+      "unitType": "volume",
+      "voiceMetadata": {
+        "keywords": ["coconut oil", "nariyal tel", "parachute", "hair oil"],
+        "aliases": ["coconut", "nariyal", "virgin coconut oil"],
+        "phonetics": ["KO-ko-nut OYL", "nah-ree-uhl"],
+        "regional": ["नारियल तेल", "नारियल"],
+        "hindiKeywords": ["नारियल", "तेल", "पैराशूट", "बाल"]
+      },
+      "skus": [
+        {
+          "skuId": "PARACHUTE-COCONUT-500ML",
+          "familyId": "coconut-oil-001",
+          "displayName": "Parachute Coconut Oil 500ml",
+          "hindiName": "पैराशूट नारियल का तेल 500 मिली",
+          "quantity": 500,
+          "unit": "ml",
+          "pricing": {
+            "mrp": 110,
+            "sellingPrice": 98,
+            "gst": 12
+          },
+          "inventory": {
+            "totalStock": 680,
+            "reservedStock": 0,
+            "availableStock": 680
+          }
+        },
+        {
+          "skuId": "PARACHUTE-COCONUT-1L",
+          "familyId": "coconut-oil-001",
+          "displayName": "Parachute Coconut Oil 1L",
+          "hindiName": "पैराशूट नारियल का तेल 1 लीटर",
+          "quantity": 1,
+          "unit": "L",
+          "pricing": {
+            "mrp": 210,
+            "sellingPrice": 189,
+            "gst": 21
+          },
+          "inventory": {
+            "totalStock": 480,
+            "reservedStock": 0,
+            "availableStock": 480
+          }
+        }
+      ]
+    },
+    {
+      "productId": "oil-borges-olive",
+      "familyId": "olive-oil-001",
+      "name": "Borges Olive Oil",
+      "hindiName": "Borges जैतून का तेल",
+      "brand": "Borges",
+      "category": "Oils",
+      "productType": "packaged",
+      "unitType": "volume",
+      "voiceMetadata": {
+        "keywords": ["olive oil", "borges", "जैतून का तेल", "खाना पकाने का तेल", "premium oil"],
+        "aliases": ["borges oil", "़जैतून तेल", "cooking oil"],
+        "phonetics": ["ol-iv oil", "bor-hez"],
+        "regional": ["ऑलिव ऑयल"],
+        "hindiKeywords": ["जैतून", "तेल", "ऑलिव"]
+      },
+      "skus": [
+        {
+          "skuId": "BORGES-OLIVE-500ML",
+          "familyId": "olive-oil-001",
+          "displayName": "Borges Olive Oil 500ml",
+          "hindiName": "बोर्गेस जैतून का तेल 500 मिली",
+          "quantity": 500,
+          "unit": "ml",
+          "pricing": {
+            "mrp": 450,
+            "sellingPrice": 405,
+            "gst": 45
+          },
+          "inventory": {
+            "totalStock": 250,
+            "reservedStock": 0,
+            "availableStock": 250
+          }
+        },
+        {
+          "skuId": "BORGES-OLIVE-1L",
+          "familyId": "olive-oil-001",
+          "displayName": "Borges Olive Oil 1L",
+          "hindiName": "बोर्गेस जैतून का तेल 1 लीटर",
+          "quantity": 1,
+          "unit": "L",
+          "pricing": {
+            "mrp": 850,
+            "sellingPrice": 765,
+            "gst": 85
+          },
+          "inventory": {
+            "totalStock": 180,
+            "reservedStock": 0,
+            "availableStock": 180
+          }
+        }
+      ]
+    },
+    {
+      "productId": "snack-haldiram-bhujia",
+      "familyId": "bhujia-001",
+      "name": "Haldiram Bhujia",
+      "hindiName": "हलदीराम भुजिया",
+      "brand": "Haldiram",
+      "category": "Snacks",
+      "productType": "packaged",
+      "unitType": "weight",
+      "voiceMetadata": {
+        "keywords": ["bhujia", "savory snack", "haldiram", "crispy"],
+        "aliases": ["moong dal bhujia", "bhujiya", "namkeen"],
+        "phonetics": ["BOO-jee-uh", "hal-dee-rahm"],
+        "regional": ["भुजिया", "नमकीन"],
+        "hindiKeywords": ["भुजिया", "हलदीराम", "नमकीन", "स्नैक"]
+      },
+      "skus": [
+        {
+          "skuId": "HALDIRAM-BHUJIA-200G",
+          "familyId": "bhujia-001",
+          "displayName": "Haldiram Bhujia 200g",
+          "hindiName": "हलदीराम भुजिया 200ग्राम",
+          "quantity": 200,
+          "unit": "g",
+          "pricing": {
+            "mrp": 70,
+            "sellingPrice": 63,
+            "gst": 7
+          },
+          "inventory": {
+            "totalStock": 920,
+            "reservedStock": 0,
+            "availableStock": 920
+          }
+        },
+        {
+          "skuId": "HALDIRAM-BHUJIA-400G",
+          "familyId": "bhujia-001",
+          "displayName": "Haldiram Bhujia 400g",
+          "hindiName": "हलदीराम भुजिया 400ग्राम",
+          "quantity": 400,
+          "unit": "g",
+          "pricing": {
+            "mrp": 130,
+            "sellingPrice": 117,
+            "gst": 13
+          },
+          "inventory": {
+            "totalStock": 650,
+            "reservedStock": 0,
+            "availableStock": 650
+          }
+        }
+      ]
+    },
+    {
+      "productId": "snack-bikano-mix",
+      "familyId": "namkeen-mix-001",
+      "name": "Bikano Mix",
+      "hindiName": "बिकानो मिक्स",
+      "brand": "Bikano",
+      "category": "Snacks",
+      "productType": "packaged",
+      "unitType": "weight",
+      "voiceMetadata": {
+        "keywords": ["bikano mix", "namkeen", "snack mix", "savory"],
+        "aliases": ["mixed snack", "bikano", "dal mix"],
+        "phonetics": ["bi-KAH-no MIKS", "nahm-keen"],
+        "regional": ["नमकीन मिक्स", "बिकानो"],
+        "hindiKeywords": ["बिकानो", "नमकीन", "मिक्स", "स्नैक"]
+      },
+      "skus": [
+        {
+          "skuId": "BIKANO-MIX-200G",
+          "familyId": "namkeen-mix-001",
+          "displayName": "Bikano Mix 200g",
+          "hindiName": "बिकानो मिक्स 200ग्राम",
+          "quantity": 200,
+          "unit": "g",
+          "pricing": {
+            "mrp": 60,
+            "sellingPrice": 54,
+            "gst": 6
+          },
+          "inventory": {
+            "totalStock": 980,
+            "reservedStock": 0,
+            "availableStock": 980
+          }
+        },
+        {
+          "skuId": "BIKANO-MIX-400G",
+          "familyId": "namkeen-mix-001",
+          "displayName": "Bikano Mix 400g",
+          "hindiName": "बिकानो मिक्स 400ग्राम",
+          "quantity": 400,
+          "unit": "g",
+          "pricing": {
+            "mrp": 110,
+            "sellingPrice": 99,
+            "gst": 11
+          },
+          "inventory": {
+            "totalStock": 720,
+            "reservedStock": 0,
+            "availableStock": 720
+          }
+        }
+      ]
+    },
+    {
+      "productId": "snack-parle-g",
+      "familyId": "biscuit-001",
+      "name": "Parle-G",
+      "hindiName": "पार्ले जी",
+      "brand": "Parle",
+      "category": "Snacks",
+      "productType": "packaged",
+      "unitType": "weight",
+      "voiceMetadata": {
+        "keywords": ["parle-g", "glucose biscuit", "biscuit", "snack"],
+        "aliases": ["parle", "glucose biscuits", "tea biscuit"],
+        "phonetics": ["PAR-lay JEE", "bisk-it"],
+        "regional": ["पार्ले", "बिस्किट"],
+        "hindiKeywords": ["पार्ले", "बिस्किट", "ग्लूकोज", "जी"]
+      },
+      "skus": [
+        {
+          "skuId": "PARLE-G-250G",
+          "familyId": "biscuit-001",
+          "displayName": "Parle-G 250g",
+          "hindiName": "पार्ले जी 250ग्राम",
+          "quantity": 250,
+          "unit": "g",
+          "pricing": {
+            "mrp": 25,
+            "sellingPrice": 22,
+            "gst": 3
+          },
+          "inventory": {
+            "totalStock": 1200,
+            "reservedStock": 0,
+            "availableStock": 1200
+          }
+        },
+        {
+          "skuId": "PARLE-G-500G",
+          "familyId": "biscuit-001",
+          "displayName": "Parle-G 500g",
+          "hindiName": "पार्ले जी 500ग्राम",
+          "quantity": 500,
+          "unit": "g",
+          "pricing": {
+            "mrp": 45,
+            "sellingPrice": 40,
+            "gst": 5
+          },
+          "inventory": {
+            "totalStock": 850,
+            "reservedStock": 0,
+            "availableStock": 850
+          }
+        }
+      ]
+    },
+    {
+      "productId": "snack-britannia-goodday",
+      "familyId": "cookie-001",
+      "name": "Britannia Good Day",
+      "hindiName": "ब्रिटानिया गुड डे",
+      "brand": "Britannia",
+      "category": "Snacks",
+      "productType": "packaged",
+      "unitType": "weight",
+      "voiceMetadata": {
+        "keywords": ["good day", "britannia", "cookie", "snack"],
+        "aliases": ["goodday", "britannia cookie", "chocolate biscuit"],
+        "phonetics": ["BRIT-ay-nee-uh GOOD DAY", "KOO-kee"],
+        "regional": ["ब्रिटानिया", "कुकीज"],
+        "hindiKeywords": ["गुड", "डे", "ब्रिटानिया", "कुकीज"]
+      },
+      "skus": [
+        {
+          "skuId": "BRITANNIA-GOODDAY-200G",
+          "familyId": "cookie-001",
+          "displayName": "Britannia Good Day 200g",
+          "hindiName": "ब्रिटानिया गुड डे 200ग्राम",
+          "quantity": 200,
+          "unit": "g",
+          "pricing": {
+            "mrp": 40,
+            "sellingPrice": 36,
+            "gst": 4
+          },
+          "inventory": {
+            "totalStock": 1100,
+            "reservedStock": 0,
+            "availableStock": 1100
+          }
+        },
+        {
+          "skuId": "BRITANNIA-GOODDAY-400G",
+          "familyId": "cookie-001",
+          "displayName": "Britannia Good Day 400g",
+          "hindiName": "ब्रिटानिया गुड डे 400ग्राम",
+          "quantity": 400,
+          "unit": "g",
+          "pricing": {
+            "mrp": 75,
+            "sellingPrice": 67,
+            "gst": 8
+          },
+          "inventory": {
+            "totalStock": 780,
+            "reservedStock": 0,
+            "availableStock": 780
+          }
+        }
+      ]
+    },
+    {
+      "productId": "snack-lays-classic",
+      "familyId": "chips-001",
+      "name": "Lay's Classic Salted",
+      "hindiName": "Lay's क्लासिक साल्टेड",
+      "brand": "Lay's",
+      "category": "Snacks",
+      "productType": "packaged",
+      "unitType": "weight",
+      "voiceMetadata": {
+        "keywords": ["lay's chips", "classic salted", "potato chips", "snack"],
+        "aliases": ["lay's", "potato crisps", "salted chips"],
+        "phonetics": ["laze klassik salt-ed", "chips"],
+        "regional": ["लेज चिप्स", "चिप्स"],
+        "hindiKeywords": ["लेज", "चिप्स", "नमकीन", "क्लासिक"]
+      },
+      "skus": [
+        {
+          "skuId": "LAYS-CLASSIC-150G",
+          "familyId": "chips-001",
+          "displayName": "Lay's Classic Salted 150g",
+          "hindiName": "Lay's क्लासिक साल्टेड 150ग्राम",
+          "quantity": 150,
+          "unit": "g",
+          "pricing": {
+            "mrp": 50,
+            "sellingPrice": 45,
+            "gst": 5
+          },
+          "inventory": {
+            "totalStock": 1200,
+            "reservedStock": 0,
+            "availableStock": 1200
+          }
+        },
+        {
+          "skuId": "LAYS-CLASSIC-400G",
+          "familyId": "chips-001",
+          "displayName": "Lay's Classic Salted 400g",
+          "hindiName": "Lay's क्लासिक साल्टेड 400ग्राम",
+          "quantity": 400,
+          "unit": "g",
+          "pricing": {
+            "mrp": 120,
+            "sellingPrice": 108,
+            "gst": 12
+          },
+          "inventory": {
+            "totalStock": 850,
+            "reservedStock": 0,
+            "availableStock": 850
+          }
+        }
+      ]
+    },
+    {
+      "productId": "beverage-tata-tea-premium",
+      "familyId": "tea-001",
+      "name": "Tata Tea Premium",
+      "hindiName": "टाटा टी प्रीमियम",
+      "brand": "Tata Tea",
+      "category": "Beverages",
+      "productType": "packaged",
+      "unitType": "weight",
+      "voiceMetadata": {
+        "keywords": ["tata tea", "chai", "chai patti", "premium tea", "black tea", "loose leaf tea", "चाय", "चाय पत्ती"],
+        "aliases": ["tata", "premium blend", "loose leaf"],
+        "phonetics": ["tah-tuh tee pree-mee-um", "chai"],
+        "regional": ["चाय", "चाय पत्ती"],
+        "hindiKeywords": ["टाटा", "चाय", "प्रीमियम", "पत्ती", "काली"]
+      },
+      "skus": [
+        {
+          "skuId": "TATA-TEA-250G",
+          "familyId": "tea-001",
+          "displayName": "Tata Tea Premium 250g",
+          "hindiName": "टाटा टी प्रीमियम 250ग्राम",
+          "quantity": 250,
+          "unit": "g",
+          "pricing": {
+            "mrp": 180,
+            "sellingPrice": 162,
+            "gst": 18
+          },
+          "inventory": {
+            "totalStock": 600,
+            "reservedStock": 0,
+            "availableStock": 600
+          }
+        },
+        {
+          "skuId": "TATA-TEA-500G",
+          "familyId": "tea-001",
+          "displayName": "Tata Tea Premium 500g",
+          "hindiName": "टाटा टी प्रीमियम 500ग्राम",
+          "quantity": 500,
+          "unit": "g",
+          "pricing": {
+            "mrp": 340,
+            "sellingPrice": 306,
+            "gst": 34
+          },
+          "inventory": {
+            "totalStock": 420,
+            "reservedStock": 0,
+            "availableStock": 420
+          }
+        }
+      ]
+    },
+    {
+      "productId": "beverage-taj-mahal-tea",
+      "familyId": "tea-002",
+      "name": "Taj Mahal Tea",
+      "hindiName": "ताज महल चाय",
+      "brand": "Taj Mahal",
+      "category": "Beverages",
+      "productType": "packaged",
+      "unitType": "weight",
+      "voiceMetadata": {
+        "keywords": ["taj mahal tea", "tea", "black tea", "heritage tea"],
+        "aliases": ["taj", "classic tea", "loose leaf"],
+        "phonetics": ["TAJ muh-HAHL TEE", "chay"],
+        "regional": ["ताज", "चाय"],
+        "hindiKeywords": ["ताज", "महल", "चाय", "काली"]
+      },
+      "skus": [
+        {
+          "skuId": "TAJ-TEA-250G",
+          "familyId": "tea-002",
+          "displayName": "Taj Mahal Tea 250g",
+          "hindiName": "ताज महल चाय 250ग्राम",
+          "quantity": 250,
+          "unit": "g",
+          "pricing": {
+            "mrp": 160,
+            "sellingPrice": 144,
+            "gst": 16
+          },
+          "inventory": {
+            "totalStock": 680,
+            "reservedStock": 0,
+            "availableStock": 680
+          }
+        },
+        {
+          "skuId": "TAJ-TEA-500G",
+          "familyId": "tea-002",
+          "displayName": "Taj Mahal Tea 500g",
+          "hindiName": "ताज महल चाय 500ग्राम",
+          "quantity": 500,
+          "unit": "g",
+          "pricing": {
+            "mrp": 300,
+            "sellingPrice": 270,
+            "gst": 30
+          },
+          "inventory": {
+            "totalStock": 480,
+            "reservedStock": 0,
+            "availableStock": 480
+          }
+        }
+      ]
+    },
+    {
+      "productId": "beverage-bru-instant-coffee",
+      "familyId": "coffee-001",
+      "name": "Bru Instant Coffee",
+      "hindiName": "ब्रू इंस्टेंट कॉफी",
+      "brand": "Bru",
+      "category": "Beverages",
+      "productType": "packaged",
+      "unitType": "weight",
+      "voiceMetadata": {
+        "keywords": ["bru coffee", "instant coffee", "coffee", "caffeine"],
+        "aliases": ["bru", "instant", "black coffee"],
+        "phonetics": ["BROO IN-stunt KOH-fee", "kah-fee"],
+        "regional": ["कॉफी", "कॉफी पाउडर"],
+        "hindiKeywords": ["ब्रू", "कॉफी", "इंस्टेंट", "पाउडर"]
+      },
+      "skus": [
+        {
+          "skuId": "BRU-COFFEE-100G",
+          "familyId": "coffee-001",
+          "displayName": "Bru Instant Coffee 100g",
+          "hindiName": "ब्रू इंस्टेंट कॉफी 100ग्राम",
+          "quantity": 100,
+          "unit": "g",
+          "pricing": {
+            "mrp": 140,
+            "sellingPrice": 126,
+            "gst": 14
+          },
+          "inventory": {
+            "totalStock": 550,
+            "reservedStock": 0,
+            "availableStock": 550
+          }
+        },
+        {
+          "skuId": "BRU-COFFEE-200G",
+          "familyId": "coffee-001",
+          "displayName": "Bru Instant Coffee 200g",
+          "hindiName": "ब्रू इंस्टेंट कॉफी 200ग्राम",
+          "quantity": 200,
+          "unit": "g",
+          "pricing": {
+            "mrp": 260,
+            "sellingPrice": 234,
+            "gst": 26
+          },
+          "inventory": {
+            "totalStock": 380,
+            "reservedStock": 0,
+            "availableStock": 380
+          }
+        }
+      ]
+    },
+    {
+      "productId": "beverage-nescafe-classic",
+      "familyId": "coffee-002",
+      "name": "Nescafe Classic",
+      "hindiName": "Nescafe क्लासिक",
+      "brand": "Nescafe",
+      "category": "Beverages",
+      "productType": "packaged",
+      "unitType": "weight",
+      "voiceMetadata": {
+        "keywords": ["nescafe", "instant coffee", "coffee", "chai", "कॉफी", "पेय"],
+        "aliases": ["nescafe classic", "instant", "coffee powder"],
+        "phonetics": ["nes-kay klassik", "kah-fee"],
+        "regional": ["नेस्काफे", "कॉफी"],
+        "hindiKeywords": ["नेस्काफे", "कॉफी", "क्लासिक", "पाउडर", "पेय"]
+      },
+      "skus": [
+        {
+          "skuId": "NESCAFE-CLASSIC-50G",
+          "familyId": "coffee-002",
+          "displayName": "Nescafe Classic 50g",
+          "hindiName": "नेस्काफे क्लासिक 50ग्राम",
+          "quantity": 50,
+          "unit": "g",
+          "pricing": {
+            "mrp": 90,
+            "sellingPrice": 81,
+            "gst": 9
+          },
+          "inventory": {
+            "totalStock": 720,
+            "reservedStock": 0,
+            "availableStock": 720
+          }
+        },
+        {
+          "skuId": "NESCAFE-CLASSIC-100G",
+          "familyId": "coffee-002",
+          "displayName": "Nescafe Classic 100g",
+          "hindiName": "नेस्काफे क्लासिक 100ग्राम",
+          "quantity": 100,
+          "unit": "g",
+          "pricing": {
+            "mrp": 170,
+            "sellingPrice": 153,
+            "gst": 17
+          },
+          "inventory": {
+            "totalStock": 500,
+            "reservedStock": 0,
+            "availableStock": 500
+          }
+        }
+      ]
+    },
+    {
+      "productId": "beverage-bournvita",
+      "familyId": "nutrition-003",
+      "name": "Bournvita",
+      "hindiName": "Bournvita हेल्थ ड्रिंक",
+      "brand": "Bournvita",
+      "category": "Beverages",
+      "productType": "packaged",
+      "unitType": "weight",
+      "voiceMetadata": {
+        "keywords": ["bournvita", "health drink", "malt drink", "nutrition", "पोषण", "स्वास्थ्य"],
+        "aliases": ["bournvita powder", "chocolate drink", "malt"],
+        "phonetics": ["born-vee-tuh", "health drink"],
+        "regional": ["बोर्नविटा", "पोषण"],
+        "hindiKeywords": ["बोर्नविटा", "स्वास्थ्य", "पाउडर", "पोषण", "ड्रिंक"]
+      },
+      "skus": [
+        {
+          "skuId": "BOURNVITA-500G",
+          "familyId": "nutrition-003",
+          "displayName": "Bournvita 500g",
+          "hindiName": "बोर्नविटा 500ग्राम",
+          "quantity": 500,
+          "unit": "g",
+          "pricing": {
+            "mrp": 185,
+            "sellingPrice": 166,
+            "gst": 19
+          },
+          "inventory": {
+            "totalStock": 620,
+            "reservedStock": 0,
+            "availableStock": 620
+          }
+        },
+        {
+          "skuId": "BOURNVITA-1KG",
+          "familyId": "nutrition-003",
+          "displayName": "Bournvita 1kg",
+          "hindiName": "बोर्नविटा 1 किलोग्राम",
+          "quantity": 1,
+          "unit": "kg",
+          "pricing": {
+            "mrp": 340,
+            "sellingPrice": 306,
+            "gst": 34
+          },
+          "inventory": {
+            "totalStock": 450,
+            "reservedStock": 0,
+            "availableStock": 450
+          }
+        }
+      ]
+    }
+  ]
+}

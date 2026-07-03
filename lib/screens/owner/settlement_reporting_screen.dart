@@ -21,12 +21,10 @@ class SettlementReportingScreen extends StatefulWidget {
   const SettlementReportingScreen({super.key});
 
   @override
-  State<SettlementReportingScreen> createState() =>
-      _SettlementReportingScreenState();
+  State<SettlementReportingScreen> createState() => _SettlementReportingScreenState();
 }
 
-class _SettlementReportingScreenState
-    extends State<SettlementReportingScreen> {
+class _SettlementReportingScreenState extends State<SettlementReportingScreen> {
   BiRange _range = BiRange.week;
   bool _loading = true;
   String? _error;
@@ -99,9 +97,7 @@ class _SettlementReportingScreenState
         _settlements = settlementSnap.docs
             .map((d) => CodSettlementModel.fromMap(d.data()))
             .toList();
-        _payouts = payoutSnap.docs
-            .map((d) => RiderPayoutModel.fromMap(d.data(), d.id))
-            .toList();
+        _payouts = payoutSnap.docs.map((d) => RiderPayoutModel.fromMap(d.data(), d.id)).toList();
         _loading = false;
       });
     } catch (e) {
@@ -115,10 +111,7 @@ class _SettlementReportingScreenState
 
   /// Buckets a list of records into per-day totals across the selected
   /// range, keyed by a short display label (e.g. "12 Jun").
-  Map<String, double> _bucketByDay(
-    List<DateTime> dates,
-    List<double> values,
-  ) {
+  Map<String, double> _bucketByDay(List<DateTime> dates, List<double> values) {
     final (from, to) = _resolveRange();
     final days = to.difference(from).inDays + 1;
     final buckets = <String, double>{};
@@ -147,14 +140,11 @@ class _SettlementReportingScreenState
         BiRange.year => 'yearly',
         BiRange.custom => 'weekly',
       };
-      final path =
-          await ExportService().exportSettlementsToCSV(period: period);
-      await Share.shareXFiles([XFile(path)],
-          text: 'Settlement report ($period)');
+      final path = await ExportService().exportSettlementsToCSV(period: period);
+      await SharePlus.instance.share(ShareParams(files: [XFile(path)], text: 'Settlement report ($period)'));
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Export failed: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Export failed: $e')));
       }
     } finally {
       if (mounted) setState(() => _exporting = false);
@@ -174,8 +164,7 @@ class _SettlementReportingScreenState
                 ? const SizedBox(
                     width: 18,
                     height: 18,
-                    child: CircularProgressIndicator(
-                        strokeWidth: 2, color: Colors.white),
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                   )
                 : const Icon(Icons.ios_share),
             onPressed: _exporting ? null : _export,
@@ -232,8 +221,7 @@ class _SettlementReportingScreenState
       switch (s.status) {
         case 'approved':
           approvedCount++;
-          final settledAmt =
-              s.receivedAmount > 0 ? s.receivedAmount : s.amount;
+          final settledAmt = s.receivedAmount > 0 ? s.receivedAmount : s.amount;
           totalSettled += settledAmt;
           settledDates.add(s.resolvedAt ?? s.submittedAt);
           settledAmounts.add(settledAmt);
@@ -322,10 +310,7 @@ class _SettlementReportingScreenState
       const SizedBox(height: 16),
       BiSectionCard(
         title: 'Collection vs Settlement Trend',
-        child: BiLineChart(
-          values: collectedByDay.values.toList(),
-          color: AppTheme.primary,
-        ),
+        child: BiLineChart(values: collectedByDay.values.toList(), color: AppTheme.primary),
       ),
       const SizedBox(height: 24),
     ];
@@ -345,13 +330,16 @@ class _ErrorBox extends StatelessWidget {
         children: [
           const Icon(Icons.error_outline, size: 48, color: AppTheme.error),
           const SizedBox(height: 12),
-          const Text('Could not load settlement report',
-              style: TextStyle(
-                  fontWeight: FontWeight.bold, color: AppTheme.grey800)),
+          const Text(
+            'Could not load settlement report',
+            style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.grey800),
+          ),
           const SizedBox(height: 4),
-          Text(message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
+          ),
           const SizedBox(height: 16),
           ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
         ],

@@ -40,7 +40,7 @@ class _ContinuousBarcodeScannerDialogState extends State<ContinuousBarcodeScanne
   void _onDetect(BarcodeCapture capture) {
     final barcode = capture.barcodes.firstOrNull;
     if (barcode == null) return;
-    
+
     final code = barcode.rawValue ?? '';
     if (code.isEmpty || code == _lastCode) return;
 
@@ -52,7 +52,7 @@ class _ContinuousBarcodeScannerDialogState extends State<ContinuousBarcodeScanne
     HapticFeedback.heavyImpact();
     SystemSound.play(SystemSoundType.click);
     widget.onBarcodeScanned(code);
-    
+
     setState(() {
       _statusMsg = 'Scanned: $code';
       _statusColor = AppTheme.success;
@@ -76,11 +76,8 @@ class _ContinuousBarcodeScannerDialogState extends State<ContinuousBarcodeScanne
       backgroundColor: Colors.black,
       child: Stack(
         children: [
-          MobileScanner(
-            controller: _scanner.controller,
-            onDetect: _onDetect,
-          ),
-          
+          MobileScanner(controller: _scanner.controller, onDetect: _onDetect),
+
           // Overlay UI
           Positioned.fill(
             child: Column(
@@ -97,7 +94,7 @@ class _ContinuousBarcodeScannerDialogState extends State<ContinuousBarcodeScanne
                   ],
                 ),
                 const Spacer(),
-                
+
                 // Scan target area
                 Container(
                   width: 250,
@@ -107,9 +104,9 @@ class _ContinuousBarcodeScannerDialogState extends State<ContinuousBarcodeScanne
                     borderRadius: BorderRadius.circular(20),
                   ),
                 ),
-                
+
                 const Spacer(),
-                
+
                 // Status Indicator
                 if (_statusMsg != null)
                   Container(
@@ -125,7 +122,7 @@ class _ContinuousBarcodeScannerDialogState extends State<ContinuousBarcodeScanne
                       textAlign: TextAlign.center,
                     ),
                   ),
-                
+
                 Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: FjButton(

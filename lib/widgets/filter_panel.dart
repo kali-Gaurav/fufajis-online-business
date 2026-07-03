@@ -36,10 +36,7 @@ class _FilterPanelState extends State<FilterPanel> {
   void initState() {
     super.initState();
     final now = DateTime.now();
-    _selectedDateRange = DateTimeRange(
-      start: now.subtract(const Duration(days: 30)),
-      end: now,
-    );
+    _selectedDateRange = DateTimeRange(start: now.subtract(const Duration(days: 30)), end: now);
     _selectedStatus = 'All';
     _amountRange = const RangeValues(0, 10000);
   }
@@ -63,9 +60,7 @@ class _FilterPanelState extends State<FilterPanel> {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -74,9 +69,7 @@ class _FilterPanelState extends State<FilterPanel> {
             // Filter title
             Text(
               'Filters',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 16),
 
@@ -84,10 +77,7 @@ class _FilterPanelState extends State<FilterPanel> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Date Range',
-                  style: Theme.of(context).textTheme.labelMedium,
-                ),
+                Text('Date Range', style: Theme.of(context).textTheme.labelMedium),
                 const SizedBox(height: 8),
                 GestureDetector(
                   onTap: _selectDateRange,
@@ -120,19 +110,13 @@ class _FilterPanelState extends State<FilterPanel> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Order Status',
-                  style: Theme.of(context).textTheme.labelMedium,
-                ),
+                Text('Order Status', style: Theme.of(context).textTheme.labelMedium),
                 const SizedBox(height: 8),
                 DropdownButton<String>(
                   value: _selectedStatus,
                   isExpanded: true,
                   items: widget.statusOptions
-                      .map((status) => DropdownMenuItem(
-                            value: status,
-                            child: Text(status),
-                          ))
+                      .map((status) => DropdownMenuItem(value: status, child: Text(status)))
                       .toList(),
                   onChanged: (value) {
                     if (value != null) {
@@ -153,16 +137,12 @@ class _FilterPanelState extends State<FilterPanel> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Amount Range',
-                      style: Theme.of(context).textTheme.labelMedium,
-                    ),
+                    Text('Amount Range', style: Theme.of(context).textTheme.labelMedium),
                     Text(
                       '₹${_amountRange.start.toInt()} - ₹${_amountRange.end.toInt()}',
-                      style:
-                          Theme.of(context).textTheme.labelSmall?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
@@ -228,24 +208,14 @@ class FilterBottomSheet extends StatelessWidget {
   final Function(Map<String, dynamic>) onApplyFilters;
   final VoidCallback onClearFilters;
 
-  const FilterBottomSheet({
-    super.key,
-    required this.onApplyFilters,
-    required this.onClearFilters,
-  });
+  const FilterBottomSheet({super.key, required this.onApplyFilters, required this.onClearFilters});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 24,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       child: SingleChildScrollView(
-        child: FilterPanel(
-          onApplyFilters: onApplyFilters,
-          onClearFilters: onClearFilters,
-        ),
+        child: FilterPanel(onApplyFilters: onApplyFilters, onClearFilters: onClearFilters),
       ),
     );
   }
@@ -262,9 +232,7 @@ void showFilterBottomSheet(
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
-    builder: (context) => FilterBottomSheet(
-      onApplyFilters: onApplyFilters,
-      onClearFilters: onClearFilters,
-    ),
+    builder: (context) =>
+        FilterBottomSheet(onApplyFilters: onApplyFilters, onClearFilters: onClearFilters),
   );
 }

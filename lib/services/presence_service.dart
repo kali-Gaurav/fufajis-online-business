@@ -17,10 +17,10 @@ class PresenceService {
   void startUserPresence(String userId, String role) {
     _currentUserId = userId;
     _currentUserRole = role;
-    
+
     // Initial update
     RealtimeDatabaseService.instance.setUserPresence(userId, role, true);
-    
+
     // Start 30-second heartbeat
     _heartbeatTimer?.cancel();
     _heartbeatTimer = Timer.periodic(const Duration(seconds: 30), (_) {
@@ -31,7 +31,9 @@ class PresenceService {
   /// Track a specific task lock (e.g. Packing an order)
   Future<bool> startTaskLock(String orderId, String employeeId, String employeeName) async {
     final success = await RealtimeDatabaseService.instance.acquireOrderLock(
-      orderId, employeeId, employeeName
+      orderId,
+      employeeId,
+      employeeName,
     );
     if (success) {
       _activeOrderId = orderId;
@@ -59,7 +61,11 @@ class PresenceService {
   /// Stop all tracking (on logout)
   void stopAll() {
     if (_currentUserId != null) {
-      RealtimeDatabaseService.instance.setUserPresence(_currentUserId!, _currentUserRole ?? 'user', false);
+      RealtimeDatabaseService.instance.setUserPresence(
+        _currentUserId!,
+        _currentUserRole ?? 'user',
+        false,
+      );
     }
     _heartbeatTimer?.cancel();
     _activeOrderId = null;

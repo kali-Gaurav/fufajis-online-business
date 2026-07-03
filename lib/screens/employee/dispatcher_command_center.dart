@@ -34,9 +34,14 @@ class _DispatcherCommandCenterState extends State<DispatcherCommandCenter> {
         backgroundColor: AppTheme.cream,
         elevation: 0,
         actions: [
-          IconButton(icon: const Icon(Icons.search), onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Search tapped')));
-          }),
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Search tapped')));
+            },
+          ),
         ],
       ),
       body: Consumer<OperationalIntelligenceProvider>(
@@ -56,35 +61,75 @@ class _DispatcherCommandCenterState extends State<DispatcherCommandCenter> {
                 // Section 1: Quick Actions
                 QuickActionFramework(
                   actions: [
-                    QuickAction(icon: Icons.person_add, label: 'Assign Rider', onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Assign Rider Action')));
-                    }),
-                    QuickAction(icon: Icons.map, label: 'Create Batch', onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Create Batch Action')));
-                    }),
-                    QuickAction(icon: Icons.warning, label: 'Resolve Incident', onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Resolve Incident Action')));
-                    }, color: AppTheme.warning),
+                    QuickAction(
+                      icon: Icons.person_add,
+                      label: 'Assign Rider',
+                      onTap: () {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('Assign Rider Action')));
+                      },
+                    ),
+                    QuickAction(
+                      icon: Icons.map,
+                      label: 'Create Batch',
+                      onTap: () {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('Create Batch Action')));
+                      },
+                    ),
+                    QuickAction(
+                      icon: Icons.warning,
+                      label: 'Resolve Incident',
+                      onTap: () {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('Resolve Incident Action')));
+                      },
+                      color: AppTheme.warning,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 24),
 
                 // Section 2: Operational Health
-                const Text('LIVE OPERATIONS', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey600)),
+                const Text(
+                  'LIVE OPERATIONS',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: AppTheme.grey600,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 _buildOperationalHealthPanel(provider),
-                
+
                 const SizedBox(height: 32),
 
                 // Section 3: Rider Capacity (Heat Map)
-                const Text('RIDER CAPACITY', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey600)),
+                const Text(
+                  'RIDER CAPACITY',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: AppTheme.grey600,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 _buildRiderCapacityList(),
 
                 const SizedBox(height: 32),
 
                 // Section 4: Dispatch & SLA Queue (Universal Work Queue)
-                const Text('DISPATCH & RISK QUEUE', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.grey600)),
+                const Text(
+                  'DISPATCH & RISK QUEUE',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: AppTheme.grey600,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 UniversalWorkQueueUI(
                   tasks: provider.dispatchQueue,
@@ -92,13 +137,15 @@ class _DispatcherCommandCenterState extends State<DispatcherCommandCenter> {
                   onTaskTap: (task) {},
                   onTaskAction: (task) {
                     provider.resolveTask(task.id);
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Resolved ${task.title}')));
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text('Resolved ${task.title}')));
                   },
                 ),
               ],
             ),
           );
-        }
+        },
       ),
     );
   }
@@ -109,14 +156,24 @@ class _DispatcherCommandCenterState extends State<DispatcherCommandCenter> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStatItem('Unassigned', provider.unassignedOrdersCount.toString(), AppTheme.error),
+              _buildStatItem(
+                'Unassigned',
+                provider.unassignedOrdersCount.toString(),
+                AppTheme.error,
+              ),
               _buildStatItem('Active Riders', provider.activeRidersCount.toString(), AppTheme.info),
               _buildStatItem('SLA Risks', provider.slaRisksCount.toString(), AppTheme.warning),
             ],
@@ -135,9 +192,14 @@ class _DispatcherCommandCenterState extends State<DispatcherCommandCenter> {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Auto-Assign executed')));
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(const SnackBar(content: Text('Auto-Assign executed')));
                   },
-                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, foregroundColor: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primary,
+                    foregroundColor: Colors.white,
+                  ),
                   child: const Text('Auto-Assign Available'),
                 ),
               ),
@@ -145,13 +207,15 @@ class _DispatcherCommandCenterState extends State<DispatcherCommandCenter> {
               Expanded(
                 child: OutlinedButton(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Rebalance triggered')));
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(const SnackBar(content: Text('Rebalance triggered')));
                   },
                   child: const Text('Rebalance Load'),
                 ),
               ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -160,7 +224,10 @@ class _DispatcherCommandCenterState extends State<DispatcherCommandCenter> {
   Widget _buildStatItem(String label, String value, Color color) {
     return Column(
       children: [
-        Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color)),
+        Text(
+          value,
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color),
+        ),
         const SizedBox(height: 4),
         Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
       ],
@@ -183,7 +250,15 @@ class _DispatcherCommandCenterState extends State<DispatcherCommandCenter> {
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Row(
         children: [
-          SizedBox(width: 120, child: Text(name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis)),
+          SizedBox(
+            width: 120,
+            child: Text(
+              name,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: ClipRRect(
@@ -197,7 +272,13 @@ class _DispatcherCommandCenterState extends State<DispatcherCommandCenter> {
             ),
           ),
           const SizedBox(width: 12),
-          SizedBox(width: 40, child: Text('$current / $max', style: TextStyle(color: status.color, fontWeight: FontWeight.bold, fontSize: 12))),
+          SizedBox(
+            width: 40,
+            child: Text(
+              '$current / $max',
+              style: TextStyle(color: status.color, fontWeight: FontWeight.bold, fontSize: 12),
+            ),
+          ),
         ],
       ),
     );

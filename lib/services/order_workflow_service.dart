@@ -22,15 +22,15 @@ import 'wallet_service.dart';
 /// - delivered: award loyalty points, prompt for review
 /// - cancelled: release inventory, process refund, restore wallet
 enum OrderWorkflowStatus {
-  pending,      // Just created, awaiting payment
-  confirmed,    // Payment verified, inventory reserved
-  processing,   // Preparing at shop
-  packed,       // Ready for delivery
-  shipped,      // With rider
-  delivered,    // Completed
-  cancelled,    // Cancelled by customer/shop
-  refunded,     // Refund processed (terminal)
-  completed,    // Completed (terminal)
+  pending, // Just created, awaiting payment
+  confirmed, // Payment verified, inventory reserved
+  processing, // Preparing at shop
+  packed, // Ready for delivery
+  shipped, // With rider
+  delivered, // Completed
+  cancelled, // Cancelled by customer/shop
+  refunded, // Refund processed (terminal)
+  completed, // Completed (terminal)
 }
 
 class OrderWorkflowService {
@@ -99,7 +99,9 @@ class OrderWorkflowService {
         'customerPhone': customerPhone,
         'paymentMethod': paymentMethod,
         'deliveryType': deliveryType ?? 'standard',
-        'scheduledDeliveryDate': scheduledDeliveryDate != null ? Timestamp.fromDate(scheduledDeliveryDate) : null,
+        'scheduledDeliveryDate': scheduledDeliveryDate != null
+            ? Timestamp.fromDate(scheduledDeliveryDate)
+            : null,
         'timeSlot': timeSlot,
         'createdAt': Timestamp.fromDate(now),
         'updatedAt': Timestamp.fromDate(now),
@@ -109,7 +111,7 @@ class OrderWorkflowService {
             'timestamp': Timestamp.fromDate(now),
             'changedBy': 'system',
             'reason': 'order_created',
-          }
+          },
         ],
         'paymentStatus': 'pending', // pending, verified, failed
         'paymentId': null,
@@ -187,8 +189,8 @@ class OrderWorkflowService {
             'timestamp': Timestamp.fromDate(now),
             'changedBy': 'payment_system',
             'reason': 'payment_verified',
-          }
-        ])
+          },
+        ]),
       });
 
       // Create fulfillment task (packing)
@@ -202,15 +204,11 @@ class OrderWorkflowService {
       });
 
       // Notify shop about new order
-      await _notifications.notifyShop(
-        shopId,
-        'New order received: ${orderData['orderNumber']}',
-        {
-          'orderId': orderId,
-          'totalAmount': orderData['totalAmount'],
-          'itemCount': items.length,
-        },
-      );
+      await _notifications.notifyShop(shopId, 'New order received: ${orderData['orderNumber']}', {
+        'orderId': orderId,
+        'totalAmount': orderData['totalAmount'],
+        'itemCount': items.length,
+      });
 
       await _audit.log('order_confirmed', {
         'orderId': orderId,
@@ -237,10 +235,7 @@ class OrderWorkflowService {
 
   /// Mark order as packed (ready for delivery)
   /// Deducts stock from inventory
-  Future<void> markPacked({
-    required String orderId,
-    String? packingTaskId,
-  }) async {
+  Future<void> markPacked({required String orderId, String? packingTaskId}) async {
     try {
       final orderSnap = await _db.collection('orders').doc(orderId).get();
       final orderData = orderSnap.data();
@@ -278,8 +273,8 @@ class OrderWorkflowService {
             'timestamp': Timestamp.fromDate(now),
             'changedBy': 'fulfillment',
             'reason': 'packing_completed',
-          }
-        ])
+          },
+        ]),
       });
 
       // Notify customer
@@ -289,10 +284,7 @@ class OrderWorkflowService {
         {'orderId': orderId},
       );
 
-      await _audit.log('order_packed', {
-        'orderId': orderId,
-        'itemCount': items.length,
-      });
+      await _audit.log('order_packed', {'orderId': orderId, 'itemCount': items.length});
 
       debugPrint('[OrderWorkflowService] Marked order $orderId as packed');
     } catch (e) {
@@ -336,26 +328,18 @@ class OrderWorkflowService {
             'timestamp': Timestamp.fromDate(now),
             'changedBy': 'delivery',
             'reason': 'rider_assigned',
-          }
-        ])
+          },
+        ]),
       });
 
       // Notify customer with rider details
       await _notifications.notifyCustomer(
         customerId,
         'Rider ${riderName ?? riderId} is on the way with your order',
-        {
-          'orderId': orderId,
-          'riderId': riderId,
-          'riderName': riderName,
-          'riderPhone': riderPhone,
-        },
+        {'orderId': orderId, 'riderId': riderId, 'riderName': riderName, 'riderPhone': riderPhone},
       );
 
-      await _audit.log('order_shipped', {
-        'orderId': orderId,
-        'riderId': riderId,
-      });
+      await _audit.log('order_shipped', {'orderId': orderId, 'riderId': riderId});
 
       debugPrint('[OrderWorkflowService] Marked order $orderId as shipped');
     } catch (e) {
@@ -406,25 +390,18 @@ class OrderWorkflowService {
             'timestamp': Timestamp.fromDate(now),
             'changedBy': 'delivery',
             'reason': 'delivered_to_customer',
-          }
-        ])
+          },
+        ]),
       });
 
       // Notify customer with rating prompt
       await _notifications.notifyCustomer(
         customerId,
         'Order delivered! Please rate your experience.',
-        {
-          'orderId': orderId,
-          'pointsAwarded': points,
-          'action': 'rate_order',
-        },
+        {'orderId': orderId, 'pointsAwarded': points, 'action': 'rate_order'},
       );
 
-      await _audit.log('order_delivered', {
-        'orderId': orderId,
-        'pointsAwarded': points,
-      });
+      await _audit.log('order_delivered', {'orderId': orderId, 'pointsAwarded': points});
 
       debugPrint('[OrderWorkflowService] Marked order $orderId as delivered');
     } catch (e) {
@@ -472,12 +449,10 @@ class OrderWorkflowService {
 
       // Process refund if payment was verified
       if (paymentStatus == 'verified' || paymentStatus == 'paid') {
-        await _wallet.creditBalance(
-          customerId,
-          totalAmount,
-          'order_cancellation',
-          {'orderId': orderId, 'reason': reason},
-        );
+        await _wallet.creditBalance(customerId, totalAmount, 'order_cancellation', {
+          'orderId': orderId,
+          'reason': reason,
+        });
       }
 
       // Update order
@@ -493,28 +468,22 @@ class OrderWorkflowService {
             'timestamp': Timestamp.fromDate(now),
             'changedBy': cancelledBy ?? 'customer',
             'reason': reason,
-          }
-        ])
+          },
+        ]),
       });
 
       // Notify customer
       await _notifications.notifyCustomer(
         customerId,
         'Order cancelled. ₹$totalAmount refunded to wallet.',
-        {
-          'orderId': orderId,
-          'refundAmount': totalAmount,
-        },
+        {'orderId': orderId, 'refundAmount': totalAmount},
       );
 
       // Notify shop
       await _notifications.notifyShop(
         shopId,
         'Order ${orderData['orderNumber']} cancelled: $reason',
-        {
-          'orderId': orderId,
-          'reason': reason,
-        },
+        {'orderId': orderId, 'reason': reason},
       );
 
       await _audit.log('order_cancelled', {
@@ -534,19 +503,11 @@ class OrderWorkflowService {
 
   /// Mark order as completed (final state after delivery)
   Future<void> markCompleted(String orderId) async {
-    await _transitionOrder(
-      orderId,
-      OrderWorkflowStatus.completed.name,
-      'order_completion',
-    );
+    await _transitionOrder(orderId, OrderWorkflowStatus.completed.name, 'order_completion');
   }
 
   /// Internal: generic state transition with audit logging
-  Future<void> _transitionOrder(
-    String orderId,
-    String toStatus,
-    String reason,
-  ) async {
+  Future<void> _transitionOrder(String orderId, String toStatus, String reason) async {
     try {
       final orderSnap = await _db.collection('orders').doc(orderId).get();
       final orderData = orderSnap.data();
@@ -569,8 +530,8 @@ class OrderWorkflowService {
             'timestamp': Timestamp.fromDate(now),
             'changedBy': 'system',
             'reason': reason,
-          }
-        ])
+          },
+        ]),
       });
 
       await _audit.log('order_status_changed', {

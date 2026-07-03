@@ -24,8 +24,7 @@ class CodLimitManagementScreen extends StatefulWidget {
   const CodLimitManagementScreen({super.key});
 
   @override
-  State<CodLimitManagementScreen> createState() =>
-      _CodLimitManagementScreenState();
+  State<CodLimitManagementScreen> createState() => _CodLimitManagementScreenState();
 }
 
 class _CodLimitManagementScreenState extends State<CodLimitManagementScreen> {
@@ -143,20 +142,26 @@ class _CodLimitManagementScreenState extends State<CodLimitManagementScreen> {
                 ),
                 if (_searchError != null) ...[
                   const SizedBox(height: 8),
-                  Text('Search failed: $_searchError',
-                      style: const TextStyle(fontSize: 12, color: AppTheme.error)),
+                  Text(
+                    'Search failed: $_searchError',
+                    style: const TextStyle(fontSize: 12, color: AppTheme.error),
+                  ),
                 ],
                 if (_results.isNotEmpty) ...[
                   const SizedBox(height: 12),
-                  ..._results.map((u) => _UserLimitCard(
-                        user: u,
-                        codLimitService: _codLimitService,
-                        onUpdated: _search,
-                      )),
+                  ..._results.map(
+                    (u) => _UserLimitCard(
+                      user: u,
+                      codLimitService: _codLimitService,
+                      onUpdated: _search,
+                    ),
+                  ),
                 ] else if (!_searching && _searchError == null) ...[
                   const SizedBox(height: 8),
-                  const Text('No results yet — search for a user above.',
-                      style: TextStyle(fontSize: 12, color: AppTheme.grey500)),
+                  const Text(
+                    'No results yet — search for a user above.',
+                    style: TextStyle(fontSize: 12, color: AppTheme.grey500),
+                  ),
                 ],
               ],
             ),
@@ -187,11 +192,9 @@ class _CodLimitManagementScreenState extends State<CodLimitManagementScreen> {
                     child: Center(
                       child: Column(
                         children: [
-                          Icon(Icons.check_circle_outline,
-                              size: 48, color: AppTheme.grey400),
+                          Icon(Icons.check_circle_outline, size: 48, color: AppTheme.grey400),
                           SizedBox(height: 8),
-                          Text('No COD limit alerts',
-                              style: TextStyle(color: AppTheme.grey600)),
+                          Text('No COD limit alerts', style: TextStyle(color: AppTheme.grey600)),
                         ],
                       ),
                     ),
@@ -226,15 +229,19 @@ class _CodLimitManagementScreenState extends State<CodLimitManagementScreen> {
                     ),
                     const SizedBox(height: 12),
                     if (open.isNotEmpty) ...[
-                      const Text('Needs Review',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                      const Text(
+                        'Needs Review',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                      ),
                       const SizedBox(height: 8),
                       ...open.map((d) => _CodAlertCard(doc: d, dateFmt: _dateFmt)),
                       const SizedBox(height: 16),
                     ],
                     if (closed.isNotEmpty) ...[
-                      const Text('Resolved',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                      const Text(
+                        'Resolved',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                      ),
                       const SizedBox(height: 8),
                       ...closed.map((d) => _CodAlertCard(doc: d, dateFmt: _dateFmt)),
                     ],
@@ -285,8 +292,7 @@ class _UserLimitCardState extends State<_UserLimitCard> {
 
   Future<void> _loadUsage() async {
     try {
-      final exposure =
-          await widget.codLimitService.getCustomerCodExposure(widget.user.id);
+      final exposure = await widget.codLimitService.getCustomerCodExposure(widget.user.id);
       double? cashInHand;
       if (_isRiderRole) {
         cashInHand = await widget.codLimitService.getRiderCashInHand(widget.user.id);
@@ -309,9 +315,11 @@ class _UserLimitCardState extends State<_UserLimitCard> {
     final newValue = await showDialog<double>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(isRiderLimit
-            ? 'Set max cash-in-hand for ${widget.user.name ?? widget.user.id}'
-            : 'Set COD order limit for ${widget.user.name ?? widget.user.id}'),
+        title: Text(
+          isRiderLimit
+              ? 'Set max cash-in-hand for ${widget.user.name ?? widget.user.id}'
+              : 'Set COD order limit for ${widget.user.name ?? widget.user.id}',
+        ),
         content: TextField(
           controller: controller,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -323,10 +331,7 @@ class _UserLimitCardState extends State<_UserLimitCard> {
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               final v = double.tryParse(controller.text.trim());
@@ -342,10 +347,9 @@ class _UserLimitCardState extends State<_UserLimitCard> {
     setState(() => _saving = true);
     try {
       final field = isRiderLimit ? 'maxCashInHand' : 'codLimit';
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.user.id)
-          .set({field: newValue}, SetOptions(merge: true));
+      await FirebaseFirestore.instance.collection('users').doc(widget.user.id).set({
+        field: newValue,
+      }, SetOptions(merge: true));
 
       final currentUser = FirebaseAuth.instance.currentUser;
       await AuditService().logAction(
@@ -354,9 +358,9 @@ class _UserLimitCardState extends State<_UserLimitCard> {
         action: AuditAction.codLimitChanged,
         description: isRiderLimit
             ? 'Updated max cash-in-hand for ${widget.user.name ?? widget.user.id} '
-                'from ₹${current.toStringAsFixed(0)} to ₹${newValue.toStringAsFixed(0)}'
+                  'from ₹${current.toStringAsFixed(0)} to ₹${newValue.toStringAsFixed(0)}'
             : 'Updated COD order limit for ${widget.user.name ?? widget.user.id} '
-                'from ₹${current.toStringAsFixed(0)} to ₹${newValue.toStringAsFixed(0)}',
+                  'from ₹${current.toStringAsFixed(0)} to ₹${newValue.toStringAsFixed(0)}',
         targetId: widget.user.id,
         targetType: 'user',
         oldValue: {field: current},
@@ -364,15 +368,12 @@ class _UserLimitCardState extends State<_UserLimitCard> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Limit updated')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Limit updated')));
         widget.onUpdated();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Failed to update: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update: $e')));
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -383,8 +384,7 @@ class _UserLimitCardState extends State<_UserLimitCard> {
   Widget build(BuildContext context) {
     final u = widget.user;
     final exposure = _customerExposure ?? 0;
-    final exposurePct =
-        u.codLimit > 0 ? (exposure / u.codLimit).clamp(0, 1.5) : 0.0;
+    final exposurePct = u.codLimit > 0 ? (exposure / u.codLimit).clamp(0, 1.5) : 0.0;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
@@ -399,8 +399,10 @@ class _UserLimitCardState extends State<_UserLimitCard> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(u.name ?? '(no name)',
-                          style: const TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                        u.name ?? '(no name)',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       Text(
                         [
                           if (u.phoneNumber.isNotEmpty) u.phoneNumber,
@@ -420,7 +422,10 @@ class _UserLimitCardState extends State<_UserLimitCard> {
                   child: Text(
                     u.role.toString().replaceFirst('UserRole.', ''),
                     style: const TextStyle(
-                        fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.primary),
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.primary,
+                    ),
                   ),
                 ),
               ],
@@ -433,10 +438,14 @@ class _UserLimitCardState extends State<_UserLimitCard> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('COD order limit',
-                          style: TextStyle(fontSize: 12, color: AppTheme.grey600)),
-                      Text(kInr.format(u.codLimit),
-                          style: const TextStyle(fontWeight: FontWeight.bold)),
+                      const Text(
+                        'COD order limit',
+                        style: TextStyle(fontSize: 12, color: AppTheme.grey600),
+                      ),
+                      Text(
+                        kInr.format(u.codLimit),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       if (!_loadingUsage)
                         Text(
                           'Outstanding COD: ${kInr.format(exposure)}',
@@ -445,8 +454,8 @@ class _UserLimitCardState extends State<_UserLimitCard> {
                             color: exposurePct >= 1
                                 ? AppTheme.error
                                 : exposurePct >= 0.8
-                                    ? AppTheme.warning
-                                    : AppTheme.grey600,
+                                ? AppTheme.warning
+                                : AppTheme.grey600,
                           ),
                         ),
                     ],
@@ -466,10 +475,14 @@ class _UserLimitCardState extends State<_UserLimitCard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Max COD cash-in-hand',
-                            style: TextStyle(fontSize: 12, color: AppTheme.grey600)),
-                        Text(kInr.format(u.maxCashInHand),
-                            style: const TextStyle(fontWeight: FontWeight.bold)),
+                        const Text(
+                          'Max COD cash-in-hand',
+                          style: TextStyle(fontSize: 12, color: AppTheme.grey600),
+                        ),
+                        Text(
+                          kInr.format(u.maxCashInHand),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         if (!_loadingUsage && _riderCashInHand != null)
                           Text(
                             'Currently holding: ${kInr.format(_riderCashInHand!)}',
@@ -531,8 +544,7 @@ class _CodAlertCardState extends State<_CodAlertCard> {
       );
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Failed: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e')));
       }
     } finally {
       if (mounted) setState(() => _updating = false);
@@ -564,8 +576,7 @@ class _CodAlertCardState extends State<_CodAlertCard> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: (isOpen ? AppTheme.warning : AppTheme.success)
-                        .withValues(alpha: 0.12),
+                    color: (isOpen ? AppTheme.warning : AppTheme.success).withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -580,8 +591,10 @@ class _CodAlertCardState extends State<_CodAlertCard> {
               ],
             ),
             const SizedBox(height: 6),
-            Text('Customer: ${data['customerName'] ?? data['customerId'] ?? '-'}',
-                style: const TextStyle(fontSize: 13)),
+            Text(
+              'Customer: ${data['customerName'] ?? data['customerId'] ?? '-'}',
+              style: const TextStyle(fontSize: 13),
+            ),
             const SizedBox(height: 2),
             Text(
               'COD limit: ${kInr.format((data['codLimit'] as num? ?? 0).toDouble())}  •  '
@@ -593,13 +606,18 @@ class _CodAlertCardState extends State<_CodAlertCard> {
             Text(
               'New exposure would be: ${kInr.format((data['newExposure'] as num? ?? 0).toDouble())}',
               style: const TextStyle(
-                  fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.error),
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.error,
+              ),
             ),
             if (createdAt != null)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
-                child: Text(widget.dateFmt.format(createdAt),
-                    style: const TextStyle(fontSize: 11, color: AppTheme.grey500)),
+                child: Text(
+                  widget.dateFmt.format(createdAt),
+                  style: const TextStyle(fontSize: 11, color: AppTheme.grey500),
+                ),
               ),
             if (isOpen) ...[
               const SizedBox(height: 8),
@@ -642,12 +660,16 @@ class _ErrorBox extends StatelessWidget {
         children: [
           const Icon(Icons.error_outline, size: 48, color: AppTheme.error),
           const SizedBox(height: 12),
-          const Text('Could not load COD limit alerts',
-              style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.grey800)),
+          const Text(
+            'Could not load COD limit alerts',
+            style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.grey800),
+          ),
           const SizedBox(height: 4),
-          Text(message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
+          ),
         ],
       ),
     );

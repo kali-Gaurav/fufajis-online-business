@@ -43,7 +43,7 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
   bool _scanMode = false;
   bool _scanRiderMode = false;
   String _lastCode = '';
-  
+
   String? _selectedRiderId;
   String? _selectedRiderName;
   double _selectedRiderCash = 0.0;
@@ -153,10 +153,7 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
     }
 
     // Accept ORDER-xxx, DISPATCH-xxx, or bare UUID
-    final orderId = raw
-        .replaceFirst('ORDER-', '')
-        .replaceFirst('DISPATCH-', '')
-        .trim();
+    final orderId = raw.replaceFirst('ORDER-', '').replaceFirst('DISPATCH-', '').trim();
 
     setState(() => _scanMode = false);
     await _loadOrder(orderId);
@@ -200,10 +197,7 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
     return Stack(
       fit: StackFit.expand,
       children: [
-        MobileScanner(
-          controller: _scanner.controller,
-          onDetect: _onBarcodeDetected,
-        ),
+        MobileScanner(controller: _scanner.controller, onDetect: _onBarcodeDetected),
         Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -212,15 +206,13 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
                 width: 220,
                 height: 220,
                 decoration: BoxDecoration(
-                  border: Border.all(
-                      color: const Color(0xFFE65100), width: 3),
+                  border: Border.all(color: const Color(0xFFE65100), width: 3),
                   borderRadius: BorderRadius.circular(16),
                 ),
               ),
               const SizedBox(height: 24),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 20, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
                   color: Colors.black54,
                   borderRadius: BorderRadius.circular(20),
@@ -251,24 +243,26 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
             const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Text(_errorMsg!,
-                  style: const TextStyle(fontSize: 16),
-                  textAlign: TextAlign.center),
+              child: Text(
+                _errorMsg!,
+                style: const TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
             ),
             const SizedBox(height: 32),
-              FjButton(
-                label: 'Scan Again',
-                onPressed: () {
-                  setState(() {
-                    _scanMode = true;
-                    _scanRiderMode = false;
-                    _errorMsg = null;
-                    _lastCode = '';
-                  });
-                  _scanner.startScanning();
-                },
-                icon: Icons.qr_code_scanner,
-              ),
+            FjButton(
+              label: 'Scan Again',
+              onPressed: () {
+                setState(() {
+                  _scanMode = true;
+                  _scanRiderMode = false;
+                  _errorMsg = null;
+                  _lastCode = '';
+                });
+                _scanner.startScanning();
+              },
+              icon: Icons.qr_code_scanner,
+            ),
           ],
         ),
       );
@@ -278,17 +272,13 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
 
     final status = _order!['status'] as String? ?? '';
     final isPacked = status.contains('packed');
-    final isAlreadyDispatched = status.contains('dispatched') || status.contains('outForDelivery') || _dispatched;
+    final isAlreadyDispatched =
+        status.contains('dispatched') || status.contains('outForDelivery') || _dispatched;
 
-    final items = (_order!['items'] as List?)
-            ?.cast<Map<String, dynamic>>() ??
-        [];
-    final total =
-        (_order!['totalAmount'] as num?)?.toDouble() ?? 0.0;
-    final customerName =
-        _order!['customerName'] as String? ?? 'Customer';
-    final orderNumber =
-        _order!['orderNumber'] as String? ?? _order!['id'];
+    final items = (_order!['items'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+    final total = (_order!['totalAmount'] as num?)?.toDouble() ?? 0.0;
+    final customerName = _order!['customerName'] as String? ?? 'Customer';
+    final orderNumber = _order!['orderNumber'] as String? ?? _order!['id'];
 
     return SingleChildScrollView(
       padding: AppTheme.paddingLg,
@@ -312,23 +302,20 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
                   children: [
                     Text(
                       'Order #$orderNumber',
-                      style: const TextStyle(
-                          fontSize: 17, fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                     ),
                     Text(
                       '₹${total.toStringAsFixed(0)}',
                       style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.success),
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.success,
+                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  customerName,
-                  style: const TextStyle(color: AppTheme.grey600),
-                ),
+                Text(customerName, style: const TextStyle(color: AppTheme.grey600)),
                 const Divider(height: 32),
                 // Items
                 ...items.map((item) => _ItemRow(item: item)),
@@ -336,11 +323,11 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Total',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text('₹${total.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold)),
+                    const Text('Total', style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text(
+                      '₹${total.toStringAsFixed(2)}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ],
                 ),
               ],
@@ -351,33 +338,49 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
 
           // Rider Selection
           if (!isAlreadyDispatched && isPacked) ...[
-            const Text('Assign Delivery Rider', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const Text(
+              'Assign Delivery Rider',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
             const SizedBox(height: 12),
             FjCard(
               child: StreamBuilder<List<Map<String, dynamic>>>(
                 stream: _userService.getAuthorizedRidersStream(),
                 builder: (context, snapshot) {
-                  if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
+                  if (!snapshot.hasData)
+                    return const Center(child: CircularProgressIndicator(color: AppTheme.primary));
                   final riders = snapshot.data!;
                   return DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(labelText: 'Select Available Rider', border: OutlineInputBorder()),
-                    initialValue: riders.any((r) => r['phoneNumber'] == _selectedRiderId) ? _selectedRiderId : null,
-                    items: riders.map((r) => DropdownMenuItem(
-                      value: r['phoneNumber'] as String,
-                      child: Text('${r['name']} (Cash: ₹${(r['currentCashBalance'] ?? 0).round()})'),
-                    )).toList(),
+                    decoration: const InputDecoration(
+                      labelText: 'Select Available Rider',
+                      border: OutlineInputBorder(),
+                    ),
+                    initialValue: riders.any((r) => r['phoneNumber'] == _selectedRiderId)
+                        ? _selectedRiderId
+                        : null,
+                    items: riders
+                        .map(
+                          (r) => DropdownMenuItem(
+                            value: r['phoneNumber'] as String,
+                            child: Text(
+                              '${r['name']} (Cash: ₹${(r['currentCashBalance'] ?? 0).round()})',
+                            ),
+                          ),
+                        )
+                        .toList(),
                     onChanged: (val) async {
                       if (val != null) {
                         final rider = riders.firstWhere((r) => r['phoneNumber'] == val);
                         setState(() {
                           _selectedRiderId = val;
                           _selectedRiderName = rider['name'] as String?;
-                          _selectedRiderCash = (rider['currentCashBalance'] as num? ?? 0.0).toDouble();
+                          _selectedRiderCash = (rider['currentCashBalance'] as num? ?? 0.0)
+                              .toDouble();
                         });
                       }
                     },
                   );
-                }
+                },
               ),
             ),
             const SizedBox(height: 12),
@@ -393,11 +396,16 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
                 _scanner.startScanning();
               },
             ),
-            if (_selectedRiderId != null && _selectedRiderName != null && !_selectedRiderName!.contains('('))
-               Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text('Selected Rider: $_selectedRiderName', style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.success)),
-               ),
+            if (_selectedRiderId != null &&
+                _selectedRiderName != null &&
+                !_selectedRiderName!.contains('('))
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  'Selected Rider: $_selectedRiderName',
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.success),
+                ),
+              ),
             if (_selectedRiderCash > 5000)
               const Padding(
                 padding: EdgeInsets.only(top: 8),
@@ -405,7 +413,16 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
                   children: [
                     Icon(Icons.error_outline, color: AppTheme.error, size: 16),
                     SizedBox(width: 4),
-                    Expanded(child: Text('Rider has exceeded ₹5,000 cash limit. Settle cash first.', style: TextStyle(color: AppTheme.error, fontSize: 12, fontWeight: FontWeight.bold))),
+                    Expanded(
+                      child: Text(
+                        'Rider has exceeded ₹5,000 cash limit. Settle cash first.',
+                        style: TextStyle(
+                          color: AppTheme.error,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -435,7 +452,9 @@ class _DispatchScannerScreenState extends State<DispatchScannerScreen> {
           else
             FjButton(
               label: 'Mark as Dispatched',
-              onPressed: (_loading || _selectedRiderId == null || _selectedRiderCash > 5000) ? null : _dispatchOrder,
+              onPressed: (_loading || _selectedRiderId == null || _selectedRiderCash > 5000)
+                  ? null
+                  : _dispatchOrder,
               icon: Icons.local_shipping,
               isLoading: _loading,
               width: double.infinity,
@@ -458,16 +477,12 @@ class _StatusBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = {
       'packed': (AppTheme.info, Icons.inventory_outlined, 'Ready to Dispatch'),
-      'dispatched': (
-        AppTheme.success,
-        Icons.local_shipping,
-        'Dispatched Successfully'
-      ),
+      'dispatched': (AppTheme.success, Icons.local_shipping, 'Dispatched Successfully'),
       'pending': (AppTheme.warning, Icons.pending_outlined, 'Awaiting Packing'),
     };
 
-    final (color, icon, label) = colors[status] ??
-        (AppTheme.grey500, Icons.info_outlined, status.toUpperCase());
+    final (color, icon, label) =
+        colors[status] ?? (AppTheme.grey500, Icons.info_outlined, status.toUpperCase());
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -482,8 +497,7 @@ class _StatusBanner extends StatelessWidget {
           const SizedBox(width: 10),
           Text(
             label,
-            style: TextStyle(
-                color: color, fontWeight: FontWeight.bold, fontSize: 15),
+            style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 15),
           ),
         ],
       ),
@@ -539,9 +553,10 @@ class _SuccessButton extends StatelessWidget {
               Text(
                 label,
                 style: const TextStyle(
-                    color: AppTheme.success,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16),
+                  color: AppTheme.success,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             ],
           ),
@@ -570,14 +585,10 @@ class _WarningCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.warning_amber_rounded,
-              color: AppTheme.warning, size: 24),
+          const Icon(Icons.warning_amber_rounded, color: AppTheme.warning, size: 24),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(color: AppTheme.warning),
-            ),
+            child: Text(message, style: const TextStyle(color: AppTheme.warning)),
           ),
         ],
       ),

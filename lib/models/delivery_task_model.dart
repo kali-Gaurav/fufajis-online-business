@@ -12,7 +12,7 @@ enum DeliveryTaskStatus {
   returned,
   inTransit,
   arrived,
-  completed
+  completed,
 }
 
 extension DeliveryTaskStatusExtension on DeliveryTaskStatus {
@@ -133,9 +133,7 @@ class DeliveryTaskModel {
       addressLatitude: (json['addressLatitude'] as num).toDouble(),
       addressLongitude: (json['addressLongitude'] as num).toDouble(),
       estimatedArrivalAt: DateTime.parse(json['estimatedArrivalAt'] as String),
-      assignedAt: json['assignedAt'] != null
-          ? DateTime.parse(json['assignedAt'] as String)
-          : null,
+      assignedAt: json['assignedAt'] != null ? DateTime.parse(json['assignedAt'] as String) : null,
       actualArrivalAt: json['actualArrivalAt'] != null
           ? DateTime.parse(json['actualArrivalAt'] as String)
           : null,

@@ -26,108 +26,113 @@ class LocationTrackingService {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
       }
- 
+
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
         throw Exception('Location permission denied');
       }
- 
+
       // Check if already tracking
       if (_activeTracking.containsKey(deliveryId)) {
         debugPrint('Already tracking delivery: $deliveryId');
         return;
       }
- 
+
       Position? lastPos;
- 
+
       // Start periodic location updates
-      final subscription = Geolocator.getPositionStream(
-        locationSettings: LocationSettings(
-          accuracy: LocationAccuracy.best,
-          distanceFilter: 10, // Only update if moved 10+ meters
-          timeLimit: Duration(seconds: updateIntervalSeconds),
-        ),
-      ).listen(
-        (Position position) async {
-          // GPS Spoofing check 1: Android mock check
-          if (position.isMocked) {
-            debugPrint('[LocationTracking] Rejecting spoofed/mocked GPS coordinate (isMocked = true).');
-            return;
-          }
- 
-          // GPS Spoofing check 2: Velocity check
-          if (lastPos != null) {
-            final double dist = Geolocator.distanceBetween(
-              lastPos!.latitude,
-              lastPos!.longitude,
-              position.latitude,
-              position.longitude,
-            );
-            final double timeDiffSeconds = position.timestamp.difference(lastPos!.timestamp).inSeconds.toDouble();
-            if (timeDiffSeconds > 0) {
-              final double speedMps = dist / timeDiffSeconds;
-              if (speedMps > 45.0) { // Velocity limit of ~162 km/h
-                debugPrint('[LocationTracking] Rejecting suspicious coordinates: Velocity spike detected ($speedMps m/s).');
+      final subscription =
+          Geolocator.getPositionStream(
+            locationSettings: LocationSettings(
+              accuracy: LocationAccuracy.best,
+              distanceFilter: 10, // Only update if moved 10+ meters
+              timeLimit: Duration(seconds: updateIntervalSeconds),
+            ),
+          ).listen(
+            (Position position) async {
+              // GPS Spoofing check 1: Android mock check
+              if (position.isMocked) {
+                debugPrint(
+                  '[LocationTracking] Rejecting spoofed/mocked GPS coordinate (isMocked = true).',
+                );
                 return;
               }
-            }
-          }
- 
-          lastPos = position;
- 
-          // Store location history
-          final location = DeliveryLocationModel(
-            locationId: '${deliveryId}_${DateTime.now().millisecondsSinceEpoch}',
-            deliveryId: deliveryId,
-            latitude: position.latitude,
-            longitude: position.longitude,
-            timestamp: DateTime.now(),
-            accuracy: position.accuracy,
-            speed: position.speed,
-          );
- 
-          _locationHistory.update(
-            deliveryId,
-            (list) {
-              list.add(location);
-              // Keep last 500 locations to avoid memory bloat
-              if (list.length > 500) {
-                list.removeAt(0);
+
+              // GPS Spoofing check 2: Velocity check
+              if (lastPos != null) {
+                final double dist = Geolocator.distanceBetween(
+                  lastPos!.latitude,
+                  lastPos!.longitude,
+                  position.latitude,
+                  position.longitude,
+                );
+                final double timeDiffSeconds = position.timestamp
+                    .difference(lastPos!.timestamp)
+                    .inSeconds
+                    .toDouble();
+                if (timeDiffSeconds > 0) {
+                  final double speedMps = dist / timeDiffSeconds;
+                  if (speedMps > 45.0) {
+                    // Velocity limit of ~162 km/h
+                    debugPrint(
+                      '[LocationTracking] Rejecting suspicious coordinates: Velocity spike detected ($speedMps m/s).',
+                    );
+                    return;
+                  }
+                }
               }
-              return list;
+
+              lastPos = position;
+
+              // Store location history
+              final location = DeliveryLocationModel(
+                locationId: '${deliveryId}_${DateTime.now().millisecondsSinceEpoch}',
+                deliveryId: deliveryId,
+                latitude: position.latitude,
+                longitude: position.longitude,
+                timestamp: DateTime.now(),
+                accuracy: position.accuracy,
+                speed: position.speed,
+              );
+
+              _locationHistory.update(deliveryId, (list) {
+                list.add(location);
+                // Keep last 500 locations to avoid memory bloat
+                if (list.length > 500) {
+                  list.removeAt(0);
+                }
+                return list;
+              }, ifAbsent: () => [location]);
+
+              // Caching location if offline
+              final bool online = OfflineSyncService().isOnline.value;
+              if (online) {
+                onLocationUpdate(position.latitude, position.longitude);
+              } else {
+                debugPrint('[LocationTracking] Offline: Caching location path in SQLite.');
+                try {
+                  await SqliteService().saveRiderLocation({
+                    'deliveryId': deliveryId,
+                    'latitude': position.latitude,
+                    'longitude': position.longitude,
+                    'speed': position.speed,
+                    'accuracy': position.accuracy,
+                    'timestamp': position.timestamp.millisecondsSinceEpoch,
+                  });
+                } catch (e) {
+                  debugPrint('[LocationTracking] Failed to write offline location: $e');
+                }
+              }
+
+              debugPrint(
+                'Location update: $deliveryId - Lat: ${position.latitude}, Lng: ${position.longitude}, Acc: ${position.accuracy}m',
+              );
             },
-            ifAbsent: () => [location],
+            onError: (error) {
+              debugPrint('Location tracking error for $deliveryId: $error');
+            },
           );
- 
-          // Caching location if offline
-          final bool online = OfflineSyncService().isOnline.value;
-          if (online) {
-            onLocationUpdate(position.latitude, position.longitude);
-          } else {
-            debugPrint('[LocationTracking] Offline: Caching location path in SQLite.');
-            try {
-              await SqliteService().saveRiderLocation({
-                'deliveryId': deliveryId,
-                'latitude': position.latitude,
-                'longitude': position.longitude,
-                'speed': position.speed,
-                'accuracy': position.accuracy,
-                'timestamp': position.timestamp.millisecondsSinceEpoch,
-              });
-            } catch (e) {
-              debugPrint('[LocationTracking] Failed to write offline location: $e');
-            }
-          }
- 
-          debugPrint(
-            'Location update: $deliveryId - Lat: ${position.latitude}, Lng: ${position.longitude}, Acc: ${position.accuracy}m',
-          );
-        },
-        onError: (error) {
-          debugPrint('Location tracking error for $deliveryId: $error');
-        },
-      );
- 
+
       _activeTracking[deliveryId] = subscription;
       debugPrint('Started tracking delivery: $deliveryId');
     } catch (e) {
@@ -169,9 +174,7 @@ class LocationTrackingService {
         return null;
       }
 
-      final position = await Geolocator.getCurrentPosition(
-        timeLimit: const Duration(seconds: 10),
-      );
+      final position = await Geolocator.getCurrentPosition(timeLimit: const Duration(seconds: 10));
 
       return LatLng(position.latitude, position.longitude);
     } catch (e) {
@@ -190,12 +193,7 @@ class LocationTrackingService {
     double avgSpeedKmh = 30.0, // Default 30 km/h in city traffic
   }) async {
     try {
-      final distance = _calculateDistance(
-        currentLat,
-        currentLng,
-        destLat,
-        destLng,
-      );
+      final distance = _calculateDistance(currentLat, currentLng, destLat, destLng);
 
       // Calculate ETA in minutes
       final etaMinutes = (distance / avgSpeedKmh * 60).ceil();
@@ -230,21 +228,14 @@ class LocationTrackingService {
   }
 
   /// Haversine formula to calculate distance between two coordinates
-  double _calculateDistance(
-    double lat1,
-    double lng1,
-    double lat2,
-    double lng2,
-  ) {
+  double _calculateDistance(double lat1, double lng1, double lat2, double lng2) {
     const double R = 6371; // Earth radius in km
     final double dLat = (lat2 - lat1) * 3.14159 / 180;
     final double dLng = (lng2 - lng1) * 3.14159 / 180;
 
-    final double a = (1 - cos(dLat / 2)) / 2 +
-        cos(lat1 * 3.14159 / 180) *
-            cos(lat2 * 3.14159 / 180) *
-            (1 - cos(dLng / 2)) /
-            2;
+    final double a =
+        (1 - cos(dLat / 2)) / 2 +
+        cos(lat1 * 3.14159 / 180) * cos(lat2 * 3.14159 / 180) * (1 - cos(dLng / 2)) / 2;
 
     final double c = 2 * asin(sqrt(a));
     return R * c;

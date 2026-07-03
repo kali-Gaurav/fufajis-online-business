@@ -117,11 +117,18 @@ class UniversalWorkQueueUI extends StatelessWidget {
                             children: [
                               Icon(Icons.warning, size: 12, color: AppTheme.error),
                               SizedBox(width: 4),
-                              Text('Escalated', style: TextStyle(color: AppTheme.error, fontSize: 12, fontWeight: FontWeight.bold)),
+                              Text(
+                                'Escalated',
+                                style: TextStyle(
+                                  color: AppTheme.error,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ],
                           ),
                         ),
-                      ]
+                      ],
                     ],
                   ),
                   Text(
@@ -131,15 +138,9 @@ class UniversalWorkQueueUI extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              Text(
-                task.title,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
+              Text(task.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 4),
-              Text(
-                task.description,
-                style: TextStyle(color: Colors.grey[700]),
-              ),
+              Text(task.description, style: TextStyle(color: Colors.grey[700])),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,

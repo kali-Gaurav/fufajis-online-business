@@ -49,8 +49,7 @@ class _InfiniteProductGridState extends State<InfiniteProductGrid> {
   @override
   void didUpdateWidget(InfiniteProductGrid old) {
     super.didUpdateWidget(old);
-    if (old.category != widget.category ||
-        old.searchQuery != widget.searchQuery) {
+    if (old.category != widget.category || old.searchQuery != widget.searchQuery) {
       _reset();
     }
   }
@@ -72,8 +71,7 @@ class _InfiniteProductGridState extends State<InfiniteProductGrid> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 300) {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 300) {
       if (!_isLoading && _hasMore) _fetchPage();
     }
   }
@@ -98,13 +96,11 @@ class _InfiniteProductGridState extends State<InfiniteProductGrid> {
       }
 
       final snapshot = await query.get();
-      List<ProductModel> fetched = snapshot.docs
-          .map((d) {
-            final data = d.data();
-            data['id'] = d.id; // inject id into map
-            return ProductModel.fromMap(data);
-          })
-          .toList();
+      List<ProductModel> fetched = snapshot.docs.map((d) {
+        final data = d.data();
+        data['id'] = d.id; // inject id into map
+        return ProductModel.fromMap(data);
+      }).toList();
 
       // Client-side search filter (Firestore full-text not supported natively)
       if (widget.searchQuery != null && widget.searchQuery!.isNotEmpty) {
@@ -118,8 +114,7 @@ class _InfiniteProductGridState extends State<InfiniteProductGrid> {
 
       setState(() {
         _products.addAll(fetched);
-        _lastDoc =
-            snapshot.docs.isNotEmpty ? snapshot.docs.last : null;
+        _lastDoc = snapshot.docs.isNotEmpty ? snapshot.docs.last : null;
         _hasMore = snapshot.docs.length == _pageSize;
         _isLoading = false;
         _error = null;
@@ -151,8 +146,7 @@ class _InfiniteProductGridState extends State<InfiniteProductGrid> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.wifi_off_rounded,
-                  size: 52, color: AppTheme.grey400),
+              const Icon(Icons.wifi_off_rounded, size: 52, color: AppTheme.grey400),
               const SizedBox(height: 12),
               Text(
                 _error!,
@@ -176,8 +170,7 @@ class _InfiniteProductGridState extends State<InfiniteProductGrid> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.search_off_rounded,
-                size: 52, color: AppTheme.grey300),
+            const Icon(Icons.search_off_rounded, size: 52, color: AppTheme.grey300),
             const SizedBox(height: 12),
             Text(
               widget.searchQuery != null
@@ -202,10 +195,9 @@ class _InfiniteProductGridState extends State<InfiniteProductGrid> {
           crossAxisCount: 2,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
-          childAspectRatio: 0.70,
+          childAspectRatio: 0.55, // Lowered from 0.70 to prevent bottom overflow
         ),
-        itemCount:
-            _products.length + (_isLoading ? 4 : 0),
+        itemCount: _products.length + (_isLoading ? 4 : 0),
         itemBuilder: (context, index) {
           if (index >= _products.length) {
             return const _ShimmerProductCard();
@@ -224,15 +216,13 @@ class _InfiniteProductGridState extends State<InfiniteProductGrid> {
 class _ProductTile extends StatefulWidget {
   final ProductModel product;
   final bool showFeaturedBadge;
-  const _ProductTile(
-      {required this.product, required this.showFeaturedBadge});
+  const _ProductTile({required this.product, required this.showFeaturedBadge});
 
   @override
   State<_ProductTile> createState() => _ProductTileState();
 }
 
-class _ProductTileState extends State<_ProductTile>
-    with SingleTickerProviderStateMixin {
+class _ProductTileState extends State<_ProductTile> with SingleTickerProviderStateMixin {
   late final AnimationController _bounce;
 
   @override
@@ -271,8 +261,7 @@ class _ProductTileState extends State<_ProductTile>
         backgroundColor: AppTheme.info,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 80),
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
@@ -280,10 +269,10 @@ class _ProductTileState extends State<_ProductTile>
   @override
   Widget build(BuildContext context) {
     final p = widget.product;
-    final hasDiscount =
-        p.originalPrice != null && p.originalPrice! > p.price;
+    final hasDiscount = p.originalPrice != null && p.originalPrice! > p.price;
     final discountPct = hasDiscount
-        ? ((p.originalPrice!.toDouble() - p.price.toDouble()) / p.originalPrice!.toDouble() * 100).round()
+        ? ((p.originalPrice!.toDouble() - p.price.toDouble()) / p.originalPrice!.toDouble() * 100)
+              .round()
         : 0;
     final isOutOfStock = p.stockQuantity <= 0;
 
@@ -310,33 +299,19 @@ class _ProductTileState extends State<_ProductTile>
               Stack(
                 children: [
                   ClipRRect(
-                    borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(14)),
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
                     child: _buildImage(p),
                   ),
                   if (hasDiscount)
-                    Positioned(
-                      top: 6,
-                      left: 6,
-                      child: _badge('$discountPct% OFF',
-                          AppTheme.error),
-                    ),
-                  if (widget.showFeaturedBadge &&
-                      p.isFeatured)
-                    Positioned(
-                      top: 6,
-                      right: 6,
-                      child: _badge('⭐ BEST',
-                          const Color(0xFFFF6F00)),
-                    ),
+                    Positioned(top: 6, left: 6, child: _badge('$discountPct% OFF', AppTheme.error)),
+                  if (widget.showFeaturedBadge && p.isFeatured)
+                    Positioned(top: 6, right: 6, child: _badge('⭐ BEST', const Color(0xFFFF6F00))),
                   if (isOutOfStock)
                     Positioned.fill(
                       child: Container(
                         decoration: BoxDecoration(
-                          color:
-                              Colors.black.withValues(alpha: 0.48),
-                          borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(14)),
+                          color: Colors.black.withValues(alpha: 0.48),
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
                         ),
                         alignment: Alignment.center,
                         child: const Text(
@@ -360,8 +335,7 @@ class _ProductTileState extends State<_ProductTile>
                   padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment:
-                        MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         p.name,
@@ -375,19 +349,12 @@ class _ProductTileState extends State<_ProductTile>
                         overflow: TextOverflow.ellipsis,
                       ),
                       if (p.unit.isNotEmpty)
-                        Text(
-                          p.unit,
-                          style: const TextStyle(
-                              fontSize: 10,
-                              color: AppTheme.grey500),
-                        ),
+                        Text(p.unit, style: const TextStyle(fontSize: 10, color: AppTheme.grey500)),
                       Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 '₹${p.price.toStringAsFixed(0)}',
@@ -402,8 +369,7 @@ class _ProductTileState extends State<_ProductTile>
                                   '₹${p.originalPrice!.toStringAsFixed(0)}',
                                   style: const TextStyle(
                                     fontSize: 10,
-                                    decoration:
-                                        TextDecoration.lineThrough,
+                                    decoration: TextDecoration.lineThrough,
                                     color: AppTheme.grey400,
                                   ),
                                 ),
@@ -417,11 +383,9 @@ class _ProductTileState extends State<_ProductTile>
                                 height: 30,
                                 decoration: BoxDecoration(
                                   color: AppTheme.primary,
-                                  borderRadius:
-                                      BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: const Icon(Icons.add,
-                                    color: Colors.white, size: 18),
+                                child: const Icon(Icons.add, color: Colors.white, size: 18),
                               ),
                             ),
                         ],
@@ -445,9 +409,8 @@ class _ProductTileState extends State<_ProductTile>
         width: double.infinity,
         fit: BoxFit.cover,
         errorBuilder: (_, __, ___) => _imageFallback(),
-        loadingBuilder: (_, child, progress) => progress == null
-            ? child
-            : const _ShimmerBox(height: 115),
+        loadingBuilder: (_, child, progress) =>
+            progress == null ? child : const _ShimmerBox(height: 115),
       );
     }
     return _imageFallback();
@@ -458,23 +421,17 @@ class _ProductTileState extends State<_ProductTile>
       height: 115,
       width: double.infinity,
       color: AppTheme.grey100,
-      child: const Icon(Icons.shopping_bag_outlined,
-          size: 44, color: AppTheme.grey300),
+      child: const Icon(Icons.shopping_bag_outlined, size: 44, color: AppTheme.grey300),
     );
   }
 
   Widget _badge(String label, Color color) {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-          color: color, borderRadius: BorderRadius.circular(6)),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(6)),
       child: Text(
         label,
-        style: const TextStyle(
-            color: Colors.white,
-            fontSize: 9,
-            fontWeight: FontWeight.bold),
+        style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -490,10 +447,7 @@ class _ShimmerProductCard extends StatelessWidget {
       baseColor: AppTheme.grey200,
       highlightColor: const Color(0xFFF5F5F5),
       child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-        ),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -502,8 +456,7 @@ class _ShimmerProductCard extends StatelessWidget {
               width: double.infinity,
               decoration: const BoxDecoration(
                 color: Colors.white,
-                borderRadius:
-                    BorderRadius.vertical(top: Radius.circular(14)),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
               ),
             ),
             Padding(
@@ -511,30 +464,22 @@ class _ShimmerProductCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                      height: 11,
-                      width: 90,
-                      color: Colors.white),
+                  Container(height: 11, width: 90, color: Colors.white),
                   const SizedBox(height: 6),
-                  Container(
-                      height: 9, width: 55, color: Colors.white),
+                  Container(height: 9, width: 55, color: Colors.white),
                   const SizedBox(height: 10),
                   Row(
-                    mainAxisAlignment:
-                        MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      Container(height: 14, width: 44, color: Colors.white),
                       Container(
-                          height: 14,
-                          width: 44,
-                          color: Colors.white),
-                      Container(
-                          height: 28,
-                          width: 28,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius:
-                                BorderRadius.circular(8),
-                          )),
+                        height: 28,
+                        width: 28,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     ],
                   ),
                 ],

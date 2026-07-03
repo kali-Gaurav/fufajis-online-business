@@ -23,13 +23,12 @@ class WishlistScreen extends StatelessWidget {
             children: [
               const Icon(Icons.favorite_border, size: 64, color: AppTheme.grey400),
               const SizedBox(height: 16),
-              const Text('Please log in to view your wishlist',
-                  style: TextStyle(color: AppTheme.grey600)),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => context.push('/login'),
-                child: const Text('Login'),
+              const Text(
+                'Please log in to view your wishlist',
+                style: TextStyle(color: AppTheme.grey600),
               ),
+              const SizedBox(height: 16),
+              ElevatedButton(onPressed: () => context.push('/login'), child: const Text('Login')),
             ],
           ),
         ),
@@ -51,8 +50,10 @@ class WishlistScreen extends StatelessWidget {
               return TextButton.icon(
                 onPressed: () => _addAllToCart(context, snap.data!.docs, user.uid),
                 icon: const Icon(Icons.shopping_cart, color: AppTheme.primary),
-                label: const Text('Add All to Cart',
-                    style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold)),
+                label: const Text(
+                  'Add All to Cart',
+                  style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold),
+                ),
               );
             },
           ),
@@ -87,11 +88,7 @@ class WishlistScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               final data = docs[index].data() as Map<String, dynamic>;
               final productId = data['productId'] as String? ?? docs[index].id;
-              return _WishlistProductCard(
-                productId: productId,
-                data: data,
-                userId: user.uid,
-              );
+              return _WishlistProductCard(productId: productId, data: data, userId: user.uid);
             },
           );
         },
@@ -125,7 +122,9 @@ class WishlistScreen extends StatelessWidget {
           const SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Add to Cart tapped')));
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Add to Cart tapped')));
             },
             icon: const Icon(Icons.shopping_bag_outlined),
             label: const Text('Browse Products'),
@@ -139,7 +138,11 @@ class WishlistScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _addAllToCart(BuildContext context, List<QueryDocumentSnapshot> docs, String userId) async {
+  Future<void> _addAllToCart(
+    BuildContext context,
+    List<QueryDocumentSnapshot> docs,
+    String userId,
+  ) async {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final productProvider = Provider.of<ProductProvider>(context, listen: false);
 
@@ -175,11 +178,7 @@ class _WishlistProductCard extends StatelessWidget {
   final Map<String, dynamic> data;
   final String userId;
 
-  const _WishlistProductCard({
-    required this.productId,
-    required this.data,
-    required this.userId,
-  });
+  const _WishlistProductCard({required this.productId, required this.data, required this.userId});
 
   Future<void> _removeFromWishlist(BuildContext context) async {
     try {
@@ -192,17 +191,14 @@ class _WishlistProductCard extends StatelessWidget {
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Removed from wishlist'),
-            duration: Duration(seconds: 2),
-          ),
+          const SnackBar(content: Text('Removed from wishlist'), duration: Duration(seconds: 2)),
         );
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error));
       }
     }
   }
@@ -215,7 +211,8 @@ class _WishlistProductCard extends StatelessWidget {
 
     final name = product?.name ?? data['name'] as String? ?? 'Product';
     final price = product?.price.toDouble() ?? (data['price'] as num?)?.toDouble() ?? 0.0;
-    final originalPrice = product?.originalPrice?.toDouble() ?? (data['originalPrice'] as num?)?.toDouble();
+    final originalPrice =
+        product?.originalPrice?.toDouble() ?? (data['originalPrice'] as num?)?.toDouble();
     final imageUrl = product?.imageUrl ?? data['imageUrl'] as String? ?? '';
     final isAvailable = product?.isAvailable ?? true;
 
@@ -225,10 +222,7 @@ class _WishlistProductCard extends StatelessWidget {
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 16),
-        decoration: BoxDecoration(
-          color: AppTheme.error,
-          borderRadius: BorderRadius.circular(16),
-        ),
+        decoration: BoxDecoration(color: AppTheme.error, borderRadius: BorderRadius.circular(16)),
         child: const Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -270,7 +264,10 @@ class _WishlistProductCard extends StatelessWidget {
                       onTap: () => _removeFromWishlist(context),
                       child: Container(
                         padding: const EdgeInsets.all(6),
-                        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
                         child: const Icon(Icons.favorite, color: AppTheme.error, size: 18),
                       ),
                     ),
@@ -283,8 +280,10 @@ class _WishlistProductCard extends StatelessWidget {
                           borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                         ),
                         child: const Center(
-                          child: Text('Out of Stock',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          child: Text(
+                            'Out of Stock',
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
                     ),
@@ -299,7 +298,11 @@ class _WishlistProductCard extends StatelessWidget {
                       name,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.grey900),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.grey900,
+                      ),
                     ),
                     const SizedBox(height: 6),
                     Row(

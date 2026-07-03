@@ -32,10 +32,14 @@ class LivePackingTracker extends StatelessWidget {
           margin: const EdgeInsets.symmetric(vertical: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: isDone ? AppTheme.success.withValues(alpha: 0.05) : AppTheme.warning.withValues(alpha: 0.05),
+            color: isDone
+                ? AppTheme.success.withValues(alpha: 0.05)
+                : AppTheme.warning.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isDone ? AppTheme.success.withValues(alpha: 0.2) : AppTheme.warning.withValues(alpha: 0.2),
+              color: isDone
+                  ? AppTheme.success.withValues(alpha: 0.2)
+                  : AppTheme.warning.withValues(alpha: 0.2),
             ),
           ),
           child: Column(
@@ -47,7 +51,8 @@ class LivePackingTracker extends StatelessWidget {
                     Lottie.asset(
                       'assets/lottie/packing_animation.json',
                       height: 32,
-                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.inventory_2, color: AppTheme.warning),
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Icon(Icons.inventory_2, color: AppTheme.warning),
                     )
                   else
                     const Icon(Icons.check_circle, color: AppTheme.success),

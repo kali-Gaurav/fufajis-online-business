@@ -16,21 +16,25 @@ class ExecutiveAssistantChat extends StatefulWidget {
 class _ExecutiveAssistantChatState extends State<ExecutiveAssistantChat> {
   final TextEditingController _controller = TextEditingController();
   final ExecutiveAssistantService _assistantService = ExecutiveAssistantService();
-  
-  final List<dynamic> _messages = []; // Contains Strings (user questions) and ExecutiveInsightModels (AI responses)
+
+  final List<dynamic> _messages =
+      []; // Contains Strings (user questions) and ExecutiveInsightModels (AI responses)
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     // Initial greeting
-    _messages.add(ExecutiveInsightModel(
-      id: 'greeting',
-      insightType: 'Greeting',
-      summary: 'Hello Owner! I am your Fufaji Business AI. Ask me anything about revenue, inventory, or employees.',
-      primaryCauses: [],
-      timestamp: DateTime.now(),
-    ));
+    _messages.add(
+      ExecutiveInsightModel(
+        id: 'greeting',
+        insightType: 'Greeting',
+        summary:
+            'Hello Owner! I am your Fufaji Business AI. Ask me anything about revenue, inventory, or employees.',
+        primaryCauses: [],
+        timestamp: DateTime.now(),
+      ),
+    );
   }
 
   void _sendMessage() async {
@@ -41,13 +45,13 @@ class _ExecutiveAssistantChatState extends State<ExecutiveAssistantChat> {
       _messages.insert(0, text);
       _isLoading = true;
     });
-    
+
     _controller.clear();
 
     try {
       final ownerId = FirebaseAuth.instance.currentUser?.uid ?? 'system';
       final insight = await _assistantService.askQuestion(text, ownerId);
-      
+
       setState(() {
         _messages.insert(0, insight);
         _isLoading = false;
@@ -65,7 +69,6 @@ class _ExecutiveAssistantChatState extends State<ExecutiveAssistantChat> {
     _controller.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +122,7 @@ class _ExecutiveAssistantChatState extends State<ExecutiveAssistantChat> {
 
   Widget _buildAiMessage(ExecutiveInsightModel insight) {
     final dateFormat = DateFormat.jm();
-    
+
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
@@ -136,22 +139,33 @@ class _ExecutiveAssistantChatState extends State<ExecutiveAssistantChat> {
               children: [
                 const Icon(Icons.auto_awesome, color: Colors.deepPurple, size: 20),
                 const SizedBox(width: 8),
-                Text(insight.insightType, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurple)),
+                Text(
+                  insight.insightType,
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurple),
+                ),
                 const Spacer(),
-                Text(dateFormat.format(insight.timestamp), style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                Text(
+                  dateFormat.format(insight.timestamp),
+                  style: const TextStyle(fontSize: 10, color: Colors.grey),
+                ),
               ],
             ),
             const SizedBox(height: 8),
             Text(insight.summary, style: const TextStyle(fontSize: 16)),
             if (insight.primaryCauses.isNotEmpty) ...[
               const SizedBox(height: 8),
-              const Text('Primary Causes:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              const Text(
+                'Primary Causes:',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
               const SizedBox(height: 4),
-              ...insight.primaryCauses.map((c) => Padding(
-                padding: const EdgeInsets.only(left: 8.0, bottom: 4.0),
-                child: Text('• $c', style: const TextStyle(fontSize: 14)),
-              )),
-            ]
+              ...insight.primaryCauses.map(
+                (c) => Padding(
+                  padding: const EdgeInsets.only(left: 8.0, bottom: 4.0),
+                  child: Text('• $c', style: const TextStyle(fontSize: 14)),
+                ),
+              ),
+            ],
           ],
         ),
       ),

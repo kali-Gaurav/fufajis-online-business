@@ -137,9 +137,7 @@ class ProfitService {
 
       // 6. Calculate profit margin percentage
       // Profit Margin % = (Net Profit / Gross Revenue) * 100
-      double profitMarginPercentage = grossRevenue > 0
-          ? (netProfit / grossRevenue) * 100
-          : 0.0;
+      double profitMarginPercentage = grossRevenue > 0 ? (netProfit / grossRevenue) * 100 : 0.0;
 
       return ProfitMetrics(
         grossRevenue: grossRevenue,
@@ -182,12 +180,10 @@ class ProfitService {
 
     for (final productId in productIds) {
       try {
-        final productDoc =
-            await _db.collection('products').doc(productId).get();
+        final productDoc = await _db.collection('products').doc(productId).get();
 
         if (productDoc.exists) {
-          final costPrice =
-              ((productDoc.data()?['costPrice'] as num?) ?? 0.0).toDouble();
+          final costPrice = ((productDoc.data()?['costPrice'] as num?) ?? 0.0).toDouble();
           productCostPrices[productId] = costPrice;
         } else {
           // If product not found, assume cost price is 0
@@ -336,10 +332,6 @@ class ProfitService {
         throw ArgumentError('Invalid range: $range');
     }
 
-    return calculateProfitMetrics(
-      shopId,
-      startDate: startDate,
-      endDate: endDate,
-    );
+    return calculateProfitMetrics(shopId, startDate: startDate, endDate: endDate);
   }
 }

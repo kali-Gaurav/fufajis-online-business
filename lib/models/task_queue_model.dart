@@ -9,23 +9,12 @@ enum TaskQueueType {
   missing_attendance,
   delivery_incident,
   pricing_approval,
-  general_action
+  general_action,
 }
 
-enum TaskQueueStatus {
-  open,
-  in_progress,
-  blocked,
-  completed,
-  cancelled
-}
+enum TaskQueueStatus { open, in_progress, blocked, completed, cancelled }
 
-enum TaskPriority {
-  low,
-  medium,
-  high,
-  urgent
-}
+enum TaskPriority { low, medium, high, urgent }
 
 class TaskQueueModel {
   final String id;
@@ -36,7 +25,7 @@ class TaskQueueModel {
   final TaskPriority priority;
   int priorityScore; // 0-100 calculated by OperationalHealthEngine
   final bool escalated;
-  
+
   // Who should do this?
   final UserRole? targetRole; // e.g. dispatcher
   final String? assignedUserId; // e.g. exact user ID
@@ -112,12 +101,12 @@ class TaskQueueModel {
       ),
       priorityScore: map['priorityScore'] as int? ?? 0,
       escalated: map['escalated'] as bool? ?? false,
-      targetRole: map['targetRole'] != null 
-        ? UserRole.values.firstWhere(
-            (e) => e.name == map['targetRole'] as String?,
-            orElse: () => UserRole.employee,
-          )
-        : null,
+      targetRole: map['targetRole'] != null
+          ? UserRole.values.firstWhere(
+              (e) => e.name == map['targetRole'] as String?,
+              orElse: () => UserRole.employee,
+            )
+          : null,
       assignedUserId: map['assignedUserId'] as String?,
       branchId: map['branchId'] as String?,
       relatedEntityId: map['relatedEntityId'] as String?,

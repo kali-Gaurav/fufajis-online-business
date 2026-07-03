@@ -19,7 +19,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
   GoogleMapController? _mapController;
   final FleetService _fleetService = FleetService();
   final DeliveryTrackingService _trackingService = DeliveryTrackingService();
-  
+
   final TextEditingController _otpController = TextEditingController();
   bool _isCompleting = false;
 
@@ -38,9 +38,9 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
 
   Future<void> _completeDelivery(DeliveryModel delivery) async {
     if (_otpController.text.length < 4) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid OTP')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter a valid OTP')));
       return;
     }
 
@@ -51,14 +51,17 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Delivery Completed Successfully!'), backgroundColor: AppTheme.success),
+          const SnackBar(
+            content: Text('Delivery Completed Successfully!'),
+            backgroundColor: AppTheme.success,
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: AppTheme.error),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: AppTheme.error));
       }
     } finally {
       if (mounted) setState(() => _isCompleting = false);
@@ -71,19 +74,23 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<DeliveryModel?>(
       stream: _fleetService.getDeliveryStream(widget.deliveryId),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppTheme.deliveryAccent)));
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator(color: AppTheme.deliveryAccent)),
+          );
         }
-        
+
         final delivery = snapshot.data!;
         final riderPos = LatLng(delivery.currentLatitude, delivery.currentLongitude);
-        final destPos = LatLng(delivery.destinationLocation.latitude, delivery.destinationLocation.longitude);
+        final destPos = LatLng(
+          delivery.destinationLocation.latitude,
+          delivery.destinationLocation.longitude,
+        );
 
         // Move camera to follow rider
         if (_mapController != null) {
@@ -120,13 +127,8 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                   ),
                 },
               ),
-              
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: _buildStatusPanel(delivery),
-              ),
+
+              Positioned(bottom: 0, left: 0, right: 0, child: _buildStatusPanel(delivery)),
             ],
           ),
         );
@@ -157,8 +159,16 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(delivery.customerName ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                    Text(delivery.deliveryAddress, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppTheme.grey600)),
+                    Text(
+                      delivery.customerName ?? '',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    ),
+                    Text(
+                      delivery.deliveryAddress,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: AppTheme.grey600),
+                    ),
                   ],
                 ),
               ),
@@ -166,24 +176,34 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   const Text('ETA', style: TextStyle(fontSize: 12, color: AppTheme.grey600)),
-                  Text(delivery.estimatedArrival != null ? '${delivery.estimatedArrival!.hour}:${delivery.estimatedArrival!.minute.toString().padLeft(2, '0')}' : '15 mins', 
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primary)),
+                  Text(
+                    delivery.estimatedArrival != null
+                        ? '${delivery.estimatedArrival!.hour}:${delivery.estimatedArrival!.minute.toString().padLeft(2, '0')}'
+                        : '15 mins',
+                    style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primary),
+                  ),
                 ],
               ),
             ],
           ),
           const Divider(height: 32),
-          
+
           if (delivery.status == DeliveryStatus.assigned)
             ElevatedButton(
               onPressed: () => _fleetService.pickupOrder(widget.deliveryId),
-              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, foregroundColor: Colors.white),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primary,
+                foregroundColor: Colors.white,
+              ),
               child: const Text('Pickup Order from Shop'),
             )
           else if (delivery.status == DeliveryStatus.pickedUp)
             ElevatedButton(
               onPressed: () => _fleetService.startDelivery(widget.deliveryId),
-              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.info, foregroundColor: Colors.white),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.info,
+                foregroundColor: Colors.white,
+              ),
               child: const Text('Start Navigation'),
             )
           else if (delivery.status == DeliveryStatus.outForDelivery)
@@ -204,13 +224,16 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                   child: ElevatedButton(
                     onPressed: _isCompleting ? null : () => _completeDelivery(delivery),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.success, 
+                      backgroundColor: AppTheme.success,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    child: _isCompleting 
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('Confirm Delivery', style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: _isCompleting
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                            'Confirm Delivery',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                   ),
                 ),
               ],

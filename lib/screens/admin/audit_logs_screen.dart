@@ -36,12 +36,12 @@ class AuditLogsScreen extends StatelessWidget {
               final log = logs[index];
               final event = log['event'] as String? ?? 'Unknown';
               final userId = log['userId'] as String? ?? 'System';
-              final timestamp = log['timestamp'] != null 
+              final timestamp = log['timestamp'] != null
                   ? (log['timestamp'] as Timestamp).toDate()
                   : DateTime.now();
-              
-              final isError = event.toLowerCase().contains('fail') || 
-                              event.toLowerCase().contains('lockout');
+
+              final isError =
+                  event.toLowerCase().contains('fail') || event.toLowerCase().contains('lockout');
 
               return ListTile(
                 leading: Icon(

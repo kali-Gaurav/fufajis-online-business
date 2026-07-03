@@ -14,8 +14,7 @@ import 'hindi_product_dictionary.dart';
 ///   • Phonetic misspellings via fuzzy matching
 ///   • Dynamic synonyms from Firestore (can be updated without app release)
 class HinglishVoiceSearchParser {
-  static final HinglishVoiceSearchParser _instance =
-      HinglishVoiceSearchParser._internal();
+  static final HinglishVoiceSearchParser _instance = HinglishVoiceSearchParser._internal();
   factory HinglishVoiceSearchParser() => _instance;
   HinglishVoiceSearchParser._internal();
 
@@ -79,28 +78,63 @@ class HinglishVoiceSearchParser {
 
   // Quantity words (fractional and verbal)
   static const Map<String, double> _quantityWords = {
-    'ek': 1.0, 'do': 2.0, 'teen': 3.0, 'char': 4.0, 'paanch': 5.0,
-    'six': 6.0, 'sat': 7.0, 'aath': 8.0, 'nau': 9.0, 'das': 10.0,
-    'आधा': 0.5, 'aadha': 0.5, 'half': 0.5,
-    'पाव': 0.25, 'pav': 0.25, 'quarter': 0.25,
-    'पौन': 0.75, 'paun': 0.75,
-    'ek kilo': 1.0, 'do kilo': 2.0, 'teen kilo': 3.0,
-    'ek kg': 1.0, 'do kg': 2.0,
-    'ek litre': 1.0, 'do litre': 2.0,
-    'ek packet': 1.0, 'do packet': 2.0,
+    'ek': 1.0,
+    'do': 2.0,
+    'teen': 3.0,
+    'char': 4.0,
+    'paanch': 5.0,
+    'six': 6.0,
+    'sat': 7.0,
+    'aath': 8.0,
+    'nau': 9.0,
+    'das': 10.0,
+    'आधा': 0.5,
+    'aadha': 0.5,
+    'half': 0.5,
+    'पाव': 0.25,
+    'pav': 0.25,
+    'quarter': 0.25,
+    'पौन': 0.75,
+    'paun': 0.75,
+    'ek kilo': 1.0,
+    'do kilo': 2.0,
+    'teen kilo': 3.0,
+    'ek kg': 1.0,
+    'do kg': 2.0,
+    'ek litre': 1.0,
+    'do litre': 2.0,
+    'ek packet': 1.0,
+    'do packet': 2.0,
   };
 
   static const Map<String, String> _unitWords = {
-    'kilo': 'kg', 'kg': 'kg', 'किलो': 'kg',
-    'gram': 'g', 'gm': 'g', 'graam': 'g',
-    'litre': 'l', 'liter': 'l', 'l': 'l', 'लीटर': 'l',
-    'ml': 'ml', 'millilitre': 'ml',
-    'packet': 'packet', 'पैकेट': 'packet', 'pack': 'packet',
-    'bottle': 'bottle', 'बोतल': 'bottle',
-    'dozen': 'dozen', 'darjan': 'dozen',
-    'box': 'box', 'डिब्बा': 'box', 'dibba': 'box',
-    'piece': 'piece', 'pcs': 'piece', 'nag': 'piece',
-    'bag': 'bag', 'थैली': 'bag',
+    'kilo': 'kg',
+    'kg': 'kg',
+    'किलो': 'kg',
+    'gram': 'g',
+    'gm': 'g',
+    'graam': 'g',
+    'litre': 'l',
+    'liter': 'l',
+    'l': 'l',
+    'लीटर': 'l',
+    'ml': 'ml',
+    'millilitre': 'ml',
+    'packet': 'packet',
+    'पैकेट': 'packet',
+    'pack': 'packet',
+    'bottle': 'bottle',
+    'बोतल': 'bottle',
+    'dozen': 'dozen',
+    'darjan': 'dozen',
+    'box': 'box',
+    'डिब्बा': 'box',
+    'dibba': 'box',
+    'piece': 'piece',
+    'pcs': 'piece',
+    'nag': 'piece',
+    'bag': 'bag',
+    'थैली': 'bag',
   };
 
   // Noise words to strip from voice input
@@ -141,7 +175,9 @@ class HinglishVoiceSearchParser {
     // 5. Determine search category (heuristic)
     final category = _inferCategory(productQuery);
 
-    debugPrint('[HinglishParser] "$rawInput" → qty=$quantity unit=$unit product="$productQuery" cat=$category');
+    debugPrint(
+      '[HinglishParser] "$rawInput" → qty=$quantity unit=$unit product="$productQuery" cat=$category',
+    );
 
     return VoiceSearchIntent(
       originalInput: rawInput,
@@ -238,11 +274,7 @@ class HinglishVoiceSearchParser {
     int minDistance = 999;
     const int threshold = 2; // Allow up to 2 character mistakes
 
-    final allTerms = {
-      ...hindiProductDictionary,
-      ..._extendedDict,
-      ..._dynamicSynonyms,
-    };
+    final allTerms = {...hindiProductDictionary, ..._extendedDict, ..._dynamicSynonyms};
 
     for (final entry in allTerms.entries) {
       final key = entry.key.toLowerCase();
@@ -285,14 +317,42 @@ class HinglishVoiceSearchParser {
 
   String? _inferCategory(String productName) {
     final lower = productName.toLowerCase();
-    if (_matchesAny(lower, ['milk', 'paneer', 'curd', 'butter', 'cream', 'ghee', 'lassi', 'khoya'])) {
+    if (_matchesAny(lower, [
+      'milk',
+      'paneer',
+      'curd',
+      'butter',
+      'cream',
+      'ghee',
+      'lassi',
+      'khoya',
+    ])) {
       return 'dairy';
     }
-    if (_matchesAny(lower, ['potato', 'tomato', 'onion', 'ginger', 'garlic', 'spinach', 'cauliflower',
-        'cabbage', 'okra', 'brinjal', 'capsicum'])) {
+    if (_matchesAny(lower, [
+      'potato',
+      'tomato',
+      'onion',
+      'ginger',
+      'garlic',
+      'spinach',
+      'cauliflower',
+      'cabbage',
+      'okra',
+      'brinjal',
+      'capsicum',
+    ])) {
       return 'vegetables';
     }
-    if (_matchesAny(lower, ['mango', 'banana', 'apple', 'orange', 'grapes', 'papaya', 'watermelon'])) {
+    if (_matchesAny(lower, [
+      'mango',
+      'banana',
+      'apple',
+      'orange',
+      'grapes',
+      'papaya',
+      'watermelon',
+    ])) {
       return 'fruits';
     }
     if (_matchesAny(lower, ['rice', 'wheat', 'atta', 'flour', 'maize', 'bajra'])) {
@@ -319,8 +379,7 @@ class HinglishVoiceSearchParser {
     return null;
   }
 
-  bool _matchesAny(String text, List<String> keywords) =>
-      keywords.any((k) => text.contains(k));
+  bool _matchesAny(String text, List<String> keywords) => keywords.any((k) => text.contains(k));
 
   // ─────────────── CONFIDENCE ───────────────
 
@@ -361,10 +420,7 @@ class HinglishVoiceSearchParser {
     }
 
     try {
-      final snap = await _firestore
-          .collection('settings')
-          .doc('voice_search_synonyms')
-          .get();
+      final snap = await _firestore.collection('settings').doc('voice_search_synonyms').get();
       if (snap.exists) {
         final data = snap.data();
         _dynamicSynonyms = Map<String, String>.from(data?['synonyms'] as Map? ?? {});
@@ -394,10 +450,13 @@ class HinglishVoiceSearchParser {
 
   String _titleCase(String text) {
     if (text.isEmpty) return text;
-    return text.split(' ').map((word) {
-      if (word.isEmpty) return word;
-      return word[0].toUpperCase() + word.substring(1).toLowerCase();
-    }).join(' ');
+    return text
+        .split(' ')
+        .map((word) {
+          if (word.isEmpty) return word;
+          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+        })
+        .join(' ');
   }
 }
 
@@ -421,12 +480,12 @@ class VoiceSearchIntent {
   });
 
   factory VoiceSearchIntent.empty() => const VoiceSearchIntent(
-        originalInput: '',
-        productQuery: '',
-        quantity: 1.0,
-        unit: 'piece',
-        confidence: 0.0,
-      );
+    originalInput: '',
+    productQuery: '',
+    quantity: 1.0,
+    unit: 'piece',
+    confidence: 0.0,
+  );
 
   bool get hasTranslation => productQuery.isNotEmpty;
 

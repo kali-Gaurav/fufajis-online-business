@@ -8,15 +8,10 @@ class OwnerReviewResponseDialog extends StatefulWidget {
   final String productId;
   final ProductReviewModel review;
 
-  const OwnerReviewResponseDialog({
-    super.key,
-    required this.productId,
-    required this.review,
-  });
+  const OwnerReviewResponseDialog({super.key, required this.productId, required this.review});
 
   @override
-  State<OwnerReviewResponseDialog> createState() =>
-      _OwnerReviewResponseDialogState();
+  State<OwnerReviewResponseDialog> createState() => _OwnerReviewResponseDialogState();
 }
 
 class _OwnerReviewResponseDialogState extends State<OwnerReviewResponseDialog> {
@@ -27,9 +22,7 @@ class _OwnerReviewResponseDialogState extends State<OwnerReviewResponseDialog> {
   @override
   void initState() {
     super.initState();
-    _responseController = TextEditingController(
-      text: widget.review.ownerReply ?? '',
-    );
+    _responseController = TextEditingController(text: widget.review.ownerReply ?? '');
   }
 
   @override
@@ -57,20 +50,13 @@ class _OwnerReviewResponseDialogState extends State<OwnerReviewResponseDialog> {
     });
 
     try {
-      final reviewProvider = Provider.of<ReviewProvider>(
-        context,
-        listen: false,
-      );
-      await reviewProvider.addOwnerResponse(
-        widget.productId,
-        widget.review.id,
-        response,
-      );
+      final reviewProvider = Provider.of<ReviewProvider>(context, listen: false);
+      await reviewProvider.addOwnerResponse(widget.productId, widget.review.id, response);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Response added successfully')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Response added successfully')));
         Navigator.pop(context);
       }
     } catch (e) {
@@ -135,10 +121,7 @@ class _OwnerReviewResponseDialogState extends State<OwnerReviewResponseDialog> {
                             children: [
                               Text(
                                 widget.review.userName,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                ),
+                                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
                               ),
                               Row(
                                 children: [
@@ -146,10 +129,7 @@ class _OwnerReviewResponseDialogState extends State<OwnerReviewResponseDialog> {
                                   const SizedBox(width: 8),
                                   Text(
                                     _formatDate(widget.review.createdAt),
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.grey[600],
-                                    ),
+                                    style: TextStyle(fontSize: 11, color: Colors.grey[600]),
                                   ),
                                 ],
                               ),
@@ -186,9 +166,7 @@ class _OwnerReviewResponseDialogState extends State<OwnerReviewResponseDialog> {
                 minLines: 3,
                 decoration: InputDecoration(
                   hintText: 'Thank you for your feedback...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                   contentPadding: const EdgeInsets.all(12),
                 ),
               ),
@@ -208,10 +186,7 @@ class _OwnerReviewResponseDialogState extends State<OwnerReviewResponseDialog> {
                     border: Border.all(color: AppTheme.error),
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Text(
-                    _error!,
-                    style: const TextStyle(color: AppTheme.error, fontSize: 12),
-                  ),
+                  child: Text(_error!, style: const TextStyle(color: AppTheme.error, fontSize: 12)),
                 ),
                 const SizedBox(height: 16),
               ],
@@ -237,9 +212,7 @@ class _OwnerReviewResponseDialogState extends State<OwnerReviewResponseDialog> {
                             width: 16,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white,
-                              ),
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
                         : const Text('Post Response'),
@@ -259,9 +232,7 @@ class _OwnerReviewResponseDialogState extends State<OwnerReviewResponseDialog> {
       if (i <= rating) {
         stars.add(const Icon(Icons.star, color: AppTheme.primary, size: 14));
       } else if (i - rating < 1) {
-        stars.add(
-          const Icon(Icons.star_half, color: AppTheme.primary, size: 14),
-        );
+        stars.add(const Icon(Icons.star_half, color: AppTheme.primary, size: 14));
       } else {
         stars.add(Icon(Icons.star_outline, color: Colors.grey[400], size: 14));
       }

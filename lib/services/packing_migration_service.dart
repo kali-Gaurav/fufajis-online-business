@@ -54,10 +54,7 @@ class PackingMigrationService {
           final taskId = v2Doc.id;
 
           // Check if already migrated (by looking for a matching task in v1)
-          final v1Snap = await _db
-              .collection('fulfillment_tasks')
-              .doc(taskId)
-              .get();
+          final v1Snap = await _db.collection('fulfillment_tasks').doc(taskId).get();
 
           if (v1Snap.exists) {
             debugPrint('[PackingMigration] Task $taskId already in v1 - skipping');
@@ -84,7 +81,7 @@ class PackingMigrationService {
                 'status': normalizedStatus,
                 'timestamp': Timestamp.now(),
                 'reason': 'migrated_from_v2',
-              }
+              },
             ],
             'assignedToEmployeeId': v2Data['assignedToEmployeeId'],
             'assignedToEmployeeName': v2Data['assignedToEmployeeName'],
@@ -99,14 +96,10 @@ class PackingMigrationService {
           };
 
           // Write to v1 collection
-          await _db
-              .collection('fulfillment_tasks')
-              .doc(taskId)
-              .set(normalizedData);
+          await _db.collection('fulfillment_tasks').doc(taskId).set(normalizedData);
 
           migratedCount++;
-          debugPrint(
-              '[PackingMigration] Migrated task $taskId ($v2Status → $normalizedStatus)');
+          debugPrint('[PackingMigration] Migrated task $taskId ($v2Status → $normalizedStatus)');
         } catch (e) {
           errorCount++;
           errors.add('Task ${v2Doc.id}: $e');
@@ -125,7 +118,8 @@ class PackingMigrationService {
         'skippedCount': skippedCount,
         'errorCount': errorCount,
         'errors': errors,
-        'message': 'Migration complete: $migratedCount migrated, $skippedCount skipped, $errorCount errors',
+        'message':
+            'Migration complete: $migratedCount migrated, $skippedCount skipped, $errorCount errors',
       };
     } catch (e) {
       debugPrint('[PackingMigration] FATAL ERROR: $e');
@@ -175,10 +169,7 @@ class PackingMigrationService {
           continue;
         }
 
-        final taskSnap = await _db
-            .collection('fulfillment_tasks')
-            .doc(taskId)
-            .get();
+        final taskSnap = await _db.collection('fulfillment_tasks').doc(taskId).get();
 
         if (taskSnap.exists) {
           validTasks++;
@@ -221,8 +212,7 @@ class PackingMigrationService {
 
       await batch.commit();
 
-      debugPrint(
-          '[PackingMigration] Deleted ${v2Snapshot.docs.length} v2 documents');
+      debugPrint('[PackingMigration] Deleted ${v2Snapshot.docs.length} v2 documents');
     } catch (e) {
       debugPrint('[PackingMigration] Error deleting v2 collection: $e');
       rethrow;
@@ -247,7 +237,8 @@ class PackingMigrationService {
       final validationResult = await validateMigration();
       if (!validationResult['isValid']) {
         throw Exception(
-            'Validation failed: ${validationResult['message']} - Missing: ${validationResult['missingOrderIds']}');
+          'Validation failed: ${validationResult['message']} - Missing: ${validationResult['missingOrderIds']}',
+        );
       }
 
       debugPrint('[PackingMigration] Validation passed');

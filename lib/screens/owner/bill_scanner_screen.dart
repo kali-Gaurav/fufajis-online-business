@@ -14,8 +14,7 @@ class BillScannerScreen extends StatefulWidget {
   State<BillScannerScreen> createState() => _BillScannerScreenState();
 }
 
-class _BillScannerScreenState extends State<BillScannerScreen>
-    with SingleTickerProviderStateMixin {
+class _BillScannerScreenState extends State<BillScannerScreen> with SingleTickerProviderStateMixin {
   final ImagePicker _picker = ImagePicker();
   final BillOCRService _ocrService = BillOCRService();
   final PurchaseOrderService _poService = PurchaseOrderService();
@@ -32,13 +31,12 @@ class _BillScannerScreenState extends State<BillScannerScreen>
   @override
   void initState() {
     super.initState();
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    )..repeat(reverse: true);
-    _pulseAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
+    _pulseController = AnimationController(vsync: this, duration: const Duration(milliseconds: 800))
+      ..repeat(reverse: true);
+    _pulseAnimation = Tween<double>(
+      begin: 0.8,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
   }
 
   @override
@@ -51,8 +49,7 @@ class _BillScannerScreenState extends State<BillScannerScreen>
 
   Future<void> _pickFromCamera() async {
     try {
-      final XFile? image =
-          await _picker.pickImage(source: ImageSource.camera, imageQuality: 85);
+      final XFile? image = await _picker.pickImage(source: ImageSource.camera, imageQuality: 85);
       if (image != null) {
         final bytes = await image.readAsBytes();
         await _processBill(bytes);
@@ -64,8 +61,7 @@ class _BillScannerScreenState extends State<BillScannerScreen>
 
   Future<void> _pickFromGallery() async {
     try {
-      final XFile? image =
-          await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
+      final XFile? image = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
       if (image != null) {
         final bytes = await image.readAsBytes();
         await _processBill(bytes);
@@ -120,7 +116,7 @@ class _BillScannerScreenState extends State<BillScannerScreen>
 
   Future<void> _saveAndProcess({required bool createPO}) async {
     if (_scanResult == null) return;
-    
+
     final selectedItems = _scanResult!.items.where((item) => item.isSelected).toList();
     if (selectedItems.isEmpty) {
       _showError('Koi item select nahi hai.');
@@ -129,7 +125,9 @@ class _BillScannerScreenState extends State<BillScannerScreen>
 
     setState(() {
       _isLoading = true;
-      _loadingMessage = createPO ? 'PO aur Stock save ho raha hai...' : 'Stock update ho raha hai...';
+      _loadingMessage = createPO
+          ? 'PO aur Stock save ho raha hai...'
+          : 'Stock update ho raha hai...';
     });
 
     try {
@@ -137,13 +135,15 @@ class _BillScannerScreenState extends State<BillScannerScreen>
       final shopId = productProvider.currentShopId ?? 'shop_001';
 
       int updatedCount = 0;
-      
+
       // 1. Update Inventory for matched products
       for (final item in selectedItems) {
         if (item.isMatched && item.matchedProductId != null) {
           try {
-            final product = productProvider.products.firstWhere((p) => p.id == item.matchedProductId);
-            
+            final product = productProvider.products.firstWhere(
+              (p) => p.id == item.matchedProductId,
+            );
+
             // Update stock and cost price
             final newStock = product.stockQuantity + item.quantity.round();
             final updated = product.copyWith(
@@ -161,13 +161,17 @@ class _BillScannerScreenState extends State<BillScannerScreen>
 
       // 2. Create Purchase Order (optional)
       if (createPO) {
-        final poItems = selectedItems.map((i) => {
-          'matchedProductId': i.matchedProductId,
-          'name': i.name,
-          'quantity': i.quantity,
-          'unit': i.unit,
-          'total': i.total,
-        }).toList();
+        final poItems = selectedItems
+            .map(
+              (i) => {
+                'matchedProductId': i.matchedProductId,
+                'name': i.name,
+                'quantity': i.quantity,
+                'unit': i.unit,
+                'total': i.total,
+              },
+            )
+            .toList();
 
         await _poService.createPOFromBillScan(
           shopId: shopId,
@@ -181,10 +185,10 @@ class _BillScannerScreenState extends State<BillScannerScreen>
       setState(() => _isLoading = false);
 
       if (mounted) {
-        final msg = createPO 
-            ? 'Purchase Order created and $updatedCount items stock updated!' 
+        final msg = createPO
+            ? 'Purchase Order created and $updatedCount items stock updated!'
             : '$updatedCount items ka stock update ho gaya!';
-            
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: AppTheme.success,
@@ -195,10 +199,7 @@ class _BillScannerScreenState extends State<BillScannerScreen>
                 Expanded(
                   child: Text(
                     msg,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -232,18 +233,15 @@ class _BillScannerScreenState extends State<BillScannerScreen>
     return Scaffold(
       backgroundColor: AppTheme.grey50,
       appBar: AppBar(
-        title: const Text(
-          'Bill Scanner OCR',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: const Text('Bill Scanner OCR', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: AppTheme.primary,
         foregroundColor: Colors.white,
       ),
       body: _isLoading
           ? _buildLoadingState()
           : _hasScanned && _scanResult != null
-              ? _buildResultsView()
-              : _buildPickerView(),
+          ? _buildResultsView()
+          : _buildPickerView(),
     );
   }
 
@@ -261,11 +259,7 @@ class _BillScannerScreenState extends State<BillScannerScreen>
                 color: AppTheme.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.document_scanner_outlined,
-                color: AppTheme.primary,
-                size: 40,
-              ),
+              child: const Icon(Icons.document_scanner_outlined, color: AppTheme.primary, size: 40),
             ),
           ),
           const SizedBox(height: 24),
@@ -317,11 +311,7 @@ class _BillScannerScreenState extends State<BillScannerScreen>
                 SizedBox(height: 12),
                 Text(
                   'Supplier Bill Scan Karo',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
                 SizedBox(height: 6),
                 Text(
@@ -348,10 +338,7 @@ class _BillScannerScreenState extends State<BillScannerScreen>
                   const Icon(Icons.error_outline, color: AppTheme.error),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(
-                      _errorMessage!,
-                      style: const TextStyle(color: AppTheme.error),
-                    ),
+                    child: Text(_errorMessage!, style: const TextStyle(color: AppTheme.error)),
                   ),
                 ],
               ),
@@ -390,7 +377,7 @@ class _BillScannerScreenState extends State<BillScannerScreen>
 
   Widget _buildResultsView() {
     final result = _scanResult!;
-    
+
     return Column(
       children: [
         // Supplier Header Bar
@@ -423,19 +410,22 @@ class _BillScannerScreenState extends State<BillScannerScreen>
                   children: [
                     Text(
                       result.supplierName,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Text('Bill: ${result.billNumber}', style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
+                        Text(
+                          'Bill: ${result.billNumber}',
+                          style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
+                        ),
                         const SizedBox(width: 12),
-                        Text('Date: ${result.billDate}', style: const TextStyle(fontSize: 12, color: AppTheme.grey600)),
+                        Text(
+                          'Date: ${result.billDate}',
+                          style: const TextStyle(fontSize: 12, color: AppTheme.grey600),
+                        ),
                       ],
                     ),
                   ],
@@ -444,7 +434,7 @@ class _BillScannerScreenState extends State<BillScannerScreen>
             ],
           ),
         ),
-        
+
         // Summary bar
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -457,10 +447,7 @@ class _BillScannerScreenState extends State<BillScannerScreen>
                   children: [
                     Text(
                       '${result.items.length} items | ${result.matchedCount} matched in inventory',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
                     ),
                     Text(
                       'Total: ₹${result.totalAmount.toStringAsFixed(0)}',
@@ -477,10 +464,7 @@ class _BillScannerScreenState extends State<BillScannerScreen>
                   }
                 }),
                 icon: const Icon(Icons.select_all, color: Colors.white, size: 18),
-                label: const Text(
-                  'Select',
-                  style: TextStyle(color: Colors.white),
-                ),
+                label: const Text('Select', style: TextStyle(color: Colors.white)),
               ),
             ],
           ),
@@ -492,10 +476,7 @@ class _BillScannerScreenState extends State<BillScannerScreen>
             padding: const EdgeInsets.all(12),
             itemCount: result.items.length,
             itemBuilder: (context, index) {
-              return _BillItemCard(
-                item: result.items[index],
-                onChanged: () => setState(() {}),
-              );
+              return _BillItemCard(item: result.items[index], onChanged: () => setState(() {}));
             },
           ),
         ),
@@ -503,10 +484,7 @@ class _BillScannerScreenState extends State<BillScannerScreen>
         // Bottom action bar
         Container(
           padding: const EdgeInsets.all(16),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            boxShadow: AppTheme.cardShadows,
-          ),
+          decoration: const BoxDecoration(color: Colors.white, boxShadow: AppTheme.cardShadows),
           child: Column(
             children: [
               Row(
@@ -524,8 +502,8 @@ class _BillScannerScreenState extends State<BillScannerScreen>
                   const SizedBox(width: 8),
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: result.selectedCount > 0 
-                          ? () => _saveAndProcess(createPO: false) 
+                      onPressed: result.selectedCount > 0
+                          ? () => _saveAndProcess(createPO: false)
                           : null,
                       icon: const Icon(Icons.inventory_2_outlined, size: 18),
                       label: const Text('Update Stock'),
@@ -537,8 +515,8 @@ class _BillScannerScreenState extends State<BillScannerScreen>
                   const SizedBox(width: 8),
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: result.selectedCount > 0 
-                          ? () => _saveAndProcess(createPO: true) 
+                      onPressed: result.selectedCount > 0
+                          ? () => _saveAndProcess(createPO: true)
                           : null,
                       icon: const Icon(Icons.receipt_long, size: 18),
                       label: const Text('Save as PO'),
@@ -585,9 +563,7 @@ class _PickerButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: isPrimary ? AppTheme.primary : Colors.white,
           borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-          border: isPrimary
-              ? null
-              : Border.all(color: AppTheme.primary, width: 1.5),
+          border: isPrimary ? null : Border.all(color: AppTheme.primary, width: 1.5),
           boxShadow: AppTheme.cardShadows,
         ),
         child: Row(
@@ -601,11 +577,7 @@ class _PickerButton extends StatelessWidget {
                     : AppTheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               ),
-              child: Icon(
-                icon,
-                size: 28,
-                color: isPrimary ? Colors.white : AppTheme.primary,
-              ),
+              child: Icon(icon, size: 28, color: isPrimary ? Colors.white : AppTheme.primary),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -734,7 +706,11 @@ class _BillItemCardState extends State<_BillItemCard> {
                             const SizedBox(width: 4),
                             Text(
                               'Matched: ${widget.item.matchedProductName}',
-                              style: const TextStyle(fontSize: 12, color: AppTheme.success, fontWeight: FontWeight.w600),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppTheme.success,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ],
                         ),
@@ -746,7 +722,11 @@ class _BillItemCardState extends State<_BillItemCard> {
                             SizedBox(width: 4),
                             Text(
                               'New Item (Stock won\'t update)',
-                              style: TextStyle(fontSize: 12, color: AppTheme.warning, fontWeight: FontWeight.w600),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppTheme.warning,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ],
                         ),
@@ -816,10 +796,7 @@ class _BillItemCardState extends State<_BillItemCard> {
                 ),
                 child: Text(
                   'Subtotal: ₹${widget.item.total.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    color: AppTheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -851,10 +828,7 @@ class _TipsCard extends StatelessWidget {
               SizedBox(width: 6),
               Text(
                 'Tips for best results',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.info,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.info),
               ),
             ],
           ),
@@ -872,13 +846,7 @@ class _TipsCard extends StatelessWidget {
                 children: [
                   const Text('• ', style: TextStyle(color: AppTheme.grey600)),
                   Expanded(
-                    child: Text(
-                      tip,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppTheme.grey700,
-                      ),
-                    ),
+                    child: Text(tip, style: const TextStyle(fontSize: 13, color: AppTheme.grey700)),
                   ),
                 ],
               ),
