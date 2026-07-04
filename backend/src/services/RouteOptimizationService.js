@@ -12,8 +12,7 @@
  * - Real-time traffic pattern consideration
  */
 
-const admin = require('firebase-admin');
-const db = admin.firestore();
+const firebaseAdmin = require('./firebaseAdmin');
 
 const EARTH_RADIUS = 6371; // km
 const MIN_TIME_WINDOW_BUFFER = 5; // minutes

@@ -117,7 +117,7 @@ class _AdminShellState extends State<AdminShell> {
               context,
               icon: Icons.dashboard_outlined,
               selectedIcon: Icons.dashboard,
-              label: l10n.translate('dashboard') ?? 'Dashboard',
+              label: l10n.translate('dashboard'),
               route: '/admin',
             ),
 

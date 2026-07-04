@@ -224,7 +224,9 @@ class ProductProvider with ChangeNotifier {
       _lastProductDoc = null;
       _hasMoreProducts = true;
     }
-    notifyListeners();
+    Future.microtask(() {
+      if (hasListeners) notifyListeners();
+    });
 
     try {
       Query query = _db.collection('products').orderBy('createdAt', descending: true).limit(limit);

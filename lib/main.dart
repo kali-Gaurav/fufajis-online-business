@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -91,19 +92,25 @@ void main() async {
   // Initialize Workmanager for background tasks
   Workmanager().initialize(callbackDispatcher, isInDebugMode: kDebugMode);
 
-  // CRITICAL: Load runtime configuration from backend
-  // This ensures secrets (RAZORPAY_KEY_SECRET, etc.) are NEVER embedded in APK
-  try {
-    await RuntimeConfigService.instance.load();
-    debugPrint('[main] Runtime configuration loaded successfully');
-  } catch (e) {
-    debugPrint('[main] Warning: Could not load runtime config, using build defaults: $e');
-  }
+  // Fix 16 (2026-07-04): Runtime config used to be AWAITED here, on the
+  // main-thread startup path, with a 45s HTTP timeout against the Render
+  // free-tier backend. Render free-tier instances spin down after
+  // inactivity and can take 30-60s to cold-start, so a "sleeping" backend
+  // turned every cold launch into a multi-second (worst case ~45s) blank
+  // screen before Firebase/Sentry/runApp ever ran.
+  //
+  // RuntimeConfigService has safe build-time defaults (see _loadDefaults())
+  // and is already loaded in Tier 2 below, immediately after first frame.
+  // So it's intentionally NOT called here at all anymore - one network
+  // call after paint is enough; firing a second one here would just double
+  // the load on the backend for zero perceived benefit.
 
   // Initialize Firebase FIRST (blocking, must be complete)
   await _initializeSecurity();
 
-  // Get Sentry DSN (now from runtime config, with fallback to build-time)
+  // Get Sentry DSN. Do NOT wait on the network call above for this -
+  // AppConfig.sentryDsn (build-time) is the safe, instantly-available
+  // fallback baked into RuntimeConfigService's getter.
   final sentryDsn = RuntimeConfig.instance.sentryDsn;
 
   if (sentryDsn.isEmpty) {
@@ -160,17 +167,29 @@ Future<void> _initializeSecurity() async {
     if (Firebase.apps.isEmpty) {
       await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
     }
-
-    await FirebaseAppCheck.instance.activate(
-      androidProvider: kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
-      appleProvider: AppleProvider.deviceCheck,
-    );
-    LoggingService().info('Firebase App Check activated.');
   } catch (e, stack) {
-    LoggingService().error('App Check initialization failed', e, stack);
+    LoggingService().error('Firebase Core initialization failed', e, stack);
     _securityInitError ??= e;
     _securityInitStack ??= stack;
+    return;
   }
+
+  // Fix 16 (2026-07-04): App Check attestation (Play Integrity / DeviceCheck)
+  // is a network round-trip and is NOT required to render the first frame -
+  // it's only consumed by Firestore/Functions calls that enforce App Check,
+  // which will simply wait for the token themselves when they run. Awaiting
+  // it here added another network hop to the blocking startup path.
+  unawaited(
+    FirebaseAppCheck.instance
+        .activate(
+          androidProvider: kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
+          appleProvider: AppleProvider.deviceCheck,
+        )
+        .then((_) => LoggingService().info('Firebase App Check activated.'))
+        .catchError((e, stack) {
+          LoggingService().error('App Check initialization failed', e, stack);
+        }),
+  );
 }
 
 /// ========================================================================

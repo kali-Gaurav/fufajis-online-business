@@ -4,6 +4,8 @@ import 'package:geocoding/geocoding.dart';
 import '../config/app_config.dart';
 import '../models/user_model.dart';
 import '../services/shop_config_service.dart';
+import '../services/diagnostics_service.dart';
+import '../services/google_places_service.dart';
 
 class LocationProvider with ChangeNotifier {
   Position? _currentPosition;
@@ -158,14 +160,58 @@ class LocationProvider with ChangeNotifier {
 
   // Calculate distance between two points
   double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-    return Geolocator.distanceBetween(lat1, lon1, lat2, lon2);
+    // Validate coordinates are within reasonable ranges
+    if (!_isValidLatitude(lat1) || !_isValidLongitude(lon1) ||
+        !_isValidLatitude(lat2) || !_isValidLongitude(lon2)) {
+      debugPrint(
+        '[LocationProvider] Invalid coordinates: shop($lat1, $lon1) → address($lat2, $lon2)',
+      );
+      return 0.0;
+    }
+
+    try {
+      final distance = Geolocator.distanceBetween(lat1, lon1, lat2, lon2);
+      // Sanity check: distance shouldn't exceed ~2000 km (earth's circumference/20)
+      if (distance > 2000000) {
+        debugPrint('[LocationProvider] Unrealistic distance: ${distance}m. Likely coordinate error.');
+        return 0.0;
+      }
+      return distance;
+    } catch (e) {
+      debugPrint('[LocationProvider] Error calculating distance: $e');
+      return 0.0;
+    }
   }
+
+  bool _isValidLatitude(double lat) => lat >= -90 && lat <= 90 && lat != 0;
+  bool _isValidLongitude(double lon) => lon >= -180 && lon <= 180 && lon != 0;
 
   double distanceFromShopInMeters({required double latitude, required double longitude}) {
     final config = ShopConfigService().cachedConfig;
     final shopLat = config?.shopLatitude ?? AppConfig.shopLatitude;
     final shopLng = config?.shopLongitude ?? AppConfig.shopLongitude;
-    return calculateDistance(shopLat, shopLng, latitude, longitude);
+
+    // Validate input address coordinates
+    if (!_isValidLatitude(latitude) || !_isValidLongitude(longitude)) {
+      DiagnosticsService().log('Distance',
+        '🚨 Invalid address coordinates: ($latitude, $longitude)',
+        level: AppLogSeverity.error);
+      debugPrint('[LocationProvider] Invalid address coordinates: ($latitude, $longitude)');
+      return double.maxFinite;
+    }
+
+    final distance = calculateDistance(shopLat, shopLng, latitude, longitude);
+
+    // DIAGNOSTIC: Log all distance calculations
+    DiagnosticsService().logDistance(
+      shopLat: shopLat,
+      shopLng: shopLng,
+      userLat: latitude,
+      userLng: longitude,
+      distanceMeters: distance,
+    );
+
+    return distance;
   }
 
   bool isWithinDeliveryRadius({required double latitude, required double longitude}) {

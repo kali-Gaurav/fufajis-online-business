@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'package:intl/intl.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/order_model.dart';
 import '../models/delivery_type.dart';
 import '../constants/order_status.dart';
@@ -13,6 +14,7 @@ import 'hyperlocal_expansion_service.dart';
 import 'smart_kitchen_service.dart';
 import 'order_notification_service.dart';
 import '../utils/monetary_value.dart';
+import '../config/supabase_config.dart';
 
 class OrderService {
   FirebaseFirestore? _customDb;
@@ -224,127 +226,41 @@ class OrderService {
             )
           : order;
 
-      await _db.runTransaction((transaction) async {
-        // 2. Event-Sourced Wallet Balance Deduction
-        if (updatedOrder.walletAmountUsed > MonetaryValue(0)) {
-          final userRef = _db.collection('users').doc(updatedOrder.customerId);
-          final userDoc = await transaction.get(userRef);
-          if (!userDoc.exists) {
-            throw Exception('Customer profile not found');
-          }
+      // Make order dumb - client prepares the payload and delegates to backend
+      final payload = {
+        'idempotencyKey': lockKey,
+        'shopId': updatedOrder.shopId ?? 'primary',
+        'walletAmountUsed': updatedOrder.walletAmountUsed.toDouble(),
+        'deliveryType': updatedOrder.deliveryType.name,
+        'paymentMethod': updatedOrder.paymentMethod.name,
+        'deliveryAddress': updatedOrder.deliveryAddress.toMap(),
+        'items': updatedOrder.items.map((item) => {
+          'id': item.id,
+          'productId': item.productId,
+          'quantity': item.quantity,
+        }).toList(),
+      };
 
-          final userData = userDoc.data()!;
-          final currentBalance = MonetaryValue(userData['walletBalance'] ?? 0.0);
-          if (currentBalance < updatedOrder.walletAmountUsed) {
-            throw Exception('Insufficient wallet balance');
-          }
+      try {
+        // Call Supabase Edge Function for checkout
+        final response = await SupabaseConfig.client.functions.invoke(
+          'checkout',
+          body: payload,
+        );
 
-          final newBalance = currentBalance - updatedOrder.walletAmountUsed;
-          final lastSeqNum = userData['lastTransactionSequenceNumber'] ?? 0;
-          final newSeqNum = lastSeqNum + 1;
-
-          // Update user wallet balance and sequence number
-          transaction.update(userRef, {
-            'walletBalance': newBalance.toFirestore(),
-            'lastTransactionSequenceNumber': newSeqNum,
-            'updatedAt': FieldValue.serverTimestamp(),
-          });
-
-          // Create transaction record idempotently
-          final txnId = 'txn_wallet_debit_${updatedOrder.id}';
-          final txnDocRef = userRef.collection('wallet_transactions').doc(txnId);
-
-          transaction.set(txnDocRef, {
-            'id': txnId,
-            'userId': updatedOrder.customerId,
-            'type': 'WalletTransactionType.walletPayment',
-            'amount': updatedOrder.walletAmountUsed,
-            'orderReference': updatedOrder.id,
-            'timestamp': FieldValue.serverTimestamp(),
-            'description': 'Wallet payment for order #${updatedOrder.orderNumber}',
-            'balanceAfter': newBalance,
-            'sequenceNumber': newSeqNum,
-          });
+        final data = response.data as Map<String, dynamic>? ?? {};
+        if (data['success'] != true) {
+          throw Exception(data['message'] ?? 'Checkout failed on the server.');
         }
 
-        // 3. Stock Allocation (Multi-branch aware)
-        // FIXED (Task #16): Both card AND wallet payments now deduct inventory
+        debugPrint('[OrderService] Order created: ${data['orderId']}');
 
-        // Fetch all product snapshots first to adhere to Firestore transaction requirement (all reads before writes)
-        final Map<DocumentReference, DocumentSnapshot> productSnapshots = {};
-        for (var item in updatedOrder.items) {
-          final prodRef = _db.collection('products').doc(item.productId);
-          if (!productSnapshots.containsKey(prodRef)) {
-            final snapshot = await transaction.get(prodRef);
-            productSnapshots[prodRef] = snapshot;
-          }
-        }
+        // We assume the server created the order successfully.
+        // We can now just let the UI proceed to the success screen or payment gateway.
 
-        for (var item in updatedOrder.items) {
-          final prodRef = _db.collection('products').doc(item.productId);
-          final snapshot = productSnapshots[prodRef]!;
-
-          if (snapshot.exists) {
-            final data = snapshot.data() as Map<String, dynamic>?;
-            if (data != null) {
-              final Map<dynamic, dynamic> branchStockMap = data['branchStock'] as Map? ?? {};
-              final branchId = (updatedOrder.shopId?.isEmpty ?? true)
-                  ? 'primary'
-                  : updatedOrder.shopId!;
-
-              int currentBranchStock = 0;
-              if (branchStockMap.containsKey(branchId)) {
-                currentBranchStock = (branchStockMap[branchId] ?? 0) as int;
-              } else {
-                // Fallback/Migration: seed the branch stock under primary/first key from global stockQuantity
-                if (branchId == 'primary' || branchStockMap.isEmpty) {
-                  currentBranchStock = (data['stockQuantity'] ?? 0) as int;
-                } else {
-                  currentBranchStock = 0;
-                }
-              }
-
-              final int quantityOrdered = item.quantity;
-
-              if (currentBranchStock >= quantityOrdered) {
-                final newBranchStock = currentBranchStock - quantityOrdered;
-                final Map<String, int> updatedBranchStock = Map<String, int>.from(
-                  branchStockMap.map((k, v) => MapEntry(k.toString(), v as int)),
-                );
-                updatedBranchStock[branchId] = newBranchStock;
-
-                // Calculate new global stock for backward compatibility
-                int newGlobalStock = 0;
-                if (updatedBranchStock.containsKey('primary')) {
-                  newGlobalStock = updatedBranchStock['primary']!;
-                } else {
-                  newGlobalStock = updatedBranchStock.values.fold(0, (total, val) => total + val);
-                }
-
-                // Update the memory copy of the branchStock/stockQuantity in case the order contains duplicate items
-                data['branchStock'] = updatedBranchStock;
-                data['stockQuantity'] = newGlobalStock;
-
-                transaction.update(prodRef, {
-                  'branchStock': updatedBranchStock,
-                  'stockQuantity': newGlobalStock,
-                  'isAvailable':
-                      newGlobalStock > 0 || updatedBranchStock.values.any((val) => val > 0),
-                });
-              } else {
-                throw Exception(
-                  'Inadequate stock for ${item.productName} at branch. Available: $currentBranchStock',
-                );
-              }
-            }
-          } else {
-            throw Exception('Product ${item.productName} not found in inventory.');
-          }
-        }
-
-        final orderRef = _db.collection('orders').doc(updatedOrder.id);
-        transaction.set(orderRef, updatedOrder.toMap());
-      });
+      } catch (e) {
+        throw Exception('Server error during checkout: $e');
+      }
 
       // Record delivery demand for hyperlocal expansion analytics (Idea 26)
       unawaited(
@@ -360,6 +276,7 @@ class OrderService {
       // Refresh Smart Kitchen predictions (Idea 27)
       unawaited(SmartKitchenService().refreshUserKitchenData(updatedOrder.customerId));
 
+      // Note: Order notification is now typically handled by backend triggers, but keeping here for legacy support.
       unawaited(OrderNotificationService().notifyOrderConfirmed(updatedOrder));
     } catch (e) {
       debugPrint('[OrderService] ERROR creating order: $e');
@@ -496,111 +413,31 @@ class OrderService {
     String? employeeName,
     String? note,
   }) async {
-    final orderRef = _db.collection('orders').doc(orderId);
-    String? generatedOtp;
-    OrderStatus previousStatus = OrderStatus.pending;
+    // Map outForDelivery to shipped (backend uses shipped)
+    final backendStatus = status == 'outForDelivery' ? 'shipped' : status;
 
-    await _db.runTransaction((transaction) async {
-      final orderDoc = await transaction.get(orderRef);
-      if (!orderDoc.exists) throw Exception('Order $orderId not found.');
+    // Call Supabase Edge Function to change order status
+    final response = await SupabaseConfig.client.functions.invoke(
+      'order-lifecycle',
+      body: {
+        'action': 'change-status',
+        'orderId': orderId,
+        'targetStatus': backendStatus,
+        'note': note,
+      },
+    );
 
-      final orderData = orderDoc.data()!;
-      final currentStatus = _normalizeStatus(orderData['status']?.toString());
-
-      previousStatus = OrderStatus.values.firstWhere(
-        (e) => e.toString().split('.').last == currentStatus,
-        orElse: () => OrderStatus.pending,
-      );
-
-      // Block any changes to terminal states
-      if (currentStatus == 'delivered') {
-        throw Exception('Order has already been delivered. No further modifications are allowed.');
-      }
-      if (currentStatus == 'cancelled') {
-        throw Exception('Order has been cancelled. No further modifications are allowed.');
-      }
-
-      // Validate allowed transition
-      final allowedNext = _validTransitions[currentStatus] ?? [];
-      if (!allowedNext.contains(status)) {
-        throw Exception(
-          'Invalid status transition: "$currentStatus" → "$status". Allowed: ${allowedNext.join(", ")}',
-        );
-      }
-
-      // Packer lock — prevent two employees packing the same order
-      if (status == 'processing') {
-        final existingPackerId = orderData['packerId']?.toString();
-        if (existingPackerId != null &&
-            existingPackerId.isNotEmpty &&
-            employeeId != null &&
-            existingPackerId != employeeId) {
-          throw Exception(
-            'This order is already being packed by another employee ($existingPackerId).',
-          );
-        }
-      }
-
-      final statusEnum = OrderStatus.fromString(status);
-      final Map<String, dynamic> updates = {
-        'status': statusEnum.firestoreValue,
-        'updatedAt': FieldValue.serverTimestamp(),
-      };
-
-      // Assign packer when entering processing state
-      if (status == 'processing' && employeeId != null) {
-        updates['packerId'] = employeeId;
-        updates['packingStartedAt'] = FieldValue.serverTimestamp();
-      }
-
-      if (status == 'shipped' || status == 'outForDelivery') {
-        // Legacy support: map old 'outForDelivery' to 'shipped'
-        final int otpVal = 1000 + (DateTime.now().millisecondsSinceEpoch % 9000);
-        generatedOtp = otpVal.toString();
-
-        final bytes = utf8.encode(generatedOtp!);
-        updates['otpHash'] = sha256.convert(bytes).toString();
-        updates['otpVerified'] = false;
-        updates['shippedAt'] = FieldValue.serverTimestamp();
-
-        final secureOtpRef = orderRef.collection('secure').doc('otp');
-        transaction.set(secureOtpRef, {
-          'otp': generatedOtp,
-          'createdAt': FieldValue.serverTimestamp(),
-        });
-      } else if (status == 'delivered') {
-        updates['deliveredAt'] = FieldValue.serverTimestamp();
-        updates['otpVerified'] = true;
-
-        final String paymentMethod = orderData['paymentMethod']?.toString() ?? '';
-        final double totalAmount = (orderData['totalAmount'] ?? 0.0).toDouble();
-        final String deliveryAgentId = orderData['deliveryAgentId']?.toString() ?? 'demo_rider';
-
-        if (paymentMethod.contains('cod')) {
-          updates['cashCollectedAmount'] = totalAmount;
-          updates['cashCollectedAt'] = FieldValue.serverTimestamp();
-
-          final cashCollectionRef = orderRef.collection('cashCollection').doc('log');
-          transaction.set(cashCollectionRef, {
-            'amount': totalAmount,
-            'collectedBy': deliveryAgentId,
-            'collectedAt': FieldValue.serverTimestamp(),
-            'status': 'collected',
-          });
-        }
-      }
-
-      transaction.update(orderRef, updates);
-    });
+    final data = response.data as Map<String, dynamic>? ?? {};
+    if (data['success'] != true) {
+      throw Exception('Failed to update order status');
+    }
 
     try {
       final doc = await _db.collection('orders').doc(orderId).get();
       if (doc.exists && doc.data() != null) {
         var order = OrderModel.fromMap(doc.data()!);
-        if (status == 'outForDelivery' && generatedOtp != null) {
-          order = order.copyWith(otp: generatedOtp);
-        }
-        unawaited(OrderNotificationService().notifyOrderStatusChanged(order, previousStatus));
+        // Keep local notification for legacy until Step 2 is fully implemented
+        unawaited(OrderNotificationService().notifyOrderStatusChanged(order, OrderStatus.pending));
       }
     } catch (e) {
       debugPrint('Notification Error: $e');
@@ -751,5 +588,51 @@ class OrderService {
         .where('createdAt', isGreaterThan: Timestamp.fromDate(start))
         .snapshots()
         .map((s) => {'count': s.docs.length});
+  }
+
+  Future<void> failOrderDelivery({
+    required String orderId,
+    required String reason,
+    double? latitude,
+    double? longitude,
+  }) async {
+    // Call Supabase Edge Function to fail delivery
+    final response = await SupabaseConfig.client.functions.invoke(
+      'order-lifecycle',
+      body: {
+        'action': 'fail-delivery',
+        'orderId': orderId,
+        'reason': reason,
+        'latitude': latitude,
+        'longitude': longitude,
+      },
+    );
+
+    final data = response.data as Map<String, dynamic>? ?? {};
+    if (data['success'] != true) {
+      throw Exception('Failed to report delivery failure.');
+    }
+  }
+
+  Future<void> resolveDeliveryException({
+    required String orderId,
+    required String action, // 'retry' or 'return' or 'refund'
+    required String reason,
+  }) async {
+    // Call Supabase Edge Function to resolve exception
+    final response = await SupabaseConfig.client.functions.invoke(
+      'order-lifecycle',
+      body: {
+        'action': 'resolve-exception',
+        'orderId': orderId,
+        'resolution': action,
+        'notes': reason,
+      },
+    );
+
+    final data = response.data as Map<String, dynamic>? ?? {};
+    if (data['success'] != true) {
+      throw Exception('Failed to resolve delivery exception.');
+    }
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
 import '../../constants/order_status.dart';
 import '../../providers/cart_provider.dart';
@@ -704,6 +705,21 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       _stableOrderId ??= 'ord_${userId}_$timestamp';
       _stableOrderNumber ??= 'ORD$timestamp';
+
+      try {
+        final doc = await FirebaseFirestore.instance.collection('orders').doc(_stableOrderId).get();
+        if (doc.exists) {
+          cartProvider.clearCart();
+          if (mounted) {
+            context.go(
+              '/customer/order-confirmation?orderId=$_stableOrderId&orderNumber=$_stableOrderNumber',
+            );
+          }
+          return;
+        }
+      } catch (e) {
+        debugPrint('Error recovering order state: $e');
+      }
 
       final locationProvider = Provider.of<LocationProvider>(context, listen: false);
       final configProvider = Provider.of<ShopConfigProvider>(context, listen: false);

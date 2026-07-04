@@ -15,16 +15,15 @@ async function init() {
 
   await secrets.loadSecrets();
 
-  const saSecret = secrets.get('FIREBASE_SERVICE_ACCOUNT');
-
   try {
-    if (saSecret) {
-      // Initialize with Service Account JSON
-      const serviceAccount = typeof saSecret === 'string' ? JSON.parse(saSecret) : saSecret;
+    const saPath = require('path').join(__dirname, '../../firebase-service-account.json');
+    if (require('fs').existsSync(saPath)) {
+      const serviceAccount = require(saPath);
       admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
+        credential: admin.credential.cert(serviceAccount),
+        databaseURL: "https://fufaji-online-business-default-rtdb.firebaseio.com"
       });
-      console.log('[firebaseAdmin] Initialized via Service Account');
+      console.log('[firebaseAdmin] Initialized via local service account JSON');
     } else {
       // Fallback to default credentials (works in Google Cloud or if GOOGLE_APPLICATION_CREDENTIALS is set)
       admin.initializeApp();

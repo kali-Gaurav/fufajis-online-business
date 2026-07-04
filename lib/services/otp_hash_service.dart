@@ -14,7 +14,6 @@ import 'package:flutter/foundation.dart';
 class OTPHashService {
   // PBKDF2 parameters - high security for sensitive delivery data
   static const int _iterations = 100000;
-  static const int _hashLength = 32;
   static const String _algorithm = 'sha256';
 
   /// Hash an OTP using PBKDF2-SHA256

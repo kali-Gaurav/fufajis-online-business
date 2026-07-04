@@ -64,8 +64,8 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
         );
       } else {
         // Fallback to incremental mock coordinates to simulate motion beautifully!
-        const double baseLat = 26.9124;
-        const double baseLng = 75.7873;
+        const double baseLat = 25.1006;
+        const double baseLng = 76.5156;
         final double offset = (tick * 0.0001); // incremental movement!
         await _orderService.updateOrderLiveLocation(orderId, baseLat + offset, baseLng + offset);
         debugPrint(
@@ -415,11 +415,30 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                   if (order.status == OrderStatus.confirmed || order.status == OrderStatus.packed)
                     ScaleBounce(
                       onTap: () async {
-                        await _syncService.enqueueStatusUpdate(order.id, 'outForDelivery');
-                        _startLiveCoordinateTracking(order.id);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Delivery started! OTP sent to customer.')),
-                        );
+                        if (!_syncService.isOnline.value) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Live connection required for order updates.'),
+                              backgroundColor: AppTheme.error,
+                            ),
+                          );
+                          return;
+                        }
+                        try {
+                          await _orderService.updateOrderStatus(order.id, 'shipped');
+                          _startLiveCoordinateTracking(order.id);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Delivery started! OTP sent to customer.')),
+                            );
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Failed: $e'), backgroundColor: AppTheme.error),
+                            );
+                          }
+                        }
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -750,17 +769,30 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                 TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
                 ElevatedButton(
                   onPressed: () async {
+                    if (!_syncService.isOnline.value) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Live connection required for order updates.'),
+                          backgroundColor: AppTheme.error,
+                        ),
+                      );
+                      return;
+                    }
                     Navigator.pop(context);
-                    await _syncService.enqueueStatusUpdate(order.id, 'failedDelivery');
-
-                    await FirebaseFirestore.instance.collection('orders').doc(order.id).update({
-                      'status': 'OrderStatus.cancelled',
-                      'failureReason': selectedReason,
-                      'failedAt': FieldValue.serverTimestamp(),
-                      'updatedAt': FieldValue.serverTimestamp(),
-                    });
-
-                    _stopLiveCoordinateTracking(order.id);
+                    try {
+                      await _orderService.failOrderDelivery(
+                        orderId: order.id,
+                        reason: selectedReason,
+                      );
+                      _stopLiveCoordinateTracking(order.id);
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Failed: $e'), backgroundColor: AppTheme.error),
+                        );
+                      }
+                      return;
+                    }
 
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:http/http.dart' as http;
 import '../../utils/app_theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/location_provider.dart';
@@ -20,6 +22,7 @@ class AddressScreen extends StatefulWidget {
 class _AddressScreenState extends State<AddressScreen> {
   bool _isFormOpen = false;
   bool _isLoading = false;
+  bool _isResolvingLink = false;
   List<Address> _addresses = [];
   Address? _editingAddress;
 
@@ -44,6 +47,22 @@ class _AddressScreenState extends State<AddressScreen> {
   void initState() {
     super.initState();
     _loadAddresses();
+    _fullAddressController.addListener(_onAddressChanged);
+  }
+
+  void _onAddressChanged() {
+    final text = _fullAddressController.text;
+    if (_isResolvingLink) return;
+
+    final bool hasGmaps = text.contains('google.com/maps') ||
+        text.contains('maps.app.goo.gl') ||
+        text.contains('goo.gl/maps');
+    
+    final bool hasCoordinates = RegExp(r'(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)').hasMatch(text);
+
+    if (hasGmaps || hasCoordinates) {
+      _checkAndHandleGoogleMapsLink(text);
+    }
   }
 
   Future<void> _toggleRecording() async {
@@ -115,6 +134,7 @@ class _AddressScreenState extends State<AddressScreen> {
 
   @override
   void dispose() {
+    _fullAddressController.removeListener(_onAddressChanged);
     _labelController.dispose();
     _fullAddressController.dispose();
     _villageController.dispose();
@@ -621,6 +641,8 @@ class _AddressScreenState extends State<AddressScreen> {
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.home_work_outlined),
                   alignLabelWithHint: true,
+                  helperText: 'Paste a Google Maps share link/coordinates to autofill',
+                  helperStyle: const TextStyle(color: AppTheme.primary, fontSize: 11, fontWeight: FontWeight.w500),
                 ),
                 validator: (val) =>
                     val == null || val.trim().isEmpty ? l10n.translate('invalidAddress') : null,
@@ -802,8 +824,8 @@ class _AddressScreenState extends State<AddressScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => MapPickerScreen(
-          initialLat: _capturedLatitude ?? 26.9124,
-          initialLng: _capturedLongitude ?? 75.7873,
+          initialLat: _capturedLatitude ?? 25.1006,
+          initialLng: _capturedLongitude ?? 76.5156,
         ),
       ),
     );
@@ -843,8 +865,8 @@ class _AddressScreenState extends State<AddressScreen> {
         village: _villageController.text.trim(),
         landmark: _landmarkController.text.trim(),
         pincode: _pincodeController.text.trim(),
-        latitude: _capturedLatitude ?? _editingAddress?.latitude ?? 26.9124,
-        longitude: _capturedLongitude ?? _editingAddress?.longitude ?? 75.7873,
+        latitude: _capturedLatitude ?? _editingAddress?.latitude ?? 25.1006,
+        longitude: _capturedLongitude ?? _editingAddress?.longitude ?? 76.5156,
         isDefault: _isDefault,
         deliveryInstructions: _deliveryInstructionsController.text.trim(),
       );
@@ -875,6 +897,186 @@ class _AddressScreenState extends State<AddressScreen> {
       }
     } finally {
       setState(() => _isLoading = false);
+    }
+  }
+
+  Future<Map<String, double>?> _resolveGoogleMapsUrl(String urlString) async {
+    try {
+      final uri = Uri.tryParse(urlString.trim());
+      if (uri == null) return null;
+      
+      final client = http.Client();
+      final request = http.Request('GET', uri)..followRedirects = false;
+      final response = await client.send(request);
+      
+      final String? location = response.headers['location'];
+      client.close();
+      
+      if (location != null && location.isNotEmpty) {
+        final Map<String, double>? latLng = _extractLatLngFromUrl(location);
+        if (latLng != null) return latLng;
+        
+        if (location.contains('google.com/maps') ||
+            location.contains('maps.app.goo.gl') ||
+            location.contains('goo.gl/maps')) {
+          return await _resolveGoogleMapsUrl(location);
+        }
+      } else {
+        final directResponse = await http.get(uri);
+        final finalUrl = directResponse.request?.url.toString();
+        if (finalUrl != null) {
+          return _extractLatLngFromUrl(finalUrl);
+        }
+      }
+    } catch (e) {
+      debugPrint('Error resolving shortened URL: $e');
+    }
+    return null;
+  }
+
+  Map<String, double>? _extractLatLngFromUrl(String url) {
+    final regexes = [
+      RegExp(r'@(-?\d+\.\d+),(-?\d+\.\d+)'),
+      RegExp(r'[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)'),
+      RegExp(r'place/(-?\d+\.\d+),(-?\d+\.\d+)'),
+      RegExp(r'll=(-?\d+\.\d+),(-?\d+\.\d+)'),
+    ];
+    for (final reg in regexes) {
+      final match = reg.firstMatch(url);
+      if (match != null && match.groupCount >= 2) {
+        final lat = double.tryParse(match.group(1) ?? '');
+        final lng = double.tryParse(match.group(2) ?? '');
+        if (lat != null && lng != null) {
+          return {'latitude': lat, 'longitude': lng};
+        }
+      }
+    }
+    return null;
+  }
+
+  Future<void> _checkAndHandleGoogleMapsLink(String text) async {
+    if (_isResolvingLink) return;
+    
+    // Find URL in text
+    final urlRegex = RegExp(
+      r'(https?:\/\/[^\s]+)',
+      caseSensitive: false,
+    );
+    final match = urlRegex.firstMatch(text);
+    
+    // Also find coordinates in text if no URL is found
+    final coordRegex = RegExp(
+      r'(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)',
+    );
+    
+    double? lat;
+    double? lng;
+    
+    if (match != null) {
+      final matchedUrl = match.group(0)!;
+      if (matchedUrl.contains('google.com/maps') ||
+          matchedUrl.contains('maps.app.goo.gl') ||
+          matchedUrl.contains('goo.gl/maps')) {
+        setState(() {
+          _isResolvingLink = true;
+          _isLoading = true;
+        });
+        
+        try {
+          final directLatLng = _extractLatLngFromUrl(matchedUrl);
+          if (directLatLng != null) {
+            lat = directLatLng['latitude'];
+            lng = directLatLng['longitude'];
+          } else {
+            final resolvedLatLng = await _resolveGoogleMapsUrl(matchedUrl);
+            if (resolvedLatLng != null) {
+              lat = resolvedLatLng['latitude'];
+              lng = resolvedLatLng['longitude'];
+            }
+          }
+        } catch (e) {
+          debugPrint('Error resolving link: $e');
+        }
+      }
+    } else {
+      final coordMatch = coordRegex.firstMatch(text);
+      if (coordMatch != null) {
+        lat = double.tryParse(coordMatch.group(1) ?? '');
+        lng = double.tryParse(coordMatch.group(2) ?? '');
+      }
+    }
+    
+    if (lat != null && lng != null) {
+      try {
+        setState(() {
+          _isResolvingLink = true;
+          _isLoading = true;
+        });
+        final placemarks = await placemarkFromCoordinates(lat!, lng!);
+        if (placemarks.isNotEmpty) {
+          final place = placemarks.first;
+          setState(() {
+            _capturedLatitude = lat;
+            _capturedLongitude = lng;
+            
+            final parts = [
+              place.street,
+              place.subLocality,
+              place.locality,
+              place.subAdministrativeArea,
+              place.administrativeArea
+            ].where((p) => p != null && p.trim().isNotEmpty).toList();
+            
+            _fullAddressController.text = parts.join(', ');
+            
+            if (place.postalCode != null && place.postalCode!.isNotEmpty) {
+              _pincodeController.text = place.postalCode!;
+            }
+            if (place.locality != null && place.locality!.isNotEmpty) {
+              _villageController.text = place.locality!;
+            } else if (place.subLocality != null && place.subLocality!.isNotEmpty) {
+              _villageController.text = place.subLocality!;
+            }
+            if (place.name != null && place.name!.isNotEmpty) {
+              _landmarkController.text = place.name!;
+            }
+          });
+          
+          if (mounted) {
+            final locationProvider = Provider.of<LocationProvider>(context, listen: false);
+            final probeAddress = Address(
+              id: 'probe',
+              label: _labelController.text.trim().isEmpty ? 'Home' : _labelController.text.trim(),
+              fullAddress: _fullAddressController.text.trim(),
+              village: _villageController.text.trim(),
+              landmark: _landmarkController.text.trim(),
+              pincode: _pincodeController.text.trim(),
+              latitude: _capturedLatitude!,
+              longitude: _capturedLongitude!,
+            );
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Address autofilled from location link! ${locationProvider.deliveryZoneMessageFor(probeAddress)}'),
+                backgroundColor: locationProvider.isAddressWithinDeliveryRadius(probeAddress)
+                    ? AppTheme.success
+                    : AppTheme.error,
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        debugPrint('Error reverse geocoding: $e');
+      } finally {
+        setState(() {
+          _isResolvingLink = false;
+          _isLoading = false;
+        });
+      }
+    } else {
+      setState(() {
+        _isResolvingLink = false;
+        _isLoading = false;
+      });
     }
   }
 

@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:fufajis_online/models/customer_models.dart';
 import 'package:fufajis_online/services/logging_service.dart';
 
@@ -11,15 +10,12 @@ import 'package:fufajis_online/services/logging_service.dart';
 /// - Cohort performance & growth trends
 class CustomerAnalystService {
   final FirebaseFirestore _firestore;
-  final GenerativeModel _geminiModel;
   final String shopId;
 
   CustomerAnalystService({
     required this.shopId,
     required FirebaseFirestore firestore,
-    required GenerativeModel geminiModel,
-  }) : _firestore = firestore,
-       _geminiModel = geminiModel;
+  }) : _firestore = firestore;
 
   /// ==========================================
   /// MAIN ENTRY POINTS

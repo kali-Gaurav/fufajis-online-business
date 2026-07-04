@@ -110,8 +110,8 @@ class ShopConfigModel {
       shopEmail: map['shopEmail'] as String? ?? '',
       shopLogoUrl: map['shopLogoUrl'] as String?,
       isOpen: map['isOpen'] as bool? ?? true,
-      shopLatitude: (map['shopLatitude'] as num? ?? 26.9124).toDouble(),
-      shopLongitude: (map['shopLongitude'] as num? ?? 75.7873).toDouble(),
+      shopLatitude: (map['shopLatitude'] as num? ?? 25.1006).toDouble(),
+      shopLongitude: (map['shopLongitude'] as num? ?? 76.5156).toDouble(),
       maxDeliveryRadiusKm: (map['maxDeliveryRadiusKm'] as num? ?? 8.0).toDouble(),
       deliveryZones:
           (map['deliveryZones'] as List?)

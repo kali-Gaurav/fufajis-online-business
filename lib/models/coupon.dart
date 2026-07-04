@@ -59,7 +59,7 @@ class Coupon {
       'name': name,
       'description': description,
       'discountType': discountType,
-      'discountValue': discountValue,
+      'discountValue': discountValue.toDouble(),
       'minimumOrderAmount': minimumOrderAmount,
       'maximumDiscountAmount': maximumDiscountAmount,
       'startDate': Timestamp.fromDate(startDate),

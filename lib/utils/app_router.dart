@@ -8,6 +8,9 @@ import '../models/user_model.dart';
 import '../screens/splash_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/auth/email_login_screen.dart';
+import '../screens/auth/owner_login_screen.dart';
+import '../screens/auth/staff_login_screen.dart';
+import '../screens/auth/staff_registration_screen.dart';
 import '../screens/otp_screen.dart';
 import '../screens/role_select_screen.dart';
 import '../screens/customer/customer_shell.dart';
@@ -60,6 +63,7 @@ import '../screens/owner/delivery_zones_screen.dart';
 import '../screens/owner/branch_management_screen.dart';
 import '../screens/owner/operating_hours_screen.dart';
 import '../screens/owner/mission_control/team_room_screen.dart';
+import '../screens/owner/approval_dashboard_screen.dart';
 import '../screens/admin/admin_dashboard.dart';
 import '../screens/delivery/delivery_dashboard.dart';
 import '../screens/delivery/delivery_orders_screen.dart';
@@ -211,6 +215,33 @@ class AppRouter {
         },
       ),
 
+      // New Authentication Routes
+      GoRoute(
+        path: '/auth/owner-login',
+        pageBuilder: (context, state) =>
+            FufajiSharedAxisH(key: state.pageKey, child: const OwnerLoginScreen()),
+      ),
+      GoRoute(
+        path: '/auth/staff-login',
+        pageBuilder: (context, state) {
+          final role = state.uri.queryParameters['role'] ?? 'employee';
+          return FufajiSharedAxisH(
+            key: state.pageKey,
+            child: StaffLoginScreen(role: role),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/auth/staff-register',
+        pageBuilder: (context, state) {
+          final role = state.uri.queryParameters['role'] ?? 'employee';
+          return FufajiSharedAxisH(
+            key: state.pageKey,
+            child: StaffRegistrationScreen(role: role),
+          );
+        },
+      ),
+
       // Security PIN — slide up (gate/guard feel)
       GoRoute(
         path: '/security-pin',
@@ -292,6 +323,20 @@ class AppRouter {
             pageBuilder: (context, state) => FufajiPageTransition(
               key: state.pageKey,
               child: OrderDetailScreen(orderId: state.pathParameters['orderId'] ?? ''),
+            ),
+          ),
+          GoRoute(
+            path: 'operating-hours',
+            pageBuilder: (context, state) => FufajiFadeScaleTransition(
+              key: state.pageKey,
+              child: const OperatingHoursScreen(),
+            ),
+          ),
+          GoRoute(
+            path: 'approval-dashboard',
+            pageBuilder: (context, state) => FufajiFadeScaleTransition(
+              key: state.pageKey,
+              child: const ApprovalDashboardScreen(),
             ),
           ),
           GoRoute(
@@ -741,8 +786,8 @@ class AppRouter {
           path.startsWith('/otp/') ||
           path == '/role-select' ||
           path == '/profile-creation' ||
-          path == '/auth/verify-wall' ||
-          path == '/security-pin';
+          path == '/security-pin' ||
+          path.startsWith('/auth/');
 
       // ── Paths guests CAN access (browse-only) ────────────────
       final isGuestAllowed =

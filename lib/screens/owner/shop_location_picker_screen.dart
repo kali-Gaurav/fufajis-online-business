@@ -15,7 +15,7 @@ class ShopLocationPickerScreen extends StatefulWidget {
 }
 
 class _ShopLocationPickerScreenState extends State<ShopLocationPickerScreen> {
-  LatLng _selectedLatLng = const LatLng(26.9124, 75.7873);
+  LatLng _selectedLatLng = const LatLng(25.1006, 76.5156);
   double _radiusKm = 8.0;
   String _addressController = '';
   GoogleMapController? _mapController;

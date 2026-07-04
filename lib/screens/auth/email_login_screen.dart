@@ -95,6 +95,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: AnimatedBuilder(
         animation: _bgFade,
         builder: (_, child) => Opacity(opacity: _bgFade.value, child: child),

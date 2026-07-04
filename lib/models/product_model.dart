@@ -81,7 +81,7 @@ class ProductUnitOption {
     return {
       'id': id,
       'name': name,
-      'price': price,
+      'price': price.toDouble(),
       'originalPrice': originalPrice,
       'stockQuantity': stockQuantity,
     };
@@ -104,7 +104,7 @@ class CompetitorPrice {
   }
 
   Map<String, dynamic> toMap() {
-    return {'competitorName': competitorName, 'price': price, 'updatedAt': updatedAt};
+    return {'competitorName': competitorName, 'price': price.toDouble(), 'updatedAt': updatedAt};
   }
 }
 
@@ -129,7 +129,10 @@ class ProductModel {
   final Map<String, String> nutrition; // NEW: Nutrition facts (e.g., {"protein": "12g", "fiber": "8g"})
   final double rating;
   final int reviewCount;
-  final int stockQuantity;
+  final int stockQuantity; // Legacy total stock
+  final int availableStock; // Phase B: Available for checkout
+  final int reservedStock; // Phase B: In checkout / pending payment
+  final int soldStock; // Phase B: Completed orders
   final int minimumStock; // Feature 12
   final bool isAvailable;
   final bool isFeatured;
@@ -166,7 +169,8 @@ class ProductModel {
   final String? farmerImageUrl; // Step 11.3
   final DateTime? harvestDate; // Step 11.4
   final bool isOrganicCertified; // Step 11.5
-  final Map<String, int> branchStock;
+  final Map<String, int> branchStock; // Legacy branch stock
+  final Map<String, Map<String, dynamic>> branchStockMap; // Phase B: {branchId: {available, reserved, sold}}
   final Map<String, Map<String, dynamic>> branchLocations;
   final String? shelfPhotoUrl;
   final DateTime? shelfPhotoUpdatedAt;
@@ -193,6 +197,9 @@ class ProductModel {
     this.rating = 0.0,
     this.reviewCount = 0,
     required this.stockQuantity,
+    this.availableStock = 0,
+    this.reservedStock = 0,
+    this.soldStock = 0,
     this.minimumStock = 10, // Feature 12 Default
     this.isAvailable = true,
     this.isFeatured = false,
@@ -230,6 +237,7 @@ class ProductModel {
     this.harvestDate,
     this.isOrganicCertified = false,
     this.branchStock = const {},
+    this.branchStockMap = const {},
     this.branchLocations = const {},
     this.shelfPhotoUrl,
     this.shelfPhotoUpdatedAt,
@@ -272,6 +280,9 @@ class ProductModel {
       rating: (map['rating'] as num? ?? 0.0).toDouble(),
       reviewCount: map['reviewCount'] as int? ?? 0,
       stockQuantity: map['stockQuantity'] as int? ?? 0,
+      availableStock: map['availableStock'] as int? ?? (map['stockQuantity'] as int? ?? 0),
+      reservedStock: map['reservedStock'] as int? ?? 0,
+      soldStock: map['soldStock'] as int? ?? 0,
       minimumStock: map['minimumStock'] as int? ?? 10,
       isAvailable: map['isAvailable'] as bool? ?? true,
       isFeatured: map['isFeatured'] as bool? ?? false,
@@ -317,6 +328,7 @@ class ProductModel {
       isOrganicCertified: map['isOrganicCertified'] as bool? ?? false,
       branchStock:
           (map['branchStock'] as Map?)?.map((k, v) => MapEntry(k.toString(), v as int)) ?? const {},
+      branchStockMap: Map<String, Map<String, dynamic>>.from(map['branchStockMap'] as Map? ?? {}),
       branchLocations:
           (map['branchLocations'] as Map?)?.map((k, v) {
             if (v is Map) {
@@ -349,9 +361,9 @@ class ProductModel {
       'id': id,
       'name': name,
       'description': description,
-      'price': price,
-      'originalPrice': originalPrice,
-      'discountPercentage': discountPercentage,
+      'price': price.toDouble(),
+      'originalPrice': originalPrice?.toDouble(),
+      'discountPercentage': discountPercentage?.toDouble(),
       'unit': unit,
       'categoryId': categoryId,
       'category': category,
@@ -362,11 +374,14 @@ class ProductModel {
       'images': images,
       'hindiName': hindiName, // NEW
       'keywords': keywords, // NEW
-      'mrpPrice': mrpPrice, // NEW
+      'mrpPrice': mrpPrice?.toDouble(), // NEW
       'nutrition': nutrition, // NEW
       'rating': rating,
       'reviewCount': reviewCount,
       'stockQuantity': stockQuantity,
+      'availableStock': availableStock,
+      'reservedStock': reservedStock,
+      'soldStock': soldStock,
       'minimumStock': minimumStock,
       'isAvailable': isAvailable,
       'isFeatured': isFeatured,
@@ -381,7 +396,7 @@ class ProductModel {
       'expiryDate': expiryDate,
       'isExpired': isExpired,
       'competitorPrices': competitorPrices.map((x) => x.toMap()).toList(),
-      'costPrice': costPrice,
+      'costPrice': costPrice?.toDouble(),
       'pricingStrategy': pricingStrategy,
       'lastPriceUpdate': lastPriceUpdate,
       'weight': weight,
@@ -395,7 +410,7 @@ class ProductModel {
       'createdAt': createdAt,
       'updatedAt': updatedAt,
       'unitOptions': unitOptions.map((x) => x.toMap()).toList(),
-      'lightningDealPrice': lightningDealPrice,
+      'lightningDealPrice': lightningDealPrice?.toDouble(),
       'lightningDealEndTime': lightningDealEndTime?.toIso8601String(),
       'farmStory': farmStory,
       'farmerName': farmerName,
@@ -403,6 +418,7 @@ class ProductModel {
       'harvestDate': harvestDate?.toIso8601String(),
       'isOrganicCertified': isOrganicCertified,
       'branchStock': branchStock,
+      'branchStockMap': branchStockMap,
       'branchLocations': branchLocations,
       'shelfPhotoUrl': shelfPhotoUrl,
       'shelfPhotoUpdatedAt': shelfPhotoUpdatedAt?.toIso8601String(),

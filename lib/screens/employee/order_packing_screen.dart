@@ -46,7 +46,6 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
   Map<String, Map<String, dynamic>> _productLocations = {};
   List<OrderItem> _sortedItems = [];
   bool _autoPrintOnComplete = true;
-  bool _allWeightsVerified = false;
   static const String _keyAutoPrintPacking = 'auto_print_receipt_on_packing';
 
   // --- Barcode Mapping and Inputs ---
@@ -1438,9 +1437,6 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
               if (val != null && val > 0) {
                 setState(() {
                   _packedWeights[productId] = val;
-                  _allWeightsVerified = _weightVerificationItems.every(
-                    (i) => _packedWeights.containsKey(i.productId),
-                  );
                 });
               }
               Navigator.pop(ctx);

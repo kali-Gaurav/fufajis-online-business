@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'wallet_service.dart';
-import 'inventory_ledger_service.dart';
 
 /// Refund & Inventory Restoration Service
 /// Handles refunds with complete inventory restoration (Task #17 FIX)
@@ -18,8 +16,6 @@ class RefundInventoryService {
   RefundInventoryService._internal();
 
   final FirebaseFirestore _db = FirebaseFirestore.instance;
-  final WalletService _wallet = WalletService();
-  final InventoryLedgerService _ledger = InventoryLedgerService();
 
   /// Process refund with complete inventory restoration
   ///

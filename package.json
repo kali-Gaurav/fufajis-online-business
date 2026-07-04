@@ -1,4 +1,13 @@
 {
+  "name": "fufaji-store",
+  "version": "1.0.0",
+  "description": "Fufaji Store - E-commerce platform",
+  "scripts": {
+    "seed": "node FINAL_SEED_ALL_PRODUCTS.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.110.0"
+  },
   "devDependencies": {
     "supabase": "^2.108.0"
   }

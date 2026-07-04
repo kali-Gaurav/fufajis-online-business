@@ -49,9 +49,17 @@ class RuntimeConfigService {
 
       debugPrint('[RuntimeConfig] Loading from $configUrl');
 
+      // Fix 16 (2026-07-04): was a 45s timeout. This call runs in the
+      // background (see main.dart) against a Render free-tier backend,
+      // which cold-starts after inactivity. A 45s hang left the app
+      // running on stale/default config far longer than necessary and
+      // risked looking stuck if anything awaited `load()` directly.
+      // Build-time defaults (_loadDefaults) cover every value this
+      // endpoint returns, so failing fast is strictly better than
+      // waiting out a slow cold start.
       final response = await http
           .get(configUrl, headers: {'Content-Type': 'application/json'})
-          .timeout(const Duration(seconds: 45));
+          .timeout(const Duration(seconds: 8));
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);

@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
-import 'signed_url_service.dart';
 
 /// Service for uploading product images to Supabase Storage
 /// and syncing with Firestore.
@@ -20,7 +19,6 @@ class ProductImageService {
 
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final SignedUrlService _signedUrlService = SignedUrlService();
 
   /// Uploads a product image to Supabase Storage and syncs to Firestore.
   ///

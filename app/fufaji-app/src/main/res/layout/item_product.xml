@@ -48,7 +48,7 @@
             android:orientation="vertical"
             android:padding="12dp">
 
-            <!-- Product Name (Hindi) -->
+            <!-- Product Name -->
             <TextView
                 android:id="@+id/productName"
                 android:layout_width="match_parent"
@@ -60,7 +60,7 @@
                 android:ellipsize="end"
                 android:layout_marginBottom="4dp" />
 
-            <!-- Product Name (English) -->
+            <!-- Product Category -->
             <TextView
                 android:id="@+id/productNameEn"
                 android:layout_width="match_parent"

@@ -22,12 +22,36 @@ class AppConfig {
   }
 
   // Shop: Jalawar Road, Tel Factory, Baran, Rajasthan 325205
+  // Fallback coordinates (Baran, Rajasthan) if shop config not loaded yet
+  static const double _fallbackShopLatitude = 25.1006;
+  static const double _fallbackShopLongitude = 76.5156;
+
   static double get shopLatitude {
-    return ShopConfigService().cachedConfig?.shopLatitude ?? 25.1006;
+    try {
+      final cached = ShopConfigService().cachedConfig;
+      final lat = cached?.shopLatitude;
+      // Validate latitude is reasonable (between -90 and 90)
+      if (lat != null && lat >= -90 && lat <= 90 && lat != 0) {
+        return lat;
+      }
+    } catch (e) {
+      // Silently fall back to hardcoded if there's any error
+    }
+    return _fallbackShopLatitude;
   }
 
   static double get shopLongitude {
-    return ShopConfigService().cachedConfig?.shopLongitude ?? 76.5156;
+    try {
+      final cached = ShopConfigService().cachedConfig;
+      final lng = cached?.shopLongitude;
+      // Validate longitude is reasonable (between -180 and 180)
+      if (lng != null && lng >= -180 && lng <= 180 && lng != 0) {
+        return lng;
+      }
+    } catch (e) {
+      // Silently fall back to hardcoded if there's any error
+    }
+    return _fallbackShopLongitude;
   }
 
   static double get deliveryRadiusKm {

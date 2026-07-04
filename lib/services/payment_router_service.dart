@@ -33,8 +33,6 @@ class PaymentRouterService {
   static const int _maxRetries = 3;
   static const int _initialBackoffMs = 1000; // 1 second
   static const double _backoffMultiplier = 2.0; // exponential: 1s, 2s, 4s
-  @deprecated
-  static String get _razorpayWebhookSecret => '';
 
   // ─────────────── WEBHOOK HANDLER (Razorpay) ───────────────
 
@@ -224,21 +222,6 @@ class PaymentRouterService {
       debugPrint('[PaymentRouter] Idempotency check failed, continuing: $e');
     }
 
-    final data = {
-      'paymentId': paymentId,
-      'orderId': orderId,
-      'customerId': customerId,
-      'amount': amount,
-      'method': method,
-      'status': status.name,
-      'razorpayPaymentId': razorpayPaymentId ?? '',
-      'razorpayOrderId': razorpayOrderId ?? '',
-      'failureReason': failureReason ?? '',
-      'needsReconciliation': status == PaymentLedgerStatus.failed,
-      'createdAt': FieldValue.serverTimestamp(),
-      'updatedAt': FieldValue.serverTimestamp(),
-    };
-
     // CRITICAL: Do NOT write payment ledger directly to Firestore
     // Backend API must handle payment recording atomically:
     // 1. Verify payment signature (if Razorpay)
@@ -263,7 +246,6 @@ class PaymentRouterService {
 
     // If failed, add to reconciliation queue
     if (status == PaymentLedgerStatus.failed) {
-      // await _enqueueReconciliation(paymentId, orderId, amount, failureReason);
       debugPrint('[PaymentRouter] Payment $paymentId failed - backend will handle reconciliation');
     }
   }
@@ -294,26 +276,9 @@ class PaymentRouterService {
     throw UnsupportedError('Use backend API for payment status updates instead of direct Firestore writes');
   }
 
-  // ─────────────── RECONCILIATION QUEUE ───────────────
-
-  Future<void> _enqueueReconciliation(
-    String paymentId,
-    String orderId,
-    double amount,
-    String? reason,
-  ) async {
-    final entryId = 'recon_${DateTime.now().millisecondsSinceEpoch}_$paymentId';
-    await _firestore.collection('reconciliation_queue').doc(entryId).set({
-      'paymentId': paymentId,
-      'orderId': orderId,
-      'amount': amount,
-      'failureReason': reason ?? 'unknown',
-      'status': 'pending',
-      'retryCount': 0,
-      'createdAt': FieldValue.serverTimestamp(),
-    });
-    debugPrint('[PaymentRouter] Enqueued reconciliation: $entryId');
-  }
+  /// MARK: Reconciliation
+  // Reconciliation is now handled by the backend API.
+  // Private helper _enqueueReconciliation is removed.
 
   /// Fetches all unresolved reconciliation entries (for admin dashboard).
   Future<List<Map<String, dynamic>>> getPendingReconciliations() async {

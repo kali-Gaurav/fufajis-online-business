@@ -29,6 +29,7 @@ const { admin, db } = require('../firestore');
 router.post('/razorpay', async (req, res) => {
   const firestore = db();
   const FieldValue = admin.firestore.FieldValue;
+  const pool = require('../db/pool');  // ✅ FIX: Add webhook_events table storage
   const signature = req.headers['x-razorpay-signature'];
   const rawBody = Buffer.isBuffer(req.body) ? req.body : Buffer.from(JSON.stringify(req.body || {}));
 
@@ -44,6 +45,21 @@ router.post('/razorpay', async (req, res) => {
   const event = parsed.event;
   const payload = parsed.payload;
   const webhookEventId = parsed.id || `unknown_${Date.now()}`;
+
+  // ✅ FIX: Store webhook event in DB for retry tracking
+  const webhookStorageId = require('uuid').v4();
+  try {
+    await pool.query(
+      `INSERT INTO webhook_events (id, event_type, razorpay_event_id, payload, status, created_at)
+       VALUES ($1, $2, $3, $4, 'processing', CURRENT_TIMESTAMP)
+       ON CONFLICT (razorpay_event_id) DO UPDATE SET status = 'processing'
+       RETURNING id`,
+      [webhookStorageId, event, webhookEventId, JSON.stringify(parsed)]
+    );
+  } catch (storageErr) {
+    console.error('[RazorpayWebhook] Failed to store webhook event:', storageErr.message);
+    // Continue anyway - we'll attempt processing
+  }
 
   try {
     // Initialize Razorpay service
@@ -130,50 +146,61 @@ router.post('/razorpay', async (req, res) => {
         return res.status(400).send('Amount mismatch');
       }
 
-      // Atomic update: payment + order + ledger
-      await firestore.runTransaction(async (transaction) => {
-        // Update order
-        transaction.update(orderRef, {
-          paymentStatus: 'paid',
-          paymentId: payment.id,
-          paymentMethod: 'PaymentMethod.' + (payment.method || 'razorpay'),
-          status: 'OrderStatus.confirmed',
-          updatedAt: FieldValue.serverTimestamp(),
-          reconciliationSource: 'razorpay_webhook',
-          reconciledAt: FieldValue.serverTimestamp(),
-        });
+      // ✅ FIX: Use PostgreSQL-based PaymentService for atomic payment processing
+      // This ensures idempotency and state machine handling
+      // ✅ FIX: Add timeout protection
+      const WEBHOOK_TIMEOUT = 30000; // 30 seconds
+      const paymentTimeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('WEBHOOK_TIMEOUT: Payment processing exceeded 30s')), WEBHOOK_TIMEOUT)
+      );
 
-        // Create/update payment record
-        const paymentRef = firestore.collection('payments').doc(payment.id);
-        transaction.set(
-          paymentRef,
-          {
-            paymentId: payment.id,
-            orderId,
-            amount: amountRupees,
-            currency: payment.currency || 'INR',
-            method: payment.method || 'razorpay',
-            status: 'captured',
-            verified: true,
-            verifiedAt: FieldValue.serverTimestamp(),
-            source: 'webhook',
-            customerId: orderData.customerId || '',
-            createdAt: FieldValue.serverTimestamp(),
-          },
-          { merge: true }
+      try {
+        const paymentResult = await Promise.race([
+          PaymentService.processPaymentWebhook(
+            payment.id,        // razorpayPaymentId
+            payment.order_id,  // razorpayOrderId
+            signature           // razorpaySignature (for verification)
+          ),
+          paymentTimeoutPromise
+        ]);
+
+        console.log(
+          `[RazorpayWebhook] ✅ Payment processed via PaymentService: ${JSON.stringify(paymentResult)}`
         );
 
-        // Record event for idempotency
-        transaction.set(eventRef, {
-          processedAt: FieldValue.serverTimestamp(),
-          eventId: webhookEventId,
-          orderId,
+        // Also update Firebase for backward compatibility (non-critical)
+        try {
+          await eventRef.set({
+            processedAt: FieldValue.serverTimestamp(),
+            eventId: webhookEventId,
+            orderId,
+            paymentId: payment.id,
+            amount: amountRupees,
+            type: event,
+            source: 'postgres_primary',
+          });
+        } catch (fbErr) {
+          console.warn('[RazorpayWebhook] Firebase event log failed (non-critical):', fbErr.message);
+        }
+      } catch (pgErr) {
+        console.error('[RazorpayWebhook] ❌ CRITICAL: PaymentService failed:', pgErr.message);
+        // ✅ FIX: Don't fall back to Firebase dual-write. Instead, alert ops to retry
+        // This prevents state inconsistency where Firebase succeeds but Postgres fails
+        await firestore.collection('payment_reconciliation_log').add({
           paymentId: payment.id,
-          amount: amountRupees,
-          type: event,
+          orderId,
+          action: 'payment_processing_failed',
+          error: pgErr.message,
+          requiresManualRetry: true,
+          timestamp: FieldValue.serverTimestamp(),
         });
-      });
 
+        console.error(`[RazorpayWebhook] 🚨 Payment ${payment.id} failed. Requires manual intervention. Check payment_reconciliation_log.`);
+        // Return 500 to signal to Razorpay to retry webhook
+        return res.status(500).send('Payment processing failed, retry webhook');
+      }
+
+      // Record event for idempotency (Firebase-side tracking)
       await firestore.collection('payment_reconciliation_log').add({
         paymentId: payment.id,
         orderId,
@@ -182,26 +209,6 @@ router.post('/razorpay', async (req, res) => {
         event,
         timestamp: FieldValue.serverTimestamp(),
       });
-
-      console.log(
-        `[RazorpayWebhook] Order ${orderId} → PAID + CONFIRMED (₹${amountRupees})`
-      );
-
-      // ── SUPABASE DUAL-WRITE ──
-      try {
-        await SupabasePaymentService.createPayment({
-          paymentId: payment.id,
-          orderId: orderId, // Service should handle firestore_id matching
-          customerId: orderData.customerId || '',
-          amount: amountRupees,
-          paymentMethod: payment.method || 'razorpay',
-          status: 'captured'
-        });
-        await SupabaseOrderService.updatePaymentStatus(orderId, 'paid', payment.id);
-        console.log(`[Supabase] Webhook dual-write successful for ${orderId}`);
-      } catch (sbErr) {
-        console.error(`[Supabase] Webhook dual-write failed for ${orderId}:`, sbErr.message);
-      }
 
     // ── PAYMENT FAILED ──
     } else if (event === 'payment.failed') {
@@ -308,9 +315,33 @@ router.post('/razorpay', async (req, res) => {
       }
     }
 
+    // ✅ FIX: Mark webhook as succeeded
+    try {
+      await pool.query(
+        `UPDATE webhook_events SET status = 'succeeded', processed_at = CURRENT_TIMESTAMP
+         WHERE id = $1`,
+        [webhookStorageId]
+      );
+    } catch (err) {
+      console.warn('[RazorpayWebhook] Failed to mark webhook succeeded:', err.message);
+    }
+
     return res.status(200).send('Webhook processed');
   } catch (error) {
     console.error('[RazorpayWebhook] Error processing webhook:', error.message);
+
+    // ✅ FIX: Mark webhook as failed (will be retried by cron)
+    try {
+      await pool.query(
+        `UPDATE webhook_events
+         SET status = 'failed', last_error = $1, next_retry_at = CURRENT_TIMESTAMP + INTERVAL '1 minute'
+         WHERE id = $2`,
+        [error.message, webhookStorageId]
+      );
+    } catch (storageErr) {
+      console.error('[RazorpayWebhook] Failed to mark webhook failed:', storageErr.message);
+    }
+
     await firestore
       .collection('payment_reconciliation_log')
       .add({
@@ -321,6 +352,8 @@ router.post('/razorpay', async (req, res) => {
         timestamp: FieldValue.serverTimestamp(),
       })
       .catch(() => {});
+
+    // Return 500 to signal Razorpay to retry
     return res.status(500).send('Internal Server Error');
   }
 });
@@ -333,13 +366,19 @@ router.all('/whatsapp', async (req, res) => {
     const token = req.query['hub.verify_token'];
     const challenge = req.query['hub.challenge'];
 
-    const VERIFY_TOKEN = 'fufaji_whatsapp_verify';
+    // ✅ FIX: Use environment variable instead of hardcoded token
+    const VERIFY_TOKEN = process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN || 'fufaji_whatsapp_verify';
+
+    if (!VERIFY_TOKEN || VERIFY_TOKEN === 'fufaji_whatsapp_verify') {
+      console.warn('[WhatsAppWebhook] ⚠️ WARNING: Using default verify token. Set WHATSAPP_WEBHOOK_VERIFY_TOKEN env var for security.');
+    }
 
     if (mode && token) {
       if (mode === 'subscribe' && token === VERIFY_TOKEN) {
         console.log('[WhatsAppWebhook] Webhook verified');
         return res.status(200).send(challenge);
       } else {
+        console.warn('[WhatsAppWebhook] Invalid token attempt');
         return res.status(403).send('Forbidden');
       }
     }

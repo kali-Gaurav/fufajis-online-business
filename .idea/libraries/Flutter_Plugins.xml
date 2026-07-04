@@ -46,7 +46,6 @@
       <root url="file://$PROJECT_DIR$/../../pub_cache/hosted/pub.dev/connectivity_plus-7.2.0" />
       <root url="file://$PROJECT_DIR$/../../pub_cache/hosted/pub.dev/firebase_remote_config_web-1.10.10" />
       <root url="file://$PROJECT_DIR$/../../pub_cache/hosted/pub.dev/url_launcher_linux-3.2.2" />
-      <root url="file://$PROJECT_DIR$/../../pub_cache/hosted/pub.dev/sentry_flutter-9.22.0" />
       <root url="file://$PROJECT_DIR$/../../pub_cache/hosted/pub.dev/shared_preferences_android-2.4.26" />
       <root url="file://$PROJECT_DIR$/../../pub_cache/hosted/pub.dev/google_mlkit_commons-0.11.1" />
       <root url="file://$PROJECT_DIR$/../../pub_cache/hosted/pub.dev/flutter_local_notifications_web-1.0.0" />
@@ -81,6 +80,7 @@
       <root url="file://$PROJECT_DIR$/../../pub_cache/hosted/pub.dev/geolocator_linux-0.2.6" />
       <root url="file://$PROJECT_DIR$/../../pub_cache/hosted/pub.dev/url_launcher_ios-6.4.1" />
       <root url="file://$PROJECT_DIR$/../../pub_cache/hosted/pub.dev/geocoding_ios-3.1.0" />
+      <root url="file://$PROJECT_DIR$/../../pub_cache/hosted/pub.dev/sentry_flutter-9.23.0" />
       <root url="file://$PROJECT_DIR$/../../pub_cache/hosted/pub.dev/sign_in_with_apple-8.1.0" />
       <root url="file://$PROJECT_DIR$/../../pub_cache/hosted/pub.dev/sqflite_android-2.4.3" />
       <root url="file://$PROJECT_DIR$/../../pub_cache/hosted/pub.dev/google_maps_flutter_web-0.6.2+3" />

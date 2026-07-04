@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/product_model.dart';
 import '../utils/monetary_value.dart';
-import 'product_service.dart';
 
 /// Service for secure bulk product imports with ownership verification and validation
 class BulkImportService {
@@ -12,7 +11,6 @@ class BulkImportService {
   BulkImportService._internal();
 
   final FirebaseFirestore _db = FirebaseFirestore.instance;
-  final ProductService _productService = ProductService();
 
   /// Import products from CSV or JSON data with full ownership verification.
   /// All products must belong to the same shop, and user must own that shop.

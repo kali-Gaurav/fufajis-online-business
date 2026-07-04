@@ -62,6 +62,9 @@ class PoolManager extends EventEmitter {
         result.rows[0].current_time
       );
 
+      // Run database migrations
+      await this.runMigrations();
+
       this.isInitialized = true;
 
       // Start health check interval
@@ -75,16 +78,101 @@ class PoolManager extends EventEmitter {
   }
 
   /**
+   * Run database migrations on startup
+   * ✅ FIXES:
+   * - Tracks migration failures and alerts ops
+   * - Distinguishes critical vs non-critical migration failures
+   * - Proper error reporting
+   * Creates tables if they don't exist
+   */
+  async runMigrations() {
+    const fs = require('fs');
+    const path = require('path');
+
+    console.log('[PoolManager] 🔧 Running database migrations...');
+
+    try {
+      const migrationsDir = path.join(__dirname, 'migrations');
+      if (!fs.existsSync(migrationsDir)) {
+        console.warn('[PoolManager] ⚠️  No migrations directory found');
+        return;
+      }
+
+      const files = fs.readdirSync(migrationsDir)
+        .filter(f => f.endsWith('.sql'))
+        .sort(); // Alphabetical order ensures 001, 002, 003 etc.
+
+      const failedMigrations = [];
+
+      for (const file of files) {
+        const filePath = path.join(migrationsDir, file);
+        const sqlContent = fs.readFileSync(filePath, 'utf8');
+
+        try {
+          await this.pool.query(sqlContent);
+          console.log(`[PoolManager] ✅ Migration applied: ${file}`);
+        } catch (err) {
+          failedMigrations.push({ file, error: err.message });
+          console.error(`[PoolManager] ❌ Migration failed ${file}:`, err.message);
+
+          // ✅ FIX: If it's a critical early migration (001, 002), this is fatal
+          if (file.startsWith('001') || file.startsWith('002')) {
+            console.error(`[PoolManager] 🚨 CRITICAL: Early migration ${file} failed. System cannot proceed.`);
+            throw new Error(`Critical migration failed: ${file}. ${err.message}`);
+          }
+          // For later migrations, continue but alert ops
+        }
+      }
+
+      if (failedMigrations.length > 0) {
+        console.warn(`[PoolManager] ⚠️  ${failedMigrations.length} migrations failed (non-critical). Review logs.`);
+        this.emit('migrations:partial-failure', failedMigrations);
+      }
+
+      console.log('[PoolManager] ✅ Migrations completed');
+    } catch (err) {
+      console.error('[PoolManager] ❌ Failed to run migrations:', err.message);
+      throw err; // Let startup fail if migrations are critical
+    }
+  }
+
+  /**
    * Periodic health check to ensure pool is alive
+   * ✅ FIXES:
+   * - Monitors connection pool exhaustion
+   * - Alerts ops when pool is running out of connections
    * Runs every 30 seconds
    */
   startHealthCheck() {
     this.healthCheckInterval = setInterval(async () => {
       try {
+        // Health check: simple query
         const client = await this.pool.connect();
         await client.query('SELECT 1');
         client.release();
-        // Health check passed silently
+
+        // ✅ FIX: Monitor connection pool utilization
+        const stats = this.getStats();
+        if (stats) {
+          const utilization = ((stats.totalConnections - stats.idleConnections) / stats.totalConnections) * 100;
+
+          // Alert if pool is >80% utilized
+          if (utilization > 80) {
+            console.warn(
+              `[PoolManager] ⚠️ Connection pool usage HIGH: ${(utilization).toFixed(1)}% ` +
+              `(${stats.totalConnections - stats.idleConnections}/${stats.totalConnections} connections in use)`
+            );
+          }
+
+          // Alert if there are waiting requests (pool exhaustion)
+          if (stats.waitingRequests > 0) {
+            console.warn(
+              `[PoolManager] 🚨 CRITICAL: ${stats.waitingRequests} requests waiting for connections ` +
+              `(pool full: ${stats.totalConnections} connections all in use)`
+            );
+            this.emit('pool:exhausted', stats);
+          }
+        }
       } catch (err) {
         console.error('[PoolManager] Health check failed:', err.message);
         this.emit('pool:health:failed', err);
@@ -138,21 +226,51 @@ class PoolManager extends EventEmitter {
 
   /**
    * Execute multiple queries in a transaction
+   * ✅ FIXES:
+   * - Validates callback is function
+   * - Ensures ROLLBACK completes before throwing error
+   * - Timeout protection for long-running transactions
+   * - Proper error propagation
    * Usage: pool.transaction(async (client) => {
-   *   await client.query('BEGIN');
    *   await client.query('UPDATE ...');
-   *   await client.query('COMMIT');
+   *   return result;
    * })
    */
-  async transaction(callback) {
+  async transaction(callback, timeout = 30000) {
+    // ✅ FIX: Validate callback
+    if (typeof callback !== 'function') {
+      throw new Error('INVALID_INPUT: callback must be a function');
+    }
+
     const client = await this.getClient();
+    let transactionStarted = false;
+
     try {
       await client.query('BEGIN');
-      const result = await callback(client);
+      transactionStarted = true;
+
+      // ✅ FIX: Add timeout protection
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('TRANSACTION_TIMEOUT: exceeded ' + timeout + 'ms')), timeout)
+      );
+
+      const result = await Promise.race([
+        callback(client),
+        timeoutPromise
+      ]);
+
       await client.query('COMMIT');
       return result;
     } catch (err) {
-      await client.query('ROLLBACK');
+      // ✅ FIX: Ensure ROLLBACK completes even if it fails
+      if (transactionStarted) {
+        try {
+          await client.query('ROLLBACK');
+        } catch (rollbackErr) {
+          console.error('[PoolManager] 🚨 ROLLBACK failed:', rollbackErr.message);
+          // Still throw original error, but log rollback failure for ops
+        }
+      }
       throw err;
     } finally {
       client.release();

@@ -28,6 +28,7 @@ class ParsedVoiceItem {
   });
 
   bool get isMatched => product != null;
+  String get productName => product?.name ?? spokenName;
   double get lineTotal => (product?.price ?? MonetaryValue(0.0)).toDouble() * quantity;
 }
 

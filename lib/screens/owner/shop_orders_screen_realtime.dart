@@ -137,7 +137,6 @@ class _ShopOrdersScreenRealtimeState extends State<ShopOrdersScreenRealtime> {
     final orderNumber = orderData['orderNumber'] as String? ?? orderId;
     final status = orderData['status'] as String? ?? 'unknown';
     final createdAt = orderData['createdAt'];
-    final customerId = orderData['customerId'] as String?;
     final totalAmount = orderData['totalAmount'] as num? ?? 0;
     final itemCount = (orderData['items'] as List?)?.length ?? 0;
 

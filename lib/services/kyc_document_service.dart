@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
-import 'signed_url_service.dart';
 
 /// Service for uploading KYC documents to Supabase Storage
 /// and triggering KYC verification workflow.
@@ -19,7 +18,6 @@ class KYCDocumentService {
 
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final SignedUrlService _signedUrlService = SignedUrlService();
 
   /// Uploads a KYC document and initiates verification workflow.
   ///
@@ -61,7 +59,6 @@ class KYCDocumentService {
       debugPrint('[KYCDocumentService] Upload complete. URL: $downloadUrl');
 
       // Update Firestore with document URL and pending status
-      final now = DateTime.now();
       await _firestore
           .collection('users')
           .doc(userId)

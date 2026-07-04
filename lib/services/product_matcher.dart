@@ -55,14 +55,15 @@ class ProductMatcher {
     }
 
     final clean = spokenName.trim().toLowerCase();
+    final catalog = _catalog;
 
     // If no catalog provided, use strict content validation
-    if (_catalog == null || _catalog!.isEmpty) {
+    if (catalog == null || catalog.isEmpty) {
       return _matchWithoutCatalog(clean);
     }
 
     // Check 1: Exact match (name or Hindi)
-    for (final entry in _catalog!.entries) {
+    for (final entry in catalog.entries) {
       final product = entry.value as Map<String, dynamic>;
       final name = (product['name'] as String?)?.toLowerCase() ?? '';
       final hindiName = (product['hindiName'] as String?)?.toLowerCase() ?? '';
@@ -79,7 +80,7 @@ class ProductMatcher {
     }
 
     // Check 2: Keyword match (primary way people speak products)
-    for (final entry in _catalog!.entries) {
+    for (final entry in catalog.entries) {
       final product = entry.value as Map<String, dynamic>;
       final keywords = (product['keywords'] as List?)?.cast<String>() ?? [];
 
@@ -97,7 +98,7 @@ class ProductMatcher {
     }
 
     // Check 3: Keyword prefix match (partial keyword)
-    for (final entry in _catalog!.entries) {
+    for (final entry in catalog.entries) {
       final product = entry.value as Map<String, dynamic>;
       final keywords = (product['keywords'] as List?)?.cast<String>() ?? [];
 
@@ -119,7 +120,7 @@ class ProductMatcher {
     Map<String, dynamic>? bestProduct;
     String? bestProductId;
 
-    for (final entry in _catalog!.entries) {
+    for (final entry in catalog.entries) {
       final product = entry.value as Map<String, dynamic>;
       final name = (product['name'] as String?)?.toLowerCase() ?? '';
 

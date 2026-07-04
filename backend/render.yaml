@@ -52,3 +52,30 @@ services:
     autoDeploy: true
     maxInstances: 3
     minInstances: 1
+
+  # ── Firestore Sync Worker ──────────────────────────────────────────────────
+  # Polls outbox_events table every 5s and mirrors changes to Firestore.
+  # This decouples Firebase Admin SDK from Supabase Edge Functions completely.
+  - type: worker
+    name: fufaji-firestore-sync
+    runtime: node
+    plan: starter
+    region: oregon
+    autoDeploy: true
+    buildCommand: npm ci --legacy-peer-deps
+    startCommand: node src/services/firestore-sync-worker.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SUPABASE_URL
+        fromService:
+          name: fufaji-backend
+          type: web
+          envVarKey: SUPABASE_URL
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: FIREBASE_SERVICE_ACCOUNT_KEY
+        sync: false
+      - key: LOG_LEVEL
+        value: info
+

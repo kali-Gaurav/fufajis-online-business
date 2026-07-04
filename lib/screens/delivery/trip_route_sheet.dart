@@ -3,6 +3,7 @@ import 'package:geolocator/geolocator.dart';
 import '../../models/order_model.dart';
 import '../../models/payment_method.dart';
 import '../../services/order_service.dart';
+import '../../services/delivery_verification_service.dart';
 import '../../services/offline_routing_service.dart';
 import '../../services/offline_sync_service.dart';
 import '../../utils/app_theme.dart';
@@ -27,7 +28,7 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
   final OfflineRoutingService _routingService = OfflineRoutingService();
   final OfflineSyncService _syncService = OfflineSyncService();
 
-  _HyperLocalPosition _currentPos = _HyperLocalPosition(26.9124, 75.7873); // Default mock (Jaipur)
+  _HyperLocalPosition _currentPos = _HyperLocalPosition(25.1006, 76.5156); // Default mock (Baran)
   bool _isOptimizing = false;
   int _activeWaypointIndex = 0;
   List<OrderModel> _optimizedOrders = [];
@@ -204,34 +205,70 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
   }
 
   void _markOrderDeliveredOffline(OrderModel order, String otp) async {
-    // Write status changes through our SyncService queue
-    await _syncService.enqueueStatusUpdate(order.id, 'delivered', otp: otp, otpVerified: true);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          _syncService.isOnline.value
-              ? 'Order marked as Delivered.'
-              : 'Offline: Added delivery update to synchronization queue.',
+    if (!_syncService.isOnline.value) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Live connection required for order updates.'),
+          backgroundColor: AppTheme.error,
         ),
-        backgroundColor: AppTheme.success,
-      ),
+      );
+      return;
+    }
+    
+    final success = await DeliveryVerificationService().verifyDeliveryOTP(
+      orderId: order.id,
+      providedOTP: otp,
+      agentId: order.deliveryAgentId ?? 'rider',
     );
+
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Order marked as Delivered.'),
+          backgroundColor: AppTheme.success,
+        ),
+      );
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Verification failed. Invalid OTP.'),
+          backgroundColor: AppTheme.error,
+        ),
+      );
+    }
   }
 
   void _startDeliveryOffline(OrderModel order) async {
-    await _syncService.enqueueStatusUpdate(order.id, 'outForDelivery');
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          _syncService.isOnline.value
-              ? 'Order marked as Out for Delivery.'
-              : 'Offline: Added "Out for Delivery" change to synchronization queue.',
+    if (!_syncService.isOnline.value) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Live connection required for order updates.'),
+          backgroundColor: AppTheme.error,
         ),
-        backgroundColor: AppTheme.primary,
-      ),
-    );
+      );
+      return;
+    }
+
+    try {
+      await _orderService.updateOrderStatus(order.id, 'shipped');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Order marked as Out for Delivery.'),
+            backgroundColor: AppTheme.success,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update status: $e'),
+            backgroundColor: AppTheme.error,
+          ),
+        );
+      }
+    }
   }
 
   @override

@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../config/supabase_config.dart';
 import 'notification_service.dart';
 import 'whatsapp_notification_service.dart';
 
@@ -22,90 +24,29 @@ class DeliveryVerificationService {
     double? longitude,
   }) async {
     try {
-      final orderRef = _db.collection('orders').doc(orderId);
-      final snapshot = await orderRef.get();
+      // Call Supabase Edge Function to verify OTP
+      final response = await SupabaseConfig.client.functions.invoke(
+        'order-lifecycle',
+        body: {
+          'action': 'verify-otp',
+          'orderId': orderId,
+          'otp': providedOTP,
+          'latitude': latitude,
+          'longitude': longitude,
+        },
+      );
 
-      if (!snapshot.exists) {
-        throw Exception('Order not found');
+      final data = response.data as Map<String, dynamic>? ?? {};
+      if (data['success'] == true) {
+        debugPrint('Order $orderId successfully delivered via backend verification');
+        return true;
       }
-
-      final orderData = snapshot.data()!;
-      final storedOTP = orderData['otp']?.toString() ?? '';
-
-      // Verify OTP matches
-      if (storedOTP.isEmpty) {
-        throw Exception('No OTP found for this order');
-      }
-
-      if (storedOTP != providedOTP) {
-        // Log failed OTP attempt
-        await _logDeliveryEvent(
-          orderId: orderId,
-          agentId: agentId,
-          eventType: 'otp_verification_failed',
-          details: {'providedOTP': providedOTP, 'attemptedAt': FieldValue.serverTimestamp()},
-        );
+      return false;
+    } catch (e) {
+      debugPrint('Error verifying delivery OTP via backend: $e');
+      if (e.toString().contains('Invalid delivery OTP') || e.toString().contains('unauthenticated')) {
         return false;
       }
-
-      // OTP verified - mark order as delivered
-      final customerId = orderData['customerId']?.toString() ?? '';
-      final customerName = orderData['customerName']?.toString() ?? '';
-      final orderNumber = orderData['orderNumber']?.toString() ?? orderId;
-
-      await _db.runTransaction((transaction) async {
-        // Update order status to delivered
-        transaction.update(orderRef, {
-          'status': 'OrderStatus.delivered',
-          'otpVerified': true,
-          'deliveredAt': FieldValue.serverTimestamp(),
-          'deliveryVerification': {
-            'otp': providedOTP,
-            'verifiedBy': agentId,
-            'verifiedAt': FieldValue.serverTimestamp(),
-            'latitude': latitude,
-            'longitude': longitude,
-          },
-        });
-
-        // Log successful delivery
-        await _logDeliveryEvent(
-          orderId: orderId,
-          agentId: agentId,
-          eventType: 'otp_verification_success',
-          details: {
-            'latitude': latitude,
-            'longitude': longitude,
-            'verifiedAt': FieldValue.serverTimestamp(),
-          },
-        );
-      });
-
-      // Send notifications to customer
-      if (customerId.isNotEmpty) {
-        _notificationService.sendNotificationToUser(
-          userId: customerId,
-          title: 'Order Delivered',
-          body: 'Order #$orderNumber has been delivered successfully!',
-          data: {'type': 'orderUpdate', 'orderId': orderId},
-        );
-
-        // Send WhatsApp notification if phone available
-        final customerPhone = orderData['customerPhone']?.toString();
-        if (customerPhone != null && customerPhone.isNotEmpty) {
-          WhatsAppNotificationService.sendOrderStatusUpdate(
-            phoneNumber: customerPhone,
-            customerName: customerName,
-            orderNumber: orderNumber,
-            status: 'delivered',
-          );
-        }
-      }
-
-      debugPrint('Order $orderId successfully delivered');
-      return true;
-    } catch (e) {
-      debugPrint('Error verifying delivery OTP: $e');
       rethrow;
     }
   }

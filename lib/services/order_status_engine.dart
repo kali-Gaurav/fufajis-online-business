@@ -212,127 +212,6 @@ class OrderStatusEngine {
     }
   }
 
-  /// DEPRECATED: Side effects are now handled exclusively by backend API
-  /// DO NOT call this method. Backend (/orders/:id/status-transition) is the source of truth.
-  @deprecated
-  Future<void> _executeSideEffects({
-    required OrderModel order,
-    required OrderStatus newStatus,
-    required String actorId,
-    required String actorRole,
-    String? actorName,
-    String? note,
-  }) async {
-    throw UnsupportedError(
-      'Direct side effect execution is no longer allowed. '
-      'Use transitionStatus() which routes through backend API. '
-      'Backend handles: inventory, payments, refunds, notifications, loyalty atomically.'
-    );
-  }
-
-  // ──────────────────────────────────────────────────────────────
-  // SIDE EFFECT HANDLERS (DEPRECATED - Backend Handles All)
-  // ──────────────────────────────────────────────────────────────
-  //
-  // CRITICAL: The following methods are deprecated and should NOT be called.
-  // All business logic side effects are now handled atomically by the backend via PostgreSQL.
-  //
-  // This includes:
-  // - Inventory locking/reservation/commitment
-  // - Refund processing and wallet updates
-  // - Loyalty point calculations
-  // - Payment gateway interactions
-  // - Notification delivery
-  // - Audit logging
-
-  /// DEPRECATED: Order confirmation side effects now handled by backend
-  /// Backend atomically: validates payment, reserves inventory, creates packing list, sends notifications
-  @deprecated
-  Future<void> _onOrderConfirmed(OrderModel order) async {
-    throw UnsupportedError(
-      'Client-side confirmation side effects are no longer allowed. '
-      'Backend API (/orders/:id/status-transition) handles atomically: '
-      'payment verification, inventory reservation, packing list creation, notifications.'
-    );
-  }
-
-  /// DEPRECATED: Order processing side effects now handled by backend
-  /// Backend atomically: records start time, notifies kitchen, starts SLA timer
-  @deprecated
-  Future<void> _onOrderProcessing(OrderModel order) async {
-    throw UnsupportedError(
-      'Client-side processing side effects are no longer allowed. '
-      'Backend API handles: start time recording, kitchen notifications, SLA timers.'
-    );
-  }
-
-  /// DEPRECATED: Order packing side effects now handled by backend
-  /// Backend atomically: validates inventory, commits stock, generates packing slip, creates shipping label
-  @deprecated
-  Future<void> _onOrderPacked(OrderModel order) async {
-    throw UnsupportedError(
-      'Client-side packing side effects are no longer allowed. '
-      'Backend API handles: inventory validation, stock commitment, packing slip, shipping label.'
-    );
-  }
-
-  /// DEPRECATED: Delivery assignment side effects now handled by backend
-  /// Backend atomically: assigns delivery agent via TaskRouter, creates delivery task, notifies agent, sends tracking
-  @deprecated
-  Future<void> _onOrderOutForDelivery(OrderModel order) async {
-    throw UnsupportedError(
-      'Client-side delivery assignment is no longer allowed. '
-      'Backend API uses TaskRouter to assign delivery partner atomically, '
-      'creates delivery tasks, sends notifications, and shares tracking links.'
-    );
-  }
-
-  /// DEPRECATED: Delivery completion side effects now handled by backend
-  /// Backend atomically: updates loyalty, handles COD settlement, opens return window, creates rating prompt
-  @deprecated
-  Future<void> _onOrderDelivered(OrderModel order) async {
-    throw UnsupportedError(
-      'Client-side delivery completion is no longer allowed. '
-      'Backend API handles atomically: loyalty point accrual, COD settlement via payment gateway, '
-      'return window creation, rating prompts, post-delivery notifications.'
-    );
-  }
-
-  /// DEPRECATED: Order cancellation side effects now handled by backend
-  /// Backend atomically: restores inventory, initiates refund, cancels deliveries, sends notifications
-  @deprecated
-  Future<void> _onOrderCancelled(OrderModel order, String reason) async {
-    throw UnsupportedError(
-      'Client-side cancellation is no longer allowed. '
-      'Backend API handles atomically: inventory restoration based on current state, '
-      'refund initiation, delivery cancellation, customer notifications.'
-    );
-  }
-
-  /// DEPRECATED: Return processing side effects now handled by backend
-  /// Backend atomically: transitions inventory to QC state, creates RMA, generates return label, schedules pickup
-  @deprecated
-  Future<void> _onOrderReturned(OrderModel order) async {
-    throw UnsupportedError(
-      'Client-side return processing is no longer allowed. '
-      'Backend API handles atomically: inventory QC transition, RMA creation, '
-      'return label generation, pickup scheduling, shop notifications.'
-    );
-  }
-
-  /// DEPRECATED: Refund processing side effects now handled by backend
-  /// Backend atomically: verifies refund eligibility, processes to original payment method,
-  /// updates wallet, creates audit records, closes return window
-  @deprecated
-  Future<void> _onOrderRefunded(OrderModel order) async {
-    throw UnsupportedError(
-      'Client-side refund processing is ABSOLUTELY FORBIDDEN (payment fraud risk). '
-      'Backend API handles exclusively: refund verification, payment gateway interaction, '
-      'wallet updates, loyalty point reversal, accounting records, audit logging. '
-      'All in a single PostgreSQL transaction.'
-    );
-  }
-
   // ──────────────────────────────────────────────────────────────
   // HELPER METHODS
   // ──────────────────────────────────────────────────────────────
@@ -366,7 +245,7 @@ class OrderStatusEngine {
 
     for (final entry in _validTransitions.entries) {
       final from = entry.key.displayName;
-      final tos = entry.value.map((s) => s.displayName ?? '').join(', ');
+      final tos = entry.value.map((s) => s.displayName).join(', ');
       buffer.writeln('  $from → ${tos.isEmpty ? '(terminal)' : tos}');
     }
 

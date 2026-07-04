@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import '../utils/monetary_value.dart';
 
 class CartItem {
@@ -72,9 +73,9 @@ class CartItem {
       'productImage': productImage,
       'unit': unit,
       'quantity': quantity,
-      'price': price,
-      'originalPrice': originalPrice,
-      'discountPercentage': discountPercentage,
+      'price': price.toDouble(),
+      'originalPrice': originalPrice?.toDouble(),
+      'discountPercentage': discountPercentage?.toDouble(),
       'stockQuantity': stockQuantity,
       'shopId': shopId,
       'shopName': shopName,
@@ -87,14 +88,31 @@ class CartItem {
   }
 
   factory CartItem.fromMap(Map<String, dynamic> map) {
+    // DIAGNOSTIC: Trace data corruption sources
+    final priceValue = map['price'];
+    final quantityValue = map['quantity'];
+
+    if (priceValue == null || (priceValue is num && priceValue <= 0)) {
+      debugPrint('[CartItem.fromMap] 🚨 CORRUPTED PRICE:');
+      debugPrint('  productId: ${map['productId']}');
+      debugPrint('  price: $priceValue (type: ${priceValue.runtimeType})');
+      debugPrint('  full map keys: ${map.keys.toList()}');
+    }
+
+    if (quantityValue == null || (quantityValue is num && quantityValue <= 0)) {
+      debugPrint('[CartItem.fromMap] 🚨 CORRUPTED QUANTITY:');
+      debugPrint('  productId: ${map['productId']}');
+      debugPrint('  quantity: $quantityValue (type: ${quantityValue.runtimeType})');
+    }
+
     return CartItem(
       id: map['id'] as String? ?? '',
       productId: map['productId'] as String? ?? '',
       productName: map['productName'] as String? ?? '',
       productImage: map['productImage'] as String? ?? '',
       unit: map['unit'] as String? ?? 'piece',
-      quantity: map['quantity'] as int? ?? 1,
-      price: MonetaryValue(map['price'] ?? 0.0),
+      quantity: (quantityValue is int ? quantityValue : (quantityValue is num ? quantityValue.toInt() : 1)).clamp(1, 999),
+      price: MonetaryValue(priceValue ?? 0.0),
       originalPrice: map['originalPrice'] != null ? MonetaryValue(map['originalPrice']) : null,
       discountPercentage: map['discountPercentage'] != null
           ? MonetaryValue(map['discountPercentage'])

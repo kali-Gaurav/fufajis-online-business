@@ -19,7 +19,6 @@ import '../models/user_model.dart';
 import '../providers/order_provider.dart';
 import '../services/update_service.dart';
 import '../services/lightning_deals_service.dart';
-import '../services/cache_service.dart';
 import '../services/permission_service.dart';
 import '../widgets/fufaji_logo.dart';
 import '../widgets/animated_widgets.dart';
@@ -160,13 +159,29 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   }
 
   Future<void> _bootSequence() async {
+    // Fix 17 (2026-07-04): the old sequence stacked ~1.25s of flat
+    // Future.delayed calls (900ms + 350ms) ON TOP of the real network/auth
+    // work below, purely to keep pace with the splash animation and avoid
+    // an instant/jarring transition. That's additive latency users feel on
+    // every single launch, cached or not.
+    //
+    // Replaced with a single minimum-visible-splash timer that runs
+    // CONCURRENTLY with the real boot work. We only wait out whatever's
+    // left of it (usually nothing, since auth/version checks take longer
+    // than 400ms anyway) instead of always paying the full delay.
+    const minimumSplashDuration = Duration(milliseconds: 400);
+    final minimumSplashTimer = Future.delayed(minimumSplashDuration);
+
     _setStatus('Checking updates...', 0.10);
     final canProceed = await UpdateService().handleVersionCheck(context);
     if (!canProceed) return;
 
     _setStatus('Loading catalog...', 0.30);
     LightningDealsService().fetchActiveDeals();
-    await CacheService().init();
+    // Fix 17: removed a redundant CacheService().init() call here. Tier 2
+    // in main.dart's postFrameCallback already initializes CacheService
+    // once, right after first frame; calling it again here just raced a
+    // second Firestore ping/write against the same cold-start network path.
 
     PermissionService()
         .requestAllPermissions()
@@ -181,11 +196,14 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     await guest.init();
 
     _setStatus('Securing session...', 0.75);
-    await Future.delayed(const Duration(milliseconds: 900));
     if (!mounted) return;
 
     final auth = Provider.of<AuthProvider>(context, listen: false);
     final isLoggedIn = await auth.checkAuthStatus();
+    if (!mounted) return;
+
+    // Only waits out whatever remains of the 400ms floor, if anything.
+    await minimumSplashTimer;
     if (!mounted) return;
 
     if (isLoggedIn) {
@@ -202,8 +220,10 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
         Provider.of<OrderProvider>(context, listen: false).loadOrders(user.id);
         if (!mounted) return;
 
+        // Fix 17: was 350ms - just enough of a beat to read "Welcome back!"
+        // without adding a real hang.
         _setStatus('Welcome back!', 1.0);
-        await Future.delayed(const Duration(milliseconds: 350));
+        await Future.delayed(const Duration(milliseconds: 120));
 
         if (auth.isPinRequired || auth.isDeviceVerificationRequired) {
           context.go('/security-pin');
@@ -220,7 +240,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       }
     } else {
       _setStatus('Get ready!', 1.0);
-      await Future.delayed(const Duration(milliseconds: 350));
+      await Future.delayed(const Duration(milliseconds: 120));
       context.go('/login');
     }
   }

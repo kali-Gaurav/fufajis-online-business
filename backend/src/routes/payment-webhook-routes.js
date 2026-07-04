@@ -17,6 +17,9 @@ router.post('/razorpay', express.raw({ type: '*/*' }), async (req, res) => {
     const payload = req.body.toString('utf-8');
     const webhookEvent = JSON.parse(payload);
 
+    // Get signature from Razorpay webhook header (X-Razorpay-Signature)
+    const headerSignature = req.headers['x-razorpay-signature'];
+
     console.log(`[payment-webhook-routes] Received webhook: ${webhookEvent.event}`);
 
     // Only process payment.authorized events
@@ -27,7 +30,15 @@ router.post('/razorpay', express.raw({ type: '*/*' }), async (req, res) => {
       return res.status(200).json({ received: true });
     }
 
-    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = webhookEvent.payload.payment.entity;
+    // Extract payment details from webhook payload
+    // Razorpay sends: { event, created_at, payload: { payment: { entity: {...} } } }
+    const paymentEntity = webhookEvent.payload?.payment?.entity;
+    if (!paymentEntity) {
+      throw new Error('Invalid webhook payload structure');
+    }
+    const razorpay_payment_id = paymentEntity.id;
+    const razorpay_order_id = paymentEntity.order_id;
+    const razorpay_signature = headerSignature || 'N/A';
 
     // Process payment webhook (includes signature verification + recovery logic)
     const result = await PaymentService.processPaymentWebhook(

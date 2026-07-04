@@ -45,28 +45,24 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> with SingleTickerPr
 
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      UserRole role;
 
       switch (roleStr) {
         case 'shopOwner':
-          role = UserRole.owner;
+          if (mounted) context.push('/auth/owner-login');
           break;
         case 'deliveryAgent':
-          role = UserRole.rider;
+          if (mounted) context.push('/auth/staff-login?role=deliveryAgent');
           break;
         case 'employee':
-          role = UserRole.employee;
+          if (mounted) context.push('/auth/staff-login?role=employee');
           break;
         case 'customer':
-        default:
-          role = UserRole.customer;
+          if (mounted) context.push('/auth/phone-login'); // Use existing phone login or OTP entry for customer
           break;
-      }
-
-      await authProvider.requestRoleUpdate(authProvider.currentUser!.id, role);
-
-      if (mounted) {
-        context.go('/');
+        case 'guest':
+          await authProvider.requestRoleUpdate(authProvider.currentUser?.id ?? 'guest', UserRole.customer);
+          if (mounted) context.go('/');
+          break;
       }
     } catch (e) {
       if (mounted) {
@@ -228,6 +224,22 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> with SingleTickerPr
                   tooltip: 'For store managers, packing, and inventory staff',
                   color: AppTheme.employeeAccent,
                   onTap: () => _selectRole('employee'),
+                  isDark: isDark,
+                ),
+              ),
+
+              // Guest Mode Card
+              FadeSlideIn(
+                duration: AppTheme.durationMedium,
+                delay: const Duration(milliseconds: 520),
+                offset: const Offset(0.2, 0.0),
+                child: _buildRoleCard(
+                  icon: Icons.travel_explore_rounded,
+                  title: 'Continue as Guest',
+                  description: 'Browse the shop catalog without logging in',
+                  tooltip: 'Quick access to see what we offer',
+                  color: AppTheme.primary,
+                  onTap: () => _selectRole('guest'),
                   isDark: isDark,
                 ),
               ),

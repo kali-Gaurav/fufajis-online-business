@@ -41,7 +41,9 @@ class UserModel {
   final double creditLimit;
   final double codLimit;
   final bool isBlocked;
-  final String? pinHash;
+  final String? employeeId;
+  final String? agentId;
+  final String? approvalStatus;
   final bool biometricEnabled;
   final List<DeviceFingerprint> approvedDevices;
   final bool guestMigrated;
@@ -56,6 +58,7 @@ class UserModel {
   final double referralEarnings;
   final double maxCashInHand;
   final String? branchId;
+  final String? pinHash;
 
   UserModel({
     required this.id,
@@ -80,7 +83,9 @@ class UserModel {
     this.creditLimit = 5000.0,
     this.codLimit = 2000.0,
     this.isBlocked = false,
-    this.pinHash,
+    this.employeeId,
+    this.agentId,
+    this.approvalStatus,
     this.biometricEnabled = false,
     this.approvedDevices = const [],
     this.guestMigrated = false,
@@ -95,6 +100,7 @@ class UserModel {
     this.referralEarnings = 0.0,
     this.maxCashInHand = 10000.0,
     this.branchId,
+    this.pinHash,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
@@ -136,7 +142,9 @@ class UserModel {
       creditLimit: (map['creditLimit'] ?? 5000.0).toDouble(),
       codLimit: (map['codLimit'] ?? 2000.0).toDouble(),
       isBlocked: map['isBlocked'] ?? false,
-      pinHash: map['pinHash'],
+      employeeId: map['employeeId'],
+      agentId: map['agentId'],
+      approvalStatus: map['approvalStatus'],
       biometricEnabled: map['biometricEnabled'] ?? false,
       approvedDevices:
           (map['approvedDevices'] as List<dynamic>?)
@@ -159,6 +167,7 @@ class UserModel {
       referralEarnings: (map['referralEarnings'] ?? 0.0).toDouble(),
       maxCashInHand: (map['maxCashInHand'] ?? 10000.0).toDouble(),
       branchId: map['branchId'],
+      pinHash: map['pinHash'],
     );
   }
 
@@ -186,7 +195,9 @@ class UserModel {
       'creditLimit': creditLimit,
       'codLimit': codLimit,
       'isBlocked': isBlocked,
-      'pinHash': pinHash,
+      'employeeId': employeeId,
+      'agentId': agentId,
+      'approvalStatus': approvalStatus,
       'biometricEnabled': biometricEnabled,
       'approvedDevices': approvedDevices.map((d) => d.toMap()).toList(),
       'guestMigrated': guestMigrated,
@@ -201,6 +212,7 @@ class UserModel {
       'referralEarnings': referralEarnings,
       'maxCashInHand': maxCashInHand,
       'branchId': branchId,
+      'pinHash': pinHash,
     };
   }
 
@@ -227,7 +239,9 @@ class UserModel {
     double? creditLimit,
     double? codLimit,
     bool? isBlocked,
-    String? pinHash,
+    String? employeeId,
+    String? agentId,
+    String? approvalStatus,
     bool? biometricEnabled,
     List<DeviceFingerprint>? approvedDevices,
     bool? guestMigrated,
@@ -242,6 +256,7 @@ class UserModel {
     double? referralEarnings,
     double? maxCashInHand,
     String? branchId,
+    String? pinHash,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -266,7 +281,9 @@ class UserModel {
       creditLimit: creditLimit ?? this.creditLimit,
       codLimit: codLimit ?? this.codLimit,
       isBlocked: isBlocked ?? this.isBlocked,
-      pinHash: pinHash ?? this.pinHash,
+      employeeId: employeeId ?? this.employeeId,
+      agentId: agentId ?? this.agentId,
+      approvalStatus: approvalStatus ?? this.approvalStatus,
       biometricEnabled: biometricEnabled ?? this.biometricEnabled,
       approvedDevices: approvedDevices ?? this.approvedDevices,
       guestMigrated: guestMigrated ?? this.guestMigrated,
@@ -281,6 +298,7 @@ class UserModel {
       referralEarnings: referralEarnings ?? this.referralEarnings,
       maxCashInHand: maxCashInHand ?? this.maxCashInHand,
       branchId: branchId ?? this.branchId,
+      pinHash: pinHash ?? this.pinHash,
     );
   }
 }

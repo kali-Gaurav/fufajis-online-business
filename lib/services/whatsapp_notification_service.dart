@@ -38,7 +38,6 @@ class WhatsAppNotificationService {
   static set db(FirebaseFirestore database) => _customDb = database;
 
   static String get _token => '';
-  static String get _phoneId => '';
   static String get _baseUrl => '';
 
   /// Gets the active notification phase from Firestore (default is Phase 1)
@@ -701,7 +700,6 @@ class WhatsAppNotificationService {
 
     // ── Log the notification attempt for delivery audit ──
     final String docId = 'fallback_${DateTime.now().millisecondsSinceEpoch}';
-    final timestamp = DateTime.now();
 
     try {
       await db.collection('notification_delivery_log').doc(docId).set({

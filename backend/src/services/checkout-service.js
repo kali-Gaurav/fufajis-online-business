@@ -5,6 +5,8 @@
 const pool = require('../db/pool');
 const { v4: uuidv4 } = require('uuid');
 const razorpay = require('../lib/razorpay');
+const CouponService = require('./CouponService');
+const ShippingService = require('./ShippingService');
 
 class CheckoutService {
   /**
@@ -25,8 +27,8 @@ class CheckoutService {
     paymentMethod,
     paymentMethodId,
     couponCode,
-    discountAmount = 0,
     deliveryAddressId,
+    deliveryType = 'standard',
     idempotencyKey,
   }) {
     // Step 1: Validate request
@@ -34,25 +36,133 @@ class CheckoutService {
       throw new Error('INVALID_REQUEST: customerId and items are required');
     }
 
-    // Step 2: Create Razorpay order FIRST (before any DB changes)
+    if (!idempotencyKey) {
+      throw new Error('INVALID_REQUEST: idempotencyKey is required');
+    }
+
+    if (!/^[a-zA-Z0-9\-]{20,255}$/.test(idempotencyKey)) {
+      throw new Error('INVALID_REQUEST: idempotencyKey must be 20-255 alphanumeric characters');
+    }
+
+    // ✅ CRITICAL FIX: Verify all items from same shop
+    const shopIds = new Set(items.map(i => i.shopId));
+    if (shopIds.size > 1) {
+      throw new Error('MULTI_SHOP_NOT_SUPPORTED: All items must be from same shop');
+    }
+    if (shopIds.size === 0) {
+      throw new Error('INVALID_REQUEST: shopId required for all items');
+    }
+    const shopId = Array.from(shopIds)[0];
+
+    // ✅ CRITICAL FIX: Fetch actual prices from database (don't trust client)
+    const productIds = items.map(i => i.productId);
+    const productsRes = await pool.query(
+      `SELECT id, price FROM products WHERE id = ANY($1)`,
+      [productIds]
+    );
+
+    if (productsRes.rows.length !== items.length) {
+      throw new Error('PRODUCT_NOT_FOUND: Some products in cart do not exist');
+    }
+
+    const priceMap = Object.fromEntries(productsRes.rows.map(r => [r.id, r.price]));
+
+    // Calculate subtotal with TRUSTED prices from database
+    let subtotal = 0;
+    for (const item of items) {
+      const trustedPrice = priceMap[item.productId];
+      if (!trustedPrice) {
+        throw new Error(`PRODUCT_NOT_FOUND: ${item.productId}`);
+      }
+      subtotal += trustedPrice * item.quantity;
+    }
+    console.log(`[CheckoutService] Subtotal (from DB prices): ₹${subtotal}`);
+
+    // Step 3: ✅ FIX #1 - Validate and apply coupon (SERVER-SIDE)
+    let discountAmount = 0;
+    let couponId = null;
+    if (couponCode) {
+      try {
+        const couponResult = await CouponService.validateAndApply({
+          couponCode,
+          orderTotal: subtotal,
+          userId: customerId,
+          items: items.map(i => ({product_id: i.productId, category: i.category}))
+        });
+
+        if (!couponResult.valid) {
+          throw new Error(`COUPON_ERROR: ${couponResult.error}`);
+        }
+
+        discountAmount = couponResult.discount;
+        couponId = couponResult.couponId;
+        console.log(`[CheckoutService] ✅ Coupon applied: ${couponCode}, discount: ₹${discountAmount}`);
+      } catch (err) {
+        console.error(`[CheckoutService] ❌ Coupon validation failed:`, err.message);
+        throw err;
+      }
+    }
+
+    // ✅ PRE-CHECK: Validate delivery address exists and belongs to customer
+    if (deliveryAddressId) {
+      const addrRes = await pool.query(
+        `SELECT id FROM users_addresses WHERE id = $1 AND user_id = $2`,
+        [deliveryAddressId, customerId]
+      );
+      if (addrRes.rows.length === 0) {
+        throw new Error('DELIVERY_ADDRESS_NOT_FOUND: Address does not exist or does not belong to customer');
+      }
+    }
+
+    // Step 4: ✅ FIX #2 - Calculate shipping fee (SERVER-SIDE)
+    let shippingFee = 0;
+    let estimatedDeliveryDate = null;
+    if (deliveryAddressId) {
+      try {
+        const shippingResult = await ShippingService.calculateFee({
+          deliveryType,
+          deliveryAddressId,
+          subtotal,
+          items
+        });
+        shippingFee = shippingResult.fee;
+        estimatedDeliveryDate = shippingResult.estimatedDeliveryDate;
+        console.log(`[CheckoutService] ✅ Shipping calculated: ₹${shippingFee}, type: ${deliveryType}`);
+      } catch (err) {
+        console.error(`[CheckoutService] ⚠️ Shipping calculation failed:`, err.message);
+        // Don't throw - use free shipping as fallback
+        shippingFee = 0;
+      }
+    }
+
+    // Step 5: Calculate final amount (subtotal - discount + shipping)
+    const finalAmount = subtotal - discountAmount + shippingFee;
+    console.log(`[CheckoutService] Final amount: ₹${subtotal} - ₹${discountAmount} + ₹${shippingFee} = ₹${finalAmount}`);
+
+    // Step 6: Create Razorpay order FIRST (before any DB changes)
     // This prevents the state where stock is reserved but no payment order exists
+    // ✅ FIX: Use CORRECT final amount (with discount + shipping)
     let razorpayOrder;
     try {
-      const totalAmount = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-      const finalAmount = totalAmount - discountAmount;
-
-      razorpayOrder = await razorpay.createOrder({
-        amount: Math.round(finalAmount * 100), // Convert to paise
+      const razorpayResponse = await razorpay.createOrder({
+        amount: Math.round(finalAmount * 100), // Convert to paise - ✅ CORRECT AMOUNT
         currency: 'INR',
         receipt: `fufaji-${customerId}-${Date.now()}`,
         notes: {
           customerId,
-          couponCode,
+          couponCode: couponCode || 'NONE',
+          discountAmount,
+          shippingFee,
           paymentMethod,
         },
       });
 
-      console.log(`[CheckoutService] ✅ Created Razorpay order: ${razorpayOrder.id}`);
+      if (!razorpayResponse.data || razorpayResponse.data.error) {
+        throw new Error(`Razorpay API error: ${JSON.stringify(razorpayResponse.data?.error || 'Unknown error')}`);
+      }
+
+      razorpayOrder = razorpayResponse.data;
+      console.log(`[CheckoutService] ✅ Created Razorpay order: ${razorpayOrder.id}, amount: ₹${finalAmount}`);
     } catch (err) {
       console.error(`[CheckoutService] ❌ Razorpay order creation failed:`, err.message);
       throw err;
@@ -71,6 +181,44 @@ class CheckoutService {
       if (idempotencyCheck.rows.length > 0) {
         console.log(`[CheckoutService] ✅ Idempotency cache hit: ${idempotencyKey}`);
         return idempotencyCheck.rows[0].response_body;
+      }
+
+      // ✅ FIX: RE-VALIDATE COUPON INSIDE TRANSACTION
+      // Coupon could have expired or hit usage limit between initial validation and now
+      if (couponCode && couponId) {
+        const couponRecheck = await client.query(
+          `SELECT id, is_active, valid_to, max_usage, used_count
+           FROM coupons WHERE id = $1 AND is_active = true`,
+          [couponId]
+        );
+
+        if (couponRecheck.rows.length === 0) {
+          throw new Error('COUPON_INVALID: Coupon is no longer active');
+        }
+
+        const cpn = couponRecheck.rows[0];
+        if (cpn.valid_to && new Date(cpn.valid_to) < new Date()) {
+          throw new Error('COUPON_EXPIRED: Coupon is no longer valid');
+        }
+
+        if (cpn.max_usage && cpn.used_count >= cpn.max_usage) {
+          throw new Error('COUPON_LIMIT_EXCEEDED: Coupon usage limit reached');
+        }
+
+        // ✅ FIX: Atomically increment coupon usage count
+        const incrementRes = await client.query(
+          `UPDATE coupons
+           SET used_count = used_count + 1
+           WHERE id = $1 AND used_count < max_usage
+           RETURNING used_count`,
+          [couponId]
+        );
+
+        if (incrementRes.rows.length === 0) {
+          throw new Error('COUPON_LIMIT_EXCEEDED: Could not increment coupon usage');
+        }
+
+        console.log(`[CheckoutService] ✅ Coupon re-validated and incremented: ${couponCode}`);
       }
 
       // Lock inventory rows (SELECT...FOR UPDATE) to prevent race conditions
@@ -105,24 +253,26 @@ class CheckoutService {
 
       // Create checkout_sessions record
       const checkoutSessionId = uuidv4();
-      const totalSubtotal = items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
-      const finalAmount = totalSubtotal - discountAmount;
 
       await client.query(
         `INSERT INTO checkout_sessions
-         (id, customer_id, shop_id, status, subtotal, discount_amount, total_amount, razorpay_order_id, coupon_code, delivery_address_id, idempotency_key, expires_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, CURRENT_TIMESTAMP + INTERVAL '30 minutes')`,
+         (id, customer_id, shop_id, status, subtotal, discount_amount, shipping_fee, total_amount, razorpay_order_id, coupon_id, coupon_code, delivery_address_id, delivery_type, estimated_delivery_date, idempotency_key, expires_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, CURRENT_TIMESTAMP + INTERVAL '30 minutes')`,
         [
           checkoutSessionId,
           customerId,
           items[0].shopId, // Use first item's shop (same shop assumption)
           'inventory_reserved',
-          totalSubtotal,
+          subtotal,
           discountAmount,
-          finalAmount,
+          shippingFee,
+          finalAmount, // ✅ CORRECT: includes discount + shipping
           razorpayOrder.id,
+          couponId,
           couponCode || null,
           deliveryAddressId || null,
+          deliveryType,
+          estimatedDeliveryDate,
           idempotencyKey,
         ]
       );
@@ -145,6 +295,10 @@ class CheckoutService {
 
       // Create reservation_items and update products
       for (const item of items) {
+        // ✅ FIX: Use DB price, not client price
+        const trustedPrice = priceMap[item.productId];
+        const itemSubtotal = trustedPrice * item.quantity;
+
         // Create reservation_item record
         await client.query(
           `INSERT INTO reservation_items (reservation_id, product_id, quantity, price_per_unit, subtotal)
@@ -153,8 +307,8 @@ class CheckoutService {
             reservationId,
             item.productId,
             item.quantity,
-            item.price,
-            item.price * item.quantity,
+            trustedPrice,
+            itemSubtotal,
           ]
         );
 
@@ -171,17 +325,23 @@ class CheckoutService {
       // Create order record
       const orderId = uuidv4();
       await client.query(
-        `INSERT INTO orders (id, customer_id, shop_id, status, total_amount, checkout_session_id, reservation_id, payment_order_id)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        `INSERT INTO orders (id, customer_id, shop_id, status, subtotal_amount, discount_amount, shipping_fee, total_amount, coupon_id, checkout_session_id, reservation_id, payment_order_id, delivery_type, estimated_delivery_date)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
         [
           orderId,
           customerId,
           items[0].shopId,
           'pending',
-          finalAmount,
+          subtotal,
+          discountAmount,
+          shippingFee,
+          finalAmount, // ✅ CORRECT: includes discount + shipping
+          couponId,
           checkoutSessionId,
           reservationId,
           razorpayOrder.id,
+          deliveryType,
+          estimatedDeliveryDate,
         ]
       );
 

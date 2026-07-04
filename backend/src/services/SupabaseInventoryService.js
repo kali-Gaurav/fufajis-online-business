@@ -79,14 +79,11 @@ class SupabaseInventoryService {
         );
       }
 
-      await supabaseService.query('inventory', 'update', {
-        payload: {
-          quantity_reserved: supabaseService.admin.raw(
-            `quantity_reserved + ${quantity}`,
-          ),
-          last_updated: new Date().toISOString(),
-        },
-        filters: { product_id: productId, shop_id: shopId },
+      // Use RPC to handle increment atomically
+      await supabaseService.rawQuery('reserve_inventory', {
+        p_product_id: productId,
+        p_shop_id: shopId,
+        p_quantity: quantity,
       });
 
       console.log(

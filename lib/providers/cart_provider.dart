@@ -10,6 +10,8 @@ import '../models/cart_item.dart';
 import '../models/cart_item_model.dart';
 import '../services/cart_sync_service.dart';
 import '../utils/monetary_value.dart';
+import '../services/cart_validator.dart';
+import '../services/diagnostics_service.dart';
 
 class CartProvider with ChangeNotifier {
   final CartSyncService _cartSyncService = CartSyncService();
@@ -31,18 +33,40 @@ class CartProvider with ChangeNotifier {
 
   int get totalItems => _cartItems.fold(0, (total, item) => total + item.quantity);
 
-  double get subtotal => _cartItems.fold(0.0, (total, item) => total + item.totalPrice.toDouble());
+  double get subtotal {
+    try {
+      return _cartItems.fold<double>(0.0, (total, item) {
+        final itemPrice = item.totalPrice.toDouble();
+        return total + (itemPrice.isNaN ? 0.0 : itemPrice);
+      });
+    } catch (e) {
+      debugPrint('[CartProvider] Error calculating subtotal: $e');
+      return 0.0;
+    }
+  }
 
   double get discount {
-    double discount = 0.0;
-    if (_appliedCoupon != null) {
-      discount = _appliedCoupon!.calculateDiscount(MonetaryValue(subtotal)).toDouble();
+    try {
+      double discount = 0.0;
+      if (_appliedCoupon != null) {
+        final calculated = _appliedCoupon!.calculateDiscount(MonetaryValue(subtotal)).toDouble();
+        discount = (calculated.isNaN || calculated.isInfinite) ? 0.0 : calculated;
+      }
+      return discount.clamp(0.0, subtotal); // Discount can't exceed subtotal
+    } catch (e) {
+      debugPrint('[CartProvider] Error calculating discount: $e');
+      return 0.0;
     }
-    return discount;
   }
 
   double get deliveryCharge {
-    return DeliveryChargeCalculator.calculateDeliveryCharge(_deliveryType, subtotal);
+    try {
+      final charge = DeliveryChargeCalculator.calculateDeliveryCharge(_deliveryType, subtotal);
+      return (charge.isNaN || charge.isInfinite) ? 0.0 : charge.clamp(0.0, 10000.0);
+    } catch (e) {
+      debugPrint('[CartProvider] Error calculating delivery charge: $e');
+      return 0.0;
+    }
   }
 
   /// Get the delivery charge for the current delivery type
@@ -101,54 +125,104 @@ class CartProvider with ChangeNotifier {
   }
 
   double get total {
-    final total = subtotal - discount + deliveryCharge + _tipAmount - _walletAmountUsed;
-    return total.clamp(0, total);
+    try {
+      final subtotalVal = subtotal.clamp(0.0, double.maxFinite);
+      final discountVal = discount.clamp(0.0, subtotalVal);
+      final deliveryVal = deliveryCharge.clamp(0.0, 10000.0);
+      final tipVal = _tipAmount.clamp(0.0, 10000.0);
+      final walletVal = _walletAmountUsed.clamp(0.0, subtotalVal);
+
+      final total = subtotalVal - discountVal + deliveryVal + tipVal - walletVal;
+      return total.clamp(0.0, double.maxFinite);
+    } catch (e) {
+      debugPrint('[CartProvider] Error calculating total: $e');
+      return 0.0;
+    }
   }
 
-  int get rewardPointsUsed => (discount * 10).floor();
+  int get rewardPointsUsed {
+    try {
+      final points = (discount * 10).floor();
+      return points.clamp(0, 999999);
+    } catch (e) {
+      debugPrint('[CartProvider] Error calculating reward points: $e');
+      return 0;
+    }
+  }
 
   // Add item to cart
   void addToCart(ProductModel product, {int quantity = 1, ProductUnitOption? selectedUnit}) {
-    final unitId = selectedUnit?.id ?? 'default';
-
-    final existingIndex = _cartItems.indexWhere(
-      (item) => item.productId == product.id && (item.selectedVariant ?? 'default') == unitId,
-    );
-
-    if (existingIndex >= 0) {
-      final newQuantity = (_cartItems[existingIndex].quantity + quantity).clamp(
-        1,
-        selectedUnit?.stockQuantity ?? product.maxOrderQuantity,
-      );
-      _cartItems[existingIndex] = _cartItems[existingIndex].copyWith(quantity: newQuantity);
-    } else {
+    try {
+      // Validate product has a price
       final price = selectedUnit?.price ?? product.price;
-      final originalPrice = selectedUnit?.originalPrice != null
-          ? MonetaryValue(selectedUnit!.originalPrice)
-          : product.originalPrice;
-      final unitName = selectedUnit?.name ?? product.unit;
+      if (price == null) {
+        debugPrint('[CartProvider] Cannot add ${product.name}: invalid price (null)');
+        return;
+      }
 
-      final cartItem = CartItem(
-        id: '${product.id}_${DateTime.now().millisecondsSinceEpoch}',
-        productId: product.id,
-        productName: product.name,
-        productImage: product.imageUrl,
-        unit: unitName,
-        quantity: quantity,
-        price: price,
-        originalPrice: originalPrice,
-        discountPercentage: product.discountPercentage,
-        stockQuantity: selectedUnit?.stockQuantity ?? product.stockQuantity,
-        shopId: product.shopId,
-        shopName: product.shopName,
-        selectedVariant: unitId,
-        addedAt: DateTime.now(),
+      // Validate price is a valid positive number
+      try {
+        final priceVal = price.toDouble();
+        if (!priceVal.isFinite || priceVal <= 0) {
+          debugPrint('[CartProvider] Cannot add ${product.name}: invalid price ($priceVal)');
+          return;
+        }
+      } catch (e) {
+        debugPrint('[CartProvider] Cannot add ${product.name}: price conversion error: $e');
+        return;
+      }
+
+      final unitId = selectedUnit?.id ?? 'default';
+
+      final existingIndex = _cartItems.indexWhere(
+        (item) => item.productId == product.id && (item.selectedVariant ?? 'default') == unitId,
       );
-      _cartItems.add(cartItem);
-    }
 
-    _saveCart();
-    notifyListeners();
+      if (existingIndex >= 0) {
+        final newQuantity = (_cartItems[existingIndex].quantity + quantity).clamp(
+          1,
+          selectedUnit?.stockQuantity ?? product.maxOrderQuantity,
+        );
+        _cartItems[existingIndex] = _cartItems[existingIndex].copyWith(quantity: newQuantity);
+      } else {
+        final originalPrice = selectedUnit?.originalPrice != null
+            ? MonetaryValue(selectedUnit!.originalPrice)
+            : product.originalPrice;
+        final unitName = selectedUnit?.name ?? product.unit;
+
+        final cartItem = CartItem(
+          id: '${product.id}_${DateTime.now().millisecondsSinceEpoch}',
+          productId: product.id,
+          productName: product.name,
+          productImage: product.imageUrl,
+          unit: unitName,
+          quantity: quantity,
+          price: price,
+          originalPrice: originalPrice,
+          discountPercentage: product.discountPercentage,
+          stockQuantity: selectedUnit?.stockQuantity ?? product.stockQuantity,
+          shopId: product.shopId,
+          shopName: product.shopName,
+          selectedVariant: unitId,
+          addedAt: DateTime.now(),
+        );
+
+        // Validate cart item before adding
+        try {
+          CartValidator.validateItemOrThrow(cartItem);
+          _cartItems.add(cartItem);
+        } catch (e) {
+          DiagnosticsService().log('Cart', '🚨 Invalid item not added: $e', level: AppLogSeverity.error);
+          debugPrint('[CartProvider] Item validation failed: $e');
+          return;
+        }
+      }
+
+      _saveCart();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('[CartProvider] Error adding ${product.name} to cart: $e');
+    }
   }
 
   // Update item quantity
@@ -334,9 +408,14 @@ class CartProvider with ChangeNotifier {
     notifyListeners();
     try {
       await loadPreferences();
-      _cartItems = await _cartSyncService.loadLocalCart();
-      _saveForLaterItems = await _cartSyncService.loadLocalSaveForLater();
+      final loaded = await _cartSyncService.loadLocalCart();
+      // Use CartValidator for comprehensive validation and filtering
+      _cartItems = CartValidator.validateAndFilterCart(loaded);
+
+      final loadedLater = await _cartSyncService.loadLocalSaveForLater();
+      _saveForLaterItems = CartValidator.validateAndFilterCart(loadedLater);
     } catch (e) {
+      DiagnosticsService().log('Cart', 'Error loading cart: $e', level: AppLogSeverity.error, error: e);
       debugPrint('Error loading cart: $e');
     } finally {
       _isLoading = false;

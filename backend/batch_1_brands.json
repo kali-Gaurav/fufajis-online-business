@@ -1,0 +1,94 @@
+{
+  "batchId": "BATCH_1_CORE_STAPLES",
+  "brandIndex": "Unique Brands Across Batch 1",
+  "generatedDate": "2026-07-04",
+  "totalBrands": 3,
+  "brands": [
+    {
+      "brandId": "BRAND_GENERIC",
+      "brandName": "Generic / Local",
+      "type": "loose/local",
+      "description": "Locally sourced, unbranded items (vegetables, loose fruits)",
+      "productCount": 35,
+      "pricePoint": "budget",
+      "targetAudience": ["villages", "kiranas", "farmers_markets"],
+      "products": [
+        "VEG_001", "VEG_002", "VEG_003", "VEG_004", "VEG_005", "VEG_006", "VEG_007", "VEG_008", "VEG_009", "VEG_010",
+        "VEG_011", "VEG_012", "VEG_013", "VEG_014", "VEG_015", "VEG_016", "VEG_017", "VEG_018", "VEG_019", "VEG_020",
+        "FRU_001", "FRU_003", "FRU_004", "FRU_006", "FRU_007", "FRU_009",
+        "RIC_002", "RIC_003",
+        "PUL_001", "PUL_002", "PUL_003"
+      ]
+    },
+    {
+      "brandId": "BRAND_AMUL",
+      "brandName": "Amul",
+      "type": "packaged_dairy",
+      "description": "India's leading dairy brand, trusted nationwide",
+      "productCount": 4,
+      "pricePoint": "budget_premium",
+      "targetAudience": ["families", "all_ages", "health_conscious"],
+      "marketShare": "45% (India dairy market)",
+      "products": [
+        "DAI_001", "DAI_002", "DAI_003", "DAI_005"
+      ],
+      "hindiName": "अमूल",
+      "tagline": "\"Har Ghar Mein Amul\" (Amul in Every Home)"
+    },
+    {
+      "brandId": "BRAND_AASHIRVAAD",
+      "brandName": "Aashirvaad",
+      "type": "packaged_flour",
+      "description": "India's largest atta brand, known for quality",
+      "productCount": 1,
+      "pricePoint": "budget_premium",
+      "targetAudience": ["families", "all_ages"],
+      "marketShare": "40% (India flour market)",
+      "products": [
+        "FLO_001"
+      ],
+      "hindiName": "आशीर्वाद",
+      "tagline": "\"Feel the Difference\" (Quality assurance)"
+    }
+  ],
+  "brandComparison": {
+    "amulVsGeneric": {
+      "amul": {
+        "type": "Packaged Branded",
+        "availability": "Daily (refrigerated)",
+        "shelf_life": "5-7 days",
+        "price_premium": "15-20%",
+        "trust_factor": "High (national brand)"
+      },
+      "generic": {
+        "type": "Loose/Local",
+        "availability": "Daily (farmers market)",
+        "shelf_life": "1-2 days",
+        "price_premium": "0% (baseline)",
+        "trust_factor": "Medium (local trust)"
+      }
+    }
+  },
+  "marketContext": {
+    "indiaFoodMarket": {
+      "dairySegment": "₹1,20,000 Cr (2025)",
+      "flourSegment": "₹80,000 Cr (2025)",
+      "dryProvisionsSegment": "₹2,50,000 Cr (2025)"
+    },
+    "villageMarketShare": {
+      "brandedItems": "25-30% (small towns/villages)",
+      "unBrandedLoose": "70-75% (farmers/local)"
+    }
+  },
+  "voiceCommerceOptimization": {
+    "brandNames": [
+      "अमूल (Amul)",
+      "आशीर्वाद (Aashirvaad)"
+    ],
+    "brandAliases": {
+      "amul": ["amul", "amool", "doodh amul"],
+      "aashirvaad": ["aashirvaad", "aashirwad", "atta aashirvaad"]
+    }
+  },
+  "notes": "Batch 1 includes 3 unique brands: 1 generic (35 products), 1 major dairy (Amul, 4 products), 1 major flour (Aashirvaad, 1 product). Mix optimized for village-first market penetration."
+}

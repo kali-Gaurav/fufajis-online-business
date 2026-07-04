@@ -89,7 +89,6 @@ class ProductCard extends StatelessWidget {
     final branches = context.select<ShopConfigProvider, List<ShopBranchModel>>((p) => p.branches);
 
     String branchId = 'primary';
-    String branchName = 'Primary Store';
     // Harden: Ensure coordinates are valid and branches is not empty (Weakness 11 & 37/Address validation fixes)
     if (userAddress != null &&
         userAddress.latitude != 0.0 &&
@@ -102,7 +101,6 @@ class ProductCard extends StatelessWidget {
       );
       if (nearest != null) {
         branchId = nearest.id;
-        branchName = nearest.branchName;
       }
     }
 

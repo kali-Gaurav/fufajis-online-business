@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../utils/app_theme.dart';
 import 'remote_config_service.dart';
-import 'github_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,7 +16,6 @@ class UpdateService {
   UpdateService._internal();
 
   final RemoteConfigService _remoteConfig = RemoteConfigService();
-  final GitHubService _githubService = GitHubService();
   final ShorebirdService _shorebirdService = ShorebirdService();
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 

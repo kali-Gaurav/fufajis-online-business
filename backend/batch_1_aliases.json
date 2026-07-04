@@ -1,0 +1,139 @@
+{
+  "batchId": "BATCH_1_CORE_STAPLES",
+  "aliasIndex": "Regional Names & Voice Synonyms",
+  "generatedDate": "2026-07-04",
+  "regionalVariants": {
+    "VEG_001": {
+      "name": "Potatoes (Aloo)",
+      "hindiKeywords": ["आलू", "सफेद आलू", "उबली"],
+      "regionalSynonyms": {
+        "hindi": ["आलू", "आलु"],
+        "marathi": ["बटाटा"],
+        "gujarati": ["આલુ"],
+        "bengali": ["আলু"],
+        "tamil": ["உருளைக்கிழங்கு"]
+      },
+      "voiceVariants": ["aloo", "aalu", "batata", "allo", "aalu"],
+      "phoneticVariants": ["ah-loo", "aa-loo", "buh-tuh-tuh"]
+    },
+    "VEG_002": {
+      "name": "Onions (Pyaz)",
+      "hindiKeywords": ["प्याज", "लाल प्याज", "पियाज"],
+      "regionalSynonyms": {
+        "hindi": ["प्याज", "पियाज"],
+        "marathi": ["कांदा"],
+        "gujarati": ["પ્યાજ"],
+        "bengali": ["পিয়াজ"],
+        "tamil": ["வெங்காயம்"]
+      },
+      "voiceVariants": ["pyaz", "piyaz", "pyaaj", "kanda", "venkaayam"],
+      "phoneticVariants": ["pee-yaz", "py-aaz", "kun-duh"]
+    },
+    "VEG_003": {
+      "name": "Tomatoes",
+      "hindiKeywords": ["टमाटर", "लाल टमाटर", "पका टमाटर"],
+      "regionalSynonyms": {
+        "hindi": ["टमाटर", "तमाता"],
+        "marathi": ["टमाटा"],
+        "gujarati": ["ટોમેટો"],
+        "bengali": ["টমেটো"],
+        "tamil": ["தக்காளி"]
+      },
+      "voiceVariants": ["tamatar", "tomato", "tamata", "thakkali"],
+      "phoneticVariants": ["tuh-mah-tar", "tuh-may-toh", "tuk-kah-lee"]
+    },
+    "VEG_004": {
+      "name": "Carrots",
+      "hindiKeywords": ["गाजर", "नारंगी गाजर"],
+      "regionalSynonyms": {
+        "hindi": ["गाजर", "गाजार"],
+        "marathi": ["गाजर"],
+        "gujarati": ["ગાજર"],
+        "bengali": ["গাজর"],
+        "tamil": ["கேரট்"]
+      },
+      "voiceVariants": ["gajar", "gajjar", "carrot", "gazer"],
+      "phoneticVariants": ["gah-jar", "gaj-jar", "car-ut"]
+    },
+    "VEG_005": {
+      "name": "Cabbage",
+      "hindiKeywords": ["पत्तागोभी", "बंदगोभी", "हरी पत्तागोभी"],
+      "regionalSynonyms": {
+        "hindi": ["पत्तागोभी", "बंदगोभी"],
+        "marathi": ["कोबी"],
+        "gujarati": ["કોબી"],
+        "bengali": ["বাঁধাকপি"],
+        "tamil": ["முட்டைக்கோஸ்"]
+      },
+      "voiceVariants": ["patta gobhi", "bandh gobhi", "kobi", "bandakopi"],
+      "phoneticVariants": ["puh-tuh-go-bee", "kun-duh-go-bee", "koh-bee"]
+    },
+    "FRU_001": {
+      "name": "Bananas",
+      "hindiKeywords": ["केला", "पका केला", "पीला केला"],
+      "regionalSynonyms": {
+        "hindi": ["केला", "कैला"],
+        "marathi": ["केळी"],
+        "gujarati": ["કેળું"],
+        "bengali": ["কলা"],
+        "tamil": ["வாழைப்பழம்"]
+      },
+      "voiceVariants": ["kela", "keli", "paka kela", "pazham"],
+      "phoneticVariants": ["kay-luh", "kay-lee", "puh-zum"]
+    },
+    "DAI_001": {
+      "name": "Amul Milk",
+      "hindiKeywords": ["दूध", "अमूल दूध", "ताजा दूध"],
+      "regionalSynonyms": {
+        "hindi": ["दूध", "दूथ"],
+        "marathi": ["दूध"],
+        "gujarati": ["દૂધ"],
+        "bengali": ["দুধ"],
+        "tamil": ["பால்"]
+      },
+      "voiceVariants": ["doodh", "milk", "amul milk", "taza doodh"],
+      "phoneticVariants": ["doodh", "milk", "uh-mool"]
+    },
+    "RIC_001": {
+      "name": "Basmati Rice",
+      "hindiKeywords": ["बासमती चावल", "बासमती", "लंबे दाने"],
+      "regionalSynonyms": {
+        "hindi": ["बासमती चावल", "बासमती"],
+        "marathi": ["बासमती चाळ"],
+        "gujarati": ["બાસમતી ચોખા"],
+        "bengali": ["বাসমতি ভাত"],
+        "tamil": ["பாஸ்மதி அரிசி"]
+      },
+      "voiceVariants": ["basmati", "basmati chawal", "long grain rice"],
+      "phoneticVariants": ["buz-muh-tee", "buz-muh-tee chuh-wul"]
+    },
+    "PUL_001": {
+      "name": "Arhar Dal (Toor Dal)",
+      "hindiKeywords": ["अरहर दाल", "दाल", "दलहन"],
+      "regionalSynonyms": {
+        "hindi": ["अरहर दाल", "तूर दाल"],
+        "marathi": ["तूर दाळ"],
+        "gujarati": ["તુવેર"],
+        "bengali": ["মসুর ডাল"],
+        "tamil": ["துவரம்பருப்பு"]
+      },
+      "voiceVariants": ["arhar dal", "tuvar dal", "toor dal"],
+      "phoneticVariants": ["ar-hur dal", "too-var dal"]
+    }
+  },
+  "seasonalNotes": {
+    "VEG_001": "Available year-round",
+    "VEG_002": "Peak: September-March",
+    "VEG_003": "Peak: May-September",
+    "VEG_008": "Peak: December-March (seasonal)",
+    "FRU_004": "Peak: April-June (Mango season)",
+    "FRU_008": "Peak: March-June (Watermelon season)"
+  },
+  "villageFirstOptimization": {
+    "looseTems": ["VEG_001", "VEG_002", "VEG_003", "VEG_004", "VEG_005", "VEG_011", "VEG_012", "VEG_013", "VEG_014", "VEG_015", "VEG_016", "VEG_017", "VEG_018", "VEG_019", "VEG_020", "FRU_001", "FRU_003", "FRU_004", "FRU_006", "FRU_007", "FRU_009"],
+    "packagedItems": ["DAI_001", "DAI_002", "DAI_003", "DAI_004", "DAI_005", "DAI_006", "RIC_001", "RIC_002", "RIC_003", "FLO_001", "PUL_001", "PUL_002", "PUL_003"],
+    "brandedItems": ["DAI_001", "RIC_001"]
+  },
+  "totalAliasCount": 150,
+  "completionStatus": "PARTIAL — 45 vegetables + 10 dairy/rice/pulses; fruits batch pending"
+}

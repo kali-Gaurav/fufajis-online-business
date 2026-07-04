@@ -24,7 +24,6 @@ class _CustomerInsightsScreenState extends State<CustomerInsightsScreen> {
   List<ChurnAlert> churnAlerts = [];
   FeedbackSynthesis? feedbackSynthesis;
   bool isLoading = true;
-  int _selectedTabIndex = 0;
 
   @override
   void initState() {
@@ -90,7 +89,6 @@ class _CustomerInsightsScreenState extends State<CustomerInsightsScreen> {
           title: const Text('📊 Customer Insights'),
           elevation: 0,
           bottom: TabBar(
-            onTap: (index) => setState(() => _selectedTabIndex = index),
             tabs: [
               Tab(
                 child: Column(

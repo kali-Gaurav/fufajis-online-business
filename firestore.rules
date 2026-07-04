@@ -102,6 +102,14 @@ service cloud.firestore {
         allow delete: if isSignedIn() && (isOwningUser(userId) || isGlobalAdmin());
       }
 
+      match /cart/{itemId} {
+        allow read, write: if isSignedIn() && isOwningUser(userId);
+      }
+
+      match /save_for_later/{itemId} {
+        allow read, write: if isSignedIn() && isOwningUser(userId);
+      }
+
       // NOTE: No wildcard catch-all — each subcollection must be explicitly defined
       // to prevent accidental exposure of future subcollections.
     }
@@ -123,6 +131,32 @@ service cloud.firestore {
         isGlobalAdmin() ||
         isServiceAuth()
       );
+    }
+
+    // ========================================================================
+    // STAFF CREDENTIALS COLLECTION (service role / owner only)
+    // ========================================================================
+    match /staff_credentials/{credId} {
+      // Clients should NEVER read this directly. Edge Function / Auth Service only.
+      allow read, write: if false; 
+    }
+
+    // ========================================================================
+    // AUTH LOGS COLLECTION (service write only, owner read)
+    // ========================================================================
+    match /auth_logs/{logId} {
+      allow create, update, delete: if false; // Only Backend can write
+      allow read: if isSignedIn() && isGlobalAdmin(); // Owner can read
+    }
+
+    // ========================================================================
+    // APPROVAL REQUESTS COLLECTION
+    // ========================================================================
+    match /approval_requests/{reqId} {
+      // Anyone can create an approval request (e.g. employee registering)
+      allow create: if true;
+      // Only Owner/Admin can read or update
+      allow read, update, delete: if isSignedIn() && (isOwner() || isGlobalAdmin());
     }
 
     // ========================================================================
@@ -219,14 +253,12 @@ service cloud.firestore {
         request.resource.data.status == 'pending';
       allow update: if isSignedIn() && (
         // Delivered/cancelled/returned orders are immutable
-        (!isOrderTerminal()) && (
+        (!isOrderTerminal()) && 
+        // NO CLIENT CAN MODIFY LIFECYCLE FIELDS DIRECTLY (Use Cloud Functions)
+        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'deliveryAgentId', 'packerId', 'otpHash', 'shippedAt', 'deliveredAt', 'reservationStatus'])) &&
+        (
           (isBranchManager() && isBranchMatch(resource.data.branchId)) ||
           (isDispatcher() && isBranchMatch(resource.data.branchId)) ||
-          // Customers can only cancel pending/confirmed orders (pre-packed), and cannot change amounts
-          (isCustomer() && resource.data.customerId == request.auth.uid &&
-           resource.data.status in ['pending', 'confirmed'] &&
-           request.resource.data.status == 'cancelled' &&
-           (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['totalAmount', 'deliveryFee', 'discountAmount']))) ||
           isGlobalAdmin()
         )
       );
@@ -238,7 +270,8 @@ service cloud.firestore {
     // ========================================================================
     match /products/{productId} {
       allow read: if true;
-      allow write: if isSignedIn() && isGlobalAdmin();
+      allow create, update: if isSignedIn() && (isGlobalAdmin() || isEmployee());
+      allow delete: if isSignedIn() && isGlobalAdmin();
 
       match /reviews/{reviewId} {
         allow read: if true;
@@ -254,6 +287,19 @@ service cloud.firestore {
       match /{document=**} {
         allow read: if true;
         allow write: if isSignedIn() && isGlobalAdmin();
+      }
+    }
+
+    // ========================================================================
+    // PRICE HISTORY COLLECTION
+    // ========================================================================
+    match /price_history/{productId} {
+      allow read: if true;
+      allow write: if isSignedIn() && (isGlobalAdmin() || isStaff());
+
+      match /changes/{changeId} {
+        allow read: if true;
+        allow write: if isSignedIn() && (isGlobalAdmin() || isStaff());
       }
     }
 
@@ -667,22 +713,17 @@ service cloud.firestore {
     }
 
     match /settings/{docId} {
-      allow read: if isSignedIn();
+      allow read: if docId == 'shop_config' || isSignedIn();
       allow write: if isSignedIn() && isGlobalAdmin();
 
-      match /shop_config/{configId} {
+      match /branches/{branchId} {
         allow read: if true;
         allow write: if isSignedIn() && isGlobalAdmin();
+      }
 
-        match /branches/{branchId} {
-          allow read: if true;
-          allow write: if isSignedIn() && isGlobalAdmin();
-        }
-
-        match /operating_hours/{dayId} {
-          allow read: if true;
-          allow write: if isSignedIn() && isGlobalAdmin();
-        }
+      match /operating_hours/{dayId} {
+        allow read: if true;
+        allow write: if isSignedIn() && isGlobalAdmin();
       }
     }
 
@@ -899,15 +940,25 @@ service cloud.firestore {
         allow read: if isSignedIn() && (isShopOwner(shopId) || isGlobalAdmin());
       }
 
+      match /inventory_alerts/{alertId} {
+        allow read: if isSignedIn() && (isApprovedEmployee() || isShopOwner(shopId) || isGlobalAdmin());
+        allow write: if isSignedIn() && (isApprovedEmployee() || isShopOwner(shopId) || isGlobalAdmin());
+      }
+
+      match /expiry_logs/{logId} {
+        allow read: if isSignedIn() && (isApprovedEmployee() || isShopOwner(shopId) || isGlobalAdmin());
+        allow write: if isSignedIn() && (isApprovedEmployee() || isShopOwner(shopId) || isGlobalAdmin());
+      }
+
       // TASK #1 FIX: products subcollection (was missing, causing PERMISSION_DENIED)
       match /products/{productId} {
-        allow read: if isSignedIn() && (isShopOwner(shopId) || isGlobalAdmin() || isCustomer());
-        allow create, update: if isSignedIn() && (isShopOwner(shopId) || isGlobalAdmin());
+        allow read: if true;
+        allow create, update: if isSignedIn() && (isShopOwner(shopId) || isGlobalAdmin() || isApprovedEmployee());
         allow delete: if isSignedIn() && (isShopOwner(shopId) || isGlobalAdmin());
 
         match /inventory/{invId} {
           allow read: if isSignedIn() && (isShopOwner(shopId) || isGlobalAdmin() || isApprovedEmployee());
-          allow write: if isSignedIn() && (isShopOwner(shopId) || isGlobalAdmin());
+          allow write: if isSignedIn() && (isShopOwner(shopId) || isGlobalAdmin() || isApprovedEmployee());
         }
       }
     }

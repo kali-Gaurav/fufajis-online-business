@@ -78,12 +78,10 @@ public class Constants {
     public static final String PREF_USER_PHONE = "user_phone";
     public static final String PREF_USER_ROLE = "user_role";
     public static final String PREF_DEFAULT_ADDRESS = "default_address";
-    public static final String PREF_LANGUAGE = "language";
     public static final String PREF_THEME = "theme";
     public static final String PREF_NOTIFICATION_ENABLED = "notification_enabled";
 
-    // Language Codes
-    public static final String LANGUAGE_HINDI = "hi";
+    // Language (Default: English only - no switching)
     public static final String LANGUAGE_ENGLISH = "en";
 
     // Categories (Emojis)
@@ -104,8 +102,8 @@ public class Constants {
     public static final double MIN_ORDER_VALUE = 100.0;          // ₹100
 
     // Dad Jokes (for app personality)
-    public static final String DAD_JOKE_ADD_TO_CART = "मेरा कार्ट इतना भरा है कि एक्सप्रेस डिलीवरी में भी देरी हो जाएगी! 😂";
-    public static final String DAD_JOKE_CHECKOUT = "आप का ऑर्डर इतना तेज़ पहुंचेगा कि डिलीवरी पार्टनर को भी आश्चर्य होगा! 🚚";
-    public static final String DAD_JOKE_ORDER_PLACED = "ऑर्डर डाल दिया! अब बस प्रतीक्षा करो और घर बैठा खुशियाँ पाओ! 🎉";
-    public static final String DAD_JOKE_EMPTY_CART = "कार्ट खाली है! शायद आपकी भूख भी ख़त्म हो गई! 😋";
+    public static final String DAD_JOKE_ADD_TO_CART = "Your cart is so full, even express delivery might be slow! 😂";
+    public static final String DAD_JOKE_CHECKOUT = "Your order will arrive so fast, the delivery partner will be surprised! 🚚";
+    public static final String DAD_JOKE_ORDER_PLACED = "Order placed! Now just sit back and enjoy the shopping bliss! 🎉";
+    public static final String DAD_JOKE_EMPTY_CART = "Cart is empty! Maybe your appetite disappeared too! 😋";
 }

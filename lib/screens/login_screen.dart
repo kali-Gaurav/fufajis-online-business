@@ -1,14 +1,17 @@
 // ============================================================
-//  LoginScreen — Premium split-layout auth screen
+//  LoginScreen — Premium auth screen (robust scroll layout)
 //
 //  Design:
-//    • Top 42%: vivid orange hero with logo, brand name,
-//      drifting blobs, and sparkle accents
-//    • Bottom 58%: bright white curved panel for the form
+//    • Rounded orange hero card with logo, brand name, tagline
 //    • Animated role selector chips with role-colour accent
-//    • Google button with coloured icon
-//    • Phone input with +91 prefix
-//    • Guest shortcut with subtle pulse
+//    • Google / Apple / Phone / Email sign-in buttons
+//    • Phone OTP + Guest shortcut (customer only)
+//
+//  Layout note:
+//    Uses a single SingleChildScrollView + Column so every widget
+//    is always laid out and painted. No absolutely-positioned
+//    panels and no start-at-opacity-0 chained controllers, which
+//    previously left the form unpainted (black void) on some frames.
 // ============================================================
 
 import 'dart:io' show Platform;
@@ -33,7 +36,7 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin {
+class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
   final _phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final _phoneFocus = FocusNode();
@@ -41,66 +44,28 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
   UserRole _selectedRole = UserRole.customer;
   bool _isLoading = false;
 
-  late final AnimationController _heroCtrl;
-  late final AnimationController _formCtrl;
+  // Single lightweight controller for decorative blob drift only.
+  // Confined to the hero blobs via RepaintBoundary so it never
+  // triggers a repaint of the form content.
   late final AnimationController _blobCtrl;
-
-  late final Animation<double> _heroFade;
-  late final Animation<Offset> _heroSlide;
-  late final Animation<double> _formFade;
-  late final Animation<Offset> _formSlide;
   late final Animation<double> _blobDrift;
 
   @override
   void initState() {
     super.initState();
-    _initAnimations();
-    _checkDeviceIntegrity();
-  }
-
-  void _initAnimations() {
-    _heroCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 650));
-    _formCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 550));
     _blobCtrl = AnimationController(vsync: this, duration: const Duration(seconds: 6))
       ..repeat(reverse: true);
-
-    _heroFade = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _heroCtrl, curve: Curves.easeOut));
-    _heroSlide = Tween<Offset>(
-      begin: const Offset(0, -0.15),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _heroCtrl, curve: Curves.easeOutCubic));
-
-    _formFade = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _formCtrl, curve: Curves.easeOut));
-    _formSlide = Tween<Offset>(
-      begin: const Offset(0, 0.15),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _formCtrl, curve: Curves.easeOutCubic));
-
     _blobDrift = Tween<double>(
-      begin: -18.0,
-      end: 18.0,
+      begin: -16.0,
+      end: 16.0,
     ).animate(CurvedAnimation(parent: _blobCtrl, curve: Curves.easeInOut));
-
-    // Stagger hero before form
-    _heroCtrl.forward().then((_) {
-      Future.delayed(const Duration(milliseconds: 80), () {
-        if (mounted) _formCtrl.forward();
-      });
-    });
+    _checkDeviceIntegrity();
   }
 
   @override
   void dispose() {
     _phoneController.dispose();
     _phoneFocus.dispose();
-    _heroCtrl.dispose();
-    _formCtrl.dispose();
     _blobCtrl.dispose();
     super.dispose();
   }
@@ -228,309 +193,254 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final size = MediaQuery.of(context).size;
-    final heroH = math.max(260.0, size.height * 0.36);
+    final topInset = MediaQuery.of(context).padding.top;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF121212) : AppTheme.white,
-      body: Stack(
-        children: [
-          // ── Hero orange section ─────────────────────────────
-          FadeTransition(
-            opacity: _heroFade,
-            child: SlideTransition(
-              position: _heroSlide,
-              child: AnimatedBuilder(
-                animation: _blobCtrl,
-                builder: (_, __) => Stack(
-                  children: [
-                    // Gradient bg
-                    Container(
-                      height: heroH + 60,
-                      decoration: BoxDecoration(
-                        gradient: isDark
-                            ? const LinearGradient(
-                                colors: [Color(0xFF1E1E1E), Color(0xFF252525)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              )
-                            : const LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [Color(0xFFFF6B00), Color(0xFFFF8C42), Color(0xFFE55B00)],
-                                stops: [0.0, 0.55, 1.0],
-                              ),
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(38),
-                          bottomRight: Radius.circular(38),
-                        ),
-                      ),
+      backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
+      // Ensures the form scrolls above the keyboard rather than overflowing.
+      resizeToAvoidBottomInset: true,
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ── Hero orange card ────────────────────────────────
+            _HeroHeader(isDark: isDark, topInset: topInset, blobDrift: _blobDrift, blobCtrl: _blobCtrl),
+
+            // ── Form content ────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 22, 24, 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  FadeSlideIn(
+                    delay: const Duration(milliseconds: 80),
+                    child: _RoleSectionHeader(isDark: isDark),
+                  ),
+                  const SizedBox(height: 12),
+                  FadeSlideIn(
+                    delay: const Duration(milliseconds: 120),
+                    child: _RoleSelector(
+                      selected: _selectedRole,
+                      onChanged: (r) => setState(() => _selectedRole = r),
                     ),
+                  ),
+                  const SizedBox(height: 24),
 
-                    // Blob top-right
-                    if (!isDark)
-                      Positioned(
-                        top: -60 + _blobDrift.value,
-                        right: -60,
-                        child: Opacity(
-                          opacity: 0.28,
-                          child: Container(
-                            width: 200,
-                            height: 200,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white.withValues(alpha: 0.22),
-                            ),
-                          ),
-                        ),
-                      ),
+                  // Google sign-in
+                  FadeSlideIn(
+                    delay: const Duration(milliseconds: 180),
+                    child: ScaleBounce(
+                      onTap: _isLoading ? null : _handleGoogleLogin,
+                      child: _GoogleButton(isDark: isDark, isLoading: _isLoading),
+                    ),
+                  ),
 
-                    // Blob bottom-left
-                    if (!isDark)
-                      Positioned(
-                        top: heroH - 80 - _blobDrift.value,
-                        left: -50,
-                        child: Opacity(
-                          opacity: 0.20,
-                          child: Container(
-                            width: 160,
-                            height: 160,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white.withValues(alpha: 0.15),
-                            ),
-                          ),
-                        ),
-                      ),
-
-                    // Hero content: logo + brand name
-                    SizedBox(
-                      height: heroH,
-                      child: SafeArea(
-                        bottom: false,
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const SizedBox(height: 8),
-                              const FufajiLogo(size: 84, onDark: true),
-                              const SizedBox(height: 14),
-                              Text(
-                                "Fufaji's Online",
-                                style: TextStyle(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.w800,
-                                  color: isDark ? AppTheme.primary : Colors.white,
-                                  letterSpacing: 0.3,
-                                  shadows: isDark
-                                      ? null
-                                      : const [
-                                          Shadow(
-                                            color: Color(0x44000000),
-                                            blurRadius: 12,
-                                            offset: Offset(0, 3),
-                                          ),
-                                        ],
-                                ),
-                              ),
-                              const SizedBox(height: 5),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: isDark
-                                      ? AppTheme.primaryLight.withValues(alpha: 0.15)
-                                      : Colors.white.withValues(alpha: 0.18),
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(
-                                    color: isDark
-                                        ? AppTheme.primary.withValues(alpha: 0.30)
-                                        : Colors.white.withValues(alpha: 0.30),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'आपकी अपनी दुकान',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w500,
-                                    letterSpacing: 0.8,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                  // Apple sign-in (iOS only, per Apple guidelines)
+                  if (Platform.isIOS) ...[
+                    const SizedBox(height: 12),
+                    ScaleBounce(
+                      onTap: _isLoading ? null : _handleAppleLogin,
+                      child: _AppleButton(isDark: isDark, isLoading: _isLoading),
                     ),
                   ],
-                ),
+
+                  const SizedBox(height: 12),
+                  FadeSlideIn(
+                    delay: const Duration(milliseconds: 220),
+                    child: ScaleBounce(
+                      onTap: _isLoading
+                          ? null
+                          : () => context.push('/auth/phone-login?role=${_selectedRole.name}'),
+                      child: _OutlineAuthButton(
+                        isDark: isDark,
+                        icon: Icons.phone_android_rounded,
+                        label: 'Sign in with Phone',
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+                  FadeSlideIn(
+                    delay: const Duration(milliseconds: 260),
+                    child: ScaleBounce(
+                      onTap: _isLoading
+                          ? null
+                          : () => context.push('/auth/email-login?role=${_selectedRole.name}'),
+                      child: _OutlineAuthButton(
+                        isDark: isDark,
+                        icon: Icons.email_outlined,
+                        label: 'Sign in with Email',
+                      ),
+                    ),
+                  ),
+
+                  // Phone section (customer only)
+                  if (_selectedRole == UserRole.customer) ...[
+                    const SizedBox(height: 20),
+                    _OrDivider(isDark: isDark),
+                    const SizedBox(height: 20),
+                    _PhoneSection(
+                      controller: _phoneController,
+                      formKey: _formKey,
+                      focusNode: _phoneFocus,
+                      isDark: isDark,
+                      isLoading: _isLoading,
+                      onSubmit: _handlePhoneLogin,
+                    ),
+                    const SizedBox(height: 16),
+                    _GuestButton(
+                      isDark: isDark,
+                      isLoading: _isLoading,
+                      onTap: _continueAsGuest,
+                    ),
+                  ],
+
+                  const SizedBox(height: 28),
+                  _SecurityBadge(isDark: isDark),
+                ],
               ),
             ),
-          ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
-          // ── Form panel (white card) ─────────────────────────
-          Positioned(
-            top: heroH - 20,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: FadeTransition(
-              opacity: _formFade,
-              child: SlideTransition(
-                position: _formSlide,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(32),
-                      topRight: Radius.circular(32),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.10),
-                        blurRadius: 24,
-                        offset: const Offset(0, -4),
-                      ),
-                    ],
-                  ),
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+// ── Hero header card ──────────────────────────────────────────────────────────
+class _HeroHeader extends StatelessWidget {
+  final bool isDark;
+  final double topInset;
+  final Animation<double> blobDrift;
+  final AnimationController blobCtrl;
+
+  const _HeroHeader({
+    required this.isDark,
+    required this.topInset,
+    required this.blobDrift,
+    required this.blobCtrl,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+        bottomLeft: Radius.circular(38),
+        bottomRight: Radius.circular(38),
+      ),
+      child: Container(
+        width: double.infinity,
+        // Fixed, generous height — always painted regardless of screen size.
+        padding: EdgeInsets.only(top: topInset + 40, bottom: 42),
+        decoration: BoxDecoration(
+          gradient: isDark
+              ? const LinearGradient(
+                  colors: [Color(0xFF1E1E1E), Color(0xFF252525)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFFFF6B00), Color(0xFFFF8C42), Color(0xFFE55B00)],
+                  stops: [0.0, 0.55, 1.0],
+                ),
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // Drifting decorative blobs — isolated so they never repaint the form.
+            if (!isDark)
+              Positioned.fill(
+                child: RepaintBoundary(
+                  child: AnimatedBuilder(
+                    animation: blobCtrl,
+                    builder: (_, __) => Stack(
                       children: [
-                        // Role selector
-                        _RoleSectionHeader(isDark: isDark),
-                        const SizedBox(height: 12),
-                        _RoleSelector(
-                          selected: _selectedRole,
-                          onChanged: (r) => setState(() => _selectedRole = r),
+                        Positioned(
+                          top: -70 + blobDrift.value,
+                          right: -60,
+                          child: _blob(200, 0.22),
                         ),
-                        const SizedBox(height: 24),
-
-                        // Google sign-in
-                        ScaleBounce(
-                          onTap: _isLoading ? null : _handleGoogleLogin,
-                          child: _GoogleButton(isDark: isDark, isLoading: _isLoading),
+                        Positioned(
+                          bottom: -40 - blobDrift.value,
+                          left: -50,
+                          child: _blob(150, 0.15),
                         ),
-
-                        // Apple sign-in (iOS only, per Apple guidelines)
-                        if (Platform.isIOS) ...[
-                          const SizedBox(height: 12),
-                          ScaleBounce(
-                            onTap: _isLoading ? null : _handleAppleLogin,
-                            child: _AppleButton(isDark: isDark, isLoading: _isLoading),
-                          ),
-                        ],
-
-                        const SizedBox(height: 12),
-                        ScaleBounce(
-                          onTap: _isLoading
-                              ? null
-                              : () => context.push('/auth/phone-login?role=${_selectedRole.name}'),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 15),
-                            decoration: BoxDecoration(
-                              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: AppTheme.primary.withValues(alpha: 0.5),
-                                width: 1.5,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.phone_android_rounded,
-                                  color: AppTheme.primary,
-                                  size: 22,
-                                ),
-                                const SizedBox(width: 12),
-                                Text(
-                                  'Sign in with Phone',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: isDark ? Colors.white : AppTheme.grey900,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 12),
-                        ScaleBounce(
-                          onTap: _isLoading
-                              ? null
-                              : () => context.push('/auth/email-login?role=${_selectedRole.name}'),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 15),
-                            decoration: BoxDecoration(
-                              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: AppTheme.primary.withValues(alpha: 0.5),
-                                width: 1.5,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.email_outlined,
-                                  color: AppTheme.primary,
-                                  size: 22,
-                                ),
-                                const SizedBox(width: 12),
-                                Text(
-                                  'Sign in with Email',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: isDark ? Colors.white : AppTheme.grey900,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Phone section (customer only)
-                        if (_selectedRole == UserRole.customer) ...[
-                          const SizedBox(height: 20),
-                          _OrDivider(isDark: isDark),
-                          const SizedBox(height: 20),
-                          _PhoneSection(
-                            controller: _phoneController,
-                            formKey: _formKey,
-                            focusNode: _phoneFocus,
-                            isDark: isDark,
-                            isLoading: _isLoading,
-                            onSubmit: _handlePhoneLogin,
-                          ),
-                          const SizedBox(height: 16),
-                          _GuestButton(
-                            isDark: isDark,
-                            isLoading: _isLoading,
-                            onTap: _continueAsGuest,
-                          ),
-                        ],
-
-                        const SizedBox(height: 28),
-                        _SecurityBadge(isDark: isDark),
                       ],
                     ),
                   ),
                 ),
               ),
+
+            // Hero content
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const FufajiLogo(size: 84, onDark: true),
+                const SizedBox(height: 14),
+                Text(
+                  "Fufaji's Online",
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
+                    color: isDark ? AppTheme.primary : Colors.white,
+                    letterSpacing: 0.3,
+                    shadows: isDark
+                        ? null
+                        : const [
+                            Shadow(
+                              color: Color(0x44000000),
+                              blurRadius: 12,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? AppTheme.primaryLight.withValues(alpha: 0.15)
+                        : Colors.white.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isDark
+                          ? AppTheme.primary.withValues(alpha: 0.30)
+                          : Colors.white.withValues(alpha: 0.30),
+                    ),
+                  ),
+                  child: const Text(
+                    'आपकी अपनी दुकान',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
+
+  Widget _blob(double d, double opacity) => Opacity(
+    opacity: opacity,
+    child: Container(
+      width: d,
+      height: d,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.white.withValues(alpha: 0.20),
+      ),
+    ),
+  );
 }
 
 // ── Role selector header ──────────────────────────────────────────────────────
@@ -685,30 +595,74 @@ class _RoleChip extends StatelessWidget {
                   : (isDark ? accentColor.withValues(alpha: 0.80) : AppTheme.grey600),
             ),
             const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: selected ? Colors.white : (isDark ? Colors.white : AppTheme.grey900),
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    label,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: selected ? Colors.white : (isDark ? Colors.white : AppTheme.grey900),
+                    ),
                   ),
-                ),
-                Text(
-                  labelHi,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: selected
-                        ? Colors.white.withValues(alpha: 0.80)
-                        : (isDark ? accentColor.withValues(alpha: 0.70) : AppTheme.grey500),
+                  Text(
+                    labelHi,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: selected
+                          ? Colors.white.withValues(alpha: 0.80)
+                          : (isDark ? accentColor.withValues(alpha: 0.70) : AppTheme.grey500),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ── Outlined auth button (Phone / Email) ──────────────────────────────────────
+class _OutlineAuthButton extends StatelessWidget {
+  final bool isDark;
+  final IconData icon;
+  final String label;
+
+  const _OutlineAuthButton({required this.isDark, required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 15),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppTheme.primary.withValues(alpha: 0.5),
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: AppTheme.primary, size: 22),
+          const SizedBox(width: 12),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white : AppTheme.grey900,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1007,6 +961,27 @@ class _PhoneSection extends StatelessWidget {
                 letterSpacing: 1.5,
                 fontWeight: FontWeight.w400,
                 fontSize: 18,
+              ),
+              filled: true,
+              fillColor: isDark ? const Color(0xFF2C2C2E) : AppTheme.grey50,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: isDark ? const Color(0xFF3A3A3C) : AppTheme.grey300,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: isDark ? const Color(0xFF3A3A3C) : AppTheme.grey300,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(
+                  color: AppTheme.primary,
+                  width: 2.0,
+                ),
               ),
             ),
             validator: (v) => (v == null || v.length != 10) ? 'Enter valid 10-digit number' : null,

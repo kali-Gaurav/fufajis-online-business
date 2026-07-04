@@ -5,7 +5,6 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/product_model.dart';
-import '../utils/monetary_value.dart';
 
 Future<void> seedProducts500(FirebaseFirestore firestore) async {
   print('[Seed] Starting to seed 500 products...');

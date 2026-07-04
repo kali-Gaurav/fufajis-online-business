@@ -13,8 +13,7 @@
  * - Customer real-time notifications
  */
 
-const admin = require('firebase-admin');
-const db = admin.firestore();
+const firebaseAdmin = require('./firebaseAdmin');
 
 const ARRIVAL_THRESHOLD_METERS = 50;
 const LOCATION_OUTLIER_THRESHOLD = 0.05; // 50m max jump

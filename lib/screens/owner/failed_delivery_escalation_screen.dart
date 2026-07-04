@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:intl/intl.dart';
 import '../../models/order_model.dart';
-import '../../services/cancellation_fee_service.dart';
 import '../../services/notification_service.dart';
 import '../../utils/app_theme.dart';
 
@@ -34,7 +34,7 @@ class FailedDeliveryEscalationScreen extends StatelessWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('orders')
-            .where('deliveryFailed', isEqualTo: true)
+            .where('status', isEqualTo: 'failed_delivery')
             .orderBy('updatedAt', descending: true)
             .snapshots(),
         builder: (ctx, snap) {
@@ -238,55 +238,25 @@ class FailedDeliveryEscalationScreen extends StatelessWidget {
   }
 
   Future<_EscalationResult> _applyEscalation(String orderId, String toStatus) async {
-    final db = FirebaseFirestore.instance;
     try {
-      switch (toStatus) {
-        case 'out_for_delivery':
-          // Put the order back into the dispatch pool for reassignment.
-          await db.collection('orders').doc(orderId).update({
-            'status': 'OrderStatus.packed',
-            'deliveryFailed': FieldValue.delete(),
-            'deliveryAgentId': null,
-            'deliveryAgentName': null,
-            'updatedAt': FieldValue.serverTimestamp(),
-          });
-          return const _EscalationResult.ok();
+      final String action = toStatus == 'out_for_delivery' ? 'retry' : 'return';
+      final String reason = toStatus == 'out_for_delivery'
+          ? 'Reassigned by dispatcher'
+          : toStatus == 'return_initiated'
+          ? 'Return initiated by dispatcher'
+          : 'Cancelled after failed delivery';
 
-        case 'return_initiated':
-          await db.collection('orders').doc(orderId).update({
-            'status': 'OrderStatus.returned',
-            'deliveryFailed': FieldValue.delete(),
-            'returnReason': 'Delivery failed — return initiated by dispatcher',
-            'updatedAt': FieldValue.serverTimestamp(),
-          });
-          return const _EscalationResult.ok();
+      final callable = FirebaseFunctions.instance.httpsCallable('resolveDeliveryException');
+      final response = await callable.call({
+        'orderId': orderId,
+        'action': action,
+        'reason': reason,
+      });
 
-        case 'cancelled':
-          // Cancellation must go through the fee/refund/stock-restore path,
-          // not a bare status flip.
-          final snap = await db.collection('orders').doc(orderId).get();
-          if (!snap.exists) return const _EscalationResult.fail('Order not found');
-          final order = OrderModel.fromMap({...snap.data()!, 'id': snap.id});
-          final refunded = await CancellationFeeService().applyAndRefund(
-            order: order,
-            cancelledBy: 'dispatcher',
-            reason: 'Cancelled after failed delivery',
-            waiveFee: true, // customer shouldn't pay a fee for OUR failed delivery
-          );
-          if (!refunded) {
-            return const _EscalationResult.fail('Refund processing failed');
-          }
-          await db.collection('orders').doc(orderId).update({
-            'status': 'OrderStatus.cancelled',
-            'deliveryFailed': FieldValue.delete(),
-            'cancellationReason': 'Cancelled after failed delivery',
-            'updatedAt': FieldValue.serverTimestamp(),
-          });
-          return const _EscalationResult.ok();
-
-        default:
-          return _EscalationResult.fail('Unknown escalation action: $toStatus');
+      if (response.data['success'] == true) {
+        return const _EscalationResult.ok();
       }
+      return const _EscalationResult.fail('Server failed to resolve exception.');
     } catch (e) {
       return _EscalationResult.fail(e.toString());
     }

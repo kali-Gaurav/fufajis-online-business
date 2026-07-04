@@ -26,13 +26,13 @@ class FirestoreSeeder {
 
       await _db.collection('shops').doc(shopId).collection('branches').doc(branchId).set({
         'id': branchId,
-        'name': 'Main Jaipur Branch',
+        'name': 'Main Baran Branch',
         'shopId': shopId,
         'isPrimary': true,
         'phone': '919876543210',
-        'address': 'Plot 45, Tonk Road, Jaipur, Rajasthan',
-        'latitude': 26.9124,
-        'longitude': 75.7873,
+        'address': 'Jalawar Road, Tel Factory, Baran, Rajasthan 325205',
+        'latitude': 25.1006,
+        'longitude': 76.5156,
         'maxDeliveryRadiusKm': 8.0,
         'createdAt': FieldValue.serverTimestamp(),
       });

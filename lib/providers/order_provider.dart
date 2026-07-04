@@ -185,15 +185,7 @@ class OrderProvider with ChangeNotifier {
           : connRes == ConnectivityResult.none;
 
       if (isOffline) {
-        await OfflineManager().queueOrder(newOrder);
-        _orders.insert(0, newOrder);
-        _isLoading = false;
-        notifyListeners();
-        _notificationService.triggerLocalOrderStatusNotification(
-          orderNumber,
-          'Order Queued (Offline)',
-        );
-        return newOrder;
+        throw Exception('No Internet Connection. Live connection required to place an order.');
       }
 
       await _orderService.createOrder(newOrder);
@@ -718,6 +710,11 @@ class OrderProvider with ChangeNotifier {
         .listen((snapshot) {
           _orders = snapshot.docs.map((d) => OrderModel.fromMap(d.data())).toList();
           notifyListeners();
+        }, onError: (error) {
+          debugPrint('[OrderProvider] orders stream error: $error');
+          if (error.toString().contains('permission-denied')) {
+            _cancelSubscriptions();
+          }
         });
     _subscriptions.add(sub);
   }
@@ -731,6 +728,11 @@ class OrderProvider with ChangeNotifier {
         .listen((snapshot) {
           _orders = snapshot.docs.map((d) => OrderModel.fromMap(d.data())).toList();
           notifyListeners();
+        }, onError: (error) {
+          debugPrint('[OrderProvider] all orders stream error: $error');
+          if (error.toString().contains('permission-denied')) {
+            _cancelSubscriptions();
+          }
         });
     _subscriptions.add(sub);
   }

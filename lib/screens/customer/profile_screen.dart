@@ -515,82 +515,85 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Divider(height: 1, color: AppTheme.grey200.withValues(alpha: 0.5)),
         itemBuilder: (context, index) {
           final item = menuItems[index];
-          return ListTile(
-            leading: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: (item['color'] as Color).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
+          return Material(
+            color: Colors.transparent,
+            child: ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: (item['color'] as Color).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(item['icon'] as IconData, color: item['color'] as Color, size: 22),
               ),
-              child: Icon(item['icon'] as IconData, color: item['color'] as Color, size: 22),
-            ),
-            title: Text(
-              item['title'] as String,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                color: AppTheme.grey900,
+              title: Text(
+                item['title'] as String,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: AppTheme.grey900,
+                ),
               ),
-            ),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.grey400),
-            onTap: () {
-              if (item['title'] == 'Help & Support') {
-                _openWhatsappSupport();
-              } else if (item['title'] == 'Logout') {
-                showDialog(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text('Logout', style: TextStyle(fontWeight: FontWeight.w700)),
-                    content: const Text('Are you sure you want to logout?'),
-                    actions: [
-                      TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(ctx);
-                          Provider.of<AuthProvider>(context, listen: false).logout();
-                        },
-                        child: const Text('Logout', style: TextStyle(color: AppTheme.error)),
-                      ),
-                    ],
-                  ),
-                );
-              } else if (item['title'] == 'Switch App Role') {
-                final user = Provider.of<AuthProvider>(context, listen: false).currentUser;
-                if (user?.role == UserRole.superAdmin || user?.role == UserRole.owner) {
-                  context.push('/role-select');
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Access Denied: Only Authorized Staff can switch roles.'),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.grey400),
+              onTap: () {
+                if (item['title'] == 'Help & Support') {
+                  _openWhatsappSupport();
+                } else if (item['title'] == 'Logout') {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Logout', style: TextStyle(fontWeight: FontWeight.w700)),
+                      content: const Text('Are you sure you want to logout?'),
+                      actions: [
+                        TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            Provider.of<AuthProvider>(context, listen: false).logout();
+                          },
+                          child: const Text('Logout', style: TextStyle(color: AppTheme.error)),
+                        ),
+                      ],
                     ),
                   );
+                } else if (item['title'] == 'Switch App Role') {
+                  final user = Provider.of<AuthProvider>(context, listen: false).currentUser;
+                  if (user?.role == UserRole.superAdmin || user?.role == UserRole.owner) {
+                    context.push('/role-select');
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Access Denied: Only Authorized Staff can switch roles.'),
+                      ),
+                    );
+                  }
+                } else if (item['title'] == 'My Orders') {
+                  context.push('/customer/orders');
+                } else if (item['title'] == 'Saved Addresses') {
+                  context.push('/customer/addresses');
+                } else if (item['title'] == 'Identity & Contacts') {
+                  context.push('/customer/identity');
+                } else if (item['title'] == 'Settings') {
+                  context.push('/customer/settings');
+                } else if (item['title'] == 'Payment Methods') {
+                  context.push('/customer/wallet');
+                } else if (item['title'] == 'Wishlist') {
+                  context.push('/customer/wishlist');
+                } else if (item['title'] == 'My Subscriptions') {
+                  context.push('/customer/subscriptions');
+                } else if (item['title'] == 'Notifications') {
+                  context.push('/customer/notifications');
+                } else if (item['title'] == 'Rewards') {
+                  context.push('/customer/loyalty');
+                } else if (item['title'] == 'Membership') {
+                  context.push('/customer/membership');
+                } else if (item['title'] == 'Family Management') {
+                  context.push('/customer/family');
+                } else if (item['title'] == 'Smart Kitchen') {
+                  context.push('/customer/smart-kitchen');
                 }
-              } else if (item['title'] == 'My Orders') {
-                context.push('/customer/orders');
-              } else if (item['title'] == 'Saved Addresses') {
-                context.push('/customer/addresses');
-              } else if (item['title'] == 'Identity & Contacts') {
-                context.push('/customer/identity');
-              } else if (item['title'] == 'Settings') {
-                context.push('/customer/settings');
-              } else if (item['title'] == 'Payment Methods') {
-                context.push('/customer/wallet');
-              } else if (item['title'] == 'Wishlist') {
-                context.push('/customer/wishlist');
-              } else if (item['title'] == 'My Subscriptions') {
-                context.push('/customer/subscriptions');
-              } else if (item['title'] == 'Notifications') {
-                context.push('/customer/notifications');
-              } else if (item['title'] == 'Rewards') {
-                context.push('/customer/loyalty');
-              } else if (item['title'] == 'Membership') {
-                context.push('/customer/membership');
-              } else if (item['title'] == 'Family Management') {
-                context.push('/customer/family');
-              } else if (item['title'] == 'Smart Kitchen') {
-                context.push('/customer/smart-kitchen');
-              }
-            },
+              },
+            ),
           );
         },
       ),

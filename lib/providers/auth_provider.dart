@@ -23,6 +23,8 @@ import '../services/security_event_service.dart';
 import '../services/device_security_service.dart';
 import '../services/update_service.dart';
 import '../services/mfa_service.dart';
+import '../services/diagnostics_service.dart';
+import '../services/auth_service.dart';
 
 class ShopInfo {
   final String id;
@@ -39,6 +41,7 @@ class AuthProvider with ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
   final LocalAuthentication _localAuth = LocalAuthentication();
+  final AuthService authService = AuthService();
 
   UserModel? _currentUser;
   UserModel? get currentUser => _currentUser;
@@ -186,26 +189,43 @@ class AuthProvider with ChangeNotifier {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
+
+    DiagnosticsService().logAuthStep(1, 'Starting Google Sign-In');
+
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.authenticate();
       if (googleUser == null) {
+        DiagnosticsService().logAuthStep(2, 'Google Sign-In cancelled', success: false);
         _errorMessage = 'Google sign-in cancelled';
         _isLoading = false;
         notifyListeners();
         return false;
       }
+
+      DiagnosticsService().logAuthStep(2, 'Google auth succeeded: ${googleUser.email}', success: true);
+
       final GoogleSignInAuthentication googleAuth = googleUser.authentication;
       final authorization = await googleUser.authorizationClient.authorizeScopes(['email', 'profile', 'openid']);
       final String accessToken = authorization.accessToken;
+
+      DiagnosticsService().logAuthStep(3, 'Got access token (${accessToken.substring(0, 20)}...)', success: true);
 
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: accessToken,
         idToken: googleAuth.idToken,
       );
+
+      DiagnosticsService().logAuthStep(4, 'Created Firebase credential', success: true);
+
       final UserCredential userCredential = await _auth.signInWithCredential(credential);
+
       if (userCredential.user != null) {
         final user = userCredential.user!;
+        DiagnosticsService().logAuthStep(5, 'Firebase sign-in success: ${user.uid}', success: true);
+
         final isAuthorized = await _checkRoleAuthorization(user.email ?? '', user.uid);
+        DiagnosticsService().logAuthStep(6, 'Role authorization: ${isAuthorized ? "✅ APPROVED" : "❌ DENIED"}', success: isAuthorized);
+
         if (!isAuthorized) {
           await logout();
           _errorMessage = 'Access Denied: Not authorized.';
@@ -227,10 +247,14 @@ class AuthProvider with ChangeNotifier {
           return true;
         }
         await _onSuccessfulLogin(user);
+        DiagnosticsService().logAuthStep(7, 'Login complete', success: true);
         return true;
       }
+
+      DiagnosticsService().log('Auth', '❌ Firebase credential returned null user', level: AppLogSeverity.error);
       return false;
-    } catch (e) {
+    } catch (e, st) {
+      DiagnosticsService().log('Auth', '❌ Google Sign-In failed: $e', level: AppLogSeverity.error, error: e, stackTrace: st);
       _errorMessage = 'Google Sign-In failed: ${e.toString()}';
       _isLoading = false;
       notifyListeners();

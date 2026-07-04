@@ -6,6 +6,8 @@ enum ApprovalTargetType {
   refund,
   ai_action,
   inventory_adjustment,
+  employee_registration,
+  delivery_agent_registration,
   other,
 }
 

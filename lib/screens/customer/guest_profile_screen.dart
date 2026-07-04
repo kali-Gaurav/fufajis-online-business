@@ -117,22 +117,25 @@ class GuestProfileScreen extends StatelessWidget {
     required String title,
     required VoidCallback onTap,
   }) {
-    return ListTile(
-      onTap: onTap,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: AppTheme.grey200.withValues(alpha: 0.5)),
+    return Material(
+      color: Colors.transparent,
+      child: ListTile(
+        onTap: onTap,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: AppTheme.grey200.withValues(alpha: 0.5)),
+        ),
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(color: AppTheme.grey100, borderRadius: BorderRadius.circular(8)),
+          child: Icon(icon, color: AppTheme.grey600, size: 22),
+        ),
+        title: Text(
+          title,
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.grey900),
+        ),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.grey400),
       ),
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: AppTheme.grey100, borderRadius: BorderRadius.circular(8)),
-        child: Icon(icon, color: AppTheme.grey600, size: 22),
-      ),
-      title: Text(
-        title,
-        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AppTheme.grey900),
-      ),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.grey400),
     );
   }
 

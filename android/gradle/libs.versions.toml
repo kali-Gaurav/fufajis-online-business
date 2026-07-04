@@ -10,9 +10,10 @@ playServicesAds = "23.6.0"
 compileSdk = "36"
 targetSdk = "36"
 minSdk = "24"
-ndk = "27.0.12077973"
+ndk = "28.2.13676358"
 
 [libraries]
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
 google-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-multidex = { group = "androidx.multidex", name = "multidex", version.ref = "multidex" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }

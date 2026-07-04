@@ -10,6 +10,11 @@ import 'whatsapp_notification_service.dart';
 import 'rds_database_service.dart';
 import 'notification_retry_service.dart';
 
+enum SyncActionType {
+  safeOffline,
+  onlineRequired
+}
+
 /// Offline Sync Service — Fufaji
 /// Processes two queues via SQLite:
 ///  • orders_queue   — order status updates
@@ -70,69 +75,24 @@ class OfflineSyncService {
 
   // ─────────────── ENQUEUE ───────────────
 
-  /// Enqueue an order status update for offline sync
+  /// Enqueue an order status update for offline sync (DEPRECATED: Order transitions require active connection)
+  @deprecated
   Future<void> enqueueStatusUpdate(
     String orderId,
     String status, {
     String? otp,
     bool otpVerified = false,
   }) async {
-    try {
-      if (!_isInitialized) await init();
-      final taskId = 'task_${DateTime.now().millisecondsSinceEpoch}_$orderId';
-      await _sqlite.enqueuePendingSync(
-        id: taskId,
-        actionType: 'order_status',
-        collection: 'orders',
-        documentId: orderId,
-        data: {
-          'id': taskId,
-          'orderId': orderId,
-          'status': status,
-          'otp': otp,
-          'otpVerified': otpVerified,
-          'timestamp': DateTime.now().toIso8601String(),
-        },
-      );
-      await _refreshCounts();
-      debugPrint('[OfflineSyncService] Enqueued status "$status" for order $orderId');
-      if (isOnline.value) processQueue();
-    } catch (e) {
-      debugPrint('[OfflineSyncService] Failed to enqueue status update: $e');
-    }
+    throw UnsupportedError('Order status updates require an online connection and cannot be enqueued offline.');
   }
 
-  /// Enqueue a new order placement for offline sync
+  /// Enqueue a new order placement for offline sync (DEPRECATED: Order placement requires active connection)
+  @deprecated
   Future<void> enqueueOrderPlacement({
     required String orderId,
     required Map<String, dynamic> orderData,
   }) async {
-    try {
-      if (!_isInitialized) await init();
-
-      // Save to SQLite offline_orders table so it's visible in the UI immediately
-      await OfflineOrderQueueService().addOrderToQueue(OrderModel.fromMap(orderData));
-
-      final taskId = 'order_placement_$orderId';
-      await _sqlite.enqueuePendingSync(
-        id: taskId,
-        actionType: 'order_placement',
-        collection: 'orders',
-        documentId: orderId,
-        data: {
-          'id': taskId,
-          'orderId': orderId,
-          'actionType': 'order_placement',
-          'orderData': orderData,
-          'timestamp': DateTime.now().toIso8601String(),
-        },
-      );
-      await _refreshCounts();
-      debugPrint('[OfflineSyncService] Enqueued new order placement for $orderId');
-      if (isOnline.value) processQueue();
-    } catch (e) {
-      debugPrint('[OfflineSyncService] Failed to enqueue order placement: $e');
-    }
+    throw UnsupportedError('Order placement requires an online connection and cannot be enqueued offline.');
   }
 
   /// Enqueue an employee inventory/attendance/damage/transfer action

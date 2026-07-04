@@ -5,6 +5,33 @@ const twilio = require('twilio');
 
 admin.initializeApp();
 
+const { processCheckout } = require('./src/processCheckout');
+exports.processCheckout = processCheckout;
+
+const { releaseExpiredReservations } = require('./src/releaseExpiredReservations');
+exports.releaseExpiredReservations = releaseExpiredReservations;
+
+const { changeOrderStatus } = require('./src/changeOrderStatus');
+exports.changeOrderStatus = changeOrderStatus;
+
+const { onOrderUpdated } = require('./src/onOrderUpdated');
+exports.onOrderUpdated = onOrderUpdated;
+
+const { cancelOrder } = require('./src/cancelOrder');
+exports.cancelOrder = cancelOrder;
+
+const { dispatchCluster } = require('./src/dispatchCluster');
+exports.dispatchCluster = dispatchCluster;
+
+const { verifyDeliveryOtp } = require('./src/verifyDeliveryOtp');
+exports.verifyDeliveryOtp = verifyDeliveryOtp;
+
+const { failOrderDelivery } = require('./src/failOrderDelivery');
+exports.failOrderDelivery = failOrderDelivery;
+
+const { resolveDeliveryException } = require('./src/resolveDeliveryException');
+exports.resolveDeliveryException = resolveDeliveryException;
+
 exports.razorpayWebhook = functions.runWith({
     secrets: ['RAZORPAY_WEBHOOK_SECRET']
 }).https.onRequest(async (req, res) => {
@@ -16,7 +43,7 @@ exports.razorpayWebhook = functions.runWith({
     const RAZORPAY_WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET;
     const signature = req.headers['x-razorpay-signature'];
 
-    // 1. Verify HMAC-SHA256 signature
+    // 1. Verify HMAC-SHA256 signature (Requirement 1)
     const body = req.rawBody || JSON.stringify(req.body);
     const expectedSignature = crypto
         .createHmac('sha256', RAZORPAY_WEBHOOK_SECRET || '')
@@ -30,29 +57,24 @@ exports.razorpayWebhook = functions.runWith({
             signature: signature ? signature.substring(0, 12) + '...' : 'missing',
             timestamp: admin.firestore.FieldValue.serverTimestamp(),
         });
-        return res.status(400).send('Invalid signature');
+        return res.status(401).send('Invalid signature'); // 401 as requested
     }
 
     const event = req.body.event;
     const payload = req.body.payload;
-    const webhookEventId = req.body.id || `unknown_${Date.now()}`;
+    const webhookEventId = req.headers['x-razorpay-event-id'] || req.body.id || `unknown_${Date.now()}`;
 
     console.log(`[RazorpayWebhook] Received event: ${event} (ID: ${webhookEventId})`);
 
     try {
-        // 2. Idempotency guard — skip already-processed events
-        const eventRef = admin.firestore().collection('webhook_events').doc(`razorpay_${webhookEventId}`);
-        const eventDoc = await eventRef.get();
-        if (eventDoc.exists) {
-            console.log(`[RazorpayWebhook] Event ${webhookEventId} already processed. Skipping.`);
-            return res.status(200).send('Already processed');
-        }
+        const db = admin.firestore();
+        const eventRef = db.collection('webhook_events').doc(`razorpay_${webhookEventId}`);
 
-        // ── PAYMENT CAPTURED / AUTHORIZED ──
+        // ── PAYMENT CAPTURED / AUTHORIZED (SUCCESS FLOW) ──
         if (event === 'payment.captured' || event === 'payment.authorized') {
             const payment = payload.payment.entity;
             const orderId = payment.notes?.order_id || payment.order_id;
-            const amountPaise = payment.amount; // Amount in paise
+            const amountPaise = payment.amount;
             const amountRupees = amountPaise / 100;
 
             if (!orderId) {
@@ -61,157 +83,219 @@ exports.razorpayWebhook = functions.runWith({
                 return res.status(400).send('Missing order_id');
             }
 
-            const orderRef = admin.firestore().collection('orders').doc(orderId);
-            const orderDoc = await orderRef.get();
+            const orderRef = db.collection('orders').doc(orderId);
 
-            if (!orderDoc.exists) {
-                console.error(`[RazorpayWebhook] Order ${orderId} not found`);
-                await eventRef.set({ processedAt: admin.firestore.FieldValue.serverTimestamp(), eventId: webhookEventId, type: event, error: 'order_not_found', orderId });
-                return res.status(404).send('Order not found');
-            }
+            // Requirement 2: Success must be transactional
+            await db.runTransaction(async (transaction) => {
+                // Idempotency check inside transaction
+                const eventDoc = await transaction.get(eventRef);
+                if (eventDoc.exists) {
+                    console.log(`[RazorpayWebhook] Event ${webhookEventId} already processed.`);
+                    return;
+                }
 
-            // 3. Amount validation — ensure webhook amount matches order
-            const orderData = orderDoc.data();
-            const orderAmount = orderData.totalAmount || 0;
-            const tolerance = 1.0; // ₹1 tolerance for rounding
-            if (Math.abs(amountRupees - orderAmount) > tolerance) {
-                console.error(`[RazorpayWebhook] AMOUNT MISMATCH: Webhook ₹${amountRupees} vs Order ₹${orderAmount}`);
-                await admin.firestore().collection('payment_reconciliation_log').add({
-                    paymentId: payment.id,
-                    orderId: orderId,
-                    action: 'amount_mismatch',
-                    webhookAmount: amountRupees,
-                    orderAmount: orderAmount,
-                    timestamp: admin.firestore.FieldValue.serverTimestamp(),
-                });
-                // Still process but flag for manual review
-            }
+                const orderDoc = await transaction.get(orderRef);
+                if (!orderDoc.exists) {
+                    throw new Error(`Order ${orderId} not found`);
+                }
 
-            // 4. Transactional update
-            await admin.firestore().runTransaction(async (transaction) => {
-                // Update order
+                const orderData = orderDoc.data();
+
+                // Case 2: Success Webhook After Expiry Job / Cancelled status
+                if (orderData.status !== 'pending_payment') {
+                    console.error(`[RazorpayWebhook] FATAL: Order ${orderId} is ${orderData.status}. Manual reconciliation needed for payment ${payment.id}.`);
+                    
+                    transaction.set(eventRef, {
+                        processedAt: admin.firestore.FieldValue.serverTimestamp(),
+                        eventId: webhookEventId,
+                        orderId,
+                        paymentId: payment.id,
+                        type: event,
+                        status: 'manual_reconciliation_required',
+                        originalOrderStatus: orderData.status
+                    });
+                    
+                    db.collection('payment_reconciliation_log').add({
+                        action: 'success_on_cancelled_order',
+                        orderId: orderId,
+                        paymentId: payment.id,
+                        amount: amountRupees,
+                        timestamp: admin.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    return;
+                }
+
+                const items = orderData.items || [];
+                const shopId = orderData.shopId || 'primary';
+
+                // Load Products to commit stock (reserved -> sold)
+                const productRefs = items.map(item => db.collection('products').doc(item.productId));
+                const productSnaps = await transaction.getAll(...productRefs);
+
+                for (let i = 0; i < items.length; i++) {
+                    const clientItem = items[i];
+                    const snap = productSnaps[i];
+                    
+                    if (snap.exists) {
+                        const productData = snap.data();
+                        const branchStockMap = productData.branchStockMap || {};
+                        const branchStock = branchStockMap[shopId] || { available: 0, reserved: 0, sold: 0 };
+                        
+                        let available = branchStock.available ?? (productData.stockQuantity || 0);
+                        let reserved = branchStock.reserved ?? 0;
+                        let sold = branchStock.sold ?? 0;
+
+                        if (reserved >= clientItem.quantity) {
+                            reserved -= clientItem.quantity;
+                            sold += clientItem.quantity;
+
+                            branchStockMap[shopId] = { available, reserved, sold };
+                            
+                            const globalAvailable = Object.values(branchStockMap).reduce((sum, b) => sum + (b.available || 0), 0);
+                            const globalReserved = Object.values(branchStockMap).reduce((sum, b) => sum + (b.reserved || 0), 0);
+                            const globalSold = Object.values(branchStockMap).reduce((sum, b) => sum + (b.sold || 0), 0);
+
+                            transaction.update(snap.ref, {
+                                branchStockMap,
+                                availableStock: globalAvailable,
+                                reservedStock: globalReserved,
+                                soldStock: globalSold,
+                                isAvailable: globalAvailable > 0
+                            });
+                        }
+                    }
+                }
+
+                // Commit Order & Payment
                 transaction.update(orderRef, {
-                    paymentStatus: 'paid',
+                    paymentStatus: 'captured',
                     paymentId: payment.id,
-                    paymentMethod: 'PaymentMethod.' + (payment.method || 'razorpay'),
-                    status: 'OrderStatus.confirmed',
+                    paymentProvider: 'razorpay',
+                    paymentMethod: payment.method || 'razorpay',
+                    paymentCapturedAt: admin.firestore.FieldValue.serverTimestamp(),
+                    status: 'confirmed',
+                    reservationStatus: 'committed',
                     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-                    reconciliationSource: 'razorpay_webhook',
-                    reconciledAt: admin.firestore.FieldValue.serverTimestamp(),
-                    financeCategory: 'online_revenue'
                 });
 
-                // Create/update payment record
-                const paymentRef = admin.firestore().collection('payments').doc(payment.id);
+                const paymentRef = db.collection('payments').doc(payment.id);
                 transaction.set(paymentRef, {
                     paymentId: payment.id,
                     orderId: orderId,
-                    orderNumber: orderData.orderNumber || '',
                     amount: amountRupees,
-                    currency: payment.currency || 'INR',
-                    method: payment.method || 'unknown',
                     status: 'captured',
                     verified: true,
                     verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
                     source: 'webhook',
-                    customerId: orderData.customerId || '',
                     createdAt: admin.firestore.FieldValue.serverTimestamp(),
-                    financeType: 'credit'
                 }, { merge: true });
 
-                // Mark webhook event as processed
                 transaction.set(eventRef, {
                     processedAt: admin.firestore.FieldValue.serverTimestamp(),
                     eventId: webhookEventId,
                     orderId: orderId,
                     paymentId: payment.id,
-                    amount: amountRupees,
                     type: event,
                 });
             });
+            console.log(`[RazorpayWebhook] Order ${orderId} → PAID + CONFIRMED`);
 
-            // 5. Reconciliation audit log
-            await admin.firestore().collection('payment_reconciliation_log').add({
-                paymentId: payment.id,
-                orderId: orderId,
-                amount: amountRupees,
-                action: 'webhook_reconcile',
-                event: event,
-                timestamp: admin.firestore.FieldValue.serverTimestamp(),
-            });
-
-            console.log(`[RazorpayWebhook] Order ${orderId} → PAID + CONFIRMED (₹${amountRupees})`);
-
-        // ── PAYMENT FAILED ──
+        // ── PAYMENT FAILED (ROLLBACK FLOW) ──
         } else if (event === 'payment.failed') {
             const payment = payload.payment.entity;
             const orderId = payment.notes?.order_id || payment.order_id;
-            if (orderId) {
-                await admin.firestore().collection('orders').doc(orderId).update({
-                    paymentStatus: 'failed',
-                    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-                });
-                await eventRef.set({ processedAt: admin.firestore.FieldValue.serverTimestamp(), eventId: webhookEventId, orderId, type: event });
-            }
-
-        // ── PAYMENT REFUNDED ──
-        } else if (event === 'refund.created' || event === 'payment.refunded') {
-            const refundEntity = event === 'refund.created' 
-                ? payload.refund?.entity 
-                : payload.payment?.entity;
             
-            if (refundEntity) {
-                const paymentId = refundEntity.payment_id || refundEntity.id;
-                const refundAmount = (refundEntity.amount || 0) / 100;
+            if (orderId) {
+                const orderRef = db.collection('orders').doc(orderId);
 
-                // Find order by payment ID
-                const ordersQuery = await admin.firestore().collection('orders')
-                    .where('paymentId', '==', paymentId)
-                    .limit(1)
-                    .get();
+                await db.runTransaction(async (transaction) => {
+                    const eventDoc = await transaction.get(eventRef);
+                    if (eventDoc.exists) return;
 
-                if (!ordersQuery.empty) {
-                    const orderDoc = ordersQuery.docs[0];
-                    await orderDoc.ref.update({
-                        paymentStatus: 'refunded',
-                        refundAmount: refundAmount,
-                        refundedAt: admin.firestore.FieldValue.serverTimestamp(),
+                    const orderDoc = await transaction.get(orderRef);
+                    if (!orderDoc.exists) return;
+
+                    const orderData = orderDoc.data();
+                    if (orderData.status !== 'pending_payment') return; // Only rollback if hasn't progressed
+
+                    const items = orderData.items || [];
+                    const shopId = orderData.shopId || 'primary';
+                    const walletAmountUsed = orderData.walletAmountUsed || 0;
+                    const customerId = orderData.customerId;
+
+                    const productRefs = items.map(item => db.collection('products').doc(item.productId));
+                    const productSnaps = await transaction.getAll(...productRefs);
+
+                    // Rollback Wallet Idempotently
+                    if (walletAmountUsed > 0 && customerId) {
+                        const refundTxnId = `txn_wallet_refund_failed_${orderId}`;
+                        const refundTxnRef = db.collection('users').doc(customerId).collection('wallet_transactions').doc(refundTxnId);
+                        const refundDoc = await transaction.get(refundTxnRef);
+                        
+                        if (!refundDoc.exists) {
+                            const userRef = db.collection('users').doc(customerId);
+                            const userDoc = await transaction.get(userRef);
+                            if (userDoc.exists) {
+                                const newBalance = (userDoc.data().walletBalance || 0) + walletAmountUsed;
+                                transaction.update(userRef, { walletBalance: newBalance, updatedAt: admin.firestore.FieldValue.serverTimestamp() });
+                                transaction.set(refundTxnRef, {
+                                    id: refundTxnId, userId: customerId, type: 'refund',
+                                    amount: walletAmountUsed, orderReference: orderId,
+                                    timestamp: admin.firestore.FieldValue.serverTimestamp(),
+                                    description: `Refund for failed payment on order ${orderId}`,
+                                    balanceAfter: newBalance
+                                });
+                            }
+                        }
+                    }
+
+                    // Rollback Stock
+                    for (let i = 0; i < items.length; i++) {
+                        const clientItem = items[i];
+                        const snap = productSnaps[i];
+                        if (snap.exists) {
+                            const productData = snap.data();
+                            const branchStockMap = productData.branchStockMap || {};
+                            const branchStock = branchStockMap[shopId] || { available: 0, reserved: 0, sold: 0 };
+                            let available = branchStock.available ?? (productData.stockQuantity || 0);
+                            let reserved = branchStock.reserved ?? 0;
+                            let sold = branchStock.sold ?? 0;
+
+                            if (reserved >= clientItem.quantity) {
+                                reserved -= clientItem.quantity;
+                                available += clientItem.quantity;
+                                branchStockMap[shopId] = { available, reserved, sold };
+                                const globalAvailable = Object.values(branchStockMap).reduce((sum, b) => sum + (b.available || 0), 0);
+                                const globalReserved = Object.values(branchStockMap).reduce((sum, b) => sum + (b.reserved || 0), 0);
+                                transaction.update(snap.ref, {
+                                    branchStockMap, availableStock: globalAvailable, reservedStock: globalReserved, isAvailable: globalAvailable > 0
+                                });
+                            }
+                        }
+                    }
+
+                    transaction.update(orderRef, {
+                        paymentStatus: 'failed',
+                        status: 'cancelled',
+                        reservationStatus: 'released',
+                        cancellationReason: 'payment_failed',
                         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
                     });
-                    console.log(`[RazorpayWebhook] Order ${orderDoc.id} refunded ₹${refundAmount}`);
-                }
 
-                await eventRef.set({ processedAt: admin.firestore.FieldValue.serverTimestamp(), eventId: webhookEventId, paymentId, type: event });
-
-                await admin.firestore().collection('payment_reconciliation_log').add({
-                    paymentId: paymentId,
-                    action: 'refund_processed',
-                    amount: refundAmount,
-                    timestamp: admin.firestore.FieldValue.serverTimestamp(),
+                    transaction.set(eventRef, { processedAt: admin.firestore.FieldValue.serverTimestamp(), eventId: webhookEventId, type: event, orderId });
                 });
+                console.log(`[RazorpayWebhook] Order ${orderId} → FAILED AND ROLLED BACK`);
             }
-
-        // ── ORDER PAID ──
-        } else if (event === 'order.paid') {
-            const order = payload.order?.entity;
-            if (order) {
-                await eventRef.set({ processedAt: admin.firestore.FieldValue.serverTimestamp(), eventId: webhookEventId, razorpayOrderId: order.id, type: event });
-            }
+        } else {
+            // Acknowledge other events without processing
+            const eventRef = db.collection('webhook_events').doc(`razorpay_${webhookEventId}`);
+            await eventRef.set({ processedAt: admin.firestore.FieldValue.serverTimestamp(), eventId: webhookEventId, type: event, ignored: true });
         }
 
         res.status(200).send('Webhook processed');
     } catch (error) {
         console.error('[RazorpayWebhook] Error processing webhook:', error);
-
-        // Log failure for manual review
-        await admin.firestore().collection('payment_reconciliation_log').add({
-            action: 'webhook_processing_error',
-            eventId: webhookEventId,
-            event: event,
-            error: error.message,
-            timestamp: admin.firestore.FieldValue.serverTimestamp(),
-        }).catch(() => {});
-
         res.status(500).send('Internal Server Error');
     }
 });

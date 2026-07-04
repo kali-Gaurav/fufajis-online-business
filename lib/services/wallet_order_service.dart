@@ -320,9 +320,4 @@ class WalletOrderService {
       throw Exception('Failed to create wallet order: $e');
     }
   }
-
-  /// Utility: Generate unique order ID
-  String _generateOrderId() {
-    return 'order_${DateTime.now().millisecondsSinceEpoch}';
-  }
 }

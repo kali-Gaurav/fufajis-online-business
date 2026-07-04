@@ -13,8 +13,7 @@
  * - Customer feedback collection
  */
 
-const admin = require('firebase-admin');
-const db = admin.firestore();
+const firebaseAdmin = require('./firebaseAdmin');
 
 const OTP_LENGTH = 4;
 const OTP_EXPIRY_MINUTES = 10;

@@ -46,8 +46,8 @@ class _RiderTasksScreenState extends State<RiderTasksScreen> {
           metrics: {
             'todaysDeliveries': stats?.completedDeliveries ?? 0,
             'currentBatch': deliveries.length,
-            'expectedEarnings': '₹${stats!.totalEarnings.toDouble().toStringAsFixed(0) ?? 0}',
-            'acceptanceRate': '${(stats.acceptanceRate ?? 0) * 100}%',
+            'expectedEarnings': '₹${stats!.totalEarnings.toStringAsFixed(0)}',
+            'acceptanceRate': '${(stats.acceptanceRate) * 100}%',
           },
         );
 

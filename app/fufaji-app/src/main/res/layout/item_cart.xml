@@ -44,7 +44,7 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
-            <!-- Product Name (Hindi) -->
+            <!-- Product Name -->
             <TextView
                 android:id="@+id/cartItemName"
                 android:layout_width="match_parent"

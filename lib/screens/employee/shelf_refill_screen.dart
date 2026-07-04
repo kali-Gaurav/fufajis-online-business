@@ -25,7 +25,6 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
   String? _scannedBarcode;
   ProductModel? _product;
   bool _isLoading = false;
-  bool _autoFilled = false;
   final List<RefillItem> _refillHistory = [];
 
   @override
@@ -59,7 +58,6 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
           _scannedBarcode = barcode;
           _product = product;
           _isLoading = false;
-          _autoFilled = true;
           _quantityController.text = '5'; // Refill default
         });
         await SmartScanService.hapticSuccess();
@@ -137,7 +135,6 @@ class _ShelfRefillScreenState extends State<ShelfRefillScreen> {
         _quantityController.text = '1';
         _notesController.clear();
         _isLoading = false;
-        _autoFilled = false;
       });
 
       await SmartScanService.hapticComplete();

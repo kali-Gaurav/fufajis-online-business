@@ -87,7 +87,7 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <!-- Product Name (Hindi) -->
+                    <!-- Product Name -->
                     <TextView
                         android:id="@+id/productName"
                         android:layout_width="match_parent"
@@ -97,7 +97,7 @@
                         android:textColor="@color/text_primary"
                         android:layout_marginBottom="4dp" />
 
-                    <!-- Product Name (English) -->
+                    <!-- Product Category -->
                     <TextView
                         android:id="@+id/productNameEn"
                         android:layout_width="match_parent"

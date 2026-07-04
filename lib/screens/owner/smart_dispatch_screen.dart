@@ -1,6 +1,7 @@
 import '../../services/logging_service.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../config/supabase_config.dart';
 import '../../models/order_model.dart';
 import '../../models/user_model.dart';
 import '../../constants/order_status.dart';
@@ -136,18 +137,19 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
 
     setState(() => _isDispatching = true);
     try {
-      final batch = _firestore.batch();
-      for (final order in cluster.orders) {
-        final ref = _firestore.collection('orders').doc(order.id);
-        batch.update(ref, {
-          'status': OrderStatus.outForDelivery.toString(),
-          'deliveryAgentId': agentId,
-          'deliveryAgentName': agent['name'],
-          'deliveryAgentPhone': agent['phone'],
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
+      final response = await SupabaseConfig.client.functions.invoke(
+        'order-lifecycle',
+        body: {
+          'action': 'dispatch-cluster',
+          'orderIds': cluster.orders.map((o) => o.id).toList(),
+          'riderId': agentId,
+        },
+      );
+
+      final data = response.data as Map<String, dynamic>? ?? {};
+      if (data['success'] != true) {
+        throw Exception('Server failed to dispatch orders.');
       }
-      await batch.commit();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

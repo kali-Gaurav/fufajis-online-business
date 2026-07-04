@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart' as gsignin;
 import 'package:flutter/foundation.dart';
@@ -10,7 +11,7 @@ import '../models/employee_model.dart';
 import '../models/owner_model.dart';
 import 'api_client.dart';
 
-enum AuthResultStatus { ownerAccess, employeeAccess, unauthorized, error }
+enum AuthResultStatus { ownerAccess, employeeAccess, deliveryAgentAccess, customerAccess, unauthorized, error }
 
 class AuthResult {
   final AuthResultStatus status;
@@ -34,6 +35,50 @@ class AuthService extends ChangeNotifier {
   void resetSessionRevoked() {
     _isSessionRevoked = false;
     notifyListeners();
+  }
+
+  /// Unified Operational Sign-In (Owner, Admin, Employee, Delivery Agent)
+  /// Uses ID + Credential (Password/PIN) via secure Cloud Function
+  Future<AuthResult> signInOperationalUser(String loginId, String credential, String expectedRole) async {
+    try {
+      final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('verifyStaffCredentials');
+      final result = await callable.call({
+        'loginId': loginId,
+        'pin': credential, // The backend field is named 'pin', but it accepts a password as well
+        'role': expectedRole,
+      });
+
+      final customToken = result.data['token'] as String?;
+      if (customToken == null) {
+        return AuthResult(status: AuthResultStatus.error, message: 'Invalid response from server.');
+      }
+
+      final UserCredential userCredential = await _auth.signInWithCustomToken(customToken);
+      final User? user = userCredential.user;
+      if (user == null) {
+        return AuthResult(status: AuthResultStatus.error, message: 'Custom token sign-in failed.');
+      }
+
+      _isSessionRevoked = false;
+      _currentSessionId = await SessionService().createSession(user.uid);
+      SessionService().listenToSession(_currentSessionId!, _handleSessionRevocation);
+      notifyListeners();
+
+      // Return appropriate status based on role
+      if (expectedRole == 'owner' || expectedRole == 'admin') {
+        return AuthResult(status: AuthResultStatus.ownerAccess);
+      } else if (expectedRole == 'employee') {
+        return AuthResult(status: AuthResultStatus.employeeAccess);
+      } else if (expectedRole == 'deliveryAgent') {
+        return AuthResult(status: AuthResultStatus.deliveryAgentAccess);
+      }
+
+      return AuthResult(status: AuthResultStatus.unauthorized, message: 'Unknown role.');
+    } on FirebaseFunctionsException catch (e) {
+      return AuthResult(status: AuthResultStatus.error, message: e.message ?? 'Authentication failed.');
+    } catch (e) {
+      return AuthResult(status: AuthResultStatus.error, message: e.toString());
+    }
   }
 
   /// Handle Google Sign-In and check authorization level

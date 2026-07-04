@@ -87,7 +87,7 @@ class PricingExpertService {
                 reviewsSnapshot.docs.length;
 
       // Generate recommendation using Gemini
-      return _generatePricingRecommendation(
+      return await _generatePricingRecommendation(
         productId: productId,
         productData: productData,
         stock: stock,
@@ -372,8 +372,6 @@ class PricingExpertService {
     // Round to nearest ₹5
     suggestedPrice = (suggestedPrice / 5).round() * 5;
 
-    final priceChangePercent = ((suggestedPrice - currentPrice) / currentPrice * 100);
-
     return DynamicPriceRecommendation(
       currentPrice: currentPrice,
       suggestedPrice: suggestedPrice,
@@ -485,9 +483,6 @@ Respond in JSON format:
 
       final response = await _geminiModel.generateContent([Content.text(prompt)]);
       final responseText = response.text ?? '{"bundleName": null, "description": null}';
-
-      // Parse JSON response
-      final jsonStr = responseText.replaceAll('```json', '').replaceAll('```', '').trim();
 
       // Mock bundle data (in production, parse actual JSON from Gemini)
       return BundleOpportunityRecommendation(

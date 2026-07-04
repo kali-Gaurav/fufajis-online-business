@@ -265,9 +265,9 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
   final FleetService _fleetService = FleetService();
   final OfflineRoutingService _routingService = OfflineRoutingService();
 
-  // Store coordinates (Jaipur Central Shop)
-  static const double storeLat = 26.9124;
-  static const double storeLng = 75.7873;
+  // Store coordinates (Baran Central Shop)
+  static const double storeLat = 25.1006;
+  static const double storeLng = 76.5156;
 
   // Mocking controls
   bool _useMockLocation = true;

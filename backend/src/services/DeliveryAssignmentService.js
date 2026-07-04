@@ -13,8 +13,7 @@
  * - Reassignment if rider cancels/fails
  */
 
-const admin = require('firebase-admin');
-const db = admin.firestore();
+const firebaseAdmin = require('./firebaseAdmin');
 
 const DELIVERY_EARTH_RADIUS = 6371; // km
 const MAX_DELIVERY_DISTANCE = 5; // km

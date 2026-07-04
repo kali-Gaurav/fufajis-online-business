@@ -34,7 +34,7 @@ class PackingTerminalScreenV2 extends StatefulWidget {
 }
 
 class _PackingTerminalScreenV2State extends State<PackingTerminalScreenV2> {
-  late OrderModel order;
+  OrderModel? order;
   bool isLoading = false;
   String? errorMessage;
   Map<String, int> packedItems = {}; // product_id → quantity packed
@@ -84,13 +84,15 @@ class _PackingTerminalScreenV2State extends State<PackingTerminalScreenV2> {
   /// 3. Atomic operation (all-or-nothing)
   /// 4. Impossible to double-pack
   Future<void> _packOrder() async {
+    final currentOrder = order;
+    if (currentOrder == null) return;
     try {
       setState(() => isLoading = true);
       errorMessage = null;
 
       // Validate that all items have been packed
       bool allPacked = true;
-      for (final item in order.items) {
+      for (final item in currentOrder.items) {
         if ((packedItems[item.productId] ?? 0) < item.quantity) {
           allPacked = false;
           break;
@@ -111,7 +113,7 @@ class _PackingTerminalScreenV2State extends State<PackingTerminalScreenV2> {
       final packingDuration = _packingTimer?.elapsedMilliseconds ?? 0;
 
       // Prepare items for API call
-      final itemsToPack = order.items
+      final itemsToPack = currentOrder.items
           .map((item) => {
                 'productId': item.productId,
                 'quantity': item.quantity,
@@ -121,7 +123,7 @@ class _PackingTerminalScreenV2State extends State<PackingTerminalScreenV2> {
       // CRITICAL: Call backend API instead of Firestore
       // This ensures atomic transaction + inventory validation
       final apiService = AdminApiService();
-      final result = await apiService.packOrder(widget.orderId, itemsToPack, employeeId);
+      await apiService.packOrder(widget.orderId, itemsToPack, employeeId);
 
       // Success! Order packed
       if (!mounted) return;
@@ -136,7 +138,7 @@ class _PackingTerminalScreenV2State extends State<PackingTerminalScreenV2> {
       // Log analytics
       _logPackingAnalytics(
         orderId: widget.orderId,
-        itemCount: order.items.length,
+        itemCount: currentOrder.items.length,
         packingDurationMs: packingDuration,
         employeeId: employeeId,
         success: true,
@@ -153,7 +155,7 @@ class _PackingTerminalScreenV2State extends State<PackingTerminalScreenV2> {
       // Log error analytics
       _logPackingAnalytics(
         orderId: widget.orderId,
-        itemCount: order.items.length,
+        itemCount: currentOrder.items.length,
         packingDurationMs: _packingTimer?.elapsedMilliseconds ?? 0,
         employeeId: FirebaseAuth.instance.currentUser?.uid ?? 'unknown',
         success: false,
@@ -232,10 +234,27 @@ class _PackingTerminalScreenV2State extends State<PackingTerminalScreenV2> {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading && order == null) {
+    final currentOrder = order;
+    if (isLoading && currentOrder == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('Packing Terminal')),
         body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (currentOrder == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Packing Terminal')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('Order not found or could not be loaded.'),
+              const SizedBox(height: 16),
+              ElevatedButton(onPressed: _loadOrder, child: const Text('Retry')),
+            ],
+          ),
+        ),
       );
     }
 
@@ -257,7 +276,9 @@ class _PackingTerminalScreenV2State extends State<PackingTerminalScreenV2> {
                     final seconds = (snapshot.data ?? 0) ~/ 1000;
                     final minutes = seconds ~/ 60;
                     final secs = seconds % 60;
-                    return Text('${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}');
+                    return Text(
+                      '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}',
+                    );
                   },
                 ),
               ),
@@ -290,11 +311,14 @@ class _PackingTerminalScreenV2State extends State<PackingTerminalScreenV2> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Order ID: ${order.id}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                        'Order ID: ${currentOrder.id}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       const SizedBox(height: 8),
-                      Text('Items: ${order.items.length}'),
-                      Text('Total: ₹${order.totalAmount / 100}'),
-                      Text('Status: ${order.status}'),
+                      Text('Items: ${currentOrder.items.length}'),
+                      Text('Total: ₹${currentOrder.totalAmount / 100}'),
+                      Text('Status: ${currentOrder.status}'),
                     ],
                   ),
                 ),
@@ -302,9 +326,12 @@ class _PackingTerminalScreenV2State extends State<PackingTerminalScreenV2> {
               const SizedBox(height: 24),
 
               // Items to pack
-              const Text('Items to Pack', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text(
+                'Items to Pack',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 12),
-              ...order.items.map((item) {
+              ...currentOrder.items.map((item) {
                 final packed = packedItems[item.productId] ?? 0;
                 final progress = packed / item.quantity;
 

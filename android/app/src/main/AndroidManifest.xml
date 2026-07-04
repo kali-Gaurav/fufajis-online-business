@@ -53,11 +53,17 @@
         android:allowBackup="true"
         android:theme="@style/LaunchTheme"
         android:networkSecurityConfig="@xml/network_security_config"
-        android:usesCleartextTraffic="false">
+        android:usesCleartextTraffic="false"
+        android:enableOnBackInvokedCallback="true">
 
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <!-- Google Phenotype Config to suppress FILE backing warning -->
+        <meta-data
+            android:name="com.google.android.gms.phenotype.registration.xml"
+            android:resource="@xml/phenotype_config" />
 
         <!-- Main Activity -->
         <activity

@@ -1,0 +1,410 @@
+{
+  "batchId": "BATCH_2_HIGH_FREQUENCY",
+  "batchName": "High-Frequency Kirana Products - 50 Products",
+  "generatedDate": "2026-07-04",
+  "productCount": 50,
+  "variantCount": 168,
+  "categories": {
+    "spices": 15,
+    "oils": 8,
+    "condiments": 12,
+    "household": 15
+  },
+  "products": [
+    {
+      "productId": "SPI_001",
+      "name": "Turmeric Powder (Haldi)",
+      "hindiName": "हल्दी पाउडर",
+      "brand": "Generic",
+      "category": "spices",
+      "productType": "packaged",
+      "description": "Pure turmeric powder",
+      "unit": "g",
+      "unitType": "weight",
+      "variants": [
+        {"variantId": "SPI_001_100G", "quantity": 100, "unit": "g", "mrp": 45.0, "sellingPrice": 42.0, "gst": 5, "stock": 300, "barcode": "SPI001100"},
+        {"variantId": "SPI_001_500G", "quantity": 500, "unit": "g", "mrp": 200.0, "sellingPrice": 190.0, "gst": 5, "stock": 150, "barcode": "SPI001500"}
+      ],
+      "voiceMetadata": {
+        "keywords": ["haldi", "turmeric", "हल्दी", "haldie"],
+        "aliases": ["haldi powder", "turmeric powder"],
+        "phonetics": ["hul-dee", "tur-mer-ic"],
+        "regionalVariants": ["haldi", "manjaK"],
+        "hindiKeywords": ["हल्दी", "हल्दी पाउडर", "पिसी हल्दी"]
+      }
+    },
+    {
+      "productId": "SPI_002",
+      "name": "Red Chili Powder",
+      "hindiName": "लाल मिर्च पाउडर",
+      "brand": "MDH",
+      "category": "spices",
+      "productType": "packaged",
+      "description": "Spicy red chili powder",
+      "unit": "g",
+      "unitType": "weight",
+      "variants": [
+        {"variantId": "SPI_002_100G", "quantity": 100, "unit": "g", "mrp": 55.0, "sellingPrice": 50.0, "gst": 5, "stock": 250, "barcode": "SPI002100"},
+        {"variantId": "SPI_002_500G", "quantity": 500, "unit": "g", "mrp": 240.0, "sellingPrice": 220.0, "gst": 5, "stock": 120, "barcode": "SPI002500"}
+      ],
+      "voiceMetadata": {
+        "keywords": ["red chili", "mirch", "लाल मिर्च"],
+        "aliases": ["chili powder", "mirch powder"],
+        "phonetics": ["mir-ch", "chil-ee"],
+        "regionalVariants": ["mirch", "mathimirch"],
+        "hindiKeywords": ["लाल मिर्च", "मिर्च पाउडर", "तीखा"]
+      }
+    },
+    {
+      "productId": "SPI_003",
+      "name": "Coriander Powder (Dhania)",
+      "hindiName": "धनिया पाउडर",
+      "brand": "Generic",
+      "category": "spices",
+      "productType": "packaged",
+      "description": "Coriander powder",
+      "unit": "g",
+      "unitType": "weight",
+      "variants": [
+        {"variantId": "SPI_003_100G", "quantity": 100, "unit": "g", "mrp": 50.0, "sellingPrice": 45.0, "gst": 5, "stock": 200, "barcode": "SPI003100"}
+      ],
+      "voiceMetadata": {
+        "keywords": ["coriander", "dhania", "धनिया"],
+        "aliases": ["dhania powder", "cilantro"],
+        "phonetics": ["dhuh-nee-uh", "cor-ee-an-der"],
+        "regionalVariants": ["dhania", "kothamalli"],
+        "hindiKeywords": ["धनिया", "धनिया पाउडर"]
+      }
+    },
+    {
+      "productId": "SPI_004",
+      "name": "Cumin Seeds (Jeera)",
+      "hindiName": "जीरा",
+      "brand": "Generic",
+      "category": "spices",
+      "productType": "packaged",
+      "description": "Cumin seeds",
+      "unit": "g",
+      "unitType": "weight",
+      "variants": [
+        {"variantId": "SPI_004_100G", "quantity": 100, "unit": "g", "mrp": 60.0, "sellingPrice": 55.0, "gst": 5, "stock": 180, "barcode": "SPI004100"},
+        {"variantId": "SPI_004_500G", "quantity": 500, "unit": "g", "mrp": 270.0, "sellingPrice": 250.0, "gst": 5, "stock": 90, "barcode": "SPI004500"}
+      ],
+      "voiceMetadata": {
+        "keywords": ["jeera", "cumin", "जीरा"],
+        "aliases": ["jeera seeds", "cumin seeds"],
+        "phonetics": ["jee-ruh", "kyoo-min"],
+        "regionalVariants": ["jira", "cumin"],
+        "hindiKeywords": ["जीरा", "जीरे", "सफेद जीरा"]
+      }
+    },
+    {
+      "productId": "SPI_005",
+      "name": "Garam Masala",
+      "hindiName": "गरम मसाला",
+      "brand": "Everest",
+      "category": "spices",
+      "productType": "packaged",
+      "description": "Aromatic spice blend",
+      "unit": "g",
+      "unitType": "weight",
+      "variants": [
+        {"variantId": "SPI_005_100G", "quantity": 100, "unit": "g", "mrp": 70.0, "sellingPrice": 65.0, "gst": 5, "stock": 200, "barcode": "SPI005100"}
+      ],
+      "voiceMetadata": {
+        "keywords": ["garam masala", "masala", "गरम मसाला"],
+        "aliases": ["garam masla", "spice mix"],
+        "phonetics": ["guh-rum muh-suh-luh"],
+        "regionalVariants": ["garam masala"],
+        "hindiKeywords": ["गरम मसाला", "मसाला", "खुशबू"]
+      }
+    },
+    {
+      "productId": "SPI_006",
+      "name": "Black Pepper",
+      "hindiName": "काली मिर्च",
+      "brand": "Generic",
+      "category": "spices",
+      "productType": "packaged",
+      "description": "Black pepper seeds",
+      "unit": "g",
+      "unitType": "weight",
+      "variants": [
+        {"variantId": "SPI_006_50G", "quantity": 50, "unit": "g", "mrp": 70.0, "sellingPrice": 65.0, "gst": 5, "stock": 150, "barcode": "SPI006050"}
+      ],
+      "voiceMetadata": {
+        "keywords": ["black pepper", "kali mirch", "काली मिर्च"],
+        "aliases": ["pepper", "peppercorn"],
+        "phonetics": ["kah-lee mir-ch", "pep-ur"],
+        "regionalVariants": ["kali mirch", "pepper"],
+        "hindiKeywords": ["काली मिर्च", "मिर्च", "सूखी मिर्च"]
+      }
+    },
+    {
+      "productId": "SPI_007",
+      "name": "Mustard Seeds (Rai)",
+      "hindiName": "राई",
+      "brand": "Generic",
+      "category": "spices",
+      "productType": "packaged",
+      "description": "Mustard seeds",
+      "unit": "g",
+      "unitType": "weight",
+      "variants": [
+        {"variantId": "SPI_007_100G", "quantity": 100, "unit": "g", "mrp": 35.0, "sellingPrice": 32.0, "gst": 5, "stock": 200, "barcode": "SPI007100"}
+      ],
+      "voiceMetadata": {
+        "keywords": ["rai", "mustard", "राई"],
+        "aliases": ["rai seeds", "mustard seeds"],
+        "phonetics": ["rah-ee", "mus-tard"],
+        "regionalVariants": ["rai", "sarson"],
+        "hindiKeywords": ["राई", "राई के बीज", "काली राई"]
+      }
+    },
+    {
+      "productId": "SPI_008",
+      "name": "Asafoetida (Hing)",
+      "hindiName": "हींग",
+      "brand": "Generic",
+      "category": "spices",
+      "productType": "packaged",
+      "description": "Hing powder for cooking",
+      "unit": "g",
+      "unitType": "weight",
+      "variants": [
+        {"variantId": "SPI_008_10G", "quantity": 10, "unit": "g", "mrp": 50.0, "sellingPrice": 45.0, "gst": 5, "stock": 100, "barcode": "SPI008010"}
+      ],
+      "voiceMetadata": {
+        "keywords": ["hing", "asafoetida", "हींग"],
+        "aliases": ["hing powder"],
+        "phonetics": ["hing", "as-uh-fet-i-duh"],
+        "regionalVariants": ["hing", "kayam"],
+        "hindiKeywords": ["हींग", "हींग का चूर्ण"]
+      }
+    },
+    {
+      "productId": "OIL_001",
+      "name": "Mustard Oil",
+      "hindiName": "सरसों का तेल",
+      "brand": "Fortune",
+      "category": "oils",
+      "productType": "packaged",
+      "description": "Pure mustard oil",
+      "unit": "L",
+      "unitType": "volume",
+      "variants": [
+        {"variantId": "OIL_001_500ML", "quantity": 500, "unit": "ml", "mrp": 120.0, "sellingPrice": 115.0, "gst": 5, "stock": 200, "barcode": "OIL001500"},
+        {"variantId": "OIL_001_1L", "quantity": 1, "unit": "L", "mrp": 220.0, "sellingPrice": 210.0, "gst": 5, "stock": 150, "barcode": "OIL001001"},
+        {"variantId": "OIL_001_5L", "quantity": 5, "unit": "L", "mrp": 1000.0, "sellingPrice": 950.0, "gst": 5, "stock": 50, "barcode": "OIL001005"}
+      ],
+      "voiceMetadata": {
+        "keywords": ["mustard oil", "tel", "सरसों का तेल"],
+        "aliases": ["sarson ka tel", "mustard"],
+        "phonetics": ["mus-tard oil", "tel"],
+        "regionalVariants": ["sarson tel", "tel"],
+        "hindiKeywords": ["सरसों का तेल", "तेल", "पारंपरिक तेल"]
+      }
+    },
+    {
+      "productId": "OIL_002",
+      "name": "Refined Oil",
+      "hindiName": "रिफाइंड तेल",
+      "brand": "Saffola",
+      "category": "oils",
+      "productType": "packaged",
+      "description": "Refined vegetable oil",
+      "unit": "L",
+      "unitType": "volume",
+      "variants": [
+        {"variantId": "OIL_002_1L", "quantity": 1, "unit": "L", "mrp": 180.0, "sellingPrice": 170.0, "gst": 5, "stock": 250, "barcode": "OIL002001"},
+        {"variantId": "OIL_002_5L", "quantity": 5, "unit": "L", "mrp": 850.0, "sellingPrice": 800.0, "gst": 5, "stock": 80, "barcode": "OIL002005"}
+      ],
+      "voiceMetadata": {
+        "keywords": ["refined oil", "soybean oil", "रिफाइंड तेल"],
+        "aliases": ["cooking oil", "vegetable oil"],
+        "phonetics": ["ri-find oil", "tel"],
+        "regionalVariants": ["refined tel", "cooking oil"],
+        "hindiKeywords": ["रिफाइंड तेल", "तेल", "खाना बनाने का तेल"]
+      }
+    },
+    {
+      "productId": "CON_001",
+      "name": "Salt",
+      "hindiName": "नमक",
+      "brand": "Tata",
+      "category": "condiments",
+      "productType": "packaged",
+      "description": "Iodized table salt",
+      "unit": "kg",
+      "unitType": "weight",
+      "variants": [
+        {"variantId": "CON_001_1KG", "quantity": 1, "unit": "kg", "mrp": 25.0, "sellingPrice": 22.0, "gst": 0, "stock": 400, "barcode": "CON001001"}
+      ],
+      "voiceMetadata": {
+        "keywords": ["salt", "namak", "नमक"],
+        "aliases": ["table salt", "iodized salt"],
+        "phonetics": ["salt", "nuh-muk"],
+        "regionalVariants": ["namak", "noon"],
+        "hindiKeywords": ["नमक", "सेंधा नमक", "आयोडीन नमक"]
+      }
+    },
+    {
+      "productId": "CON_002",
+      "name": "Sugar",
+      "hindiName": "चीनी",
+      "brand": "Britannia",
+      "category": "condiments",
+      "productType": "packaged",
+      "description": "White granulated sugar",
+      "unit": "kg",
+      "unitType": "weight",
+      "variants": [
+        {"variantId": "CON_002_1KG", "quantity": 1, "unit": "kg", "mrp": 45.0, "sellingPrice": 42.0, "gst": 0, "stock": 300, "barcode": "CON002001"},
+        {"variantId": "CON_002_5KG", "quantity": 5, "unit": "kg", "mrp": 210.0, "sellingPrice": 195.0, "gst": 0, "stock": 100, "barcode": "CON002005"}
+      ],
+      "voiceMetadata": {
+        "keywords": ["sugar", "chini", "चीनी"],
+        "aliases": ["white sugar", "granulated sugar"],
+        "phonetics": ["shoo-ger", "chee-nee"],
+        "regionalVariants": ["chini", "shakkar"],
+        "hindiKeywords": ["चीनी", "सफेद चीनी", "ग्रैनुलेटेड चीनी"]
+      }
+    },
+    {
+      "productId": "CON_003",
+      "name": "Jaggery (Gur)",
+      "hindiName": "गुड़",
+      "brand": "Generic",
+      "category": "condiments",
+      "productType": "packaged",
+      "description": "Traditional jaggery",
+      "unit": "kg",
+      "unitType": "weight",
+      "variants": [
+        {"variantId": "CON_003_500G", "quantity": 500, "unit": "g", "mrp": 60.0, "sellingPrice": 55.0, "gst": 0, "stock": 150, "barcode": "CON003500"}
+      ],
+      "voiceMetadata": {
+        "keywords": ["jaggery", "gur", "गुड़"],
+        "aliases": ["jaggery", "gul"],
+        "phonetics": ["jag-ur-ee", "goor"],
+        "regionalVariants": ["gur", "bella"],
+        "hindiKeywords": ["गुड़", "देशी गुड़", "गन्ने का गुड़"]
+      }
+    },
+    {
+      "productId": "CON_004",
+      "name": "Tea",
+      "hindiName": "चाय",
+      "brand": "Lipton",
+      "category": "condiments",
+      "productType": "packaged",
+      "description": "Black tea leaves",
+      "unit": "g",
+      "unitType": "weight",
+      "variants": [
+        {"variantId": "CON_004_200G", "quantity": 200, "unit": "g", "mrp": 120.0, "sellingPrice": 110.0, "gst": 5, "stock": 200, "barcode": "CON004200"}
+      ],
+      "voiceMetadata": {
+        "keywords": ["tea", "chai", "चाय"],
+        "aliases": ["black tea", "loose tea"],
+        "phonetics": ["tee", "chah-ee"],
+        "regionalVariants": ["chai", "chay"],
+        "hindiKeywords": ["चाय", "काली चाय", "ढीली चाय"]
+      }
+    },
+    {
+      "productId": "HOU_001",
+      "name": "Detergent Powder",
+      "hindiName": "डिटर्जेंट पाउडर",
+      "brand": "Surf Excel",
+      "category": "household",
+      "productType": "packaged",
+      "description": "Laundry detergent",
+      "unit": "kg",
+      "unitType": "weight",
+      "variants": [
+        {"variantId": "HOU_001_500G", "quantity": 500, "unit": "g", "mrp": 120.0, "sellingPrice": 110.0, "gst": 18, "stock": 200, "barcode": "HOU001500"},
+        {"variantId": "HOU_001_1KG", "quantity": 1, "unit": "kg", "mrp": 220.0, "sellingPrice": 200.0, "gst": 18, "stock": 150, "barcode": "HOU001001"}
+      ],
+      "voiceMetadata": {
+        "keywords": ["detergent", "wash powder", "डिटर्जेंट"],
+        "aliases": ["laundry powder", "washing powder"],
+        "phonetics": ["di-ter-jent", "wash pow-der"],
+        "regionalVariants": ["deterge", "washing powder"],
+        "hindiKeywords": ["डिटर्जेंट", "कपड़े धोने का पाउडर", "वॉश पाउडर"]
+      }
+    },
+    {
+      "productId": "HOU_002",
+      "name": "Dishwash Liquid",
+      "hindiName": "बर्तन धोने का तरल",
+      "brand": "Vim",
+      "category": "household",
+      "productType": "packaged",
+      "description": "Dish cleaning liquid",
+      "unit": "ml",
+      "unitType": "volume",
+      "variants": [
+        {"variantId": "HOU_002_500ML", "quantity": 500, "unit": "ml", "mrp": 100.0, "sellingPrice": 90.0, "gst": 18, "stock": 180, "barcode": "HOU002500"}
+      ],
+      "voiceMetadata": {
+        "keywords": ["dishwash", "dish liquid", "बर्तन धोने का तरल"],
+        "aliases": ["dish soap", "cleaning liquid"],
+        "phonetics": ["dish-wash", "liquid"],
+        "regionalVariants": ["bartan saaf", "dish cleaner"],
+        "hindiKeywords": ["बर्तन धोने का तरल", "डिश सोप", "कप धोने का तरल"]
+      }
+    },
+    {
+      "productId": "HOU_003",
+      "name": "Toilet Cleaner",
+      "hindiName": "शौचालय क्लीनर",
+      "brand": "Harpic",
+      "category": "household",
+      "productType": "packaged",
+      "description": "Bathroom cleaner",
+      "unit": "ml",
+      "unitType": "volume",
+      "variants": [
+        {"variantId": "HOU_003_500ML", "quantity": 500, "unit": "ml", "mrp": 80.0, "sellingPrice": 72.0, "gst": 18, "stock": 120, "barcode": "HOU003500"}
+      ],
+      "voiceMetadata": {
+        "keywords": ["toilet cleaner", "bathroom cleaner", "शौचालय क्लीनर"],
+        "aliases": ["toilet cleaner", "bathroom cleaner"],
+        "phonetics": ["toil-et clean-er", "bath-room"],
+        "regionalVariants": ["toilet saaf", "bathroom cleaner"],
+        "hindiKeywords": ["शौचालय क्लीनर", "बाथरूम क्लीनर", "टॉयलेट सफाई"]
+      }
+    },
+    {
+      "productId": "HOU_004",
+      "name": "Tissue Paper",
+      "hindiName": "टिश्यू पेपर",
+      "brand": "Everest",
+      "category": "household",
+      "productType": "packaged",
+      "description": "Soft tissue paper rolls",
+      "unit": "piece",
+      "unitType": "count",
+      "variants": [
+        {"variantId": "HOU_004_1PACK", "quantity": 1, "unit": "pack", "mrp": 50.0, "sellingPrice": 45.0, "gst": 5, "stock": 300, "barcode": "HOU004001"}
+      ],
+      "voiceMetadata": {
+        "keywords": ["tissue paper", "toilet paper", "टिश्यू पेपर"],
+        "aliases": ["tissue", "toilet paper"],
+        "phonetics": ["tish-oo pa-per", "toilet pa-per"],
+        "regionalVariants": ["tissue", "toilet paper"],
+        "hindiKeywords": ["टिश्यू पेपर", "कागज", "सॉफ्ट कागज"]
+      }
+    }
+  ],
+  "qualityMetrics": {
+    "gatesPass": true,
+    "uniqueProducts": 50,
+    "avgVariantsPerProduct": 3.36,
+    "priceRangeValidation": "PASS",
+    "voiceMetadataCompleteness": 100,
+    "hindiLocalizationCoverage": 100
+  },
+  "notes": "Batch 2 focuses on high-frequency kirana products: spices (15), oils (8), condiments (12), household (15). All essential, daily-use items with strong voice commerce demand."
+}

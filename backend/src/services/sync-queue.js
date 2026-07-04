@@ -23,8 +23,8 @@
  * Storage: PostgreSQL sync_queue table
  */
 
-const { db } = require('../db');
-const { firestore } = require('../firebase');
+const pool = require('../db/pool');
+const firebaseAdmin = require('./firebaseAdmin');
 
 // In-memory queue for immediate processing
 const immediateQueue = [];
@@ -87,7 +87,7 @@ async function processQueue() {
       await processSyncJob(job);
 
       // Mark as completed
-      await db.query('UPDATE sync_queue SET status = $1, completed_at = NOW() WHERE job_id = $2', ['completed', job.jobId]);
+      await pool.query('UPDATE sync_queue SET status = $1, completed_at = NOW() WHERE job_id = $2', ['completed', job.jobId]);
     } catch (error) {
       console.error(`Sync job ${job.jobId} failed:`, error);
 
@@ -96,7 +96,7 @@ async function processQueue() {
 
       if (newRetryCount >= (job.maxRetries || 5)) {
         // Dead letter — max retries exceeded
-        await db.query(
+        await pool.query(
           'UPDATE sync_queue SET status = $1, error = $2, failed_at = NOW() WHERE job_id = $3',
           ['dead_letter', error.message, job.jobId]
         );
@@ -106,7 +106,7 @@ async function processQueue() {
       } else {
         // Schedule retry
         const nextRetryAt = calculateNextRetryTime(newRetryCount);
-        await db.query(
+        await pool.query(
           'UPDATE sync_queue SET retry_count = $1, next_retry_at = $2, last_error = $3, status = $4 WHERE job_id = $5',
           [newRetryCount, nextRetryAt, error.message, 'retry_pending', job.jobId]
         );
@@ -151,7 +151,7 @@ async function retryStuckJobs() {
       LIMIT 10
     `;
 
-    const result = await db.query(query, ['retry_pending']);
+    const result = await pool.query(query, ['retry_pending']);
 
     for (const row of result.rows) {
       const job = JSON.parse(row.data);

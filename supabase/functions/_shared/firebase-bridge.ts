@@ -74,10 +74,26 @@ export async function syncOrderToFirestore(orderId: string, data: any) {
   return syncToFirestore("orders", orderId, data);
 }
 
+/**
+ * Syncs product catalog to Firestore (Downstream Sync)
+ */
+export async function syncProductToFirestore(productId: string, data: any) {
+  return syncToFirestore("products", productId, data);
+}
+
+/**
+ * Syncs inventory to Firestore (e.g. after deduction)
+ */
+export async function syncInventoryToFirestore(inventoryId: string, data: any) {
+  return syncToFirestore("inventory", inventoryId, data);
+}
+
 // Export as default object for easier importing
 export default {
   verifyFirebaseToken,
   syncToFirestore,
   syncPaymentToFirestore,
   syncOrderToFirestore,
+  syncProductToFirestore,
+  syncInventoryToFirestore,
 };

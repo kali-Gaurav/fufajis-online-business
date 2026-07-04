@@ -27,7 +27,6 @@ class _RiderNavigationScreenState extends State<RiderNavigationScreen> {
   final MapController _mapController = MapController();
   LatLng? _currentLocation;
   List<LatLng> _routePoints = [];
-  bool _isLoadingRoute = false;
   StreamSubscription<Position>? _positionStream;
 
   @override
@@ -71,8 +70,6 @@ class _RiderNavigationScreenState extends State<RiderNavigationScreen> {
   Future<void> _fetchRoute() async {
     if (_currentLocation == null) return;
 
-    setState(() => _isLoadingRoute = true);
-
     try {
       // Using OSRM public API for demo routing.
       // In production, use your own GraphHopper or OSRM instance.
@@ -97,8 +94,6 @@ class _RiderNavigationScreenState extends State<RiderNavigationScreen> {
       }
     } catch (e) {
       debugPrint('Error fetching route: $e');
-    } finally {
-      setState(() => _isLoadingRoute = false);
     }
   }
 

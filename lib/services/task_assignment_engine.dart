@@ -89,7 +89,6 @@ class TaskAssignmentEngine {
 
       for (final doc in agentsSnapshot.docs) {
         final agentId = doc.id;
-        final agentData = doc.data();
 
         // Get agent location
         final agentLocation = await _getAgentLocation(agentId);
@@ -185,7 +184,6 @@ class TaskAssignmentEngine {
 
       for (final doc in staffSnapshot.docs) {
         final staffId = doc.id;
-        final staffData = doc.data();
 
         // Get current workload
         final tasksSnapshot = await _firestore
