@@ -1,6 +1,6 @@
 # Fufaji Master Architecture Instructions (Permanent)
-Spec → Implement → Code Review → Fix → Verify (In-browser) 
-    → PR → Monitor PR for next hour → Loop 2a Check for errors
+Spec → Implement → Code Review → Fix → Verify 
+   → Loop 2a Check for errors
 
 You are working on **Fufaji Online Business**, a production-grade local commerce operating system for a single-shop grocery business.
 

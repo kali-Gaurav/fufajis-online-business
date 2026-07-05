@@ -24,6 +24,32 @@ class ApiClient {
 
   final http.Client _client = http.Client();
 
+  Future<http.Response> _makeRequest(
+      Future<http.Response> Function(Map<String, String> headers) requestFunc) async {
+    final headers = <String, String>{'Content-Type': 'application/json'};
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final token = await user.getIdToken();
+      if (token != null) {
+        headers['Authorization'] = 'Bearer $token';
+      }
+    }
+
+    var response = await requestFunc(headers);
+
+    // Auto-refresh token on 401
+    if (response.statusCode == 401 && user != null) {
+      debugPrint('[ApiClient] 401 received, forcing token refresh...');
+      final newToken = await user.getIdToken(true);
+      if (newToken != null) {
+        headers['Authorization'] = 'Bearer $newToken';
+        response = await requestFunc(headers);
+      }
+    }
+
+    return response;
+  }
+
   Future<ApiResult> post(String path, [Map<String, dynamic>? data]) async {
     final baseUrl = RuntimeConfig.instance.apiBaseUrl;
     if (baseUrl.isEmpty) {
@@ -33,41 +59,14 @@ class ApiClient {
     final cleanPath = path.startsWith('/') ? path : '/$path';
     final uri = Uri.parse('$baseUrl$cleanPath');
 
-    final headers = <String, String>{'Content-Type': 'application/json'};
-
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final token = await user.getIdToken();
-      if (token != null) {
-        headers['Authorization'] = 'Bearer $token';
-      }
-    }
-
     debugPrint('[ApiClient] POST $uri');
-    final response = await _client.post(
-      uri,
-      headers: headers,
-      body: data != null ? jsonEncode(data) : null,
-    );
+    final response = await _makeRequest((headers) => _client.post(
+          uri,
+          headers: headers,
+          body: data != null ? jsonEncode(data) : null,
+        ));
 
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      final responseBody = response.body;
-      if (responseBody.isEmpty) {
-        return ApiResult(null);
-      }
-      try {
-        final decoded = jsonDecode(responseBody);
-        // If the backend returns a wrapper { "data": ... }, return that data.
-        if (decoded is Map<String, dynamic> && decoded.containsKey('data')) {
-          return ApiResult(decoded['data']);
-        }
-        return ApiResult(decoded);
-      } catch (e) {
-        return ApiResult(responseBody);
-      }
-    } else {
-      throw Exception('API Request failed with status ${response.statusCode}: ${response.body}');
-    }
+    return _processResponse(response);
   }
 
   Future<ApiResult> get(String path) async {
@@ -79,19 +78,13 @@ class ApiClient {
     final cleanPath = path.startsWith('/') ? path : '/$path';
     final uri = Uri.parse('$baseUrl$cleanPath');
 
-    final headers = <String, String>{'Content-Type': 'application/json'};
-
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final token = await user.getIdToken();
-      if (token != null) {
-        headers['Authorization'] = 'Bearer $token';
-      }
-    }
-
     debugPrint('[ApiClient] GET $uri');
-    final response = await _client.get(uri, headers: headers);
+    final response = await _makeRequest((headers) => _client.get(uri, headers: headers));
 
+    return _processResponse(response);
+  }
+
+  ApiResult _processResponse(http.Response response) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       final responseBody = response.body;
       if (responseBody.isEmpty) {
@@ -99,7 +92,6 @@ class ApiClient {
       }
       try {
         final decoded = jsonDecode(responseBody);
-        // If the backend returns a wrapper { "data": ... }, return that data.
         if (decoded is Map<String, dynamic> && decoded.containsKey('data')) {
           return ApiResult(decoded['data']);
         }

@@ -165,6 +165,18 @@ function flattenOrder(order) {
   };
 }
 
+// ─── Worker State & Metrics ──────────────────────────────────────────────────
+
+let _worker_running = false;
+let _worker_interval = null;
+let _metrics = {
+  processed: 0,
+  failed: 0,
+  queue_depth: 0,
+  last_poll: null,
+  last_error: null,
+};
+
 // ─── Main Polling Loop ────────────────────────────────────────────────────────
 
 const BATCH_SIZE = 25;
@@ -172,42 +184,58 @@ const POLL_INTERVAL_MS = 5_000;
 const MAX_RETRY = 3;
 
 async function processOutbox() {
-  const supabase = getSupabase();
-  const db = getFirestore();
+  if (!_worker_running) return;
 
-  // Fetch unprocessed events ordered by creation time
-  const { data: events, error } = await supabase
-    .from('outbox_events')
-    .select('*')
-    .eq('processed', false)
-    .lt('retry_count', MAX_RETRY)
-    .order('created_at', { ascending: true })
-    .limit(BATCH_SIZE);
+  try {
+    const supabase = getSupabase();
+    const db = getFirestore();
 
-  if (error) {
-    console.error('[FirestoreSync] Failed to fetch outbox_events:', error.message);
-    return;
-  }
+    // Fetch unprocessed events ordered by creation time
+    const { data: events, error } = await supabase
+      .from('outbox_events')
+      .select('*')
+      .eq('processed', false)
+      .lt('retry_count', MAX_RETRY)
+      .order('created_at', { ascending: true })
+      .limit(BATCH_SIZE);
 
-  if (!events || events.length === 0) return;
-
-  console.log(`[FirestoreSync] Processing ${events.length} event(s)...`);
-
-  for (const event of events) {
-    const handler = HANDLERS[event.event_type];
-    if (!handler) {
-      console.warn(`[FirestoreSync] Unknown event type: ${event.event_type} — skipping`);
-      await markProcessed(supabase, event.id, null, 'Unknown event type — skipped');
-      continue;
+    if (error) {
+      console.error('[FirestoreSync] Failed to fetch outbox_events:', error.message);
+      _metrics.last_error = error.message;
+      return;
     }
 
-    try {
-      await handler(db, event.payload ?? {});
-      await markProcessed(supabase, event.id, null, null);
-    } catch (err) {
-      console.error(`[FirestoreSync] Event ${event.id} (${event.event_type}) failed:`, err.message);
-      await markProcessed(supabase, event.id, err, null);
+    // Update queue depth metric
+    _metrics.queue_depth = events ? events.length : 0;
+    _metrics.last_poll = new Date().toISOString();
+
+    if (!events || events.length === 0) return;
+
+    console.log(`[FirestoreSync] Processing ${events.length} event(s)...`);
+
+    for (const event of events) {
+      const handler = HANDLERS[event.event_type];
+      if (!handler) {
+        console.warn(`[FirestoreSync] Unknown event type: ${event.event_type} — skipping`);
+        await markProcessed(supabase, event.id, null, 'Unknown event type — skipped');
+        _metrics.processed++;
+        continue;
+      }
+
+      try {
+        await handler(db, event.payload ?? {});
+        await markProcessed(supabase, event.id, null, null);
+        _metrics.processed++;
+      } catch (err) {
+        console.error(`[FirestoreSync] Event ${event.id} (${event.event_type}) failed:`, err.message);
+        await markProcessed(supabase, event.id, err, null);
+        _metrics.failed++;
+        _metrics.last_error = err.message;
+      }
     }
+  } catch (error) {
+    console.error('[FirestoreSync] processOutbox error:', error.message);
+    _metrics.last_error = error.message;
   }
 }
 
@@ -242,9 +270,15 @@ async function markProcessed(supabase, id, err, skipReason) {
   }
 }
 
-// ─── Start Worker ─────────────────────────────────────────────────────────────
+// ─── Worker Control & Health ──────────────────────────────────────────────────
 
 async function start() {
+  if (_worker_running) {
+    console.log('[FirestoreSync] Worker already running');
+    return;
+  }
+
+  _worker_running = true;
   console.log('[FirestoreSync] Sync worker starting...');
   console.log(`[FirestoreSync] Polling every ${POLL_INTERVAL_MS / 1000}s, batch size: ${BATCH_SIZE}`);
 
@@ -252,13 +286,47 @@ async function start() {
   await processOutbox().catch(err => console.error('[FirestoreSync] Initial poll error:', err.message));
 
   // Poll on interval
-  setInterval(async () => {
+  _worker_interval = setInterval(async () => {
     try {
       await processOutbox();
     } catch (err) {
       console.error('[FirestoreSync] Poll error:', err.message);
+      _metrics.last_error = err.message;
     }
   }, POLL_INTERVAL_MS);
 }
 
+function stop() {
+  if (!_worker_running) {
+    console.log('[FirestoreSync] Worker not running');
+    return;
+  }
+
+  _worker_running = false;
+  if (_worker_interval) {
+    clearInterval(_worker_interval);
+    _worker_interval = null;
+  }
+  console.log('[FirestoreSync] Sync worker stopped');
+}
+
+async function getHealth() {
+  return {
+    running: _worker_running,
+    processed: _metrics.processed,
+    failed: _metrics.failed,
+    queue_depth: _metrics.queue_depth,
+    last_poll: _metrics.last_poll,
+    last_error: _metrics.last_error,
+  };
+}
+
+// Auto-start on module load
 start();
+
+// Export for external control
+module.exports = {
+  start,
+  stop,
+  getHealth,
+};

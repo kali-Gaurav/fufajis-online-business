@@ -41,14 +41,13 @@ class AuthService extends ChangeNotifier {
   /// Uses ID + Credential (Password/PIN) via secure Cloud Function
   Future<AuthResult> signInOperationalUser(String loginId, String credential, String expectedRole) async {
     try {
-      final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('verifyStaffCredentials');
-      final result = await callable.call({
-        'loginId': loginId,
-        'pin': credential, // The backend field is named 'pin', but it accepts a password as well
+      final response = await ApiClient().post('/auth/operational-login', {
+        'login_id': loginId,
+        'pin': credential,
         'role': expectedRole,
       });
 
-      final customToken = result.data['token'] as String?;
+      final customToken = response['token'] as String?;
       if (customToken == null) {
         return AuthResult(status: AuthResultStatus.error, message: 'Invalid response from server.');
       }

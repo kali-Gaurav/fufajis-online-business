@@ -6,6 +6,11 @@
 const fs = require('fs');
 const path = require('path');
 
+// Initialize Sentry FIRST (before any error can occur)
+const { initSentry, createLogger } = require('./services/logger');
+const sentryInstance = initSentry();
+const log = createLogger('server');
+
 // ═══════════════════════════════════════════════════════════════════════
 // PHASE 1: Load Environment Variables
 // ═══════════════════════════════════════════════════════════════════════

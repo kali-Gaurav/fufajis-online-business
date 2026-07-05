@@ -658,7 +658,14 @@ class AuthProvider with ChangeNotifier {
       await AuditService().logLogout(userId, userName);
     }
 
-    // 4. Clear Firebase auth
+    // 4. Revoke operational token
+    try {
+      await ApiClient.instance.post('/auth/operational-logout', {'revokeAll': false});
+    } catch (e) {
+      debugPrint('[AuthProvider] operational-logout error: $e');
+    }
+
+    // 5. Clear Firebase auth
     _userSubscription?.cancel();
     await _googleSignIn.signOut();
     await _auth.signOut();

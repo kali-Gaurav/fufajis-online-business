@@ -4,7 +4,7 @@
   "description": "Fufaji backend for Render deployment",
   "main": "src/app.js",
   "engines": {
-    "node": ">=20.0.0"
+    "node": "20.x"
   },
   "scripts": {
     "start": "node src/server.js",
@@ -59,7 +59,13 @@
     "speakeasy": "^2.0.0",
     "twilio": "^5.0.0",
     "uuid": "^14.0.1",
+    "winston": "^3.11.0",
+    "winston-sentry-log": "^1.0.14",
     "zod": "^3.23.8"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "jest": "^30.4.2",
+    "supertest": "^7.2.2"
+  }
 }

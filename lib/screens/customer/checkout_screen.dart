@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../config/supabase_config.dart';
 import 'package:go_router/go_router.dart';
 import '../../constants/order_status.dart';
 import '../../providers/cart_provider.dart';
@@ -707,8 +707,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       _stableOrderNumber ??= 'ORD$timestamp';
 
       try {
-        final doc = await FirebaseFirestore.instance.collection('orders').doc(_stableOrderId).get();
-        if (doc.exists) {
+        final doc = await SupabaseConfig.client
+            .from('orders')
+            .select('id')
+            .eq('id', _stableOrderId!)
+            .maybeSingle();
+        if (doc != null) {
           cartProvider.clearCart();
           if (mounted) {
             context.go(
@@ -721,6 +725,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         debugPrint('Error recovering order state: $e');
       }
 
+      if (!mounted) return;
       final locationProvider = Provider.of<LocationProvider>(context, listen: false);
       final configProvider = Provider.of<ShopConfigProvider>(context, listen: false);
 

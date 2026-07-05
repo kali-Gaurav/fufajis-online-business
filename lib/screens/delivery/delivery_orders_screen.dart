@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../utils/app_theme.dart';
 import '../../models/order_model.dart';
 import '../../models/payment_method.dart';
@@ -747,7 +746,7 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                   const Text('Select the reason for delivery failure:'),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
-                    initialValue: selectedReason,
+                    value: selectedReason,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -766,7 +765,10 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                 ],
               ),
               actions: [
-                TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
                 ElevatedButton(
                   onPressed: () async {
                     if (!_syncService.isOnline.value) {
