@@ -88,6 +88,35 @@ export async function syncInventoryToFirestore(inventoryId: string, data: any) {
   return syncToFirestore("inventory", inventoryId, data);
 }
 
+/**
+ * Syncs wallet balance to Firestore (updates users document)
+ */
+export async function syncWalletBalanceToFirestore(userId: string, data: any) {
+  // Extract only the balance field to sync to the user's document
+  const balanceData = { walletBalance: data.balance || 0.0 };
+  return syncToFirestore("users", userId, balanceData);
+}
+
+/**
+ * Syncs wallet transaction to Firestore (subcollection under users)
+ */
+export async function syncWalletTransactionToFirestore(userId: string, transactionId: string, data: any) {
+  const collectionPath = `users/${userId}/wallet_transactions`;
+  // Format the data to match the expected WalletTransaction model in Flutter
+  const mappedData = {
+    id: transactionId,
+    userId: userId,
+    type: data.transaction_type,
+    amount: data.amount,
+    orderReference: data.order_id,
+    description: data.description || data.reason,
+    balanceAfter: data.balance_after,
+    sequenceNumber: data.transaction_sequence,
+    timestamp: data.created_at ? admin.firestore.Timestamp.fromDate(new Date(data.created_at)) : admin.firestore.FieldValue.serverTimestamp(),
+  };
+  return syncToFirestore(collectionPath, transactionId, mappedData);
+}
+
 // Export as default object for easier importing
 export default {
   verifyFirebaseToken,
@@ -96,4 +125,6 @@ export default {
   syncOrderToFirestore,
   syncProductToFirestore,
   syncInventoryToFirestore,
+  syncWalletBalanceToFirestore,
+  syncWalletTransactionToFirestore,
 };

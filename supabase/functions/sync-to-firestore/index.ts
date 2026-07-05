@@ -36,6 +36,24 @@ serve(async (req) => {
         success = await firebaseBridge.syncOrderToFirestore(record.id, record);
         break;
 
+      case "wallet_balance":
+        if (record.user_id) {
+          success = await firebaseBridge.syncWalletBalanceToFirestore(record.user_id, record);
+        } else {
+          console.log(`Wallet balance record missing user_id. Skip sync.`);
+          success = true;
+        }
+        break;
+
+      case "wallet_transactions":
+        if (record.user_id && record.id) {
+          success = await firebaseBridge.syncWalletTransactionToFirestore(record.user_id, record.id, record);
+        } else {
+          console.log(`Wallet transaction record missing user_id or id. Skip sync.`);
+          success = true;
+        }
+        break;
+
       default:
         console.log(`Table ${table} not configured for Downstream Sync.`);
         success = true; // Ignore tables we don't care about
