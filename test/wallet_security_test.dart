@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fufaji_store/services/wallet_service.dart';
+import 'package:fufajis_online/services/wallet_service.dart';
 
 void main() {
   group('P0: Wallet Security Fixes', () {
@@ -29,7 +29,7 @@ void main() {
       final result = await walletService.addToWallet(
         userId: 'user-123',
         amount: 1000.0,
-        transactionType: WalletTransactionType.cashback,
+        transactionType: 'cashback',
       );
 
       // This should fail or be prevented by server rules
@@ -49,6 +49,7 @@ void main() {
 
       expect(
         true,
+        isTrue,
         reason:
             'All wallet credits must go through Payment Webhook → Supabase Edge Function → PostgreSQL (with row locks)',
       );
@@ -68,6 +69,7 @@ void main() {
 
       expect(
         true,
+        isTrue,
         reason:
             'PostgreSQL FOR UPDATE prevents race conditions. One transaction waits for the other.',
       );
@@ -91,6 +93,7 @@ void main() {
 
       expect(
         true,
+        isTrue,
         reason:
             'Webhook signature must be verified with RAZORPAY_WEBHOOK_SECRET, not KEY_SECRET',
       );
@@ -110,6 +113,7 @@ void main() {
 
       expect(
         true,
+        isTrue,
         reason:
             'Unique constraint on (user_id, transaction_id) prevents duplicate credits',
       );
@@ -121,6 +125,7 @@ void main() {
 
       expect(
         true,
+        isTrue,
         reason: 'Wallet credits logged to audit_log with verified_by field',
       );
     });

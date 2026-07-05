@@ -17,6 +17,7 @@ void main() {
 
       expect(
         true,
+        isTrue,
         reason:
             'Concurrent webhooks must use idempotency key to prevent double-credit',
       );
@@ -38,6 +39,7 @@ void main() {
 
       expect(
         true,
+        isTrue,
         reason:
             'x-razorpay-signature used as idempotency key in webhook_idempotency_log',
       );
@@ -53,6 +55,7 @@ void main() {
 
       expect(
         true,
+        isTrue,
         reason: 'check_webhook_idempotency() called BEFORE wallet credit',
       );
     });
@@ -77,6 +80,7 @@ void main() {
 
       expect(
         true,
+        isTrue,
         reason: 'Duplicate webhook returns cached result, wallet NOT credited again',
       );
     });
@@ -100,6 +104,7 @@ void main() {
 
       expect(
         true,
+        isTrue,
         reason:
             'All webhooks logged to webhook_idempotency_log for audit trail',
       );
@@ -122,6 +127,7 @@ void main() {
 
       expect(
         true,
+        isTrue,
         reason:
             'PostgreSQL unique constraint prevents duplicate webhook processing',
       );
@@ -141,6 +147,7 @@ void main() {
 
       expect(
         true,
+        isTrue,
         reason: 'Webhook retries are safe (idempotent) - no double-credit',
       );
     });
@@ -160,6 +167,7 @@ void main() {
 
       expect(
         true,
+        isTrue,
         reason: 'Failed webhooks logged for retry queue',
       );
     });

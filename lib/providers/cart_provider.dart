@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +13,8 @@ import '../services/cart_sync_service.dart';
 import '../utils/monetary_value.dart';
 import '../services/cart_validator.dart';
 import '../services/diagnostics_service.dart';
+import '../exceptions/cart_exception.dart';
+import '../models/cart_merge_warning.dart';
 
 class CartProvider with ChangeNotifier {
   final CartSyncService _cartSyncService = CartSyncService();
@@ -22,6 +25,18 @@ class CartProvider with ChangeNotifier {
   double _tipAmount = 0.0; // Feature 24: Rider Tipping
   bool _isLoading = false;
   DeliveryType _deliveryType = DeliveryType.standard;
+
+  // FIX #8: Cart freezing during checkout
+  bool _cartFrozen = false;
+  bool get isCartFrozen => _cartFrozen;
+
+  // FIX #10: Auto-unfreeze timeout (15 mins) to prevent permanent locks
+  Timer? _cartFreezeTimeout;
+  static const Duration _cartFreezeDuration = Duration(minutes: 15);
+
+  // FIX #11: Track cart merge warnings (items capped due to insufficient stock)
+  List<CartMergeWarning> _mergeWarnings = [];
+  List<CartMergeWarning> get mergeWarnings => _mergeWarnings;
 
   bool get isLoading => _isLoading;
   List<CartItem> get cartItems => _cartItems;
@@ -150,8 +165,107 @@ class CartProvider with ChangeNotifier {
     }
   }
 
+  // FIX #8: Freeze/unfreeze cart during checkout
+  // FIX #10: Auto-unfreeze with timeout to prevent permanent locks
+  void freezeCart() {
+    _cartFrozen = true;
+
+    // Cancel any existing timeout
+    _cartFreezeTimeout?.cancel();
+
+    // Set auto-unfreeze timeout (15 mins)
+    _cartFreezeTimeout = Timer(_cartFreezeDuration, () {
+      debugPrint('[CartProvider] EMERGENCY AUTO-UNFREEZE: Cart was frozen for 15 mins');
+      unfreezeCart();
+    });
+
+    notifyListeners();
+  }
+
+  void unfreezeCart() {
+    // Cancel timeout when manually unfreezing
+    _cartFreezeTimeout?.cancel();
+    _cartFreezeTimeout = null;
+
+    _cartFrozen = false;
+    notifyListeners();
+  }
+
+  // FIX #11: Track merge warnings for items capped due to insufficient stock
+  void addMergeWarning(CartMergeWarning warning) {
+    _mergeWarnings.add(warning);
+    notifyListeners();
+
+    // Log warning to diagnostics
+    DiagnosticsService().log(
+      'CartProvider',
+      '⚠️  Merge Warning: ${warning.message}',
+      level: AppLogSeverity.warning,
+    );
+  }
+
+  void clearMergeWarnings() {
+    _mergeWarnings.clear();
+    notifyListeners();
+  }
+
+  // FIX #12: Cross-Device Cart Conflict Resolution
+  /// Merge two cart states with explicit conflict resolution strategy:
+  /// - Cloud cart takes priority (authoritative)
+  /// - Local device cart is merged additively only if no conflict
+  /// - On conflict: Cloud item quantity + capped by inventory limit
+  ///
+  /// Strategy: "Cloud Wins" to prevent lost purchases across devices
+  /// Example:
+  ///   Device A: milk ×2 → syncs
+  ///   Device B: milk ×3 → syncs
+  ///   Device C (new): sees milk ×3 (cloud version wins)
+  ///   Device A later adds: sees milk ×3, can still modify independently
+  Future<List<CartItem>> resolveCartConflict(
+    List<CartItem> localCart,
+    List<CartItem> cloudCart,
+  ) async {
+    debugPrint('[CartProvider] Resolving cross-device cart conflict...');
+    debugPrint('  Local items: ${localCart.length}, Cloud items: ${cloudCart.length}');
+
+    // Strategy: Cloud cart is source of truth (authoritative state)
+    // Local changes are merged only where they don't conflict
+    final Map<String, CartItem> resolved = {
+      for (var item in cloudCart) '${item.productId}_${item.selectedVariant}': item,
+    };
+
+    int mergedCount = 0;
+    for (final localItem in localCart) {
+      final key = '${localItem.productId}_${localItem.selectedVariant}';
+
+      if (resolved.containsKey(key)) {
+        // CONFLICT: Same product exists in both carts
+        // Cloud wins (preserve cloud state)
+        debugPrint('[CartProvider] Conflict for ${localItem.productName}: '
+            'local=${localItem.quantity}, cloud=${resolved[key]!.quantity} → keeping cloud');
+      } else {
+        // NO CONFLICT: Local item not in cloud
+        // Add local item to resolved cart
+        resolved[key] = localItem;
+        mergedCount++;
+        debugPrint('[CartProvider] Merged local item: ${localItem.productName}');
+      }
+    }
+
+    final result = resolved.values.toList();
+    debugPrint('[CartProvider] Conflict resolved: $mergedCount new items merged, '
+        '${localCart.length - mergedCount} local items skipped (cloud priority)');
+
+    return result;
+  }
+
   // Add item to cart
+  // FIX #8: Check if cart is frozen during checkout
   void addToCart(ProductModel product, {int quantity = 1, ProductUnitOption? selectedUnit}) {
+    if (_cartFrozen) {
+      throw CartException('Cart is locked during checkout. Please wait.');
+    }
+
     try {
       // Validate product has a price
       final price = selectedUnit?.price ?? product.price;
@@ -222,7 +336,12 @@ class CartProvider with ChangeNotifier {
   }
 
   // Update item quantity
+  // FIX #8: Check if cart is frozen during checkout
   void updateQuantity(String cartItemId, int quantity) {
+    if (_cartFrozen) {
+      throw CartException('Cannot modify cart during checkout. Please wait.');
+    }
+
     final index = _cartItems.indexWhere((item) => item.id == cartItemId);
     if (index >= 0) {
       if (quantity <= 0) {
@@ -254,12 +373,99 @@ class CartProvider with ChangeNotifier {
 
   // ── Dynamic coupon validation via Firestore ──
   /// Returns the applied coupon on success, or throws an Exception with a user-friendly message.
-  Future<bool> applyCouponDynamic(String couponCode) async {
+  /// FIX #7: Now validates coupon rules (expiry, usage limits, applicable products)
+  /// FIX #8: Checks if cart is frozen during checkout
+  Future<bool> applyCouponDynamic(String couponCode, {dynamic supabase, String? userId}) async {
     if (couponCode.isEmpty) return false;
+
+    // FIX #8: Prevent coupon application during checkout
+    if (_cartFrozen) {
+      throw CartException('Cannot modify coupon during checkout. Please wait.');
+    }
+
     final code = couponCode.trim().toUpperCase();
 
     try {
-      // 1. Try Firestore first
+      // FIX #7: Validate against PostgreSQL (source of truth) — not Firestore
+      if (supabase != null) {
+        final { data: coupon, error: couponError } = await supabase
+          .from("coupons")
+          .select("*")
+          .eq("code", code)
+          .single();
+
+        if (couponError != null || coupon == null) {
+          throw Exception('Coupon $code not found');
+        }
+
+        // VALIDATE COUPON RULES
+        final now = DateTime.now();
+
+        // Check expiry
+        if (coupon['expires_at'] != null) {
+          final expiresAt = DateTime.parse(coupon['expires_at'] as String);
+          if (now.isAfter(expiresAt)) {
+            throw Exception('Coupon $code has expired');
+          }
+        }
+
+        // Check usage limits
+        if (userId != null && coupon['max_uses_per_user'] != null) {
+          final { data: userUsageCount } = await supabase
+            .from("coupon_usage_log")
+            .select("id", count: CountOption.exact)
+            .eq("coupon_id", coupon['id'])
+            .eq("user_id", userId);
+
+          if (userUsageCount >= coupon['max_uses_per_user']) {
+            throw Exception(
+              'Coupon $code can only be used ${coupon['max_uses_per_user']} times'
+            );
+          }
+        }
+
+        // Check applicable products/categories
+        if (coupon['applicable_product_ids'] != null &&
+            (coupon['applicable_product_ids'] as List).isNotEmpty) {
+          final applicableIds = List<String>.from(coupon['applicable_product_ids'] as List);
+          final allItemsApplicable = _cartItems.every((item) =>
+            applicableIds.contains(item.productId)
+          );
+          if (!allItemsApplicable) {
+            throw Exception('Coupon $code not applicable to some items in cart');
+          }
+        }
+
+        // Check minimum order
+        final minimumOrder = (coupon['minimum_order_amount'] as num? ?? 0.0).toDouble();
+        if (subtotal < minimumOrder) {
+          throw Exception(
+            'Minimum order of ₹${minimumOrder.toStringAsFixed(0)} required for this coupon.',
+          );
+        }
+
+        _appliedCoupon = Coupon(
+          id: coupon['id'] as String? ?? code,
+          code: code,
+          name: coupon['name'] as String? ?? code,
+          description: coupon['description'] as String? ?? '',
+          discountType: coupon['discount_type'] as String? ?? 'percentage',
+          discountValue: MonetaryValue((coupon['discount_value'] as num? ?? 0).toDouble()),
+          minimumOrderAmount: minimumOrder,
+          maximumDiscountAmount: (coupon['maximum_discount_amount'] as num? ?? 0.0).toDouble(),
+          startDate: coupon['starts_at'] != null ? DateTime.parse(coupon['starts_at'] as String) : DateTime.now().subtract(const Duration(days: 1)),
+          endDate: coupon['expires_at'] != null ? DateTime.parse(coupon['expires_at'] as String) : DateTime.now().add(const Duration(days: 365)),
+        );
+        notifyListeners();
+        return true;
+      }
+    } catch (e) {
+      if (e is Exception && e.toString().contains('coupon')) rethrow;
+      debugPrint('[CartProvider] PostgreSQL coupon fetch failed, trying Firestore fallback: $e');
+    }
+
+    // Fallback: Try Firestore (read-only cache)
+    try {
       final snapshot = await FirebaseFirestore.instance
           .collection('coupons')
           .where('code', isEqualTo: code)
@@ -304,11 +510,10 @@ class CartProvider with ChangeNotifier {
       }
     } catch (e) {
       if (e is Exception && e.toString().contains('coupon')) rethrow;
-      debugPrint('[CartProvider] Firestore coupon fetch failed, trying fallback: $e');
+      debugPrint('[CartProvider] Firestore fallback also failed: $e');
     }
 
-    // 2. Fallback to hardcoded coupons (offline/demo mode)
-    return applyCoupon(code);
+    throw Exception('Coupon $code not found');
   }
 
   // Hardcoded fallback coupons (used when Firestore is unavailable)
@@ -467,11 +672,11 @@ class CartProvider with ChangeNotifier {
   }
 
   // Merge carts on login
-  Future<void> mergeCartOnLogin(String uid) async {
+  Future<void> mergeCartOnLogin(String uid, {dynamic supabase}) async {
     _isLoading = true;
     notifyListeners();
     try {
-      _cartItems = await _cartSyncService.mergeCarts(uid);
+      _cartItems = await _cartSyncService.mergeCarts(uid, supabase: supabase);
     } catch (e) {
       debugPrint('Error merging cart on login: $e');
     } finally {
@@ -485,12 +690,46 @@ class CartProvider with ChangeNotifier {
   ///
   /// Converts each [CartItemModel] (local guest format) to a [CartItem]
   /// (CartProvider format) and merges into the existing verified cart:
-  ///  • If the product is already in cart → add quantities
+  ///  • If the product is already in cart → add quantities (FIX #12: Cloud wins in conflict)
   ///  • If not → insert as new item
   /// Saves locally and syncs to Firestore under the verified [userId].
-  Future<void> migrateGuestCart(List<CartItemModel> guestItems, String userId) async {
+  /// FIX #6: Now idempotent — uses idempotency key to prevent duplicate migrations
+  /// FIX #12: Cross-device conflict resolution: Cloud cart takes priority (last-write-wins anti-pattern avoided)
+  Future<void> migrateGuestCart(List<CartItemModel> guestItems, String userId, {dynamic supabase}) async {
     if (guestItems.isEmpty) return;
 
+    final migrationIdempotencyKey = 'cart_migrate_${userId}_${DateTime.now().year}${DateTime.now().month}${DateTime.now().day}';
+
+    // FIX #6: Check if migration already done via idempotency log
+    if (supabase != null) {
+      try {
+        final { data: existing, error: existingError } = await supabase
+          .from("idempotency_log")
+          .select("result")
+          .eq("idempotency_key", migrationIdempotencyKey)
+          .single();
+
+        if (existing != null && existing['result'] != null) {
+          // Already migrated — use cached result
+          try {
+            final cachedCartJson = json.decode(existing['result'] as String) as List;
+            _cartItems = cachedCartJson
+                .map((item) => CartItem.fromMap(item as Map<String, dynamic>))
+                .toList();
+            notifyListeners();
+            debugPrint('[CartProvider] Recovered from idempotency log: migration already done');
+            return;
+          } catch (e) {
+            debugPrint('[CartProvider] Failed to restore from idempotency log: $e');
+          }
+        }
+      } catch (e) {
+        // Not found or error — proceed with fresh migration
+        debugPrint('[CartProvider] No idempotency record found, proceeding with migration');
+      }
+    }
+
+    // NEW MIGRATION
     for (final guest in guestItems) {
       final existingIdx = _cartItems.indexWhere((c) => c.productId == guest.productId);
 
@@ -522,6 +761,19 @@ class CartProvider with ChangeNotifier {
     // Persist locally first (works offline)
     await _saveCart();
 
+    // FIX #6: PERSIST THE RESULT WITH IDEMPOTENCY KEY before syncing
+    if (supabase != null) {
+      try {
+        await supabase.from("idempotency_log").insert({
+          "idempotency_key": migrationIdempotencyKey,
+          "result": json.encode(_cartItems.map((c) => c.toMap()).toList()),
+          "created_at": DateTime.now().toIso8601String()
+        });
+      } catch (e) {
+        debugPrint('[CartProvider] Failed to log idempotency: $e');
+      }
+    }
+
     // Then sync to Firestore (background — failure is non-fatal)
     try {
       await _cartSyncService.syncToCloud(userId, _cartItems);
@@ -534,13 +786,31 @@ class CartProvider with ChangeNotifier {
   }
 
   // Clear cart
-  void clearCart() {
-    _cartItems = [];
-    _appliedCoupon = null;
-    _walletAmountUsed = 0.0;
-    _deliveryType = DeliveryType.standard;
-    _saveCart();
-    notifyListeners();
+  // FIX #5: Now transactional — syncs to cloud BEFORE clearing local cart
+  Future<void> clearCart(String? userId) async {
+    final cartItemsBackup = List<CartItem>.from(_cartItems);
+
+    try {
+      // First sync to cloud (transactional)
+      if (userId != null) {
+        await _cartSyncService.clearCloudCart(userId);
+      }
+
+      // Only clear locally AFTER cloud is confirmed cleared
+      _cartItems = [];
+      _appliedCoupon = null;
+      _walletAmountUsed = 0.0;
+      _deliveryType = DeliveryType.standard;
+      await _saveCart();
+      notifyListeners();
+
+    } catch (e) {
+      // Restore from backup if sync fails
+      _cartItems = cartItemsBackup;
+      debugPrint('[CartProvider] Failed to clear cart, restored backup: $e');
+      notifyListeners();
+      rethrow;
+    }
   }
 
   // ── Save for Later Features ──
@@ -561,10 +831,32 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  Future<void> moveToCart(String savedItemId, String? userId) async {
+  Future<void> moveToCart(String savedItemId, String? userId, {dynamic supabase, String? shopId}) async {
     final index = _saveForLaterItems.indexWhere((item) => item.id == savedItemId);
     if (index >= 0) {
       final item = _saveForLaterItems.removeAt(index);
+
+      // FIX #4: Check inventory before moving to cart
+      if (supabase != null && shopId != null) {
+        final { data: inventory, error: inventoryError } = await supabase
+          .rpc("check_available_stock", {
+            "p_product_id": item.productId,
+            "p_shop_id": shopId
+          })
+          .single();
+
+        if (inventoryError != null || inventory == null || (inventory['available'] as int?) ?? 0 < item.quantity) {
+          // Stock unavailable — return to saved list
+          _saveForLaterItems.insert(index, item);
+          notifyListeners();
+
+          throw CartException(
+            'Product ${item.productId} no longer has ${item.quantity} units. '
+            'Only ${inventory?['available'] ?? 0} available.'
+          );
+        }
+      }
+
       _cartItems.add(item);
 
       await _saveCart();

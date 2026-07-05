@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -63,7 +64,9 @@ class CartSyncService {
   }
 
   // Additive merge of guest + cloud cart, cap at 20
-  Future<List<CartItem>> mergeCarts(String uid) async {
+  // FIX #1: Validates inventory availability before merging
+  // FIX #2: Fetches current prices from PostgreSQL (not stale cached prices)
+  Future<List<CartItem>> mergeCarts(String uid, {required dynamic supabase}) async {
     final localItems = await loadLocalCart();
     final cloudItems = await loadCloudCart(uid);
 
@@ -75,13 +78,74 @@ class CartSyncService {
 
     for (final localItem in localItems) {
       final key = '${localItem.productId}_${localItem.selectedVariant}';
+
+      // FIX #2: Fetch current product price from PostgreSQL
+      final { data: product, error: productError } = await supabase
+        .from("products")
+        .select("price, id, status")
+        .eq("id", localItem.productId)
+        .single();
+
+      if (productError != null || product == null || product['status'] != 'active') {
+        // Product not found or inactive — skip this item
+        debugPrint('[CartSyncService] Skipping inactive/missing product: ${localItem.productId}');
+        continue;
+      }
+
+      final currentPrice = (product['price'] as num).toDouble();
+
       if (merged.containsKey(key)) {
-        // Additive merge, max 20, keep latest price (local)
         final cloudItem = merged[key]!;
-        final newQty = (cloudItem.quantity + localItem.quantity).clamp(1, _maxQuantityPerItem);
-        merged[key] = localItem.copyWith(quantity: newQty);
+        final desiredQty = cloudItem.quantity + localItem.quantity;
+
+        // FIX #1: Check available inventory before merging
+        final { data: inventory, error: inventoryError } = await supabase
+          .rpc("check_available_stock", {
+            "p_product_id": localItem.productId,
+            "p_shop_id": localItem.shopId
+          })
+          .single();
+
+        if (inventoryError != null || inventory == null) {
+          debugPrint('[CartSyncService] Failed to check inventory for ${localItem.productId}');
+          continue;
+        }
+
+        // Cap merge quantity to available stock (not just hardcoded 20)
+        final availableStock = (inventory['available'] as int?) ?? 0;
+        final newQty = min(desiredQty, availableStock).clamp(1, _maxQuantityPerItem);
+
+        if (newQty < desiredQty) {
+          debugPrint('[CartSyncService] Reduced qty for ${localItem.productId}: '
+              'wanted=$desiredQty, available=$availableStock, merged=$newQty');
+        }
+
+        // Use CURRENT price from PostgreSQL, not stale local price
+        merged[key] = localItem.copyWith(
+          quantity: newQty,
+          price: currentPrice
+        );
       } else {
-        merged[key] = localItem;
+        // New item — also check inventory and use current price
+        final { data: inventory, error: inventoryError } = await supabase
+          .rpc("check_available_stock", {
+            "p_product_id": localItem.productId,
+            "p_shop_id": localItem.shopId
+          })
+          .single();
+
+        if (inventoryError != null || inventory == null) {
+          debugPrint('[CartSyncService] Failed to check inventory for ${localItem.productId}');
+          continue;
+        }
+
+        final availableStock = (inventory['available'] as int?) ?? 0;
+        final newQty = min(localItem.quantity, availableStock).clamp(1, _maxQuantityPerItem);
+
+        merged[key] = localItem.copyWith(
+          quantity: newQty,
+          price: currentPrice
+        );
       }
     }
 

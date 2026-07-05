@@ -1,14 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:fufajis_online/models/user_model.dart';
 import '../models/user_model.dart';
 import '../models/shop_branch_model.dart';
 import '../services/customer_state.dart';
@@ -45,6 +48,12 @@ class AuthProvider with ChangeNotifier {
 
   UserModel? _currentUser;
   UserModel? get currentUser => _currentUser;
+
+  /// Get the current user's role as a string (used for lazy provider initialization)
+  String? getUserRole() {
+    if (_currentUser == null) return null;
+    return _currentUser!.role.toString().split('.').last.toLowerCase();
+  }
 
   CustomerState _customerState = CustomerState.guest;
   CustomerState get customerState => _customerState;
@@ -520,7 +529,7 @@ class AuthProvider with ChangeNotifier {
     _customerState = CustomerState.trustedDevice;
 
     // Merge cart
-    await _cartSyncService.mergeCarts(user.uid);
+    await _cartSyncService.mergeCarts(user.uid, supabase: Supabase.instance.client);
 
     // Create Firestore session (enables remote logout / session revocation)
     try {
