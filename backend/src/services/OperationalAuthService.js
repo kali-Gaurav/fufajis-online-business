@@ -124,17 +124,27 @@ class OperationalAuthService {
         throw new Error('OPERATIONAL_JWT_SECRET not configured');
       }
 
+      let decoded;
       // Try current secret first
       try {
-        return jwt.verify(token, secret, { algorithms: ['HS256'] });
+        decoded = jwt.verify(token, secret, { algorithms: ['HS256'] });
       } catch (err) {
         // Try old secret (during rotation grace period)
         const oldSecret = process.env.OPERATIONAL_JWT_SECRET_OLD;
         if (oldSecret) {
-          return jwt.verify(token, oldSecret, { algorithms: ['HS256'] });
+          decoded = jwt.verify(token, oldSecret, { algorithms: ['HS256'] });
+        } else {
+          throw err;
         }
-        throw err;
       }
+
+      // Check blacklist
+      const isBlacklisted = await this.isTokenBlacklisted(token);
+      if (isBlacklisted) {
+        throw new Error('Token has been revoked');
+      }
+
+      return decoded;
     } catch (error) {
       console.error(`[OperationalAuth] Token verification failed:`, error.message);
       throw new Error('Invalid or expired token');
