@@ -155,10 +155,6 @@ class CartProvider with ChangeNotifier {
     try {
       // Validate product has a price
       final price = selectedUnit?.price ?? product.price;
-      if (price == null) {
-        debugPrint('[CartProvider] Cannot add ${product.name}: invalid price (null)');
-        return;
-      }
 
       // Validate price is a valid positive number
       try {
@@ -402,7 +398,32 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  // Load cart from local storage
+  // Non-blocking load in post-frame (Deployment Readiness feature)
+  void loadCartAsync() {
+    _isLoading = true;
+    notifyListeners(); // Immediate synchronous loading state
+
+    // Defer the heavy async work until after the current frame is rendered
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        await loadPreferences();
+        final loaded = await _cartSyncService.loadLocalCart();
+        // Use CartValidator for comprehensive validation and filtering
+        _cartItems = CartValidator.validateAndFilterCart(loaded);
+
+        final loadedLater = await _cartSyncService.loadLocalSaveForLater();
+        _saveForLaterItems = CartValidator.validateAndFilterCart(loadedLater);
+      } catch (e) {
+        DiagnosticsService().log('Cart', 'Error loading cart: $e', level: AppLogSeverity.error, error: e);
+        debugPrint('Error loading cart: $e');
+      } finally {
+        _isLoading = false;
+        notifyListeners();
+      }
+    });
+  }
+
+  // Load cart from local storage (Legacy blocking async)
   Future<void> loadCart() async {
     _isLoading = true;
     notifyListeners();
