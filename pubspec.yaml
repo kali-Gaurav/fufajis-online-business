@@ -133,6 +133,8 @@ dependencies:
   sign_in_with_apple: ^8.1.0
 
 dev_dependencies:
+  integration_test:
+    sdk: flutter
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0

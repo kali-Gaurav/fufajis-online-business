@@ -28,6 +28,11 @@ class CartProvider with ChangeNotifier {
 
   // FIX #8: Cart freezing during checkout
   bool _cartFrozen = false;
+  
+  // CartMutationQueue fields
+  Timer? _saveDebounce;
+  bool _isSaving = false;
+  bool _needsSave = false;
   bool get isCartFrozen => _cartFrozen;
 
   // FIX #10: Auto-unfreeze timeout (15 mins) to prevent permanent locks
@@ -327,8 +332,7 @@ class CartProvider with ChangeNotifier {
           return;
         }
       }
-
-      _saveCart();
+      _debouncedSaveCart();
       notifyListeners();
     } catch (e) {
       debugPrint('[CartProvider] Error adding ${product.name} to cart: $e');
@@ -349,7 +353,7 @@ class CartProvider with ChangeNotifier {
       } else {
         _cartItems[index] = _cartItems[index].copyWith(quantity: quantity);
       }
-      _saveCart();
+      _debouncedSaveCart();
       notifyListeners();
     }
   }
@@ -359,7 +363,7 @@ class CartProvider with ChangeNotifier {
     final index = _cartItems.indexWhere((item) => item.id == cartItemId);
     if (index >= 0) {
       _cartItems[index] = _cartItems[index].copyWith(itemNotes: notes);
-      _saveCart();
+      _debouncedSaveCart();
       notifyListeners();
     }
   }
@@ -367,7 +371,7 @@ class CartProvider with ChangeNotifier {
   // Remove item from cart
   void removeFromCart(String cartItemId) {
     _cartItems.removeWhere((item) => item.id == cartItemId);
-    _saveCart();
+    _debouncedSaveCart();
     notifyListeners();
   }
 
@@ -388,11 +392,14 @@ class CartProvider with ChangeNotifier {
     try {
       // FIX #7: Validate against PostgreSQL (source of truth) — not Firestore
       if (supabase != null) {
-        final { data: coupon, error: couponError } = await supabase
+        final response = await supabase
           .from("coupons")
           .select("*")
           .eq("code", code)
           .single();
+
+        final coupon = response.data;
+        final couponError = response.error;
 
         if (couponError != null || coupon == null) {
           throw Exception('Coupon $code not found');
@@ -411,11 +418,13 @@ class CartProvider with ChangeNotifier {
 
         // Check usage limits
         if (userId != null && coupon['max_uses_per_user'] != null) {
-          final { data: userUsageCount } = await supabase
+          final countResponse = await supabase
             .from("coupon_usage_log")
-            .select("id", count: CountOption.exact)
+            .select("id")
             .eq("coupon_id", coupon['id'])
             .eq("user_id", userId);
+
+          final userUsageCount = (countResponse as List?)?.length ?? 0;
 
           if (userUsageCount >= coupon['max_uses_per_user']) {
             throw Exception(
@@ -594,13 +603,39 @@ class CartProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Save cart to local storage
-  Future<void> _saveCart() async {
+  // CartMutationQueue debouncer
+  void _debouncedSaveCart() {
+    _needsSave = true;
+    _saveDebounce?.cancel();
+    _saveDebounce = Timer(const Duration(milliseconds: 500), () {
+      _processSaveQueue();
+    });
+  }
+
+  Future<void> _processSaveQueue() async {
+    if (!_needsSave) return;
+    if (_isSaving) return; // Prevent concurrent writes
+
+    _isSaving = true;
+    _needsSave = false;
     try {
       await _cartSyncService.saveLocalCart(_cartItems);
     } catch (e) {
       debugPrint('Error saving cart: $e');
+      _needsSave = true; // Retry on next cycle if failed
+    } finally {
+      _isSaving = false;
+      // If mutations happened while saving, trigger another save
+      if (_needsSave) {
+        _debouncedSaveCart();
+      }
     }
+  }
+
+  // Save cart to local storage immediately
+  Future<void> _saveCart() async {
+    _needsSave = true;
+    await _processSaveQueue();
   }
 
   // Non-blocking load in post-frame (Deployment Readiness feature)
@@ -703,11 +738,11 @@ class CartProvider with ChangeNotifier {
     // FIX #6: Check if migration already done via idempotency log
     if (supabase != null) {
       try {
-        final { data: existing, error: existingError } = await supabase
+        final existing = await supabase
           .from("idempotency_log")
           .select("result")
           .eq("idempotency_key", migrationIdempotencyKey)
-          .single();
+          .maybeSingle();
 
         if (existing != null && existing['result'] != null) {
           // Already migrated — use cached result
@@ -838,14 +873,15 @@ class CartProvider with ChangeNotifier {
 
       // FIX #4: Check inventory before moving to cart
       if (supabase != null && shopId != null) {
-        final { data: inventory, error: inventoryError } = await supabase
+        final inventory = await supabase
           .rpc("check_available_stock", {
             "p_product_id": item.productId,
             "p_shop_id": shopId
-          })
-          .single();
+          });
 
-        if (inventoryError != null || inventory == null || (inventory['available'] as int?) ?? 0 < item.quantity) {
+        final availableStock = (inventory?['available'] as int?) ?? 0;
+
+        if (inventoryError != null || inventory == null || availableStock < item.quantity) {
           // Stock unavailable — return to saved list
           _saveForLaterItems.insert(index, item);
           notifyListeners();
