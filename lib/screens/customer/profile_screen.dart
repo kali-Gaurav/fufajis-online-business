@@ -8,6 +8,8 @@ import '../../providers/auth_provider.dart';
 import '../../providers/order_provider.dart';
 import '../../models/user_model.dart';
 import '../../utils/app_theme.dart';
+import '../../constants/app_typography.dart';
+import '../../constants/app_spacing.dart';
 
 import '../../models/product_model.dart';
 import '../../providers/product_provider.dart';

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../utils/app_theme.dart';
+import '../../constants/app_typography.dart';
+import '../../constants/app_spacing.dart';
 import '../../providers/business_intelligence_provider.dart';
 import '../../services/business_intelligence_service.dart';
 import '../../widgets/owner/bi_widgets.dart';

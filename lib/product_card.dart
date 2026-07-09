@@ -132,17 +132,19 @@ class ProductCard extends StatelessWidget {
             // ─── IMAGE ─────────────────────────────────────────────────
             Expanded(
               flex: compact ? 3 : 4,
-              child: Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                    child: (product.images.isNotEmpty || product.imageUrl.isNotEmpty)
-                        ? CachedNetworkImage(
-                            imageUrl: product.images.isNotEmpty
-                                ? product.images[0]
-                                : product.imageUrl,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
+              child: AspectRatio(
+                aspectRatio: 1.0,
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                      child: (product.images.isNotEmpty || product.imageUrl.isNotEmpty)
+                          ? CachedNetworkImage(
+                              imageUrl: product.images.isNotEmpty
+                                  ? product.images[0]
+                                  : product.imageUrl,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
                             placeholder: (_, __) => const ShimmerLoader.rectangular(
                               height: double.infinity,
                               borderRadius: 0,
@@ -328,6 +330,7 @@ class ProductCard extends StatelessWidget {
                       ),
                     ),
                 ],
+                ),
               ),
             ),
 

@@ -17,6 +17,8 @@ import '../../services/weather_service.dart';
 import '../../services/upi_payment_service.dart';
 import '../../utils/app_theme.dart';
 import '../../utils/monetary_value.dart';
+import '../../constants/app_typography.dart';
+import '../../constants/app_spacing.dart';
 import '../../widgets/checkout/checkout_step_indicator.dart';
 import '../../widgets/checkout/address_selection_step.dart';
 import '../../widgets/checkout/payment_method_step.dart';
@@ -103,33 +105,29 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Checkout', style: TextStyle(fontWeight: FontWeight.w700)),
+        title: const Text('Checkout', style: AppTypography.h3),
         elevation: 0,
         backgroundColor: AppTheme.cream,
         foregroundColor: AppTheme.grey900,
         centerTitle: true,
       ),
       body: paymentProvider.isProcessing
-          ? const Center(
+          ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  LiquidProgressBar(value: 0.6, width: 200, height: 12, color: AppTheme.primary),
-                  SizedBox(height: 24),
-                  CircularProgressIndicator(color: AppTheme.primary),
-                  SizedBox(height: 20),
+                  const LiquidProgressBar(value: 0.6, width: 200, height: 12, color: AppTheme.primary),
+                  const SizedBox(height: 24),
+                  const CircularProgressIndicator(color: AppTheme.primary),
+                  const SizedBox(height: 20),
                   Text(
                     'Processing Payment...',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.grey900,
-                    ),
+                    style: AppTypography.h5.copyWith(color: AppTheme.grey900),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     'Please do not press back',
-                    style: TextStyle(color: AppTheme.grey500, fontSize: 13),
+                    style: AppTypography.bodySmall.copyWith(color: AppTheme.grey500),
                   ),
                 ],
               ),
@@ -166,7 +164,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     },
                     child: SingleChildScrollView(
                       key: ValueKey(_currentStep),
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(AppSpacing.lg),
                       child: _buildStepContent(),
                     ),
                   ),
@@ -181,23 +179,23 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final isExtreme = alert.condition == 'Thunderstorm' || alert.condition == 'Tornado';
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isExtreme
               ? [const Color(0xFFD32F2F), const Color(0xFFFF5252)]
               : [AppTheme.primary, AppTheme.primaryDark],
         ),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(AppSpacing.sm),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
             ),
             child: Icon(
               isExtreme ? Icons.warning_amber_rounded : Icons.cloud,
@@ -205,22 +203,21 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               size: 20,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   isExtreme ? 'Severe Weather Alert' : 'Weather Advisory',
-                  style: const TextStyle(
+                  style: AppTypography.bodySmall.copyWith(
                     color: Colors.white,
-                    fontSize: 13,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
                   alert.warningMessage,
-                  style: const TextStyle(color: Colors.white70, fontSize: 11),
+                  style: AppTypography.labelSmall.copyWith(color: Colors.white70),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -261,7 +258,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
         _buildScheduledPickerSection(),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.lg),
 
         // Address selection step
         AddressSelectionStep(
@@ -296,10 +293,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final cartProvider = Provider.of<CartProvider>(context);
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
         boxShadow: [
           BoxShadow(
             color: AppTheme.black.withValues(alpha: 0.05),
@@ -331,11 +328,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     _selectedTimeSlot ??= slots.first;
 
     return Container(
-      margin: const EdgeInsets.only(top: 16),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(top: AppSpacing.lg),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
         boxShadow: [
           BoxShadow(
             color: AppTheme.black.withValues(alpha: 0.05),
@@ -349,9 +346,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         children: [
           const Text(
             'Select Delivery Date & Time Slot',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.grey900),
+            style: AppTypography.h5,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
           // Date selector row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -376,13 +373,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     });
                   },
                   child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    margin: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
                     decoration: BoxDecoration(
                       color: isSelected
                           ? AppTheme.primary.withValues(alpha: 0.08)
                           : AppTheme.grey100,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
                       border: Border.all(
                         color: isSelected ? AppTheme.primary : AppTheme.grey300,
                         width: isSelected ? 2 : 1,
@@ -391,8 +388,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     alignment: Alignment.center,
                     child: Text(
                       label,
-                      style: TextStyle(
-                        fontSize: 13,
+                      style: AppTypography.bodySmall.copyWith(
                         fontWeight: FontWeight.bold,
                         color: isSelected ? AppTheme.primary : AppTheme.grey700,
                       ),
@@ -402,11 +398,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               );
             }).toList(),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           // Time Slot choices
           Wrap(
-            spacing: 8,
-            runSpacing: 8,
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
             children: slots.map((slot) {
               final isSelected = _selectedTimeSlot == slot;
               return ChoiceChip(
@@ -465,7 +461,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         : '₹${cartProvider.deliveryCharge.round()}';
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -475,7 +471,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
         border: Border.all(color: AppTheme.success.withValues(alpha: 0.2), width: 1.5),
       ),
       child: Column(
@@ -484,7 +480,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           Row(
             children: [
               const Icon(Icons.local_shipping, color: AppTheme.success, size: 20),
-              const SizedBox(width: 8),
+              const SizedBox(width: AppSpacing.sm),
               Text(
                 'Delivery Confidence',
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -494,7 +490,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
 
           // ETA
           Row(
@@ -503,7 +499,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               Row(
                 children: [
                   const Icon(Icons.schedule, size: 16, color: AppTheme.grey600),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppSpacing.sm),
                   Text(
                     'ETA',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.grey600),
@@ -516,7 +512,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.sm),
 
           // Delivery Fee
           Row(
@@ -525,7 +521,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               Row(
                 children: [
                   const Icon(Icons.payments, size: 16, color: AppTheme.grey600),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppSpacing.sm),
                   Text(
                     'Delivery Fee',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.grey600),
@@ -541,26 +537,24 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
 
           // Guarantee
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(AppSpacing.sm),
             decoration: BoxDecoration(
               color: AppTheme.success.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.verified_rounded, size: 16, color: AppTheme.success),
-                SizedBox(width: 8),
+                const Icon(Icons.verified_rounded, size: 16, color: AppTheme.success),
+                const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
                     'Fufaji Guarantee: Fresh on arrival or money back',
-                    style: TextStyle(
-                      fontSize: 12,
+                    style: AppTypography.labelMedium.copyWith(
                       color: AppTheme.success,
-                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -610,11 +604,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       children: [
         // P0 FIX: Add Trust Layer to Checkout
         const FufajiTrustBanner(),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.lg),
 
         // P0 FIX: Add Delivery Confidence Card
         _buildDeliveryConfidenceCard(),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.lg),
 
         OrderReviewStep(
           deliveryAddress: _selectedAddress!,
@@ -627,7 +621,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             setState(() => _currentStep = 1);
           },
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.lg),
         _buildAIRecommendationsSection(),
       ],
     );
@@ -635,29 +629,32 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Widget _buildAIRecommendationsSection() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: Colors.teal.shade50,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
         border: Border.all(color: Colors.teal.shade200, width: 1),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.auto_awesome, color: Colors.teal, size: 18),
-              SizedBox(width: 8),
+              const Icon(Icons.auto_awesome, color: Colors.teal, size: 18),
+              const SizedBox(width: AppSpacing.sm),
               Text(
                 'Fufaji\'s Smart Grocery Assistant',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.teal),
+                style: AppTypography.bodyMedium.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.teal,
+                ),
               ),
             ],
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: AppSpacing.xs),
           Text(
             'Based on your cart items, did you forget to add "Fresh Coriander Leaves" or "Lemon"? Most families buy these together!',
-            style: TextStyle(fontSize: 11, color: AppTheme.grey700),
+            style: AppTypography.labelSmall.copyWith(color: AppTheme.grey700),
           ),
         ],
       ),

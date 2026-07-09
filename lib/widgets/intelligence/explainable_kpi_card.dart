@@ -1,13 +1,19 @@
+// ============================================================
+// explainable_kpi_card.dart — Specialized KpiCard variant
+// Extends canonical KpiCard with contributor explanation UI
+// ============================================================
 import 'package:flutter/material.dart';
 import '../../utils/app_theme.dart';
+import '../common/kpi_card.dart';
 
+/// Enhanced KpiCard variant with breakdown of contributing factors
+/// Shows: KPI value + trend + factor contributors + recommended action
 class ExplainableKpiCard extends StatelessWidget {
   final String title;
   final String value;
   final String trend; // e.g., '+5%' or '-2%'
   final bool isTrendPositive;
-  final Map<String, String>
-  contributors; // e.g., {'Late Deliveries': '+12', 'Traffic Delays': '+6'}
+  final Map<String, String> contributors; // e.g., {'Late Deliveries': '+12', 'Traffic Delays': '+6'}
   final String recommendedAction;
 
   const ExplainableKpiCard({
@@ -30,7 +36,7 @@ class ExplainableKpiCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
+            // Header with title and trend badge
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -72,10 +78,11 @@ class ExplainableKpiCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
+            // Main value
             Text(value, style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
             const Divider(height: 24),
 
-            // Contributors
+            // Contributors section
             const Text(
               'CONTRIBUTORS',
               style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.grey600),
@@ -95,14 +102,14 @@ class ExplainableKpiCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         color: e.value.startsWith('+') ? AppTheme.error : AppTheme.success,
                       ),
-                    ), // Assuming + is bad for things like delays, but this logic can be parameterized. For simplicity, we just display it.
+                    ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 16),
 
-            // Action
+            // Recommended action section
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),

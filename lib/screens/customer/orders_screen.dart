@@ -10,6 +10,8 @@ import '../../widgets/scratch_card_widget.dart';
 import '../../services/reorder_service.dart';
 import '../../utils/app_theme.dart';
 import '../../constants/order_status.dart';
+import '../../constants/app_typography.dart';
+import '../../constants/app_spacing.dart';
 import '../../widgets/fj_empty_state.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/animated_widgets.dart';

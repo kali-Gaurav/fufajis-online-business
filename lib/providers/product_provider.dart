@@ -28,7 +28,7 @@ class ProductProvider with ChangeNotifier {
   List<String> _wishlistIds = [];
   List<CategoryModel> _categories = [];
   List<LowStockAlert> _lowStockAlerts = [];
-  final SharedPreferences _prefs;
+  SharedPreferences? _prefs;
 
   // Stream subscriptions for real-time sync
   StreamSubscription<List<ProductModel>>? _allProductsSubscription;
@@ -68,6 +68,25 @@ class ProductProvider with ChangeNotifier {
     }
   }
 
+  /// Factory for lazy loading without explicit SharedPreferences
+  factory ProductProvider.withDefaults() {
+    return ProductProvider._internal();
+  }
+
+  ProductProvider._internal() {
+    _loadPrefsLazily();
+    _setupInventorySyncCallbacks();
+    if (_isFirebaseReady) {
+      _initFirestoreListener();
+      _runDailyExpiryChecks();
+    }
+  }
+
+  Future<void> _loadPrefsLazily() async {
+    _prefs = await SharedPreferences.getInstance();
+    _loadWishlist();
+  }
+
   bool get _isFirebaseReady => Firebase.apps.isNotEmpty;
 
   Future<void> _runDailyExpiryChecks() async {
@@ -85,7 +104,7 @@ class ProductProvider with ChangeNotifier {
   }
 
   void _loadWishlist() {
-    _wishlistIds = _prefs.getStringList('wishlist_ids') ?? [];
+    _wishlistIds = _prefs?.getStringList('wishlist_ids') ?? [];
   }
 
   void toggleWishlist(String productId) {
@@ -94,7 +113,7 @@ class ProductProvider with ChangeNotifier {
     } else {
       _wishlistIds.add(productId);
     }
-    _prefs.setStringList('wishlist_ids', _wishlistIds);
+    _prefs?.setStringList('wishlist_ids', _wishlistIds);
     notifyListeners();
   }
 
@@ -325,7 +344,7 @@ class ProductProvider with ChangeNotifier {
     if (_recentlyViewed.length > 10) _recentlyViewed.removeLast();
 
     final ids = _recentlyViewed.map((p) => p.id).toList();
-    _prefs.setStringList('recently_viewed_ids', ids);
+    _prefs?.setStringList('recently_viewed_ids', ids);
     notifyListeners();
   }
 

@@ -8,6 +8,8 @@ import '../../providers/auth_provider.dart';
 import '../../models/user_model.dart';
 import '../../models/product_model.dart';
 import '../../utils/app_theme.dart';
+import '../../constants/app_typography.dart';
+import '../../constants/app_spacing.dart';
 import '../../widgets/animated_widgets.dart';
 import 'barcode_scanner_screen.dart';
 
@@ -262,11 +264,17 @@ class _SearchScreenState extends State<SearchScreen> {
                       IconButton(
                         onPressed: _clearSearch,
                         icon: const Icon(Icons.close, color: AppTheme.grey500),
+                        tooltip: 'Clear search',
                       ),
+                    IconButton(
+                      onPressed: () => context.push('/customer/voice-order'),
+                      icon: const Icon(Icons.mic, color: AppTheme.grey500),
+                      tooltip: 'Voice search',
+                    ),
                     IconButton(
                       onPressed: _startBarcodeScanner,
                       icon: const Icon(Icons.qr_code_scanner, color: AppTheme.grey500),
-                      tooltip: 'Scan Barcode',
+                      tooltip: 'Scan barcode',
                     ),
                   ],
                 ),

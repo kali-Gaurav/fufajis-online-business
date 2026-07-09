@@ -4,6 +4,8 @@ import '../../providers/owner_analytics_provider.dart';
 import '../../models/shop_branch_model.dart';
 import '../../models/alert_model.dart';
 import '../../utils/app_theme.dart';
+import '../../constants/app_typography.dart';
+import '../../constants/app_spacing.dart';
 
 class BranchDashboardScreen extends StatefulWidget {
   const BranchDashboardScreen({super.key});

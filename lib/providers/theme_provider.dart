@@ -33,6 +33,27 @@ class ThemeProvider with ChangeNotifier {
     }
   }
 
+  /// Factory for lazy loading without explicit SharedPreferences
+  factory ThemeProvider.withDefaults() {
+    return ThemeProvider._internal();
+  }
+
+  ThemeProvider._internal() {
+    _loadPrefsLazily();
+  }
+
+  Future<void> _loadPrefsLazily() async {
+    _prefs = await SharedPreferences.getInstance();
+    final savedMode = _prefs!.getString('themeMode');
+    if (savedMode != null) {
+      _themeMode = ThemeModeType.values.firstWhere(
+        (e) => e.toString() == savedMode,
+        orElse: () => ThemeModeType.system,
+      );
+      notifyListeners();
+    }
+  }
+
   void setThemeMode(ThemeModeType mode) {
     _themeMode = mode;
     notifyListeners();

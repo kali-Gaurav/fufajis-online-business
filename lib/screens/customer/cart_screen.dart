@@ -5,9 +5,13 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/product_provider.dart';
+import '../../providers/auth_provider.dart';
+import 'checkout_auth_sheet.dart';
 import '../../models/product_model.dart';
 import '../../services/recommendation_service.dart';
 import '../../utils/app_theme.dart';
+import '../../constants/app_typography.dart';
+import '../../constants/app_spacing.dart';
 import '../../widgets/fj_empty_state.dart';
 import '../../models/cart_item.dart';
 import '../../widgets/trust/fj_trust_banner.dart';
@@ -106,7 +110,7 @@ class _CartScreenState extends State<CartScreen> {
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.md),
       decoration: BoxDecoration(
         color: unlocked ? AppTheme.success.withValues(alpha: 0.08) : Colors.white,
         border: Border(
@@ -131,8 +135,7 @@ class _CartScreenState extends State<CartScreen> {
                   remaining > 0
                       ? 'Add ₹${remaining.round()} more for FREE delivery'
                       : '🎉 FREE delivery unlocked!',
-                  style: TextStyle(
-                    fontSize: 13,
+                  style: AppTypography.bodySmall.copyWith(
                     fontWeight: FontWeight.bold,
                     color: unlocked ? AppTheme.success : AppTheme.grey700,
                   ),
@@ -140,7 +143,7 @@ class _CartScreenState extends State<CartScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.sm),
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
@@ -181,7 +184,7 @@ class _CartScreenState extends State<CartScreen> {
           child: CustomScrollView(
             slivers: [
               SliverPadding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppSpacing.lg),
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate((context, index) {
                     final item = cartProvider.cartItems[index];
@@ -199,11 +202,11 @@ class _CartScreenState extends State<CartScreen> {
                         background: Container(
                           decoration: BoxDecoration(
                             color: AppTheme.error,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
                           ),
                           alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 20),
-                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.only(right: AppSpacing.xl),
+                          margin: const EdgeInsets.only(bottom: AppSpacing.md),
                           child: const Icon(Icons.delete, color: Colors.white),
                         ),
                         child: _buildCartItem(item, cartProvider),
@@ -232,19 +235,15 @@ class _CartScreenState extends State<CartScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
           child: Row(
             children: [
-              Icon(Icons.stars, color: AppTheme.primary, size: 20),
-              SizedBox(width: 8),
+              const Icon(Icons.stars, color: AppTheme.primary, size: 20),
+              const SizedBox(width: AppSpacing.sm),
               Text(
                 'Complete Your Basket',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.grey900,
-                ),
+                style: AppTypography.h5,
               ),
             ],
           ),
@@ -259,10 +258,10 @@ class _CartScreenState extends State<CartScreen> {
               final product = recommendedProducts[index];
               return Container(
                 width: 140,
-                margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                margin: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: AppSpacing.xs),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
                   boxShadow: [
                     BoxShadow(
                       color: AppTheme.black.withValues(alpha: 0.04),
@@ -297,19 +296,18 @@ class _CartScreenState extends State<CartScreen> {
                             ),
                           ),
                           Positioned(
-                            top: 4,
-                            left: 4,
+                            top: AppSpacing.xs,
+                            left: AppSpacing.xs,
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: AppSpacing.xs),
                               decoration: BoxDecoration(
                                 color: AppTheme.success.withValues(alpha: 0.9),
-                                borderRadius: BorderRadius.circular(6),
+                                borderRadius: BorderRadius.circular(AppSpacing.radiusSmall),
                               ),
                               child: Text(
                                 '${product.discountPercentage?.round() ?? 0}% OFF',
-                                style: const TextStyle(
+                                style: AppTypography.caption.copyWith(
                                   color: Colors.white,
-                                  fontSize: 8,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -320,26 +318,24 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                     // Product details
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(AppSpacing.sm),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             product.name,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                            style: AppTypography.labelMedium.copyWith(
                               color: AppTheme.grey900,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 2),
+                          const SizedBox(height: AppSpacing.xs),
                           Text(
                             product.unit,
-                            style: const TextStyle(fontSize: 10, color: AppTheme.grey500),
+                            style: AppTypography.caption,
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: AppSpacing.md),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -348,16 +344,11 @@ class _CartScreenState extends State<CartScreen> {
                                 children: [
                                   Text(
                                     '₹${product.price.round()}',
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppTheme.primary,
-                                    ),
+                                    style: AppTypography.priceMedium,
                                   ),
                                   Text(
                                     '₹${product.originalPrice?.round() ?? product.price.round()}',
-                                    style: const TextStyle(
-                                      fontSize: 9,
+                                    style: AppTypography.caption.copyWith(
                                       color: AppTheme.grey400,
                                       decoration: TextDecoration.lineThrough,
                                     ),
@@ -407,11 +398,11 @@ class _CartScreenState extends State<CartScreen> {
 
   Widget _buildCartItem(CartItem item, CartProvider cartProvider) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
         boxShadow: [
           BoxShadow(
             color: AppTheme.black.withValues(alpha: 0.05),
@@ -430,10 +421,10 @@ class _CartScreenState extends State<CartScreen> {
                 height: 80,
                 decoration: BoxDecoration(
                   color: AppTheme.grey100,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
                   child: item.productImage.isNotEmpty
                       ? CachedNetworkImage(
                           imageUrl: item.productImage,
@@ -453,7 +444,7 @@ class _CartScreenState extends State<CartScreen> {
                       : const Icon(Icons.image, color: AppTheme.grey400),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.md),
               // Product Info
               Expanded(
                 child: Column(
@@ -461,10 +452,8 @@ class _CartScreenState extends State<CartScreen> {
                   children: [
                     Text(
                       item.productName,
-                      style: const TextStyle(
-                        fontSize: 14,
+                      style: AppTypography.bodyMedium.copyWith(
                         fontWeight: FontWeight.w500,
-                        color: AppTheme.grey900,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -472,17 +461,15 @@ class _CartScreenState extends State<CartScreen> {
                     if (item.selectedVariant != null)
                       Text(
                         item.selectedVariant!,
-                        style: const TextStyle(fontSize: 12, color: AppTheme.grey500),
+                        style: AppTypography.bodySmall,
                       ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: AppSpacing.sm),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           '₹${item.price.round()}/${item.unit}',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
+                          style: AppTypography.labelLarge.copyWith(
                             color: AppTheme.primary,
                           ),
                         ),
@@ -507,13 +494,11 @@ class _CartScreenState extends State<CartScreen> {
                                 ),
                               ),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                                 child: Text(
                                   '${item.quantity}',
-                                  style: const TextStyle(
+                                  style: AppTypography.h5.copyWith(
                                     color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
                                   ),
                                 ),
                               ),
@@ -548,16 +533,16 @@ class _CartScreenState extends State<CartScreen> {
             ],
           ),
           // Cart item notes (Step 16.5)
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.sm),
           TextField(
             onChanged: (val) => cartProvider.updateItemNotes(item.id, val),
-            style: const TextStyle(fontSize: 12),
+            style: AppTypography.bodySmall,
             decoration: InputDecoration(
               hintText: 'Add notes (e.g. "Green bananas only")',
               isDense: true,
-              contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.sm, horizontal: AppSpacing.md),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
                 borderSide: const BorderSide(color: AppTheme.grey200),
               ),
               prefixIcon: const Icon(Icons.edit_note, size: 16),
@@ -582,15 +567,15 @@ class _CartScreenState extends State<CartScreen> {
             offset: const Offset(0, -4),
           ),
         ],
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppSpacing.xxl)),
       ),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(AppSpacing.xl),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           // P0 FIX: Add Trust Layer to Cart
           const FufajiTrustBanner(),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
 
           // Coupon Section
           _showCouponField
@@ -604,14 +589,14 @@ class _CartScreenState extends State<CartScreen> {
                           filled: true,
                           fillColor: AppTheme.grey100,
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
                             borderSide: BorderSide.none,
                           ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: AppSpacing.sm),
                     ElevatedButton(
                       onPressed: () {
                         final success = cartProvider.applyCoupon(_couponController.text);
@@ -635,34 +620,40 @@ class _CartScreenState extends State<CartScreen> {
                 )
               : GestureDetector(
                   onTap: () => setState(() => _showCouponField = true),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.discount_outlined, color: AppTheme.primary),
-                      SizedBox(width: 8),
+                      const Icon(Icons.discount_outlined, color: AppTheme.primary),
+                      const SizedBox(width: AppSpacing.sm),
                       Text(
                         'Apply Coupon',
-                        style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w500),
+                        style: AppTypography.bodyMedium.copyWith(
+                          color: AppTheme.primary,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                      Spacer(),
-                      Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.grey400),
+                      const Spacer(),
+                      const Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.grey400),
                     ],
                   ),
                 ),
           if (cartProvider.appliedCoupon != null)
             Container(
-              margin: const EdgeInsets.only(top: 8),
-              padding: const EdgeInsets.all(8),
+              margin: const EdgeInsets.only(top: AppSpacing.sm),
+              padding: const EdgeInsets.all(AppSpacing.sm),
               decoration: BoxDecoration(
                 color: AppTheme.success.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
               ),
               child: Row(
                 children: [
                   const Icon(Icons.check_circle, color: AppTheme.success, size: 18),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppSpacing.sm),
                   Text(
                     '${cartProvider.appliedCoupon!.code} applied (₹${cartProvider.discount.round()})',
-                    style: const TextStyle(color: AppTheme.success, fontWeight: FontWeight.w500),
+                    style: AppTypography.bodySmall.copyWith(
+                      color: AppTheme.success,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   const Spacer(),
                   IconButton(
@@ -672,10 +663,10 @@ class _CartScreenState extends State<CartScreen> {
                 ],
               ),
             ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           // Price Details
           _buildPriceRow('Subtotal', cartProvider.subtotal),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.sm),
           _buildPriceRow(
             'Delivery',
             cartProvider.deliveryCharge == 0 ? 'FREE' : null,
@@ -684,64 +675,79 @@ class _CartScreenState extends State<CartScreen> {
           if (cartProvider.deliveryCharge > 0)
             Text(
               'Free delivery on orders above ₹500',
-              style: TextStyle(fontSize: 12, color: AppTheme.success.withValues(alpha: 0.8)),
+              style: AppTypography.caption.copyWith(
+                color: AppTheme.success.withValues(alpha: 0.8),
+              ),
             ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.sm),
           if (cartProvider.discount > 0)
             _buildPriceRow('Discount', -cartProvider.discount, isDiscount: true),
-          const Divider(height: 24),
+          const Divider(height: AppSpacing.xxl),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Total',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.grey900,
-                ),
+                style: AppTypography.h4,
               ),
               MorphNumber(
                 value: cartProvider.total.round(),
                 prefix: '₹',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+                style: AppTypography.h3.copyWith(
                   color: AppTheme.primary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.xl),
           // Checkout Button — P0 FIX: Disable if min order not met
           if (!canCheckout)
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.md, horizontal: AppSpacing.lg),
               decoration: BoxDecoration(
                 color: AppTheme.warning.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
                 border: Border.all(color: AppTheme.warning.withValues(alpha: 0.3), width: 1.5),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.info_outline, color: AppTheme.warning, size: 18),
-                  SizedBox(width: 8),
+                  const Icon(Icons.info_outline, color: AppTheme.warning, size: 18),
+                  const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
                       'Minimum order: ₹500',
-                      style: TextStyle(
+                      style: AppTypography.bodySmall.copyWith(
                         color: AppTheme.warning,
                         fontWeight: FontWeight.w600,
-                        fontSize: 13,
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           ScaleBounce(
-            onTap: canCheckout ? () => context.push('/customer/checkout') : null,
+            onTap: canCheckout
+                ? () {
+                    final auth = Provider.of<AuthProvider>(context, listen: false);
+                    if (auth.isAuthenticated) {
+                      context.push('/customer/checkout');
+                    } else {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (ctx) => CheckoutAuthSheet(
+                          onSuccess: () {
+                            if (mounted) {
+                              context.push('/customer/checkout');
+                            }
+                          },
+                        ),
+                      );
+                    }
+                  }
+                : null,
             child: ParticlesBurst(
               colors: const [Color(0xFFFF6B00), Color(0xFFFFD700), Color(0xFFFF8C42)],
               child: Container(
@@ -751,7 +757,7 @@ class _CartScreenState extends State<CartScreen> {
                   gradient: canCheckout
                       ? AppTheme.buttonGradient
                       : const LinearGradient(colors: [AppTheme.grey300, AppTheme.grey400]),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusXL),
                   boxShadow: canCheckout ? AppTheme.primaryGlowShadows() : null,
                 ),
                 child: Center(
@@ -763,12 +769,10 @@ class _CartScreenState extends State<CartScreen> {
                         color: canCheckout ? Colors.white : AppTheme.grey600,
                         size: 18,
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppSpacing.sm),
                       Text(
                         'Proceed to Checkout',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
+                        style: AppTypography.h5.copyWith(
                           color: canCheckout ? Colors.white : AppTheme.grey600,
                           letterSpacing: 0.3,
                         ),
@@ -795,7 +799,9 @@ class _CartScreenState extends State<CartScreen> {
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: 14, color: isFree ? AppTheme.success : AppTheme.grey600),
+          style: AppTypography.bodyMedium.copyWith(
+            color: isFree ? AppTheme.success : AppTheme.grey600,
+          ),
         ),
         Text(
           value is String
@@ -803,8 +809,7 @@ class _CartScreenState extends State<CartScreen> {
               : isDiscount
               ? '- ₹${value.abs().round()}'
               : '₹${value.round()}',
-          style: TextStyle(
-            fontSize: 14,
+          style: AppTypography.bodyMedium.copyWith(
             fontWeight: FontWeight.w500,
             color: isFree
                 ? AppTheme.success
@@ -822,17 +827,19 @@ class _CartScreenState extends State<CartScreen> {
     if (shopIds.length <= 1) return const SizedBox.shrink();
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
       color: AppTheme.warning.withValues(alpha: 0.15),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.warning_amber_rounded, color: AppTheme.warning),
-          SizedBox(width: 8),
+          const Icon(Icons.warning_amber_rounded, color: AppTheme.warning),
+          const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
               'Your cart contains items from multiple shops. '
               'Only items from one shop can be checked out at a time.',
-              style: TextStyle(fontSize: 12, color: AppTheme.grey700),
+              style: AppTypography.bodySmall.copyWith(
+                color: AppTheme.grey700,
+              ),
             ),
           ),
         ],

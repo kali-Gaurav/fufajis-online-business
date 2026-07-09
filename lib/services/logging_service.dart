@@ -11,6 +11,7 @@ class LoggingService {
 
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
+  /// Instance method for logging
   void log(
     String message, {
     LogLevel level = LogLevel.info,
@@ -83,5 +84,23 @@ class LoggingService {
 
   void warning(String message, {Map<String, dynamic>? data}) {
     log(message, level: LogLevel.warning, data: data);
+  }
+
+  // --- Static Shorthands for convenience ---
+
+  static void staticLog(String message, {LogLevel level = LogLevel.info, Object? error, StackTrace? stackTrace, Map<String, dynamic>? data}) {
+    LoggingService().log(message, level: level, error: error, stackTrace: stackTrace, data: data);
+  }
+
+  static void staticError(String message, [Object? error, StackTrace? stackTrace, Map<String, dynamic>? data]) {
+    LoggingService().error(message, error, stackTrace, data);
+  }
+
+  static void staticInfo(String message, {Map<String, dynamic>? data}) {
+    LoggingService().info(message, data: data);
+  }
+
+  static void staticWarning(String message, {Map<String, dynamic>? data}) {
+    LoggingService().warning(message, data: data);
   }
 }

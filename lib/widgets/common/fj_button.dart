@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../utils/app_theme.dart';
 
-enum FjButtonType { primary, secondary, outline, text, error, success, info }
+enum FjButtonType { primary, secondary, outline, text, error, success, info, danger }
 
 class FjButton extends StatelessWidget {
   final String label;
@@ -9,6 +9,8 @@ class FjButton extends StatelessWidget {
   final FjButtonType type;
   final IconData? icon;
   final bool isLoading;
+  final bool isDisabled;
+  final bool isError;
   final double? width;
   final double height;
   final EdgeInsets? padding;
@@ -20,6 +22,8 @@ class FjButton extends StatelessWidget {
     this.type = FjButtonType.primary,
     this.icon,
     this.isLoading = false,
+    this.isDisabled = false,
+    this.isError = false,
     this.width,
     this.height = 50.0,
     this.padding,
@@ -47,22 +51,33 @@ class FjButton extends StatelessWidget {
             ],
           );
 
+    final effectiveOnPressed = (isLoading || isDisabled) ? null : onPressed;
+
     switch (type) {
       case FjButtonType.primary:
         return Semantics(
           button: true,
           label: label,
+          enabled: !isDisabled && !isLoading,
           child: SizedBox(
             width: width,
             height: height,
             child: ElevatedButton(
-              onPressed: isLoading ? null : onPressed,
+              onPressed: effectiveOnPressed,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primary,
                 foregroundColor: Colors.white,
                 padding: padding,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: isError ? const BorderSide(color: AppTheme.error, width: 2) : BorderSide.none,
+                ),
                 elevation: 0,
+              ).copyWith(
+                backgroundColor: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.disabled)) return AppTheme.grey100;
+                  return AppTheme.primary;
+                }),
               ),
               child: content,
             ),
@@ -72,16 +87,20 @@ class FjButton extends StatelessWidget {
         return Semantics(
           button: true,
           label: label,
+          enabled: !isDisabled && !isLoading,
           child: SizedBox(
             width: width,
             height: height,
             child: ElevatedButton(
-              onPressed: isLoading ? null : onPressed,
+              onPressed: effectiveOnPressed,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.grey100,
-                foregroundColor: Colors.white,
+                foregroundColor: AppTheme.textPrimary,
                 padding: padding,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: isError ? const BorderSide(color: AppTheme.error, width: 2) : BorderSide.none,
+                ),
                 elevation: 0,
               ),
               child: content,
@@ -92,15 +111,19 @@ class FjButton extends StatelessWidget {
         return Semantics(
           button: true,
           label: label,
+          enabled: !isDisabled && !isLoading,
           child: SizedBox(
             width: width,
             height: height,
             child: OutlinedButton(
-              onPressed: isLoading ? null : onPressed,
+              onPressed: effectiveOnPressed,
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppTheme.primary,
                 padding: padding,
-                side: const BorderSide(color: AppTheme.primary),
+                side: BorderSide(
+                  color: isError ? AppTheme.error : AppTheme.primary,
+                  width: isError ? 2 : 1,
+                ),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: content,
@@ -108,14 +131,16 @@ class FjButton extends StatelessWidget {
           ),
         );
       case FjButtonType.error:
+      case FjButtonType.danger:
         return Semantics(
           button: true,
           label: label,
+          enabled: !isDisabled && !isLoading,
           child: SizedBox(
             width: width,
             height: height,
             child: ElevatedButton(
-              onPressed: isLoading ? null : onPressed,
+              onPressed: effectiveOnPressed,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.error,
                 foregroundColor: Colors.white,
@@ -131,9 +156,13 @@ class FjButton extends StatelessWidget {
         return Semantics(
           button: true,
           label: label,
+          enabled: !isDisabled && !isLoading,
           child: TextButton(
-            onPressed: isLoading ? null : onPressed,
-            style: TextButton.styleFrom(foregroundColor: AppTheme.primary, padding: padding),
+            onPressed: effectiveOnPressed,
+            style: TextButton.styleFrom(
+              foregroundColor: isError ? AppTheme.error : AppTheme.primary,
+              padding: padding,
+            ),
             child: content,
           ),
         );
@@ -141,11 +170,12 @@ class FjButton extends StatelessWidget {
         return Semantics(
           button: true,
           label: label,
+          enabled: !isDisabled && !isLoading,
           child: SizedBox(
             width: width,
             height: height,
             child: ElevatedButton(
-              onPressed: isLoading ? null : onPressed,
+              onPressed: effectiveOnPressed,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.success,
                 foregroundColor: Colors.white,
@@ -161,11 +191,12 @@ class FjButton extends StatelessWidget {
         return Semantics(
           button: true,
           label: label,
+          enabled: !isDisabled && !isLoading,
           child: SizedBox(
             width: width,
             height: height,
             child: ElevatedButton(
-              onPressed: isLoading ? null : onPressed,
+              onPressed: effectiveOnPressed,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.info,
                 foregroundColor: Colors.white,

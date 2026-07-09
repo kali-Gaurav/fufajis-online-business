@@ -10,6 +10,8 @@ import '../../models/product_model.dart';
 import '../../models/product_review_model.dart';
 import '../../services/product_service.dart';
 import '../../utils/app_theme.dart';
+import '../../constants/app_typography.dart';
+import '../../constants/app_spacing.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/qna_section.dart';
 import '../../widgets/group_buy_widget.dart';
@@ -111,18 +113,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with TickerPr
           child: Column(
             children: [
               ShimmerBox(width: double.infinity, height: 320, radius: 0),
-              SizedBox(height: 16),
+              SizedBox(height: AppSpacing.lg),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ShimmerBox(width: 260, height: 22),
-                    SizedBox(height: 10),
+                    SizedBox(height: AppSpacing.sm),
                     ShimmerBox(width: 140, height: 16),
-                    SizedBox(height: 16),
+                    SizedBox(height: AppSpacing.lg),
                     ShimmerBox(width: 100, height: 28),
-                    SizedBox(height: 24),
+                    SizedBox(height: AppSpacing.xxl),
                     ShimmerBox(width: double.infinity, height: 100, radius: 12),
                   ],
                 ),
@@ -374,21 +376,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with TickerPr
         children: [
           Text(
             _product!.name,
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: textColor),
+            style: AppTypography.h2.copyWith(color: textColor),
           ),
-          const SizedBox(height: 6),
-          Text(_product!.shopName, style: const TextStyle(color: AppTheme.grey600, fontSize: 13)),
-          const SizedBox(height: 16),
+          SizedBox(height: AppSpacing.xs),
+          Text(_product!.shopName, style: AppTypography.bodySmall),
+          SizedBox(height: AppSpacing.lg),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
                 '₹${displayPrice.round()}',
-                style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.primary,
-                ),
+                style: AppTypography.priceLarge.copyWith(fontSize: 32),
               ),
               if (originalPrice != null && originalPrice > displayPrice) ...[
                 const SizedBox(width: 12),

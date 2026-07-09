@@ -8,7 +8,7 @@ class CartItem {
   final String productName;
   final String productImage;
   final String unit;
-  final int quantity;
+  int quantity;
   final MonetaryValue price;
   final MonetaryValue? originalPrice;
   final MonetaryValue? discountPercentage;
@@ -20,6 +20,10 @@ class CartItem {
   final String? selectedColor;
   final String? itemNotes; // Added for Step 16
   final DateTime addedAt;
+
+  // FIX #2: Request versioning for idempotent quantity updates
+  int requestVersion = 0;  // Track the version of the request
+  int lastSavedVersion = 0;  // Track the last saved version
 
   CartItem({
     required this.id,
@@ -43,15 +47,17 @@ class CartItem {
 
   MonetaryValue get totalPrice => price * quantity;
 
-  CartItem copyWith({int? quantity, String? itemNotes}) {
-    return CartItem(
+  bool get hasUnsavedChanges => requestVersion != lastSavedVersion;
+
+  CartItem copyWith({int? quantity, String? itemNotes, MonetaryValue? price}) {
+    final newItem = CartItem(
       id: id,
       productId: productId,
       productName: productName,
       productImage: productImage,
       unit: unit,
       quantity: quantity ?? this.quantity,
-      price: price,
+      price: price ?? this.price,
       originalPrice: originalPrice,
       discountPercentage: discountPercentage,
       stockQuantity: stockQuantity,
@@ -63,6 +69,10 @@ class CartItem {
       itemNotes: itemNotes ?? this.itemNotes,
       addedAt: addedAt,
     );
+    // FIX: Preserve version tracking across copyWith
+    newItem.requestVersion = requestVersion;
+    newItem.lastSavedVersion = lastSavedVersion;
+    return newItem;
   }
 
   Map<String, dynamic> toMap() {

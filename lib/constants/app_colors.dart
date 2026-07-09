@@ -53,6 +53,17 @@ class AppColors {
   static const Color surfaceLight = Color(0xFFFFFFFF); // Pure white
   static const Color surfaceMedium = Color(0xFFF5F7FA); // Very light gray
   static const Color border = Color(0xFFECF0F1); // Light border
+  static const Color white = Colors.white;
+
+  /// Grey Scale
+  static const Color grey50 = Color(0xFFF8F9F9);
+  static const Color grey100 = Color(0xFFF2F4F4);
+  static const Color grey200 = Color(0xFFE5E8E8);
+  static const Color grey300 = Color(0xFFD5DBDB);
+  static const Color grey500 = Color(0xFF99A3A4);
+  static const Color grey600 = Color(0xFF7F8C8D);
+  static const Color grey700 = Color(0xFF707B7C);
+  static const Color grey900 = Color(0xFF2C3E50);
 
   /// Neutral Colors - Text
   static const Color textPrimary = Color(0xFF1C2833); // Dark gray (main text)
@@ -67,13 +78,60 @@ class AppColors {
   static const Color darkBorder = Color(0xFF566573);
 
   /// Specific Use Cases
+  static const Color error = danger;
   static const Color discountBadge = Color(0xFFE74C3C); // Red for discount
   static const Color priceGreen = Color(0xFF27AE60); // Green for sale price
   static const Color priceGray = Color(0xFF95A5A6); // Gray for original price (strikethrough)
 
+  /// Shimmer
+  static const Color shimmerBase = Color(0xFFE0E0E0);
+  static const Color shimmerHighlight = Color(0xFFF5F5F5);
+
+  /// Decorative
+  static const Color sand = Color(0xFFF5F5DC);
+  static const Color softOrange = Color(0xFFFFCC80);
+
+  static const Map<String, Color> categoryColors = {
+    'groceries': Color(0xFFE8F8F5),
+    'vegetables': Color(0xFFFEF9E7),
+    'fruits': Color(0xFFF4ECF7),
+    'dairy': Color(0xFFEBF5FB),
+    'snacks': Color(0xFFFDEDEC),
+  };
+
   /// Shadow Color
   static const Color shadow = Color(0x1A000000); // 10% black
   static const Color shadowDark = Color(0x33000000); // 20% black
+
+  static const LinearGradient buttonGradient = LinearGradient(
+    colors: [primary, primaryLight],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static List<BoxShadow> primaryGlowShadows({double intensity = 0.5}) => [
+        BoxShadow(
+          color: primary.withOpacity(intensity * 0.3),
+          blurRadius: 8,
+          offset: const Offset(0, 4),
+        ),
+      ];
+
+  static List<BoxShadow> get elevatedCardShadows => [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
+      ];
+
+  static List<BoxShadow> get cardShadows => [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.03),
+          blurRadius: 5,
+          offset: const Offset(0, 2),
+        ),
+      ];
 
   /// Transparent Colors for overlays
   static Color shadowOverlay = Colors.black.withOpacity(0.3);

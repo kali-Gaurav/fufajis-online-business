@@ -188,9 +188,9 @@ Future<void> _initializeSecurity() async {
           androidProvider: kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
           appleProvider: AppleProvider.deviceCheck,
         )
-        .then((_) => LoggingService().info('Firebase App Check activated.'))
+        .then((_) => LoggingService.info('Firebase App Check activated.'))
         .catchError((e, stack) {
-          LoggingService().error('App Check initialization failed', e, stack);
+          LoggingService.error('App Check initialization failed', e, stack);
         }),
   );
 }
@@ -215,7 +215,7 @@ Future<Widget> _initializeApp() async {
 
   // Report early startup errors (App Check / Dotenv) to Sentry
   if (_securityInitError != null) {
-    LoggingService().error('Startup Initialization Error', _securityInitError, _securityInitStack);
+    LoggingService.error('Startup Initialization Error', _securityInitError, _securityInitStack);
   }
 
   // TIER 1: CRITICAL SERVICES (must complete before app shows)

@@ -10,11 +10,13 @@ import '../models/coupon.dart';
 import '../models/cart_item.dart';
 import '../models/cart_item_model.dart';
 import '../services/cart_sync_service.dart';
+import '../services/checkout_service.dart';
 import '../utils/monetary_value.dart';
 import '../services/cart_validator.dart';
 import '../services/diagnostics_service.dart';
 import '../exceptions/cart_exception.dart';
 import '../models/cart_merge_warning.dart';
+import '../models/user_model.dart';
 
 class CartProvider with ChangeNotifier {
   final CartSyncService _cartSyncService = CartSyncService();
@@ -339,23 +341,108 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  // Update item quantity
-  // FIX #8: Check if cart is frozen during checkout
-  void updateQuantity(String cartItemId, int quantity) {
+  // Update item quantity with atomic backend sync (FIX #2: Race condition fix)
+  // Replaced debounce with request queue for atomic per-item updates
+  Future<void> updateQuantity(String cartItemId, int quantity) async {
     if (_cartFrozen) {
       throw CartException('Cannot modify cart during checkout. Please wait.');
     }
 
     final index = _cartItems.indexWhere((item) => item.id == cartItemId);
-    if (index >= 0) {
+    if (index < 0) return;
+
+    final oldItem = _cartItems[index];
+    final oldQuantity = oldItem.quantity;
+
+    try {
+      // 1. Optimistic update UI + increment version
+      int currentVersion;
       if (quantity <= 0) {
         _cartItems.removeAt(index);
+        currentVersion = oldItem.requestVersion + 1;
       } else {
-        _cartItems[index] = _cartItems[index].copyWith(quantity: quantity);
+        final updatedItem = oldItem.copyWith(quantity: quantity);
+        updatedItem.requestVersion++;
+        currentVersion = updatedItem.requestVersion;
+        _cartItems[index] = updatedItem;
       }
-      _debouncedSaveCart();
       notifyListeners();
+
+      // 2. Cancel pending request for this item
+      _updateQueue[cartItemId]?.ignore();
+
+      // 3. Send update with 200ms debounce
+      _updateQueue[cartItemId] = Future.delayed(
+        const Duration(milliseconds: 200),
+        () => _sendQuantityUpdate(cartItemId, quantity, currentVersion),
+      ).catchError((e) {
+        // On error: Rollback UI
+        debugPrint('[CartProvider] Error updating quantity: $e');
+        final currentIndex = _cartItems.indexWhere((item) => item.id == cartItemId);
+        if (quantity <= 0) {
+          // Item was removed, re-add it
+          if (currentIndex < 0) {
+            _cartItems.insert(index, oldItem);
+          }
+        } else {
+          // Item was updated, revert quantity
+          if (currentIndex >= 0) {
+            _cartItems[currentIndex] = oldItem;
+          }
+        }
+        notifyListeners();
+
+        // Retry with backoff
+        return _retryWithBackoff(
+          () => _sendQuantityUpdate(cartItemId, quantity, currentVersion),
+          maxAttempts: 3,
+          initialDelayMs: 500,
+        );
+      });
+
+      await _updateQueue[cartItemId];
+    } catch (e) {
+      debugPrint('[CartProvider] Failed to update quantity after retries: $e');
+      // Already rolled back in catchError above
     }
+  }
+
+  final Map<String, Future<void>> _updateQueue = {};
+
+  Future<void> _sendQuantityUpdate(
+    String itemId,
+    int quantity,
+    int requestVersion,
+  ) async {
+    try {
+      await _cartSyncService.updateItemQuantity(itemId, quantity, requestVersion);
+      final index = _cartItems.indexWhere((i) => i.id == itemId);
+      if (index >= 0) {
+        _cartItems[index].lastSavedVersion = requestVersion;
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<T> _retryWithBackoff<T>(
+    Future<T> Function() fn, {
+    int maxAttempts = 3,
+    int initialDelayMs = 500,
+  }) async {
+    int attempt = 0;
+    while (attempt < maxAttempts) {
+      try {
+        return await fn();
+      } catch (e) {
+        attempt++;
+        if (attempt >= maxAttempts) rethrow;
+
+        final delay = initialDelayMs * (attempt * attempt); // Exponential
+        await Future.delayed(Duration(milliseconds: delay));
+      }
+    }
+    throw Exception('Max retries exceeded');
   }
 
   // Update item notes
@@ -822,7 +909,7 @@ class CartProvider with ChangeNotifier {
 
   // Clear cart
   // FIX #5: Now transactional — syncs to cloud BEFORE clearing local cart
-  Future<void> clearCart(String? userId) async {
+  Future<void> clearCart([String? userId]) async {
     final cartItemsBackup = List<CartItem>.from(_cartItems);
 
     try {
@@ -881,7 +968,7 @@ class CartProvider with ChangeNotifier {
 
         final availableStock = (inventory?['available'] as int?) ?? 0;
 
-        if (inventoryError != null || inventory == null || availableStock < item.quantity) {
+        if (inventory == null || availableStock < item.quantity) {
           // Stock unavailable — return to saved list
           _saveForLaterItems.insert(index, item);
           notifyListeners();
@@ -937,16 +1024,20 @@ class CartProvider with ChangeNotifier {
     addToCart(product, selectedUnit: selectedUnit);
   }
 
-  void decrementQuantity(String productId) {
-    final index = _cartItems.indexWhere((item) => item.productId == productId);
+  void decrementQuantity(String productId, {String? selectedVariant}) {
+    final index = _cartItems.indexWhere(
+      (item) => item.productId == productId && (selectedVariant == null || item.selectedVariant == selectedVariant),
+    );
     if (index >= 0) {
       final currentQty = _cartItems[index].quantity;
       updateQuantity(_cartItems[index].id, currentQty - 1);
     }
   }
 
-  void incrementQuantity(String productId) {
-    final index = _cartItems.indexWhere((item) => item.productId == productId);
+  void incrementQuantity(String productId, {String? selectedVariant}) {
+    final index = _cartItems.indexWhere(
+      (item) => item.productId == productId && (selectedVariant == null || item.selectedVariant == selectedVariant),
+    );
     if (index >= 0) {
       final currentQty = _cartItems[index].quantity;
       updateQuantity(_cartItems[index].id, currentQty + 1);
@@ -1049,5 +1140,68 @@ class CartProvider with ChangeNotifier {
     }
     _saveCart();
     notifyListeners();
+  }
+
+  /// FIX #1: Proceed to checkout with atomic inventory reservation
+  /// Reserves inventory, creates order, freezes cart during checkout
+  Future<dynamic> proceedToCheckout({
+    required String customerId,
+    required Address deliveryAddress,
+    required DeliveryType deliveryType,
+    String? couponCode,
+  }) async {
+    // Validate cart not empty
+    if (_cartItems.isEmpty) {
+      throw CartException('Cart is empty');
+    }
+
+    // Freeze cart to prevent edits
+    _cartFrozen = true;
+    // Set auto-unfreeze timeout (15 mins) as safety measure
+    _cartFreezeTimeout?.cancel();
+    _cartFreezeTimeout = Timer(_cartFreezeDuration, () {
+      _cartFrozen = false;
+      notifyListeners();
+      debugPrint('[CartProvider] Cart auto-unfroze after timeout');
+    });
+    notifyListeners();
+
+    try {
+      final CheckoutService checkoutService = CheckoutService();
+
+      // Call backend to reserve inventory atomically and create order
+      final order = await checkoutService.reserveInventoryAndCreateOrder(
+        customerId: customerId,
+        items: _cartItems,
+        deliveryAddress: deliveryAddress,
+        deliveryType: deliveryType,
+        couponCode: couponCode,
+        walletAmount: _walletAmountUsed,
+      );
+
+      // Cancel auto-unfreeze on success
+      _cartFreezeTimeout?.cancel();
+
+      // On success: Clear cart and unfreeze
+      try {
+        await clearCart(customerId);
+      } catch (e) {
+        debugPrint('[CartProvider] Warning: Failed to clear cart: $e');
+        // Don't fail checkout if cart clear fails
+      }
+
+      _cartFrozen = false;
+      notifyListeners();
+
+      debugPrint('[CartProvider] Checkout succeeded, order ID: ${order.id}');
+      return order;
+    } catch (e) {
+      // On error: Cancel auto-unfreeze, keep cart, unfreeze, allow user to edit
+      _cartFreezeTimeout?.cancel();
+      debugPrint('[CartProvider] Checkout failed: $e');
+      _cartFrozen = false;
+      notifyListeners();
+      rethrow;
+    }
   }
 }

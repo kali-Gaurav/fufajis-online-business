@@ -346,6 +346,7 @@ class Address {
   final double longitude;
   final bool isDefault;
   final String? deliveryInstructions;
+  final String phoneNumber;
 
   // New fields for broader compatibility
   final String street;
@@ -365,12 +366,18 @@ class Address {
     required this.longitude,
     this.isDefault = false,
     this.deliveryInstructions,
+    this.phoneNumber = '',
     this.street = '',
     this.city = '',
     this.state = '',
     this.zipCode = '',
     this.district = '',
   });
+
+  // Compatibility getters
+  String get address => fullAddress;
+  String get zone => village;
+  String get phone => phoneNumber;
 
   factory Address.fromMap(Map<String, dynamic> map) {
     return Address(
@@ -384,6 +391,7 @@ class Address {
       longitude: (map['longitude'] ?? 0.0).toDouble(),
       isDefault: map['isDefault'] ?? false,
       deliveryInstructions: map['deliveryInstructions'],
+      phoneNumber: map['phoneNumber'] ?? map['phone'] ?? '',
       street: map['street'] ?? '',
       city: map['city'] ?? '',
       state: map['state'] ?? '',
@@ -404,6 +412,7 @@ class Address {
       'longitude': longitude,
       'isDefault': isDefault,
       'deliveryInstructions': deliveryInstructions,
+      'phoneNumber': phoneNumber,
       'street': street,
       'city': city,
       'state': state,
@@ -423,6 +432,7 @@ class Address {
     double? longitude,
     bool? isDefault,
     String? deliveryInstructions,
+    String? phoneNumber,
     String? street,
     String? city,
     String? state,
@@ -440,6 +450,7 @@ class Address {
       longitude: longitude ?? this.longitude,
       isDefault: isDefault ?? this.isDefault,
       deliveryInstructions: deliveryInstructions ?? this.deliveryInstructions,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
       street: street ?? this.street,
       city: city ?? this.city,
       state: state ?? this.state,

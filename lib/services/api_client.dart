@@ -84,6 +84,40 @@ class ApiClient {
     return _processResponse(response);
   }
 
+  Future<ApiResult> patch(String path, [Map<String, dynamic>? data]) async {
+    final baseUrl = RuntimeConfig.instance.apiBaseUrl;
+    if (baseUrl.isEmpty) {
+      throw Exception('API_BASE_URL is not configured in AppConfig.');
+    }
+
+    final cleanPath = path.startsWith('/') ? path : '/$path';
+    final uri = Uri.parse('$baseUrl$cleanPath');
+
+    debugPrint('[ApiClient] PATCH $uri');
+    final response = await _makeRequest((headers) => _client.patch(
+          uri,
+          headers: headers,
+          body: data != null ? jsonEncode(data) : null,
+        ));
+
+    return _processResponse(response);
+  }
+
+  Future<ApiResult> delete(String path) async {
+    final baseUrl = RuntimeConfig.instance.apiBaseUrl;
+    if (baseUrl.isEmpty) {
+      throw Exception('API_BASE_URL is not configured in AppConfig.');
+    }
+
+    final cleanPath = path.startsWith('/') ? path : '/$path';
+    final uri = Uri.parse('$baseUrl$cleanPath');
+
+    debugPrint('[ApiClient] DELETE $uri');
+    final response = await _makeRequest((headers) => _client.delete(uri, headers: headers));
+
+    return _processResponse(response);
+  }
+
   ApiResult _processResponse(http.Response response) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       final responseBody = response.body;

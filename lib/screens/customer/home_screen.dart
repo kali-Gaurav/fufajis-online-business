@@ -34,6 +34,8 @@ import '../../providers/accessibility_provider.dart';
 import '../../models/product_model.dart';
 import '../../models/reorder_template_model.dart';
 import '../../utils/app_theme.dart';
+import '../../constants/app_typography.dart';
+import '../../constants/app_spacing.dart';
 import '../../widgets/animated_widgets.dart';
 import '../../widgets/missing_animations.dart';
 import '../../services/shop_service.dart';
@@ -767,10 +769,10 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
                 child: Text(
                   AppLocalizations.of(context)!.translate('shopByCategory'),
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  style: AppTypography.h2,
                 ),
               ),
               SingleChildScrollView(
@@ -779,7 +781,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     mainAxisSpacing: 14,
@@ -812,9 +814,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             Text(
                               cat.name,
                               textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                              style: AppTypography.h5.copyWith(
                                 color: selected ? AppTheme.primary : AppTheme.grey900,
                               ),
                             ),
@@ -1106,6 +1106,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const Divider(thickness: 1, height: 1, indent: 0, endIndent: 0),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
           child: Row(
@@ -1148,6 +1149,7 @@ class _HomeScreenState extends State<HomeScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const Divider(thickness: 1, height: 1, indent: 0, endIndent: 0),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: Row(

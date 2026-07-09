@@ -91,7 +91,7 @@ class _ScaleBounceState extends State<ScaleBounce> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 150));
     _scaleAnim = Tween<double>(
       begin: 1.0,
       end: widget.scaleFactor,
@@ -727,7 +727,7 @@ class _RippleTapState extends State<RippleTap> with SingleTickerProviderStateMix
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 250));
   }
 
   @override
@@ -982,7 +982,7 @@ class _AnimatedSuccessMarkState extends State<AnimatedSuccessMark>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
     _scale = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: _ctrl,
@@ -1115,7 +1115,7 @@ class _ShimmerWidgetState extends State<_ShimmerWidget> with SingleTickerProvide
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400))
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500))
       ..repeat();
     _anim = Tween<double>(
       begin: -1.0,
@@ -2173,7 +2173,7 @@ class SlideUpReveal extends StatefulWidget {
   const SlideUpReveal({
     super.key,
     required this.child,
-    this.duration = const Duration(milliseconds: 480),
+    this.duration = const Duration(milliseconds: 300),
     this.delay = Duration.zero,
   });
 
@@ -2424,7 +2424,7 @@ class _SpringCardState extends State<SpringCard> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 550));
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 350));
     _slide = Tween<double>(
       begin: widget.springDistance,
       end: 0.0,
@@ -2738,4 +2738,184 @@ class _BurstPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_BurstPainter old) => old.progress != progress;
+}
+
+// ── ImageFadeIn — fade-in animation for network images (300ms) ─────────────────
+/// Smooth fade-in transition for images as they load
+/// Usage: ImageFadeIn(imageUrl: '...', child: Image(...))
+
+class ImageFadeIn extends StatefulWidget {
+  final Widget child;
+  final Duration duration;
+
+  const ImageFadeIn({
+    super.key,
+    required this.child,
+    this.duration = const Duration(milliseconds: 300),
+  });
+
+  @override
+  State<ImageFadeIn> createState() => _ImageFadeInState();
+}
+
+class _ImageFadeInState extends State<ImageFadeIn> with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _fade;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(vsync: this, duration: widget.duration);
+    _fade = Tween<double>(begin: 0.0, end: 1.0)
+        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
+    _ctrl.forward();
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _fade,
+      builder: (_, child) => Opacity(opacity: _fade.value, child: child),
+      child: widget.child,
+    );
+  }
+}
+
+// ── ButtonHoverScale — hover scale effect for buttons (150ms) ──────────────────
+/// Interactive scale-up animation on hover (desktop) or press (mobile)
+/// Usage: ButtonHoverScale(onTap: () {...}, child: Button(...))
+
+class ButtonHoverScale extends StatefulWidget {
+  final Widget child;
+  final VoidCallback? onTap;
+  final double scaleFactor;
+
+  const ButtonHoverScale({
+    super.key,
+    required this.child,
+    this.onTap,
+    this.scaleFactor = 1.05,
+  });
+
+  @override
+  State<ButtonHoverScale> createState() => _ButtonHoverScaleState();
+}
+
+class _ButtonHoverScaleState extends State<ButtonHoverScale> with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _scale;
+  bool _isHovered = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 150));
+    _scale = Tween<double>(begin: 1.0, end: widget.scaleFactor)
+        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _onHoverStart() {
+    if (!_isHovered) {
+      _isHovered = true;
+      _ctrl.forward();
+    }
+  }
+
+  void _onHoverEnd() {
+    if (_isHovered) {
+      _isHovered = false;
+      _ctrl.reverse();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => _onHoverStart(),
+      onExit: (_) => _onHoverEnd(),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedBuilder(
+          animation: _scale,
+          builder: (_, child) => Transform.scale(scale: _scale.value, child: child),
+          child: widget.child,
+        ),
+      ),
+    );
+  }
+}
+
+// ── SuccessPulse — pulsing glow animation for success states (500ms) ────────────
+/// Repeating pulse animation with glow effect for success messages
+/// Usage: SuccessPulse(child: Icon(...))
+
+class SuccessPulse extends StatefulWidget {
+  final Widget child;
+  final Color glowColor;
+  final Duration duration;
+
+  const SuccessPulse({
+    super.key,
+    required this.child,
+    this.glowColor = AppTheme.success,
+    this.duration = const Duration(milliseconds: 500),
+  });
+
+  @override
+  State<SuccessPulse> createState() => _SuccessPulseState();
+}
+
+class _SuccessPulseState extends State<SuccessPulse> with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _scale;
+  late Animation<double> _glow;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(vsync: this, duration: widget.duration)..repeat(reverse: true);
+    _scale = Tween<double>(begin: 1.0, end: 1.15)
+        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
+    _glow = Tween<double>(begin: 0.3, end: 0.8)
+        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (_, child) => Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: widget.glowColor.withValues(alpha: _glow.value * 0.5),
+              blurRadius: 20 * _glow.value,
+              spreadRadius: 4 * _glow.value,
+            ),
+          ],
+        ),
+        child: Transform.scale(scale: _scale.value, child: child),
+      ),
+      child: widget.child,
+    );
+  }
 }

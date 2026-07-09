@@ -397,6 +397,8 @@ class OrderModel {
     return OrderModel.fromMap({...map, 'id': id});
   }
 
+  factory OrderModel.fromJson(Map<String, dynamic> json) => OrderModel.fromMap(json);
+
   factory OrderModel.fromMap(Map<String, dynamic> map) {
     return OrderModel(
       id: map['id'] ?? '',
