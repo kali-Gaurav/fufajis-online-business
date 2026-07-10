@@ -126,7 +126,7 @@ dependencies:
   qr_flutter: ^4.1.0
 
   # Authentication & Security
-  local_auth: ^3.0.1
+  local_auth: ^2.1.0
   device_info_plus: ^9.1.1
   flutter_secure_storage: ^10.3.1
   supabase_flutter: ^2.15.3
