@@ -30,6 +30,8 @@ class ProductsManagementScreen extends StatefulWidget {
 
 class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
   int _selectedCategory = 0;
+  String _searchQuery = '';
+  bool _isGridView = true;
   final List<String> _categories = [
     'All',
     'Groceries',
@@ -45,9 +47,18 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
   Widget build(BuildContext context) {
     final productProvider = Provider.of<ProductProvider>(context);
     final categoryName = _categories[_selectedCategory];
-    final products = categoryName == 'All'
+    var products = categoryName == 'All'
         ? productProvider.products
         : productProvider.getProductsByCategory(categoryName.toLowerCase());
+
+    if (_searchQuery.isNotEmpty) {
+      products = products
+          .where((p) =>
+              p.name.toLowerCase().contains(_searchQuery) ||
+              p.description.toLowerCase().contains(_searchQuery) ||
+              p.category.toLowerCase().contains(_searchQuery))
+          .toList();
+    }
 
     return Scaffold(
       backgroundColor: AppTheme.grey50,
@@ -128,11 +139,21 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
                 Expanded(
                   child: TextField(
                     onChanged: (val) {
-                      // search query integration can go here
+                      setState(() {
+                        _searchQuery = val.toLowerCase();
+                      });
                     },
                     decoration: InputDecoration(
                       hintText: 'Search products...',
                       prefixIcon: const Icon(Icons.search),
+                      suffixIcon: _searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                setState(() => _searchQuery = '');
+                              },
+                            )
+                          : null,
                       filled: true,
                       fillColor: Theme.of(context).brightness == Brightness.dark
                           ? AppTheme.grey800
@@ -167,13 +188,27 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
                     },
                   ),
                 ),
+                const SizedBox(width: 12),
+                IconButton(
+                  icon: Icon(_isGridView ? Icons.view_agenda : Icons.grid_view),
+                  tooltip: _isGridView ? 'Switch to List View' : 'Switch to Grid View',
+                  onPressed: () {
+                    setState(() => _isGridView = !_isGridView);
+                  },
+                  style: IconButton.styleFrom(
+                    backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
+                    foregroundColor: AppTheme.primary,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 24),
-            // Products Grid
+            // Products Display
             productProvider.isLoading
                 ? const Center(child: CircularProgressIndicator(color: AppTheme.ownerAccent))
-                : _buildProductsGrid(products),
+                : _isGridView
+                    ? _buildProductsGrid(products)
+                    : _buildProductsList(products),
           ],
         ),
       ),
@@ -203,6 +238,194 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
         final product = products[index];
         return _buildProductCard(product);
       },
+    );
+  }
+
+  Widget _buildProductsList(List<ProductModel> products) {
+    if (products.isEmpty) {
+      return const FjEmptyState(
+        icon: Icons.inventory_2_outlined,
+        title: 'No products found',
+        subtitle: 'Try changing the category or add your first product.',
+      );
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: products.length,
+      itemBuilder: (context, index) {
+        final product = products[index];
+        return _buildProductListItem(product);
+      },
+    );
+  }
+
+  Widget _buildProductListItem(ProductModel product) {
+    final discount = product.discountPercentage;
+
+    return FjCard(
+      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          // Product Image
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Stack(
+              children: [
+                product.imageUrl.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: product.imageUrl,
+                        fit: BoxFit.cover,
+                        width: 100,
+                        height: 100,
+                        placeholder: (context, url) => Shimmer.fromColors(
+                          baseColor: AppTheme.grey100,
+                          highlightColor: AppTheme.grey200,
+                          child: Container(
+                            color: AppTheme.white,
+                            width: 100,
+                            height: 100,
+                          ),
+                        ),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.inventory_2, size: 40, color: AppTheme.grey400),
+                      )
+                    : Container(
+                        width: 100,
+                        height: 100,
+                        color: AppTheme.grey100,
+                        child: const Icon(Icons.inventory_2, size: 40, color: AppTheme.grey400),
+                      ),
+                if ((discount?.toDouble() ?? 0) > 0)
+                  Positioned(
+                    top: 4,
+                    left: 4,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppTheme.error,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        '$discount% OFF',
+                        style: const TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                if (product.stockQuantity == 0)
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppTheme.black.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'OOS',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          // Product Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  product.name,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.grey900,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Text(
+                      '₹${product.price}',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primary,
+                      ),
+                    ),
+                    if ((discount?.toDouble() ?? 0) > 0) ...[
+                      const SizedBox(width: 8),
+                      Text(
+                        '₹${product.originalPrice}',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppTheme.grey500,
+                          decoration: TextDecoration.lineThrough,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: product.stockQuantity > 10
+                        ? AppTheme.success.withValues(alpha: 0.1)
+                        : product.stockQuantity > 0
+                            ? AppTheme.warning.withValues(alpha: 0.1)
+                            : AppTheme.error.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    '${product.stockQuantity} in stock',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: product.stockQuantity > 10
+                          ? AppTheme.success
+                          : product.stockQuantity > 0
+                              ? AppTheme.warning
+                              : AppTheme.error,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Actions
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit, size: 18, color: AppTheme.info),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                onPressed: () => context.push('/owner/products/add?productId=${product.id}'),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete, size: 18, color: AppTheme.error),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                onPressed: () => _confirmDelete(context, product),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 

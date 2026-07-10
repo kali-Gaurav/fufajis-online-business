@@ -1,137 +1,102 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class ProductReviewModel {
   final String id;
+  final String orderId;
   final String productId;
-  final String userId;
-  final String userName;
-  final String? userImage;
-  final double rating; // 1-5 stars
-  final String comment;
-  final List<String> mediaUrls; // Up to 3 images
-  final String? videoUrl; // Step 14.1
+  final String customerId;
+  final String orderItemId;
+
+  final int rating; // 1-5
+  final String? reviewText;
+  final List<String> tags; // ['quality', 'freshness', 'packaging', 'damage', 'wrong_item']
+
+  final bool isFlagged;
+  final String? flagReason;
+  final bool resolved;
+
   final DateTime createdAt;
-  final String? orderId; // Reference to order
-  final bool isVerifiedPurchase;
-  final String? ownerReply; // Shop owner response
-  final DateTime? ownerReplyDate;
-  final bool isFlagged; // For moderation
-  final bool isApproved; // Admin approval status
-  final bool isFeatured; // Highlighted review
-  final int helpfulCount; // Number of users who found this helpful
-  final List<String> flagReasons;
+  final DateTime updatedAt;
 
   ProductReviewModel({
     required this.id,
+    required this.orderId,
     required this.productId,
-    required this.userId,
-    required this.userName,
-    this.userImage,
+    required this.customerId,
+    required this.orderItemId,
     required this.rating,
-    required this.comment,
-    this.mediaUrls = const [],
-    required this.createdAt,
-    this.orderId,
-    this.isVerifiedPurchase = false,
-    this.ownerReply,
-    this.ownerReplyDate,
+    this.reviewText,
+    this.tags = const [],
     this.isFlagged = false,
-    this.isApproved = true,
-    this.isFeatured = false,
-    this.helpfulCount = 0,
-    this.flagReasons = const [],
-    this.videoUrl,
+    this.flagReason,
+    this.resolved = false,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
-  factory ProductReviewModel.fromMap(Map<String, dynamic> map) {
+  factory ProductReviewModel.fromJson(Map<String, dynamic> json) {
     return ProductReviewModel(
-      id: map['id'] as String? ?? '',
-      productId: map['productId'] as String? ?? '',
-      userId: map['userId'] as String? ?? '',
-      userName: map['userName'] as String? ?? 'Customer',
-      userImage: map['userImage'] as String?,
-      rating: (map['rating'] as num? ?? 0.0).toDouble(),
-      comment: map['comment'] as String? ?? '',
-      mediaUrls: List<String>.from(map['mediaUrls'] as Iterable? ?? []),
-      videoUrl: map['videoUrl'] as String?,
-      createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      orderId: map['orderId'] as String?,
-      isVerifiedPurchase: map['isVerifiedPurchase'] as bool? ?? false,
-      ownerReply: map['ownerReply'] as String?,
-      ownerReplyDate: (map['ownerReplyDate'] as Timestamp?)?.toDate(),
-      isFlagged: map['isFlagged'] as bool? ?? false,
-      isApproved: map['isApproved'] as bool? ?? true,
-      isFeatured: map['isFeatured'] as bool? ?? false,
-      helpfulCount: map['helpfulCount'] as int? ?? 0,
-      flagReasons: List<String>.from(map['flagReasons'] as Iterable? ?? []),
+      id: json['id'] as String,
+      orderId: json['order_id'] as String,
+      productId: json['product_id'] as String,
+      customerId: json['customer_id'] as String,
+      orderItemId: json['order_item_id'] as String,
+      rating: json['rating'] as int,
+      reviewText: json['review_text'] as String?,
+      tags: List<String>.from(json['tags'] as List? ?? []),
+      isFlagged: json['is_flagged'] as bool? ?? false,
+      flagReason: json['flag_reason'] as String?,
+      resolved: json['resolved'] as bool? ?? false,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: DateTime.parse(json['updated_at'] as String),
     );
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'productId': productId,
-      'userId': userId,
-      'userName': userName,
-      'userImage': userImage,
+      'order_id': orderId,
+      'product_id': productId,
+      'customer_id': customerId,
+      'order_item_id': orderItemId,
       'rating': rating,
-      'comment': comment,
-      'mediaUrls': mediaUrls,
-      'videoUrl': videoUrl,
-      'createdAt': createdAt,
-      'orderId': orderId,
-      'isVerifiedPurchase': isVerifiedPurchase,
-      'ownerReply': ownerReply,
-      'ownerReplyDate': ownerReplyDate,
-      'isFlagged': isFlagged,
-      'isApproved': isApproved,
-      'isFeatured': isFeatured,
-      'helpfulCount': helpfulCount,
-      'flagReasons': flagReasons,
+      'review_text': reviewText,
+      'tags': tags,
+      'is_flagged': isFlagged,
+      'flag_reason': flagReason,
+      'resolved': resolved,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
     };
   }
 
   ProductReviewModel copyWith({
     String? id,
-    String? productId,
-    String? userId,
-    String? userName,
-    String? userImage,
-    double? rating,
-    String? comment,
-    List<String>? mediaUrls,
-    String? videoUrl,
-    DateTime? createdAt,
     String? orderId,
-    bool? isVerifiedPurchase,
-    String? ownerReply,
-    DateTime? ownerReplyDate,
+    String? productId,
+    String? customerId,
+    String? orderItemId,
+    int? rating,
+    String? reviewText,
+    List<String>? tags,
     bool? isFlagged,
-    bool? isApproved,
-    bool? isFeatured,
-    int? helpfulCount,
-    List<String>? flagReasons,
+    String? flagReason,
+    bool? resolved,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return ProductReviewModel(
       id: id ?? this.id,
-      productId: productId ?? this.productId,
-      userId: userId ?? this.userId,
-      userName: userName ?? this.userName,
-      userImage: userImage ?? this.userImage,
-      rating: rating ?? this.rating,
-      comment: comment ?? this.comment,
-      mediaUrls: mediaUrls ?? this.mediaUrls,
-      videoUrl: videoUrl ?? this.videoUrl,
-      createdAt: createdAt ?? this.createdAt,
       orderId: orderId ?? this.orderId,
-      isVerifiedPurchase: isVerifiedPurchase ?? this.isVerifiedPurchase,
-      ownerReply: ownerReply ?? this.ownerReply,
-      ownerReplyDate: ownerReplyDate ?? this.ownerReplyDate,
+      productId: productId ?? this.productId,
+      customerId: customerId ?? this.customerId,
+      orderItemId: orderItemId ?? this.orderItemId,
+      rating: rating ?? this.rating,
+      reviewText: reviewText ?? this.reviewText,
+      tags: tags ?? this.tags,
       isFlagged: isFlagged ?? this.isFlagged,
-      isApproved: isApproved ?? this.isApproved,
-      isFeatured: isFeatured ?? this.isFeatured,
-      helpfulCount: helpfulCount ?? this.helpfulCount,
-      flagReasons: flagReasons ?? this.flagReasons,
+      flagReason: flagReason ?? this.flagReason,
+      resolved: resolved ?? this.resolved,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }
