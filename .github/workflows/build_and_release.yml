@@ -31,8 +31,8 @@ jobs:
           flutter-version: '3.32.0'
           cache: true
           
-      - name: Get dependencies (production only)
-        run: flutter pub get --no-dev
+      - name: Get dependencies
+        run: flutter pub get
 
       - name: Run unit tests
         run: flutter test --coverage
