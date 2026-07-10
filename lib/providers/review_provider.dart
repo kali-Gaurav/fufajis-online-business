@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import '../models/product_review_model.dart';
 import '../models/delivery_feedback_model.dart';
+import '../services/review_service.dart';
 
 class ReviewProvider extends ChangeNotifier {
+  final ReviewService _reviewService = ReviewService();
+
   List<ProductReviewModel> _productReviews = [];
   List<DeliveryFeedbackModel> _deliveryFeedback = [];
   bool _isLoading = false;
@@ -13,86 +16,170 @@ class ReviewProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  Future<void> submitProductReviews(List<ProductReviewModel> reviews) async {
+  Future<bool> submitProductReviews(List<ProductReviewModel> reviews) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      // In production, this would call a backend API
-      // For now, store locally
-      _productReviews.addAll(reviews);
+      final submitted = await _reviewService.submitProductReviews(reviews);
+      _productReviews.addAll(submitted);
       _isLoading = false;
       notifyListeners();
+      return true;
     } catch (e) {
       _error = e.toString();
       _isLoading = false;
       notifyListeners();
+      return false;
     }
   }
 
-  Future<void> submitDeliveryFeedback(DeliveryFeedbackModel feedback) async {
+  Future<bool> submitDeliveryFeedback(DeliveryFeedbackModel feedback) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      _deliveryFeedback.add(feedback);
+      final submitted = await _reviewService.submitDeliveryFeedback(feedback);
+      _deliveryFeedback.add(submitted);
       _isLoading = false;
       notifyListeners();
+      return true;
     } catch (e) {
       _error = e.toString();
       _isLoading = false;
       notifyListeners();
+      return false;
     }
   }
 
-  Future<void> loadReviews() async {
+  Future<bool> loadReviews({
+    String? productId,
+    int? rating,
+    DateTime? dateFrom,
+    DateTime? dateTo,
+    bool? onlyFlagged,
+  }) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      // In production, fetch from backend
+      _productReviews = await _reviewService.getProductReviews(
+        productId: productId,
+        rating: rating,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        onlyFlagged: onlyFlagged,
+      );
       _isLoading = false;
       notifyListeners();
+      return true;
     } catch (e) {
       _error = e.toString();
       _isLoading = false;
       notifyListeners();
+      return false;
     }
   }
 
-  void flagReview(String reviewId, String reason) {
+  Future<bool> loadOrderReviews(String orderId) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
     try {
-      final index =
-          _productReviews.indexWhere((r) => r.id == reviewId);
+      _productReviews = await _reviewService.getOrderReviews(orderId);
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> canReviewOrder(String orderId) async {
+    try {
+      return await _reviewService.canReviewOrder(orderId);
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> flagReview(String reviewId, String reason) async {
+    try {
+      final updated = await _reviewService.flagReview(reviewId, reason);
+      final index = _productReviews.indexWhere((r) => r.id == reviewId);
       if (index != -1) {
-        _productReviews[index] =
-            _productReviews[index].copyWith(
-          isFlagged: true,
-          flagReason: reason,
-        );
+        _productReviews[index] = updated;
         notifyListeners();
       }
+      return true;
     } catch (e) {
       _error = e.toString();
       notifyListeners();
+      return false;
     }
   }
 
-  void resolveReview(String reviewId) {
+  Future<bool> resolveReview(String reviewId) async {
     try {
-      final index =
-          _productReviews.indexWhere((r) => r.id == reviewId);
+      final updated = await _reviewService.resolveReview(reviewId);
+      final index = _productReviews.indexWhere((r) => r.id == reviewId);
       if (index != -1) {
-        _productReviews[index] =
-            _productReviews[index].copyWith(resolved: true);
+        _productReviews[index] = updated;
         notifyListeners();
       }
+      return true;
     } catch (e) {
       _error = e.toString();
       notifyListeners();
+      return false;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getProductStats(String productId) async {
+    try {
+      return await _reviewService.getProductStats(productId);
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return null;
+    }
+  }
+
+  Future<bool> loadEmployeeFeedback(String employeeId) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _deliveryFeedback =
+          await _reviewService.getEmployeeFeedback(employeeId);
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getEmployeeStats(String employeeId) async {
+    try {
+      return await _reviewService.getEmployeeStats(employeeId);
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return null;
     }
   }
 
