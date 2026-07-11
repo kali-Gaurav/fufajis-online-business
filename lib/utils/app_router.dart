@@ -123,6 +123,7 @@ import '../screens/owner/settlements_management.dart';
 import '../screens/owner/settlement_reporting_screen.dart';
 import '../screens/customer/wishlist_screen.dart';
 import '../screens/customer/loyalty_screen.dart';
+import '../screens/customer/referral_rewards_dashboard_screen.dart';
 import '../screens/customer/family_management_screen.dart';
 import '../screens/customer/smart_kitchen_screen.dart';
 import '../screens/customer/subscription_screen.dart';
@@ -422,6 +423,11 @@ class AppRouter {
             path: '/customer/loyalty',
             pageBuilder: (context, state) =>
                 FufajiPageTransition(key: state.pageKey, child: const LoyaltyScreen()),
+          ),
+          GoRoute(
+            path: '/customer/referral-rewards',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const ReferralRewardsDashboardScreen()),
           ),
           GoRoute(
             path: '/customer/family',
