@@ -114,7 +114,7 @@ dependencies:
   flutter_tts: ^4.0.0
 
   # Date & Time
-  date_time_picker_plus: ^0.8.0
+  date_time_picker_plus: ^0.7.0
 
   # Hardware
   blue_thermal_printer: ^1.2.3
