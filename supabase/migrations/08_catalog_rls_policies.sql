@@ -43,11 +43,6 @@ CREATE POLICY "Public can read active products"
   ON catalog_products FOR SELECT
   USING (is_active = true AND is_deleted = false);
 
--- Shop owners can read their own products (admin/inventory views)
-CREATE POLICY "Shop owners read own products"
-  ON catalog_products FOR SELECT
-  USING (true); -- In practice, filtered by variant_id -> shop_inventory -> shop_id -> owner check
-
 -- Service role (Edge Functions) can read all products
 -- RLS is bypassed for service_role by default
 
@@ -113,30 +108,15 @@ CREATE POLICY "Public can read search index"
 -- ============================================================================
 ALTER TABLE product_pricing_history ENABLE ROW LEVEL SECURITY;
 
--- Shop owners can read pricing history for their own products
-CREATE POLICY "Shop owners read pricing history"
-  ON product_pricing_history FOR SELECT
-  USING (
-    variant_id IN (
-      SELECT id FROM catalog_variants
-      WHERE product_id IN (
-        SELECT id FROM catalog_products
-        WHERE id IN (
-          SELECT product_id FROM catalog_variants cv
-          WHERE cv.id = product_pricing_history.variant_id
-        )
-      )
-    )
-  );
-
--- Note: Pricing history inserts are restricted to service_role only
--- Direct INSERT is denied for authenticated users
-CREATE POLICY "Prevent direct inserts on pricing history"
-  ON product_pricing_history FOR INSERT
-  WITH CHECK (false);
-
--- Service role (Edge Functions) can write pricing history
+-- Pricing history is audit data - restrict to service role only
+-- Service role (Edge Functions) can read/write pricing history
 -- RLS is bypassed for service_role by default
+
+-- Block direct authenticated access (all operations)
+CREATE POLICY "Block authenticated access to pricing history"
+  ON product_pricing_history FOR ALL
+  USING (false)
+  WITH CHECK (false);
 
 -- ============================================================================
 -- PRODUCT_ALIASES TABLE - RLS
