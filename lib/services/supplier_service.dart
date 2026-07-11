@@ -1,10 +1,322 @@
-import 'package:fufaji/models/inventory_models.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fufaji/utils/analytics_performance.dart';
-import 'dart:developer' as developer;
+import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'api_client.dart';
 
-/// Supplier management service
-/// Handles supplier lifecycle, ratings, performance metrics
+// Data Models
+
+class SupplierProfile {
+  final String id;
+  final String userId;
+  final String name;
+  final String email;
+  final String phone;
+  final String? address;
+  final String? city;
+  final String? state;
+  final String? pincode;
+  final String? gstNumber;
+  final String status; // pending, approved, rejected, suspended
+  final bool isVerified;
+  final double rating; // 0-5
+  final int totalOrders;
+  final int completedOrders;
+  final double onTimeDeliveryRate;
+  final double qualityScore;
+  final double responseRate;
+  final bool autoOrderEnabled;
+  final String? preferredDeliveryDay;
+  final double minOrderValue;
+  final double totalRevenue;
+  final double totalPaid;
+  final double totalPending;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  SupplierProfile({
+    required this.id,
+    required this.userId,
+    required this.name,
+    required this.email,
+    required this.phone,
+    this.address,
+    this.city,
+    this.state,
+    this.pincode,
+    this.gstNumber,
+    required this.status,
+    required this.isVerified,
+    required this.rating,
+    required this.totalOrders,
+    required this.completedOrders,
+    required this.onTimeDeliveryRate,
+    required this.qualityScore,
+    required this.responseRate,
+    required this.autoOrderEnabled,
+    this.preferredDeliveryDay,
+    required this.minOrderValue,
+    required this.totalRevenue,
+    required this.totalPaid,
+    required this.totalPending,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory SupplierProfile.fromJson(Map<String, dynamic> json) {
+    return SupplierProfile(
+      id: json['id'] ?? '',
+      userId: json['user_id'] ?? '',
+      name: json['name'] ?? '',
+      email: json['email'] ?? '',
+      phone: json['phone'] ?? '',
+      address: json['address'],
+      city: json['city'],
+      state: json['state'],
+      pincode: json['pincode'],
+      gstNumber: json['gst_number'],
+      status: json['status'] ?? 'pending',
+      isVerified: json['is_verified'] ?? false,
+      rating: (json['rating'] ?? 0.0).toDouble(),
+      totalOrders: json['total_orders'] ?? 0,
+      completedOrders: json['completed_orders'] ?? 0,
+      onTimeDeliveryRate: (json['on_time_delivery_rate'] ?? 0.0).toDouble(),
+      qualityScore: (json['quality_score'] ?? 0.0).toDouble(),
+      responseRate: (json['response_rate'] ?? 0.0).toDouble(),
+      autoOrderEnabled: json['auto_order_enabled'] ?? false,
+      preferredDeliveryDay: json['preferred_delivery_day'],
+      minOrderValue: (json['min_order_value'] ?? 0.0).toDouble(),
+      totalRevenue: (json['total_revenue'] ?? 0.0).toDouble(),
+      totalPaid: (json['total_paid'] ?? 0.0).toDouble(),
+      totalPending: (json['total_pending'] ?? 0.0).toDouble(),
+      createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+      updatedAt: DateTime.parse(json['updated_at'] ?? DateTime.now().toIso8601String()),
+    );
+  }
+}
+
+class SupplierOrder {
+  final String id;
+  final String poNumber;
+  final String supplierId;
+  final String shopId;
+  final List<OrderItem> items;
+  final double totalAmount;
+  final double taxAmount;
+  final double discountAmount;
+  final double finalAmount;
+  final DateTime expectedDeliveryDate;
+  final DateTime? actualDeliveryDate;
+  final String? deliveryNotes;
+  final String status; // draft, confirmed, dispatched, received, cancelled
+  final String? createdBy;
+  final String? confirmedBy;
+  final DateTime createdAt;
+  final DateTime? confirmedAt;
+  final DateTime? receivedAt;
+  final DateTime? cancelledAt;
+  final DateTime updatedAt;
+
+  SupplierOrder({
+    required this.id,
+    required this.poNumber,
+    required this.supplierId,
+    required this.shopId,
+    required this.items,
+    required this.totalAmount,
+    required this.taxAmount,
+    required this.discountAmount,
+    required this.finalAmount,
+    required this.expectedDeliveryDate,
+    this.actualDeliveryDate,
+    this.deliveryNotes,
+    required this.status,
+    this.createdBy,
+    this.confirmedBy,
+    required this.createdAt,
+    this.confirmedAt,
+    this.receivedAt,
+    this.cancelledAt,
+    required this.updatedAt,
+  });
+
+  factory SupplierOrder.fromJson(Map<String, dynamic> json) {
+    final itemsJson = (json['items'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+    return SupplierOrder(
+      id: json['id'] ?? '',
+      poNumber: json['po_number'] ?? '',
+      supplierId: json['supplier_id'] ?? '',
+      shopId: json['shop_id'] ?? '',
+      items: itemsJson.map((item) => OrderItem.fromJson(item)).toList(),
+      totalAmount: (json['total_amount'] ?? 0.0).toDouble(),
+      taxAmount: (json['tax_amount'] ?? 0.0).toDouble(),
+      discountAmount: (json['discount_amount'] ?? 0.0).toDouble(),
+      finalAmount: (json['final_amount'] ?? 0.0).toDouble(),
+      expectedDeliveryDate: DateTime.parse(json['expected_delivery_date'] ?? DateTime.now().toIso8601String()),
+      actualDeliveryDate: json['actual_delivery_date'] != null ? DateTime.parse(json['actual_delivery_date']) : null,
+      deliveryNotes: json['delivery_notes'],
+      status: json['status'] ?? 'draft',
+      createdBy: json['created_by'],
+      confirmedBy: json['confirmed_by'],
+      createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+      confirmedAt: json['confirmed_at'] != null ? DateTime.parse(json['confirmed_at']) : null,
+      receivedAt: json['received_at'] != null ? DateTime.parse(json['received_at']) : null,
+      cancelledAt: json['cancelled_at'] != null ? DateTime.parse(json['cancelled_at']) : null,
+      updatedAt: DateTime.parse(json['updated_at'] ?? DateTime.now().toIso8601String()),
+    );
+  }
+}
+
+class OrderItem {
+  final String productId;
+  final int quantity;
+  final double unitPrice;
+  final double amount;
+
+  OrderItem({
+    required this.productId,
+    required this.quantity,
+    required this.unitPrice,
+    required this.amount,
+  });
+
+  factory OrderItem.fromJson(Map<String, dynamic> json) {
+    return OrderItem(
+      productId: json['product_id'] ?? '',
+      quantity: json['quantity'] ?? 0,
+      unitPrice: (json['unit_price'] ?? 0.0).toDouble(),
+      amount: (json['amount'] ?? 0.0).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'product_id': productId,
+      'quantity': quantity,
+      'unit_price': unitPrice,
+      'amount': amount,
+    };
+  }
+}
+
+class SupplierPayment {
+  final String id;
+  final String supplierId;
+  final String? supplierOrderId;
+  final double amount;
+  final String currency;
+  final String? description;
+  final String? razorpayPaymentId;
+  final String? razorpayTransferId;
+  final String? razorpaySettlementId;
+  final String status; // pending, processing, success, failed
+  final String? failureReason;
+  final DateTime initiatedAt;
+  final DateTime? completedAt;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  SupplierPayment({
+    required this.id,
+    required this.supplierId,
+    this.supplierOrderId,
+    required this.amount,
+    required this.currency,
+    this.description,
+    this.razorpayPaymentId,
+    this.razorpayTransferId,
+    this.razorpaySettlementId,
+    required this.status,
+    this.failureReason,
+    required this.initiatedAt,
+    this.completedAt,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory SupplierPayment.fromJson(Map<String, dynamic> json) {
+    return SupplierPayment(
+      id: json['id'] ?? '',
+      supplierId: json['supplier_id'] ?? '',
+      supplierOrderId: json['supplier_order_id'],
+      amount: (json['amount'] ?? 0.0).toDouble(),
+      currency: json['currency'] ?? 'INR',
+      description: json['description'],
+      razorpayPaymentId: json['razorpay_payment_id'],
+      razorpayTransferId: json['razorpay_transfer_id'],
+      razorpaySettlementId: json['razorpay_settlement_id'],
+      status: json['status'] ?? 'pending',
+      failureReason: json['failure_reason'],
+      initiatedAt: DateTime.parse(json['initiated_at'] ?? DateTime.now().toIso8601String()),
+      completedAt: json['completed_at'] != null ? DateTime.parse(json['completed_at']) : null,
+      createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+      updatedAt: DateTime.parse(json['updated_at'] ?? DateTime.now().toIso8601String()),
+    );
+  }
+}
+
+class SupplierMetrics {
+  final String id;
+  final String supplierId;
+  final String shopId;
+  final DateTime metricMonth;
+  final int totalOrders;
+  final int completedOrders;
+  final int onTimeOrders;
+  final int lateOrders;
+  final int cancelledOrders;
+  final int damagedItems;
+  final int returnedItems;
+  final int qualityIssues;
+  final double onTimeRate;
+  final double qualityScore;
+  final double reliabilityScore;
+  final double totalAmount;
+  final double totalPaid;
+
+  SupplierMetrics({
+    required this.id,
+    required this.supplierId,
+    required this.shopId,
+    required this.metricMonth,
+    required this.totalOrders,
+    required this.completedOrders,
+    required this.onTimeOrders,
+    required this.lateOrders,
+    required this.cancelledOrders,
+    required this.damagedItems,
+    required this.returnedItems,
+    required this.qualityIssues,
+    required this.onTimeRate,
+    required this.qualityScore,
+    required this.reliabilityScore,
+    required this.totalAmount,
+    required this.totalPaid,
+  });
+
+  factory SupplierMetrics.fromJson(Map<String, dynamic> json) {
+    return SupplierMetrics(
+      id: json['id'] ?? '',
+      supplierId: json['supplier_id'] ?? '',
+      shopId: json['shop_id'] ?? '',
+      metricMonth: DateTime.parse(json['metric_month'] ?? DateTime.now().toIso8601String()),
+      totalOrders: json['total_orders'] ?? 0,
+      completedOrders: json['completed_orders'] ?? 0,
+      onTimeOrders: json['on_time_orders'] ?? 0,
+      lateOrders: json['late_orders'] ?? 0,
+      cancelledOrders: json['cancelled_orders'] ?? 0,
+      damagedItems: json['damaged_items'] ?? 0,
+      returnedItems: json['returned_items'] ?? 0,
+      qualityIssues: json['quality_issues'] ?? 0,
+      onTimeRate: (json['on_time_rate'] ?? 0.0).toDouble(),
+      qualityScore: (json['quality_score'] ?? 0.0).toDouble(),
+      reliabilityScore: (json['reliability_score'] ?? 0.0).toDouble(),
+      totalAmount: (json['total_amount'] ?? 0.0).toDouble(),
+      totalPaid: (json['total_paid'] ?? 0.0).toDouble(),
+    );
+  }
+}
+
+// Supplier Service
+
 class SupplierService {
   static final SupplierService _instance = SupplierService._internal();
 
@@ -14,360 +326,253 @@ class SupplierService {
 
   SupplierService._internal();
 
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final String _collectionPrefix = 'inventory';
+  final Supabase _supabase = Supabase.instance;
 
-  // Get all active suppliers
-  Future<List<Supplier>> getAllSuppliers({bool activeOnly = true}) async {
+  // Get current supplier's profile
+  Future<SupplierProfile?> getMySupplierProfile() async {
     try {
-      developer.log('Fetching suppliers (activeOnly: $activeOnly)');
+      debugPrint('[SupplierService] Fetching current supplier profile');
+      final response = await _supabase.client
+          .from('suppliers')
+          .select()
+          .eq('user_id', _supabase.client.auth.currentUser?.id ?? '')
+          .maybeSingle();
 
-      final cached = AnalyticsPerformance.getCachedValue<List<Supplier>>('all_suppliers');
-      if (cached != null) {
-        developer.log('Cache hit for all_suppliers');
-        return cached;
+      if (response == null) {
+        debugPrint('[SupplierService] No supplier profile found');
+        return null;
       }
 
-      var query = _firestore.collection('$_collectionPrefix/suppliers');
-
-      if (activeOnly) {
-        query = query.where('active', isEqualTo: true) as Query<Map<String, dynamic>>;
-      }
-
-      final snapshot = await query.orderBy('rating', descending: true).get();
-
-      final suppliers = snapshot.docs
-          .map((doc) => Supplier.fromJson({...doc.data(), 'id': doc.id}))
-          .toList();
-
-      AnalyticsPerformance.setCachedValue('all_suppliers', suppliers, Duration(hours: 4));
-
-      return suppliers;
+      debugPrint('[SupplierService] Supplier profile loaded');
+      return SupplierProfile.fromJson(response);
     } catch (e) {
-      developer.log('Error fetching suppliers: $e', error: e);
+      debugPrint('[SupplierService] Error fetching supplier profile: $e');
       rethrow;
     }
   }
 
-  // Get single supplier
-  Future<Supplier?> getSupplier(String supplierId) async {
+  // Get supplier dashboard data
+  Future<Map<String, dynamic>> getSupplierDashboard(String supplierId) async {
     try {
-      developer.log('Fetching supplier: $supplierId');
+      debugPrint('[SupplierService] Fetching dashboard for supplier $supplierId');
 
-      final cached = AnalyticsPerformance.getCachedValue<Supplier>('supplier_$supplierId');
-      if (cached != null) {
-        return cached;
-      }
+      // Fetch profile
+      final profileResponse = await _supabase.client
+          .from('suppliers')
+          .select()
+          .eq('id', supplierId)
+          .maybeSingle();
 
-      final doc = await _firestore
-          .collection('$_collectionPrefix/suppliers')
-          .doc(supplierId)
-          .get();
+      // Fetch pending orders count
+      final ordersResponse = await _supabase.client
+          .from('supplier_orders')
+          .select()
+          .eq('supplier_id', supplierId)
+          .in_('status', ['confirmed', 'processing'])
+          .count();
 
-      if (!doc.exists) return null;
+      // Fetch this month's metrics
+      final now = DateTime.now();
+      final firstDayOfMonth = DateTime(now.year, now.month, 1);
 
-      final supplier = Supplier.fromJson({...doc.data()!, 'id': doc.id});
-      AnalyticsPerformance.setCachedValue('supplier_$supplierId', supplier, Duration(hours: 4));
+      final metricsResponse = await _supabase.client
+          .from('supplier_metrics')
+          .select()
+          .eq('supplier_id', supplierId)
+          .eq('metric_month', firstDayOfMonth.toIso8601String().split('T')[0])
+          .maybeSingle();
 
-      return supplier;
-    } catch (e) {
-      developer.log('Error fetching supplier: $e', error: e);
-      rethrow;
-    }
-  }
+      // Fetch pending payments
+      final paymentsResponse = await _supabase.client
+          .from('supplier_payments')
+          .select()
+          .eq('supplier_id', supplierId)
+          .in_('status', ['pending', 'processing'])
+          .order('created_at', ascending: false);
 
-  // Stream all suppliers
-  Stream<List<Supplier>> streamAllSuppliers({bool activeOnly = true}) {
-    developer.log('Streaming suppliers');
-
-    var query = _firestore.collection('$_collectionPrefix/suppliers');
-
-    if (activeOnly) {
-      query = query.where('active', isEqualTo: true) as Query<Map<String, dynamic>>;
-    }
-
-    return query
-        .orderBy('rating', descending: true)
-        .snapshots()
-        .map((snapshot) {
-          return snapshot.docs
-              .map((doc) => Supplier.fromJson({...doc.data(), 'id': doc.id}))
-              .toList();
-        })
-        .handleError((e) {
-          developer.log('Stream error for suppliers: $e', error: e);
-        });
-  }
-
-  // Create new supplier
-  Future<String> createSupplier({
-    required String name,
-    required String? contactPerson,
-    required String? phone,
-    required String? email,
-    required String? address,
-    required String? city,
-    required int leadTimeDays,
-    required String? paymentTerms,
-  }) async {
-    try {
-      developer.log('Creating supplier: $name');
-
-      final docRef = await _firestore.collection('$_collectionPrefix/suppliers').add({
-        'name': name,
-        'contact_person': contactPerson,
-        'phone': phone,
-        'email': email,
-        'address': address,
-        'city': city,
-        'lead_time_days': leadTimeDays,
-        'payment_terms': paymentTerms,
-        'rating': 0.0,
-        'total_orders': 0,
-        'on_time_delivery_rate': 0.0,
-        'active': true,
-        'created_at': FieldValue.serverTimestamp(),
-        'updated_at': FieldValue.serverTimestamp(),
-      });
-
-      developer.log('Successfully created supplier: ${docRef.id}');
-      _clearSupplierCache();
-
-      return docRef.id;
-    } catch (e) {
-      developer.log('Error creating supplier: $e', error: e);
-      rethrow;
-    }
-  }
-
-  // Update supplier
-  Future<void> updateSupplier(
-    String supplierId, {
-    String? name,
-    String? contactPerson,
-    String? phone,
-    String? email,
-    String? address,
-    String? city,
-    int? leadTimeDays,
-    String? paymentTerms,
-    bool? active,
-  }) async {
-    try {
-      developer.log('Updating supplier: $supplierId');
-
-      final updates = <String, dynamic>{
-        'updated_at': FieldValue.serverTimestamp(),
-      };
-
-      if (name != null) updates['name'] = name;
-      if (contactPerson != null) updates['contact_person'] = contactPerson;
-      if (phone != null) updates['phone'] = phone;
-      if (email != null) updates['email'] = email;
-      if (address != null) updates['address'] = address;
-      if (city != null) updates['city'] = city;
-      if (leadTimeDays != null) updates['lead_time_days'] = leadTimeDays;
-      if (paymentTerms != null) updates['payment_terms'] = paymentTerms;
-      if (active != null) updates['active'] = active;
-
-      await _firestore
-          .collection('$_collectionPrefix/suppliers')
-          .doc(supplierId)
-          .update(updates);
-
-      developer.log('Successfully updated supplier: $supplierId');
-      _clearSupplierCache(supplierId);
-    } catch (e) {
-      developer.log('Error updating supplier: $e', error: e);
-      rethrow;
-    }
-  }
-
-  // Update supplier rating
-  Future<void> updateSupplierRating(String supplierId, double rating) async {
-    try {
-      developer.log('Updating supplier rating: $supplierId = $rating');
-
-      if (rating < 0 || rating > 5) {
-        throw Exception('Rating must be between 0 and 5');
-      }
-
-      await _firestore
-          .collection('$_collectionPrefix/suppliers')
-          .doc(supplierId)
-          .update({
-            'rating': rating,
-            'updated_at': FieldValue.serverTimestamp(),
-          });
-
-      developer.log('Successfully updated supplier rating');
-      _clearSupplierCache(supplierId);
-    } catch (e) {
-      developer.log('Error updating supplier rating: $e', error: e);
-      rethrow;
-    }
-  }
-
-  // Update on-time delivery rate
-  Future<void> updateOnTimeDeliveryRate(String supplierId, double rate) async {
-    try {
-      developer.log('Updating on-time delivery rate: $supplierId = $rate%');
-
-      if (rate < 0 || rate > 100) {
-        throw Exception('Rate must be between 0 and 100');
-      }
-
-      await _firestore
-          .collection('$_collectionPrefix/suppliers')
-          .doc(supplierId)
-          .update({
-            'on_time_delivery_rate': rate,
-            'updated_at': FieldValue.serverTimestamp(),
-          });
-
-      developer.log('Successfully updated on-time delivery rate');
-      _clearSupplierCache(supplierId);
-    } catch (e) {
-      developer.log('Error updating on-time delivery rate: $e', error: e);
-      rethrow;
-    }
-  }
-
-  // Increment total orders
-  Future<void> incrementOrderCount(String supplierId) async {
-    try {
-      developer.log('Incrementing order count for supplier: $supplierId');
-
-      await _firestore
-          .collection('$_collectionPrefix/suppliers')
-          .doc(supplierId)
-          .update({
-            'total_orders': FieldValue.increment(1),
-            'updated_at': FieldValue.serverTimestamp(),
-          });
-
-      _clearSupplierCache(supplierId);
-    } catch (e) {
-      developer.log('Error incrementing order count: $e', error: e);
-      rethrow;
-    }
-  }
-
-  // Get supplier performance metrics
-  Future<Map<String, dynamic>> getPerformanceMetrics(String supplierId) async {
-    try {
-      developer.log('Fetching performance metrics for supplier: $supplierId');
-
-      final supplier = await getSupplier(supplierId);
-      if (supplier == null) {
-        throw Exception('Supplier not found');
-      }
+      debugPrint('[SupplierService] Dashboard data loaded');
 
       return {
-        'supplier_id': supplierId,
-        'supplier_name': supplier.name,
-        'rating': supplier.rating,
-        'rating_formatted': supplier.ratingFormatted,
-        'on_time_delivery_rate': supplier.onTimeDeliveryRate,
-        'on_time_formatted': supplier.onTimeFormatted,
-        'total_orders': supplier.totalOrders,
-        'active': supplier.active,
-        'reliability_score': _calculateReliability(supplier),
+        'profile': profileResponse != null ? SupplierProfile.fromJson(profileResponse) : null,
+        'pendingOrders': ordersResponse.count,
+        'metrics': metricsResponse != null ? SupplierMetrics.fromJson(metricsResponse) : null,
+        'pendingPayments': paymentsResponse.map((p) => SupplierPayment.fromJson(p)).toList(),
       };
     } catch (e) {
-      developer.log('Error fetching performance metrics: $e', error: e);
+      debugPrint('[SupplierService] Error fetching dashboard: $e');
       rethrow;
     }
   }
 
-  // Get suppliers sorted by performance
-  Future<List<Supplier>> getSuppliersByPerformance() async {
+  // Get auto-order suggestions for a supplier
+  Future<List<Map<String, dynamic>>> getAutoOrderSuggestions(String supplierId) async {
     try {
-      developer.log('Fetching suppliers sorted by performance');
+      debugPrint('[SupplierService] Fetching auto-order suggestions for $supplierId');
 
-      final suppliers = await getAllSuppliers();
-      suppliers.sort((a, b) => b.rating.compareTo(a.rating));
+      final response = await ApiClient.instance.get(
+        '/suppliers/$supplierId/auto-order-suggestions',
+      );
 
-      return suppliers;
+      debugPrint('[SupplierService] Auto-order suggestions loaded');
+      return List<Map<String, dynamic>>.from(response.data['suggestions'] ?? []);
     } catch (e) {
-      developer.log('Error fetching suppliers by performance: $e', error: e);
-      rethrow;
+      debugPrint('[SupplierService] Error fetching auto-order suggestions: $e');
+      return [];
     }
   }
 
-  // Search suppliers
-  Future<List<Supplier>> searchSuppliers(String query) async {
+  // Accept a supplier order
+  Future<void> acceptSupplierOrder(String orderId) async {
     try {
-      developer.log('Searching suppliers: $query');
+      debugPrint('[SupplierService] Accepting order $orderId');
 
-      final allSuppliers = await getAllSuppliers();
+      await _supabase.client
+          .from('supplier_orders')
+          .update({'status': 'confirmed'})
+          .eq('id', orderId);
 
-      return allSuppliers
-          .where((s) =>
-              s.name.toLowerCase().contains(query.toLowerCase()) ||
-              (s.city?.toLowerCase().contains(query.toLowerCase()) ?? false) ||
-              (s.email?.toLowerCase().contains(query.toLowerCase()) ?? false))
-          .toList();
+      debugPrint('[SupplierService] Order accepted');
     } catch (e) {
-      developer.log('Error searching suppliers: $e', error: e);
+      debugPrint('[SupplierService] Error accepting order: $e');
       rethrow;
     }
   }
 
-  // Get preferred suppliers for products
-  Future<Map<String, String>> getPreferredSuppliersByProduct() async {
+  // Reject a supplier order
+  Future<void> rejectSupplierOrder(String orderId, String reason) async {
     try {
-      developer.log('Fetching preferred suppliers by product');
+      debugPrint('[SupplierService] Rejecting order $orderId: $reason');
 
-      final cached = AnalyticsPerformance.getCachedValue<Map<String, String>>('preferred_suppliers');
-      if (cached != null) {
-        return cached;
+      await _supabase.client
+          .from('supplier_orders')
+          .update({
+            'status': 'cancelled',
+            'delivery_notes': 'Rejected by supplier: $reason',
+          })
+          .eq('id', orderId);
+
+      debugPrint('[SupplierService] Order rejected');
+    } catch (e) {
+      debugPrint('[SupplierService] Error rejecting order: $e');
+      rethrow;
+    }
+  }
+
+  // Mark order as dispatched
+  Future<void> markOrderDispatched(String orderId) async {
+    try {
+      debugPrint('[SupplierService] Marking order $orderId as dispatched');
+
+      await _supabase.client
+          .from('supplier_orders')
+          .update({'status': 'dispatched'})
+          .eq('id', orderId);
+
+      debugPrint('[SupplierService] Order marked dispatched');
+    } catch (e) {
+      debugPrint('[SupplierService] Error marking order dispatched: $e');
+      rethrow;
+    }
+  }
+
+  // Request payment from owner
+  Future<String> requestPayment({
+    required String supplierId,
+    required String? orderId,
+    required double amount,
+    required String description,
+  }) async {
+    try {
+      debugPrint('[SupplierService] Requesting payment: amount=$amount, orderId=$orderId');
+
+      final response = await ApiClient.instance.post(
+        '/suppliers/$supplierId/request-payment',
+        {
+          'supplier_order_id': orderId,
+          'amount': amount,
+          'description': description,
+        },
+      );
+
+      final paymentId = response.data['payment_id'] ?? '';
+      debugPrint('[SupplierService] Payment requested: $paymentId');
+      return paymentId;
+    } catch (e) {
+      debugPrint('[SupplierService] Error requesting payment: $e');
+      rethrow;
+    }
+  }
+
+  // Get payment history
+  Future<List<SupplierPayment>> getPaymentHistory(String supplierId) async {
+    try {
+      debugPrint('[SupplierService] Fetching payment history for $supplierId');
+
+      final response = await _supabase.client
+          .from('supplier_payments')
+          .select()
+          .eq('supplier_id', supplierId)
+          .order('created_at', ascending: false);
+
+      final payments = response.map((p) => SupplierPayment.fromJson(p)).toList();
+      debugPrint('[SupplierService] Payment history loaded: ${payments.length} payments');
+      return payments;
+    } catch (e) {
+      debugPrint('[SupplierService] Error fetching payment history: $e');
+      rethrow;
+    }
+  }
+
+  // Get supplier metrics
+  Future<SupplierMetrics?> getSupplierMetrics(String supplierId) async {
+    try {
+      debugPrint('[SupplierService] Fetching metrics for $supplierId');
+
+      final now = DateTime.now();
+      final firstDayOfMonth = DateTime(now.year, now.month, 1);
+
+      final response = await _supabase.client
+          .from('supplier_metrics')
+          .select()
+          .eq('supplier_id', supplierId)
+          .eq('metric_month', firstDayOfMonth.toIso8601String().split('T')[0])
+          .maybeSingle();
+
+      if (response == null) {
+        debugPrint('[SupplierService] No metrics found for current month');
+        return null;
       }
 
-      final snapshot = await _firestore
-          .collection('inventory/reorder_points')
-          .where('preferred_supplier_id', isNotEqualTo: null)
-          .get();
-
-      final preferredMap = <String, String>{};
-
-      for (final doc in snapshot.docs) {
-        final productId = doc['product_id'] as String?;
-        final supplierId = doc['preferred_supplier_id'] as String?;
-
-        if (productId != null && supplierId != null) {
-          preferredMap[productId] = supplierId;
-        }
-      }
-
-      AnalyticsPerformance.setCachedValue('preferred_suppliers', preferredMap, Duration(hours: 2));
-
-      return preferredMap;
+      debugPrint('[SupplierService] Metrics loaded');
+      return SupplierMetrics.fromJson(response);
     } catch (e) {
-      developer.log('Error fetching preferred suppliers: $e', error: e);
+      debugPrint('[SupplierService] Error fetching metrics: $e');
       rethrow;
     }
   }
 
-  // Calculate reliability score (combination of rating and on-time delivery)
-  double _calculateReliability(Supplier supplier) {
-    const ratingWeight = 0.4;
-    const onTimeWeight = 0.6;
+  // Real-time stream of supplier orders
+  Stream<List<SupplierOrder>> watchSupplierOrders(String supplierId) {
+    debugPrint('[SupplierService] Watching orders for supplier $supplierId');
 
-    final ratingScore = (supplier.rating / 5) * 100;
-    final onTimeScore = supplier.onTimeDeliveryRate;
-
-    return (ratingScore * ratingWeight) + (onTimeScore * onTimeWeight);
+    return _supabase.client
+        .from('supplier_orders')
+        .stream(primaryKey: ['id'])
+        .eq('supplier_id', supplierId)
+        .order('created_at', ascending: false)
+        .map((orders) => orders.map((o) => SupplierOrder.fromJson(o)).toList());
   }
 
-  // Clear supplier cache
-  void _clearSupplierCache([String? supplierId]) {
-    developer.log('Clearing supplier cache' + (supplierId != null ? ': $supplierId' : ''));
-    AnalyticsPerformance.clearCacheKey('all_suppliers');
-    AnalyticsPerformance.clearCacheKey('preferred_suppliers');
+  // Real-time stream of pending payments
+  Stream<List<SupplierPayment>> watchPendingPayments(String supplierId) {
+    debugPrint('[SupplierService] Watching pending payments for supplier $supplierId');
 
-    if (supplierId != null) {
-      AnalyticsPerformance.clearCacheKey('supplier_$supplierId');
-    }
+    return _supabase.client
+        .from('supplier_payments')
+        .stream(primaryKey: ['id'])
+        .eq('supplier_id', supplierId)
+        .in_('status', ['pending', 'processing'])
+        .order('created_at', ascending: false)
+        .map((payments) => payments.map((p) => SupplierPayment.fromJson(p)).toList());
   }
 }
