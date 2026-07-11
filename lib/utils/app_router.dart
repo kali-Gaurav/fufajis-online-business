@@ -39,6 +39,9 @@ import '../screens/customer/notification_settings_screen.dart';
 import '../screens/customer/order_detail_screen.dart';
 import '../screens/owner/owner_dashboard.dart';
 import '../screens/owner/data_sync_monitor_screen.dart';
+import '../screens/owner/inventory_sync_manager_screen.dart';
+import '../screens/owner/payment_settlement_sync_screen.dart';
+import '../screens/owner/order_status_machine_screen.dart';
 import '../screens/owner/advanced_performance_dashboard_screen.dart';
 import '../screens/owner/promotion_discount_management_screen.dart';
 import '../screens/owner/customer_segmentation_targeting_screen.dart';
@@ -830,6 +833,21 @@ class AppRouter {
             path: '/owner/data-sync-monitor',
             pageBuilder: (context, state) =>
                 FufajiPageTransition(key: state.pageKey, child: const DataSyncMonitorScreen()),
+          ),
+          GoRoute(
+            path: '/owner/inventory-sync-manager',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const InventorySyncManagerScreen()),
+          ),
+          GoRoute(
+            path: '/owner/payment-settlement-sync',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const PaymentSettlementSyncScreen()),
+          ),
+          GoRoute(
+            path: '/owner/order-status-machine',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const OrderStatusMachineScreen()),
           ),
         ],
       ),
