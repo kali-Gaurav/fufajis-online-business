@@ -102,7 +102,7 @@ dependencies:
 
   # PDF & Documents
   pdf: ^3.13.0
-  printing: ^5.15.0
+  printing: ^5.0.0
 
   # WhatsApp Integration
   whatsapp_unilink: ^2.1.0
