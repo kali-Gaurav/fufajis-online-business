@@ -108,7 +108,7 @@ dependencies:
   whatsapp_unilink: ^2.1.0
 
   # Audio & Speech
-  record: ^7.1.1
+  record: ^5.2.0
   speech_to_text: ^7.4.0
   video_player: ^2.11.1
   flutter_tts: ^4.0.0
