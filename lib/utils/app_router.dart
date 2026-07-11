@@ -128,6 +128,23 @@ import '../screens/customer/subscription_screen.dart';
 import '../screens/customer/identity_contacts_screen.dart';
 import '../screens/customer/refer_earn_screen.dart';
 import '../screens/customer/add_review_screen.dart';
+import '../screens/customer/enhanced_delivery_tracking_screen.dart';
+import '../screens/customer/product_card_enhancements_screen.dart';
+import '../screens/owner/owner_dashboard_redesigned.dart';
+import '../screens/owner/inventory_visual_improvements_screen.dart';
+import '../screens/employee/employee_task_board_screen.dart';
+import '../screens/vendor/vendor_signup_screen.dart';
+import '../screens/vendor/vendor_dashboard_screen.dart';
+import '../screens/vendor/vendor_products_management_screen.dart';
+import '../screens/vendor/vendor_orders_screen.dart';
+import '../screens/vendor/vendor_payout_screen.dart';
+import '../screens/vendor/vendor_commission_autopayout_screen.dart';
+import '../screens/vendor/vendor_dispute_resolution_screen.dart';
+import '../screens/admin/admin_vendor_approval_screen.dart';
+import '../screens/customer/subscription_checkout_screen.dart';
+import '../screens/customer/subscription_detail_screen.dart';
+import '../screens/customer/subscription_retention_screen.dart';
+import '../screens/owner/owner_subscription_dashboard.dart';
 
 /// Combines multiple [Listenable]s into one so GoRouter re-evaluates
 /// its redirect when either AuthProvider OR GuestProvider changes state.
@@ -410,6 +427,26 @@ class AppRouter {
                 FufajiPageTransition(key: state.pageKey, child: const SubscriptionScreen()),
           ),
           GoRoute(
+            path: '/customer/subscription-detail/:subscriptionId',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(
+                  key: state.pageKey,
+                  child: SubscriptionDetailScreen(
+                    subscriptionId: state.pathParameters['subscriptionId'] ?? '',
+                  ),
+                ),
+          ),
+          GoRoute(
+            path: '/customer/subscription-checkout',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const SubscriptionCheckoutScreen()),
+          ),
+          GoRoute(
+            path: '/customer/subscription-retention',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const SubscriptionRetentionScreen()),
+          ),
+          GoRoute(
             path: '/customer/identity',
             pageBuilder: (context, state) =>
                 FufajiPageTransition(key: state.pageKey, child: const IdentityContactsScreen()),
@@ -428,6 +465,26 @@ class AppRouter {
                 productName: state.uri.queryParameters['name'] ?? '',
               ),
             ),
+          ),
+          GoRoute(
+            path: '/customer/product-details/:productId',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(
+                  key: state.pageKey,
+                  child: ProductCardEnhancementsScreen(
+                    productId: state.pathParameters['productId'] ?? '',
+                  ),
+                ),
+          ),
+          GoRoute(
+            path: '/customer/track-delivery/:orderId',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(
+                  key: state.pageKey,
+                  child: EnhancedDeliveryTrackingScreen(
+                    orderId: state.pathParameters['orderId'] ?? '',
+                  ),
+                ),
           ),
         ],
       ),
@@ -614,6 +671,18 @@ class AppRouter {
             path: '/owner/mission-control',
             builder: (context, state) => const TeamRoomScreen(),
           ),
+          GoRoute(
+            path: '/owner/dashboard-enhanced',
+            builder: (context, state) => const OwnerDashboardRedesigned(),
+          ),
+          GoRoute(
+            path: '/owner/inventory-visual',
+            builder: (context, state) => const InventoryVisualImprovementsScreen(),
+          ),
+          GoRoute(
+            path: '/owner/subscriptions',
+            builder: (context, state) => const OwnerSubscriptionDashboard(),
+          ),
         ],
       ),
 
@@ -628,6 +697,10 @@ class AppRouter {
           GoRoute(
             path: '/admin/dead-letter',
             builder: (context, state) => const DeadLetterDashboardScreen(),
+          ),
+          GoRoute(
+            path: '/admin/vendor-approvals',
+            builder: (context, state) => const AdminVendorApprovalScreen(),
           ),
         ],
       ),
@@ -746,6 +819,53 @@ class AppRouter {
             },
           ),
           GoRoute(path: 'return-hub', builder: (context, state) => const ReturnDamageHubScreen()),
+          GoRoute(
+            path: 'tasks',
+            builder: (context, state) {
+              final employeeId = state.uri.queryParameters['employeeId'];
+              return EmployeeTaskBoardScreen(employeeId: employeeId ?? '');
+            },
+          ),
+        ],
+      ),
+
+      // Vendor Routes
+      GoRoute(
+        path: '/vendor/signup',
+        pageBuilder: (context, state) =>
+            FufajiPageTransition(key: state.pageKey, child: const VendorSignupScreen()),
+      ),
+      GoRoute(
+        path: '/vendor',
+        builder: (context, state) => const VendorDashboardScreen(),
+        routes: [
+          GoRoute(
+            path: 'dashboard',
+            builder: (context, state) => const VendorDashboardScreen(),
+          ),
+          GoRoute(
+            path: 'products',
+            builder: (context, state) => const VendorProductsManagementScreen(),
+          ),
+          GoRoute(
+            path: 'orders',
+            builder: (context, state) => const VendorOrdersScreen(),
+          ),
+          GoRoute(
+            path: 'payouts',
+            builder: (context, state) => const VendorPayoutScreen(),
+          ),
+          GoRoute(
+            path: 'autopayout',
+            builder: (context, state) => const VendorCommissionAutopayoutScreen(),
+          ),
+          GoRoute(
+            path: 'disputes',
+            builder: (context, state) {
+              final vendorId = state.uri.queryParameters['vendorId'];
+              return VendorDisputeResolutionScreen(vendorId: vendorId ?? '');
+            },
+          ),
         ],
       ),
 

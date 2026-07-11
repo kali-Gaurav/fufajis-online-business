@@ -39,6 +39,9 @@ const config = require('./routes/config');
 const mfa = require('./routes/mfa');
 const sync = require('./routes/sync');
 const systemFlags = require('./routes/system-flags');
+const subscriptions = require('./routes/subscriptions');
+const commissions = require('./routes/commissions');
+const dispatch = require('./routes/dispatch');
 
 const app = express();
 
@@ -156,6 +159,9 @@ app.use('/pricing', pricing);
 app.use('/support', support);
 app.use('/recommendations', recommendations);
 app.use('/notifications', notifications);
+app.use('/subscriptions', subscriptions);
+app.use('/commissions', commissions);
+app.use('/dispatch', dispatch);
 
 // PHASE C: Sync Engine Routes
 app.use('/sync', sync);
