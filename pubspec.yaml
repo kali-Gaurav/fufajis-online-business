@@ -54,7 +54,7 @@ dependencies:
   google_mlkit_commons: ^0.3.0
   google_mlkit_barcode_scanning: ^0.6.0
   google_mlkit_image_labeling: ^0.6.0
-  google_mlkit_text_recognition: ^0.7.0
+  google_mlkit_text_recognition: ^0.4.0
   image_picker: ^1.0.0
 
   # Location & Maps
