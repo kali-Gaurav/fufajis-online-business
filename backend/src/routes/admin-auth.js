@@ -13,7 +13,7 @@ const express = require('express');
 const router = express.Router();
 const supabase = require('../db/supabase');
 const jwt = require('jsonwebtoken');
-const { auth } = require('../services/firebaseAdmin');
+const { auth, db } = require('../services/firebaseAdmin');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
@@ -130,6 +130,49 @@ const logAdminAction = async (adminId, action, targetUserId, details) => {
       });
   } catch (err) {
     console.error('Failed to log admin action:', err);
+  }
+};
+
+/**
+ * Sync operational user to Firestore (for real-time UI consistency)
+ */
+const syncUserToFirestore = async (user, collection = 'employees') => {
+  try {
+    const firestore = db();
+
+    // Map user_type to Firestore collection
+    let firestoreCollection = 'employees';
+    if (user.user_type === 'owner') {
+      firestoreCollection = 'owners';
+    } else if (user.user_type === 'supplier') {
+      firestoreCollection = 'suppliers';
+    } else if (user.user_type === 'rider') {
+      firestoreCollection = 'riders';
+    }
+
+    // Prepare data for Firestore (exclude password hash)
+    const firestoreData = {
+      id: user.id,
+      email: user.email,
+      full_name: user.full_name,
+      phone: user.phone,
+      user_type: user.user_type,
+      owner_id: user.owner_id,
+      is_active: user.is_active,
+      is_verified: user.is_verified,
+      created_at: new Date(user.created_at),
+      last_login_at: user.last_login_at ? new Date(user.last_login_at) : null,
+      synced_at: new Date()
+    };
+
+    // Write to Firestore
+    await firestore.collection(firestoreCollection).doc(user.id).set(firestoreData, { merge: true });
+
+    return { success: true };
+  } catch (err) {
+    console.error('Firestore sync error:', err);
+    // Don't fail the request if Firestore sync fails (eventual consistency)
+    return { success: false, error: err.message };
   }
 };
 
@@ -321,6 +364,9 @@ router.post('/create-owner', async (req, res) => {
       }
     );
 
+    // Sync to Firestore for real-time UI updates
+    await syncUserToFirestore(newOwner, 'owners');
+
     return res.json({
       success: true,
       user: {
@@ -465,6 +511,9 @@ router.post('/create-employee', async (req, res) => {
       shop_name: ownerShop.name
     });
 
+    // Sync to Firestore for real-time UI updates
+    await syncUserToFirestore(newEmployee);
+
     // TODO: Send email with credentials
 
     return res.json({
@@ -519,18 +568,25 @@ router.put('/users/:userId/disable', async (req, res) => {
     }
 
     // Disable user
-    await supabase
+    const { data: disabledUser } = await supabase
       .from('operational_users')
       .update({
         is_active: false
       })
-      .eq('id', userId);
+      .eq('id', userId)
+      .select()
+      .single();
 
     // Log admin action
     await logAdminAction(req.user.id, 'DISABLE_USER', userId, {
       email: user.email,
       user_type: user.user_type
     });
+
+    // Sync to Firestore
+    if (disabledUser) {
+      await syncUserToFirestore(disabledUser);
+    }
 
     return res.json({
       success: true,
@@ -576,17 +632,24 @@ router.put('/users/:userId/enable', async (req, res) => {
     }
 
     // Enable user
-    await supabase
+    const { data: enabledUser } = await supabase
       .from('operational_users')
       .update({
         is_active: true
       })
-      .eq('id', userId);
+      .eq('id', userId)
+      .select()
+      .single();
 
     // Log admin action
     await logAdminAction(req.user.id, 'ENABLE_USER', userId, {
       email: user.email
     });
+
+    // Sync to Firestore
+    if (enabledUser) {
+      await syncUserToFirestore(enabledUser);
+    }
 
     return res.json({
       success: true,
