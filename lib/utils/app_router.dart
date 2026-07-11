@@ -42,6 +42,10 @@ import '../screens/owner/data_sync_monitor_screen.dart';
 import '../screens/owner/inventory_sync_manager_screen.dart';
 import '../screens/owner/payment_settlement_sync_screen.dart';
 import '../screens/owner/order_status_machine_screen.dart';
+import '../screens/owner/workflow_automation_designer_screen.dart';
+import '../screens/owner/customer_engagement_automation_screen.dart';
+import '../screens/owner/dynamic_pricing_engine_screen.dart';
+import '../screens/owner/inventory_auto_replenishment_screen.dart';
 import '../screens/owner/advanced_performance_dashboard_screen.dart';
 import '../screens/owner/promotion_discount_management_screen.dart';
 import '../screens/owner/customer_segmentation_targeting_screen.dart';
@@ -848,6 +852,26 @@ class AppRouter {
             path: '/owner/order-status-machine',
             pageBuilder: (context, state) =>
                 FufajiPageTransition(key: state.pageKey, child: const OrderStatusMachineScreen()),
+          ),
+          GoRoute(
+            path: '/owner/workflow-automation',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const WorkflowAutomationDesignerScreen()),
+          ),
+          GoRoute(
+            path: '/owner/customer-engagement',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const CustomerEngagementAutomationScreen()),
+          ),
+          GoRoute(
+            path: '/owner/dynamic-pricing',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const DynamicPricingEngineScreen()),
+          ),
+          GoRoute(
+            path: '/owner/auto-replenishment',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const InventoryAutoReplenishmentScreen()),
           ),
         ],
       ),
