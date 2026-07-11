@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../../models/product_model.dart';
 import '../../../models/subscription_model.dart';
 import '../../../providers/product_provider.dart';
+import '../../../providers/subscription_provider.dart';
+import '../../../providers/auth_provider.dart';
 import '../../../services/subscription_service.dart';
 import '../../../utils/app_theme.dart';
 
@@ -208,7 +210,7 @@ class _SubscriptionSetupScreenState extends State<SubscriptionSetupScreen> {
     );
   }
 
-  void _proceedToCheckout() {
+  Future<void> _proceedToCheckout() async {
     // Convert selected items to SubscriptionItem
     final items = _selectedItems.entries.map((entry) {
       final productId = entry.key;
@@ -224,10 +226,22 @@ class _SubscriptionSetupScreenState extends State<SubscriptionSetupScreen> {
       );
     }).toList();
 
-    // Navigate to checkout with items
-    context.push(
+    // Navigate to checkout with items and wait for result
+    final result = await context.push(
       '/customer/subscription-checkout',
       extra: items,
     );
+
+    // If subscription was created, reload subscriptions and pop
+    if (result != null && mounted) {
+      final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      if (authProvider.currentUser != null) {
+        await subscriptionProvider.fetchSubscriptions(authProvider.currentUser!.id);
+      }
+      if (mounted) {
+        context.pop();
+      }
+    }
   }
 }

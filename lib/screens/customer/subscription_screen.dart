@@ -19,17 +19,23 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   @override
   void initState() {
     super.initState();
-    _loadSubscriptions();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadSubscriptions();
+    });
   }
 
   Future<void> _loadSubscriptions() async {
-    setState(() => _isLoading = true);
+    if (mounted) {
+      setState(() => _isLoading = true);
+    }
     final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     if (authProvider.currentUser != null) {
       await subscriptionProvider.fetchSubscriptions(authProvider.currentUser!.id);
     }
-    setState(() => _isLoading = false);
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -48,7 +54,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : subscriptionProvider.subscriptions.isEmpty
           ? _buildEmptyState()
-          : _buildSubscriptionList(subscriptionProvider.subscriptions),
+          : RefreshIndicator(
+              onRefresh: _loadSubscriptions,
+              child: _buildSubscriptionList(subscriptionProvider.subscriptions),
+            ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           context.push('/customer/subscription-setup');
