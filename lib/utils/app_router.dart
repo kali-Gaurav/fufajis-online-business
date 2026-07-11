@@ -57,6 +57,7 @@ import '../screens/delivery/delivery_performance_analytics_screen.dart';
 import '../screens/owner/demand_forecasting_screen.dart';
 import '../screens/owner/inventory_optimization_screen.dart';
 import '../screens/owner/customer_intelligence_screen.dart';
+import '../screens/owner/executive_command_center_screen.dart';
 import '../screens/owner/products_management.dart';
 import '../screens/owner/orders_management.dart';
 import '../screens/owner/inventory_screen.dart';
@@ -818,6 +819,11 @@ class AppRouter {
             path: '/owner/customer-intelligence',
             pageBuilder: (context, state) =>
                 FufajiPageTransition(key: state.pageKey, child: const CustomerIntelligenceScreen()),
+          ),
+          GoRoute(
+            path: '/owner/executive-command-center',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const ExecutiveCommandCenterScreen()),
           ),
         ],
       ),
