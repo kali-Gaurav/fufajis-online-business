@@ -125,6 +125,7 @@ import '../screens/customer/loyalty_screen.dart';
 import '../screens/customer/family_management_screen.dart';
 import '../screens/customer/smart_kitchen_screen.dart';
 import '../screens/customer/subscription_screen.dart';
+import '../screens/customer/subscription_management_screen.dart';
 import '../screens/customer/identity_contacts_screen.dart';
 import '../screens/customer/refer_earn_screen.dart';
 import '../screens/customer/add_review_screen.dart';
@@ -459,6 +460,11 @@ class AppRouter {
             path: '/customer/subscription-retention',
             pageBuilder: (context, state) =>
                 FufajiPageTransition(key: state.pageKey, child: const SubscriptionRetentionScreen()),
+          ),
+          GoRoute(
+            path: '/customer/subscription-management',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const SubscriptionManagementScreen()),
           ),
           GoRoute(
             path: '/customer/identity',
