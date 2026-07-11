@@ -336,25 +336,34 @@ router.post('/operational/reset-password', async (req, res) => {
       });
     }
 
-    // Find valid reset token
-    const { data: tokenRecord } = await supabase
+    // Find all non-expired, unused reset tokens
+    const { data: tokenRecords } = await supabase
       .from('password_reset_tokens')
       .select('*')
-      .eq('token_hash', reset_token)
-      .single();
+      .is('used_at', null)
+      .gt('expires_at', new Date().toISOString());
 
-    if (!tokenRecord || tokenRecord.used_at) {
+    if (!tokenRecords || tokenRecords.length === 0) {
       return res.status(401).json({
         success: false,
         error: 'Invalid or expired reset token'
       });
     }
 
-    // Check expiry
-    if (new Date(tokenRecord.expires_at) < new Date()) {
+    // Find matching token by comparing hash
+    let tokenRecord = null;
+    for (const record of tokenRecords) {
+      const isValid = await comparePassword(reset_token, record.token_hash);
+      if (isValid) {
+        tokenRecord = record;
+        break;
+      }
+    }
+
+    if (!tokenRecord) {
       return res.status(401).json({
         success: false,
-        error: 'Reset token has expired'
+        error: 'Invalid or expired reset token'
       });
     }
 
