@@ -1,194 +1,110 @@
-import 'package:flutter/foundation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import '../models/product_review_model.dart';
-import '../services/product_service.dart';
+import '../models/delivery_feedback_model.dart';
+import '../services/review_service.dart';
 
 class ReviewProvider extends ChangeNotifier {
-  final ProductService _productService = ProductService();
+  final ReviewService _reviewService = ReviewService();
 
-  List<ProductReviewModel> _reviews = [];
+  List<ProductReviewModel> _productReviews = [];
+  List<DeliveryFeedbackModel> _deliveryFeedback = [];
   bool _isLoading = false;
   String? _error;
 
-  // Rating distribution
-  Map<int, int> _ratingDistribution = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0};
-  double _averageRating = 0.0;
-
-  // Getters
-  List<ProductReviewModel> get reviews => _reviews;
+  List<ProductReviewModel> get productReviews => _productReviews;
+  List<DeliveryFeedbackModel> get deliveryFeedback => _deliveryFeedback;
   bool get isLoading => _isLoading;
   String? get error => _error;
-  Map<int, int> get ratingDistribution => _ratingDistribution;
-  double get averageRating => _averageRating;
 
-  /// Fetch reviews for a product with pagination
-  Future<void> fetchProductReviews(
-    String productId, {
-    int limit = 10,
-    DocumentSnapshot? startAfter,
-    String sortBy = 'recent', // recent, highest, lowest, helpful
+  Future<bool> submitProductReviews(List<ProductReviewModel> reviews) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final submitted = await _reviewService.submitProductReviews(reviews);
+      _productReviews.addAll(submitted);
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> submitDeliveryFeedback(DeliveryFeedbackModel feedback) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final submitted = await _reviewService.submitDeliveryFeedback(feedback);
+      _deliveryFeedback.add(submitted);
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> loadReviews({
+    String? productId,
+    int? rating,
+    DateTime? dateFrom,
+    DateTime? dateTo,
+    bool? onlyFlagged,
   }) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      Query query = FirebaseFirestore.instance
-          .collection('products')
-          .doc(productId)
-          .collection('reviews')
-          .where('isApproved', isEqualTo: true)
-          .where('isFlagged', isEqualTo: false);
-
-      // Apply sorting
-      switch (sortBy) {
-        case 'highest':
-          query = query.orderBy('rating', descending: true);
-          break;
-        case 'lowest':
-          query = query.orderBy('rating', descending: false);
-          break;
-        case 'helpful':
-          query = query.orderBy('helpfulCount', descending: true);
-          break;
-        case 'recent':
-        default:
-          query = query.orderBy('createdAt', descending: true);
-      }
-
-      query = query.limit(limit);
-
-      if (startAfter != null) {
-        query = query.startAfterDocument(startAfter);
-      }
-
-      final snapshot = await query.get();
-      _reviews = snapshot.docs
-          .map((doc) => ProductReviewModel.fromMap(doc.data() as Map<String, dynamic>))
-          .toList();
-
-      _calculateRatingDistribution(productId);
+      _productReviews = await _reviewService.getProductReviews(
+        productId: productId,
+        rating: rating,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        onlyFlagged: onlyFlagged,
+      );
       _isLoading = false;
       notifyListeners();
+      return true;
     } catch (e) {
       _error = e.toString();
       _isLoading = false;
       notifyListeners();
+      return false;
     }
   }
 
-  /// Calculate rating distribution for a product
-  Future<void> _calculateRatingDistribution(String productId) async {
-    try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('products')
-          .doc(productId)
-          .collection('reviews')
-          .where('isApproved', isEqualTo: true)
-          .where('isFlagged', isEqualTo: false)
-          .get();
-
-      _ratingDistribution = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0};
-      double totalRating = 0;
-
-      for (var doc in snapshot.docs) {
-        final review = ProductReviewModel.fromMap(doc.data());
-        final rating = review.rating.toInt();
-        if (_ratingDistribution.containsKey(rating)) {
-          _ratingDistribution[rating] = _ratingDistribution[rating]! + 1;
-        }
-        totalRating += review.rating;
-      }
-
-      _averageRating = snapshot.docs.isEmpty ? 0 : totalRating / snapshot.docs.length;
-      notifyListeners();
-    } catch (e) {
-      _error = e.toString();
-      notifyListeners();
-    }
-  }
-
-  /// Submit a new review
-  Future<void> submitReview(ProductReviewModel review) async {
+  Future<bool> loadOrderReviews(String orderId) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      await _productService.addProductReview(review);
+      _productReviews = await _reviewService.getOrderReviews(orderId);
       _isLoading = false;
       notifyListeners();
+      return true;
     } catch (e) {
       _error = e.toString();
       _isLoading = false;
       notifyListeners();
-      rethrow;
+      return false;
     }
   }
 
-  /// Add shop owner response to a review
-  Future<void> addOwnerResponse(String productId, String reviewId, String response) async {
+  Future<bool> canReviewOrder(String orderId) async {
     try {
-      await FirebaseFirestore.instance
-          .collection('products')
-          .doc(productId)
-          .collection('reviews')
-          .doc(reviewId)
-          .update({'ownerReply': response, 'ownerReplyDate': FieldValue.serverTimestamp()});
-      notifyListeners();
-    } catch (e) {
-      _error = e.toString();
-      notifyListeners();
-      rethrow;
-    }
-  }
-
-  /// Flag a review for moderation
-  Future<void> flagReview(String productId, String reviewId, List<String> reasons) async {
-    try {
-      await FirebaseFirestore.instance
-          .collection('products')
-          .doc(productId)
-          .collection('reviews')
-          .doc(reviewId)
-          .update({'isFlagged': true, 'flagReasons': reasons});
-      notifyListeners();
-    } catch (e) {
-      _error = e.toString();
-      notifyListeners();
-      rethrow;
-    }
-  }
-
-  /// Mark review as helpful
-  Future<void> markAsHelpful(String productId, String reviewId) async {
-    try {
-      await FirebaseFirestore.instance
-          .collection('products')
-          .doc(productId)
-          .collection('reviews')
-          .doc(reviewId)
-          .update({'helpfulCount': FieldValue.increment(1)});
-      notifyListeners();
-    } catch (e) {
-      _error = e.toString();
-      notifyListeners();
-      rethrow;
-    }
-  }
-
-  /// Check if user has already reviewed this product from a specific order
-  Future<bool> hasUserReviewedProduct(String productId, String userId, String orderId) async {
-    try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('products')
-          .doc(productId)
-          .collection('reviews')
-          .where('userId', isEqualTo: userId)
-          .where('orderId', isEqualTo: orderId)
-          .get();
-
-      return snapshot.docs.isNotEmpty;
+      return await _reviewService.canReviewOrder(orderId);
     } catch (e) {
       _error = e.toString();
       notifyListeners();
@@ -196,62 +112,79 @@ class ReviewProvider extends ChangeNotifier {
     }
   }
 
-  /// Get reviews for moderation (admin)
-  Future<List<ProductReviewModel>> getFlaggedReviews() async {
+  Future<bool> flagReview(String reviewId, String reason) async {
     try {
-      final snapshot = await FirebaseFirestore.instance
-          .collectionGroup('reviews')
-          .where('isFlagged', isEqualTo: true)
-          .orderBy('createdAt', descending: true)
-          .get();
-
-      return snapshot.docs.map((doc) => ProductReviewModel.fromMap(doc.data())).toList();
+      final updated = await _reviewService.flagReview(reviewId, reason);
+      final index = _productReviews.indexWhere((r) => r.id == reviewId);
+      if (index != -1) {
+        _productReviews[index] = updated;
+        notifyListeners();
+      }
+      return true;
     } catch (e) {
       _error = e.toString();
       notifyListeners();
-      return [];
+      return false;
     }
   }
 
-  /// Approve a flagged review (admin)
-  Future<void> approveReview(String productId, String reviewId) async {
+  Future<bool> resolveReview(String reviewId) async {
     try {
-      await FirebaseFirestore.instance
-          .collection('products')
-          .doc(productId)
-          .collection('reviews')
-          .doc(reviewId)
-          .update({'isFlagged': false, 'isApproved': true});
-      notifyListeners();
+      final updated = await _reviewService.resolveReview(reviewId);
+      final index = _productReviews.indexWhere((r) => r.id == reviewId);
+      if (index != -1) {
+        _productReviews[index] = updated;
+        notifyListeners();
+      }
+      return true;
     } catch (e) {
       _error = e.toString();
       notifyListeners();
-      rethrow;
+      return false;
     }
   }
 
-  /// Hide a review (admin)
-  Future<void> hideReview(String productId, String reviewId) async {
+  Future<Map<String, dynamic>?> getProductStats(String productId) async {
     try {
-      await FirebaseFirestore.instance
-          .collection('products')
-          .doc(productId)
-          .collection('reviews')
-          .doc(reviewId)
-          .update({'isApproved': false});
-      notifyListeners();
+      return await _reviewService.getProductStats(productId);
     } catch (e) {
       _error = e.toString();
       notifyListeners();
-      rethrow;
+      return null;
     }
   }
 
-  /// Clear reviews list
-  void clearReviews() {
-    _reviews = [];
-    _ratingDistribution = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0};
-    _averageRating = 0.0;
+  Future<bool> loadEmployeeFeedback(String employeeId) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _deliveryFeedback =
+          await _reviewService.getEmployeeFeedback(employeeId);
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getEmployeeStats(String employeeId) async {
+    try {
+      return await _reviewService.getEmployeeStats(employeeId);
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return null;
+    }
+  }
+
+  void clearError() {
+    _error = null;
     notifyListeners();
   }
 }
