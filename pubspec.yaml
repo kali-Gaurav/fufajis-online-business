@@ -98,7 +98,7 @@ dependencies:
   bcrypt: ^1.2.0
 
   # Charts & Analytics
-  fl_chart: ^1.2.0
+  fl_chart: ^1.0.0
 
   # PDF & Documents
   pdf: ^3.0.0
