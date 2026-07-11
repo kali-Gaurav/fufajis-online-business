@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../providers/support_provider.dart';
+import '../../services/storage_service.dart';
+import '../../utils/app_theme.dart';
+import 'dart:io';
 
 class IssueReportScreen extends StatefulWidget {
   final String orderId;
@@ -16,8 +19,12 @@ class _IssueReportScreenState extends State<IssueReportScreen> {
   String? selectedIssueType;
   final descriptionController = TextEditingController();
   final List<String> photoUrls = [];
+  final List<File> _photoFiles = [];
   final Set<String> selectedEvidence = {};
   bool isSubmitting = false;
+  bool _isUploadingImage = false;
+  final _storageService = StorageService();
+  final _imagePicker = ImagePicker();
 
   final List<Map<String, String>> issueTypes = [
     {'type': 'missing', 'label': 'Item Missing', 'icon': '📦'},
@@ -140,28 +147,32 @@ class _IssueReportScreenState extends State<IssueReportScreen> {
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () => _pickImage(ImageSource.camera),
+                    onPressed: _isUploadingImage ? null : () => _pickImage(ImageSource.camera),
                     icon: const Icon(Icons.camera_alt),
-                    label: const Text('Take Photo'),
+                    label: _isUploadingImage
+                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Text('Take Photo'),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () => _pickImage(ImageSource.gallery),
+                    onPressed: _isUploadingImage ? null : () => _pickImage(ImageSource.gallery),
                     icon: const Icon(Icons.image),
-                    label: const Text('Upload'),
+                    label: _isUploadingImage
+                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Text('Upload'),
                   ),
                 ),
               ],
             ),
-            if (photoUrls.isNotEmpty) ...[
+            if (_photoFiles.isNotEmpty) ...[
               const SizedBox(height: 12),
               SizedBox(
                 height: 80,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: photoUrls.length,
+                  itemCount: _photoFiles.length,
                   itemBuilder: (context, index) {
                     return Padding(
                       padding: const EdgeInsets.only(right: 8),
@@ -174,8 +185,8 @@ class _IssueReportScreenState extends State<IssueReportScreen> {
                               borderRadius: BorderRadius.circular(8),
                               color: Colors.grey.shade200,
                             ),
-                            child: Image.network(
-                              photoUrls[index],
+                            child: Image.file(
+                              _photoFiles[index],
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -185,6 +196,7 @@ class _IssueReportScreenState extends State<IssueReportScreen> {
                             child: GestureDetector(
                               onTap: () {
                                 setState(() {
+                                  _photoFiles.removeAt(index);
                                   photoUrls.removeAt(index);
                                 });
                               },
@@ -247,7 +259,7 @@ class _IssueReportScreenState extends State<IssueReportScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: isSubmitting || selectedIssueType == null || descriptionController.text.isEmpty
+                onPressed: isSubmitting || _isUploadingImage || selectedIssueType == null || descriptionController.text.isEmpty
                     ? null
                     : _submitReport,
                 child: isSubmitting
@@ -267,13 +279,68 @@ class _IssueReportScreenState extends State<IssueReportScreen> {
 
   Future<void> _pickImage(ImageSource source) async {
     try {
-      // TODO: Implement image picker and upload to Firebase Storage
-      // For now, just show a message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Image picker coming soon')),
+      setState(() => _isUploadingImage = true);
+
+      final pickedFile = await _imagePicker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
       );
+
+      if (pickedFile == null) {
+        setState(() => _isUploadingImage = false);
+        return;
+      }
+
+      final file = File(pickedFile.path);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Uploading image...'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+
+      final downloadUrl = await _storageService.uploadImage(file, 'issue_reports');
+
+      if (downloadUrl != null && mounted) {
+        setState(() {
+          _photoFiles.add(file);
+          photoUrls.add(downloadUrl);
+          _isUploadingImage = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Photo uploaded successfully'),
+            duration: Duration(seconds: 1),
+            backgroundColor: AppTheme.success,
+          ),
+        );
+      } else if (mounted) {
+        setState(() => _isUploadingImage = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Failed to upload image'),
+            duration: const Duration(seconds: 2),
+            backgroundColor: AppTheme.error,
+          ),
+        );
+      }
     } catch (e) {
-      print('Error picking image: $e');
+      if (mounted) {
+        setState(() => _isUploadingImage = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            duration: const Duration(seconds: 2),
+            backgroundColor: AppTheme.error,
+          ),
+        );
+      }
     }
   }
 
