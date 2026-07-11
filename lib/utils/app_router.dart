@@ -141,6 +141,10 @@ import '../screens/vendor/vendor_payout_screen.dart';
 import '../screens/vendor/vendor_commission_autopayout_screen.dart';
 import '../screens/vendor/vendor_dispute_resolution_screen.dart';
 import '../screens/admin/admin_vendor_approval_screen.dart';
+import '../screens/customer/subscription_checkout_screen.dart';
+import '../screens/customer/subscription_detail_screen.dart';
+import '../screens/customer/subscription_retention_screen.dart';
+import '../screens/owner/owner_subscription_dashboard.dart';
 
 /// Combines multiple [Listenable]s into one so GoRouter re-evaluates
 /// its redirect when either AuthProvider OR GuestProvider changes state.
@@ -423,6 +427,26 @@ class AppRouter {
                 FufajiPageTransition(key: state.pageKey, child: const SubscriptionScreen()),
           ),
           GoRoute(
+            path: '/customer/subscription-detail/:subscriptionId',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(
+                  key: state.pageKey,
+                  child: SubscriptionDetailScreen(
+                    subscriptionId: state.pathParameters['subscriptionId'] ?? '',
+                  ),
+                ),
+          ),
+          GoRoute(
+            path: '/customer/subscription-checkout',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const SubscriptionCheckoutScreen()),
+          ),
+          GoRoute(
+            path: '/customer/subscription-retention',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const SubscriptionRetentionScreen()),
+          ),
+          GoRoute(
             path: '/customer/identity',
             pageBuilder: (context, state) =>
                 FufajiPageTransition(key: state.pageKey, child: const IdentityContactsScreen()),
@@ -654,6 +678,10 @@ class AppRouter {
           GoRoute(
             path: '/owner/inventory-visual',
             builder: (context, state) => const InventoryVisualImprovementsScreen(),
+          ),
+          GoRoute(
+            path: '/owner/subscriptions',
+            builder: (context, state) => const OwnerSubscriptionDashboard(),
           ),
         ],
       ),
