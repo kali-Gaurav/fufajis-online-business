@@ -133,6 +133,14 @@ import '../screens/customer/product_card_enhancements_screen.dart';
 import '../screens/owner/owner_dashboard_redesigned.dart';
 import '../screens/owner/inventory_visual_improvements_screen.dart';
 import '../screens/employee/employee_task_board_screen.dart';
+import '../screens/vendor/vendor_signup_screen.dart';
+import '../screens/vendor/vendor_dashboard_screen.dart';
+import '../screens/vendor/vendor_products_management_screen.dart';
+import '../screens/vendor/vendor_orders_screen.dart';
+import '../screens/vendor/vendor_payout_screen.dart';
+import '../screens/vendor/vendor_commission_autopayout_screen.dart';
+import '../screens/vendor/vendor_dispute_resolution_screen.dart';
+import '../screens/admin/admin_vendor_approval_screen.dart';
 
 /// Combines multiple [Listenable]s into one so GoRouter re-evaluates
 /// its redirect when either AuthProvider OR GuestProvider changes state.
@@ -662,6 +670,10 @@ class AppRouter {
             path: '/admin/dead-letter',
             builder: (context, state) => const DeadLetterDashboardScreen(),
           ),
+          GoRoute(
+            path: '/admin/vendor-approvals',
+            builder: (context, state) => const AdminVendorApprovalScreen(),
+          ),
         ],
       ),
 
@@ -784,6 +796,46 @@ class AppRouter {
             builder: (context, state) {
               final employeeId = state.uri.queryParameters['employeeId'];
               return EmployeeTaskBoardScreen(employeeId: employeeId ?? '');
+            },
+          ),
+        ],
+      ),
+
+      // Vendor Routes
+      GoRoute(
+        path: '/vendor/signup',
+        pageBuilder: (context, state) =>
+            FufajiPageTransition(key: state.pageKey, child: const VendorSignupScreen()),
+      ),
+      GoRoute(
+        path: '/vendor',
+        builder: (context, state) => const VendorDashboardScreen(),
+        routes: [
+          GoRoute(
+            path: 'dashboard',
+            builder: (context, state) => const VendorDashboardScreen(),
+          ),
+          GoRoute(
+            path: 'products',
+            builder: (context, state) => const VendorProductsManagementScreen(),
+          ),
+          GoRoute(
+            path: 'orders',
+            builder: (context, state) => const VendorOrdersScreen(),
+          ),
+          GoRoute(
+            path: 'payouts',
+            builder: (context, state) => const VendorPayoutScreen(),
+          ),
+          GoRoute(
+            path: 'autopayout',
+            builder: (context, state) => const VendorCommissionAutopayoutScreen(),
+          ),
+          GoRoute(
+            path: 'disputes',
+            builder: (context, state) {
+              final vendorId = state.uri.queryParameters['vendorId'];
+              return VendorDisputeResolutionScreen(vendorId: vendorId ?? '');
             },
           ),
         ],
