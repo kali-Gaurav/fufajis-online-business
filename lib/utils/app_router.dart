@@ -110,6 +110,7 @@ import '../screens/owner/failed_delivery_escalation_screen.dart';
 import '../screens/delivery/delivery_reschedule_screen.dart';
 import '../screens/rider/rider_route_history_screen.dart';
 import '../screens/customer/wallet_screen.dart';
+import '../screens/customer/wallet_payment_dashboard_screen.dart';
 import '../screens/customer/membership_screen.dart';
 import '../screens/rider/rider_map_screen.dart';
 import '../screens/admin/dead_letter_dashboard_screen.dart';
@@ -392,6 +393,11 @@ class AppRouter {
             builder: (context, state) => const WalletHistoryScreen(),
           ),
           GoRoute(path: '/customer/my-wallet', builder: (context, state) => const WalletScreen()),
+          GoRoute(
+            path: '/customer/wallet-payments',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const WalletPaymentDashboardScreen()),
+          ),
           GoRoute(
             path: '/customer/membership',
             builder: (context, state) => const MembershipScreen(),
