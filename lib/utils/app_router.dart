@@ -40,6 +40,7 @@ import '../screens/customer/order_detail_screen.dart';
 import '../screens/owner/owner_dashboard.dart';
 import '../screens/owner/advanced_performance_dashboard_screen.dart';
 import '../screens/owner/promotion_discount_management_screen.dart';
+import '../screens/owner/customer_segmentation_targeting_screen.dart';
 import '../screens/owner/products_management.dart';
 import '../screens/owner/orders_management.dart';
 import '../screens/owner/inventory_screen.dart';
@@ -551,6 +552,11 @@ class AppRouter {
             path: '/owner/promotions',
             pageBuilder: (context, state) =>
                 FufajiPageTransition(key: state.pageKey, child: const PromotionDiscountManagementScreen()),
+          ),
+          GoRoute(
+            path: '/owner/segmentation',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const CustomerSegmentationTargetingScreen()),
           ),
           GoRoute(
             path: '/owner/packing-terminal',
