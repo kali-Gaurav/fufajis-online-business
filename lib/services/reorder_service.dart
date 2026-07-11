@@ -1,325 +1,331 @@
-import 'package:flutter/foundation.dart';
+import 'package:fufaji/models/inventory_models.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/order_model.dart';
-import '../models/reorder_template_model.dart';
-import '../providers/cart_provider.dart';
-import '../models/product_model.dart';
+import 'package:fufaji/utils/analytics_performance.dart';
+import 'dart:developer' as developer;
 
-/// Production-grade reorder service handling:
-/// - Recent order retrieval for "Buy Again"
-/// - Reorder template CRUD (saved presets like "Weekly Essentials")
-/// - Cart population from orders or templates with real-time price/stock validation
-/// - Auto-template generation from completed orders
-///
-/// Firestore structure:
-///   users/{userId}/reorder_templates/{templateId}
+/// Reorder management service
+/// Handles reorder points, suggestions, and auto-reorder logic
 class ReorderService {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
-
   static final ReorderService _instance = ReorderService._internal();
-  factory ReorderService() => _instance;
+
+  factory ReorderService() {
+    return _instance;
+  }
+
   ReorderService._internal();
 
-  // ─── RECENT ORDERS ──────────────────────────────────────────────────
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final String _collectionPrefix = 'inventory';
 
-  /// Retrieve user's recent completed orders for "Buy Again" display
-  Future<List<OrderModel>> getRecentOrders(String userId, {int limit = 5}) async {
+  // Get reorder point configuration for a product
+  Future<Map<String, dynamic>?> getReorderPoint(String productId) async {
     try {
-      final snapshot = await _db
-          .collection('orders')
-          .where('customerId', isEqualTo: userId)
-          .where('status', isEqualTo: 'OrderStatus.delivered')
-          .orderBy('createdAt', descending: true)
-          .limit(limit)
+      developer.log('Fetching reorder point for product: $productId');
+
+      final doc = await _firestore
+          .collection('$_collectionPrefix/reorder_points')
+          .where('product_id', isEqualTo: productId)
+          .limit(1)
           .get();
 
-      return snapshot.docs.map((doc) => OrderModel.fromMap(doc.data())).toList();
+      if (doc.docs.isEmpty) {
+        return null;
+      }
+
+      return doc.docs.first.data();
     } catch (e) {
-      debugPrint('[ReorderService] Error fetching recent orders: $e');
-      return [];
-    }
-  }
-
-  /// Retrieve the user's last completed order
-  Future<OrderModel?> getLastOrder(String userId) async {
-    final orders = await getRecentOrders(userId, limit: 1);
-    return orders.isNotEmpty ? orders.first : null;
-  }
-
-  // ─── TEMPLATE CRUD ──────────────────────────────────────────────────
-
-  /// Get all saved reorder templates for a user
-  Future<List<ReorderTemplate>> getTemplates(String userId) async {
-    try {
-      final snapshot = await _db
-          .collection('users')
-          .doc(userId)
-          .collection('reorder_templates')
-          .orderBy('updatedAt', descending: true)
-          .get();
-
-      return snapshot.docs.map((doc) => ReorderTemplate.fromMap(doc.data())).toList();
-    } catch (e) {
-      debugPrint('[ReorderService] Error fetching templates: $e');
-      return [];
-    }
-  }
-
-  /// Create or update a reorder template
-  Future<void> saveTemplate(ReorderTemplate template) async {
-    try {
-      await _db
-          .collection('users')
-          .doc(template.userId)
-          .collection('reorder_templates')
-          .doc(template.id)
-          .set(template.toMap(), SetOptions(merge: true));
-    } catch (e) {
-      debugPrint('[ReorderService] Error saving template: $e');
+      developer.log('Error fetching reorder point: $e', error: e);
       rethrow;
     }
   }
 
-  /// Delete a reorder template
-  Future<void> deleteTemplate(String userId, String templateId) async {
+  // Set reorder point for a product
+  Future<void> setReorderPoint({
+    required String productId,
+    required int reorderPoint,
+    required int reorderQuantity,
+    required int leadTimeDays,
+    String? preferredSupplierId,
+    int? maxStockLevel,
+    int? safetyStock,
+    bool autoReorder = true,
+  }) async {
     try {
-      await _db
-          .collection('users')
-          .doc(userId)
-          .collection('reorder_templates')
-          .doc(templateId)
-          .delete();
+      developer.log('Setting reorder point for product: $productId');
+
+      if (reorderPoint <= 0 || reorderQuantity <= 0) {
+        throw Exception('Reorder point and quantity must be positive');
+      }
+
+      final doc = await _firestore
+          .collection('$_collectionPrefix/reorder_points')
+          .where('product_id', isEqualTo: productId)
+          .limit(1)
+          .get();
+
+      final data = {
+        'product_id': productId,
+        'reorder_point': reorderPoint,
+        'reorder_quantity': reorderQuantity,
+        'lead_time_days': leadTimeDays,
+        'preferred_supplier_id': preferredSupplierId,
+        'max_stock_level': maxStockLevel ?? (reorderPoint * 4),
+        'safety_stock': safetyStock ?? (reorderPoint ~/ 2),
+        'auto_reorder': autoReorder,
+        'updated_at': FieldValue.serverTimestamp(),
+      };
+
+      if (doc.docs.isEmpty) {
+        data['created_at'] = FieldValue.serverTimestamp();
+        await _firestore
+            .collection('$_collectionPrefix/reorder_points')
+            .add(data);
+      } else {
+        await _firestore
+            .collection('$_collectionPrefix/reorder_points')
+            .doc(doc.docs.first.id)
+            .update(data);
+      }
+
+      developer.log('Successfully set reorder point for product: $productId');
+      _clearReorderCache();
     } catch (e) {
-      debugPrint('[ReorderService] Error deleting template: $e');
+      developer.log('Error setting reorder point: $e', error: e);
       rethrow;
     }
   }
 
-  /// Auto-generate a template from a completed order
-  Future<ReorderTemplate> createTemplateFromOrder({
-    required OrderModel order,
-    String? customName,
-  }) async {
-    final template = ReorderTemplate.fromOrder(
-      userId: order.customerId,
-      orderId: order.id,
-      orderNumber: order.orderNumber,
-      orderItems: order.items
-          .map(
-            (item) => {
-              'productId': item.productId,
-              'productName': item.productName,
-              'productImage': item.productImage,
-              'unit': item.unit,
-              'quantity': item.quantity,
-              'price': item.price,
-              'selectedVariant': item.selectedVariant,
-            },
-          )
-          .toList(),
-      customName: customName,
-    );
-
-    await saveTemplate(template);
-    return template;
-  }
-
-  /// Increment usage count when a template is reordered
-  Future<void> _incrementUsageCount(ReorderTemplate template) async {
+  // Calculate reorder suggestion for a product
+  Future<ReorderSuggestion?> calculateReorderSuggestion(
+    String productId,
+    int currentStock,
+    double unitCost,
+    String productName,
+  ) async {
     try {
-      await _db
-          .collection('users')
-          .doc(template.userId)
-          .collection('reorder_templates')
-          .doc(template.id)
-          .update({
-            'usageCount': FieldValue.increment(1),
-            'updatedAt': FieldValue.serverTimestamp(),
-          });
-    } catch (e) {
-      debugPrint('[ReorderService] Error updating usage count: $e');
-    }
-  }
+      developer.log('Calculating reorder suggestion for product: $productId');
 
-  // ─── CART POPULATION ────────────────────────────────────────────────
-
-  /// Populate cart from a previous order with real-time price/stock validation
-  /// Returns a report of what was added vs. what was unavailable
-  Future<ReorderResult> populateCartFromOrder({
-    required OrderModel order,
-    required CartProvider cartProvider,
-  }) async {
-    final List<String> addedItems = [];
-    final List<String> unavailableItems = [];
-    final List<String> priceChangedItems = [];
-
-    try {
-      cartProvider.clearCart();
-
-      for (var item in order.items) {
-        final prodDoc = await _db.collection('products').doc(item.productId).get();
-
-        if (!prodDoc.exists) {
-          unavailableItems.add(item.productName);
-          continue;
-        }
-
-        final product = ProductModel.fromMap(prodDoc.data()!);
-
-        // Check stock availability
-        if (!product.isAvailable || product.stockQuantity <= 0) {
-          unavailableItems.add(item.productName);
-          continue;
-        }
-
-        // Track price changes
-        if ((product.price.toDouble() - item.price.toDouble()).abs() > 0.5) {
-          priceChangedItems.add(
-            '${item.productName}: ₹${item.price.round()} → ₹${product.price.round()}',
-          );
-        }
-
-        // Match unit option variant
-        ProductUnitOption? matchedOption;
-        if (item.selectedVariant != null) {
-          final options = product.unitOptions.where((opt) => opt.id == item.selectedVariant);
-          if (options.isNotEmpty) {
-            matchedOption = options.first;
-          }
-        }
-
-        // Clamp quantity to available stock
-        final safeQuantity = item.quantity.clamp(1, product.stockQuantity);
-
-        cartProvider.addToCart(product, quantity: safeQuantity, selectedUnit: matchedOption);
-        addedItems.add(item.productName);
+      final reorderConfig = await getReorderPoint(productId);
+      if (reorderConfig == null) {
+        developer.log('No reorder configuration found for product: $productId');
+        return null;
       }
 
-      return ReorderResult(
-        success: addedItems.isNotEmpty,
-        addedItems: addedItems,
-        unavailableItems: unavailableItems,
-        priceChangedItems: priceChangedItems,
+      final reorderPoint = reorderConfig['reorder_point'] as int;
+      final reorderQuantity = reorderConfig['reorder_quantity'] as int;
+      final leadTimeDays = reorderConfig['lead_time_days'] as int? ?? 2;
+      final preferredSupplierId = reorderConfig['preferred_supplier_id'] as String?;
+      final autoReorder = reorderConfig['auto_reorder'] as bool? ?? true;
+
+      final needsReorder = currentStock <= reorderPoint;
+      final estimatedCost = (reorderQuantity * unitCost).toDouble();
+
+      return ReorderSuggestion(
+        productId: productId,
+        productName: productName,
+        currentStock: currentStock,
+        reorderPoint: reorderPoint,
+        reorderQuantity: reorderQuantity,
+        maxStockLevel: reorderConfig['max_stock_level'] as int? ?? (reorderPoint * 4),
+        preferredSupplierId: preferredSupplierId,
+        preferredSupplierName: null,
+        leadTimeDays: leadTimeDays,
+        estimatedCost: estimatedCost,
+        autoReorder: autoReorder,
       );
     } catch (e) {
-      debugPrint('[ReorderService] Error populating cart: $e');
-      return ReorderResult(
-        success: false,
-        addedItems: addedItems,
-        unavailableItems: unavailableItems,
-        priceChangedItems: priceChangedItems,
-        error: e.toString(),
-      );
+      developer.log('Error calculating reorder suggestion: $e', error: e);
+      rethrow;
     }
   }
 
-  /// Populate cart from a saved template
-  Future<ReorderResult> populateCartFromTemplate({
-    required ReorderTemplate template,
-    required CartProvider cartProvider,
-  }) async {
-    final List<String> addedItems = [];
-    final List<String> unavailableItems = [];
-    final List<String> priceChangedItems = [];
-
+  // Get all reorder suggestions (cached)
+  Future<List<ReorderSuggestion>> getReorderSuggestions() async {
     try {
-      cartProvider.clearCart();
+      developer.log('Fetching all reorder suggestions');
 
-      for (var item in template.items) {
-        final prodDoc = await _db.collection('products').doc(item.productId).get();
-
-        if (!prodDoc.exists) {
-          unavailableItems.add(item.productName);
-          continue;
-        }
-
-        final product = ProductModel.fromMap(prodDoc.data()!);
-
-        if (!product.isAvailable || product.stockQuantity <= 0) {
-          unavailableItems.add(item.productName);
-          continue;
-        }
-
-        if ((product.price.toDouble() - item.lastPrice.toDouble()).abs() > 0.5) {
-          priceChangedItems.add(
-            '${item.productName}: ₹${item.lastPrice.round()} → ₹${product.price.round()}',
-          );
-        }
-
-        ProductUnitOption? matchedOption;
-        if (item.selectedVariant != null) {
-          final options = product.unitOptions.where((opt) => opt.id == item.selectedVariant);
-          if (options.isNotEmpty) {
-            matchedOption = options.first;
-          }
-        }
-
-        final safeQuantity = item.quantity.clamp(1, product.stockQuantity);
-
-        cartProvider.addToCart(product, quantity: safeQuantity, selectedUnit: matchedOption);
-        addedItems.add(item.productName);
+      final cached = AnalyticsPerformance.getCachedValue<List<ReorderSuggestion>>('reorder_suggestions');
+      if (cached != null) {
+        developer.log('Cache hit for reorder suggestions');
+        return cached;
       }
 
-      // Track usage
-      await _incrementUsageCount(template);
+      final snapshot = await _firestore
+          .collection('$_collectionPrefix/reorder_suggestions')
+          .where('needs_reorder', isEqualTo: true)
+          .orderBy('current_stock', descending: false)
+          .get();
 
-      return ReorderResult(
-        success: addedItems.isNotEmpty,
-        addedItems: addedItems,
-        unavailableItems: unavailableItems,
-        priceChangedItems: priceChangedItems,
-      );
+      final suggestions = snapshot.docs
+          .map((doc) => ReorderSuggestion.fromJson({...doc.data(), 'id': doc.id}))
+          .toList();
+
+      AnalyticsPerformance.setCachedValue('reorder_suggestions', suggestions, Duration(hours: 1));
+
+      return suggestions;
     } catch (e) {
-      debugPrint('[ReorderService] Error populating from template: $e');
-      return ReorderResult(
-        success: false,
-        addedItems: addedItems,
-        unavailableItems: unavailableItems,
-        priceChangedItems: priceChangedItems,
-        error: e.toString(),
-      );
+      developer.log('Error fetching reorder suggestions: $e', error: e);
+      rethrow;
     }
   }
-}
 
-/// Result of a reorder operation with detailed feedback
-class ReorderResult {
-  final bool success;
-  final List<String> addedItems;
-  final List<String> unavailableItems;
-  final List<String> priceChangedItems;
-  final String? error;
+  // Stream reorder suggestions
+  Stream<List<ReorderSuggestion>> streamReorderSuggestions() {
+    developer.log('Streaming reorder suggestions');
 
-  const ReorderResult({
-    required this.success,
-    required this.addedItems,
-    required this.unavailableItems,
-    required this.priceChangedItems,
-    this.error,
-  });
+    return _firestore
+        .collection('$_collectionPrefix/reorder_suggestions')
+        .where('needs_reorder', isEqualTo: true)
+        .orderBy('current_stock', descending: false)
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs
+              .map((doc) => ReorderSuggestion.fromJson({...doc.data(), 'id': doc.id}))
+              .toList();
+        })
+        .handleError((e) {
+          developer.log('Stream error for reorder suggestions: $e', error: e);
+        });
+  }
 
-  bool get hasUnavailableItems => unavailableItems.isNotEmpty;
-  bool get hasPriceChanges => priceChangedItems.isNotEmpty;
+  // Trigger auto-reorder if conditions are met
+  Future<bool> autoReorderIfNeeded(String productId) async {
+    try {
+      developer.log('Checking auto-reorder conditions for product: $productId');
 
-  /// User-friendly summary message
-  String get summaryMessage {
-    if (!success && error != null) return 'Failed to reorder: $error';
-    if (addedItems.isEmpty) return 'None of the items are currently available.';
+      final reorderConfig = await getReorderPoint(productId);
+      if (reorderConfig == null) {
+        developer.log('No reorder configuration for product: $productId');
+        return false;
+      }
 
-    final parts = <String>[];
-    parts.add('${addedItems.length} item${addedItems.length > 1 ? 's' : ''} added to cart.');
+      final autoReorder = reorderConfig['auto_reorder'] as bool? ?? false;
+      if (!autoReorder) {
+        developer.log('Auto-reorder disabled for product: $productId');
+        return false;
+      }
 
-    if (hasUnavailableItems) {
-      parts.add(
-        '${unavailableItems.length} item${unavailableItems.length > 1 ? 's' : ''} unavailable.',
-      );
+      final stockDoc = await _firestore
+          .collection('$_collectionPrefix/stock_levels/products')
+          .doc(productId)
+          .get();
+
+      if (!stockDoc.exists) {
+        developer.log('Stock level not found for product: $productId');
+        return false;
+      }
+
+      final currentStock = stockDoc['available_quantity'] as int? ?? 0;
+      final reorderPoint = reorderConfig['reorder_point'] as int;
+
+      if (currentStock > reorderPoint) {
+        developer.log('Stock level above reorder point for product: $productId');
+        return false;
+      }
+
+      developer.log('Auto-reorder triggered for product: $productId');
+      return true;
+    } catch (e) {
+      developer.log('Error checking auto-reorder conditions: $e', error: e);
+      rethrow;
     }
-    if (hasPriceChanges) {
-      parts.add(
-        '${priceChangedItems.length} price${priceChangedItems.length > 1 ? 's' : ''} updated.',
-      );
-    }
+  }
 
-    return parts.join(' ');
+  // Get reorder analytics
+  Future<Map<String, dynamic>> getReorderMetrics() async {
+    try {
+      developer.log('Fetching reorder metrics');
+
+      final snapshot = await _firestore
+          .collection('$_collectionPrefix/reorder_suggestions')
+          .get();
+
+      int totalSuggestions = 0;
+      int needsReorder = 0;
+      double totalEstimatedCost = 0;
+
+      for (final doc in snapshot.docs) {
+        totalSuggestions++;
+
+        if (doc['needs_reorder'] as bool? ?? false) {
+          needsReorder++;
+        }
+
+        totalEstimatedCost += doc['estimated_cost'] as num? ?? 0;
+      }
+
+      return {
+        'total_suggestions': totalSuggestions,
+        'needs_reorder': needsReorder,
+        'sufficient_stock': totalSuggestions - needsReorder,
+        'total_estimated_cost': totalEstimatedCost,
+        'average_cost_per_order': needsReorder > 0 ? totalEstimatedCost / needsReorder : 0,
+      };
+    } catch (e) {
+      developer.log('Error fetching reorder metrics: $e', error: e);
+      rethrow;
+    }
+  }
+
+  // Get products by urgency level
+  Future<Map<String, List<String>>> getProductsByUrgency() async {
+    try {
+      developer.log('Fetching products by urgency level');
+
+      final snapshot = await _firestore
+          .collection('$_collectionPrefix/reorder_suggestions')
+          .orderBy('current_stock', descending: false)
+          .get();
+
+      final critical = <String>[];
+      final high = <String>[];
+      final medium = <String>[];
+      final low = <String>[];
+
+      for (final doc in snapshot.docs) {
+        final productId = doc.id;
+        final currentStock = doc['current_stock'] as int? ?? 0;
+        final reorderPoint = doc['reorder_point'] as int? ?? 10;
+
+        if (currentStock == 0) {
+          critical.add(productId);
+        } else if (currentStock < reorderPoint) {
+          high.add(productId);
+        } else if (currentStock < (reorderPoint * 2)) {
+          medium.add(productId);
+        } else {
+          low.add(productId);
+        }
+      }
+
+      return {
+        'critical': critical,
+        'high': high,
+        'medium': medium,
+        'low': low,
+      };
+    } catch (e) {
+      developer.log('Error fetching products by urgency: $e', error: e);
+      rethrow;
+    }
+  }
+
+  // Calculate optimal reorder quantity based on demand
+  int calculateOptimalReorderQuantity(
+    int dailyAverageDemand,
+    int leadTimeDays,
+    int safetyStock,
+  ) {
+    developer.log('Calculating optimal reorder quantity');
+
+    const safetyFactor = 1.5;
+    final reorderQuantity = (dailyAverageDemand * (leadTimeDays + safetyFactor)).toInt();
+
+    return reorderQuantity.clamp(1, 999999);
+  }
+
+  void _clearReorderCache() {
+    developer.log('Clearing reorder cache');
+    AnalyticsPerformance.clearCacheKey('reorder_suggestions');
   }
 }

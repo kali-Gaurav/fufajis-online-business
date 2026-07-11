@@ -17,6 +17,13 @@ class DeliveryAgent {
   final DateTime createdAt;
   final String? branchId;
 
+  // Iteration 6: Order Tracking
+  final String? photoUrl;
+  final double onTimeRate; // percentage 0-100
+  final String? vehicleType; // "motorcycle", "scooter", "van"
+  final String? vehiclePlate;
+  final int currentWorkload; // number of active deliveries
+
   DeliveryAgent({
     required this.id,
     required this.name,
@@ -32,6 +39,11 @@ class DeliveryAgent {
     this.lastLocationUpdate,
     required this.createdAt,
     this.branchId,
+    this.photoUrl,
+    this.onTimeRate = 95.0,
+    this.vehicleType,
+    this.vehiclePlate,
+    this.currentWorkload = 0,
   });
 
   /// Convert DeliveryAgent to Map for Firestore
@@ -53,6 +65,11 @@ class DeliveryAgent {
           : null,
       'createdAt': Timestamp.fromDate(createdAt),
       'branchId': branchId,
+      'photoUrl': photoUrl,
+      'onTimeRate': onTimeRate,
+      'vehicleType': vehicleType,
+      'vehiclePlate': vehiclePlate,
+      'currentWorkload': currentWorkload,
     };
   }
 
@@ -77,6 +94,11 @@ class DeliveryAgent {
           ? (map['createdAt'] as Timestamp).toDate()
           : DateTime.now(),
       branchId: map['branchId'] as String?,
+      photoUrl: map['photoUrl'] as String?,
+      onTimeRate: (map['onTimeRate'] as num?)?.toDouble() ?? 95.0,
+      vehicleType: map['vehicleType'] as String?,
+      vehiclePlate: map['vehiclePlate'] as String?,
+      currentWorkload: (map['currentWorkload'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -96,6 +118,11 @@ class DeliveryAgent {
     DateTime? lastLocationUpdate,
     DateTime? createdAt,
     String? branchId,
+    String? photoUrl,
+    double? onTimeRate,
+    String? vehicleType,
+    String? vehiclePlate,
+    int? currentWorkload,
   }) {
     return DeliveryAgent(
       id: id ?? this.id,
@@ -112,6 +139,15 @@ class DeliveryAgent {
       lastLocationUpdate: lastLocationUpdate ?? this.lastLocationUpdate,
       createdAt: createdAt ?? this.createdAt,
       branchId: branchId ?? this.branchId,
+      photoUrl: photoUrl ?? this.photoUrl,
+      onTimeRate: onTimeRate ?? this.onTimeRate,
+      vehicleType: vehicleType ?? this.vehicleType,
+      vehiclePlate: vehiclePlate ?? this.vehiclePlate,
+      currentWorkload: currentWorkload ?? this.currentWorkload,
     );
   }
+
+  bool canAcceptOrder() => isAvailable && currentWorkload < 4;
+
+  double getReliabilityScore() => (rating / 5.0 * 0.6) + (onTimeRate / 100.0 * 0.4);
 }

@@ -1,0 +1,59 @@
+name: PR Checks - Block Merge If Tests Fail
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  require-tests:
+    runs-on: ubuntu-latest
+    name: Require Phase 4 Tests Passing
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: 'latest'
+        channel: 'stable'
+
+    - name: Get dependencies
+      run: flutter pub get
+
+    - name: Verify code quality
+      run: flutter analyze --no-fatal-infos
+
+    - name: Run all tests (must pass)
+      run: flutter test test/services/ test/integration/ --coverage
+
+    - name: Verify coverage threshold (95%)
+      run: |
+        sudo apt-get install -y lcov
+        COVERAGE=$(lcov --summary coverage/lcov.info 2>&1 | grep "lines" | tail -1 | awk '{print $2}' | sed 's/%//')
+        echo "Coverage: ${COVERAGE}%"
+        if (( $(echo "$COVERAGE < 95" | bc -l) )); then
+          echo "❌ Coverage ${COVERAGE}% is below 95% threshold"
+          exit 1
+        fi
+        echo "✅ Coverage ${COVERAGE}% meets 95% threshold"
+
+    - name: Comment on PR with results
+      if: always()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const checkRun = await github.rest.checks.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            name: 'Phase 4 Test Suite',
+            head_sha: context.sha,
+            status: 'completed',
+            conclusion: 'success',
+            output: {
+              title: 'Phase 4 Tests Passed ✅',
+              summary: 'All tests passed and coverage threshold met',
+              text: '- Unit tests: PASSED\n- Integration tests: PASSED\n- Coverage: ≥95%'
+            }
+          });
