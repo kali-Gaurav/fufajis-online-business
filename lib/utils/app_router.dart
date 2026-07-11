@@ -139,6 +139,7 @@ import '../screens/vendor/vendor_products_management_screen.dart';
 import '../screens/vendor/vendor_orders_screen.dart';
 import '../screens/vendor/vendor_payout_screen.dart';
 import '../screens/vendor/vendor_commission_autopayout_screen.dart';
+import '../screens/vendor/vendor_commission_dashboard_screen.dart';
 import '../screens/vendor/vendor_dispute_resolution_screen.dart';
 import '../screens/admin/admin_vendor_approval_screen.dart';
 import '../screens/customer/subscription_checkout_screen.dart';
@@ -874,6 +875,14 @@ class AppRouter {
           ),
           GoRoute(
             path: 'autopayout',
+            builder: (context, state) => const VendorCommissionAutopayoutScreen(),
+          ),
+          GoRoute(
+            path: 'commission',
+            builder: (context, state) => const VendorCommissionDashboardScreen(),
+          ),
+          GoRoute(
+            path: 'payout-settings',
             builder: (context, state) => const VendorCommissionAutopayoutScreen(),
           ),
           GoRoute(
