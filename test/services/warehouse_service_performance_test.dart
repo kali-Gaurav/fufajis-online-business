@@ -9,7 +9,7 @@ void main() {
       warehouseService = WarehouseService();
     });
 
-    test('✅ Performance: Warehouse inventory retrieval should be fast', () async {
+    test('Performance: Warehouse inventory retrieval should be fast', () async {
       final stopwatch = Stopwatch()..start();
 
       // Simulate retrieving inventory from multiple shelves
@@ -26,7 +26,7 @@ void main() {
       expect(stopwatch.elapsedMilliseconds, lessThan(1000));
     });
 
-    test('✅ Performance: Location search should be efficient', () {
+    test('Performance: Location search should be efficient', () {
       // Test that location searches don't cause performance degradation
       final locations = List.generate(1000, (i) => 'location_$i');
 

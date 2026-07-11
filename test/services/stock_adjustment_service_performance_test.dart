@@ -9,7 +9,7 @@ void main() {
       stockAdjustmentService = StockAdjustmentService();
     });
 
-    test('✅ Performance: Batch stock adjustments should complete efficiently', () async {
+    test('Performance: Batch stock adjustments should complete efficiently', () async {
       final stopwatch = Stopwatch()..start();
 
       // Simulate 500 stock adjustments
@@ -24,7 +24,7 @@ void main() {
       expect(stopwatch.elapsedMilliseconds, lessThan(5000));
     });
 
-    test('✅ Performance: Stock level calculations should be O(1)', () {
+    test('Performance: Stock level calculations should be O(1)', () {
       final currentStock = 1000;
       final reserved = 100;
       final available = currentStock - reserved;
@@ -32,7 +32,7 @@ void main() {
       expect(available, equals(900));
     });
 
-    test('✅ Performance: Multiple concurrent adjustments should be thread-safe', () async {
+    test('Performance: Multiple concurrent adjustments should be thread-safe', () async {
       final futures = <Future>[];
 
       for (var i = 0; i < 100; i++) {

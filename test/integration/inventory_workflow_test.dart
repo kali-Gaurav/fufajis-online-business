@@ -14,7 +14,7 @@ void main() {
       setupFirebaseCoreMocks();
     });
 
-    test('✅ Inventory services can be instantiated', () {
+    test('Inventory services can be instantiated', () {
       // Test that inventory service can be created
       try {
         final inventory = InventoryService();
@@ -25,7 +25,7 @@ void main() {
       }
     });
 
-    test('✅ Supplier service can be instantiated', () {
+    test('Supplier service can be instantiated', () {
       try {
         final supplier = SupplierService();
         expect(supplier, isNotNull);
@@ -35,7 +35,7 @@ void main() {
       }
     });
 
-    test('✅ Reorder service can be instantiated', () {
+    test('Reorder service can be instantiated', () {
       try {
         final reorder = ReorderService();
         expect(reorder, isNotNull);
@@ -44,7 +44,7 @@ void main() {
       }
     });
 
-    test('✅ Purchase order service can be instantiated', () {
+    test('Purchase order service can be instantiated', () {
       try {
         final purchaseOrder = PurchaseOrderService();
         expect(purchaseOrder, isNotNull);
@@ -53,7 +53,7 @@ void main() {
       }
     });
 
-    test('✅ Stock adjustment service can be instantiated', () {
+    test('Stock adjustment service can be instantiated', () {
       try {
         final adjustment = StockAdjustmentService();
         expect(adjustment, isNotNull);
@@ -62,7 +62,7 @@ void main() {
       }
     });
 
-    test('✅ Expiry service can be instantiated', () {
+    test('Expiry service can be instantiated', () {
       try {
         final expiry = ExpiryService();
         expect(expiry, isNotNull);
@@ -71,7 +71,7 @@ void main() {
       }
     });
 
-    test('✅ Warehouse service can be instantiated', () {
+    test('Warehouse service can be instantiated', () {
       try {
         final warehouse = WarehouseService();
         expect(warehouse, isNotNull);
@@ -80,7 +80,7 @@ void main() {
       }
     });
 
-    test('✅ All inventory services are singleton patterns', () {
+    test('All inventory services are singleton patterns', () {
       // Verify singleton pattern for InventoryService
       try {
         final inv1 = InventoryService();
@@ -92,7 +92,7 @@ void main() {
       }
     });
 
-    test('✅ Inventory module integration structure is valid', () {
+    test('Inventory module integration structure is valid', () {
       // Verify the integration structure is sound
       expect(InventoryService, isNotNull);
       expect(SupplierService, isNotNull);

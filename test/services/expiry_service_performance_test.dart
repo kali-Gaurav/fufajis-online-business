@@ -9,7 +9,7 @@ void main() {
       expiryService = ExpiryService();
     });
 
-    test('✅ Performance: Batch expiry checks should complete within threshold', () async {
+    test('Performance: Batch expiry checks should complete within threshold', () async {
       final startTime = DateTime.now();
 
       // Simulate checking 100 products for expiry
@@ -28,7 +28,7 @@ void main() {
       expect(stopwatch.elapsedMilliseconds, lessThan(5000));
     });
 
-    test('✅ Performance: Expiry date calculation should be O(1)', () {
+    test('Performance: Expiry date calculation should be O(1)', () {
       final expiryDate = DateTime.now().add(Duration(days: 30));
       final daysUntilExpiry = expiryDate.difference(DateTime.now()).inDays;
 
