@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:fufaji/models/inventory_models.dart';
-import 'package:fufaji/services/inventory_service.dart';
+import 'package:fufajis_online/models/inventory_models.dart';
+import 'package:fufajis_online/services/inventory_service.dart';
 import 'dart:developer' as developer;
 
 /// Inventory state management provider

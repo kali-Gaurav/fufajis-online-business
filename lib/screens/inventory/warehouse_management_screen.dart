@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fufaji/services/warehouse_service.dart';
+import 'package:fufajis_online/services/warehouse_service.dart';
 
 /// Warehouse Management Screen
 /// Manages bin locations, utilization, and stock counting

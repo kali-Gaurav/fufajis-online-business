@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:fufaji/providers/inventory_provider.dart';
-import 'package:fufaji/services/expiry_service.dart';
+import 'package:fufajis_online/providers/inventory_provider.dart';
+import 'package:fufajis_online/services/expiry_service.dart';
 
 /// Expiry Management Screen
 /// Displays expiry alerts, batch tracking, and disposal workflows

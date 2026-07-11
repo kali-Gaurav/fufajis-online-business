@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:fufaji/providers/inventory_provider.dart';
-import 'package:fufaji/models/inventory_models.dart';
-import 'package:fufaji/widgets/analytics/optimized_metric_card.dart';
-import 'package:fufaji/utils/analytics_performance.dart';
+import 'package:fufajis_online/providers/inventory_provider.dart';
+import 'package:fufajis_online/models/inventory_models.dart';
+import 'package:fufajis_online/widgets/analytics/optimized_metric_card.dart';
+import 'package:fufajis_online/utils/analytics_performance.dart';
 
 /// Inventory Dashboard Screen
 /// Displays real-time stock overview, alerts, and quick actions

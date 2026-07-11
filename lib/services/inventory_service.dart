@@ -1,6 +1,6 @@
-import 'package:fufaji/models/inventory_models.dart';
+import 'package:fufajis_online/models/inventory_models.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fufaji/utils/analytics_performance.dart';
+import 'package:fufajis_online/utils/analytics_performance.dart';
 import 'dart:developer' as developer;
 
 /// Core inventory management service

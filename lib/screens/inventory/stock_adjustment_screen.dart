@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:fufaji/providers/inventory_provider.dart';
-import 'package:fufaji/services/stock_adjustment_service.dart';
+import 'package:fufajis_online/providers/inventory_provider.dart';
+import 'package:fufajis_online/services/stock_adjustment_service.dart';
 
 /// Stock Adjustment Screen
 /// Manages manual inventory adjustments with approval workflow

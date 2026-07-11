@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fufaji/services/inventory_service.dart';
-import 'package:fufaji/services/supplier_service.dart';
-import 'package:fufaji/services/reorder_service.dart';
-import 'package:fufaji/services/purchase_order_service.dart';
-import 'package:fufaji/services/stock_adjustment_service.dart';
-import 'package:fufaji/services/expiry_service.dart';
-import 'package:fufaji/services/warehouse_service.dart';
+import 'package:fufajis_online/services/inventory_service.dart';
+import 'package:fufajis_online/services/supplier_service.dart';
+import 'package:fufajis_online/services/reorder_service.dart';
+import 'package:fufajis_online/services/purchase_order_service.dart';
+import 'package:fufajis_online/services/stock_adjustment_service.dart';
+import 'package:fufajis_online/services/expiry_service.dart';
+import 'package:fufajis_online/services/warehouse_service.dart';
 
 void main() {
   group('Complete Inventory Workflow', () {
