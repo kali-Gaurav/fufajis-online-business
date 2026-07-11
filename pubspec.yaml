@@ -139,7 +139,6 @@ dev_dependencies:
 
 # Using overrides to resolve transitive dependency conflicts between latest versions
 dependency_overrides:
-  timezone: 0.11.0
   xml: ^6.5.0
 
 flutter:
