@@ -49,6 +49,7 @@ import '../screens/owner/attendance_compliance_screen.dart';
 import '../screens/owner/vendor_supplier_management_screen.dart';
 import '../screens/owner/warehouse_logistics_screen.dart';
 import '../screens/owner/quality_compliance_screen.dart';
+import '../screens/owner/reports_analytics_export_screen.dart';
 import '../screens/owner/products_management.dart';
 import '../screens/owner/orders_management.dart';
 import '../screens/owner/inventory_screen.dart';
@@ -605,6 +606,11 @@ class AppRouter {
             path: '/owner/quality-compliance',
             pageBuilder: (context, state) =>
                 FufajiPageTransition(key: state.pageKey, child: const QualityComplianceScreen()),
+          ),
+          GoRoute(
+            path: '/owner/reports-analytics',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const ReportsAnalyticsExportScreen()),
           ),
           GoRoute(
             path: '/owner/packing-terminal',
