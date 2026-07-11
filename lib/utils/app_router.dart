@@ -44,6 +44,7 @@ import '../screens/owner/customer_segmentation_targeting_screen.dart';
 import '../screens/owner/realtime_analytics_dashboard_screen.dart';
 import '../screens/owner/employee_performance_dashboard_screen.dart';
 import '../screens/owner/shift_schedule_management_screen.dart';
+import '../screens/owner/task_assignment_tracking_screen.dart';
 import '../screens/owner/products_management.dart';
 import '../screens/owner/orders_management.dart';
 import '../screens/owner/inventory_screen.dart';
@@ -575,6 +576,11 @@ class AppRouter {
             path: '/owner/shift-schedule',
             pageBuilder: (context, state) =>
                 FufajiPageTransition(key: state.pageKey, child: const ShiftScheduleManagementScreen()),
+          ),
+          GoRoute(
+            path: '/owner/task-assignment',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const TaskAssignmentTrackingScreen()),
           ),
           GoRoute(
             path: '/owner/packing-terminal',
