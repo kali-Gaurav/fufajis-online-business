@@ -38,6 +38,7 @@ import '../screens/customer/notification_center.dart';
 import '../screens/customer/notification_settings_screen.dart';
 import '../screens/customer/order_detail_screen.dart';
 import '../screens/owner/owner_dashboard.dart';
+import '../screens/owner/data_sync_monitor_screen.dart';
 import '../screens/owner/advanced_performance_dashboard_screen.dart';
 import '../screens/owner/promotion_discount_management_screen.dart';
 import '../screens/owner/customer_segmentation_targeting_screen.dart';
@@ -824,6 +825,11 @@ class AppRouter {
             path: '/owner/executive-command-center',
             pageBuilder: (context, state) =>
                 FufajiPageTransition(key: state.pageKey, child: const ExecutiveCommandCenterScreen()),
+          ),
+          GoRoute(
+            path: '/owner/data-sync-monitor',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const DataSyncMonitorScreen()),
           ),
         ],
       ),
