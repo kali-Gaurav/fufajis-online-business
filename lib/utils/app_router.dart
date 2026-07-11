@@ -51,6 +51,7 @@ import '../screens/owner/warehouse_logistics_screen.dart';
 import '../screens/owner/quality_compliance_screen.dart';
 import '../screens/owner/reports_analytics_export_screen.dart';
 import '../screens/delivery/rider_profile_management_screen.dart';
+import '../screens/delivery/intelligent_dispatcher_screen.dart';
 import '../screens/owner/products_management.dart';
 import '../screens/owner/orders_management.dart';
 import '../screens/owner/inventory_screen.dart';
@@ -845,6 +846,11 @@ class AppRouter {
             path: '/delivery/riders',
             pageBuilder: (context, state) =>
                 FufajiPageTransition(key: state.pageKey, child: const RiderProfileManagementScreen()),
+          ),
+          GoRoute(
+            path: '/delivery/dispatcher',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const IntelligentDispatcherScreen()),
           ),
         ],
       ),
