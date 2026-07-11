@@ -60,7 +60,7 @@ dependencies:
   # Location & Maps
   geolocator: ^14.0.3
   geocoding: ^4.0.0
-  google_maps_flutter: ^2.17.1
+  google_maps_flutter: ^2.6.0
   permission_handler: ^12.0.1
   flutter_background_service: ^5.0.10
   workmanager: ^0.7.0
