@@ -46,6 +46,13 @@ import '../screens/owner/workflow_automation_designer_screen.dart';
 import '../screens/owner/customer_engagement_automation_screen.dart';
 import '../screens/owner/dynamic_pricing_engine_screen.dart';
 import '../screens/owner/inventory_auto_replenishment_screen.dart';
+import '../screens/owner/gl_accounting_system_screen.dart';
+import '../screens/owner/tax_management_screen.dart';
+import '../screens/owner/vendor_settlement_screen.dart';
+import '../screens/owner/advanced_rbac_screen.dart';
+import '../screens/owner/staff_performance_screen.dart';
+import '../screens/owner/shift_scheduling_screen.dart';
+import '../screens/owner/compliance_dashboard_screen.dart';
 import '../screens/owner/advanced_performance_dashboard_screen.dart';
 import '../screens/owner/promotion_discount_management_screen.dart';
 import '../screens/owner/customer_segmentation_targeting_screen.dart';
@@ -872,6 +879,46 @@ class AppRouter {
             path: '/owner/auto-replenishment',
             pageBuilder: (context, state) =>
                 FufajiPageTransition(key: state.pageKey, child: const InventoryAutoReplenishmentScreen()),
+          ),
+          GoRoute(
+            path: '/owner/gl-accounting',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const GLAccountingSystemScreen()),
+          ),
+          GoRoute(
+            path: '/owner/tax-management',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const TaxManagementScreen()),
+          ),
+          GoRoute(
+            path: '/owner/vendor-settlement',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const VendorSettlementScreen()),
+          ),
+          GoRoute(
+            path: '/owner/financial-dashboard',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const FinancialDashboardScreen()),
+          ),
+          GoRoute(
+            path: '/owner/advanced-rbac',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const AdvancedRBACScreen()),
+          ),
+          GoRoute(
+            path: '/owner/staff-performance',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const StaffPerformanceScreen()),
+          ),
+          GoRoute(
+            path: '/owner/shift-scheduling',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const ShiftSchedulingScreen()),
+          ),
+          GoRoute(
+            path: '/owner/compliance-dashboard',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const ComplianceDashboardScreen()),
           ),
         ],
       ),
