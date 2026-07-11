@@ -129,6 +129,7 @@ import '../screens/customer/subscription_screen.dart';
 import '../screens/customer/subscription_management_screen.dart';
 import '../screens/customer/identity_contacts_screen.dart';
 import '../screens/customer/refer_earn_screen.dart';
+import '../screens/customer/personalized_recommendations_screen.dart';
 import '../screens/customer/add_review_screen.dart';
 import '../screens/customer/enhanced_delivery_tracking_screen.dart';
 import '../screens/customer/product_card_enhancements_screen.dart';
@@ -481,6 +482,11 @@ class AppRouter {
             path: '/customer/refer',
             pageBuilder: (context, state) =>
                 FufajiPageTransition(key: state.pageKey, child: const ReferEarnScreen()),
+          ),
+          GoRoute(
+            path: '/customer/recommendations',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const PersonalizedRecommendationsScreen()),
           ),
           GoRoute(
             path: '/customer/add-review/:productId',
