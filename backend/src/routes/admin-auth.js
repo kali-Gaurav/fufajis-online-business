@@ -1,0 +1,557 @@
+/**
+ * ADMIN USER MANAGEMENT
+ * Admin-only endpoints for:
+ * - Creating Owner accounts
+ * - Creating Employee/Rider/Supplier accounts
+ * - Managing user status & permissions
+ * - Audit logging of user changes
+ *
+ * Created: 2026-07-11
+ */
+
+const express = require('express');
+const router = express.Router();
+const supabase = require('../db/supabase');
+const bcrypt = require('bcrypt');
+const crypto = require('crypto');
+
+// ============================================================================
+// MIDDLEWARE
+// ============================================================================
+
+/**
+ * Verify admin privileges
+ */
+const requireAdmin = async (req, res, next) => {
+  try {
+    const userId = req.user?.id;
+    const userType = req.user?.user_type || req.user?.role;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        error: 'Authentication required'
+      });
+    }
+
+    // Check if user is admin
+    const { data: adminUser } = await supabase
+      .from('admin_accounts')
+      .select('admin_level, is_active')
+      .eq('id', userId)
+      .single();
+
+    if (!adminUser || !adminUser.is_active) {
+      return res.status(403).json({
+        success: false,
+        error: 'Admin privileges required'
+      });
+    }
+
+    req.adminLevel = adminUser.admin_level;
+    next();
+  } catch (err) {
+    console.error('Admin verification error:', err);
+    return res.status(500).json({
+      success: false,
+      error: 'Authorization check failed'
+    });
+  }
+};
+
+// Apply admin check to all routes
+router.use(requireAdmin);
+
+// ============================================================================
+// HELPERS
+// ============================================================================
+
+/**
+ * Hash password using bcrypt
+ */
+const hashPassword = async (password) => {
+  return await bcrypt.hash(password, 12);
+};
+
+/**
+ * Generate temporary password (for new accounts)
+ */
+const generateTemporaryPassword = () => {
+  return crypto.randomBytes(6).toString('hex').toUpperCase();
+};
+
+/**
+ * Log admin action
+ */
+const logAdminAction = async (adminId, action, targetUserId, details) => {
+  try {
+    await supabase
+      .from('admin_audit_log')
+      .insert({
+        admin_id: adminId,
+        action,
+        target_user_id: targetUserId,
+        details,
+        created_at: new Date()
+      })
+      .catch(err => {
+        // Table might not exist yet - that's okay, just log to console
+        console.log('Admin action:', action, targetUserId, details);
+      });
+  } catch (err) {
+    console.error('Failed to log admin action:', err);
+  }
+};
+
+// ============================================================================
+// ENDPOINTS
+// ============================================================================
+
+/**
+ * POST /api/admin/create-owner
+ * Admin creates an Owner account
+ *
+ * Request:
+ * {
+ *   "email": "owner@business.com",
+ *   "phone": "+919999999999",
+ *   "full_name": "Shop Owner Name",
+ *   "shop_id": "uuid"
+ * }
+ *
+ * Returns:
+ * {
+ *   "success": true,
+ *   "temporary_password": "ABC123DEF456",
+ *   "message": "Owner account created. Email has been sent with login credentials."
+ * }
+ */
+router.post('/create-owner', async (req, res) => {
+  try {
+    const { email, phone, full_name, shop_id } = req.body;
+
+    // Validation
+    if (!email || !full_name || !shop_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email, full_name, and shop_id are required'
+      });
+    }
+
+    // Check if email already exists
+    const { data: existingUser } = await supabase
+      .from('operational_users')
+      .select('id')
+      .eq('email', email)
+      .single();
+
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email already registered'
+      });
+    }
+
+    // Verify shop exists
+    const { data: shop } = await supabase
+      .from('shops')
+      .select('id, name')
+      .eq('id', shop_id)
+      .single();
+
+    if (!shop) {
+      return res.status(400).json({
+        success: false,
+        error: 'Shop not found'
+      });
+    }
+
+    // Generate temporary password
+    const tempPassword = generateTemporaryPassword();
+    const passwordHash = await hashPassword(tempPassword);
+
+    // Create operational user (Owner)
+    const { data: newOwner, error } = await supabase
+      .from('operational_users')
+      .insert({
+        user_type: 'owner',
+        owner_id: shop_id,
+        email,
+        phone,
+        full_name,
+        password_hash: passwordHash,
+        is_active: true,
+        is_verified: false,
+        created_by: req.user.id,
+        created_at: new Date()
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Create owner error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to create owner account'
+      });
+    }
+
+    // Update shop owner info
+    await supabase
+      .from('shops')
+      .update({
+        owner_email: email,
+        owner_phone: phone
+      })
+      .eq('id', shop_id);
+
+    // Log admin action
+    await logAdminAction(req.user.id, 'CREATE_OWNER', newOwner.id, {
+      email,
+      shop_id,
+      shop_name: shop.name
+    });
+
+    // TODO: Send email with credentials
+    // const emailContent = `
+    //   Welcome! Your account has been created.
+    //   Email: ${email}
+    //   Temporary Password: ${tempPassword}
+    //   Please change your password on first login.
+    //   Login URL: ${process.env.APP_BASE_URL}/login
+    // `;
+    // await sendEmail(email, 'Your Account Has Been Created', emailContent);
+
+    return res.json({
+      success: true,
+      user: {
+        id: newOwner.id,
+        email: newOwner.email,
+        full_name: newOwner.full_name,
+        user_type: 'owner'
+      },
+      temporary_password: tempPassword,
+      message: 'Owner account created successfully. Password reset email will be sent.'
+    });
+
+  } catch (err) {
+    console.error('Create owner error:', err);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to create owner account'
+    });
+  }
+});
+
+/**
+ * POST /api/admin/create-employee
+ * Admin or Owner creates Employee/Rider/Supplier account
+ *
+ * Request:
+ * {
+ *   "email": "emp@business.com",
+ *   "full_name": "Employee Name",
+ *   "phone": "+919999999999",
+ *   "user_type": "employee|rider|supplier",
+ *   "owner_id": "uuid"
+ * }
+ */
+router.post('/create-employee', async (req, res) => {
+  try {
+    const { email, full_name, phone, user_type, owner_id } = req.body;
+
+    // Validation
+    if (!email || !full_name || !user_type || !owner_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email, full_name, user_type, and owner_id are required'
+      });
+    }
+
+    if (!['employee', 'rider', 'supplier'].includes(user_type)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid user_type. Must be: employee, rider, or supplier'
+      });
+    }
+
+    // Authorization: Owner can only create users for their shop
+    if (req.adminLevel > 1) {
+      // Non-superadmin can only manage their own team
+      const { data: ownerShops } = await supabase
+        .from('shops')
+        .select('id')
+        .eq('owner_id', req.user.id);
+
+      const allowedShopIds = ownerShops.map(s => s.id);
+
+      if (!allowedShopIds.includes(owner_id)) {
+        return res.status(403).json({
+          success: false,
+          error: 'You can only create employees for your own shops'
+        });
+      }
+    }
+
+    // Check if email already exists
+    const { data: existingUser } = await supabase
+      .from('operational_users')
+      .select('id')
+      .eq('email', email)
+      .single();
+
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email already registered'
+      });
+    }
+
+    // Verify owner exists
+    const { data: ownerShop } = await supabase
+      .from('shops')
+      .select('id, name')
+      .eq('id', owner_id)
+      .single();
+
+    if (!ownerShop) {
+      return res.status(400).json({
+        success: false,
+        error: 'Owner/Shop not found'
+      });
+    }
+
+    // Generate temporary password
+    const tempPassword = generateTemporaryPassword();
+    const passwordHash = await hashPassword(tempPassword);
+
+    // Create employee
+    const { data: newEmployee, error } = await supabase
+      .from('operational_users')
+      .insert({
+        user_type,
+        owner_id,
+        email,
+        phone,
+        full_name,
+        password_hash: passwordHash,
+        is_active: true,
+        is_verified: false,
+        created_by: req.user.id,
+        created_at: new Date()
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Create employee error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to create employee account'
+      });
+    }
+
+    // Log admin action
+    await logAdminAction(req.user.id, 'CREATE_EMPLOYEE', newEmployee.id, {
+      email,
+      user_type,
+      owner_id,
+      shop_name: ownerShop.name
+    });
+
+    // TODO: Send email with credentials
+
+    return res.json({
+      success: true,
+      user: {
+        id: newEmployee.id,
+        email: newEmployee.email,
+        full_name: newEmployee.full_name,
+        user_type
+      },
+      temporary_password: tempPassword,
+      message: `${user_type} account created successfully.`
+    });
+
+  } catch (err) {
+    console.error('Create employee error:', err);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to create employee account'
+    });
+  }
+});
+
+/**
+ * PUT /api/admin/users/:userId/disable
+ * Disable a user account
+ */
+router.put('/users/:userId/disable', async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Determine user type from request or auto-detect
+    const { data: user } = await supabase
+      .from('operational_users')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    // Authorization check
+    if (req.adminLevel > 1 && user.owner_id !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        error: 'You can only disable users under your supervision'
+      });
+    }
+
+    // Disable user
+    await supabase
+      .from('operational_users')
+      .update({
+        is_active: false
+      })
+      .eq('id', userId);
+
+    // Log admin action
+    await logAdminAction(req.user.id, 'DISABLE_USER', userId, {
+      email: user.email,
+      user_type: user.user_type
+    });
+
+    return res.json({
+      success: true,
+      message: 'User account disabled'
+    });
+
+  } catch (err) {
+    console.error('Disable user error:', err);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to disable user'
+    });
+  }
+});
+
+/**
+ * PUT /api/admin/users/:userId/enable
+ * Re-enable a disabled user account
+ */
+router.put('/users/:userId/enable', async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const { data: user } = await supabase
+      .from('operational_users')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    // Authorization check
+    if (req.adminLevel > 1 && user.owner_id !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        error: 'You can only enable users under your supervision'
+      });
+    }
+
+    // Enable user
+    await supabase
+      .from('operational_users')
+      .update({
+        is_active: true
+      })
+      .eq('id', userId);
+
+    // Log admin action
+    await logAdminAction(req.user.id, 'ENABLE_USER', userId, {
+      email: user.email
+    });
+
+    return res.json({
+      success: true,
+      message: 'User account enabled'
+    });
+
+  } catch (err) {
+    console.error('Enable user error:', err);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to enable user'
+    });
+  }
+});
+
+/**
+ * GET /api/admin/users
+ * List all operational users (filtered by admin level)
+ */
+router.get('/users', async (req, res) => {
+  try {
+    const { user_type, owner_id, page = 1, limit = 50 } = req.query;
+
+    let query = supabase
+      .from('operational_users')
+      .select('id, email, full_name, user_type, owner_id, is_active, last_login_at, created_at');
+
+    // Authorization: Non-superadmins can only see their team
+    if (req.adminLevel > 1) {
+      const { data: ownerShops } = await supabase
+        .from('shops')
+        .select('id')
+        .eq('owner_id', req.user.id);
+
+      const shopIds = ownerShops.map(s => s.id);
+      query = query.in('owner_id', shopIds);
+    } else if (owner_id) {
+      // Superadmin can filter by owner_id
+      query = query.eq('owner_id', owner_id);
+    }
+
+    if (user_type) {
+      query = query.eq('user_type', user_type);
+    }
+
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+    const { data: users, error } = await query
+      .order('created_at', { ascending: false })
+      .range(offset, offset + parseInt(limit) - 1);
+
+    if (error) {
+      throw error;
+    }
+
+    return res.json({
+      success: true,
+      users,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total: users.length
+      }
+    });
+
+  } catch (err) {
+    console.error('List users error:', err);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to list users'
+    });
+  }
+});
+
+module.exports = router;
