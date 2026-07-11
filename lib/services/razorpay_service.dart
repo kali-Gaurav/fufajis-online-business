@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../config/app_config.dart';
 import 'api_client.dart';
+import 'secure_config_service.dart';
 
 /// Callback typedefs for payment events
 typedef PaymentSuccessCallback = void Function(PaymentSuccessResponse response);
@@ -64,13 +65,20 @@ class RazorpayService {
       return;
     }
 
-    final key = AppConfig.razorpayKeyId;
-    if (key.isEmpty) {
-      debugPrint('RazorpayService: LIVE_API_KEY not configured in .env');
-      return;
-    }
-
     try {
+      // 🔐 SECURITY FIX: Fetch Razorpay key from Supabase Vault at runtime
+      // This removes secrets from APK and enables key rotation without rebuilding
+      final configService = SecureConfigService();
+      final secretConfig = await configService.getSecrets();
+      final key = secretConfig.razorpayKeyId;
+
+      if (key.isEmpty) {
+        debugPrint('RazorpayService: Failed to fetch Razorpay key from Supabase Vault');
+        throw Exception('Razorpay configuration unavailable');
+      }
+
+      debugPrint('[RazorpayService] Using Razorpay key fetched from Supabase Vault');
+
       // Store order ID for later verification
       _lastOrderId = orderId;
 
@@ -91,7 +99,7 @@ class RazorpayService {
 
       // 2. Open Razorpay Checkout
       final options = <String, dynamic>{
-        'key': key,
+        'key': key, // ✅ Runtime-fetched key (no longer in APK)
         'amount': (amount * 100).toInt(), // paise
         'name': "Fufaji's Online",
         'description': description,
