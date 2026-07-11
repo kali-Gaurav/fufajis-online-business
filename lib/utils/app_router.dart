@@ -54,6 +54,7 @@ import '../screens/delivery/rider_profile_management_screen.dart';
 import '../screens/delivery/intelligent_dispatcher_screen.dart';
 import '../screens/delivery/ai_route_optimization_screen.dart';
 import '../screens/delivery/delivery_performance_analytics_screen.dart';
+import '../screens/owner/demand_forecasting_screen.dart';
 import '../screens/owner/products_management.dart';
 import '../screens/owner/orders_management.dart';
 import '../screens/owner/inventory_screen.dart';
@@ -800,6 +801,11 @@ class AppRouter {
           GoRoute(
             path: '/owner/subscriptions',
             builder: (context, state) => const OwnerSubscriptionDashboard(),
+          ),
+          GoRoute(
+            path: '/owner/demand-forecasting',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const DemandForecastingScreen()),
           ),
         ],
       ),
