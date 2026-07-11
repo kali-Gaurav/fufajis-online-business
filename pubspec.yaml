@@ -108,10 +108,10 @@ dependencies:
   whatsapp_unilink: ^2.1.0
 
   # Audio & Speech
-  record: ^7.1.1
-  speech_to_text: ^7.4.0
-  video_player: ^2.11.1
-  flutter_tts: ^4.2.5
+  record: ^4.4.0
+  speech_to_text: ^6.3.0
+  video_player: ^2.7.0
+  flutter_tts: ^3.9.0
 
   # Date & Time
   date_time_picker_plus: ^1.0.2
@@ -120,10 +120,10 @@ dependencies:
   blue_thermal_printer: ^1.2.3
 
   # Error Reporting & OTA
-  sentry_flutter: ^9.22.0
-  shorebird_code_push: ^2.0.6
-  google_sign_in: ^7.2.0
-  qr_flutter: ^4.1.0
+  sentry_flutter: ^8.0.0
+  shorebird_code_push: ^1.0.0
+  google_sign_in: ^6.2.0
+  qr_flutter: ^4.0.0
 
   # Authentication & Security
   local_auth: ^2.1.0
