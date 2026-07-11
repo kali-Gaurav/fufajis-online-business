@@ -12,6 +12,8 @@
 const express = require('express');
 const router = express.Router();
 const supabase = require('../db/supabase');
+const jwt = require('jsonwebtoken');
+const { auth } = require('../services/firebaseAdmin');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
@@ -20,12 +22,40 @@ const crypto = require('crypto');
 // ============================================================================
 
 /**
- * Verify admin privileges
+ * Verify admin privileges (supports both Firebase and Supabase auth)
  */
 const requireAdmin = async (req, res, next) => {
   try {
-    const userId = req.user?.id;
-    const userType = req.user?.user_type || req.user?.role;
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({
+        success: false,
+        error: 'Authentication required'
+      });
+    }
+
+    const token = authHeader.split('Bearer ')[1];
+    let userId = null;
+
+    // Try Firebase token first
+    try {
+      const decodedToken = await auth().verifyIdToken(token);
+      userId = decodedToken.uid;
+      req.user = decodedToken;
+    } catch (firebaseErr) {
+      // Firebase verification failed - try Supabase JWT
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        userId = decoded.sub || decoded.id;
+        req.user = decoded;
+      } catch (jwtErr) {
+        return res.status(401).json({
+          success: false,
+          error: 'Invalid token'
+        });
+      }
+    }
 
     if (!userId) {
       return res.status(401).json({
@@ -275,22 +305,30 @@ router.post('/create-employee', async (req, res) => {
       });
     }
 
-    // Authorization: Owner can only create users for their shop
-    if (req.adminLevel > 1) {
-      // Non-superadmin can only manage their own team
-      const { data: ownerShops } = await supabase
-        .from('shops')
-        .select('id')
-        .eq('owner_id', req.user.id);
+    // Authorization: Check if user is admin or owner
+    const isAdmin = !!req.adminLevel;
 
-      const allowedShopIds = ownerShops.map(s => s.id);
+    let isOwnerOfShop = false;
+    if (!isAdmin) {
+      // If not admin, check if user is owner of the specified shop
+      const { data: ownerUser } = await supabase
+        .from('operational_users')
+        .select('owner_id')
+        .eq('id', req.user.id)
+        .eq('user_type', 'owner')
+        .single();
 
-      if (!allowedShopIds.includes(owner_id)) {
-        return res.status(403).json({
-          success: false,
-          error: 'You can only create employees for your own shops'
-        });
+      if (ownerUser && ownerUser.owner_id === owner_id) {
+        isOwnerOfShop = true;
       }
+    }
+
+    // Only allow if user is admin OR owner of the shop
+    if (!isAdmin && !isOwnerOfShop) {
+      return res.status(403).json({
+        success: false,
+        error: 'You must be an admin or owner of this shop to create employees'
+      });
     }
 
     // Check if email already exists
