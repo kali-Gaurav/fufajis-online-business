@@ -98,11 +98,11 @@ dependencies:
   bcrypt: ^1.2.0
 
   # Charts & Analytics
-  fl_chart: ^1.2.0
+  fl_chart: ^0.65.0
 
   # PDF & Documents
-  pdf: ^3.13.0
-  printing: ^5.15.0
+  pdf: ^3.10.0
+  printing: ^5.12.0
 
   # WhatsApp Integration
   whatsapp_unilink: ^2.1.0
