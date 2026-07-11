@@ -147,6 +147,7 @@ import '../screens/customer/subscription_retention_screen.dart';
 import '../screens/customer/subscriptions/subscription_setup_screen.dart';
 import '../services/subscription_service.dart';
 import '../screens/owner/owner_subscription_dashboard.dart';
+import '../screens/inventory/supplier_management_screen.dart';
 
 /// Combines multiple [Listenable]s into one so GoRouter re-evaluates
 /// its redirect when either AuthProvider OR GuestProvider changes state.
@@ -549,6 +550,10 @@ class AppRouter {
           GoRoute(
             path: '/owner/inventory-audit',
             builder: (context, state) => const InventoryAuditScreen(),
+          ),
+          GoRoute(
+            path: '/inventory/suppliers',
+            builder: (context, state) => const SupplierManagementScreen(),
           ),
           GoRoute(
             path: '/owner/vendor-request',
