@@ -55,6 +55,7 @@ import '../screens/delivery/intelligent_dispatcher_screen.dart';
 import '../screens/delivery/ai_route_optimization_screen.dart';
 import '../screens/delivery/delivery_performance_analytics_screen.dart';
 import '../screens/owner/demand_forecasting_screen.dart';
+import '../screens/owner/inventory_optimization_screen.dart';
 import '../screens/owner/products_management.dart';
 import '../screens/owner/orders_management.dart';
 import '../screens/owner/inventory_screen.dart';
@@ -806,6 +807,11 @@ class AppRouter {
             path: '/owner/demand-forecasting',
             pageBuilder: (context, state) =>
                 FufajiPageTransition(key: state.pageKey, child: const DemandForecastingScreen()),
+          ),
+          GoRoute(
+            path: '/owner/inventory-optimization',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const InventoryOptimizationScreen()),
           ),
         ],
       ),
