@@ -6,7 +6,7 @@ publish_to: 'none'
 version: 1.2.0+6
 
 environment:
-  sdk: '>=3.3.0 <4.0.0'
+  sdk: '>=3.13.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -100,8 +100,8 @@ dependencies:
   fl_chart: ^1.2.0
 
   # PDF & Documents
-  pdf: ^3.13.0
-  printing: ^5.15.0
+  pdf: ^3.10.0
+  printing: 5.12.0
 
   # WhatsApp Integration
   whatsapp_unilink: ^2.1.0
