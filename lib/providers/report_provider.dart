@@ -1,53 +1,88 @@
-import 'dart:async';
-import 'package:flutter/foundation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/report_model.dart';
+import 'package:flutter/material.dart';
+import '../models/analytics_models.dart';
 
-/// Streams the latest `reports/{id}` documents produced by the
-/// Business Analyst agent for the Mission Control Reports tab.
-class ReportProvider with ChangeNotifier {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+class ReportProvider extends ChangeNotifier {
+  List<Report> availableReports = [];
+  Report? selectedReport;
+  bool isGenerating = false;
+  String? error;
 
-  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _reportsSub;
+  // Available report templates
+  final reportTypes = ['daily', 'weekly', 'monthly', 'custom'];
 
-  List<ReportModel> _reports = [];
-  bool _isLoading = true;
-  String? _errorMessage;
+  Future<void> generateReport({
+    required String type,
+    required DateTime? startDate,
+    required DateTime? endDate,
+  }) async {
+    isGenerating = true;
+    error = null;
+    notifyListeners();
 
-  List<ReportModel> get reports => _reports;
-  bool get isLoading => _isLoading;
-  String? get errorMessage => _errorMessage;
+    try {
+      await Future.delayed(Duration(seconds: 2)); // Simulate generation
 
-  ReportModel? get latest => _reports.isNotEmpty ? _reports.first : null;
+      final report = Report(
+        id: 'report_${DateTime.now().millisecondsSinceEpoch}',
+        title: '${type.toUpperCase()} Report',
+        type: type,
+        generatedAt: DateTime.now(),
+        data: {
+          'revenue': 15000,
+          'orders': 125,
+          'customers': 45,
+        },
+        pdfUrl: 'https://example.com/report.pdf',
+        csvUrl: 'https://example.com/report.csv',
+      );
 
-  ReportProvider() {
-    _listen();
+      availableReports.insert(0, report);
+      selectedReport = report;
+    } catch (e) {
+      error = e.toString();
+      print('Error generating report: $e');
+    } finally {
+      isGenerating = false;
+      notifyListeners();
+    }
   }
 
-  void _listen() {
-    _reportsSub = _firestore
-        .collection('reports')
-        .orderBy('generatedAt', descending: true)
-        .limit(30)
-        .snapshots()
-        .listen(
-          (snap) {
-            _reports = snap.docs.map(ReportModel.fromFirestore).toList();
-            _isLoading = false;
-            _errorMessage = null;
-            notifyListeners();
-          },
-          onError: (err) {
-            _errorMessage = err.toString();
-            _isLoading = false;
-            notifyListeners();
-          },
-        );
+  Future<void> selectReport(Report report) async {
+    selectedReport = report;
+    notifyListeners();
   }
 
-  @override
-  void dispose() {
-    _reportsSub?.cancel();
-    super.dispose();
+  Future<String?> exportToPdf(Report report) async {
+    try {
+      // In real implementation, would call backend to generate PDF
+      return report.pdfUrl;
+    } catch (e) {
+      print('Error exporting PDF: $e');
+      return null;
+    }
+  }
+
+  Future<String?> exportToCsv(Report report) async {
+    try {
+      // In real implementation, would call backend to generate CSV
+      return report.csvUrl;
+    } catch (e) {
+      print('Error exporting CSV: $e');
+      return null;
+    }
+  }
+
+  Future<void> scheduleEmailReport({
+    required String reportType,
+    required String frequency, // daily, weekly, monthly
+    required String email,
+  }) async {
+    try {
+      print('Scheduling $frequency report to $email');
+      notifyListeners();
+    } catch (e) {
+      error = e.toString();
+      notifyListeners();
+    }
   }
 }
