@@ -128,6 +128,11 @@ import '../screens/customer/subscription_screen.dart';
 import '../screens/customer/identity_contacts_screen.dart';
 import '../screens/customer/refer_earn_screen.dart';
 import '../screens/customer/add_review_screen.dart';
+import '../screens/customer/enhanced_delivery_tracking_screen.dart';
+import '../screens/customer/product_card_enhancements_screen.dart';
+import '../screens/owner/owner_dashboard_redesigned.dart';
+import '../screens/owner/inventory_visual_improvements_screen.dart';
+import '../screens/employee/employee_task_board_screen.dart';
 
 /// Combines multiple [Listenable]s into one so GoRouter re-evaluates
 /// its redirect when either AuthProvider OR GuestProvider changes state.
@@ -429,6 +434,26 @@ class AppRouter {
               ),
             ),
           ),
+          GoRoute(
+            path: '/customer/product-details/:productId',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(
+                  key: state.pageKey,
+                  child: ProductCardEnhancementsScreen(
+                    productId: state.pathParameters['productId'] ?? '',
+                  ),
+                ),
+          ),
+          GoRoute(
+            path: '/customer/track-delivery/:orderId',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(
+                  key: state.pageKey,
+                  child: EnhancedDeliveryTrackingScreen(
+                    orderId: state.pathParameters['orderId'] ?? '',
+                  ),
+                ),
+          ),
         ],
       ),
 
@@ -614,6 +639,14 @@ class AppRouter {
             path: '/owner/mission-control',
             builder: (context, state) => const TeamRoomScreen(),
           ),
+          GoRoute(
+            path: '/owner/dashboard-enhanced',
+            builder: (context, state) => const OwnerDashboardRedesigned(),
+          ),
+          GoRoute(
+            path: '/owner/inventory-visual',
+            builder: (context, state) => const InventoryVisualImprovementsScreen(),
+          ),
         ],
       ),
 
@@ -746,6 +779,13 @@ class AppRouter {
             },
           ),
           GoRoute(path: 'return-hub', builder: (context, state) => const ReturnDamageHubScreen()),
+          GoRoute(
+            path: 'tasks',
+            builder: (context, state) {
+              final employeeId = state.uri.queryParameters['employeeId'];
+              return EmployeeTaskBoardScreen(employeeId: employeeId ?? '');
+            },
+          ),
         ],
       ),
 
