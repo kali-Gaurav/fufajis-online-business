@@ -12,7 +12,7 @@
 const express = require('express');
 const router = express.Router();
 const supabase = require('../db/supabase');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
 // ============================================================================
