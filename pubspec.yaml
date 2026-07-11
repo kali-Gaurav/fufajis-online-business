@@ -6,7 +6,7 @@ publish_to: 'none'
 version: 1.2.0+6
 
 environment:
-  sdk: '>=3.13.0 <4.0.0'
+  sdk: '>=3.3.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -19,12 +19,15 @@ dependencies:
   firebase_storage: ^13.4.3
   firebase_core: ^4.11.0
   firebase_messaging: ^16.4.1
+  cloud_functions: ^6.3.3
   firebase_app_check: ^0.4.5
   firebase_remote_config: ^6.5.3
   firebase_analytics: ^12.4.3
   firebase_performance: ^0.11.4+3
   firebase_database: ^12.4.4
   firebase_crashlytics: ^5.2.4
+  firebase_ai: ^3.13.1
+  google_generative_ai: ^0.4.7
 
   # State management
   provider: ^6.1.5+1
@@ -75,7 +78,7 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   sqflite: ^2.4.3
-  path: ^1.9.0
+  path: ^1.9.1
   url_launcher: ^6.3.2
   share_plus: ^13.2.0
   path_provider: ^2.1.6
@@ -92,22 +95,23 @@ dependencies:
   razorpay_flutter: ^1.4.5
 
   # Security - Hashing & Encryption
-  # bcrypt: ^1.2.0
+  bcrypt: ^1.2.0
 
   # Charts & Analytics
-  # fl_chart: ^1.2.0
+  fl_chart: ^1.2.0
 
   # PDF & Documents
-  pdf: ^3.10.0
-  printing: 5.12.0
+  pdf: ^3.13.0
+  printing: ^5.15.0
 
   # WhatsApp Integration
   whatsapp_unilink: ^2.1.0
 
   # Audio & Speech
-  record: ^4.4.0
-  speech_to_text: ^6.3.0
-  video_player: ^2.7.0
+  record: ^7.1.1
+  speech_to_text: ^7.4.0
+  video_player: ^2.11.1
+  flutter_tts: ^4.2.5
 
   # Date & Time
   date_time_picker_plus: ^1.0.2
@@ -116,26 +120,36 @@ dependencies:
   blue_thermal_printer: ^1.2.3
 
   # Error Reporting & OTA
-  sentry_flutter: ^8.0.0
-  shorebird_code_push: ^1.0.0
-  google_sign_in: ^6.2.0
-  qr_flutter: ^4.0.0
+  sentry_flutter: ^9.22.0
+  shorebird_code_push: ^2.0.6
+  google_sign_in: ^7.2.0
+  qr_flutter: ^4.1.0
 
   # Authentication & Security
-  local_auth: ^2.1.0
-  device_info_plus: ^9.1.1
+  local_auth: ^3.0.1
+  device_info_plus: ^13.2.0
   flutter_secure_storage: ^10.3.1
   supabase_flutter: ^2.15.3
-  sign_in_with_apple: ^5.0.0
+  sign_in_with_apple: ^8.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
+  build_runner: ^2.4.13
+  json_serializable: ^6.14.0
+  mockito: ^5.7.0
+  fake_cloud_firestore: ^4.1.1
+
+  firebase_core_platform_interface: any
+  cloud_firestore_platform_interface: any
+  connectivity_plus_platform_interface: any
+  sqflite_common: any
 
 # Using overrides to resolve transitive dependency conflicts between latest versions
 dependency_overrides:
-  xml: ^6.5.0
+  timezone: ^0.11.1
+  xml: ^7.0.1
 
 flutter:
   uses-material-design: true
