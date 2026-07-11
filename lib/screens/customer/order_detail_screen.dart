@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/order_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/cart_provider.dart';
 import '../../models/order_model.dart';
 import '../../utils/app_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -420,9 +421,50 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               child: const Text('Contact Support'),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _reorderClick,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primary,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Reorder'),
+              ),
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  Future<void> _reorderClick() async {
+    if (_order == null) return;
+
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+
+    for (final item in _order!.items) {
+      cartProvider.addToCart(
+        productId: item.productId,
+        quantity: item.quantity,
+      );
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Items added to cart'),
+          duration: Duration(seconds: 2),
+          backgroundColor: AppTheme.success,
+        ),
+      );
+
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) context.push('/customer/cart');
+      });
+    }
   }
 
   void _showCancelDialog() {
