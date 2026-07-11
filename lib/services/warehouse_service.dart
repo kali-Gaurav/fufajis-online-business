@@ -103,6 +103,26 @@ class WarehouseService {
     }
   }
 
+  // Get all warehouses
+  Future<List<Map<String, dynamic>>> getWarehouses() async {
+    try {
+      developer.log('Fetching all warehouses');
+
+      final snapshot = await _firestore
+          .collection('$_collectionPrefix/warehouses')
+          .where('active', isEqualTo: true)
+          .orderBy('warehouse_name')
+          .get();
+
+      return snapshot.docs
+          .map((doc) => {...doc.data(), 'id': doc.id})
+          .toList();
+    } catch (e) {
+      developer.log('Error fetching warehouses: $e', error: e);
+      rethrow;
+    }
+  }
+
   // Get bin details
   Future<Map<String, dynamic>?> getBinDetails(String binId) async {
     try {
