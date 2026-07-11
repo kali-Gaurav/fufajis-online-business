@@ -551,6 +551,65 @@ class SupplierService {
     }
   }
 
+  // Create/register a new supplier (admin/owner only)
+  Future<SupplierProfile?> createSupplier({
+    required String name,
+    required String email,
+    required String phone,
+    String? address,
+    String? city,
+    String? state,
+    String? pincode,
+    String? gstNumber,
+    String? contactPerson,
+    String? paymentTerms,
+  }) async {
+    try {
+      debugPrint('[SupplierService] Creating new supplier: $name');
+
+      // Create the supplier profile in Supabase
+      final response = await _supabase.client
+          .from('suppliers')
+          .insert({
+            'name': name,
+            'email': email,
+            'phone': phone,
+            'address': address,
+            'city': city,
+            'state': state,
+            'pincode': pincode,
+            'gst_number': gstNumber,
+            'contact_person': contactPerson,
+            'payment_terms': paymentTerms,
+            'status': 'pending', // Requires approval
+            'is_verified': false,
+            'rating': 0.0,
+            'total_orders': 0,
+            'completed_orders': 0,
+            'on_time_delivery_rate': 0.0,
+            'quality_score': 0.0,
+            'response_rate': 0.0,
+            'auto_order_enabled': false,
+            'min_order_value': 0.0,
+            'total_revenue': 0.0,
+            'total_paid': 0.0,
+            'total_pending': 0.0,
+          })
+          .select()
+          .single();
+
+      debugPrint('[SupplierService] Supplier created successfully');
+
+      // TODO: Send invitation email/WhatsApp to supplier
+      // await _sendSupplierInvitation(email, name);
+
+      return SupplierProfile.fromJson(response);
+    } catch (e) {
+      debugPrint('[SupplierService] Error creating supplier: $e');
+      rethrow;
+    }
+  }
+
   // Real-time stream of supplier orders
   Stream<List<SupplierOrder>> watchSupplierOrders(String supplierId) {
     debugPrint('[SupplierService] Watching orders for supplier $supplierId');
