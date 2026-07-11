@@ -19,7 +19,6 @@ dependencies:
   firebase_storage: ^13.4.3
   firebase_core: ^4.11.0
   firebase_messaging: ^16.4.1
-  cloud_functions: ^6.3.3
   firebase_app_check: ^0.4.5
   firebase_remote_config: ^6.5.3
   firebase_analytics: ^12.4.3
