@@ -101,8 +101,8 @@ dependencies:
   fl_chart: ^1.2.0
 
   # PDF & Documents
-  pdf: ^3.13.0
-  printing: ^5.14.0
+  pdf: ^3.10.0
+  printing: ^5.11.0
 
   # WhatsApp Integration
   whatsapp_unilink: ^2.1.0
