@@ -111,7 +111,7 @@ dependencies:
   record: ^7.1.1
   speech_to_text: ^7.4.0
   video_player: ^2.11.1
-  flutter_tts: ^4.2.5
+  flutter_tts: ^4.0.0
 
   # Date & Time
   date_time_picker_plus: ^1.0.2
