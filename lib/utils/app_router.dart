@@ -144,6 +144,8 @@ import '../screens/admin/admin_vendor_approval_screen.dart';
 import '../screens/customer/subscription_checkout_screen.dart';
 import '../screens/customer/subscription_detail_screen.dart';
 import '../screens/customer/subscription_retention_screen.dart';
+import '../screens/customer/subscriptions/subscription_setup_screen.dart';
+import '../services/subscription_service.dart';
 import '../screens/owner/owner_subscription_dashboard.dart';
 
 /// Combines multiple [Listenable]s into one so GoRouter re-evaluates
@@ -427,6 +429,11 @@ class AppRouter {
                 FufajiPageTransition(key: state.pageKey, child: const SubscriptionScreen()),
           ),
           GoRoute(
+            path: '/customer/subscription-setup',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const SubscriptionSetupScreen()),
+          ),
+          GoRoute(
             path: '/customer/subscription-detail/:subscriptionId',
             pageBuilder: (context, state) =>
                 FufajiPageTransition(
@@ -438,8 +445,13 @@ class AppRouter {
           ),
           GoRoute(
             path: '/customer/subscription-checkout',
-            pageBuilder: (context, state) =>
-                FufajiPageTransition(key: state.pageKey, child: const SubscriptionCheckoutScreen()),
+            pageBuilder: (context, state) {
+              final items = state.extra as List<SubscriptionItem>? ?? [];
+              return FufajiPageTransition(
+                key: state.pageKey,
+                child: SubscriptionCheckoutScreen(items: items),
+              );
+            },
           ),
           GoRoute(
             path: '/customer/subscription-retention',

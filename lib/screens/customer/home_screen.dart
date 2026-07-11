@@ -31,6 +31,68 @@ class _HomeScreenState extends State<HomeScreen> {
     'Household',
   ];
 
+  Widget _buildSubscribeSection(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: AppTheme.success.withValues(alpha: 0.1),
+          border: Border.all(color: AppTheme.success.withValues(alpha: 0.3)),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            const Icon(Icons.calendar_month, color: AppTheme.success, size: 28),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  Text(
+                    'Daily Essentials Plan',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.success,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Get milk, bread & more delivered daily',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.grey600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            GestureDetector(
+              onTap: () => context.push('/customer/subscriptions'),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppTheme.success,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  'Subscribe',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final productProvider = Provider.of<ProductProvider>(context);
@@ -44,6 +106,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
           // Hero Banner
           _buildHeroBanner(context),
+
+          // Subscribe Section
+          _buildSubscribeSection(context),
 
           Padding(
             padding: AppTheme.paddingLg,

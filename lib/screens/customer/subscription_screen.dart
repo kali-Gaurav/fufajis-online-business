@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../models/subscription_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/subscription_provider.dart';
@@ -50,7 +51,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           : _buildSubscriptionList(subscriptionProvider.subscriptions),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // Navigate to product selection for new subscription
+          context.push('/customer/subscription-setup');
         },
         backgroundColor: AppTheme.primary,
         icon: const Icon(Icons.add),
@@ -81,7 +82,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             const SizedBox(height: 32),
             ElevatedButton(
               onPressed: () {
-                // Navigate to catalog
+                context.push('/customer/subscription-setup');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primary,
