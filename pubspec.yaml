@@ -123,7 +123,7 @@ dependencies:
 
   # Authentication & Security
   local_auth: ^2.0.0
-  device_info_plus: ^11.0.0
+  device_info_plus: ^10.0.0
   flutter_secure_storage: ^10.3.1
   supabase_flutter: ^2.0.0
   sign_in_with_apple: ^7.0.0
