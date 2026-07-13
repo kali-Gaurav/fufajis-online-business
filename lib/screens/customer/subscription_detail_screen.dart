@@ -219,10 +219,10 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
                                 color: _subscription.status == SubscriptionStatus.active
-                                    ? AppTheme.success.withValues(alpha: 0.1)
+                                    ? AppTheme.success.withOpacity(0.1)
                                     : (_subscription.status == SubscriptionStatus.paused
-                                        ? AppTheme.warning.withValues(alpha: 0.1)
-                                        : AppTheme.error.withValues(alpha: 0.1)),
+                                        ? AppTheme.warning.withOpacity(0.1)
+                                        : AppTheme.error.withOpacity(0.1)),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(

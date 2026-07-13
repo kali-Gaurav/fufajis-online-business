@@ -303,12 +303,12 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.warning.withValues(alpha: 0.15),
-            AppTheme.warning.withValues(alpha: 0.05),
+            AppTheme.warning.withOpacity(0.15),
+            AppTheme.warning.withOpacity(0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.warning.withValues(alpha: 0.5)),
+        border: Border.all(color: AppTheme.warning.withOpacity(0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -346,7 +346,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
                   border: Border.all(color: AppTheme.warning, width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.warning.withValues(alpha: 0.15),
+                      color: AppTheme.warning.withOpacity(0.15),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
                     ),
@@ -396,7 +396,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -454,7 +454,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [AppTheme.primary.withValues(alpha: 0.12), Colors.white],
+                colors: [AppTheme.primary.withOpacity(0.12), Colors.white],
               ),
             ),
           ),
@@ -475,7 +475,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.success.withValues(alpha: 0.3),
+                        color: AppTheme.success.withOpacity(0.3),
                         blurRadius: 30,
                         spreadRadius: 8,
                       ),
@@ -545,7 +545,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: _order!.status.color.withValues(alpha: 0.1),
+              color: _order!.status.color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -838,7 +838,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: paymentMethodOption.iconColor.withValues(alpha: 0.1),
+                  color: paymentMethodOption.iconColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -879,7 +879,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.success.withValues(alpha: 0.1),
+                color: AppTheme.success.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -931,7 +931,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.primary.withValues(alpha: 0.1),
+                  color: AppTheme.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -973,7 +973,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppTheme.warning.withValues(alpha: 0.1),
+                color: AppTheme.warning.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -1056,7 +1056,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: isCompleted ? AppTheme.success.withValues(alpha: 0.1) : AppTheme.grey200,
+                color: isCompleted ? AppTheme.success.withOpacity(0.1) : AppTheme.grey200,
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: isCompleted ? AppTheme.success : AppTheme.grey400, size: 18),
@@ -1259,7 +1259,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.black.withValues(alpha: 0.05),
+                  color: AppTheme.black.withOpacity(0.05),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -1393,7 +1393,7 @@ class ConfettiPainter extends CustomPainter {
         AppTheme.warning,
       ][i % 6];
 
-      paint.color = color.withValues(alpha: 1 - animationValue);
+      paint.color = color.withOpacity(1 - animationValue);
       final rect = Rect.fromLTWH(x, y, 8, 8);
       canvas.drawRect(rect, paint);
     }

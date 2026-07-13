@@ -69,8 +69,8 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.primary.withValues(alpha: 0.8),
-                    AppTheme.primary.withValues(alpha: 0.6),
+                    AppTheme.primary.withOpacity(0.8),
+                    AppTheme.primary.withOpacity(0.6),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,

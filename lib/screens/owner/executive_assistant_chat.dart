@@ -112,7 +112,7 @@ class _ExecutiveAssistantChatState extends State<ExecutiveAssistantChat> {
         margin: const EdgeInsets.only(bottom: 16.0, left: 64.0),
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         decoration: BoxDecoration(
-          color: AppTheme.info.withValues(alpha: 0.15),
+          color: AppTheme.info.withOpacity(0.15),
           borderRadius: BorderRadius.circular(16).copyWith(bottomRight: const Radius.circular(0)),
         ),
         child: Text(text, style: const TextStyle(fontSize: 16)),

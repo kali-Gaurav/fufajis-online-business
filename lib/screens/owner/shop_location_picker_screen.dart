@@ -144,7 +144,7 @@ class _ShopLocationPickerScreenState extends State<ShopLocationPickerScreen> {
         circleId: const CircleId('outer_limit'),
         center: _selectedLatLng,
         radius: _radiusKm * 1000,
-        fillColor: AppTheme.primary.withValues(alpha: 0.08),
+        fillColor: AppTheme.primary.withOpacity(0.08),
         strokeColor: AppTheme.primary,
         strokeWidth: 2,
       ),
@@ -160,8 +160,8 @@ class _ShopLocationPickerScreenState extends State<ShopLocationPickerScreen> {
           circleId: CircleId('zone_${z.id}'),
           center: _selectedLatLng,
           radius: z.toRadiusKm * 1000,
-          fillColor: zoneColor.withValues(alpha: 0.04),
-          strokeColor: zoneColor.withValues(alpha: 0.4),
+          fillColor: zoneColor.withOpacity(0.04),
+          strokeColor: zoneColor.withOpacity(0.4),
           strokeWidth: 1,
         );
       }),
@@ -255,11 +255,11 @@ class _ShopLocationPickerScreenState extends State<ShopLocationPickerScreen> {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.95),
+                color: Colors.white.withOpacity(0.95),
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.15),
+                    color: Colors.black.withOpacity(0.15),
                     blurRadius: 20,
                     offset: const Offset(0, -5),
                   ),
@@ -274,7 +274,7 @@ class _ShopLocationPickerScreenState extends State<ShopLocationPickerScreen> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: AppTheme.primary.withValues(alpha: 0.1),
+                          color: AppTheme.primary.withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.location_on, color: AppTheme.primary),
@@ -342,7 +342,7 @@ class _ShopLocationPickerScreenState extends State<ShopLocationPickerScreen> {
                     max: 50.0,
                     divisions: 49,
                     activeColor: AppTheme.primary,
-                    inactiveColor: AppTheme.primary.withValues(alpha: 0.2),
+                    inactiveColor: AppTheme.primary.withOpacity(0.2),
                     onChanged: (v) {
                       setState(() {
                         _radiusKm = v;

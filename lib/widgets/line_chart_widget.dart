@@ -88,7 +88,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: _selectedIndex == index
-                    ? widget.lineColor.withValues(alpha: 0.2)
+                    ? widget.lineColor.withOpacity(0.2)
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(4),
                 border: _selectedIndex == index ? Border.all(color: widget.lineColor) : null,
@@ -212,7 +212,7 @@ class _LineChartPainter extends CustomPainter {
     // Draw area under line
     if (data.length > 1) {
       final areaPaint = Paint()
-        ..color = lineColor.withValues(alpha: 0.1)
+        ..color = lineColor.withOpacity(0.1)
         ..style = PaintingStyle.fill;
 
       final path = Path();
@@ -245,7 +245,7 @@ class _LineChartPainter extends CustomPainter {
         final y = size.height - padding - (normalizedValue * chartHeight);
 
         final pointPaint = Paint()
-          ..color = selectedIndex == i ? lineColor : lineColor.withValues(alpha: 0.6)
+          ..color = selectedIndex == i ? lineColor : lineColor.withOpacity(0.6)
           ..style = PaintingStyle.fill;
 
         final radius = selectedIndex == i ? 6.0 : 4.0;

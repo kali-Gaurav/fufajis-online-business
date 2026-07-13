@@ -261,9 +261,9 @@ class _StatusChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.5)),
+        border: Border.all(color: color.withOpacity(0.5)),
       ),
       child: Text(
         status.name.toUpperCase(),
@@ -572,7 +572,7 @@ class _CampaignWizardBottomSheetState extends State<_CampaignWizardBottomSheet> 
                   width: isSelected ? 2 : 1,
                 ),
                 borderRadius: BorderRadius.circular(12),
-                color: isSelected ? AppTheme.primary.withValues(alpha: 0.05) : null,
+                color: isSelected ? AppTheme.primary.withOpacity(0.05) : null,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -610,7 +610,7 @@ class _CampaignWizardBottomSheetState extends State<_CampaignWizardBottomSheet> 
           spacing: 8,
           children: _selectedSegments
               .map(
-                (s) => Chip(label: Text(s), backgroundColor: AppTheme.info.withValues(alpha: 0.1)),
+                (s) => Chip(label: Text(s), backgroundColor: AppTheme.info.withOpacity(0.1)),
               )
               .toList(),
         ),
@@ -656,7 +656,7 @@ class _CampaignWizardBottomSheetState extends State<_CampaignWizardBottomSheet> 
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: AppTheme.info.withValues(alpha: 0.08),
+            color: AppTheme.info.withOpacity(0.08),
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Row(

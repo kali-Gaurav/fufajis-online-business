@@ -66,9 +66,7 @@ class _ExpiryTrackingWidgetState extends State<ExpiryTrackingWidget> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: (hasAlerts ? AppTheme.error : AppTheme.success).withValues(
-                          alpha: 0.1,
-                        ),
+                        color: (hasAlerts ? AppTheme.error : AppTheme.success).withOpacity(0.1,),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
@@ -97,9 +95,9 @@ class _ExpiryTrackingWidgetState extends State<ExpiryTrackingWidget> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppTheme.error.withValues(alpha: 0.1),
+                  color: AppTheme.error.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppTheme.error.withValues(alpha: 0.3)),
+                  border: Border.all(color: AppTheme.error.withOpacity(0.3)),
                 ),
                 child: Row(
                   children: [
@@ -122,7 +120,7 @@ class _ExpiryTrackingWidgetState extends State<ExpiryTrackingWidget> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppTheme.success.withValues(alpha: 0.1),
+                  color: AppTheme.success.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Row(
@@ -176,7 +174,7 @@ class _ExpiryTrackingWidgetState extends State<ExpiryTrackingWidget> {
   Widget _buildStatTile(String label, String value, Color color) {
     return Container(
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(

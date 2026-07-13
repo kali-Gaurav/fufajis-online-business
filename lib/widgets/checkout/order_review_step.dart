@@ -165,7 +165,7 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -225,7 +225,7 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -301,7 +301,7 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -401,7 +401,7 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -437,7 +437,7 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -483,7 +483,7 @@ class _OrderReviewStepState extends State<OrderReviewStep> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

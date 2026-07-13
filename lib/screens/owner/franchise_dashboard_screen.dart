@@ -161,7 +161,7 @@ class _FranchiseDashboardScreenState extends State<FranchiseDashboardScreen> {
             height: 28,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: rank == 1 ? AppTheme.warning : AppTheme.primary.withValues(alpha: 0.12),
+              color: rank == 1 ? AppTheme.warning : AppTheme.primary.withOpacity(0.12),
               shape: BoxShape.circle,
             ),
             child: Text(

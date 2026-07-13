@@ -262,7 +262,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                color: AppTheme.primary.withValues(alpha: 0.1),
+                color: AppTheme.primary.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.document_scanner_outlined, size: 60, color: AppTheme.primary),
@@ -321,7 +321,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: Colors.white, size: 28),
@@ -340,7 +340,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
                   ),
                   Text(
                     subtitle,
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 13),
+                    style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 13),
                   ),
                 ],
               ),
@@ -369,7 +369,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
               decoration: BoxDecoration(
                 border: Border.all(color: AppTheme.primary, width: 2),
                 borderRadius: BorderRadius.circular(16),
-                color: Colors.black.withValues(alpha: 0.02),
+                color: Colors.black.withOpacity(0.02),
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(14),
@@ -407,7 +407,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
                     Icon(
                       Icons.receipt_long,
                       size: 100,
-                      color: AppTheme.primary.withValues(alpha: 0.15),
+                      color: AppTheme.primary.withOpacity(0.15),
                     ),
                     // Animated Laser Scan Line
                     AnimatedBuilder(
@@ -424,7 +424,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
                               borderRadius: BorderRadius.circular(2),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppTheme.success.withValues(alpha: 0.8),
+                                  color: AppTheme.success.withOpacity(0.8),
                                   blurRadius: 10,
                                   spreadRadius: 2,
                                 ),
@@ -481,7 +481,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.06),
+                color: Colors.black.withOpacity(0.06),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -506,7 +506,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppTheme.info.withValues(alpha: 0.1),
+                      color: AppTheme.info.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -636,7 +636,7 @@ class _SupplierBillScannerScreenState extends State<SupplierBillScannerScreen>
             color: AppTheme.white,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
+                color: Colors.black.withOpacity(0.08),
                 blurRadius: 8,
                 offset: const Offset(0, -2),
               ),

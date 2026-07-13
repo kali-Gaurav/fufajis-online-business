@@ -61,7 +61,7 @@ class LoyaltyScreen extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(24, 32, 24, 40),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [tierData['color'] as Color, (tierData['color'] as Color).withValues(alpha: 0.7)],
+          colors: [tierData['color'] as Color, (tierData['color'] as Color).withOpacity(0.7)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -73,7 +73,7 @@ class LoyaltyScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: Colors.white.withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(tierData['icon'] as IconData, color: Colors.white, size: 32),
@@ -93,7 +93,7 @@ class LoyaltyScreen extends StatelessWidget {
                     ),
                     Text(
                       '${user.rewardPoints} points',
-                      style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.85)),
+                      style: TextStyle(fontSize: 14, color: Colors.white.withOpacity(0.85)),
                     ),
                   ],
                 ),
@@ -110,7 +110,7 @@ class LoyaltyScreen extends StatelessWidget {
                   children: [
                     Text(
                       'Progress to ${nextTierData['name']}',
-                      style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.8)),
+                      style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.8)),
                     ),
                     Text(
                       '${(progress * 100).round()}%',
@@ -127,7 +127,7 @@ class LoyaltyScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: progress,
-                    backgroundColor: Colors.white.withValues(alpha: 0.3),
+                    backgroundColor: Colors.white.withOpacity(0.3),
                     valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                     minHeight: 8,
                   ),
@@ -135,7 +135,7 @@ class LoyaltyScreen extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   '${_getPointsToNextTier(user.rewardPoints, user.membershipTier)} more points to ${nextTierData['name']}',
-                  style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.7)),
+                  style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.7)),
                 ),
               ],
             ),
@@ -413,9 +413,7 @@ class LoyaltyScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: (isEarned ? AppTheme.success : AppTheme.error).withValues(
-                              alpha: 0.1,
-                            ),
+                            color: (isEarned ? AppTheme.success : AppTheme.error).withOpacity(0.1,),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(

@@ -108,7 +108,7 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
+            decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
             child: Icon(
               diff >= 0 ? Icons.add_circle_outline : Icons.remove_circle_outline,
               color: color,
@@ -158,7 +158,7 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        border: Border.all(color: color.withValues(alpha: 0.5)),
+        border: Border.all(color: color.withOpacity(0.5)),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(

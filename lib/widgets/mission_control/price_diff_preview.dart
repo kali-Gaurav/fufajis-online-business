@@ -43,7 +43,7 @@ class PriceDiffPreview extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
-        border: Border.all(color: _changeColor.withValues(alpha: 0.3), width: 2),
+        border: Border.all(color: _changeColor.withOpacity(0.3), width: 2),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -103,7 +103,7 @@ class PriceDiffPreview extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          color: _changeColor.withValues(alpha: 0.7),
+                          color: _changeColor.withOpacity(0.7),
                         ),
                       ),
                     ],
@@ -128,7 +128,7 @@ class PriceDiffPreview extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: _changeColor.withValues(alpha: 0.15),
+                  color: _changeColor.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -147,12 +147,12 @@ class PriceDiffPreview extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: _changeColor.withValues(alpha: 0.05),
+              color: _changeColor.withOpacity(0.05),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Row(
               children: [
-                Icon(Icons.info_outline, size: 16, color: _changeColor.withValues(alpha: 0.7)),
+                Icon(Icons.info_outline, size: 16, color: _changeColor.withOpacity(0.7)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -163,7 +163,7 @@ class PriceDiffPreview extends StatelessWidget {
                         : 'Price remains stable',
                     style: Theme.of(
                       context,
-                    ).textTheme.bodySmall?.copyWith(color: _changeColor.withValues(alpha: 0.8)),
+                    ).textTheme.bodySmall?.copyWith(color: _changeColor.withOpacity(0.8)),
                   ),
                 ),
               ],

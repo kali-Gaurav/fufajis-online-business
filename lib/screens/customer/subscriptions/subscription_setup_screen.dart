@@ -66,7 +66,7 @@ class _SubscriptionSetupScreenState extends State<SubscriptionSetupScreen> {
                 color: AppTheme.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
+                    color: Colors.black.withOpacity(0.1),
                     blurRadius: 10,
                     offset: const Offset(0, -4),
                   ),
@@ -128,7 +128,7 @@ class _SubscriptionSetupScreenState extends State<SubscriptionSetupScreen> {
             color: isSelected ? AppTheme.primary : AppTheme.grey200,
             width: isSelected ? 2 : 1,
           ),
-          color: isSelected ? AppTheme.primary.withValues(alpha: 0.05) : AppTheme.white,
+          color: isSelected ? AppTheme.primary.withOpacity(0.05) : AppTheme.white,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

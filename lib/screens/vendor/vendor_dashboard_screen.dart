@@ -183,7 +183,7 @@ class _VendorDashboardScreenState extends State<VendorDashboardScreen> {
             else
               CircleAvatar(
                 radius: 32,
-                backgroundColor: AppTheme.primary.withValues(alpha: 0.2),
+                backgroundColor: AppTheme.primary.withOpacity(0.2),
                 child: Icon(Icons.store, color: AppTheme.primary, size: 32),
               ),
             const SizedBox(width: 16),
@@ -346,7 +346,7 @@ class _VendorDashboardScreenState extends State<VendorDashboardScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: _getHealthScoreColor(_analytics!.vendorHealthScore).withValues(alpha: 0.2),
+                        color: _getHealthScoreColor(_analytics!.vendorHealthScore).withOpacity(0.2),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(

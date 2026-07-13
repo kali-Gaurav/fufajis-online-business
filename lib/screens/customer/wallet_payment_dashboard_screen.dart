@@ -179,7 +179,7 @@ class _WalletPaymentDashboardScreenState extends State<WalletPaymentDashboardScr
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primary.withValues(alpha: 0.3),
+            color: AppTheme.primary.withOpacity(0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -216,7 +216,7 @@ class _WalletPaymentDashboardScreenState extends State<WalletPaymentDashboardScr
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Text(
@@ -305,7 +305,7 @@ class _WalletPaymentDashboardScreenState extends State<WalletPaymentDashboardScr
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
+                color: color.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, size: 18, color: color),
@@ -411,7 +411,7 @@ class _WalletPaymentDashboardScreenState extends State<WalletPaymentDashboardScr
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: isIncome ? AppTheme.success.withValues(alpha: 0.1) : AppTheme.error.withValues(alpha: 0.1),
+                color: isIncome ? AppTheme.success.withOpacity(0.1) : AppTheme.error.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Center(

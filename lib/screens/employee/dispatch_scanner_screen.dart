@@ -487,9 +487,9 @@ class _StatusBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Row(
         children: [
@@ -543,7 +543,7 @@ class _SuccessButton extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         FjCard(
-          color: AppTheme.success.withValues(alpha: 0.1),
+          color: AppTheme.success.withOpacity(0.1),
           border: Border.all(color: AppTheme.success),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

@@ -37,7 +37,7 @@ class _InventoryHealthScoreWidgetState extends State<InventoryHealthScoreWidget>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
       ),
       child: Column(
         children: [
@@ -132,7 +132,7 @@ class LowStockAlertWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,7 +147,7 @@ class LowStockAlertWidget extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppTheme.error.withValues(alpha: 0.1),
+                  color: AppTheme.error.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -171,7 +171,7 @@ class LowStockAlertWidget extends StatelessWidget {
               return ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: CircleAvatar(
-                  backgroundColor: AppTheme.error.withValues(alpha: 0.1),
+                  backgroundColor: AppTheme.error.withOpacity(0.1),
                   child: const Icon(Icons.warning, color: AppTheme.error, size: 16),
                 ),
                 title: Text(
@@ -215,7 +215,7 @@ class ExpiringSoonWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -250,7 +250,7 @@ class ExpiringSoonWidget extends StatelessWidget {
                   ? Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: AppTheme.success.withValues(alpha: 0.1),
+                        color: AppTheme.success.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: const Text(
@@ -291,7 +291,7 @@ class PendingPriceChangesWidget extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)],
+            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -323,8 +323,8 @@ class PendingPriceChangesWidget extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: diff < 0
-                          ? AppTheme.success.withValues(alpha: 0.1)
-                          : AppTheme.error.withValues(alpha: 0.1),
+                          ? AppTheme.success.withOpacity(0.1)
+                          : AppTheme.error.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(

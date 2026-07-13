@@ -152,7 +152,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
 
           // Translucent black overlay with transparent cut-out in center
           ColorFiltered(
-            colorFilter: ColorFilter.mode(Colors.black.withValues(alpha: 0.6), BlendMode.srcOut),
+            colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.6), BlendMode.srcOut),
             child: Stack(
               children: [
                 Container(color: Colors.transparent),
@@ -197,7 +197,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
                           decoration: BoxDecoration(
                             boxShadow: [
                               BoxShadow(
-                                color: AppTheme.primary.withValues(alpha: 0.8),
+                                color: AppTheme.primary.withOpacity(0.8),
                                 blurRadius: 8,
                                 spreadRadius: 2,
                               ),
@@ -273,7 +273,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen>
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.5),
+                    color: Colors.black.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Text(

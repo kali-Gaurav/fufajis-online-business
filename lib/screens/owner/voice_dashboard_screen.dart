@@ -217,9 +217,9 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppTheme.info.withValues(alpha: 0.1),
+              color: AppTheme.info.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.info.withValues(alpha: 0.3)),
+              border: Border.all(color: AppTheme.info.withOpacity(0.3)),
             ),
             child: Row(
               children: [
@@ -259,7 +259,7 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: AppTheme.cardShadows,
-          border: Border.all(color: qc.color.withValues(alpha: 0.2)),
+          border: Border.all(color: qc.color.withOpacity(0.2)),
         ),
         padding: const EdgeInsets.all(14),
         child: Column(
@@ -269,7 +269,7 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: qc.color.withValues(alpha: 0.12),
+                color: qc.color.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(qc.icon, color: qc.color, size: 20),
@@ -391,7 +391,7 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -405,8 +405,8 @@ class _VoiceDashboardScreenState extends State<VoiceDashboardScreen> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: isSuccess
-                ? AppTheme.info.withValues(alpha: 0.12)
-                : AppTheme.error.withValues(alpha: 0.12),
+                ? AppTheme.info.withOpacity(0.12)
+                : AppTheme.error.withOpacity(0.12),
           ),
           child: Icon(
             isSuccess ? Icons.check : Icons.error_outline,

@@ -119,7 +119,7 @@ class _RefundProcessingScreenState extends State<RefundProcessingScreen> {
 
     return Container(
       width: double.infinity,
-      color: AppTheme.primary.withValues(alpha: 0.08),
+      color: AppTheme.primary.withOpacity(0.08),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
         children: [
@@ -154,7 +154,7 @@ class _RefundProcessingScreenState extends State<RefundProcessingScreen> {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      color: isSelected ? AppTheme.primary.withValues(alpha: 0.06) : null,
+      color: isSelected ? AppTheme.primary.withOpacity(0.06) : null,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -748,7 +748,7 @@ class _RefundProcessingScreenState extends State<RefundProcessingScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
+        color: color.withOpacity(0.12),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(

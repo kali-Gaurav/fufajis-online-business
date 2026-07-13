@@ -184,7 +184,7 @@ class _PinResetScreenState extends State<PinResetScreen> {
                     width: 90,
                     height: 90,
                     decoration: BoxDecoration(
-                      color: AppTheme.primary.withValues(alpha: 0.15),
+                      color: AppTheme.primary.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(28),
                     ),
                     child: Icon(

@@ -136,10 +136,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                             Container(
                               padding: const EdgeInsets.all(24),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFFF6B00).withValues(alpha: 0.08),
+                                color: const Color(0xFFFF6B00).withOpacity(0.08),
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: const Color(0xFFFF6B00).withValues(alpha: 0.2),
+                                  color: const Color(0xFFFF6B00).withOpacity(0.2),
                                 ),
                               ),
                               child: Column(
@@ -275,7 +275,7 @@ class _FeatureItem extends StatelessWidget {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: const Color(0xFFFF6B00).withValues(alpha: 0.1),
+            color: const Color(0xFFFF6B00).withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, color: const Color(0xFFFF6B00), size: 24),

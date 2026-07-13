@@ -95,7 +95,7 @@ class _InventoryApprovalQueueScreenState extends State<InventoryApprovalQueueScr
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.12),
+                    color: AppTheme.primary.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(

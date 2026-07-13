@@ -97,7 +97,7 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.black.withValues(alpha: 0.05),
+                  color: AppTheme.black.withOpacity(0.05),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -182,7 +182,7 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: isSelected ? AppTheme.primary.withValues(alpha: 0.05) : Colors.white,
+        color: isSelected ? AppTheme.primary.withOpacity(0.05) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isSelected ? AppTheme.primary : AppTheme.grey300,
@@ -190,7 +190,7 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
         ),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.04),
+            color: AppTheme.black.withOpacity(0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -215,7 +215,7 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
                     height: 40,
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? AppTheme.primary.withValues(alpha: 0.15)
+                          ? AppTheme.primary.withOpacity(0.15)
                           : AppTheme.grey100,
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -244,7 +244,7 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.success.withValues(alpha: 0.15),
+                                  color: AppTheme.success.withOpacity(0.15),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: const Text(
@@ -276,7 +276,7 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppTheme.error.withValues(alpha: 0.1),
+                    color: AppTheme.error.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -344,7 +344,7 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.black.withValues(alpha: 0.1),
+                      color: AppTheme.black.withOpacity(0.1),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -378,13 +378,13 @@ class _AddressSelectionStepState extends State<AddressSelectionStep> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: isInDeliveryZone
-            ? AppTheme.success.withValues(alpha: 0.1)
-            : AppTheme.error.withValues(alpha: 0.1),
+            ? AppTheme.success.withOpacity(0.1)
+            : AppTheme.error.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isInDeliveryZone
-              ? AppTheme.success.withValues(alpha: 0.35)
-              : AppTheme.error.withValues(alpha: 0.35),
+              ? AppTheme.success.withOpacity(0.35)
+              : AppTheme.error.withOpacity(0.35),
         ),
       ),
       child: Row(

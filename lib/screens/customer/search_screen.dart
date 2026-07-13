@@ -233,7 +233,7 @@ class _SearchScreenState extends State<SearchScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -346,7 +346,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   _searchController.text = search;
                   _performSearch(search);
                 },
-                backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
+                backgroundColor: AppTheme.primary.withOpacity(0.1),
                 labelStyle: const TextStyle(color: AppTheme.primary),
                 avatar: const Icon(Icons.trending_up, size: 16, color: AppTheme.primary),
               );
@@ -408,7 +408,7 @@ class _SearchScreenState extends State<SearchScreen> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.black.withValues(alpha: 0.05),
+              color: AppTheme.black.withOpacity(0.05),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),

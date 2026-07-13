@@ -297,7 +297,7 @@ class _TaskPriorityScreenState extends State<TaskPriorityScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
@@ -346,9 +346,9 @@ class _TaskPriorityScreenState extends State<TaskPriorityScreen> {
         Container(
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
+            color: color.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: color.withValues(alpha: 0.2)),
+            border: Border.all(color: color.withOpacity(0.2)),
           ),
           child: Row(
             children: [
@@ -404,11 +404,11 @@ class _TaskPriorityScreenState extends State<TaskPriorityScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           color: Colors.white,
-          border: Border.all(color: color.withValues(alpha: 0.2), width: 2),
+          border: Border.all(color: color.withOpacity(0.2), width: 2),
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.black.withValues(alpha: 0.04),
+              color: AppTheme.black.withOpacity(0.04),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -420,7 +420,7 @@ class _TaskPriorityScreenState extends State<TaskPriorityScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
+                color: color.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: color, size: 24),

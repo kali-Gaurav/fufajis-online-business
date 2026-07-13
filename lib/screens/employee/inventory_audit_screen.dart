@@ -210,7 +210,7 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: AppTheme.info.withValues(alpha: 0.1),
+                          color: AppTheme.info.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
@@ -284,7 +284,7 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
                                 color: _discrepancyTotal == 0
-                                    ? AppTheme.success.withValues(alpha: 0.1)
+                                    ? AppTheme.success.withOpacity(0.1)
                                     : AppTheme.primaryLight,
                                 borderRadius: BorderRadius.circular(8),
                               ),
@@ -308,9 +308,9 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                           margin: const EdgeInsets.only(bottom: 8),
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: AppTheme.info.withValues(alpha: 0.1),
+                            color: AppTheme.info.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppTheme.info.withValues(alpha: 0.2)),
+                            border: Border.all(color: AppTheme.info.withOpacity(0.2)),
                           ),
                           child: Row(
                             children: [
@@ -450,8 +450,8 @@ class _InventoryAuditScreenState extends State<InventoryAuditScreen> {
                 return Card(
                   color: hasDiscrepancy
                       ? (result.difference > 0
-                            ? AppTheme.success.withValues(alpha: 0.1)
-                            : AppTheme.error.withValues(alpha: 0.1))
+                            ? AppTheme.success.withOpacity(0.1)
+                            : AppTheme.error.withOpacity(0.1))
                       : Colors.white,
                   child: ListTile(
                     leading: CircleAvatar(

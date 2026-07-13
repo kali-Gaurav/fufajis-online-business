@@ -403,13 +403,13 @@ class _HeroHeader extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
                     color: isDark
-                        ? AppTheme.primaryLight.withValues(alpha: 0.15)
-                        : Colors.white.withValues(alpha: 0.18),
+                        ? AppTheme.primaryLight.withOpacity(0.15)
+                        : Colors.white.withOpacity(0.18),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: isDark
-                          ? AppTheme.primary.withValues(alpha: 0.30)
-                          : Colors.white.withValues(alpha: 0.30),
+                          ? AppTheme.primary.withOpacity(0.30)
+                          : Colors.white.withOpacity(0.30),
                     ),
                   ),
                   child: const Text(
@@ -437,7 +437,7 @@ class _HeroHeader extends StatelessWidget {
       height: d,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.white.withValues(alpha: 0.20),
+        color: Colors.white.withOpacity(0.20),
       ),
     ),
   );
@@ -571,13 +571,13 @@ class _RoleChip extends StatelessWidget {
           border: Border.all(
             color: selected
                 ? accentColor
-                : (isDark ? accentColor.withValues(alpha: 0.25) : AppTheme.grey200),
+                : (isDark ? accentColor.withOpacity(0.25) : AppTheme.grey200),
             width: selected ? 1.5 : 1.0,
           ),
           boxShadow: selected
               ? [
                   BoxShadow(
-                    color: accentColor.withValues(alpha: 0.32),
+                    color: accentColor.withOpacity(0.32),
                     blurRadius: 14,
                     offset: const Offset(0, 5),
                   ),
@@ -592,7 +592,7 @@ class _RoleChip extends StatelessWidget {
               size: 22,
               color: selected
                   ? Colors.white
-                  : (isDark ? accentColor.withValues(alpha: 0.80) : AppTheme.grey600),
+                  : (isDark ? accentColor.withOpacity(0.80) : AppTheme.grey600),
             ),
             const SizedBox(width: 8),
             Flexible(
@@ -615,8 +615,8 @@ class _RoleChip extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 10,
                       color: selected
-                          ? Colors.white.withValues(alpha: 0.80)
-                          : (isDark ? accentColor.withValues(alpha: 0.70) : AppTheme.grey500),
+                          ? Colors.white.withOpacity(0.80)
+                          : (isDark ? accentColor.withOpacity(0.70) : AppTheme.grey500),
                     ),
                   ),
                 ],
@@ -645,7 +645,7 @@ class _OutlineAuthButton extends StatelessWidget {
         color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppTheme.primary.withValues(alpha: 0.5),
+          color: AppTheme.primary.withOpacity(0.5),
           width: 1.5,
         ),
       ),
@@ -684,7 +684,7 @@ class _GoogleButton extends StatelessWidget {
         border: Border.all(color: isDark ? const Color(0xFF333333) : AppTheme.grey200, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.06 : 0.04),
+            color: Colors.black.withOpacity(isDark ? 0.06 : 0.04),
             blurRadius: 14,
             offset: const Offset(0, 4),
           ),
@@ -801,7 +801,7 @@ class _AppleButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.06 : 0.04),
+            color: Colors.black.withOpacity(isDark ? 0.06 : 0.04),
             blurRadius: 14,
             offset: const Offset(0, 4),
           ),
@@ -1002,7 +1002,7 @@ class _PhoneSection extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primary.withValues(alpha: 0.38),
+                    color: AppTheme.primary.withOpacity(0.38),
                     blurRadius: 18,
                     offset: const Offset(0, 7),
                   ),
@@ -1047,10 +1047,10 @@ class _GuestButton extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isDark
-              ? Colors.white.withValues(alpha: 0.04)
-              : AppTheme.primaryLight.withValues(alpha: 0.18),
+              ? Colors.white.withOpacity(0.04)
+              : AppTheme.primaryLight.withOpacity(0.18),
           border: Border.all(
-            color: isDark ? AppTheme.grey800 : AppTheme.primary.withValues(alpha: 0.25),
+            color: isDark ? AppTheme.grey800 : AppTheme.primary.withOpacity(0.25),
             width: 1.2,
           ),
           borderRadius: BorderRadius.circular(16),
@@ -1061,7 +1061,7 @@ class _GuestButton extends StatelessWidget {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: isDark ? AppTheme.primary.withValues(alpha: 0.15) : AppTheme.primaryLight,
+                color: isDark ? AppTheme.primary.withOpacity(0.15) : AppTheme.primaryLight,
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.explore_rounded, color: AppTheme.primary, size: 22),

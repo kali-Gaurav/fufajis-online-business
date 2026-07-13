@@ -129,7 +129,7 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
                                 Text(
                                   'Fufaji Loyalty Program',
                                   style: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.8),
+                                    color: Colors.white.withOpacity(0.8),
                                     fontSize: 14,
                                   ),
                                 ),
@@ -146,7 +146,7 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
                               Text(
                                 tierName,
                                 style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.8),
+                                  color: Colors.white.withOpacity(0.8),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -158,7 +158,7 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
                                       )
                                     : '',
                                 style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.8),
+                                  color: Colors.white.withOpacity(0.8),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -170,7 +170,7 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
                             borderRadius: BorderRadius.circular(6),
                             child: LinearProgressIndicator(
                               value: progress / 100,
-                              backgroundColor: AppTheme.cream.withValues(alpha: 0.2),
+                              backgroundColor: AppTheme.cream.withOpacity(0.2),
                               valueColor: const AlwaysStoppedAnimation(Colors.white),
                               minHeight: 8,
                             ),
@@ -181,7 +181,7 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
                                 ? '₹${(nextTierInfo['spendingRequired'] as double).toStringAsFixed(0)} more to reach next tier'
                                 : '',
                             style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.7),
+                              color: Colors.white.withOpacity(0.7),
                               fontSize: 12,
                             ),
                           ),
@@ -189,7 +189,7 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
+                              color: Colors.white.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: const Row(
@@ -297,7 +297,7 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
                   const SizedBox(height: 4),
                   Text(
                     'Higher tiers get access to reserved slots',
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 13),
+                    style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 13),
                   ),
                   const SizedBox(height: 12),
                   ..._availableSlots.map((slot) => _buildSlotTile(slot, tier)),
@@ -347,7 +347,7 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.2),
+        color: Colors.white.withOpacity(0.2),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Icon(icons[tier], size: 36, color: Colors.white),
@@ -367,7 +367,7 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
         decoration: BoxDecoration(
           color: const Color(0xFF1A1A2E),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
+          border: Border.all(color: color.withOpacity(0.2)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -382,9 +382,9 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Text(label, style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12)),
+            Text(label, style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12)),
             const SizedBox(height: 4),
-            Text(subValue, style: TextStyle(color: color.withValues(alpha: 0.8), fontSize: 11)),
+            Text(subValue, style: TextStyle(color: color.withOpacity(0.8), fontSize: 11)),
           ],
         ),
       ),
@@ -404,7 +404,7 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
+              color: color.withOpacity(0.15),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: color, size: 22),
@@ -424,7 +424,7 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
                 ),
                 Text(
                   subtitle,
-                  style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12),
+                  style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12),
                 ),
               ],
             ),
@@ -461,7 +461,7 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFF6B6B).withValues(alpha: 0.2),
+                  color: const Color(0xFFFF6B6B).withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -494,7 +494,7 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
                   Icons.local_fire_department,
                   color: i < currentStreak.clamp(0, 7)
                       ? const Color(0xFFFF6B6B)
-                      : Colors.white.withValues(alpha: 0.1),
+                      : Colors.white.withOpacity(0.1),
                   size: 28,
                 ),
               ),
@@ -507,7 +507,7 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
                 : currentStreak >= 3
                 ? '💪 Great streak! 2 more weeks for 50% bonus!'
                 : 'Order weekly to build your streak & earn bonus points!',
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12),
+            style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12),
           ),
         ],
       ),
@@ -522,7 +522,7 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
           value.toString(),
           style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
         ),
-        Text(label, style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12)),
+        Text(label, style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12)),
       ],
     );
   }
@@ -541,10 +541,10 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isPriority
-              ? const Color(0xFFFFD700).withValues(alpha: 0.3)
+              ? const Color(0xFFFFD700).withOpacity(0.3)
               : isAvailable
               ? Colors.transparent
-              : const Color(0xFFFF6B6B).withValues(alpha: 0.2),
+              : const Color(0xFFFF6B6B).withOpacity(0.2),
         ),
       ),
       child: Row(
@@ -574,7 +574,7 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFFD700).withValues(alpha: 0.15),
+                          color: const Color(0xFFFFD700).withOpacity(0.15),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: const Text(
@@ -594,7 +594,7 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
                   borderRadius: BorderRadius.circular(3),
                   child: LinearProgressIndicator(
                     value: fillPct,
-                    backgroundColor: Colors.white.withValues(alpha: 0.1),
+                    backgroundColor: Colors.white.withOpacity(0.1),
                     valueColor: AlwaysStoppedAnimation(
                       fillPct > 0.8
                           ? const Color(0xFFFF6B6B)
@@ -635,7 +635,7 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
           children: [
             Text(
               'You have $points points (₹${(points * 0.01).toStringAsFixed(0)} value)',
-              style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+              style: TextStyle(color: Colors.white.withOpacity(0.7)),
             ),
             const SizedBox(height: 16),
             TextField(
@@ -644,7 +644,7 @@ class _MembershipDashboardScreenState extends State<MembershipDashboardScreen> {
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 labelText: 'Points to redeem',
-                labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
+                labelStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
                 filled: true,
                 fillColor: const Color(0xFF0F0F1A),
                 border: OutlineInputBorder(

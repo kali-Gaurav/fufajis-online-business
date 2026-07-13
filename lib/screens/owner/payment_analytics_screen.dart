@@ -285,9 +285,9 @@ class _PaymentAnalyticsScreenState extends State<PaymentAnalyticsScreen> {
             margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppTheme.warning.withValues(alpha: 0.1),
+              color: AppTheme.warning.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.warning.withValues(alpha: 0.3)),
+              border: Border.all(color: AppTheme.warning.withOpacity(0.3)),
             ),
             child: Row(
               children: [

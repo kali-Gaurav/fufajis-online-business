@@ -101,7 +101,7 @@ class _MandiPricingDashboardState extends State<MandiPricingDashboard> {
         children: [
           Container(
             padding: const EdgeInsets.all(16),
-            color: AppTheme.success.withValues(alpha: 0.1),
+            color: AppTheme.success.withOpacity(0.1),
             child: const Row(
               children: [
                 Icon(Icons.trending_up, color: AppTheme.success),

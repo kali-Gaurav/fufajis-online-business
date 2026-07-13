@@ -878,7 +878,7 @@ class _QtyBtn extends StatelessWidget {
         width: 22,
         height: 22,
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
+          color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(4),
           border: Border.all(color: color, width: 1),
         ),

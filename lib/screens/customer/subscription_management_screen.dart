@@ -246,10 +246,10 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: isActive
-                            ? AppTheme.success.withValues(alpha: 0.1)
+                            ? AppTheme.success.withOpacity(0.1)
                             : (isPaused
-                                ? AppTheme.warning.withValues(alpha: 0.1)
-                                : AppTheme.error.withValues(alpha: 0.1)),
+                                ? AppTheme.warning.withOpacity(0.1)
+                                : AppTheme.error.withOpacity(0.1)),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(

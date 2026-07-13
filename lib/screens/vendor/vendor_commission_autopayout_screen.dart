@@ -222,9 +222,9 @@ class _VendorCommissionAutoPayoutScreenState
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.primary.withValues(alpha: 0.05),
+        color: AppTheme.primary.withOpacity(0.05),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
+        border: Border.all(color: AppTheme.primary.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

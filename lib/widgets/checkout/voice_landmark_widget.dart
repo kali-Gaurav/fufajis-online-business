@@ -65,9 +65,9 @@ class _VoiceLandmarkWidgetState extends State<VoiceLandmarkWidget> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.primary.withValues(alpha: 0.05),
+        color: AppTheme.primary.withOpacity(0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
+        border: Border.all(color: AppTheme.primary.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,9 +104,7 @@ class _VoiceLandmarkWidgetState extends State<VoiceLandmarkWidget> {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: (_isRecording ? AppTheme.error : AppTheme.primary).withValues(
-                        alpha: 0.4,
-                      ),
+                      color: (_isRecording ? AppTheme.error : AppTheme.primary).withOpacity(0.4,),
                       blurRadius: _isRecording ? 20 : 10,
                       spreadRadius: _isRecording ? 5 : 0,
                     ),

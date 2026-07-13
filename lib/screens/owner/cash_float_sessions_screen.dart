@@ -132,7 +132,7 @@ class _SessionCard extends StatelessWidget {
                       (isOpen
                               ? AppTheme.warning
                               : (hasDiscrepancy ? AppTheme.error : AppTheme.success))
-                          .withValues(alpha: 0.12),
+                          .withOpacity(0.12),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(

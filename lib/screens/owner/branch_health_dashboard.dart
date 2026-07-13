@@ -161,7 +161,7 @@ class BranchHealthDashboard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: status.color.withValues(alpha: 0.5)),
+        side: BorderSide(color: status.color.withOpacity(0.5)),
       ),
       child: ListTile(
         leading: Icon(status.icon, color: status.color),

@@ -196,7 +196,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -302,7 +302,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -338,7 +338,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -380,7 +380,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? AppTheme.primary.withValues(alpha: 0.08)
+                          ? AppTheme.primary.withOpacity(0.08)
                           : AppTheme.grey100,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
@@ -419,7 +419,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     });
                   }
                 },
-                selectedColor: AppTheme.primary.withValues(alpha: 0.15),
+                selectedColor: AppTheme.primary.withOpacity(0.15),
                 backgroundColor: AppTheme.grey100,
                 labelStyle: TextStyle(
                   color: isSelected ? AppTheme.primary : AppTheme.grey800,
@@ -469,14 +469,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.success.withValues(alpha: 0.05),
-            AppTheme.primary.withValues(alpha: 0.03),
+            AppTheme.success.withOpacity(0.05),
+            AppTheme.primary.withOpacity(0.03),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.success.withValues(alpha: 0.2), width: 1.5),
+        border: Border.all(color: AppTheme.success.withOpacity(0.2), width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -547,7 +547,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppTheme.success.withValues(alpha: 0.08),
+              color: AppTheme.success.withOpacity(0.08),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Row(

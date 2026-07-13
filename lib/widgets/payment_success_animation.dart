@@ -78,9 +78,9 @@ class _PaymentSuccessAnimationState extends State<PaymentSuccessAnimation>
             height: 120,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: _green.withValues(alpha: 0.12),
+              color: _green.withOpacity(0.12),
               boxShadow: [
-                BoxShadow(color: _green.withValues(alpha: 0.25), blurRadius: 28, spreadRadius: 6),
+                BoxShadow(color: _green.withOpacity(0.25), blurRadius: 28, spreadRadius: 6),
               ],
             ),
             child: const Icon(Icons.check_circle_rounded, color: _green, size: 80),
@@ -121,9 +121,9 @@ class _PaymentSuccessAnimationState extends State<PaymentSuccessAnimation>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
-              color: _green.withValues(alpha: 0.08),
+              color: _green.withOpacity(0.08),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: _green.withValues(alpha: 0.3)),
+              border: Border.all(color: _green.withOpacity(0.3)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -160,9 +160,9 @@ class _PaymentSuccessAnimationState extends State<PaymentSuccessAnimation>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
-              color: AppTheme.primary.withValues(alpha: 0.07),
+              color: AppTheme.primary.withOpacity(0.07),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.primary.withValues(alpha: 0.25)),
+              border: Border.all(color: AppTheme.primary.withOpacity(0.25)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,

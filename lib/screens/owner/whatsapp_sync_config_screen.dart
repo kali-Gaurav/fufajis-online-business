@@ -290,7 +290,7 @@ class _WhatsAppSyncConfigScreenState extends State<WhatsAppSyncConfigScreen> {
 
                   // Instructions
                   Card(
-                    color: AppTheme.info.withValues(alpha: 0.08),
+                    color: AppTheme.info.withOpacity(0.08),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(

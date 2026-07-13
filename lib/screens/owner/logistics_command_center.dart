@@ -60,9 +60,9 @@ class LogisticsCommandCenter extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
+        border: Border.all(color: color.withOpacity(0.2)),
         boxShadow: [
-          BoxShadow(color: color.withValues(alpha: 0.1), blurRadius: 8, offset: const Offset(0, 4)),
+          BoxShadow(color: color.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 4)),
         ],
       ),
       padding: const EdgeInsets.all(16),
@@ -103,7 +103,7 @@ class LogisticsCommandCenter extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppTheme.primary, AppTheme.primary.withValues(alpha: 0.8)],
+          colors: [AppTheme.primary, AppTheme.primary.withOpacity(0.8)],
         ),
         borderRadius: BorderRadius.circular(16),
       ),
@@ -143,7 +143,7 @@ class LogisticsCommandCenter extends StatelessWidget {
         const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
-            color: AppTheme.error.withValues(alpha: 0.1),
+            color: AppTheme.error.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: AppTheme.error),
           ),

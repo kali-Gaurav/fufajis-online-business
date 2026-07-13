@@ -175,9 +175,9 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withValues(alpha: 0.3), width: 0.5),
+        border: Border.all(color: color.withOpacity(0.3), width: 0.5),
       ),
       child: Text(
         text,
@@ -211,7 +211,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
 
             return ListTile(
               selected: isActive,
-              selectedTileColor: AppTheme.primary.withValues(alpha: 0.05),
+              selectedTileColor: AppTheme.primary.withOpacity(0.05),
               leading: CircleAvatar(
                 backgroundColor: AppTheme.grey200,
                 child: Text(
@@ -349,16 +349,16 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: isOos
-            ? AppTheme.error.withValues(alpha: 0.05)
+            ? AppTheme.error.withOpacity(0.05)
             : isPacked
-            ? AppTheme.success.withValues(alpha: 0.05)
+            ? AppTheme.success.withOpacity(0.05)
             : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isOos
-              ? AppTheme.error.withValues(alpha: 0.3)
+              ? AppTheme.error.withOpacity(0.3)
               : isPacked
-              ? AppTheme.success.withValues(alpha: 0.3)
+              ? AppTheme.success.withOpacity(0.3)
               : AppTheme.grey200,
         ),
       ),
@@ -747,7 +747,7 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppTheme.warning.withValues(alpha: 0.1),
+                  color: AppTheme.warning.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: AppTheme.warning, width: 1.5),
                 ),
@@ -811,13 +811,13 @@ class _PackingTerminalScreenState extends State<PackingTerminalScreen> {
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: item.isOutOfStock
-                                ? AppTheme.error.withValues(alpha: 0.05)
-                                : AppTheme.success.withValues(alpha: 0.05),
+                                ? AppTheme.error.withOpacity(0.05)
+                                : AppTheme.success.withOpacity(0.05),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: item.isOutOfStock
-                                  ? AppTheme.error.withValues(alpha: 0.2)
-                                  : AppTheme.success.withValues(alpha: 0.2),
+                                  ? AppTheme.error.withOpacity(0.2)
+                                  : AppTheme.success.withOpacity(0.2),
                             ),
                           ),
                           child: ListTile(

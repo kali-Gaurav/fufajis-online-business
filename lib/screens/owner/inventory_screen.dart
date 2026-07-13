@@ -197,7 +197,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.black.withValues(alpha: 0.03),
+                      color: AppTheme.black.withOpacity(0.03),
                       blurRadius: 4,
                       offset: const Offset(0, 1),
                     ),
@@ -271,7 +271,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.black.withValues(alpha: 0.05),
+                  color: AppTheme.black.withOpacity(0.05),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -369,7 +369,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -382,7 +382,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: AppTheme.primary.withValues(alpha: 0.1),
+              color: AppTheme.primary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.inventory_2, color: AppTheme.primary),
@@ -413,7 +413,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: expiryColor.withValues(alpha: 0.1),
+                          color: expiryColor.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -432,7 +432,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: statusColor.withValues(alpha: 0.1),
+                    color: statusColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -471,7 +471,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.1),
+                    color: AppTheme.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.edit, color: AppTheme.primary, size: 20),
@@ -484,7 +484,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: AppTheme.success.withValues(alpha: 0.1),
+                    color: AppTheme.success.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.add_circle, color: AppTheme.success, size: 20),
@@ -606,9 +606,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.error.withValues(alpha: 0.04),
+        color: AppTheme.error.withOpacity(0.04),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.error.withValues(alpha: 0.2)),
+        border: Border.all(color: AppTheme.error.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -658,7 +658,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                   decoration: BoxDecoration(
                     color: AppTheme.white,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppTheme.error.withValues(alpha: 0.1)),
+                    border: Border.all(color: AppTheme.error.withOpacity(0.1)),
                   ),
                   child: Row(
                     children: [
@@ -688,7 +688,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                           await _quickIncrementStock(item, 50);
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.error.withValues(alpha: 0.1),
+                          backgroundColor: AppTheme.error.withOpacity(0.1),
                           foregroundColor: AppTheme.error,
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(horizontal: 10),

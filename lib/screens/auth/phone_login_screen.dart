@@ -140,9 +140,9 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> with SingleTickerPr
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.15),
+                                    color: Colors.white.withOpacity(0.15),
                                     borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(color: Colors.white.withValues(alpha: 0.30)),
+                                    border: Border.all(color: Colors.white.withOpacity(0.30)),
                                   ),
                                   child: const Text(
                                     'आपकी अपनी दुकान  ·  Your own store',

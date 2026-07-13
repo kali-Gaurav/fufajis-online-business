@@ -193,7 +193,7 @@ class _ChatWithSuggestionsState extends State<ChatWithSuggestions> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: Colors.white,
-          border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3)),
+          border: Border.all(color: AppTheme.primary.withOpacity(0.3)),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(

@@ -309,7 +309,7 @@ class _QualityComplianceScreenState
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: AppTheme.primary.withValues(alpha: 0.1),
+                      color: AppTheme.primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -328,7 +328,7 @@ class _QualityComplianceScreenState
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.amber.withValues(alpha: 0.1),
+                      color: Colors.amber.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: const Text(
@@ -620,11 +620,11 @@ class _QualityComplianceScreenState
     IconData icon;
 
     if (severity == 'high') {
-      bgColor = AppTheme.error.withValues(alpha: 0.1);
+      bgColor = AppTheme.error.withOpacity(0.1);
       textColor = AppTheme.error;
       icon = Icons.error;
     } else {
-      bgColor = Colors.orange.withValues(alpha: 0.1);
+      bgColor = Colors.orange.withOpacity(0.1);
       textColor = Colors.orange[700]!;
       icon = Icons.warning;
     }
@@ -660,17 +660,17 @@ class _QualityComplianceScreenState
 
     switch (status) {
       case 'open':
-        bgColor = AppTheme.error.withValues(alpha: 0.1);
+        bgColor = AppTheme.error.withOpacity(0.1);
         textColor = AppTheme.error;
         label = 'Open';
         break;
       case 'in_progress':
-        bgColor = Colors.orange.withValues(alpha: 0.1);
+        bgColor = Colors.orange.withOpacity(0.1);
         textColor = Colors.orange[700]!;
         label = 'Progress';
         break;
       case 'resolved':
-        bgColor = AppTheme.success.withValues(alpha: 0.1);
+        bgColor = AppTheme.success.withOpacity(0.1);
         textColor = AppTheme.success;
         label = 'Resolved';
         break;
@@ -760,10 +760,10 @@ class _QualityComplianceScreenState
                   ),
                   decoration: BoxDecoration(
                     color: isExpired
-                        ? AppTheme.error.withValues(alpha: 0.1)
+                        ? AppTheme.error.withOpacity(0.1)
                         : (isExpiringSoon
-                            ? Colors.amber.withValues(alpha: 0.1)
-                            : AppTheme.success.withValues(alpha: 0.1)),
+                            ? Colors.amber.withOpacity(0.1)
+                            : AppTheme.success.withOpacity(0.1)),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(

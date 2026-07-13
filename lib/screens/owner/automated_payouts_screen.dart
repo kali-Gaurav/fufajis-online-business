@@ -301,9 +301,7 @@ class _PayoutRequestCard extends StatelessWidget {
             Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: (isRider ? AppTheme.info : AppTheme.primary).withValues(
-                    alpha: 0.12,
-                  ),
+                  backgroundColor: (isRider ? AppTheme.info : AppTheme.primary).withOpacity(0.12,),
                   child: Icon(
                     isRider ? Icons.delivery_dining : Icons.storefront_outlined,
                     color: isRider ? AppTheme.info : AppTheme.primary,
@@ -336,7 +334,7 @@ class _PayoutRequestCard extends StatelessWidget {
                       margin: const EdgeInsets.only(top: 4),
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: _statusColor().withValues(alpha: 0.12),
+                        color: _statusColor().withOpacity(0.12),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(

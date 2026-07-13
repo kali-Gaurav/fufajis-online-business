@@ -331,7 +331,7 @@ class _VendorSupplierManagementScreenState
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.1),
+                    color: AppTheme.primary.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -555,12 +555,12 @@ class _VendorSupplierManagementScreenState
 
     switch (status) {
       case 'active':
-        bgColor = AppTheme.success.withValues(alpha: 0.1);
+        bgColor = AppTheme.success.withOpacity(0.1);
         textColor = AppTheme.success;
         label = 'Active';
         break;
       case 'pending':
-        bgColor = Colors.amber.withValues(alpha: 0.1);
+        bgColor = Colors.amber.withOpacity(0.1);
         textColor = Colors.amber[700]!;
         label = 'Pending';
         break;
@@ -731,17 +731,17 @@ class _VendorSupplierManagementScreenState
 
     switch (status) {
       case 'delivered':
-        bgColor = AppTheme.success.withValues(alpha: 0.1);
+        bgColor = AppTheme.success.withOpacity(0.1);
         textColor = AppTheme.success;
         label = 'Delivered';
         break;
       case 'pending':
-        bgColor = Colors.blue.withValues(alpha: 0.1);
+        bgColor = Colors.blue.withOpacity(0.1);
         textColor = Colors.blue;
         label = 'Pending';
         break;
       case 'in_transit':
-        bgColor = Colors.orange.withValues(alpha: 0.1);
+        bgColor = Colors.orange.withOpacity(0.1);
         textColor = Colors.orange[700]!;
         label = 'In Transit';
         break;
@@ -834,7 +834,7 @@ class _VendorSupplierManagementScreenState
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: AppTheme.primary.withValues(alpha: 0.1),
+                color: AppTheme.primary.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Center(

@@ -154,7 +154,7 @@ class _VendorCommissionDashboardScreenState
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppTheme.primary.withValues(alpha: 0.9), AppTheme.primary.withValues(alpha: 0.7)],
+          colors: [AppTheme.primary.withOpacity(0.9), AppTheme.primary.withOpacity(0.7)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -205,7 +205,7 @@ class _VendorCommissionDashboardScreenState
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
@@ -337,9 +337,9 @@ class _VendorCommissionDashboardScreenState
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.success.withValues(alpha: 0.1),
+                color: AppTheme.success.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppTheme.success.withValues(alpha: 0.3)),
+                border: Border.all(color: AppTheme.success.withOpacity(0.3)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -450,7 +450,7 @@ class _VendorCommissionDashboardScreenState
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: AppTheme.success.withValues(alpha: 0.1),
+                        color: AppTheme.success.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
@@ -485,7 +485,7 @@ class _VendorCommissionDashboardScreenState
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppTheme.success.withValues(alpha: 0.15),
+                        color: AppTheme.success.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(

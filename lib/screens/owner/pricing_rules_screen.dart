@@ -122,7 +122,7 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
                   // Pending Changes Alert
                   if (_pendingChangesCount > 0)
                     Card(
-                      color: AppTheme.info.withValues(alpha: 0.08),
+                      color: AppTheme.info.withOpacity(0.08),
                       child: Padding(
                         padding: const EdgeInsets.all(12),
                         child: Row(
@@ -258,7 +258,7 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
 
                   // Strategy Information
                   Card(
-                    color: AppTheme.info.withValues(alpha: 0.08),
+                    color: AppTheme.info.withOpacity(0.08),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -307,7 +307,7 @@ class _PricingRulesScreenState extends State<PricingRulesScreen> {
         child: GestureDetector(
           onTap: () => setState(() => _selectedStrategy = strategy),
           child: Card(
-            color: isSelected ? AppTheme.info.withValues(alpha: 0.08) : Colors.white,
+            color: isSelected ? AppTheme.info.withOpacity(0.08) : Colors.white,
             shape: RoundedRectangleBorder(
               side: BorderSide(
                 color: isSelected ? AppTheme.ownerAccent : Colors.grey[300]!,

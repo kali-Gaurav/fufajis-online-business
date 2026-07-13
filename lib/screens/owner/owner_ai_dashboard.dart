@@ -84,9 +84,9 @@ class _OwnerAiDashboardState extends State<OwnerAiDashboard> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppTheme.ownerAccent.withValues(alpha: 0.12),
+        color: AppTheme.ownerAccent.withOpacity(0.12),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.ownerAccent.withValues(alpha: 0.3), width: 1.5),
+        border: Border.all(color: AppTheme.ownerAccent.withOpacity(0.3), width: 1.5),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -115,7 +115,7 @@ class _OwnerAiDashboardState extends State<OwnerAiDashboard> {
               ),
             ],
           ),
-          Icon(Icons.store, size: 32, color: AppTheme.ownerAccent.withValues(alpha: 0.6)),
+          Icon(Icons.store, size: 32, color: AppTheme.ownerAccent.withOpacity(0.6)),
         ],
       ),
     );
@@ -197,7 +197,7 @@ class _OwnerAiDashboardState extends State<OwnerAiDashboard> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [color.withValues(alpha: 0.05), AppTheme.white],
+            colors: [color.withOpacity(0.05), AppTheme.white],
           ),
         ),
         child: Padding(
@@ -208,7 +208,7 @@ class _OwnerAiDashboardState extends State<OwnerAiDashboard> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.15),
+                  color: color.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: color, size: 40),
@@ -316,7 +316,7 @@ class _OwnerAiDashboardState extends State<OwnerAiDashboard> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppTheme.error.withValues(alpha: 0.1),
+                    color: AppTheme.error.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: const Text(

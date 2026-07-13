@@ -247,7 +247,7 @@ class _CustomerMembershipScannerScreenState extends State<CustomerMembershipScan
                   // Avatar + name
                   CircleAvatar(
                     radius: 36,
-                    backgroundColor: const Color(0xFFAD1457).withValues(alpha: 0.15),
+                    backgroundColor: const Color(0xFFAD1457).withOpacity(0.15),
                     child: Text(
                       name.isNotEmpty ? name[0].toUpperCase() : '?',
                       style: const TextStyle(
@@ -363,9 +363,9 @@ class _TierBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
+        color: color.withOpacity(0.12),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
+        border: Border.all(color: color.withOpacity(0.4)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -400,9 +400,9 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
+        color: color.withOpacity(0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
+        border: Border.all(color: color.withOpacity(0.2)),
       ),
       child: Column(
         children: [
@@ -468,7 +468,7 @@ class _OrderRow extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: statusColor.withValues(alpha: 0.12),
+              color: statusColor.withOpacity(0.12),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(

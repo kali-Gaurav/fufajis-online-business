@@ -497,7 +497,7 @@ class _EmployeePerformanceDashboardScreenState
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.2),
+                    color: AppTheme.primary.withOpacity(0.2),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -538,7 +538,7 @@ class _EmployeePerformanceDashboardScreenState
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: AppTheme.success.withValues(alpha: 0.1),
+                          color: AppTheme.success.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(

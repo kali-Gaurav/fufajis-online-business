@@ -607,7 +607,7 @@ class _RealtimeAnalyticsDashboardScreenState
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: _getStatusColor(order['status']).withValues(alpha: 0.1),
+                            color: _getStatusColor(order['status']).withOpacity(0.1),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
@@ -668,7 +668,7 @@ class _RealtimeAnalyticsDashboardScreenState
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: AppTheme.primary.withValues(alpha: 0.1),
+                        color: AppTheme.primary.withOpacity(0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(

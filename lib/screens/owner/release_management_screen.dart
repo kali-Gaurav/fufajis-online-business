@@ -145,7 +145,7 @@ class _ReleaseManagementScreenState extends State<ReleaseManagementScreen> {
             width: 80,
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: isLatest ? AppTheme.success.withValues(alpha: 0.1) : AppTheme.grey200,
+              color: isLatest ? AppTheme.success.withOpacity(0.1) : AppTheme.grey200,
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
@@ -173,7 +173,7 @@ class _ReleaseManagementScreenState extends State<ReleaseManagementScreen> {
                   child: Container(
                     height: 20,
                     decoration: BoxDecoration(
-                      color: isLatest ? AppTheme.success : AppTheme.primary.withValues(alpha: 0.5),
+                      color: isLatest ? AppTheme.success : AppTheme.primary.withOpacity(0.5),
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),

@@ -159,9 +159,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with TickerPr
         child: Container(
           margin: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.9),
+            color: Colors.white.withOpacity(0.9),
             shape: BoxShape.circle,
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 8)],
+            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8)],
           ),
           child: const Icon(Icons.arrow_back_rounded, color: AppTheme.grey900, size: 20),
         ),
@@ -180,9 +180,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with TickerPr
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.9),
+              color: Colors.white.withOpacity(0.9),
               shape: BoxShape.circle,
-              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 8)],
+              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8)],
             ),
             child: const Icon(Icons.share_rounded, color: AppTheme.grey900, size: 18),
           ),
@@ -194,9 +194,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with TickerPr
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.9),
+              color: Colors.white.withOpacity(0.9),
               shape: BoxShape.circle,
-              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 8)],
+              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8)],
             ),
             child: Icon(
               isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
@@ -344,7 +344,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with TickerPr
                   width: isActive ? 20 : 6,
                   height: 6,
                   decoration: BoxDecoration(
-                    color: isActive ? AppTheme.primary : AppTheme.primary.withValues(alpha: 0.3),
+                    color: isActive ? AppTheme.primary : AppTheme.primary.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(3),
                   ),
                 );
@@ -404,7 +404,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with TickerPr
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: AppTheme.success.withValues(alpha: 0.12),
+                    color: AppTheme.success.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -468,7 +468,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with TickerPr
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
                     color: isSel
-                        ? AppTheme.primary.withValues(alpha: 0.12)
+                        ? AppTheme.primary.withOpacity(0.12)
                         : (isDark ? const Color(0xFF2C2C2C) : Colors.white),
                     border: Border.all(
                       color: isSel ? AppTheme.primary : AppTheme.grey300,
@@ -520,7 +520,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with TickerPr
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: _quantity > 1 ? AppTheme.primary.withValues(alpha: 0.1) : AppTheme.grey100,
+                color: _quantity > 1 ? AppTheme.primary.withOpacity(0.1) : AppTheme.grey100,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
@@ -555,7 +555,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with TickerPr
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: AppTheme.primary.withValues(alpha: 0.1),
+                color: AppTheme.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(Icons.add, color: AppTheme.primary, size: 20),
@@ -571,16 +571,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with TickerPr
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppTheme.primary.withValues(alpha: 0.06),
+        color: AppTheme.primary.withOpacity(0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
+        border: Border.all(color: AppTheme.primary.withOpacity(0.2)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppTheme.primary.withValues(alpha: 0.12),
+              color: AppTheme.primary.withOpacity(0.12),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(Icons.local_shipping_outlined, color: AppTheme.primary, size: 22),
@@ -727,7 +727,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with TickerPr
                           children: [
                             CircleAvatar(
                               radius: 14,
-                              backgroundColor: AppTheme.primary.withValues(alpha: 0.15),
+                              backgroundColor: AppTheme.primary.withOpacity(0.15),
                               child: Text(
                                 r.userName.isNotEmpty ? r.userName[0].toUpperCase() : '?',
                                 style: const TextStyle(
@@ -805,7 +805,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with TickerPr
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: Colors.black.withOpacity(0.08),
             blurRadius: 20,
             offset: const Offset(0, -4),
           ),
@@ -823,7 +823,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with TickerPr
                     duration: const Duration(milliseconds: 300),
                     height: 52,
                     decoration: BoxDecoration(
-                      color: _addedToCart ? AppTheme.success.withValues(alpha: 0.12) : Colors.white,
+                      color: _addedToCart ? AppTheme.success.withOpacity(0.12) : Colors.white,
                       border: Border.all(
                         color: _addedToCart ? AppTheme.success : AppTheme.primary,
                         width: 2,
@@ -874,12 +874,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with TickerPr
                 height: 52,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [AppTheme.primary, AppTheme.primary.withValues(alpha: 0.8)],
+                    colors: [AppTheme.primary, AppTheme.primary.withOpacity(0.8)],
                   ),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primary.withValues(alpha: 0.35),
+                      color: AppTheme.primary.withOpacity(0.35),
                       blurRadius: 8,
                       offset: const Offset(0, 3),
                     ),
@@ -968,7 +968,7 @@ class _DetailLightningBannerState extends State<DetailLightningBanner> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(

@@ -37,7 +37,7 @@ class KPICard extends StatelessWidget {
           border: Border.all(color: isDark ? Colors.grey[700]! : Colors.grey[300]!),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: Colors.black.withOpacity(0.05),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -148,7 +148,7 @@ class AlertCard extends StatelessWidget {
         color: isDark ? Colors.grey[850] : Colors.white,
         border: Border(left: BorderSide(color: severityColor, width: 4)),
         borderRadius: BorderRadius.circular(8),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4)],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)],
       ),
       child: Row(
         children: [

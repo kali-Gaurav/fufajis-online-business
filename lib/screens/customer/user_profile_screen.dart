@@ -405,7 +405,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               children: [
                 Chip(
                   label: Text(address.addressType.name.toUpperCase()),
-                  backgroundColor: AppTheme.info.withValues(alpha: 0.1),
+                  backgroundColor: AppTheme.info.withOpacity(0.1),
                 ),
                 if (address.isDefault)
                   const Chip(label: Text('Default'), backgroundColor: AppTheme.success),

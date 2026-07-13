@@ -302,14 +302,14 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.primary.withValues(alpha: 0.1),
-            AppTheme.primary.withValues(alpha: 0.05),
+            AppTheme.primary.withOpacity(0.1),
+            AppTheme.primary.withOpacity(0.05),
           ],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3)),
+        border: Border.all(color: AppTheme.primary.withOpacity(0.3)),
       ),
       child: Column(
         children: [
@@ -324,9 +324,7 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: (_isListening ? AppTheme.error : AppTheme.primary).withValues(
-                      alpha: 0.4,
-                    ),
+                    color: (_isListening ? AppTheme.error : AppTheme.primary).withOpacity(0.4,),
                     blurRadius: 20,
                     spreadRadius: 5,
                   ),
@@ -395,9 +393,9 @@ class _VoiceProductAddScreenState extends State<VoiceProductAddScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.success.withValues(alpha: 0.1),
+        color: AppTheme.success.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.success.withValues(alpha: 0.3)),
+        border: Border.all(color: AppTheme.success.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

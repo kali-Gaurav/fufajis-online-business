@@ -176,7 +176,7 @@ class _BiAnalyticsHubScreenState extends State<BiAnalyticsHubScreen> {
         border: Border.all(color: AppTheme.grey100),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -187,7 +187,7 @@ class _BiAnalyticsHubScreenState extends State<BiAnalyticsHubScreen> {
         leading: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.12),
+            color: color.withOpacity(0.12),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, color: color),

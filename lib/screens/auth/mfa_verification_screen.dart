@@ -131,7 +131,7 @@ class _MfaVerificationScreenState extends State<MfaVerificationScreen> {
                     width: 90,
                     height: 90,
                     decoration: BoxDecoration(
-                      color: AppTheme.primary.withValues(alpha: 0.15),
+                      color: AppTheme.primary.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(28),
                     ),
                     child: const Icon(Icons.shield_outlined, size: 48, color: AppTheme.primary),

@@ -95,7 +95,7 @@ class _MyDevicesScreenState extends State<MyDevicesScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: AppTheme.primary.withValues(alpha: 0.1),
+                            color: AppTheme.primary.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Text(

@@ -95,9 +95,9 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
                     decoration: BoxDecoration(
                       color: online
                           ? (pendingCount > 0
-                                ? AppTheme.warning.withValues(alpha: 0.15)
-                                : AppTheme.success.withValues(alpha: 0.1))
-                          : AppTheme.warning.withValues(alpha: 0.15),
+                                ? AppTheme.warning.withOpacity(0.15)
+                                : AppTheme.success.withOpacity(0.1))
+                          : AppTheme.warning.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -601,7 +601,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primary.withValues(alpha: 0.25),
+            color: AppTheme.primary.withOpacity(0.25),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -624,7 +624,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                 const SizedBox(height: 8),
                 Text(
                   'Complete your geofenced shift clock-in to receive orders.',
-                  style: TextStyle(fontSize: 14, color: AppTheme.white.withValues(alpha: 0.8)),
+                  style: TextStyle(fontSize: 14, color: AppTheme.white.withOpacity(0.8)),
                 ),
               ],
             ),
@@ -632,7 +632,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppTheme.white.withValues(alpha: 0.2),
+              color: AppTheme.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.delivery_dining, size: 40, color: AppTheme.white),
@@ -658,7 +658,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -681,7 +681,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
+                  color: color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -784,8 +784,8 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.info.withValues(alpha: 0.05),
-        border: Border.all(color: AppTheme.info.withValues(alpha: 0.2)),
+        color: AppTheme.info.withOpacity(0.05),
+        border: Border.all(color: AppTheme.info.withOpacity(0.2)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -839,7 +839,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                 return ChoiceChip(
                   label: Text(preset['name'] as String),
                   selected: isSelected,
-                  selectedColor: AppTheme.info.withValues(alpha: 0.2),
+                  selectedColor: AppTheme.info.withOpacity(0.2),
                   labelStyle: TextStyle(
                     color: isSelected ? AppTheme.info : AppTheme.grey700,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -950,7 +950,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.black.withValues(alpha: 0.05),
+                  color: AppTheme.black.withOpacity(0.05),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -962,7 +962,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.15),
+                    color: AppTheme.primary.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(stat['icon'] as IconData, color: AppTheme.primary, size: 20),
@@ -999,7 +999,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -1045,7 +1045,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: item.status == 'active'
-                              ? AppTheme.success.withValues(alpha: 0.1)
+                              ? AppTheme.success.withOpacity(0.1)
                               : AppTheme.grey100,
                           shape: BoxShape.circle,
                         ),
@@ -1100,7 +1100,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -1140,9 +1140,9 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                 margin: const EdgeInsets.only(bottom: 12),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppTheme.info.withValues(alpha: 0.05),
+                  color: AppTheme.info.withOpacity(0.05),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.info.withValues(alpha: 0.2)),
+                  border: Border.all(color: AppTheme.info.withOpacity(0.2)),
                 ),
                 child: Row(
                   children: [
@@ -1253,7 +1253,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -1285,7 +1285,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppTheme.success.withValues(alpha: 0.1),
+                    color: AppTheme.success.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -1465,7 +1465,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -1497,7 +1497,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                       width: 56,
                       height: 56,
                       decoration: BoxDecoration(
-                        color: (action['color'] as Color).withValues(alpha: 0.1),
+                        color: (action['color'] as Color).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(action['icon'] as IconData, color: action['color'] as Color),
@@ -1565,7 +1565,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: AppTheme.success.withValues(alpha: 0.3),
+                color: AppTheme.success.withOpacity(0.3),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -1576,7 +1576,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
+                  color: Colors.white.withOpacity(0.15),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.account_balance_wallet, color: Colors.white, size: 28),

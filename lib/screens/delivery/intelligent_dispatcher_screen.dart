@@ -353,7 +353,7 @@ class _IntelligentDispatcherScreenState
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.1) : AppTheme.grey200,
+          color: isSelected ? color.withOpacity(0.1) : AppTheme.grey200,
           border: Border.all(
             color: isSelected ? color : AppTheme.grey300,
             width: isSelected ? 2 : 1,
@@ -422,9 +422,9 @@ class _IntelligentDispatcherScreenState
                   ),
                   decoration: BoxDecoration(
                     color: order['priority'] == 'high'
-                        ? AppTheme.error.withValues(alpha: 0.1)
+                        ? AppTheme.error.withOpacity(0.1)
                         : (order['priority'] == 'medium'
-                            ? Colors.orange.withValues(alpha: 0.1)
+                            ? Colors.orange.withOpacity(0.1)
                             : AppTheme.grey200),
                     borderRadius: BorderRadius.circular(4),
                   ),
@@ -518,7 +518,7 @@ class _IntelligentDispatcherScreenState
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: isSLAAtRisk ? AppTheme.error.withValues(alpha: 0.05) : AppTheme.grey50,
+                color: isSLAAtRisk ? AppTheme.error.withOpacity(0.05) : AppTheme.grey50,
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Row(
@@ -654,8 +654,8 @@ class _IntelligentDispatcherScreenState
                   ),
                   decoration: BoxDecoration(
                     color: rider['status'] == 'available'
-                        ? AppTheme.success.withValues(alpha: 0.1)
-                        : Colors.orange.withValues(alpha: 0.1),
+                        ? AppTheme.success.withOpacity(0.1)
+                        : Colors.orange.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -839,8 +839,8 @@ class _IntelligentDispatcherScreenState
                   ),
                   decoration: BoxDecoration(
                     color: assignment['status'] == 'in_transit'
-                        ? Colors.blue.withValues(alpha: 0.1)
-                        : Colors.orange.withValues(alpha: 0.1),
+                        ? Colors.blue.withOpacity(0.1)
+                        : Colors.orange.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(

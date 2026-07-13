@@ -433,7 +433,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
 
   Widget _buildAccountDeletionOption() {
     return Card(
-      color: AppTheme.error.withValues(alpha: 0.1),
+      color: AppTheme.error.withOpacity(0.1),
       child: ListTile(
         leading: const Icon(Icons.delete_outline, color: AppTheme.error),
         title: const Text('Delete Account (GDPR)', style: TextStyle(color: AppTheme.error)),
@@ -449,7 +449,7 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
 
   Widget _buildSignOutOption() {
     return Card(
-      color: AppTheme.error.withValues(alpha: 0.1),
+      color: AppTheme.error.withOpacity(0.1),
       child: ListTile(
         leading: const Icon(Icons.logout, color: AppTheme.error),
         title: const Text('Sign Out', style: TextStyle(color: AppTheme.error)),

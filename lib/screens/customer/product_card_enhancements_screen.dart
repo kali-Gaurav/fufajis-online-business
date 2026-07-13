@@ -194,7 +194,7 @@ class _ProductCardEnhancementsScreenState
                   height: 48,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.primary.withValues(alpha: 0.1),
+                    color: AppTheme.primary.withOpacity(0.1),
                   ),
                   child: Icon(
                     Icons.store,
@@ -466,7 +466,7 @@ class _ProductCardEnhancementsScreenState
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: expiryColor.withValues(alpha: 0.15),
+                    color: expiryColor.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -630,7 +630,7 @@ class _ProductCardEnhancementsScreenState
   Widget _buildExpiryCard(String label, String count, String subtitle, Color color) {
     return Card(
       elevation: 0,
-      color: color.withValues(alpha: 0.08),
+      color: color.withOpacity(0.08),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(

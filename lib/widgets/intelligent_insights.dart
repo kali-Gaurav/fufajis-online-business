@@ -13,7 +13,7 @@ class GaonIntelligentInsights extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -193,7 +193,7 @@ class GaonIntelligentInsights extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: AppTheme.warning.withValues(alpha: 0.3),
+          color: AppTheme.warning.withOpacity(0.3),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(

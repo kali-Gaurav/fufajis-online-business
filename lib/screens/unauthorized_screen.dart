@@ -81,7 +81,7 @@ class _UnauthorizedScreenState extends State<UnauthorizedScreen>
                     return Transform.rotate(angle: angle, child: child);
                   },
                   child: PulseGlow(
-                    glowColor: AppTheme.adminAccent.withValues(alpha: 0.15),
+                    glowColor: AppTheme.adminAccent.withOpacity(0.15),
                     maxRadius: 12,
                     child: Container(
                       padding: const EdgeInsets.all(24),
@@ -89,7 +89,7 @@ class _UnauthorizedScreenState extends State<UnauthorizedScreen>
                         color: isDark ? AppTheme.grey800 : Colors.white,
                         shape: BoxShape.circle,
                         boxShadow: [
-                          BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 12),
+                          BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 12),
                         ],
                       ),
                       child: const Icon(
@@ -153,7 +153,7 @@ class _UnauthorizedScreenState extends State<UnauthorizedScreen>
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: AppTheme.primary.withValues(alpha: 0.35),
+                                color: AppTheme.primary.withOpacity(0.35),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),
@@ -183,7 +183,7 @@ class _UnauthorizedScreenState extends State<UnauthorizedScreen>
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           decoration: BoxDecoration(
-                            color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.white,
+                            color: isDark ? Colors.white.withOpacity(0.03) : Colors.white,
                             border: Border.all(color: isDark ? AppTheme.grey800 : AppTheme.grey200),
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -212,7 +212,7 @@ class _UnauthorizedScreenState extends State<UnauthorizedScreen>
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           decoration: BoxDecoration(
-                            color: isDark ? Colors.white.withValues(alpha: 0.02) : Colors.white,
+                            color: isDark ? Colors.white.withOpacity(0.02) : Colors.white,
                             border: Border.all(color: AppTheme.adminAccent, width: 1.5),
                             borderRadius: BorderRadius.circular(16),
                           ),

@@ -137,7 +137,7 @@ class _DeliveryDetailScreenState extends State<DeliveryDetailScreen> {
           children: [
             Card(
               elevation: 0,
-              color: AppTheme.primary.withValues(alpha: 0.05),
+              color: AppTheme.primary.withOpacity(0.05),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: Padding(
                 padding: const EdgeInsets.all(20),

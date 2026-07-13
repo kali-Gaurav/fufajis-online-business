@@ -157,8 +157,8 @@ class _ABTestDashboardScreenState extends State<ABTestDashboardScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: exp['status'] == 'Active'
-                            ? AppTheme.success.withValues(alpha: 0.1)
-                            : AppTheme.ownerAccent.withValues(alpha: 0.1),
+                            ? AppTheme.success.withOpacity(0.1)
+                            : AppTheme.ownerAccent.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -224,7 +224,7 @@ class _ABTestDashboardScreenState extends State<ABTestDashboardScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.primary.withValues(alpha: 0.05),
+                color: AppTheme.primary.withOpacity(0.05),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.analytics, color: AppTheme.primary, size: 28),

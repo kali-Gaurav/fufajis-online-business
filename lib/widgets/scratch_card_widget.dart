@@ -48,7 +48,7 @@ class _ScratchCardWidgetState extends State<ScratchCardWidget> {
             border: Border.all(color: AppTheme.grey200, width: 2),
             boxShadow: [
               BoxShadow(
-                color: AppTheme.black.withValues(alpha: 0.06),
+                color: AppTheme.black.withOpacity(0.06),
                 blurRadius: 16,
                 offset: const Offset(0, 4),
               ),
@@ -63,7 +63,7 @@ class _ScratchCardWidgetState extends State<ScratchCardWidget> {
                   child: Container(
                     width: double.infinity,
                     height: double.infinity,
-                    color: AppTheme.primary.withValues(alpha: 0.05),
+                    color: AppTheme.primary.withOpacity(0.05),
                     child: Center(child: widget.child),
                   ),
                 ),
@@ -133,7 +133,7 @@ class ScratchPainter extends CustomPainter {
 
     // 2. Draw subtle greeting patterns on the silver card for premium looks
     final Paint patternPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.15)
+      ..color = Colors.white.withOpacity(0.15)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0;
 

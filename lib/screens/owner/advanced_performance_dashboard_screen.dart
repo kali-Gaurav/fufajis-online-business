@@ -95,7 +95,7 @@ class _AdvancedPerformanceDashboardScreenState
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primary.withValues(alpha: 0.3),
+            color: AppTheme.primary.withOpacity(0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -131,7 +131,7 @@ class _AdvancedPerformanceDashboardScreenState
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.3),
+                  color: Colors.green.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Row(
@@ -231,7 +231,7 @@ class _AdvancedPerformanceDashboardScreenState
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.1),
+                    color: color.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(icon, color: color, size: 20),
@@ -430,7 +430,7 @@ class _AdvancedPerformanceDashboardScreenState
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
+                color: color.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.person, color: color, size: 18),
@@ -581,7 +581,7 @@ class _AdvancedPerformanceDashboardScreenState
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: AppTheme.success.withValues(alpha: 0.1),
+                              color: AppTheme.success.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: const Text(
@@ -632,7 +632,7 @@ class _AdvancedPerformanceDashboardScreenState
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.orange.withValues(alpha: 0.1),
+                              color: Colors.orange.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: const Text(

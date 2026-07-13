@@ -165,14 +165,12 @@ class _DeliverySLADashboardScreenState extends State<DeliverySLADashboardScreen>
                 borderRadius: BorderRadius.circular(12),
                 color: AppTheme.white,
                 border: Border.all(
-                  color: (breachSeverity ? AppTheme.error : AppTheme.warning).withValues(
-                    alpha: 0.3,
-                  ),
+                  color: (breachSeverity ? AppTheme.error : AppTheme.warning).withOpacity(0.3,),
                   width: 1.5,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.black.withValues(alpha: 0.03),
+                    color: AppTheme.black.withOpacity(0.03),
                     blurRadius: 4,
                     offset: const Offset(0, 1),
                   ),
@@ -183,9 +181,7 @@ class _DeliverySLADashboardScreenState extends State<DeliverySLADashboardScreen>
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: (breachSeverity ? AppTheme.error : AppTheme.warning).withValues(
-                        alpha: 0.12,
-                      ),
+                      color: (breachSeverity ? AppTheme.error : AppTheme.warning).withOpacity(0.12,),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
@@ -224,9 +220,7 @@ class _DeliverySLADashboardScreenState extends State<DeliverySLADashboardScreen>
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: (breachSeverity ? AppTheme.error : AppTheme.warning).withValues(
-                        alpha: 0.15,
-                      ),
+                      color: (breachSeverity ? AppTheme.error : AppTheme.warning).withOpacity(0.15,),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -273,12 +267,12 @@ class _KpiCard extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              (isGood ? AppTheme.success : AppTheme.error).withValues(alpha: 0.08),
+              (isGood ? AppTheme.success : AppTheme.error).withOpacity(0.08),
               AppTheme.white,
             ],
           ),
           border: Border.all(
-            color: (isGood ? AppTheme.success : AppTheme.error).withValues(alpha: 0.25),
+            color: (isGood ? AppTheme.success : AppTheme.error).withOpacity(0.25),
             width: 2,
           ),
         ),

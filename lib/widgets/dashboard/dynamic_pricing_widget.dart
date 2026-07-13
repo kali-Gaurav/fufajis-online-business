@@ -77,7 +77,7 @@ class _DynamicPricingWidgetState extends State<DynamicPricingWidget> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: _getStrategyColor(strategy).withValues(alpha: 0.2),
+                        color: _getStrategyColor(strategy).withOpacity(0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(Icons.trending_up, color: _getStrategyColor(strategy), size: 24),
@@ -101,7 +101,7 @@ class _DynamicPricingWidgetState extends State<DynamicPricingWidget> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: _getStrategyColor(strategy).withValues(alpha: 0.1),
+                color: _getStrategyColor(strategy).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(

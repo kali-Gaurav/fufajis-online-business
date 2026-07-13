@@ -137,7 +137,7 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.info.withValues(alpha: 0.3),
+                      color: AppTheme.info.withOpacity(0.3),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -377,7 +377,7 @@ class _WalletHistoryScreenState extends State<WalletHistoryScreen> {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Icon(icon, color: color),

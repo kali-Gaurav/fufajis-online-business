@@ -167,7 +167,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -191,7 +191,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: _getStatusColor(order.status).withValues(alpha: 0.1),
+                  color: _getStatusColor(order.status).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -251,8 +251,8 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: order.paymentMethod == PaymentMethod.cod
-                      ? AppTheme.info.withValues(alpha: 0.1)
-                      : AppTheme.success.withValues(alpha: 0.1),
+                      ? AppTheme.info.withOpacity(0.1)
+                      : AppTheme.success.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
@@ -272,7 +272,7 @@ class _OrdersManagementScreenState extends State<OrdersManagementScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.warning.withValues(alpha: 0.1),
+                color: AppTheme.warning.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppTheme.warning),
               ),

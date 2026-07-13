@@ -120,7 +120,7 @@ class ProductCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
+              color: Colors.black.withOpacity(0.06),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -170,7 +170,7 @@ class ProductCard extends StatelessWidget {
                           color: AppTheme.errorColor,
                           borderRadius: BorderRadius.circular(6),
                           boxShadow: [
-                            BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4),
+                            BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 4),
                           ],
                         ),
                         child: Row(
@@ -203,7 +203,7 @@ class ProductCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(6),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.warning.withValues(alpha: 0.5),
+                              color: AppTheme.warning.withOpacity(0.5),
                               blurRadius: 6,
                               spreadRadius: 1,
                             ),
@@ -258,7 +258,7 @@ class ProductCard extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryColor.withValues(alpha: 0.9),
+                            color: AppTheme.primaryColor.withOpacity(0.9),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Row(
@@ -281,7 +281,7 @@ class ProductCard extends StatelessWidget {
                                 Icon(
                                   Icons.map,
                                   size: 10,
-                                  color: Colors.white.withValues(alpha: 0.8),
+                                  color: Colors.white.withOpacity(0.8),
                                 ),
                               ],
                             ],
@@ -302,7 +302,7 @@ class ProductCard extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                             decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.6),
+                              color: Colors.black.withOpacity(0.6),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
@@ -319,7 +319,7 @@ class ProductCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(2),
                             child: LinearProgressIndicator(
                               value: (product.stockQuantity / 20).clamp(0.0, 1.0),
-                              backgroundColor: Colors.white.withValues(alpha: 0.3),
+                              backgroundColor: Colors.white.withOpacity(0.3),
                               color: AppTheme.error,
                               minHeight: 3,
                             ),
@@ -380,7 +380,7 @@ class ProductCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(6),
                               boxShadow: [
                                 BoxShadow(
-                                  color: (stockVal > 0 ? (stockVal < 10 ? AppTheme.warning : AppTheme.success) : AppTheme.error).withValues(alpha: 0.3),
+                                  color: (stockVal > 0 ? (stockVal < 10 ? AppTheme.warning : AppTheme.success) : AppTheme.error).withOpacity(0.3),
                                   blurRadius: 4,
                                 )
                               ],
@@ -501,7 +501,7 @@ class ProductCard extends StatelessWidget {
                                   ),
                                   borderRadius: BorderRadius.circular(6),
                                   boxShadow: [
-                                    BoxShadow(color: AppTheme.error.withValues(alpha: 0.3), blurRadius: 4)
+                                    BoxShadow(color: AppTheme.error.withOpacity(0.3), blurRadius: 4)
                                   ],
                                 ),
                                 child: Text(
@@ -522,7 +522,7 @@ class ProductCard extends StatelessWidget {
                                   ),
                                   borderRadius: BorderRadius.circular(6),
                                   boxShadow: [
-                                    BoxShadow(color: AppTheme.warning.withValues(alpha: 0.3), blurRadius: 4)
+                                    BoxShadow(color: AppTheme.warning.withOpacity(0.3), blurRadius: 4)
                                   ],
                                 ),
                                 child: const Text(
@@ -537,7 +537,7 @@ class ProductCard extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: AppTheme.success.withValues(alpha: 0.15),
+                                color: AppTheme.success.withOpacity(0.15),
                                 borderRadius: BorderRadius.circular(6),
                                 border: Border.all(color: AppTheme.success, width: 0.8),
                               ),
@@ -600,7 +600,7 @@ class _BuyNowButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.info.withValues(alpha: 0.4),
+              color: AppTheme.info.withOpacity(0.4),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -662,7 +662,7 @@ void _showSourceLocationDialog(BuildContext context, ProductModel product) {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: CircleAvatar(
-                  backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+                  backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
                   backgroundImage: product.farmerImageUrl != null
                       ? CachedNetworkImageProvider(product.farmerImageUrl!)
                       : null,
@@ -700,9 +700,9 @@ void _showSourceLocationDialog(BuildContext context, ProductModel product) {
                 margin: const EdgeInsets.only(bottom: 12),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.success.withValues(alpha: 0.1),
+                  color: AppTheme.success.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: AppTheme.success.withValues(alpha: 0.5)),
+                  border: Border.all(color: AppTheme.success.withOpacity(0.5)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -790,7 +790,7 @@ void _showSourceLocationDialog(BuildContext context, ProductModel product) {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.success.withValues(alpha: 0.1),
+                color: AppTheme.success.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -906,14 +906,14 @@ class _AddButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [AppTheme.primaryColor, AppTheme.primary.withValues(alpha: 0.8)],
+            colors: [AppTheme.primaryColor, AppTheme.primary.withOpacity(0.8)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.primaryColor.withValues(alpha: 0.4),
+              color: AppTheme.primaryColor.withOpacity(0.4),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -952,13 +952,13 @@ class _QuantitySelector extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppTheme.primaryColor.withValues(alpha: 0.1), AppTheme.primary.withValues(alpha: 0.05)],
+          colors: [AppTheme.primaryColor.withOpacity(0.1), AppTheme.primary.withOpacity(0.05)],
         ),
         border: Border.all(color: AppTheme.primaryColor, width: 1.5),
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryColor.withValues(alpha: 0.15),
+            color: AppTheme.primaryColor.withOpacity(0.15),
             blurRadius: 6,
           ),
         ],
@@ -976,7 +976,7 @@ class _QuantitySelector extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withValues(alpha: 0.1),
+              color: AppTheme.primaryColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(

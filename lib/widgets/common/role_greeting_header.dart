@@ -47,7 +47,7 @@ class RoleGreetingHeader extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -61,8 +61,8 @@ class RoleGreetingHeader extends StatelessWidget {
             height: 48,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: accentColor.withValues(alpha: 0.12),
-              border: Border.all(color: accentColor.withValues(alpha: 0.25), width: 2),
+              color: accentColor.withOpacity(0.12),
+              border: Border.all(color: accentColor.withOpacity(0.25), width: 2),
             ),
             child: avatarUrl != null
                 ? ClipOval(child: Image.network(avatarUrl!, fit: BoxFit.cover))
@@ -100,7 +100,7 @@ class RoleGreetingHeader extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: accentColor.withValues(alpha: 0.10),
+                        color: accentColor.withOpacity(0.10),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -151,13 +151,13 @@ class ShiftStatusChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: isOnShift
-            ? AppTheme.info.withValues(alpha: 0.12)
-            : AppTheme.warning.withValues(alpha: 0.12),
+            ? AppTheme.info.withOpacity(0.12)
+            : AppTheme.warning.withOpacity(0.12),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: isOnShift
-              ? AppTheme.info.withValues(alpha: 0.40)
-              : AppTheme.warning.withValues(alpha: 0.40),
+              ? AppTheme.info.withOpacity(0.40)
+              : AppTheme.warning.withOpacity(0.40),
         ),
       ),
       child: Row(

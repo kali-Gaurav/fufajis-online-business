@@ -86,7 +86,7 @@ class _KhataScreenState extends State<KhataScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -97,7 +97,7 @@ class _KhataScreenState extends State<KhataScreen> {
           Row(
             children: [
               CircleAvatar(
-                backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
+                backgroundColor: AppTheme.primary.withOpacity(0.1),
                 child: Text(
                   (customer['name'] as String)[0],
                   style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold),

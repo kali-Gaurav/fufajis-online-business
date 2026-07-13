@@ -190,7 +190,7 @@ class _PromotionDiscountManagementScreenState
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
+                color: color.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.trending_up, color: color, size: 16),
@@ -257,7 +257,7 @@ class _PromotionDiscountManagementScreenState
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: statusColor.withValues(alpha: 0.1),
+                              color: statusColor.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(

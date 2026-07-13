@@ -186,7 +186,7 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
 
                           return ListTile(
                             tileColor: isSelected
-                                ? AppTheme.primary.withValues(alpha: 0.05)
+                                ? AppTheme.primary.withOpacity(0.05)
                                 : Colors.transparent,
                             contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                             leading: CircleAvatar(
@@ -276,13 +276,13 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppTheme.primary.withValues(alpha: 0.05),
+                color: AppTheme.primary.withOpacity(0.05),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.forum_outlined,
                 size: 64,
-                color: AppTheme.primary.withValues(alpha: 0.4),
+                color: AppTheme.primary.withOpacity(0.4),
               ),
             ),
             const SizedBox(height: 20),
@@ -318,7 +318,7 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
           child: Row(
             children: [
               CircleAvatar(
-                backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
+                backgroundColor: AppTheme.primary.withOpacity(0.1),
                 child: const Icon(Icons.person, color: AppTheme.primary),
               ),
               const SizedBox(width: 16),
@@ -398,7 +398,7 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
                         border: isMe ? null : Border.all(color: AppTheme.grey200),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.black.withValues(alpha: 0.02),
+                            color: AppTheme.black.withOpacity(0.02),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -422,7 +422,7 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
                                 DateFormat('hh:mm a').format(message.timestamp),
                                 style: TextStyle(
                                   color: isMe
-                                      ? AppTheme.white.withValues(alpha: 0.7)
+                                      ? AppTheme.white.withOpacity(0.7)
                                       : AppTheme.grey400,
                                   fontSize: 10,
                                 ),
@@ -434,7 +434,7 @@ class _RiderSupportConsoleState extends State<RiderSupportConsole> {
                                   size: 12,
                                   color: message.isRead
                                       ? AppTheme.ownerAccent
-                                      : AppTheme.white.withValues(alpha: 0.7),
+                                      : AppTheme.white.withOpacity(0.7),
                                 ),
                               ],
                             ],

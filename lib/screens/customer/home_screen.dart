@@ -37,8 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: AppTheme.success.withValues(alpha: 0.1),
-          border: Border.all(color: AppTheme.success.withValues(alpha: 0.3)),
+          color: AppTheme.success.withOpacity(0.1),
+          border: Border.all(color: AppTheme.success.withOpacity(0.3)),
         ),
         padding: const EdgeInsets.all(16),
         child: Row(
@@ -226,8 +226,8 @@ class _HomeScreenState extends State<HomeScreen> {
         borderRadius: BorderRadius.circular(12),
         gradient: LinearGradient(
           colors: [
-            AppTheme.primary.withValues(alpha: 0.8),
-            AppTheme.primary.withValues(alpha: 0.6),
+            AppTheme.primary.withOpacity(0.8),
+            AppTheme.primary.withOpacity(0.6),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -241,7 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Icon(
               Icons.apple,
               size: 150,
-              color: Colors.white.withValues(alpha: 0.1),
+              color: Colors.white.withOpacity(0.1),
             ),
           ),
           Padding(
@@ -332,7 +332,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           color: isSelected
-                              ? AppTheme.primary.withValues(alpha: 0.2)
+                              ? AppTheme.primary.withOpacity(0.2)
                               : AppTheme.white,
                           border: Border.all(
                             color: isSelected
@@ -473,7 +473,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         borderRadius: BorderRadius.circular(6),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.error.withValues(alpha: 0.3),
+                            color: AppTheme.error.withOpacity(0.3),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),

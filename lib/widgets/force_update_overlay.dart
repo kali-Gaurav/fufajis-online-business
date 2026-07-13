@@ -10,7 +10,7 @@ class ForceUpdateOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.black.withValues(alpha: 0.8),
+      color: Colors.black.withOpacity(0.8),
       child: Center(
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 32),

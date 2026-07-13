@@ -499,22 +499,22 @@ class _TaskAssignmentTrackingScreenState
 
     switch (status) {
       case 'assigned':
-        bgColor = Colors.blue.withValues(alpha: 0.1);
+        bgColor = Colors.blue.withOpacity(0.1);
         textColor = Colors.blue;
         label = 'Assigned';
         break;
       case 'in_progress':
-        bgColor = Colors.amber.withValues(alpha: 0.1);
+        bgColor = Colors.amber.withOpacity(0.1);
         textColor = Colors.amber[700]!;
         label = 'In Progress';
         break;
       case 'completed':
-        bgColor = AppTheme.success.withValues(alpha: 0.1);
+        bgColor = AppTheme.success.withOpacity(0.1);
         textColor = AppTheme.success;
         label = 'Completed';
         break;
       case 'overdue':
-        bgColor = AppTheme.error.withValues(alpha: 0.1);
+        bgColor = AppTheme.error.withOpacity(0.1);
         textColor = AppTheme.error;
         label = 'Overdue';
         break;
@@ -608,7 +608,7 @@ class _TaskAssignmentTrackingScreenState
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: AppTheme.primary.withValues(alpha: 0.1),
+                color: AppTheme.primary.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Center(

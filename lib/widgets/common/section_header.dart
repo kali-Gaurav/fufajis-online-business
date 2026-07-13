@@ -100,7 +100,7 @@ class SectionHeader extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: AppTheme.primary.withValues(alpha: 0.08),
+                  color: AppTheme.primary.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(

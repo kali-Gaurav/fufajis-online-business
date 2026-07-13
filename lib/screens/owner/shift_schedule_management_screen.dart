@@ -280,7 +280,7 @@ class _ShiftScheduleManagementScreenState
       decoration: BoxDecoration(
         border: Border.all(color: AppTheme.grey200),
         color: day == DateTime.now().day && _selectedMonth.month == DateTime.now().month
-            ? AppTheme.primary.withValues(alpha: 0.1)
+            ? AppTheme.primary.withOpacity(0.1)
             : null,
       ),
       child: Column(
@@ -306,7 +306,7 @@ class _ShiftScheduleManagementScreenState
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.blue.withValues(alpha: 0.8),
+                    color: Colors.blue.withOpacity(0.8),
                     borderRadius: BorderRadius.circular(2),
                   ),
                   child: const Center(
@@ -612,7 +612,7 @@ class _ShiftScheduleManagementScreenState
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.success.withValues(alpha: 0.1),
+                    color: AppTheme.success.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -796,7 +796,7 @@ class _ShiftScheduleManagementScreenState
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withValues(alpha: 0.1),
+                  color: Colors.amber.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
@@ -876,8 +876,8 @@ class _ShiftScheduleManagementScreenState
                   ),
                   decoration: BoxDecoration(
                     color: isPending
-                        ? Colors.amber.withValues(alpha: 0.1)
-                        : AppTheme.success.withValues(alpha: 0.1),
+                        ? Colors.amber.withOpacity(0.1)
+                        : AppTheme.success.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(

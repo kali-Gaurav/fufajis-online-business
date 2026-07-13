@@ -325,7 +325,7 @@ class _WarehouseLogisticsScreenState
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: statusColor.withValues(alpha: 0.1),
+                    color: statusColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -702,17 +702,17 @@ class _WarehouseLogisticsScreenState
 
     switch (status) {
       case 'packed':
-        bgColor = Colors.blue.withValues(alpha: 0.1);
+        bgColor = Colors.blue.withOpacity(0.1);
         textColor = Colors.blue;
         label = 'Packed';
         break;
       case 'in_transit':
-        bgColor = Colors.orange.withValues(alpha: 0.1);
+        bgColor = Colors.orange.withOpacity(0.1);
         textColor = Colors.orange[700]!;
         label = 'In Transit';
         break;
       case 'delivered':
-        bgColor = AppTheme.success.withValues(alpha: 0.1);
+        bgColor = AppTheme.success.withOpacity(0.1);
         textColor = AppTheme.success;
         label = 'Delivered';
         break;
@@ -911,17 +911,17 @@ class _WarehouseLogisticsScreenState
 
     switch (status) {
       case 'picking':
-        bgColor = Colors.blue.withValues(alpha: 0.1);
+        bgColor = Colors.blue.withOpacity(0.1);
         textColor = Colors.blue;
         label = 'Picking';
         break;
       case 'packing':
-        bgColor = Colors.orange.withValues(alpha: 0.1);
+        bgColor = Colors.orange.withOpacity(0.1);
         textColor = Colors.orange[700]!;
         label = 'Packing';
         break;
       case 'quality_check':
-        bgColor = AppTheme.success.withValues(alpha: 0.1);
+        bgColor = AppTheme.success.withOpacity(0.1);
         textColor = AppTheme.success;
         label = 'QC';
         break;

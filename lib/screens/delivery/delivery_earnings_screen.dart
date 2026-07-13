@@ -135,7 +135,7 @@ class _DeliveryEarningsScreenState extends State<DeliveryEarningsScreen> {
                     gradient: LinearGradient(colors: [AppTheme.success, Colors.green.shade700]),
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
-                      BoxShadow(color: Colors.green.withValues(alpha: 0.3), blurRadius: 12),
+                      BoxShadow(color: Colors.green.withOpacity(0.3), blurRadius: 12),
                     ],
                   ),
                   child: Column(

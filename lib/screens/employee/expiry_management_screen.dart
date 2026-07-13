@@ -131,7 +131,7 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
     return FilterChip(
       label: Text(label),
       selected: isSelected,
-      selectedColor: color?.withValues(alpha: 0.3),
+      selectedColor: color?.withOpacity(0.3),
       checkmarkColor: color,
       onSelected: (selected) {
         if (selected) {
@@ -193,7 +193,7 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
+              color: color.withOpacity(0.1),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(12),
                 topRight: Radius.circular(12),
@@ -244,7 +244,7 @@ class _ExpiryManagementScreenState extends State<ExpiryManagementScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppTheme.success.withValues(alpha: 0.1),
+                      color: AppTheme.success.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(

@@ -413,7 +413,7 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
           decoration: BoxDecoration(
             color: isDark ? AppTheme.grey800 : const Color(0xFFEDF4FF),
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppTheme.info.withValues(alpha: 0.3)),
+            border: Border.all(color: AppTheme.info.withOpacity(0.3)),
           ),
           child: Text(
             msg.text,
@@ -525,7 +525,7 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.06),
+                    color: Colors.black.withOpacity(0.06),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
@@ -615,7 +615,7 @@ class _OwnerChatDetailScreenState extends State<OwnerChatDetailScreen>
         color: isDark ? AppTheme.grey900 : Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: Colors.black.withOpacity(0.06),
             blurRadius: 12,
             offset: const Offset(0, -3),
           ),
@@ -999,9 +999,9 @@ class _StatusChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
+        color: color.withOpacity(0.2),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.5)),
+        border: Border.all(color: color.withOpacity(0.5)),
       ),
       child: Text(
         label,
@@ -1035,9 +1035,9 @@ class _SentimentPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: _color.withValues(alpha: 0.1),
+        color: _color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _color.withValues(alpha: 0.5)),
+        border: Border.all(color: _color.withOpacity(0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1068,9 +1068,9 @@ class _QuickChip extends StatelessWidget {
         margin: const EdgeInsets.only(right: 8, top: 7, bottom: 7),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
-          color: AppTheme.ownerAccent.withValues(alpha: 0.1),
+          color: AppTheme.ownerAccent.withOpacity(0.1),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppTheme.ownerAccent.withValues(alpha: 0.3)),
+          border: Border.all(color: AppTheme.ownerAccent.withOpacity(0.3)),
         ),
         child: Text(
           label,

@@ -90,7 +90,7 @@ class _RiderChatScreenState extends State<RiderChatScreen> {
         title: Row(
           children: [
             CircleAvatar(
-              backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
+              backgroundColor: AppTheme.primary.withOpacity(0.1),
               child: const Icon(Icons.support_agent, color: AppTheme.primary),
             ),
             const SizedBox(width: 12),
@@ -190,7 +190,7 @@ class _RiderChatScreenState extends State<RiderChatScreen> {
                           border: isMe ? null : Border.all(color: AppTheme.grey200),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.black.withValues(alpha: 0.03),
+                              color: AppTheme.black.withOpacity(0.03),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -214,7 +214,7 @@ class _RiderChatScreenState extends State<RiderChatScreen> {
                                   DateFormat('hh:mm a').format(message.timestamp),
                                   style: TextStyle(
                                     color: isMe
-                                        ? AppTheme.white.withValues(alpha: 0.7)
+                                        ? AppTheme.white.withOpacity(0.7)
                                         : AppTheme.grey400,
                                     fontSize: 10,
                                   ),
@@ -226,7 +226,7 @@ class _RiderChatScreenState extends State<RiderChatScreen> {
                                     size: 12,
                                     color: message.isRead
                                         ? AppTheme.deliveryAccent
-                                        : AppTheme.white.withValues(alpha: 0.7),
+                                        : AppTheme.white.withOpacity(0.7),
                                   ),
                                 ],
                               ],

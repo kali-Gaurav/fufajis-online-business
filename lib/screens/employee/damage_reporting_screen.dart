@@ -214,7 +214,7 @@ class _DamageReportingScreenState extends State<DamageReportingScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: AppTheme.error.withValues(alpha: 0.1),
+                          color: AppTheme.error.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(

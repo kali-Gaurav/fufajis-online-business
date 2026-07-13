@@ -172,7 +172,7 @@ class _ConversationTile extends StatelessWidget {
             children: [
               // Avatar
               CircleAvatar(
-                backgroundColor: const Color(0xFF6A1B9A).withValues(alpha: 0.1),
+                backgroundColor: const Color(0xFF6A1B9A).withOpacity(0.1),
                 child: Text(
                   conv.customerName.isNotEmpty ? conv.customerName[0].toUpperCase() : '?',
                   style: const TextStyle(color: Color(0xFF6A1B9A), fontWeight: FontWeight.bold),
@@ -365,9 +365,9 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
+        border: Border.all(color: color.withOpacity(0.4)),
       ),
       child: Text(
         label,

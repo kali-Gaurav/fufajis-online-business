@@ -160,7 +160,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: _order!.statusColor.withValues(alpha: 0.1),
+              color: _order!.statusColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(

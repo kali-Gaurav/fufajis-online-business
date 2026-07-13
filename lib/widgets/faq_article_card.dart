@@ -69,9 +69,9 @@ class _FaqArticleCardState extends State<FaqArticleCard> with SingleTickerProvid
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.06),
+        color: accent.withOpacity(0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: accent.withValues(alpha: 0.25)),
+        border: Border.all(color: accent.withOpacity(0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,7 +96,7 @@ class _FaqArticleCardState extends State<FaqArticleCard> with SingleTickerProvid
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                           margin: const EdgeInsets.only(bottom: 4),
                           decoration: BoxDecoration(
-                            color: accent.withValues(alpha: 0.12),
+                            color: accent.withOpacity(0.12),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -447,7 +447,7 @@ class _ArticleAdminTile extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
         side: BorderSide(
-          color: article.isActive ? accentColor.withValues(alpha: 0.25) : Colors.grey.shade300,
+          color: article.isActive ? accentColor.withOpacity(0.25) : Colors.grey.shade300,
         ),
       ),
       child: Padding(
@@ -464,7 +464,7 @@ class _ArticleAdminTile extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                         decoration: BoxDecoration(
-                          color: accentColor.withValues(alpha: 0.1),
+                          color: accentColor.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(5),
                         ),
                         child: Text(

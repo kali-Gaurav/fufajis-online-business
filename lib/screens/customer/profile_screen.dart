@@ -117,7 +117,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 4),
                 Text(
                   user?.phoneNumber ?? '+91 XXXXXXXXXX',
-                  style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.8)),
+                  style: TextStyle(fontSize: 14, color: Colors.white.withOpacity(0.8)),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -125,7 +125,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
+                    color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -147,7 +147,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
+                color: Colors.white.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(Icons.edit, color: Colors.white, size: 20),
@@ -237,7 +237,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -350,9 +350,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: tierColor.withValues(alpha: 0.1),
+        color: tierColor.withOpacity(0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: tierColor.withValues(alpha: 0.3)),
+        border: Border.all(color: tierColor.withOpacity(0.3)),
       ),
       child: Row(
         children: [
@@ -399,9 +399,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         margin: const EdgeInsets.symmetric(horizontal: 16),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppTheme.info.withValues(alpha: 0.05),
+          color: AppTheme.info.withOpacity(0.05),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppTheme.info.withValues(alpha: 0.2)),
+          border: Border.all(color: AppTheme.info.withOpacity(0.2)),
         ),
         child: Column(
           children: [
@@ -501,7 +501,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -512,7 +512,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         physics: const NeverScrollableScrollPhysics(),
         itemCount: menuItems.length,
         separatorBuilder: (context, index) =>
-            Divider(height: 1, color: AppTheme.grey200.withValues(alpha: 0.5)),
+            Divider(height: 1, color: AppTheme.grey200.withOpacity(0.5)),
         itemBuilder: (context, index) {
           final item = menuItems[index];
           return Material(
@@ -521,7 +521,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: (item['color'] as Color).withValues(alpha: 0.1),
+                  color: (item['color'] as Color).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(item['icon'] as IconData, color: item['color'] as Color, size: 22),

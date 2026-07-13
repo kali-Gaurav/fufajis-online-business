@@ -376,7 +376,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 color: AppTheme.white,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
-                  BoxShadow(color: AppTheme.black.withValues(alpha: 0.03), blurRadius: 4),
+                  BoxShadow(color: AppTheme.black.withOpacity(0.03), blurRadius: 4),
                 ],
               ),
               child: Row(
@@ -446,9 +446,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.error.withValues(alpha: 0.05),
+        color: AppTheme.error.withOpacity(0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.error.withValues(alpha: 0.2)),
+        border: Border.all(color: AppTheme.error.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -616,7 +616,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.black.withValues(alpha: isSelected ? 0.06 : 0.02),
+                              color: AppTheme.black.withOpacity(isSelected ? 0.06 : 0.02),
                               blurRadius: 4,
                             ),
                           ],
@@ -643,7 +643,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                         vertical: 2,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: densityColor.withValues(alpha: 0.08),
+                                        color: densityColor.withOpacity(0.08),
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: Text(
@@ -721,7 +721,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppTheme.grey200),
                   boxShadow: [
-                    BoxShadow(color: AppTheme.black.withValues(alpha: 0.02), blurRadius: 8),
+                    BoxShadow(color: AppTheme.black.withOpacity(0.02), blurRadius: 8),
                   ],
                 ),
                 child: ClipRRect(
@@ -865,7 +865,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           height: dotRadius * (isSelected ? 1.4 : 1.0),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: zoneColor.withValues(alpha: isSelected ? 0.6 : 0.35),
+                            color: zoneColor.withOpacity(isSelected ? 0.6 : 0.35),
                             border: Border.all(
                               color: isSelected ? AppTheme.primary : zoneColor,
                               width: isSelected ? 2.5 : 1.5,
@@ -873,7 +873,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                             boxShadow: [
                               if (isSelected)
                                 BoxShadow(
-                                  color: AppTheme.primary.withValues(alpha: 0.3),
+                                  color: AppTheme.primary.withOpacity(0.3),
                                   blurRadius: 10,
                                   spreadRadius: 2,
                                 ),
@@ -904,7 +904,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppTheme.white.withValues(alpha: 0.9),
+                  color: AppTheme.white.withOpacity(0.9),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: AppTheme.grey200),
                 ),
@@ -928,7 +928,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.grey900.withValues(alpha: 0.85),
+                  color: AppTheme.grey900.withOpacity(0.85),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: const Text(
@@ -1040,7 +1040,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         color: AppTheme.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppTheme.grey200),
-        boxShadow: [BoxShadow(color: AppTheme.black.withValues(alpha: 0.01), blurRadius: 4)],
+        boxShadow: [BoxShadow(color: AppTheme.black.withOpacity(0.01), blurRadius: 4)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1065,7 +1065,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: densityColor.withValues(alpha: 0.08),
+                          color: densityColor.withOpacity(0.08),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -1174,7 +1174,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(color: color.withValues(alpha: 0.08), shape: BoxShape.circle),
+            decoration: BoxDecoration(color: color.withOpacity(0.08), shape: BoxShape.circle),
             child: Icon(icon, color: color, size: 16),
           ),
           const SizedBox(width: 10),
@@ -1245,7 +1245,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF667eea).withValues(alpha: 0.3),
+            color: const Color(0xFF667eea).withOpacity(0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -1260,7 +1260,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               const SizedBox(width: 8),
               Text(
                 'Total Net Revenue (P&L Adjusted)',
-                style: TextStyle(fontSize: 14, color: AppTheme.white.withValues(alpha: 0.8)),
+                style: TextStyle(fontSize: 14, color: AppTheme.white.withOpacity(0.8)),
               ),
             ],
           ),
@@ -1280,7 +1280,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               const SizedBox(width: 4),
               Text(
                 'Includes discounts & subtracted refunds.',
-                style: TextStyle(fontSize: 12, color: AppTheme.white.withValues(alpha: 0.7)),
+                style: TextStyle(fontSize: 12, color: AppTheme.white.withOpacity(0.7)),
               ),
             ],
           ),
@@ -1340,7 +1340,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: AppTheme.black.withValues(alpha: 0.04),
+                color: AppTheme.black.withOpacity(0.04),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -1355,7 +1355,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: (stat['color'] as Color).withValues(alpha: 0.1),
+                      color: (stat['color'] as Color).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(stat['icon'] as IconData, color: stat['color'] as Color, size: 20),
@@ -1464,7 +1464,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.black.withValues(alpha: 0.04),
+                  color: AppTheme.black.withOpacity(0.04),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -1500,7 +1500,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           barWidth: 4,
                           belowBarData: BarAreaData(
                             show: true,
-                            color: AppTheme.primary.withValues(alpha: 0.1),
+                            color: AppTheme.primary.withOpacity(0.1),
                           ),
                         ),
                       ],
@@ -1520,7 +1520,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.black.withValues(alpha: 0.04),
+                  color: AppTheme.black.withOpacity(0.04),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -1560,7 +1560,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.04),
+            color: AppTheme.black.withOpacity(0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -1594,7 +1594,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: AppTheme.primary.withValues(alpha: 0.1),
+                        color: AppTheme.primary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(Icons.inventory_2, color: AppTheme.primary),
@@ -1698,7 +1698,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.04),
+            color: AppTheme.black.withOpacity(0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -1721,7 +1721,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: (activity['color'] as Color).withValues(alpha: 0.1),
+                      color: (activity['color'] as Color).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
@@ -1834,7 +1834,7 @@ class MapGridPainter extends CustomPainter {
       final double y = size.height * (1.0 - normalY.clamp(0.1, 0.9));
 
       final pulsePaint = Paint()
-        ..color = AppTheme.primary.withValues(alpha: 0.15)
+        ..color = AppTheme.primary.withOpacity(0.15)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.5;
 

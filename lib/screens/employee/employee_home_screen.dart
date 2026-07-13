@@ -213,7 +213,7 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                   children: [
                     CircleAvatar(
                       radius: 24,
-                      backgroundColor: const Color(0xFFFF5722).withValues(alpha: 0.12),
+                      backgroundColor: const Color(0xFFFF5722).withOpacity(0.12),
                       child: Text(
                         employeeName.isNotEmpty ? employeeName[0].toUpperCase() : 'E',
                         style: const TextStyle(
@@ -245,7 +245,7 @@ class _EmployeeHomeScreenState extends State<EmployeeHomeScreen> {
                                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                                 decoration: BoxDecoration(
                                   color: _isCheckedIn
-                                      ? AppTheme.success.withValues(alpha: 0.1)
+                                      ? AppTheme.success.withOpacity(0.1)
                                       : AppTheme.primaryLight,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -516,7 +516,7 @@ class _CounterCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Colors.black.withOpacity(0.05),
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),
@@ -580,7 +580,7 @@ class _QuickScanTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
+              color: Colors.black.withOpacity(0.04),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -596,7 +596,7 @@ class _QuickScanTile extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.1),
+                      color: color.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(icon, color: color, size: 20),
@@ -669,7 +669,7 @@ class _TaskRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -680,7 +680,7 @@ class _TaskRow extends StatelessWidget {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
+            color: color.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: color, size: 20),

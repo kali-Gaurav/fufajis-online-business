@@ -508,7 +508,7 @@ class _DeliveryPodScannerScreenState extends State<DeliveryPodScannerScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppTheme.success.withValues(alpha: 0.7),
+                    color: AppTheme.success.withOpacity(0.7),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: const Row(
@@ -661,8 +661,8 @@ class _DeliveryPodScannerScreenState extends State<DeliveryPodScannerScreen> {
                 margin: const EdgeInsets.only(bottom: 12),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppTheme.info.withValues(alpha: 0.1),
-                  border: Border.all(color: AppTheme.info.withValues(alpha: 0.2)),
+                  color: AppTheme.info.withOpacity(0.1),
+                  border: Border.all(color: AppTheme.info.withOpacity(0.2)),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -711,7 +711,7 @@ class _DeliveryPodScannerScreenState extends State<DeliveryPodScannerScreen> {
                 margin: const EdgeInsets.only(bottom: 16),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppTheme.warning.withValues(alpha: 0.1),
+                  color: AppTheme.warning.withOpacity(0.1),
                   border: Border.all(color: AppTheme.warning),
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -770,7 +770,7 @@ class _DeliveryPodScannerScreenState extends State<DeliveryPodScannerScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppTheme.success.withValues(alpha: 0.1),
+                color: AppTheme.success.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: AppTheme.success),
               ),
@@ -834,13 +834,13 @@ class _GpsStatusTile extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: ready
-            ? AppTheme.success.withValues(alpha: 0.08)
-            : AppTheme.warning.withValues(alpha: 0.08),
+            ? AppTheme.success.withOpacity(0.08)
+            : AppTheme.warning.withOpacity(0.08),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: ready
-              ? AppTheme.success.withValues(alpha: 0.3)
-              : AppTheme.warning.withValues(alpha: 0.3),
+              ? AppTheme.success.withOpacity(0.3)
+              : AppTheme.warning.withOpacity(0.3),
         ),
       ),
       child: Row(
@@ -875,11 +875,11 @@ class _PhotoProofTile extends StatelessWidget {
       child: Container(
         height: 80,
         decoration: BoxDecoration(
-          color: photoUrl != null ? AppTheme.success.withValues(alpha: 0.05) : Colors.grey.shade100,
+          color: photoUrl != null ? AppTheme.success.withOpacity(0.05) : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: photoUrl != null
-                ? AppTheme.success.withValues(alpha: 0.4)
+                ? AppTheme.success.withOpacity(0.4)
                 : Colors.grey.shade300,
           ),
         ),
@@ -930,9 +930,9 @@ class _AutoConfirmBanner extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFF2E7D32).withValues(alpha: 0.12),
+        color: const Color(0xFF2E7D32).withOpacity(0.12),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFF2E7D32).withValues(alpha: 0.5), width: 2),
+        border: Border.all(color: const Color(0xFF2E7D32).withOpacity(0.5), width: 2),
       ),
       child: Row(
         children: [
@@ -1003,13 +1003,13 @@ class _GpsDistanceTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: ok
-            ? AppTheme.success.withValues(alpha: 0.08)
-            : AppTheme.warning.withValues(alpha: 0.08),
+            ? AppTheme.success.withOpacity(0.08)
+            : AppTheme.warning.withOpacity(0.08),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: ok
-              ? AppTheme.success.withValues(alpha: 0.3)
-              : AppTheme.warning.withValues(alpha: 0.3),
+              ? AppTheme.success.withOpacity(0.3)
+              : AppTheme.warning.withOpacity(0.3),
         ),
       ),
       child: Row(

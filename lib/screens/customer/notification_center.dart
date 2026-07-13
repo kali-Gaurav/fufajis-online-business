@@ -162,12 +162,12 @@ class _NotificationTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: notification.isRead ? Colors.transparent : AppTheme.primary.withValues(alpha: 0.05),
+      color: notification.isRead ? Colors.transparent : AppTheme.primary.withOpacity(0.05),
       child: ListTile(
         onTap: onTap,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: CircleAvatar(
-          backgroundColor: _getIconColor(notification.type).withValues(alpha: 0.1),
+          backgroundColor: _getIconColor(notification.type).withOpacity(0.1),
           child: Icon(
             _getIcon(notification.type),
             color: _getIconColor(notification.type),

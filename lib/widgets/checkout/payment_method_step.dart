@@ -142,9 +142,9 @@ class _PaymentMethodStepState extends State<PaymentMethodStep> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppTheme.primary.withValues(alpha: 0.08),
+            color: AppTheme.primary.withOpacity(0.08),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
+            border: Border.all(color: AppTheme.primary.withOpacity(0.2)),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -178,7 +178,7 @@ class _PaymentMethodStepState extends State<PaymentMethodStep> {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: AppTheme.black.withValues(alpha: 0.05),
+                color: AppTheme.black.withOpacity(0.05),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),

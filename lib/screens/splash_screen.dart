@@ -310,7 +310,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                     height: size.width * 0.75,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.18),
+                      color: Colors.white.withOpacity(0.18),
                     ),
                   ),
                 ),
@@ -327,7 +327,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                     height: size.width * 0.92,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.12),
+                      color: Colors.white.withOpacity(0.12),
                     ),
                   ),
                 ),
@@ -344,7 +344,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                     height: 170,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.10),
+                      color: Colors.white.withOpacity(0.10),
                     ),
                   ),
                 ),
@@ -381,9 +381,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.white.withValues(
-                                        alpha: _glowPulse.value * 0.42,
-                                      ),
+                                      color: Colors.white.withOpacity(_glowPulse.value * 0.42,),
                                       blurRadius: 48 * _glowPulse.value,
                                       spreadRadius: 10 * _glowPulse.value,
                                     ),
@@ -396,11 +394,9 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                                 height: 164,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.white.withValues(alpha: 0.10),
+                                  color: Colors.white.withOpacity(0.10),
                                   border: Border.all(
-                                    color: Colors.white.withValues(
-                                      alpha: 0.22 + _glowPulse.value * 0.18,
-                                    ),
+                                    color: Colors.white.withOpacity(0.22 + _glowPulse.value * 0.18,),
                                     width: 2,
                                   ),
                                 ),
@@ -438,9 +434,9 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 7),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.14),
+                              color: Colors.white.withOpacity(0.14),
                               borderRadius: BorderRadius.circular(24),
-                              border: Border.all(color: Colors.white.withValues(alpha: 0.28)),
+                              border: Border.all(color: Colors.white.withOpacity(0.28)),
                             ),
                             child: const Text(
                               'आपकी अपनी दुकान  ·  Your own store',
@@ -476,7 +472,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: Colors.white.withValues(alpha: 0.85),
+                                  color: Colors.white.withOpacity(0.85),
                                   fontWeight: FontWeight.w500,
                                   letterSpacing: 0.2,
                                 ),
@@ -490,7 +486,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                                 child: LinearProgressIndicator(
                                   value: _progressCtrl.value,
                                   minHeight: 3.5,
-                                  backgroundColor: Colors.white.withValues(alpha: 0.22),
+                                  backgroundColor: Colors.white.withOpacity(0.22),
                                   valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                                 ),
                               ),
@@ -563,7 +559,7 @@ class _SparklePainter extends CustomPainter {
     final cx = s.width / 2;
     final cy = s.height / 2;
     final stroke = Paint()
-      ..color = Colors.white.withValues(alpha: 0.80)
+      ..color = Colors.white.withOpacity(0.80)
       ..strokeWidth = 1.4
       ..style = PaintingStyle.stroke;
     for (int i = 0; i < 4; i++) {
@@ -577,7 +573,7 @@ class _SparklePainter extends CustomPainter {
     canvas.drawCircle(
       Offset(cx, cy),
       size * 0.30,
-      Paint()..color = Colors.white.withValues(alpha: 0.95),
+      Paint()..color = Colors.white.withOpacity(0.95),
     );
   }
 
@@ -606,7 +602,7 @@ class _BouncingDots extends StatelessWidget {
             transform: Matrix4.translationValues(0, -10 * bounce, 0),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white.withValues(alpha: 0.60 + 0.40 * bounce),
+              color: Colors.white.withOpacity(0.60 + 0.40 * bounce),
             ),
           );
         }),

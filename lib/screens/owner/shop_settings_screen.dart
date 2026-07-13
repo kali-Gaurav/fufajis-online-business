@@ -159,7 +159,7 @@ class _ShopSettingsScreenState extends State<ShopSettingsScreen> {
 
               Card(
                 elevation: 4,
-                color: config.isEmergencyMode ? AppTheme.error.withValues(alpha: 0.1) : null,
+                color: config.isEmergencyMode ? AppTheme.error.withOpacity(0.1) : null,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                   side: config.isEmergencyMode

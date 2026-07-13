@@ -31,9 +31,9 @@ class GroupBuyWidget extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 16),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppTheme.warning.withValues(alpha: 0.05),
+            color: AppTheme.warning.withOpacity(0.05),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppTheme.warning.withValues(alpha: 0.3)),
+            border: Border.all(color: AppTheme.warning.withOpacity(0.3)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

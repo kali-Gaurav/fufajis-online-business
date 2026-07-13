@@ -184,7 +184,7 @@ class _CustomerSegmentationTargetingScreenState
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
+                color: color.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: color, size: 16),
@@ -280,7 +280,7 @@ class _CustomerSegmentationTargetingScreenState
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: AppTheme.primary.withValues(alpha: 0.1),
+                        color: AppTheme.primary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -496,7 +496,7 @@ class _CustomerSegmentationTargetingScreenState
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppTheme.primary.withValues(alpha: 0.1),
+                  color: AppTheme.primary.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -562,7 +562,7 @@ class _CustomerSegmentationTargetingScreenState
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
+                  color: Colors.orange.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(

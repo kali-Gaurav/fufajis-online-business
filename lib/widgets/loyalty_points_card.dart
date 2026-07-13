@@ -114,7 +114,7 @@ class _LoyaltyPointsCardState extends State<LoyaltyPointsCard> with TickerProvid
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: _tier.gradientColors.last.withValues(alpha: 0.4),
+                color: _tier.gradientColors.last.withOpacity(0.4),
                 blurRadius: 16,
                 offset: const Offset(0, 6),
               ),
@@ -131,7 +131,7 @@ class _LoyaltyPointsCardState extends State<LoyaltyPointsCard> with TickerProvid
                   height: 100,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.08),
+                    color: Colors.white.withOpacity(0.08),
                   ),
                 ),
               ),
@@ -143,7 +143,7 @@ class _LoyaltyPointsCardState extends State<LoyaltyPointsCard> with TickerProvid
                   height: 70,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.06),
+                    color: Colors.white.withOpacity(0.06),
                   ),
                 ),
               ),
@@ -172,7 +172,7 @@ class _LoyaltyPointsCardState extends State<LoyaltyPointsCard> with TickerProvid
                             Text(
                               widget.userName,
                               style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.8),
+                                color: Colors.white.withOpacity(0.8),
                                 fontSize: 12,
                               ),
                             ),
@@ -185,9 +185,9 @@ class _LoyaltyPointsCardState extends State<LoyaltyPointsCard> with TickerProvid
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
+                                color: Colors.white.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
+                                border: Border.all(color: Colors.white.withOpacity(0.4)),
                               ),
                               child: const Text(
                                 'Redeem',
@@ -242,7 +242,7 @@ class _LoyaltyPointsCardState extends State<LoyaltyPointsCard> with TickerProvid
                     if (widget.pointsExpiry != null)
                       Text(
                         'Expires ${_formatExpiry(widget.pointsExpiry!)}',
-                        style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 11),
+                        style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 11),
                       ),
 
                     const SizedBox(height: 16),
@@ -268,7 +268,7 @@ class _LoyaltyPointsCardState extends State<LoyaltyPointsCard> with TickerProvid
                         borderRadius: BorderRadius.circular(4),
                         child: LinearProgressIndicator(
                           value: _tierProgress.clamp(0.0, 1.0),
-                          backgroundColor: Colors.white.withValues(alpha: 0.2),
+                          backgroundColor: Colors.white.withOpacity(0.2),
                           valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                           minHeight: 6,
                         ),
@@ -322,7 +322,7 @@ class _EarnChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
+        color: Colors.white.withOpacity(0.15),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(

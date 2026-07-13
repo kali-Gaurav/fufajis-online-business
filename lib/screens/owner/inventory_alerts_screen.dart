@@ -273,7 +273,7 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen>
                                   child: FilterChip(
                                     label: Text(severity),
                                     selected: _selectedSeverity == severity,
-                                    selectedColor: AppTheme.info.withValues(alpha: 0.15),
+                                    selectedColor: AppTheme.info.withOpacity(0.15),
                                     checkmarkColor: AppTheme.info,
                                     labelStyle: TextStyle(
                                       color: _selectedSeverity == severity
@@ -307,7 +307,7 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen>
                               Icon(
                                 Icons.check_circle,
                                 size: 80,
-                                color: AppTheme.success.withValues(alpha: 0.2),
+                                color: AppTheme.success.withOpacity(0.2),
                               ),
                               const SizedBox(height: 16),
                               const Text(
@@ -351,7 +351,7 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.04),
+            color: AppTheme.black.withOpacity(0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -392,7 +392,7 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen>
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: severityColor.withValues(alpha: 0.1),
+                    color: severityColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -440,7 +440,7 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen>
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.info.withValues(alpha: 0.05),
+                color: AppTheme.info.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -514,7 +514,7 @@ class _InventoryAlertsScreenState extends State<InventoryAlertsScreen>
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
+              color: color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: color, size: 18),

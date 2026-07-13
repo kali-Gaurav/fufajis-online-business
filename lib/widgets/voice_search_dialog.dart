@@ -49,7 +49,7 @@ class _VoiceSearchDialogState extends State<VoiceSearchDialog> with SingleTicker
                 borderRadius: BorderRadius.circular(32),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
+                    color: Colors.black.withOpacity(0.1),
                     blurRadius: 20,
                     spreadRadius: 5,
                   ),
@@ -138,7 +138,7 @@ class _VoiceSearchDialogState extends State<VoiceSearchDialog> with SingleTicker
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: AppTheme.primary.withValues(alpha: 1.0 - progress),
+                      color: AppTheme.primary.withOpacity(1.0 - progress),
                       width: 2,
                     ),
                   ),
@@ -153,7 +153,7 @@ class _VoiceSearchDialogState extends State<VoiceSearchDialog> with SingleTicker
                 boxShadow: [
                   if (isListening)
                     BoxShadow(
-                      color: AppTheme.primary.withValues(alpha: 0.4),
+                      color: AppTheme.primary.withOpacity(0.4),
                       blurRadius: 20,
                       spreadRadius: 2,
                     ),

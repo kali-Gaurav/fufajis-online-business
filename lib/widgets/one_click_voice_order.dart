@@ -130,7 +130,7 @@ class _OneClickVoiceOrderState extends State<OneClickVoiceOrder> {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
@@ -193,8 +193,8 @@ class _OneClickVoiceOrderState extends State<OneClickVoiceOrder> {
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   color: _isListening
-                      ? AppTheme.error.withValues(alpha: 0.1)
-                      : AppTheme.primaryColor.withValues(alpha: 0.1),
+                      ? AppTheme.error.withOpacity(0.1)
+                      : AppTheme.primaryColor.withOpacity(0.1),
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: _isListening ? AppTheme.error : AppTheme.primaryColor,

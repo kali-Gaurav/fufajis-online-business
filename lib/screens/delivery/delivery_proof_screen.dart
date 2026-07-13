@@ -266,7 +266,7 @@ class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.success.withValues(alpha: 0.1),
+                color: AppTheme.success.withOpacity(0.1),
                 border: Border.all(color: AppTheme.success),
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -499,7 +499,7 @@ class _DeliveryProofScreenState extends State<DeliveryProofScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.success.withValues(alpha: 0.1),
+                color: AppTheme.success.withOpacity(0.1),
                 border: Border.all(color: AppTheme.success),
                 borderRadius: BorderRadius.circular(8),
               ),

@@ -318,7 +318,7 @@ class _RiderProfileManagementScreenState
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.1),
+                    color: AppTheme.primary.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -521,12 +521,12 @@ class _RiderProfileManagementScreenState
 
     switch (status) {
       case 'active':
-        bgColor = AppTheme.success.withValues(alpha: 0.1);
+        bgColor = AppTheme.success.withOpacity(0.1);
         textColor = AppTheme.success;
         label = 'Active';
         break;
       case 'onboarding':
-        bgColor = Colors.blue.withValues(alpha: 0.1);
+        bgColor = Colors.blue.withOpacity(0.1);
         textColor = Colors.blue;
         label = 'Onboarding';
         break;
@@ -606,8 +606,8 @@ class _RiderProfileManagementScreenState
                   ),
                   decoration: BoxDecoration(
                     color: documents.values.every((v) => v == true)
-                        ? AppTheme.success.withValues(alpha: 0.1)
-                        : Colors.orange.withValues(alpha: 0.1),
+                        ? AppTheme.success.withOpacity(0.1)
+                        : Colors.orange.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -749,7 +749,7 @@ class _RiderProfileManagementScreenState
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.success.withValues(alpha: 0.1),
+                    color: AppTheme.success.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(

@@ -83,7 +83,7 @@ class _CustomerSegmentCardState extends State<CustomerSegmentCard> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: segmentColor.withValues(alpha: 0.1),
+              color: segmentColor.withOpacity(0.1),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(12),
                 topRight: Radius.circular(12),
@@ -336,9 +336,9 @@ class _CustomerSegmentCardState extends State<CustomerSegmentCard> {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

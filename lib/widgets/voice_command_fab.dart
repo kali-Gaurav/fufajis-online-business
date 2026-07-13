@@ -273,7 +273,7 @@ class _VoiceCommandFabState extends State<VoiceCommandFab> with TickerProviderSt
                             height: 90,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: AppTheme.primary.withValues(alpha: 0.15),
+                              color: AppTheme.primary.withOpacity(0.15),
                             ),
                           ),
                         ),
@@ -308,7 +308,7 @@ class _VoiceCommandFabState extends State<VoiceCommandFab> with TickerProviderSt
                           width: 5,
                           height: heights[i] * (0.4 + 0.6 * value),
                           decoration: BoxDecoration(
-                            color: AppTheme.primary.withValues(alpha: 0.7 + 0.3 * value),
+                            color: AppTheme.primary.withOpacity(0.7 + 0.3 * value),
                             borderRadius: BorderRadius.circular(3),
                           ),
                         );

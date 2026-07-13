@@ -470,14 +470,14 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppTheme.ownerAccent, AppTheme.ownerAccent.withValues(alpha: 0.8)],
+          colors: [AppTheme.ownerAccent, AppTheme.ownerAccent.withOpacity(0.8)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.ownerAccent.withValues(alpha: 0.3),
+            color: AppTheme.ownerAccent.withOpacity(0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -550,7 +550,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white.withValues(alpha: 0.2),
+                  backgroundColor: Colors.white.withOpacity(0.2),
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -625,9 +625,9 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: AppTheme.primaryColor.withValues(alpha: 0.08),
+        color: AppTheme.primaryColor.withOpacity(0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.2)),
+        border: Border.all(color: AppTheme.primaryColor.withOpacity(0.2)),
       ),
       child: Row(
         children: [
@@ -720,7 +720,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
               border: Border.all(color: Colors.grey[200]!),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
+                  color: Colors.black.withOpacity(0.02),
                   blurRadius: 6,
                   offset: const Offset(0, 2),
                 ),
@@ -798,21 +798,21 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryColor.withValues(alpha: 0.05) : Colors.white,
+          color: isSelected ? AppTheme.primaryColor.withOpacity(0.05) : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
                 ? AppTheme.primaryColor
                 : review.isFeatured
-                ? AppTheme.warning.withValues(alpha: 0.5)
+                ? AppTheme.warning.withOpacity(0.5)
                 : review.isFlagged
-                ? AppTheme.error.withValues(alpha: 0.3)
+                ? AppTheme.error.withOpacity(0.3)
                 : Colors.grey[200]!,
             width: isSelected || review.isFeatured || review.isFlagged ? 1.5 : 1.0,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.01),
+              color: Colors.black.withOpacity(0.01),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -829,7 +829,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
                 decoration: BoxDecoration(
                   color: review.isFeatured
                       ? AppTheme.warning
-                      : AppTheme.error.withValues(alpha: 0.1),
+                      : AppTheme.error.withOpacity(0.1),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(14),
                     topRight: Radius.circular(14),
@@ -985,9 +985,9 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: AppTheme.info.withValues(alpha: 0.08),
+        color: AppTheme.info.withOpacity(0.08),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: AppTheme.ownerAccent.withValues(alpha: 0.2)),
+        border: Border.all(color: AppTheme.ownerAccent.withOpacity(0.2)),
       ),
       child: const Row(
         children: [
@@ -1054,7 +1054,7 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.success.withValues(alpha: 0.1),
+        color: AppTheme.success.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppTheme.success),
       ),
@@ -1226,10 +1226,10 @@ class _ReviewsModerationScreenState extends State<ReviewsModerationScreen> {
   Widget _buildModerationGuidelinesCard() {
     return Card(
       elevation: 0,
-      color: AppTheme.info.withValues(alpha: 0.1),
+      color: AppTheme.info.withOpacity(0.1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: AppTheme.ownerAccent.withValues(alpha: 0.2)),
+        side: BorderSide(color: AppTheme.ownerAccent.withOpacity(0.2)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),

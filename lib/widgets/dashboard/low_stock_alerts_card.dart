@@ -56,7 +56,7 @@ class _LowStockAlertsCardState extends State<LowStockAlertsCard> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)],
+            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,8 +66,8 @@ class _LowStockAlertsCardState extends State<LowStockAlertsCard> {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: criticalAlerts.isNotEmpty
-                      ? AppTheme.error.withValues(alpha: 0.08)
-                      : AppTheme.warning.withValues(alpha: 0.08),
+                      ? AppTheme.error.withOpacity(0.08)
+                      : AppTheme.warning.withOpacity(0.08),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(16),
                     topRight: Radius.circular(16),
@@ -219,9 +219,9 @@ class _LowStockAlertsCardState extends State<LowStockAlertsCard> {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        border: Border.all(color: statusColor.withValues(alpha: 0.2)),
+        border: Border.all(color: statusColor.withOpacity(0.2)),
         borderRadius: BorderRadius.circular(12),
-        color: statusColor.withValues(alpha: 0.04),
+        color: statusColor.withOpacity(0.04),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,7 +262,7 @@ class _LowStockAlertsCardState extends State<LowStockAlertsCard> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: AppTheme.info.withValues(alpha: 0.2),
+                              color: AppTheme.info.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: const Row(
@@ -333,7 +333,7 @@ class _LowStockAlertsCardState extends State<LowStockAlertsCard> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -354,7 +354,7 @@ class _LowStockAlertsCardState extends State<LowStockAlertsCard> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
       ),
       child: const Center(
         child: SizedBox(height: 40, width: 40, child: CircularProgressIndicator(strokeWidth: 2)),
@@ -366,8 +366,8 @@ class _LowStockAlertsCardState extends State<LowStockAlertsCard> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.success.withValues(alpha: 0.08),
-        border: Border.all(color: AppTheme.success.withValues(alpha: 0.2)),
+        color: AppTheme.success.withOpacity(0.08),
+        border: Border.all(color: AppTheme.success.withOpacity(0.2)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -440,7 +440,7 @@ class _LowStockAlertsCardState extends State<LowStockAlertsCard> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppTheme.primary.withValues(alpha: 0.1),
+                          color: AppTheme.primary.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(

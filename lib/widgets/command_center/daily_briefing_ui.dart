@@ -27,7 +27,7 @@ class DailyBriefingUI extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.info.withValues(alpha: 0.3),
+            color: AppTheme.info.withOpacity(0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -57,7 +57,7 @@ class DailyBriefingUI extends StatelessWidget {
                 ),
                 Text(
                   DateFormat('MMM d, yyyy').format(briefing.date),
-                  style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 14),
+                  style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14),
                 ),
               ],
             ),
@@ -169,7 +169,7 @@ class DailyBriefingUI extends StatelessWidget {
       children: [
         Text(
           capitalizedLabel,
-          style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12),
+          style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12),
         ),
         const SizedBox(height: 4),
         Text(

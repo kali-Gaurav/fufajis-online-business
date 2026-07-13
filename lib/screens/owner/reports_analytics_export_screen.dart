@@ -302,7 +302,7 @@ class _ReportsAnalyticsExportScreenState
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.1),
+                    color: AppTheme.primary.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Center(
@@ -469,7 +469,7 @@ class _ReportsAnalyticsExportScreenState
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.1),
+                    color: AppTheme.primary.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Center(
@@ -632,7 +632,7 @@ class _ReportsAnalyticsExportScreenState
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: AppTheme.success.withValues(alpha: 0.1),
+                    color: AppTheme.success.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Center(
@@ -668,7 +668,7 @@ class _ReportsAnalyticsExportScreenState
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.1),
+                    color: AppTheme.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -725,7 +725,7 @@ class _ReportsAnalyticsExportScreenState
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: AppTheme.success.withValues(alpha: 0.1),
+                          color: AppTheme.success.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(

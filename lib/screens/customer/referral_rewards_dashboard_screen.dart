@@ -95,7 +95,7 @@ class _ReferralRewardsDashboardScreenState
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primary.withValues(alpha: 0.3),
+                  color: AppTheme.primary.withOpacity(0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -192,7 +192,7 @@ class _ReferralRewardsDashboardScreenState
             decoration: BoxDecoration(
               color: AppTheme.white,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3)),
+              border: Border.all(color: AppTheme.primary.withOpacity(0.3)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,9 +208,9 @@ class _ReferralRewardsDashboardScreenState
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                   decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.05),
+                    color: AppTheme.primary.withOpacity(0.05),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
+                    border: Border.all(color: AppTheme.primary.withOpacity(0.2)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -360,7 +360,7 @@ class _ReferralRewardsDashboardScreenState
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
+                color: color.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, size: 20, color: color),
@@ -398,7 +398,7 @@ class _ReferralRewardsDashboardScreenState
       decoration: BoxDecoration(
         color: AppTheme.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: tierColor.withValues(alpha: 0.3)),
+        border: Border.all(color: tierColor.withOpacity(0.3)),
       ),
       child: Row(
         children: [
@@ -406,7 +406,7 @@ class _ReferralRewardsDashboardScreenState
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: tierColor.withValues(alpha: 0.1),
+              color: tierColor.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -549,7 +549,7 @@ class _ReferralRewardsDashboardScreenState
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: AppTheme.primary.withValues(alpha: 0.1),
+                      color: AppTheme.primary.withOpacity(0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -607,7 +607,7 @@ class _ReferralRewardsDashboardScreenState
     required double progress,
   }) {
     return Card(
-      color: isActive ? AppTheme.primary.withValues(alpha: 0.05) : AppTheme.white,
+      color: isActive ? AppTheme.primary.withOpacity(0.05) : AppTheme.white,
       border: isActive
           ? Border.all(color: AppTheme.primary)
           : Border.all(color: AppTheme.grey200),
@@ -696,7 +696,7 @@ class _ReferralRewardsDashboardScreenState
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: AppTheme.primary.withValues(alpha: 0.1),
+                color: AppTheme.primary.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: AppTheme.primary, size: 22),

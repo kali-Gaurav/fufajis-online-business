@@ -73,7 +73,7 @@ class UniversalWorkQueueUI extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: priorityColor.withValues(alpha: task.priorityScore >= 80 ? 0.5 : 0.0),
+          color: priorityColor.withOpacity(task.priorityScore >= 80 ? 0.5 : 0.0),
           width: 2,
         ),
       ),
@@ -93,7 +93,7 @@ class UniversalWorkQueueUI extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: priorityColor.withValues(alpha: 0.1),
+                          color: priorityColor.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -110,7 +110,7 @@ class UniversalWorkQueueUI extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: AppTheme.error.withValues(alpha: 0.1),
+                            color: AppTheme.error.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Row(

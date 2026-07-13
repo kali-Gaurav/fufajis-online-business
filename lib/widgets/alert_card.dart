@@ -44,7 +44,7 @@ class AlertCard extends StatelessWidget {
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: severityColor.withValues(alpha: 0.3), width: 1),
+          side: BorderSide(color: severityColor.withOpacity(0.3), width: 1),
         ),
         child: Padding(
           padding: const EdgeInsets.all(12.0),
@@ -58,7 +58,7 @@ class AlertCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: severityColor.withValues(alpha: 0.1),
+                      color: severityColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(_getSeverityIcon(), color: severityColor, size: 20),
@@ -84,7 +84,7 @@ class AlertCard extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
-                                color: severityColor.withValues(alpha: 0.15),
+                                color: severityColor.withOpacity(0.15),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(

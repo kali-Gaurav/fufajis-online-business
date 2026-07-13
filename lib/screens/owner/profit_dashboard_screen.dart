@@ -379,7 +379,7 @@ class _ProfitDashboardScreenState extends State<ProfitDashboardScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
+                  color: color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(icon, color: color, size: 32),
@@ -399,8 +399,8 @@ class _ProfitDashboardScreenState extends State<ProfitDashboardScreen> {
   Widget _buildNetProfitCard(ProfitMetrics metrics) {
     final isPositive = metrics.netProfit >= 0;
     final bgColor = isPositive
-        ? AppTheme.success.withValues(alpha: 0.1)
-        : AppTheme.error.withValues(alpha: 0.1);
+        ? AppTheme.success.withOpacity(0.1)
+        : AppTheme.error.withOpacity(0.1);
     final textColor = isPositive ? AppTheme.success : AppTheme.error;
 
     return Container(

@@ -218,10 +218,10 @@ class _UserDataTableSource extends DataTableSource {
           Chip(
             label: Text(role.toString().toUpperCase(), style: const TextStyle(fontSize: 10)),
             backgroundColor: role == 'admin'
-                ? AppTheme.error.withValues(alpha: 0.1)
+                ? AppTheme.error.withOpacity(0.1)
                 : role == 'shop_owner'
-                ? AppTheme.warning.withValues(alpha: 0.1)
-                : AppTheme.adminAccent.withValues(alpha: 0.1),
+                ? AppTheme.warning.withOpacity(0.1)
+                : AppTheme.adminAccent.withOpacity(0.1),
           ),
         ),
         DataCell(Text('₹$balance', style: const TextStyle(fontWeight: FontWeight.bold))),
@@ -230,8 +230,8 @@ class _UserDataTableSource extends DataTableSource {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: isBlocked
-                  ? AppTheme.error.withValues(alpha: 0.1)
-                  : AppTheme.success.withValues(alpha: 0.1),
+                  ? AppTheme.error.withOpacity(0.1)
+                  : AppTheme.success.withOpacity(0.1),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(

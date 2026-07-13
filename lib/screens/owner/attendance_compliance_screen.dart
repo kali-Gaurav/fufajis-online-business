@@ -446,7 +446,7 @@ class _AttendanceComplianceScreenState
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.blue.withValues(alpha: 0.1),
+                              color: Colors.blue.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(2),
                             ),
                             child: const Text(
@@ -538,12 +538,12 @@ class _AttendanceComplianceScreenState
     IconData icon;
 
     if (status == 'present') {
-      bgColor = AppTheme.success.withValues(alpha: 0.1);
+      bgColor = AppTheme.success.withOpacity(0.1);
       textColor = AppTheme.success;
       label = 'Present';
       icon = Icons.check_circle;
     } else {
-      bgColor = AppTheme.error.withValues(alpha: 0.1);
+      bgColor = AppTheme.error.withOpacity(0.1);
       textColor = AppTheme.error;
       label = 'Absent';
       icon = Icons.cancel;
@@ -639,7 +639,7 @@ class _AttendanceComplianceScreenState
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: _getHistoryStatusColor(empHistory['status']).withValues(alpha: 0.1),
+              color: _getHistoryStatusColor(empHistory['status']).withOpacity(0.1),
               borderRadius: BorderRadius.circular(2),
             ),
             child: Text(
@@ -746,8 +746,8 @@ class _AttendanceComplianceScreenState
                   ),
                   decoration: BoxDecoration(
                     color: isPending
-                        ? Colors.amber.withValues(alpha: 0.1)
-                        : AppTheme.success.withValues(alpha: 0.1),
+                        ? Colors.amber.withOpacity(0.1)
+                        : AppTheme.success.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(

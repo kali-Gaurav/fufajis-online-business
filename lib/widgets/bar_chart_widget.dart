@@ -90,7 +90,7 @@ class _BarChartWidgetState extends State<BarChartWidget> {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: _selectedIndex == index
-                    ? item.color.withValues(alpha: 0.2)
+                    ? item.color.withOpacity(0.2)
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(4),
                 border: _selectedIndex == index ? Border.all(color: item.color) : null,

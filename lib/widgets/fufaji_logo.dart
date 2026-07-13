@@ -33,7 +33,7 @@ class FufajiLogo extends StatelessWidget {
         borderRadius: BorderRadius.circular(size * 0.22),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: onDark ? 0.20 : 0.12),
+            color: Colors.black.withOpacity(onDark ? 0.20 : 0.12),
             blurRadius: size * 0.22,
             offset: Offset(0, size * 0.1),
           ),
@@ -67,7 +67,7 @@ class FufajiLogoBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(size * 0.28),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFFF5722).withValues(alpha: 0.35),
+            color: const Color(0xFFFF5722).withOpacity(0.35),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -145,7 +145,7 @@ class _ShopPainter extends CustomPainter {
     p.shader = null;
 
     // Awning stripes (darker diagonal bands)
-    p.color = _primaryDark.withValues(alpha: 0.30);
+    p.color = _primaryDark.withOpacity(0.30);
     for (int i = 0; i < 5; i++) {
       final x0 = w * (0.10 + i * 0.19);
       final x1 = w * (0.5 + (i - 2) * 0.12);
@@ -213,7 +213,7 @@ class _ShopPainter extends CustomPainter {
     _drawWindow(canvas, Rect.fromLTWH(w * 0.66, h * 0.49, w * 0.23, h * 0.20), w);
 
     // ── Door ───────────────────────────────────────────────
-    p.color = _primaryLight.withValues(alpha: 0.25);
+    p.color = _primaryLight.withOpacity(0.25);
     final doorRect = Rect.fromLTWH(w * 0.36, h * 0.50, w * 0.28, h * 0.37);
     final doorRRect = RRect.fromRectAndCorners(
       doorRect,
@@ -222,19 +222,19 @@ class _ShopPainter extends CustomPainter {
     );
     canvas.drawRRect(doorRRect, p);
 
-    p.color = _primary.withValues(alpha: 0.60);
+    p.color = _primary.withOpacity(0.60);
     p.style = PaintingStyle.stroke;
     p.strokeWidth = 1.8;
     canvas.drawRRect(doorRRect, p);
     p.style = PaintingStyle.fill;
 
     // Door arch
-    p.color = _primaryLight.withValues(alpha: 0.45);
+    p.color = _primaryLight.withOpacity(0.45);
     final archRect = Rect.fromLTWH(w * 0.36, h * 0.50, w * 0.28, w * 0.28);
     canvas.drawArc(archRect, math.pi, math.pi, false, p);
 
     // Door panel line
-    p.color = _primaryDark.withValues(alpha: 0.35);
+    p.color = _primaryDark.withOpacity(0.35);
     p.style = PaintingStyle.stroke;
     p.strokeWidth = 1.0;
     canvas.drawLine(Offset(w * 0.5, h * 0.50), Offset(w * 0.5, h * 0.87), p);
@@ -271,20 +271,20 @@ class _ShopPainter extends CustomPainter {
     final p = Paint()..isAntiAlias = true;
 
     // Frame
-    p.color = _primaryLight.withValues(alpha: 0.30);
+    p.color = _primaryLight.withOpacity(0.30);
     _drawRounded(canvas, rect, 5, p);
-    p.color = _primary.withValues(alpha: 0.55);
+    p.color = _primary.withOpacity(0.55);
     p.style = PaintingStyle.stroke;
     p.strokeWidth = 1.8;
     _drawRounded(canvas, rect, 5, p);
     p.style = PaintingStyle.fill;
 
     // Pane (glass tint)
-    p.color = const Color(0xFFB3E5FC).withValues(alpha: 0.55);
+    p.color = const Color(0xFFB3E5FC).withOpacity(0.55);
     _drawRounded(canvas, rect.deflate(3), 3, p);
 
     // Cross divider
-    p.color = _primary.withValues(alpha: 0.40);
+    p.color = _primary.withOpacity(0.40);
     p.style = PaintingStyle.stroke;
     p.strokeWidth = 1.2;
     canvas.drawLine(
@@ -299,7 +299,7 @@ class _ShopPainter extends CustomPainter {
     );
 
     // Small shelf silhouette inside window
-    p.color = _primaryDark.withValues(alpha: 0.20);
+    p.color = _primaryDark.withOpacity(0.20);
     canvas.drawLine(
       Offset(rect.left + 5, rect.center.dy + rect.height * 0.18),
       Offset(rect.right - 5, rect.center.dy + rect.height * 0.18),
@@ -308,19 +308,19 @@ class _ShopPainter extends CustomPainter {
     p.style = PaintingStyle.fill;
 
     // Tiny product dots on shelf
-    p.color = const Color(0xFFFFB300).withValues(alpha: 0.70);
+    p.color = const Color(0xFFFFB300).withOpacity(0.70);
     canvas.drawCircle(
       Offset(rect.center.dx - rect.width * 0.2, rect.center.dy + rect.height * 0.10),
       rect.width * 0.09,
       p,
     );
-    p.color = const Color(0xFF4CAF50).withValues(alpha: 0.70);
+    p.color = const Color(0xFF4CAF50).withOpacity(0.70);
     canvas.drawCircle(
       Offset(rect.center.dx + rect.width * 0.05, rect.center.dy + rect.height * 0.10),
       rect.width * 0.09,
       p,
     );
-    p.color = const Color(0xFFE53935).withValues(alpha: 0.70);
+    p.color = const Color(0xFFE53935).withOpacity(0.70);
     canvas.drawCircle(
       Offset(rect.center.dx + rect.width * 0.28, rect.center.dy + rect.height * 0.10),
       rect.width * 0.08,
@@ -333,7 +333,7 @@ class _ShopPainter extends CustomPainter {
       ..isAntiAlias = true
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0
-      ..color = const Color(0xFFFFB300).withValues(alpha: 0.60);
+      ..color = const Color(0xFFFFB300).withOpacity(0.60);
 
     // Sagging string
     final path = Path();
@@ -357,12 +357,12 @@ class _ShopPainter extends CustomPainter {
       final sag = 0.0 - 0.07 * 4 * (t - 0.5) * (t - 0.5); // parabola dip
       final by = h * 0.42 + h * sag;
 
-      p.color = bulbColors[i].withValues(alpha: 0.85);
+      p.color = bulbColors[i].withOpacity(0.85);
       canvas.drawOval(
         Rect.fromCenter(center: Offset(bx, by + h * 0.018), width: w * 0.035, height: h * 0.028),
         p,
       );
-      p.color = Colors.white.withValues(alpha: 0.55);
+      p.color = Colors.white.withOpacity(0.55);
       canvas.drawOval(
         Rect.fromCenter(
           center: Offset(bx - w * 0.005, by + h * 0.014),
