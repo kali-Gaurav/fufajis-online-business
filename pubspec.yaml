@@ -24,7 +24,7 @@ dependencies:
   firebase_remote_config: ^6.5.3
   firebase_analytics: ^12.4.3
   firebase_performance: ^0.11.4+3
-  firebase_database: ^12.4.4
+  firebase_database: ^12.3.0
   firebase_crashlytics: ^5.1.0
   firebase_ai: ^3.11.0
   google_generative_ai: ^0.4.7
