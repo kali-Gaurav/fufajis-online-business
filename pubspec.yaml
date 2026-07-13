@@ -109,7 +109,7 @@ dependencies:
 
   # Audio & Speech
   record: ^5.2.0
-  speech_to_text: ^7.4.0
+  speech_to_text: ^6.0.0
   video_player: ^2.0.0
   flutter_tts: ^4.0.0
 
