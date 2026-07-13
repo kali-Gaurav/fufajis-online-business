@@ -11,7 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.9
+  cupertino_icons: ^1.0.0
 
   # Firebase packages (aligned with FlutterFire BoM July 2026)
   cloud_firestore: ^6.0.0
