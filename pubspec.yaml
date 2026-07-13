@@ -146,7 +146,7 @@ dev_dependencies:
 # Using overrides to resolve transitive dependency conflicts between latest versions
 dependency_overrides:
   timezone: ^0.11.0
-  xml: ^7.0.0
+  xml: ^6.0.0
 
 flutter:
   uses-material-design: true
