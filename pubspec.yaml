@@ -87,7 +87,7 @@ dependencies:
   package_info_plus: ^9.0.0
   crypto: ^3.0.0
   http: ^1.2.2
-  decimal: ^3.1.0
+  decimal: ^3.0.0
   timeago: ^3.7.1
   otp: ^3.2.0
 
