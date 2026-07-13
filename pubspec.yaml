@@ -127,7 +127,7 @@ dependencies:
   device_info_plus: ^11.2.0
   flutter_secure_storage: ^10.3.1
   supabase_flutter: ^2.15.3
-  sign_in_with_apple: ^8.0.0
+  sign_in_with_apple: ^7.0.0
 
 dev_dependencies:
   flutter_test:
