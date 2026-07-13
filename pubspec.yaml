@@ -83,7 +83,7 @@ dependencies:
   path_provider: ^2.1.0
   image: ^4.0.0
   flutter_dotenv: ^6.0.1
-  package_info_plus: ^9.0.0
+  package_info_plus: ^8.0.0
   crypto: ^3.0.0
   http: ^1.2.2
   decimal: ^2.0.0
