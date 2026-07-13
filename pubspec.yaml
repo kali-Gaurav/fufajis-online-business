@@ -48,7 +48,7 @@ dependencies:
   infinite_scroll_pagination: ^4.0.0
 
   # Scanner & Camera
-  mobile_scanner: ^4.5.0
+  mobile_scanner: ^3.5.0
   camera: ^0.10.0
   google_mlkit_commons: ^0.3.0
   google_mlkit_barcode_scanning: ^0.6.0
