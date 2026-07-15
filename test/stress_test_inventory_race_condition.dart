@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 
 /// Stress Test: Inventory Race Condition Fix Verification
 ///
@@ -14,14 +13,12 @@ import 'package:cloud_functions/cloud_functions.dart';
 void main() {
   group('Inventory Race Condition Fix - Stress Tests', () {
     late FirebaseFirestore firestore;
-    late FirebaseFunctions functions;
 
     setUpAll(() {
       // Use emulator for testing (must be running locally)
-      // firebase emulators:start --only firestore,functions
+      // firebase emulators:start --only firestore
 
       firestore = FirebaseFirestore.instance;
-      functions = FirebaseFunctions.instance;
 
       // Point to emulator if running locally
       if (const bool.fromEnvironment('USE_EMULATOR')) {
@@ -336,14 +333,25 @@ Future<bool> _attemptDeductInventory({
   String shopId = 'primary',
 }) async {
   try {
-    final functions = FirebaseFunctions.instance;
-    final callable = functions.httpsCallable('deductInventoryAtomic');
+    final firestore = FirebaseFirestore.instance;
 
-    await callable.call({
-      'productId': productId,
-      'quantity': quantity,
-      'orderId': orderId,
-      'shopId': shopId,
+    // Use Firestore transaction for atomic inventory deduction
+    await firestore.runTransaction((transaction) async {
+      final productRef = firestore.collection('products').doc(productId);
+      final productDoc = await transaction.get(productRef);
+
+      if (!productDoc.exists) {
+        throw Exception('Product not found');
+      }
+
+      final currentStock = (productDoc['stockQuantity'] ?? 0) as int;
+      if (currentStock < quantity) {
+        throw Exception('Insufficient stock');
+      }
+
+      transaction.update(productRef, {
+        'stockQuantity': currentStock - quantity,
+      });
     });
 
     return true; // Success
