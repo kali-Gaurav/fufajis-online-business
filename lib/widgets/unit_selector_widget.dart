@@ -31,7 +31,7 @@ class UnitSelectorWidget extends StatelessWidget {
               label: Text(option.name),
               selected: isSelected,
               onSelected: (_) => onSelected(option),
-              selectedColor: AppTheme.primary.withValues(alpha: 0.2),
+              selectedColor: AppTheme.primary.withOpacity(0.2),
               labelStyle: TextStyle(
                 color: isSelected ? AppTheme.primary : AppTheme.grey800,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,

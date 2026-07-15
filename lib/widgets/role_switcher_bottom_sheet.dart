@@ -34,7 +34,7 @@ class RoleSwitcherBottomSheet extends StatelessWidget {
             final isSelected = user.role == role;
             return Card(
               elevation: isSelected ? 2 : 0,
-              color: isSelected ? AppTheme.primary.withValues(alpha: 0.05) : Colors.transparent,
+              color: isSelected ? AppTheme.primary.withOpacity(0.05) : Colors.transparent,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
                 side: BorderSide(

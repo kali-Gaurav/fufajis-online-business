@@ -96,7 +96,7 @@ class _VendorPayoutScreenState extends State<VendorPayoutScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppTheme.primary, AppTheme.primary.withValues(alpha: 0.7)],
+          colors: [AppTheme.primary, AppTheme.primary.withOpacity(0.7)],
         ),
         borderRadius: BorderRadius.circular(12),
       ),
@@ -200,7 +200,7 @@ class _VendorPayoutScreenState extends State<VendorPayoutScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: statusColor.withValues(alpha: 0.2),
+                    color: statusColor.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(

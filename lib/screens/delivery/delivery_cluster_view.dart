@@ -339,7 +339,7 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: done ? AppTheme.success : AppTheme.primary.withValues(alpha: 0.15),
+                    color: done ? AppTheme.success : AppTheme.primary.withOpacity(0.15),
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
@@ -515,7 +515,7 @@ class _DeliveryClusterViewState extends State<DeliveryClusterView> {
       margin: const EdgeInsets.only(left: 4),
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
+        color: color.withOpacity(0.15),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(

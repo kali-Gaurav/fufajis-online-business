@@ -189,7 +189,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
           children: [
             // Employee Info Card
             Card(
-              color: AppTheme.info.withValues(alpha: 0.1),
+              color: AppTheme.info.withOpacity(0.1),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -432,7 +432,7 @@ class _AttendanceConfirmOverlayState extends State<_AttendanceConfirmOverlay> {
           Container(
             width: 72,
             height: 72,
-            decoration: BoxDecoration(color: color.withValues(alpha: 0.12), shape: BoxShape.circle),
+            decoration: BoxDecoration(color: color.withOpacity(0.12), shape: BoxShape.circle),
             child: Icon(icon, color: color, size: 36),
           ),
           const SizedBox(height: 16),

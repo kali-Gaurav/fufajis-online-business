@@ -29,7 +29,7 @@ class QuickReorderCard extends StatelessWidget {
           border: Border.all(color: AppTheme.grey200),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
+              color: Colors.black.withOpacity(0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -68,7 +68,7 @@ class QuickReorderCard extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: AppTheme.primary.withValues(alpha: 0.9),
+                        color: AppTheme.primary.withOpacity(0.9),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: const Row(
@@ -182,7 +182,7 @@ class QuickReorderCard extends StatelessWidget {
                                 );
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
+                                backgroundColor: AppTheme.primary.withOpacity(0.1),
                                 foregroundColor: AppTheme.primary,
                                 elevation: 0,
                                 padding: EdgeInsets.zero,

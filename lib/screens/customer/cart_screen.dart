@@ -108,10 +108,10 @@ class _CartScreenState extends State<CartScreen> {
       duration: const Duration(milliseconds: 300),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
-        color: unlocked ? AppTheme.success.withValues(alpha: 0.08) : Colors.white,
+        color: unlocked ? AppTheme.success.withOpacity(0.08) : Colors.white,
         border: Border(
           bottom: BorderSide(
-            color: unlocked ? AppTheme.success.withValues(alpha: 0.3) : AppTheme.grey200,
+            color: unlocked ? AppTheme.success.withOpacity(0.3) : AppTheme.grey200,
             width: unlocked ? 2 : 1,
           ),
         ),
@@ -265,7 +265,7 @@ class _CartScreenState extends State<CartScreen> {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.black.withValues(alpha: 0.04),
+                      color: AppTheme.black.withOpacity(0.04),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
                     ),
@@ -302,7 +302,7 @@ class _CartScreenState extends State<CartScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                               decoration: BoxDecoration(
-                                color: AppTheme.success.withValues(alpha: 0.9),
+                                color: AppTheme.success.withOpacity(0.9),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
@@ -414,7 +414,7 @@ class _CartScreenState extends State<CartScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -577,7 +577,7 @@ class _CartScreenState extends State<CartScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.1),
+            color: AppTheme.black.withOpacity(0.1),
             blurRadius: 16,
             offset: const Offset(0, -4),
           ),
@@ -653,7 +653,7 @@ class _CartScreenState extends State<CartScreen> {
               margin: const EdgeInsets.only(top: 8),
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.success.withValues(alpha: 0.1),
+                color: AppTheme.success.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -684,7 +684,7 @@ class _CartScreenState extends State<CartScreen> {
           if (cartProvider.deliveryCharge > 0)
             Text(
               'Free delivery on orders above ₹500',
-              style: TextStyle(fontSize: 12, color: AppTheme.success.withValues(alpha: 0.8)),
+              style: TextStyle(fontSize: 12, color: AppTheme.success.withOpacity(0.8)),
             ),
           const SizedBox(height: 8),
           if (cartProvider.discount > 0)
@@ -718,9 +718,9 @@ class _CartScreenState extends State<CartScreen> {
             Container(
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               decoration: BoxDecoration(
-                color: AppTheme.warning.withValues(alpha: 0.1),
+                color: AppTheme.warning.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.warning.withValues(alpha: 0.3), width: 1.5),
+                border: Border.all(color: AppTheme.warning.withOpacity(0.3), width: 1.5),
               ),
               child: const Row(
                 children: [
@@ -823,7 +823,7 @@ class _CartScreenState extends State<CartScreen> {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: AppTheme.warning.withValues(alpha: 0.15),
+      color: AppTheme.warning.withOpacity(0.15),
       child: const Row(
         children: [
           Icon(Icons.warning_amber_rounded, color: AppTheme.warning),

@@ -146,7 +146,7 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: AppTheme.success.withValues(alpha: 0.1),
+                          color: AppTheme.success.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
@@ -256,7 +256,7 @@ class _CashCollectionScreenState extends State<CashCollectionScreen> {
               Text('Today\'s Collections', style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
               Card(
-                color: AppTheme.success.withValues(alpha: 0.1),
+                color: AppTheme.success.withOpacity(0.1),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(

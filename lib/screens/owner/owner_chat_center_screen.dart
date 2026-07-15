@@ -201,7 +201,7 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
                             )
                           : null,
                       filled: true,
-                      fillColor: Colors.white.withValues(alpha: 0.15),
+                      fillColor: Colors.white.withOpacity(0.15),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(28),
                         borderSide: BorderSide.none,
@@ -286,7 +286,7 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: AppTheme.ownerAccent.withValues(alpha: 0.1),
+              color: AppTheme.ownerAccent.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: const Center(child: Text('💬', style: TextStyle(fontSize: 36))),
@@ -320,7 +320,7 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
       onTap: () => context.push('/owner/chat/${conv.chatId}'),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        color: hasUnread ? AppTheme.ownerAccent.withValues(alpha: 0.04) : Colors.transparent,
+        color: hasUnread ? AppTheme.ownerAccent.withOpacity(0.04) : Colors.transparent,
         child: Row(
           children: [
             // Avatar
@@ -328,7 +328,7 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
               children: [
                 CircleAvatar(
                   radius: 26,
-                  backgroundColor: AppTheme.ownerAccent.withValues(alpha: 0.15),
+                  backgroundColor: AppTheme.ownerAccent.withOpacity(0.15),
                   child: Text(
                     conv.customerName.isNotEmpty ? conv.customerName[0].toUpperCase() : 'C',
                     style: const TextStyle(
@@ -391,7 +391,7 @@ class _OwnerChatCenterScreenState extends State<OwnerChatCenterScreen>
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                           decoration: BoxDecoration(
-                            color: AppTheme.primary.withValues(alpha: 0.12),
+                            color: AppTheme.primary.withOpacity(0.12),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -529,9 +529,9 @@ class _SentimentBadge extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         decoration: BoxDecoration(
-          color: _color.withValues(alpha: 0.12),
+          color: _color.withOpacity(0.12),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: _color.withValues(alpha: 0.4)),
+          border: Border.all(color: _color.withOpacity(0.4)),
         ),
         child: Text(sentiment.emoji, style: const TextStyle(fontSize: 13)),
       ),

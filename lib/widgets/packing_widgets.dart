@@ -27,7 +27,7 @@ class OrderItemCard extends StatelessWidget {
       child: Card(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         color: isSelected
-            ? AppTheme.info.withValues(alpha: 0.1)
+            ? AppTheme.info.withOpacity(0.1)
             : isDark
             ? Colors.grey[800]
             : Colors.white,
@@ -592,7 +592,7 @@ class _QualityCheckItemCardState extends State<QualityCheckItemCard> {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       color: _checked
-          ? AppTheme.success.withValues(alpha: 0.1)
+          ? AppTheme.success.withOpacity(0.1)
           : isDark
           ? Colors.grey[800]
           : Colors.white,

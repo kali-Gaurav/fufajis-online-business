@@ -28,6 +28,16 @@ class _SubscriptionCheckoutScreenState extends State<SubscriptionCheckoutScreen>
   void initState() {
     super.initState();
     _items = widget.items ?? [];
+    _loadCheckoutItems();
+  }
+
+  Future<void> _loadCheckoutItems() async {
+    setState(() {
+      // Items are already set from widget or will be set from route extra
+      if (_items.isEmpty) {
+        debugPrint('No items provided to checkout screen');
+      }
+    });
   }
 
   @override

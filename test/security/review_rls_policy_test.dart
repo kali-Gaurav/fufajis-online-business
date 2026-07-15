@@ -18,6 +18,7 @@ void main() {
           reviewText: 'Great product',
           tags: const ['quality'],
           isFlagged: false,
+          resolvedAt: null,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );
@@ -43,6 +44,7 @@ void main() {
           reviewText: 'Good',
           tags: const [],
           isFlagged: false,
+          resolvedAt: null,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );
@@ -65,6 +67,7 @@ void main() {
           reviewText: 'Product is great',
           tags: const ['quality'],
           isFlagged: false,
+          resolvedAt: null,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );
@@ -90,6 +93,7 @@ void main() {
           reviewText: 'Original text',
           tags: const [],
           isFlagged: false,
+          resolvedAt: null,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );
@@ -183,6 +187,7 @@ void main() {
           reviewText: 'Damaged product',
           tags: const ['damage'],
           isFlagged: false,
+          resolvedAt: null,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );
@@ -243,6 +248,7 @@ void main() {
           reviewText: 'Good product',
           tags: const [],
           isFlagged: false,
+          resolvedAt: null,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );
@@ -351,6 +357,7 @@ void main() {
           reviewText: 'Good',
           tags: const [],
           isFlagged: false,
+          resolvedAt: null,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );
@@ -372,6 +379,7 @@ void main() {
           reviewText: 'Great',
           tags: const [],
           isFlagged: false,
+          resolvedAt: null,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );
@@ -415,6 +423,7 @@ void main() {
           reviewText: 'Test',
           tags: const [],
           isFlagged: false,
+          resolvedAt: null,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );
@@ -436,6 +445,7 @@ void main() {
           reviewText: 'Test',
           tags: const [],
           isFlagged: false,
+          resolvedAt: null,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );
@@ -506,6 +516,7 @@ void main() {
           reviewText: validText,
           tags: const [],
           isFlagged: false,
+          resolvedAt: null,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );

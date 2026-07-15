@@ -74,8 +74,8 @@ class _RiderPulseHeatmapScreenState extends State<RiderPulseHeatmapScreen> {
                         point: pos,
                         radius: 200, // meters
                         useRadiusInMeter: true,
-                        color: pulseColor.withValues(alpha: 0.2),
-                        borderColor: pulseColor.withValues(alpha: 0.5),
+                        color: pulseColor.withOpacity(0.2),
+                        borderColor: pulseColor.withOpacity(0.5),
                         borderStrokeWidth: 2,
                       ),
                     );
@@ -137,7 +137,7 @@ class _RiderPulseHeatmapScreenState extends State<RiderPulseHeatmapScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.9),
+        color: Colors.white.withOpacity(0.9),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [BoxShadow(color: Colors.black.withAlpha(25), blurRadius: 10)],
       ),
@@ -267,7 +267,7 @@ class _RiderMarkerWidgetState extends State<_RiderMarkerWidget>
               height: 40 * _controller.value,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: widget.color.withValues(alpha: 1 - _controller.value),
+                color: widget.color.withOpacity(1 - _controller.value),
               ),
             ),
             // Rider Icon
@@ -276,7 +276,7 @@ class _RiderMarkerWidgetState extends State<_RiderMarkerWidget>
                 color: Colors.white,
                 shape: BoxShape.circle,
                 border: Border.all(color: widget.color, width: 2),
-                boxShadow: [BoxShadow(color: widget.color.withValues(alpha: 0.3), blurRadius: 5)],
+                boxShadow: [BoxShadow(color: widget.color.withOpacity(0.3), blurRadius: 5)],
               ),
               child: Padding(
                 padding: const EdgeInsets.all(4.0),

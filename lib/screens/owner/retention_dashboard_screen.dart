@@ -234,7 +234,7 @@ class _AtRiskCustomerCard extends StatelessWidget {
             Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: AppTheme.warning.withValues(alpha: 0.2),
+                  backgroundColor: AppTheme.warning.withOpacity(0.2),
                   child: const Icon(Icons.person, color: AppTheme.warning),
                 ),
                 const SizedBox(width: 12),
@@ -256,7 +256,7 @@ class _AtRiskCustomerCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppTheme.error.withValues(alpha: 0.1),
+                    color: AppTheme.error.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(

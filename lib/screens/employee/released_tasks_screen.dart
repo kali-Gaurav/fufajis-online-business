@@ -199,7 +199,7 @@ class _ReleasedTasksScreenState extends State<ReleasedTasksScreen> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: priorityColor.withValues(alpha: 0.1),
+                    color: priorityColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(typeIcon, color: priorityColor, size: 20),
@@ -228,7 +228,7 @@ class _ReleasedTasksScreenState extends State<ReleasedTasksScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: priorityColor.withValues(alpha: 0.15),
+                    color: priorityColor.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(

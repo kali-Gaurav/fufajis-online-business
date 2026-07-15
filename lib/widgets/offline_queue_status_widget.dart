@@ -266,7 +266,7 @@ class _QueueStatusDialogState extends State<QueueStatusDialog> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
+            color: color.withOpacity(0.1),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
@@ -335,7 +335,7 @@ class SyncProgressOverlay extends StatelessWidget {
         if (!isSyncing) return const SizedBox.shrink();
 
         return Container(
-          color: Colors.black.withValues(alpha: 0.3),
+          color: Colors.black.withOpacity(0.3),
           child: Center(
             child: Card(
               child: Padding(

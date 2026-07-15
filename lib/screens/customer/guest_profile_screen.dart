@@ -123,7 +123,7 @@ class GuestProfileScreen extends StatelessWidget {
         onTap: onTap,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: AppTheme.grey200.withValues(alpha: 0.5)),
+          side: BorderSide(color: AppTheme.grey200.withOpacity(0.5)),
         ),
         leading: Container(
           padding: const EdgeInsets.all(8),

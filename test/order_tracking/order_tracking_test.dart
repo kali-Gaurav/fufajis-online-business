@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -595,12 +596,12 @@ class ETAServiceMock {
     const earthRadiusKm = 6371.0;
     final dLat = _toRadians(point2.latitude - point1.latitude);
     final dLng = _toRadians(point2.longitude - point1.longitude);
-    final a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(_toRadians(point1.latitude)) *
-            Math.cos(_toRadians(point2.latitude)) *
-            Math.sin(dLng / 2) *
-            Math.sin(dLng / 2);
-    final c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    final a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(_toRadians(point1.latitude)) *
+            math.cos(_toRadians(point2.latitude)) *
+            math.sin(dLng / 2) *
+            math.sin(dLng / 2);
+    final c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
     return earthRadiusKm * c;
   }
 

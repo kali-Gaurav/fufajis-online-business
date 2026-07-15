@@ -124,7 +124,7 @@ class _EmployeeChatScreenState extends State<EmployeeChatScreen> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
+                      color: Colors.white.withOpacity(0.2),
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -165,7 +165,7 @@ class _EmployeeChatScreenState extends State<EmployeeChatScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
+                      color: Colors.white.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Row(
@@ -253,7 +253,7 @@ class _EmployeeChatScreenState extends State<EmployeeChatScreen> {
             decoration: BoxDecoration(
               color: isDark ? AppTheme.grey800 : const Color(0xFFEDF4FF),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.info.withValues(alpha: 0.3)),
+              border: Border.all(color: AppTheme.info.withOpacity(0.3)),
             ),
             child: Text(
               msg.text,
@@ -387,10 +387,10 @@ class _EmployeeChatScreenState extends State<EmployeeChatScreen> {
                             margin: const EdgeInsets.only(right: 8),
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
                             decoration: BoxDecoration(
-                              color: AppTheme.employeeAccent.withValues(alpha: 0.12),
+                              color: AppTheme.employeeAccent.withOpacity(0.12),
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(
-                                color: AppTheme.employeeAccent.withValues(alpha: 0.3),
+                                color: AppTheme.employeeAccent.withOpacity(0.3),
                               ),
                             ),
                             child: Text(
@@ -423,7 +423,7 @@ class _EmployeeChatScreenState extends State<EmployeeChatScreen> {
                 child: Container(
                   width: 44,
                   height: double.infinity,
-                  color: AppTheme.employeeAccent.withValues(alpha: 0.08),
+                  color: AppTheme.employeeAccent.withOpacity(0.08),
                   child: const Icon(
                     Icons.flash_on_rounded,
                     color: AppTheme.employeeAccent,
@@ -444,7 +444,7 @@ class _EmployeeChatScreenState extends State<EmployeeChatScreen> {
         color: isDark ? AppTheme.grey900 : Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: Colors.black.withOpacity(0.06),
             blurRadius: 12,
             offset: const Offset(0, -3),
           ),

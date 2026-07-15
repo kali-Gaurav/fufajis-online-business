@@ -112,7 +112,7 @@ class _BroadcastNotificationScreenState extends State<BroadcastNotificationScree
                     onSelected: (val) {
                       if (val) setState(() => _selectedType = type['id']!);
                     },
-                    selectedColor: AppTheme.primary.withValues(alpha: 0.2),
+                    selectedColor: AppTheme.primary.withOpacity(0.2),
                     labelStyle: TextStyle(
                       color: isSelected ? AppTheme.primary : AppTheme.grey700,
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:fufaji/providers/inventory_provider.dart';
-import 'package:fufaji/models/inventory_models.dart';
-import 'package:fufaji/widgets/analytics/optimized_metric_card.dart';
-import 'package:fufaji/utils/analytics_performance.dart';
+import 'package:go_router/go_router.dart';
+import 'package:fufajis_online/providers/inventory_provider.dart';
+import 'package:fufajis_online/models/inventory_models.dart';
+import 'package:fufajis_online/widgets/analytics/optimized_metric_card.dart';
+import 'package:fufajis_online/utils/analytics_performance.dart';
 
 /// Inventory Dashboard Screen
 /// Displays real-time stock overview, alerts, and quick actions
@@ -81,7 +82,7 @@ class _InventoryDashboardScreenState extends State<InventoryDashboardScreen> {
                       const SizedBox(height: 24),
 
                       // Quick Actions
-                      _QuickActionsSection(isDark: isDark),
+                      _QuickActionsSection(isDark: isDark, context: context),
                       const SizedBox(height: 24),
 
                       // Stock Status Summary
@@ -245,8 +246,51 @@ class _CriticalAlertsSection extends StatelessWidget {
 // Quick actions section
 class _QuickActionsSection extends StatelessWidget {
   final bool isDark;
+  final BuildContext context;
 
-  const _QuickActionsSection({required this.isDark});
+  const _QuickActionsSection({required this.isDark, required this.context});
+
+  void _handleAction(String action) {
+    switch (action) {
+      case 'adjustment':
+        context.push('/owner/inventory');
+        break;
+      case 'count':
+        context.push('/owner/inventory');
+        break;
+      case 'po':
+        _showNewPOModal(context);
+        break;
+      case 'suppliers':
+        context.push('/inventory/suppliers');
+        break;
+    }
+  }
+
+  void _showNewPOModal(BuildContext ctx) {
+    showDialog(
+      context: ctx,
+      builder: (context) => AlertDialog(
+        title: const Text('New Purchase Order'),
+        content: const Text(
+          'Select a supplier to create a new purchase order',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.push('/inventory/suppliers');
+            },
+            child: const Text('View Suppliers'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -271,30 +315,22 @@ class _QuickActionsSection extends StatelessWidget {
             _ActionButton(
               label: 'Manual Adjustment',
               icon: Icons.edit,
-              onPressed: () {
-                // TODO: Navigate to stock adjustment screen
-              },
+              onPressed: () => _handleAction('adjustment'),
             ),
             _ActionButton(
               label: 'Stock Count',
               icon: Icons.playlist_add_check,
-              onPressed: () {
-                // TODO: Navigate to stock count screen
-              },
+              onPressed: () => _handleAction('count'),
             ),
             _ActionButton(
               label: 'New Purchase Order',
               icon: Icons.add_shopping_cart,
-              onPressed: () {
-                // TODO: Navigate to PO creation
-              },
+              onPressed: () => _handleAction('po'),
             ),
             _ActionButton(
               label: 'View Suppliers',
               icon: Icons.people,
-              onPressed: () {
-                // TODO: Navigate to supplier list
-              },
+              onPressed: () => _handleAction('suppliers'),
             ),
           ],
         ),

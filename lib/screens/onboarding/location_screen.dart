@@ -159,7 +159,7 @@ class _LocationScreenState extends State<LocationScreen> with TickerProviderStat
                       decoration: BoxDecoration(
                         color: isDark ? const Color(0xFF1F1F1F) : const Color(0xFFF5F5F5),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFFFF6B00).withValues(alpha: 0.3)),
+                        border: Border.all(color: const Color(0xFFFF6B00).withOpacity(0.3)),
                       ),
                       child: Stack(
                         alignment: Alignment.center,
@@ -172,8 +172,8 @@ class _LocationScreenState extends State<LocationScreen> with TickerProviderStat
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                                 colors: [
-                                  const Color(0xFFF0F0F0).withValues(alpha: 0.5),
-                                  const Color(0xFFE0E0E0).withValues(alpha: 0.5),
+                                  const Color(0xFFF0F0F0).withOpacity(0.5),
+                                  const Color(0xFFE0E0E0).withOpacity(0.5),
                                 ],
                               ),
                             ),
@@ -190,7 +190,7 @@ class _LocationScreenState extends State<LocationScreen> with TickerProviderStat
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(0xFFFF6B00).withValues(alpha: 0.4),
+                                      color: const Color(0xFFFF6B00).withOpacity(0.4),
                                       blurRadius: 16,
                                       spreadRadius: 2,
                                     ),
@@ -232,9 +232,9 @@ class _LocationScreenState extends State<LocationScreen> with TickerProviderStat
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF6B00).withValues(alpha: 0.08),
+                          color: const Color(0xFFFF6B00).withOpacity(0.08),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFFF6B00).withValues(alpha: 0.3)),
+                          border: Border.all(color: const Color(0xFFFF6B00).withOpacity(0.3)),
                         ),
                         child: Row(
                           children: [
@@ -278,9 +278,9 @@ class _LocationScreenState extends State<LocationScreen> with TickerProviderStat
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.red.withValues(alpha: 0.1),
+                          color: Colors.red.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                          border: Border.all(color: Colors.red.withOpacity(0.3)),
                         ),
                         child: Row(
                           children: [
@@ -326,7 +326,7 @@ class _LocationScreenState extends State<LocationScreen> with TickerProviderStat
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? const Color(0xFFFF6B00).withValues(alpha: 0.1)
+                                  ? const Color(0xFFFF6B00).withOpacity(0.1)
                                   : isDark
                                   ? const Color(0xFF1F1F1F)
                                   : const Color(0xFFF5F5F5),
@@ -344,7 +344,7 @@ class _LocationScreenState extends State<LocationScreen> with TickerProviderStat
                                   width: 40,
                                   height: 40,
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFFF6B00).withValues(alpha: 0.1),
+                                    color: const Color(0xFFFF6B00).withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: const Icon(

@@ -257,10 +257,10 @@ class _ScanLogTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
+        border: Border.all(color: color.withOpacity(0.2), width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -273,7 +273,7 @@ class _ScanLogTile extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
+              color: color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(modeConfig?.icon ?? Icons.qr_code, color: color, size: 20),
@@ -297,7 +297,7 @@ class _ScanLogTile extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                         decoration: BoxDecoration(
-                          color: _roleColor(employeeRole).withValues(alpha: 0.12),
+                          color: _roleColor(employeeRole).withOpacity(0.12),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -387,7 +387,7 @@ class _PickChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: selected ? c.withValues(alpha: 0.15) : Colors.grey.shade100,
+          color: selected ? c.withOpacity(0.15) : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: selected ? c : Colors.grey.shade300, width: selected ? 1.5 : 1),
         ),

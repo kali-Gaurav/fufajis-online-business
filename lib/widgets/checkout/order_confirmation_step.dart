@@ -75,7 +75,7 @@ class _OrderConfirmationStepState extends State<OrderConfirmationStep> {
           width: 100,
           height: 100,
           decoration: BoxDecoration(
-            color: (isWaiting ? AppTheme.warning : AppTheme.success).withValues(alpha: 0.1),
+            color: (isWaiting ? AppTheme.warning : AppTheme.success).withOpacity(0.1),
             shape: BoxShape.circle,
           ),
           child: isWaiting
@@ -113,7 +113,7 @@ class _OrderConfirmationStepState extends State<OrderConfirmationStep> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: (isWaiting ? AppTheme.warning : AppTheme.primary).withValues(alpha: 0.1),
+            color: (isWaiting ? AppTheme.warning : AppTheme.primary).withOpacity(0.1),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
@@ -137,7 +137,7 @@ class _OrderConfirmationStepState extends State<OrderConfirmationStep> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -303,7 +303,7 @@ class _OrderConfirmationStepState extends State<OrderConfirmationStep> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -392,7 +392,7 @@ class _OrderConfirmationStepState extends State<OrderConfirmationStep> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

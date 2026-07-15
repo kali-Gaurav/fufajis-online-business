@@ -416,7 +416,7 @@ class _UserLimitCardState extends State<_UserLimitCard> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.1),
+                    color: AppTheme.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -576,7 +576,7 @@ class _CodAlertCardState extends State<_CodAlertCard> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: (isOpen ? AppTheme.warning : AppTheme.success).withValues(alpha: 0.12),
+                    color: (isOpen ? AppTheme.warning : AppTheme.success).withOpacity(0.12),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(

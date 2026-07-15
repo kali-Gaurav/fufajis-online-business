@@ -105,7 +105,7 @@ class _CustomerSubscriptionsScreenState extends State<CustomerSubscriptionsScree
                 onSelected: (_) => setState(() => _selectedTab = index),
                 label: Text(_tabs[index]),
                 backgroundColor: Colors.white,
-                selectedColor: AppTheme.primary.withValues(alpha: 0.2),
+                selectedColor: AppTheme.primary.withOpacity(0.2),
                 labelStyle: TextStyle(
                   color: _selectedTab == index ? AppTheme.primary : AppTheme.grey600,
                   fontWeight: _selectedTab == index ? FontWeight.bold : FontWeight.normal,
@@ -205,7 +205,7 @@ class _CustomerSubscriptionsScreenState extends State<CustomerSubscriptionsScree
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    color: statusColor.withValues(alpha: 0.2),
+                    color: statusColor.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(

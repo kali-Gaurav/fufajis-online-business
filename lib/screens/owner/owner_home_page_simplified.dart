@@ -90,7 +90,7 @@ class OwnerHomePage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.storefront, size: 36, color: Colors.white),
@@ -227,10 +227,10 @@ class OwnerHomePage extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: color.withValues(alpha: 0.2), width: 2),
+          border: Border.all(color: color.withOpacity(0.2), width: 2),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.black.withValues(alpha: 0.04),
+              color: AppTheme.black.withOpacity(0.04),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -243,7 +243,7 @@ class OwnerHomePage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
+                color: color.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, color: color, size: 20),
@@ -292,9 +292,9 @@ class OwnerHomePage extends StatelessWidget {
           return Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppTheme.success.withValues(alpha: 0.08),
+              color: AppTheme.success.withOpacity(0.08),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppTheme.success.withValues(alpha: 0.2), width: 1),
+              border: Border.all(color: AppTheme.success.withOpacity(0.2), width: 1),
             ),
             child: const Row(
               children: [
@@ -335,9 +335,9 @@ class OwnerHomePage extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.08),
+                    color: color.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: color.withValues(alpha: 0.2)),
+                    border: Border.all(color: color.withOpacity(0.2)),
                   ),
                   child: Row(
                     children: [
@@ -431,9 +431,9 @@ class OwnerHomePage extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.08),
+          color: color.withOpacity(0.08),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
+          border: Border.all(color: color.withOpacity(0.2)),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -441,7 +441,7 @@ class OwnerHomePage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.15),
+                color: color.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: color, size: 24),
@@ -503,7 +503,7 @@ class OwnerHomePage extends StatelessWidget {
                 border: Border.all(color: AppTheme.grey200),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.black.withValues(alpha: 0.04),
+                    color: AppTheme.black.withOpacity(0.04),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
@@ -600,7 +600,7 @@ class OwnerHomePage extends StatelessWidget {
         border: Border.all(color: AppTheme.grey200),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.04),
+            color: AppTheme.black.withOpacity(0.04),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -634,7 +634,7 @@ class OwnerHomePage extends StatelessWidget {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: AppTheme.primary.withValues(alpha: 0.1),
+                        color: AppTheme.primary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(Icons.shopping_bag, color: AppTheme.primary),
@@ -671,7 +671,7 @@ class OwnerHomePage extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: _getStatusColor(order.status.displayName).withValues(alpha: 0.1),
+                            color: _getStatusColor(order.status.displayName).withOpacity(0.1),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(

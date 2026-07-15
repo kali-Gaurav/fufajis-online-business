@@ -399,12 +399,12 @@ class AppTheme {
 
   static List<BoxShadow> primaryGlowShadows({double intensity = 1.0}) => [
     BoxShadow(
-      color: primary.withValues(alpha: 0.35 * intensity),
+      color: primary.withOpacity(0.35 * intensity),
       blurRadius: 20,
       offset: const Offset(0, 8),
     ),
     BoxShadow(
-      color: primary.withValues(alpha: 0.15 * intensity),
+      color: primary.withOpacity(0.15 * intensity),
       blurRadius: 40,
       offset: const Offset(0, 16),
     ),
@@ -424,9 +424,9 @@ class AppTheme {
   );
 
   static BoxDecoration get softOrangeCardDecoration => BoxDecoration(
-    color: primaryLight.withValues(alpha: 0.35),
+    color: primaryLight.withOpacity(0.35),
     borderRadius: const BorderRadius.all(Radius.circular(radiusLg)),
-    border: Border.all(color: primary.withValues(alpha: 0.18)),
+    border: Border.all(color: primary.withOpacity(0.18)),
   );
 
   // Text Styles
@@ -532,7 +532,7 @@ class AppTheme {
       border: Border.all(color: borderColor, width: 1.5),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.08),
+          color: Colors.black.withOpacity(0.08),
           blurRadius: 20,
           offset: const Offset(0, 8),
         ),

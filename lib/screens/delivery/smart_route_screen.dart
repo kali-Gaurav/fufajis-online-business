@@ -331,7 +331,7 @@ class _TripCardState extends State<_TripCard> {
   Widget build(BuildContext context) {
     final trip = widget.trip;
     final Color cardColor = trip.isCompleted
-        ? AppTheme.success.withValues(alpha: 0.08)
+        ? AppTheme.success.withOpacity(0.08)
         : AppTheme.white;
 
     return Card(
@@ -365,7 +365,7 @@ class _TripCardState extends State<_TripCard> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: AppTheme.info.withValues(alpha: 0.1),
+                    color: AppTheme.info.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(

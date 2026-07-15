@@ -69,7 +69,7 @@ class BiGrowthChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
+        color: color.withOpacity(0.12),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -116,7 +116,7 @@ class BiKpiCard extends StatelessWidget {
         border: Border.all(color: AppTheme.grey100),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -130,7 +130,7 @@ class BiKpiCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
+                  color: color.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(icon, color: color, size: 18),
@@ -180,7 +180,7 @@ class BiSectionCard extends StatelessWidget {
         border: Border.all(color: AppTheme.grey100),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -340,7 +340,7 @@ class BiLineChart extends StatelessWidget {
               color: color,
               barWidth: 3,
               dotData: const FlDotData(show: false),
-              belowBarData: BarAreaData(show: true, color: color.withValues(alpha: 0.12)),
+              belowBarData: BarAreaData(show: true, color: color.withOpacity(0.12)),
             ),
           ],
         ),

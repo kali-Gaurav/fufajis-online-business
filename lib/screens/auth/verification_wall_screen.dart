@@ -203,7 +203,7 @@ class _VerificationWallScreenState extends State<VerificationWallScreen>
                     width: 88,
                     height: 88,
                     decoration: BoxDecoration(
-                      color: AppTheme.primary.withValues(alpha: 0.1),
+                      color: AppTheme.primary.withOpacity(0.1),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -241,7 +241,7 @@ class _VerificationWallScreenState extends State<VerificationWallScreen>
                       margin: const EdgeInsets.only(top: 20, bottom: 8),
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: AppTheme.warning.withValues(alpha: 0.1),
+                        color: AppTheme.warning.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: AppTheme.warning),
                       ),

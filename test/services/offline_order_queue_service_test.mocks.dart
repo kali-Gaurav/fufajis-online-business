@@ -88,11 +88,6 @@ class _FakeDocumentReference_11<T extends Object?> extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
-class _FakePipelineSource_12 extends _i1.SmartFake implements _i6.PipelineSource {
-  _FakePipelineSource_12(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
 class _FakeFirebaseFirestore_13 extends _i1.SmartFake implements _i6.FirebaseFirestore {
   _FakeFirebaseFirestore_13(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
@@ -587,12 +582,6 @@ class MockFirebaseFirestore extends _i1.Mock implements _i6.FirebaseFirestore {
     returnValue: _i3.Future<void>.value(),
     returnValueForMissingStub: _i3.Future<void>.value(),
   ) as _i3.Future<void>);
-
-  @override
-  _i6.PipelineSource pipeline() => (super.noSuchMethod(
-    Invocation.method(#pipeline, []),
-    returnValue: _FakePipelineSource_12(this, Invocation.method(#pipeline, [])),
-  ) as _i6.PipelineSource);
 
   @override
   _i3.Future<void> setIndexConfigurationFromJSON(String? json) => (super.noSuchMethod(

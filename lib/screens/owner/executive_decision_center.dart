@@ -213,9 +213,9 @@ class _ExecutiveDecisionCenterState extends State<ExecutiveDecisionCenter> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.ownerAccent.withValues(alpha: 0.05),
+        color: AppTheme.ownerAccent.withOpacity(0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.ownerAccent.withValues(alpha: 0.2)),
+        border: Border.all(color: AppTheme.ownerAccent.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,7 +245,7 @@ class _ExecutiveDecisionCenterState extends State<ExecutiveDecisionCenter> {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.error.withValues(alpha: 0.05),
+        color: AppTheme.error.withOpacity(0.05),
         border: const Border(left: BorderSide(color: AppTheme.error, width: 4)),
       ),
       child: Row(

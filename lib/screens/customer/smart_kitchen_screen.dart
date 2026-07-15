@@ -148,7 +148,7 @@ class _SmartKitchenScreenState extends State<SmartKitchenScreen> {
 
     return Container(
       width: double.infinity,
-      color: AppTheme.warning.withValues(alpha: 0.1),
+      color: AppTheme.warning.withOpacity(0.1),
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [

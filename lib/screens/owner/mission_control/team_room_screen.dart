@@ -130,8 +130,8 @@ class _KillSwitchCard extends StatelessWidget {
 
     return Card(
       color: enabled
-          ? AppTheme.success.withValues(alpha: 0.08)
-          : Colors.grey.withValues(alpha: 0.08),
+          ? AppTheme.success.withOpacity(0.08)
+          : Colors.grey.withOpacity(0.08),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
@@ -292,7 +292,7 @@ class _AgentDeskCard extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 24,
-              backgroundColor: statusColor.withValues(alpha: 0.15),
+              backgroundColor: statusColor.withOpacity(0.15),
               child: Text(agent.emoji, style: const TextStyle(fontSize: 22)),
             ),
             const SizedBox(width: 12),
@@ -311,7 +311,7 @@ class _AgentDeskCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: statusColor.withValues(alpha: 0.12),
+                          color: statusColor.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
@@ -500,9 +500,9 @@ class _ApprovalCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.blue.withValues(alpha: 0.05),
+        color: Colors.blue.withOpacity(0.05),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.blue.withValues(alpha: 0.1)),
+        border: Border.all(color: Colors.blue.withOpacity(0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -685,7 +685,7 @@ class _ReportCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppTheme.warning.withValues(alpha: 0.12),
+                        color: AppTheme.warning.withOpacity(0.12),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -963,7 +963,7 @@ class _AnomalyTile extends StatelessWidget {
     final color = _severityColor();
 
     return Card(
-      color: color.withValues(alpha: 0.06),
+      color: color.withOpacity(0.06),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
@@ -1012,7 +1012,7 @@ class _ComparisonBar extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: currentRatio,
                   minHeight: 10,
-                  backgroundColor: Colors.grey.withValues(alpha: 0.15),
+                  backgroundColor: Colors.grey.withOpacity(0.15),
                   valueColor: AlwaysStoppedAnimation(Theme.of(context).colorScheme.primary),
                 ),
               ),
@@ -1034,7 +1034,7 @@ class _ComparisonBar extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: previousRatio,
                   minHeight: 10,
-                  backgroundColor: Colors.grey.withValues(alpha: 0.15),
+                  backgroundColor: Colors.grey.withOpacity(0.15),
                   valueColor: const AlwaysStoppedAnimation(Colors.grey),
                 ),
               ),
@@ -1087,7 +1087,7 @@ class _ProductBar extends StatelessWidget {
           child: LinearProgressIndicator(
             value: ratio,
             minHeight: 8,
-            backgroundColor: Colors.grey.withValues(alpha: 0.15),
+            backgroundColor: Colors.grey.withOpacity(0.15),
             valueColor: AlwaysStoppedAnimation(Theme.of(context).colorScheme.primary),
           ),
         ),
@@ -1230,7 +1230,7 @@ class _BroadcastCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: _statusColor(broadcast.status).withValues(alpha: 0.12),
+                    color: _statusColor(broadcast.status).withOpacity(0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(

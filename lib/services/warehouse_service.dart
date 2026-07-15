@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fufaji/utils/analytics_performance.dart';
+import 'package:fufajis_online/utils/analytics_performance.dart';
 import 'dart:developer' as developer;
 
 /// Warehouse Management Service

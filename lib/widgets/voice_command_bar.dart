@@ -212,7 +212,7 @@ class _VoiceCommandBarState extends State<VoiceCommandBar> with TickerProviderSt
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: (isListening ? AppTheme.error : AppTheme.primary).withValues(alpha: 0.4),
+              color: (isListening ? AppTheme.error : AppTheme.primary).withOpacity(0.4),
               blurRadius: isListening ? 20 : 8,
               spreadRadius: isListening ? 4 : 0,
             ),
@@ -337,7 +337,7 @@ class _VoiceCommandBarState extends State<VoiceCommandBar> with TickerProviderSt
                     width: 4,
                     height: height,
                     decoration: BoxDecoration(
-                      color: AppTheme.primary.withValues(alpha: 0.4 + 0.6 * (height / 40)),
+                      color: AppTheme.primary.withOpacity(0.4 + 0.6 * (height / 40)),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   );
@@ -402,13 +402,13 @@ class _VoiceCommandBarState extends State<VoiceCommandBar> with TickerProviderSt
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: _parsedCommand!.type == VoiceCommandType.unknown
-                ? AppTheme.warning.withValues(alpha: 0.1)
-                : AppTheme.primary.withValues(alpha: 0.08),
+                ? AppTheme.warning.withOpacity(0.1)
+                : AppTheme.primary.withOpacity(0.08),
             borderRadius: BorderRadius.circular(AppTheme.radiusMd),
             border: Border.all(
               color: _parsedCommand!.type == VoiceCommandType.unknown
-                  ? AppTheme.warning.withValues(alpha: 0.3)
-                  : AppTheme.primary.withValues(alpha: 0.3),
+                  ? AppTheme.warning.withOpacity(0.3)
+                  : AppTheme.primary.withOpacity(0.3),
             ),
           ),
           child: Text(
@@ -482,7 +482,7 @@ class _VoiceCommandBarState extends State<VoiceCommandBar> with TickerProviderSt
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: (isError ? AppTheme.error : AppTheme.success).withValues(alpha: 0.12),
+            color: (isError ? AppTheme.error : AppTheme.success).withOpacity(0.12),
             shape: BoxShape.circle,
           ),
           child: Icon(
@@ -517,7 +517,7 @@ class _SoundWavePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.2)
+      ..color = Colors.white.withOpacity(0.2)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
@@ -525,7 +525,7 @@ class _SoundWavePainter extends CustomPainter {
       final phase = (progress + i * 0.25) % 1.0;
       final radius = size.width * 0.3 * (0.4 + phase * 0.6);
       final opacity = 1.0 - phase;
-      paint.color = Colors.white.withValues(alpha: opacity * 0.3);
+      paint.color = Colors.white.withOpacity(opacity * 0.3);
       canvas.drawCircle(center, radius, paint);
     }
   }

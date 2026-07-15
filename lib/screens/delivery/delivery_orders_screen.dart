@@ -162,7 +162,7 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: AppTheme.success.withValues(alpha: 0.15),
+            color: AppTheme.success.withOpacity(0.15),
             borderRadius: BorderRadius.circular(20),
           ),
           child: const Row(
@@ -220,7 +220,7 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -250,7 +250,7 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: _getStatusColor(order.status).withValues(alpha: 0.1),
+                  color: _getStatusColor(order.status).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -272,7 +272,7 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: AppTheme.primary.withValues(alpha: 0.1),
+                  color: AppTheme.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.person, color: AppTheme.primary),
@@ -336,7 +336,7 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppTheme.info.withValues(alpha: 0.1),
+                    color: AppTheme.info.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Row(
@@ -446,7 +446,7 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.primary.withValues(alpha: 0.2),
+                              color: AppTheme.primary.withOpacity(0.2),
                               blurRadius: 6,
                               offset: const Offset(0, 3),
                             ),
@@ -521,7 +521,7 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                           borderRadius: BorderRadius.circular(10),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF2E7D32).withValues(alpha: 0.2),
+                              color: const Color(0xFF2E7D32).withOpacity(0.2),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -555,7 +555,7 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                           borderRadius: BorderRadius.circular(10),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.success.withValues(alpha: 0.2),
+                              color: AppTheme.success.withOpacity(0.2),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -588,7 +588,7 @@ class _DeliveryOrdersScreenState extends State<DeliveryOrdersScreen> {
                           borderRadius: BorderRadius.circular(10),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.error.withValues(alpha: 0.2),
+                              color: AppTheme.error.withOpacity(0.2),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),

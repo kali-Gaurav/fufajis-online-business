@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:fufaji/providers/inventory_provider.dart';
-import 'package:fufaji/models/inventory_models.dart';
+import 'package:fufajis_online/providers/inventory_provider.dart';
+import 'package:fufajis_online/models/inventory_models.dart';
 
 /// Purchase Order Screen
 /// Displays list of purchase orders with status tracking and creation capability

@@ -78,7 +78,7 @@ class _DeliveryDetailLastMileScreenState extends State<DeliveryDetailLastMileScr
           children: [
             // Status card
             Container(
-              color: AppTheme.info.withValues(alpha: 0.08),
+              color: AppTheme.info.withOpacity(0.08),
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [

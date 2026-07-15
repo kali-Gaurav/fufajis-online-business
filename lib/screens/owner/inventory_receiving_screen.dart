@@ -504,7 +504,7 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(12),
-            color: AppTheme.success.withValues(alpha: 0.1),
+            color: AppTheme.success.withOpacity(0.1),
             child: Row(
               children: [
                 const Icon(Icons.check_circle, color: AppTheme.success, size: 18),
@@ -579,9 +579,9 @@ class _InventoryReceivingScreenState extends State<InventoryReceivingScreen>
                         margin: const EdgeInsets.only(right: 8),
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
-                          color: AppTheme.primary.withValues(alpha: 0.1),
+                          color: AppTheme.primary.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                          border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3)),
+                          border: Border.all(color: AppTheme.primary.withOpacity(0.3)),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -717,7 +717,7 @@ class _ItemEntryCardState extends State<_ItemEntryCard> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppTheme.radiusMd),
         side: BorderSide(
-          color: isVerified ? AppTheme.success.withValues(alpha: 0.4) : AppTheme.grey200,
+          color: isVerified ? AppTheme.success.withOpacity(0.4) : AppTheme.grey200,
         ),
       ),
       child: Padding(
@@ -732,7 +732,7 @@ class _ItemEntryCardState extends State<_ItemEntryCard> {
                   width: 28,
                   height: 28,
                   decoration: BoxDecoration(
-                    color: isVerified ? AppTheme.success.withValues(alpha: 0.15) : AppTheme.grey100,
+                    color: isVerified ? AppTheme.success.withOpacity(0.15) : AppTheme.grey100,
                     shape: BoxShape.circle,
                   ),
                   child: Center(

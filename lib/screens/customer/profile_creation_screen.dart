@@ -112,7 +112,7 @@ class _ProfileCreationScreenState extends State<ProfileCreationScreen> {
                     children: [
                       CircleAvatar(
                         radius: 50,
-                        backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
+                        backgroundColor: AppTheme.primary.withOpacity(0.1),
                         child: Text(
                           _nameController.text.isNotEmpty
                               ? _nameController.text[0].toUpperCase()

@@ -722,4 +722,79 @@ class DeliveryService {
       // Silently fail
     }
   }
+
+  /// Submit comprehensive delivery feedback with multiple ratings and images
+  Future<void> submitDeliveryFeedback({
+    required String orderId,
+    required String customerId,
+    required String deliveryTaskId,
+    required double deliverySpeedRating,
+    required double riderBehaviorRating,
+    required double packagingQualityRating,
+    String? review,
+    List<String>? photoUrls,
+  }) async {
+    try {
+      final double overallRating = (deliverySpeedRating + riderBehaviorRating + packagingQualityRating) / 3;
+
+      final feedbackData = {
+        'order_id': orderId,
+        'customer_id': customerId,
+        'delivery_task_id': deliveryTaskId,
+        'ratings': {
+          'delivery_speed': deliverySpeedRating,
+          'rider_behavior': riderBehaviorRating,
+          'packaging_quality': packagingQualityRating,
+          'overall': overallRating,
+        },
+        'review': review ?? '',
+        'photo_urls': photoUrls ?? [],
+        'has_images': (photoUrls ?? []).isNotEmpty,
+        'image_count': (photoUrls ?? []).length,
+        'submitted_at': Timestamp.now(),
+        'feedback_timestamp': DateTime.now().toIso8601String(),
+      };
+
+      // Save feedback to delivery_feedback collection
+      final feedbackRef = await _db.collection('delivery_feedback').add(feedbackData);
+
+      // Update delivery task with feedback reference
+      await _db.collection('deliveries').doc(deliveryTaskId).update({
+        'customer_feedback_id': feedbackRef.id,
+        'customer_feedback_submitted': true,
+        'customer_ratings': {
+          'delivery_speed': deliverySpeedRating,
+          'rider_behavior': riderBehaviorRating,
+          'packaging_quality': packagingQualityRating,
+          'overall': overallRating,
+        },
+        'customer_review': review ?? '',
+        'customer_feedback_timestamp': Timestamp.now(),
+      });
+
+      // Update agent's ratings based on feedback
+      final delivery = await getDeliveryById(deliveryTaskId);
+      if (delivery != null) {
+        await _updateAgentRating(delivery.deliveryAgentId, overallRating);
+      }
+
+      // Mark feedback request as submitted
+      final feedbackRequests = await _db
+          .collection('feedback_requests')
+          .where('order_id', isEqualTo: orderId)
+          .get();
+
+      for (final doc in feedbackRequests.docs) {
+        await doc.reference.update({
+          'status': 'submitted',
+          'rating': overallRating,
+          'review': review ?? '',
+          'submitted_at': Timestamp.now(),
+        });
+      }
+    } catch (e) {
+      debugPrint('[DeliveryService] Error submitting feedback: $e');
+      rethrow;
+    }
+  }
 }

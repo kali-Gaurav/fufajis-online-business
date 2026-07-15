@@ -156,8 +156,8 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
           // Delivery Status Card
           Card(
             color: isDelivered
-                ? AppTheme.success.withValues(alpha: 0.1)
-                : AppTheme.info.withValues(alpha: 0.1),
+                ? AppTheme.success.withOpacity(0.1)
+                : AppTheme.info.withOpacity(0.1),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -276,7 +276,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
           // Success Message
           if (isDelivered)
             Card(
-              color: AppTheme.success.withValues(alpha: 0.1),
+              color: AppTheme.success.withOpacity(0.1),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(

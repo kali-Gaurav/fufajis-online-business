@@ -30,10 +30,10 @@ class FjTrustBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.15), width: 1.5),
+        border: Border.all(color: AppTheme.primary.withOpacity(0.15), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primary.withValues(alpha: 0.08),
+            color: AppTheme.primary.withOpacity(0.08),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),

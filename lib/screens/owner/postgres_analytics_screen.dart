@@ -320,7 +320,7 @@ class _PostgresAnalyticsScreenState extends State<PostgresAnalyticsScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.grey900.withValues(alpha: 0.03),
+            color: AppTheme.grey900.withOpacity(0.03),
             spreadRadius: 0,
             blurRadius: 12,
             offset: const Offset(0, 4),
@@ -338,7 +338,7 @@ class _PostgresAnalyticsScreenState extends State<PostgresAnalyticsScreen> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
+                color: color.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: color, size: 20),
@@ -433,7 +433,7 @@ class _PostgresAnalyticsScreenState extends State<PostgresAnalyticsScreen> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: color.withValues(alpha: 0.1),
+                                  color: color.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(

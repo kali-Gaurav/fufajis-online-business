@@ -93,7 +93,7 @@ class _QnaSectionState extends State<QnaSection> {
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppTheme.warning.withValues(alpha: 0.2),
+                        color: AppTheme.warning.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -190,7 +190,7 @@ class _QnaSectionState extends State<QnaSection> {
       onSelected: (selected) {
         setState(() => _filterStatus = selected ? status : null);
       },
-      selectedColor: AppTheme.primary.withValues(alpha: 0.2),
+      selectedColor: AppTheme.primary.withOpacity(0.2),
       labelStyle: TextStyle(
         color: isSelected ? AppTheme.primary : AppTheme.grey600,
         fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
@@ -248,12 +248,12 @@ class _QnaSectionState extends State<QnaSection> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.05),
+            color: AppTheme.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
-        border: qna.isFlagged ? Border.all(color: AppTheme.error.withValues(alpha: 0.3)) : null,
+        border: qna.isFlagged ? Border.all(color: AppTheme.error.withOpacity(0.3)) : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,7 +267,7 @@ class _QnaSectionState extends State<QnaSection> {
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: AppTheme.primary.withValues(alpha: 0.1),
+                  color: AppTheme.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Center(
@@ -338,7 +338,7 @@ class _QnaSectionState extends State<QnaSection> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.grey100.withValues(alpha: 0.5),
+        color: AppTheme.grey100.withOpacity(0.5),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppTheme.grey200),
       ),
@@ -377,9 +377,9 @@ class _QnaSectionState extends State<QnaSection> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.primary.withValues(alpha: 0.03),
+        color: AppTheme.primary.withOpacity(0.03),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
+        border: Border.all(color: AppTheme.primary.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

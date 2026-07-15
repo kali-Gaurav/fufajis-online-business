@@ -12,6 +12,7 @@ class ProductReviewModel {
   final bool isFlagged;
   final String? flagReason;
   final bool resolved;
+  final DateTime? resolvedAt;
 
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -28,6 +29,7 @@ class ProductReviewModel {
     this.isFlagged = false,
     this.flagReason,
     this.resolved = false,
+    this.resolvedAt,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -45,6 +47,7 @@ class ProductReviewModel {
       isFlagged: json['is_flagged'] as bool? ?? false,
       flagReason: json['flag_reason'] as String?,
       resolved: json['resolved'] as bool? ?? false,
+      resolvedAt: json['resolved_at'] != null ? DateTime.parse(json['resolved_at'] as String) : null,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );
@@ -63,6 +66,7 @@ class ProductReviewModel {
       'is_flagged': isFlagged,
       'flag_reason': flagReason,
       'resolved': resolved,
+      'resolved_at': resolvedAt?.toIso8601String(),
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
@@ -80,6 +84,7 @@ class ProductReviewModel {
     bool? isFlagged,
     String? flagReason,
     bool? resolved,
+    DateTime? resolvedAt,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -95,6 +100,7 @@ class ProductReviewModel {
       isFlagged: isFlagged ?? this.isFlagged,
       flagReason: flagReason ?? this.flagReason,
       resolved: resolved ?? this.resolved,
+      resolvedAt: resolvedAt ?? this.resolvedAt,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

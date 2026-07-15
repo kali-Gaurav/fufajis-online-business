@@ -44,7 +44,7 @@ class _QuoteComparisonScreenState extends State<QuoteComparisonScreen> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Card(
-                  color: AppTheme.info.withValues(alpha: 0.1),
+                  color: AppTheme.info.withOpacity(0.1),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -114,8 +114,8 @@ class _QuoteComparisonScreenState extends State<QuoteComparisonScreen> {
 
                         return Card(
                           color: isAccepted
-                              ? AppTheme.success.withValues(alpha: 0.1)
-                              : (isRejected ? AppTheme.error.withValues(alpha: 0.1) : null),
+                              ? AppTheme.success.withOpacity(0.1)
+                              : (isRejected ? AppTheme.error.withOpacity(0.1) : null),
                           child: ListTile(
                             title: Text('Supplier ID: ${quote.supplierId}'),
                             subtitle: Text(

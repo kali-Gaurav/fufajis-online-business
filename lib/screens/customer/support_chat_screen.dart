@@ -175,7 +175,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
             Text(
               DateFormat('hh:mm a').format(msg.timestamp),
               style: TextStyle(
-                color: (isMe ? Colors.white : AppTheme.grey600).withValues(alpha: 0.7),
+                color: (isMe ? Colors.white : AppTheme.grey600).withOpacity(0.7),
                 fontSize: 10,
               ),
             ),

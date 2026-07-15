@@ -191,7 +191,7 @@ class _ReviewSectionState extends State<ReviewSection> {
         reviewProvider.fetchProductReviews(widget.productId, limit: _reviewsPerPage, sortBy: value);
       },
       backgroundColor: AppTheme.cream,
-      selectedColor: AppTheme.primary.withValues(alpha: 0.2),
+      selectedColor: AppTheme.primary.withOpacity(0.2),
       labelStyle: TextStyle(
         color: isSelected ? AppTheme.primary : Colors.grey[700],
         fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,

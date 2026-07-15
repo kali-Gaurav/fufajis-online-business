@@ -21,9 +21,9 @@ class ElderModeIndicator extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: AppTheme.success.withValues(alpha: 0.1),
+        color: AppTheme.success.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.success.withValues(alpha: 0.3), width: 1.5),
+        border: Border.all(color: AppTheme.success.withOpacity(0.3), width: 1.5),
       ),
       child: GestureDetector(
         onTap: onToggle,

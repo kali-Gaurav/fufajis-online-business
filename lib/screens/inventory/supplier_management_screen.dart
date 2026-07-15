@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:fufaji/providers/inventory_provider.dart';
-import 'package:fufaji/models/inventory_models.dart';
+import 'package:fufajis_online/providers/inventory_provider.dart';
+import 'package:fufajis_online/models/inventory_models.dart';
+import 'package:fufajis_online/services/supplier_service.dart';
 
 /// Supplier Management Screen
 /// Displays supplier information, ratings, and performance metrics
@@ -437,6 +438,8 @@ class _AddSupplierDialogState extends State<_AddSupplierDialog> {
   late TextEditingController _leadTimeController;
 
   int _leadTimeDays = 2;
+  bool _isLoading = false;
+  final _supplierService = SupplierService();
 
   @override
   void initState() {
@@ -528,22 +531,55 @@ class _AddSupplierDialogState extends State<_AddSupplierDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: _isLoading ? null : () => Navigator.pop(context),
           child: const Text('Cancel'),
         ),
         ElevatedButton(
-          onPressed: _nameController.text.isNotEmpty ? _addSupplier : null,
-          child: const Text('Add'),
+          onPressed: (_nameController.text.isNotEmpty && !_isLoading) ? _addSupplier : null,
+          child: Text(_isLoading ? 'Adding...' : 'Add'),
         ),
       ],
     );
   }
 
-  void _addSupplier() {
-    // TODO: Implement add supplier via SupplierService
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Supplier added successfully')),
-    );
+  Future<void> _addSupplier() async {
+    if (_nameController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Supplier name is required')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await _supplierService.createSupplier(
+        name: _nameController.text,
+        email: _emailController.text,
+        phone: _phoneController.text,
+        address: _addressController.text,
+        city: _cityController.text,
+        contactPerson: _contactController.text,
+      );
+
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Supplier added successfully')),
+        );
+        // Refresh supplier list
+        Provider.of<InventoryProvider>(context, listen: false).loadSuppliers();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error adding supplier: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 }

@@ -241,7 +241,7 @@ class OrdersScreenExample extends StatelessWidget {
         subtitle: Text('₹${order.totalAmount.toStringAsFixed(2)}'),
         trailing: Chip(
           label: Text(order.status.displayName),
-          backgroundColor: order.status.color.withValues(alpha: 0.2),
+          backgroundColor: order.status.color.withOpacity(0.2),
         ),
         onTap: () {
           ScaffoldMessenger.of(

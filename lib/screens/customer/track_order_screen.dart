@@ -115,7 +115,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10)],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -126,7 +126,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: AppTheme.success.withValues(alpha: 0.15),
+                  color: AppTheme.success.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: const Icon(Icons.two_wheeler, size: 28, color: AppTheme.success),
@@ -158,7 +158,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: AppTheme.success.withValues(alpha: 0.15),
+                    color: AppTheme.success.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.phone, color: AppTheme.success, size: 22),

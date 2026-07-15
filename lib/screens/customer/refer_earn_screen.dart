@@ -120,7 +120,7 @@ class _ReferEarnScreenState extends State<ReferEarnScreen> {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.18),
+              color: Colors.white.withOpacity(0.18),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.card_giftcard_rounded, color: Colors.white, size: 34),
@@ -135,7 +135,7 @@ class _ReferEarnScreenState extends State<ReferEarnScreen> {
           Text(
             'You both get ₹50 in your wallet when they complete their first order.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.9)),
+            style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.9)),
           ),
         ],
       ),
@@ -299,7 +299,7 @@ class _ReferEarnScreenState extends State<ReferEarnScreen> {
                     width: 38,
                     height: 38,
                     decoration: BoxDecoration(
-                      color: AppTheme.primary.withValues(alpha: 0.10),
+                      color: AppTheme.primary.withOpacity(0.10),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(s.$2, color: AppTheme.primary, size: 20),
@@ -387,7 +387,7 @@ class _ReferEarnScreenState extends State<ReferEarnScreen> {
                   children: [
                     CircleAvatar(
                       radius: 18,
-                      backgroundColor: AppTheme.primary.withValues(alpha: 0.12),
+                      backgroundColor: AppTheme.primary.withOpacity(0.12),
                       child: Text(
                         f.name.isNotEmpty ? f.name[0].toUpperCase() : '?',
                         style: const TextStyle(
@@ -410,9 +410,7 @@ class _ReferEarnScreenState extends State<ReferEarnScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: (f.completed ? AppTheme.info : AppTheme.warning).withValues(
-                          alpha: 0.12,
-                        ),
+                        color: (f.completed ? AppTheme.info : AppTheme.warning).withOpacity(0.12,),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -448,9 +446,9 @@ class DottedCodeBox extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 18),
         decoration: BoxDecoration(
-          color: isDark ? AppTheme.primary.withValues(alpha: 0.15) : AppTheme.primary.withValues(alpha: 0.05),
+          color: isDark ? AppTheme.primary.withOpacity(0.15) : AppTheme.primary.withOpacity(0.05),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppTheme.primary.withValues(alpha: 0.4), width: 1.4),
+          border: Border.all(color: AppTheme.primary.withOpacity(0.4), width: 1.4),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

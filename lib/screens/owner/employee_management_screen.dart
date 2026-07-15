@@ -222,7 +222,7 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: AppTheme.primary.withValues(alpha: 0.1),
+                          color: AppTheme.primary.withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.person, color: AppTheme.primary),
@@ -247,7 +247,7 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.info.withValues(alpha: 0.1),
+                                    color: AppTheme.info.withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Text(
@@ -280,7 +280,7 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                     decoration: BoxDecoration(
-                                      color: AppTheme.success.withValues(alpha: 0.1),
+                                      color: AppTheme.success.withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: const Text(

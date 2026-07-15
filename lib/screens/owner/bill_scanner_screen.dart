@@ -256,7 +256,7 @@ class _BillScannerScreenState extends State<BillScannerScreen> with SingleTicker
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: AppTheme.primary.withValues(alpha: 0.1),
+                color: AppTheme.primary.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.document_scanner_outlined, color: AppTheme.primary, size: 40),
@@ -299,7 +299,7 @@ class _BillScannerScreenState extends State<BillScannerScreen> with SingleTicker
               borderRadius: BorderRadius.circular(AppTheme.radiusLg),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primary.withValues(alpha: 0.3),
+                  color: AppTheme.primary.withOpacity(0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -329,9 +329,9 @@ class _BillScannerScreenState extends State<BillScannerScreen> with SingleTicker
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.error.withValues(alpha: 0.1),
+                color: AppTheme.error.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                border: Border.all(color: AppTheme.error.withValues(alpha: 0.3)),
+                border: Border.all(color: AppTheme.error.withOpacity(0.3)),
               ),
               child: Row(
                 children: [
@@ -387,7 +387,7 @@ class _BillScannerScreenState extends State<BillScannerScreen> with SingleTicker
             color: Colors.white,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Colors.black.withOpacity(0.05),
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),
@@ -398,7 +398,7 @@ class _BillScannerScreenState extends State<BillScannerScreen> with SingleTicker
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppTheme.primary.withValues(alpha: 0.1),
+                  color: AppTheme.primary.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.local_shipping, color: AppTheme.primary),
@@ -573,8 +573,8 @@ class _PickerButton extends StatelessWidget {
               height: 52,
               decoration: BoxDecoration(
                 color: isPrimary
-                    ? Colors.white.withValues(alpha: 0.2)
-                    : AppTheme.primary.withValues(alpha: 0.1),
+                    ? Colors.white.withOpacity(0.2)
+                    : AppTheme.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               ),
               child: Icon(icon, size: 28, color: isPrimary ? Colors.white : AppTheme.primary),
@@ -791,7 +791,7 @@ class _BillItemCardState extends State<_BillItemCard> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppTheme.primary.withValues(alpha: 0.1),
+                  color: AppTheme.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
@@ -815,9 +815,9 @@ class _TipsCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.info.withValues(alpha: 0.08),
+        color: AppTheme.info.withOpacity(0.08),
         borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-        border: Border.all(color: AppTheme.info.withValues(alpha: 0.2)),
+        border: Border.all(color: AppTheme.info.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

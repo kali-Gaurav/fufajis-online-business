@@ -196,7 +196,7 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
                     setState(() => _isGridView = !_isGridView);
                   },
                   style: IconButton.styleFrom(
-                    backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
+                    backgroundColor: AppTheme.primary.withOpacity(0.1),
                     foregroundColor: AppTheme.primary,
                   ),
                 ),
@@ -322,7 +322,7 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
                   Positioned.fill(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: AppTheme.black.withValues(alpha: 0.5),
+                        color: AppTheme.black.withOpacity(0.5),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Center(
@@ -385,10 +385,10 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: product.stockQuantity > 10
-                        ? AppTheme.success.withValues(alpha: 0.1)
+                        ? AppTheme.success.withOpacity(0.1)
                         : product.stockQuantity > 0
-                            ? AppTheme.warning.withValues(alpha: 0.1)
-                            : AppTheme.error.withValues(alpha: 0.1),
+                            ? AppTheme.warning.withOpacity(0.1)
+                            : AppTheme.error.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -489,7 +489,7 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
                   Positioned.fill(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: AppTheme.black.withValues(alpha: 0.5),
+                        color: AppTheme.black.withOpacity(0.5),
                         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                       ),
                       child: const Center(
@@ -578,10 +578,10 @@ class _ProductsManagementScreenState extends State<ProductsManagementScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: product.stockQuantity > 10
-                          ? AppTheme.success.withValues(alpha: 0.1)
+                          ? AppTheme.success.withOpacity(0.1)
                           : product.stockQuantity > 0
-                          ? AppTheme.warning.withValues(alpha: 0.1)
-                          : AppTheme.error.withValues(alpha: 0.1),
+                          ? AppTheme.warning.withOpacity(0.1)
+                          : AppTheme.error.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(

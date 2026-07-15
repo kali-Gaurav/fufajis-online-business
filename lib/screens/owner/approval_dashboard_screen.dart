@@ -158,7 +158,7 @@ class _ApprovalDashboardScreenState extends State<ApprovalDashboardScreen> with 
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: roleColor.withValues(alpha: 0.1),
+                    color: roleColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(

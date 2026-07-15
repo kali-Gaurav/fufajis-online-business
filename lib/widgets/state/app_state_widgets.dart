@@ -71,7 +71,7 @@ class NetworkErrorState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.cloud_off_outlined, size: 80, color: AppTheme.error.withValues(alpha: 0.5)),
+          Icon(Icons.cloud_off_outlined, size: 80, color: AppTheme.error.withOpacity(0.5)),
           const SizedBox(height: 24),
           Text(
             title ?? 'No internet connection',
@@ -119,9 +119,9 @@ class OfflineIndicatorBanner extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: AppTheme.warning.withValues(alpha: 0.1),
+        color: AppTheme.warning.withOpacity(0.1),
         border: Border(
-          bottom: BorderSide(color: AppTheme.warning.withValues(alpha: 0.3), width: 1),
+          bottom: BorderSide(color: AppTheme.warning.withOpacity(0.3), width: 1),
         ),
       ),
       child: Row(

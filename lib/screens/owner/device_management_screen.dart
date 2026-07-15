@@ -282,8 +282,8 @@ class _DeviceTile extends StatelessWidget {
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: isPending
-                        ? AppTheme.warning.withValues(alpha: 0.15)
-                        : AppTheme.primary.withValues(alpha: 0.1),
+                        ? AppTheme.warning.withOpacity(0.15)
+                        : AppTheme.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
@@ -308,7 +308,7 @@ class _DeviceTile extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
-                                color: AppTheme.primary.withValues(alpha: 0.1),
+                                color: AppTheme.primary.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: const Text(

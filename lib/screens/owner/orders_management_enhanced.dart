@@ -248,7 +248,7 @@ class _OrdersManagementEnhancedState extends State<OrdersManagementEnhanced> {
           color: isDark ? Colors.grey[850] : Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: isDark ? Colors.grey[700]! : Colors.grey[300]!),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4)],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)],
         ),
         child: Column(
           children: [
@@ -276,7 +276,7 @@ class _OrdersManagementEnhancedState extends State<OrdersManagementEnhanced> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: order.status.color.withValues(alpha: 0.2),
+                    color: order.status.color.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(

@@ -79,13 +79,13 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
   Color _getLogColor(AuditActionType type) {
     switch (type) {
       case AuditActionType.securityEvent:
-        return AppTheme.error.withValues(alpha: 0.15);
+        return AppTheme.error.withOpacity(0.15);
       case AuditActionType.financialEvent:
-        return AppTheme.success.withValues(alpha: 0.15);
+        return AppTheme.success.withOpacity(0.15);
       case AuditActionType.adminAction:
         return Colors.purple.shade100;
       case AuditActionType.employeeAction:
-        return AppTheme.info.withValues(alpha: 0.15);
+        return AppTheme.info.withOpacity(0.15);
     }
   }
 
@@ -150,7 +150,7 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
                               Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.5),
+                                  color: Colors.white.withOpacity(0.5),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(

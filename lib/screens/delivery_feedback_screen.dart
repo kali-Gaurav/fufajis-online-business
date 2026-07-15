@@ -9,6 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import '../services/delivery_service.dart';
+import '../services/storage_service.dart';
+import '../utils/app_theme.dart';
 
 class DeliveryFeedbackScreen extends StatefulWidget {
   final String orderId;
@@ -40,9 +43,13 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
 
   final List<File> _selectedImages = [];
   bool _isSubmitting = false;
+  bool _isUploadingImages = false;
   bool _submitted = false;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final DeliveryService _deliveryService = DeliveryService();
+  final StorageService _storageService = StorageService();
+  List<String> _uploadedImageUrls = [];
 
   @override
   void dispose() {
@@ -129,6 +136,24 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
     return true;
   }
 
+  /// Upload selected images to Firebase Storage
+  Future<List<String>> _uploadImages() async {
+    final uploadedUrls = <String>[];
+
+    for (final imageFile in _selectedImages) {
+      try {
+        final url = await _storageService.uploadImage(imageFile, 'delivery_feedback');
+        if (url != null) {
+          uploadedUrls.add(url);
+        }
+      } catch (e) {
+        debugPrint('[DeliveryFeedback] Error uploading image: $e');
+      }
+    }
+
+    return uploadedUrls;
+  }
+
   /// Submit feedback to backend
   Future<void> _submitFeedback() async {
     if (!_validateFeedback()) {
@@ -138,65 +163,56 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
     setState(() => _isSubmitting = true);
 
     try {
-      // Create feedback record
-      final feedbackData = {
-        'order_id': widget.orderId,
-        'customer_id': widget.customerId,
-        'delivery_task_id': widget.deliveryTaskId,
-        'rider_name': widget.riderName,
-        'delivery_address': widget.deliveryAddress,
-        'ratings': {
-          'delivery_speed': _deliveryRating,
-          'rider_behavior': _riderRating,
-          'packaging_quality': _packagingRating,
-          'overall': (_deliveryRating + _riderRating + _packagingRating) / 3,
-        },
-        'review': _reviewController.text,
-        'has_images': _selectedImages.isNotEmpty,
-        'image_count': _selectedImages.length,
-        'submitted_at': FieldValue.serverTimestamp(),
-        'timestamp': DateTime.now().toIso8601String(),
-      };
+      // Upload images if any
+      if (_selectedImages.isNotEmpty) {
+        setState(() => _isUploadingImages = true);
 
-      // Save feedback to Firestore
-      await _firestore.collection('delivery_feedback').add(feedbackData);
+        _uploadedImageUrls = await _uploadImages();
 
-      // Update feedback request status
-      final feedbackRequests = await _firestore
-          .collection('feedback_requests')
-          .where('order_id', isEqualTo: widget.orderId)
-          .get();
-
-      for (final doc in feedbackRequests.docs) {
-        await doc.reference.update({
-          'status': 'submitted',
-          'rating': (_deliveryRating + _riderRating + _packagingRating) / 3,
-          'review': _reviewController.text,
-          'submitted_at': FieldValue.serverTimestamp(),
-        });
+        if (mounted) {
+          setState(() => _isUploadingImages = false);
+        }
       }
 
-      setState(() {
-        _submitted = true;
-        _isSubmitting = false;
-      });
+      if (!mounted) return;
 
-      // Show success and navigate
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Thank you for your feedback!'),
-          backgroundColor: Colors.green,
-        ),
+      // Submit feedback through service
+      await _deliveryService.submitDeliveryFeedback(
+        orderId: widget.orderId,
+        customerId: widget.customerId,
+        deliveryTaskId: widget.deliveryTaskId,
+        deliverySpeedRating: _deliveryRating,
+        riderBehaviorRating: _riderRating,
+        packagingQualityRating: _packagingRating,
+        review: _reviewController.text,
+        photoUrls: _uploadedImageUrls.isNotEmpty ? _uploadedImageUrls : null,
       );
 
-      // Navigate after delay
-      Future.delayed(const Duration(seconds: 2), () {
-        Navigator.of(context).pop(true);
-      });
+      if (mounted) {
+        setState(() {
+          _submitted = true;
+          _isSubmitting = false;
+        });
+
+        // Show success and navigate
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Thank you for your feedback!'),
+            backgroundColor: AppTheme.success,
+          ),
+        );
+
+        // Navigate after delay
+        Future.delayed(const Duration(seconds: 2), () {
+          if (mounted) Navigator.of(context).pop(true);
+        });
+      }
     } catch (e) {
-      print('Error submitting feedback: $e');
-      setState(() => _isSubmitting = false);
-      _showErrorDialog('Failed to submit feedback. Please try again.');
+      debugPrint('[DeliveryFeedback] Error submitting feedback: $e');
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+        _showErrorDialog('Failed to submit feedback. Please try again.');
+      }
     }
   }
 
@@ -522,12 +538,12 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
       width: double.infinity,
       height: 48,
       child: ElevatedButton(
-        onPressed: _isSubmitting ? null : _submitFeedback,
+        onPressed: _isSubmitting || _isUploadingImages ? null : _submitFeedback,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.green,
+          backgroundColor: AppTheme.success,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
-        child: _isSubmitting
+        child: _isSubmitting || _isUploadingImages
             ? const SizedBox(
                 height: 24,
                 width: 24,
@@ -536,9 +552,9 @@ class _DeliveryFeedbackScreenState extends State<DeliveryFeedbackScreen> {
                   strokeWidth: 2,
                 ),
               )
-            : const Text(
-                'Submit Feedback',
-                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            : Text(
+                _isUploadingImages ? 'Uploading images...' : 'Submit Feedback',
+                style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
               ),
       ),
     );

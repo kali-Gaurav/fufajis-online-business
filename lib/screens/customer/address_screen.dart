@@ -243,7 +243,7 @@ class _AddressScreenState extends State<AddressScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: isDark ? 0.2 : 0.04),
+            color: AppTheme.black.withOpacity(isDark ? 0.2 : 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -287,9 +287,9 @@ class _AddressScreenState extends State<AddressScreen> {
                   margin: const EdgeInsets.only(left: 8),
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppTheme.success.withValues(alpha: 0.1),
+                    color: AppTheme.success.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: AppTheme.success.withValues(alpha: 0.3)),
+                    border: Border.all(color: AppTheme.success.withOpacity(0.3)),
                   ),
                   child: Text(
                     AppLocalizations.of(context)!.translate('default'),
@@ -368,7 +368,7 @@ class _AddressScreenState extends State<AddressScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppTheme.warning.withValues(alpha: 0.1),
+                color: AppTheme.warning.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: AppTheme.warning),
               ),
@@ -523,7 +523,7 @@ class _AddressScreenState extends State<AddressScreen> {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+                color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -1199,7 +1199,7 @@ class _LabelPresetChip extends StatelessWidget {
       onSelected: (selected) {
         if (selected) onSelected(value);
       },
-      selectedColor: AppTheme.primary.withValues(alpha: 0.15),
+      selectedColor: AppTheme.primary.withOpacity(0.15),
       backgroundColor: isDark ? AppTheme.grey900 : AppTheme.grey100,
       labelStyle: TextStyle(
         color: isSelected ? AppTheme.primary : (isDark ? AppTheme.grey400 : AppTheme.grey700),

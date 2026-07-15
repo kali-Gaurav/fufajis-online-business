@@ -186,7 +186,7 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.04),
+            color: AppTheme.black.withOpacity(0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -279,9 +279,9 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
       height: 275,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.primary.withValues(alpha: 0.04),
+        color: AppTheme.primary.withOpacity(0.04),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
+        border: Border.all(color: AppTheme.primary.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -368,7 +368,7 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.black.withValues(alpha: 0.03),
+                  color: AppTheme.black.withOpacity(0.03),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -442,7 +442,7 @@ class _DynamicPricingConsoleState extends State<DynamicPricingConsole> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.04),
+            color: AppTheme.black.withOpacity(0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

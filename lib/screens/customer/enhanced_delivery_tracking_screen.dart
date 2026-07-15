@@ -237,7 +237,7 @@ class _EnhancedDeliveryTrackingScreenState
               children: [
                 CircleAvatar(
                   radius: 28,
-                  backgroundColor: AppTheme.primary.withValues(alpha: 0.2),
+                  backgroundColor: AppTheme.primary.withOpacity(0.2),
                   child: Icon(
                     Icons.person,
                     color: AppTheme.primary,
@@ -457,7 +457,7 @@ class _EnhancedDeliveryTrackingScreenState
 
     return Card(
       elevation: 0,
-      color: severityColor.withValues(alpha: 0.08),
+      color: severityColor.withOpacity(0.08),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -475,7 +475,7 @@ class _EnhancedDeliveryTrackingScreenState
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: severityColor.withValues(alpha: 0.2),
+                    color: severityColor.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(

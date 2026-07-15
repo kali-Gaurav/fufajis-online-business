@@ -123,7 +123,7 @@ class _BillItemRowState extends State<BillItemRow> {
                   child: Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: AppTheme.error.withValues(alpha: 0.1),
+                      color: AppTheme.error.withOpacity(0.1),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.delete_outline, color: AppTheme.error, size: 18),

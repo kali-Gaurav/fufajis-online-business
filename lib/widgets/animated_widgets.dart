@@ -257,7 +257,7 @@ class GlassmorphicContainer extends StatelessWidget {
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
@@ -331,7 +331,7 @@ class _PulseGlowState extends State<PulseGlow> with SingleTickerProviderStateMix
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: widget.glowColor.withValues(alpha: (1.0 - _controller.value) * 0.4),
+                color: widget.glowColor.withOpacity((1.0 - _controller.value) * 0.4),
                 blurRadius: _glowAnim.value * 2,
                 spreadRadius: _glowAnim.value,
               ),
@@ -566,7 +566,7 @@ class _BouncingDotsLoaderState extends State<BouncingDotsLoader>
             transform: Matrix4.translationValues(0, -widget.bounceHeight * bounce, 0),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: widget.color.withValues(alpha: 0.60 + 0.40 * bounce),
+              color: widget.color.withOpacity(0.60 + 0.40 * bounce),
             ),
           );
         }),
@@ -778,7 +778,7 @@ class _RipplePainter extends CustomPainter {
       position,
       maxR * progress,
       Paint()
-        ..color = color.withValues(alpha: (1 - progress) * 0.22)
+        ..color = color.withOpacity((1 - progress) * 0.22)
         ..style = PaintingStyle.fill,
     );
   }
@@ -840,7 +840,7 @@ class _GlowFABState extends State<GlowFAB> with SingleTickerProviderStateMixin {
             borderRadius: widget.label != null ? BorderRadius.circular(30) : null,
             boxShadow: [
               BoxShadow(
-                color: widget.color.withValues(alpha: _glow.value * 0.50),
+                color: widget.color.withOpacity(_glow.value * 0.50),
                 blurRadius: 20 * _glow.value,
                 spreadRadius: 3 * _glow.value,
               ),
@@ -1015,7 +1015,7 @@ class _AnimatedSuccessMarkState extends State<AnimatedSuccessMark>
           height: widget.size,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: widget.color.withValues(alpha: 0.15),
+            color: widget.color.withOpacity(0.15),
             border: Border.all(color: widget.color, width: 2.5),
           ),
           child: CustomPaint(
@@ -1268,7 +1268,7 @@ class _SparklePainterV2 extends CustomPainter {
     final cx = s.width / 2;
     final cy = s.height / 2;
     final stroke = Paint()
-      ..color = color.withValues(alpha: opacity * 0.85)
+      ..color = color.withOpacity(opacity * 0.85)
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
     for (int i = 0; i < 4; i++) {
@@ -1282,7 +1282,7 @@ class _SparklePainterV2 extends CustomPainter {
     canvas.drawCircle(
       Offset(cx, cy),
       size * 0.28,
-      Paint()..color = color.withValues(alpha: opacity),
+      Paint()..color = color.withOpacity(opacity),
     );
   }
 
@@ -1595,10 +1595,10 @@ class _PulsingDotState extends State<PulsingDot> with SingleTickerProviderStateM
         height: widget.size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: widget.color.withValues(alpha: _pulse.value),
+          color: widget.color.withOpacity(_pulse.value),
           boxShadow: [
             BoxShadow(
-              color: widget.color.withValues(alpha: _pulse.value * 0.5),
+              color: widget.color.withOpacity(_pulse.value * 0.5),
               blurRadius: widget.size * _pulse.value,
               spreadRadius: widget.size * 0.2 * _pulse.value,
             ),
@@ -1659,7 +1659,7 @@ class _GlowContainerState extends State<GlowContainer> with SingleTickerProvider
           borderRadius: BorderRadius.circular(widget.borderRadius),
           boxShadow: [
             BoxShadow(
-              color: widget.glowColor.withValues(alpha: _glow.value * 0.45),
+              color: widget.glowColor.withOpacity(_glow.value * 0.45),
               blurRadius: widget.maxGlowRadius * _glow.value,
               spreadRadius: 2 * _glow.value,
             ),
@@ -1738,7 +1738,7 @@ class _FufajiGlowButtonState extends State<FufajiGlowButton> with SingleTickerPr
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
-                color: col.withValues(alpha: _glow.value * 0.6),
+                color: col.withOpacity(_glow.value * 0.6),
                 blurRadius: 18 * _glow.value,
                 spreadRadius: 2 * _glow.value,
               ),
@@ -1818,7 +1818,7 @@ class _ConfettiPainter extends CustomPainter {
       canvas.translate(p.position.dx, p.position.dy);
       canvas.rotate(p.rotation);
       final paint = Paint()
-        ..color = p.color.withValues(alpha: p.opacity)
+        ..color = p.color.withOpacity(p.opacity)
         ..style = PaintingStyle.fill;
       canvas.drawRRect(
         RRect.fromRectAndRadius(
@@ -1973,7 +1973,7 @@ class _FufajiLoadingDotsState extends State<FufajiLoadingDots> with SingleTicker
             transform: Matrix4.translationValues(0, -widget.dotSize * 1.2 * bounce, 0),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: widget.color.withValues(alpha: 0.55 + 0.45 * bounce),
+              color: widget.color.withOpacity(0.55 + 0.45 * bounce),
             ),
           );
         }),
@@ -2461,7 +2461,7 @@ class _SpringCardState extends State<SpringCard> with SingleTickerProviderStateM
 
 // ── CountdownRing — circular progress ring for OTP resend timer ───────────────
 //    Usage: CountdownRing(seconds: _timer, size: 44, ringColor: primary,
-//             trackColor: primary.withValues(alpha:0.12), textStyle: ...,
+//             trackColor: primary.withOpacity(0.12), textStyle: ...,
 //             onComplete: () { setState(()=>_canResend=true); })
 
 class CountdownRing extends StatefulWidget {
@@ -2730,7 +2730,7 @@ class _BurstPainter extends CustomPainter {
     for (final p in particles) {
       final pos = center + Offset(p.dx * ease, p.dy * ease + 60 * ease * ease);
       final paint = Paint()
-        ..color = p.color.withValues(alpha: fade)
+        ..color = p.color.withOpacity(fade)
         ..style = PaintingStyle.fill;
       canvas.drawCircle(pos, p.size * (1.0 - ease * 0.5), paint);
     }

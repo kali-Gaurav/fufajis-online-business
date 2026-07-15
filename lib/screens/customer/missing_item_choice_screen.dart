@@ -141,7 +141,7 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppTheme.info.withValues(alpha: 0.1),
+              color: AppTheme.info.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Row(
@@ -215,7 +215,7 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.06) : Colors.white,
+          color: isSelected ? color.withOpacity(0.06) : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isSelected ? color : Colors.grey.shade200,
@@ -224,7 +224,7 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: color.withValues(alpha: 0.12),
+                    color: color.withOpacity(0.12),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -236,7 +236,7 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
+                color: color.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: color, size: 22),
@@ -297,7 +297,7 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.purple.withValues(alpha: 0.06) : Colors.white,
+          color: isSelected ? Colors.purple.withOpacity(0.06) : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isSelected ? Colors.purple : Colors.grey.shade200,
@@ -309,7 +309,7 @@ class _MissingItemChoiceScreenState extends State<MissingItemChoiceScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.purple.withValues(alpha: 0.1),
+                color: Colors.purple.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.swap_horiz, color: Colors.purple, size: 22),

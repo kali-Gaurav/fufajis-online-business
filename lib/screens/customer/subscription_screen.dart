@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../models/subscription_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/subscription_provider.dart';
@@ -18,17 +19,23 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   @override
   void initState() {
     super.initState();
-    _loadSubscriptions();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadSubscriptions();
+    });
   }
 
   Future<void> _loadSubscriptions() async {
-    setState(() => _isLoading = true);
+    if (mounted) {
+      setState(() => _isLoading = true);
+    }
     final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     if (authProvider.currentUser != null) {
       await subscriptionProvider.fetchSubscriptions(authProvider.currentUser!.id);
     }
-    setState(() => _isLoading = false);
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -47,10 +54,13 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : subscriptionProvider.subscriptions.isEmpty
           ? _buildEmptyState()
-          : _buildSubscriptionList(subscriptionProvider.subscriptions),
+          : RefreshIndicator(
+              onRefresh: _loadSubscriptions,
+              child: _buildSubscriptionList(subscriptionProvider.subscriptions),
+            ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // Navigate to product selection for new subscription
+          context.push('/customer/subscription-setup');
         },
         backgroundColor: AppTheme.primary,
         icon: const Icon(Icons.add),
@@ -81,7 +91,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             const SizedBox(height: 32),
             ElevatedButton(
               onPressed: () {
-                // Navigate to catalog
+                context.push('/customer/subscription-setup');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primary,
@@ -116,7 +126,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -161,7 +171,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppTheme.primary.withValues(alpha: 0.1),
+                          color: AppTheme.primary.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(

@@ -175,7 +175,7 @@ class _RiderRouteScreenState extends State<RiderRouteScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CircleAvatar(
-            backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
+            backgroundColor: AppTheme.primary.withOpacity(0.1),
             child: Text(
               '$seq',
               style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold),
@@ -200,7 +200,7 @@ class _RiderRouteScreenState extends State<RiderRouteScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: statusColor.withValues(alpha: 0.1),
+                        color: statusColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(

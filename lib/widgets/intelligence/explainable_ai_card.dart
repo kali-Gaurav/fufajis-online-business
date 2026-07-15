@@ -24,7 +24,7 @@ class ExplainableAiCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: AppTheme.primary.withValues(alpha: 0.3), width: 2),
+        side: BorderSide(color: AppTheme.primary.withOpacity(0.3), width: 2),
       ),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -53,7 +53,7 @@ class ExplainableAiCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: _getConfidenceColor(recommendation.confidence).withValues(alpha: 0.1),
+                    color: _getConfidenceColor(recommendation.confidence).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(

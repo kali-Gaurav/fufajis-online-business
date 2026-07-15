@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:go_router/go_router.dart';
 import '../../services/vendor_service.dart';
 import '../../utils/app_theme.dart';
 
@@ -182,7 +183,7 @@ class _VendorDashboardScreenState extends State<VendorDashboardScreen> {
             else
               CircleAvatar(
                 radius: 32,
-                backgroundColor: AppTheme.primary.withValues(alpha: 0.2),
+                backgroundColor: AppTheme.primary.withOpacity(0.2),
                 child: Icon(Icons.store, color: AppTheme.primary, size: 32),
               ),
             const SizedBox(width: 16),
@@ -345,7 +346,7 @@ class _VendorDashboardScreenState extends State<VendorDashboardScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: _getHealthScoreColor(_analytics!.vendorHealthScore).withValues(alpha: 0.2),
+                        color: _getHealthScoreColor(_analytics!.vendorHealthScore).withOpacity(0.2),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
@@ -394,6 +395,9 @@ class _VendorDashboardScreenState extends State<VendorDashboardScreen> {
   }
 
   Widget _buildPayoutSection() {
+    final pendingAmount = _analytics?.pendingPayoutAmount ?? 0.0;
+    final commissionRate = _vendor?.commissionPercentage ?? 0.0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -401,14 +405,12 @@ class _VendorDashboardScreenState extends State<VendorDashboardScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text(
-              'Payouts',
+              'Commission & Payouts',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             TextButton(
-              onPressed: () {
-                // Navigate to payout history
-              },
-              child: const Text('View All'),
+              onPressed: () => context.push('/vendor/commission'),
+              child: const Text('View Dashboard'),
             ),
           ],
         ),
@@ -421,10 +423,23 @@ class _VendorDashboardScreenState extends State<VendorDashboardScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Pending Amount', style: TextStyle(color: AppTheme.grey600)),
+                    const Text('Commission Rate', style: TextStyle(color: AppTheme.grey600)),
                     Text(
-                      '₹${_analytics?.pendingPayoutAmount.toStringAsFixed(2) ?? '0.00'}',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      '${commissionRate.toStringAsFixed(1)}%',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.primary),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                const Divider(),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Pending Payout', style: TextStyle(color: AppTheme.grey600)),
+                    Text(
+                      '₹${pendingAmount.toStringAsFixed(2)}',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.success),
                     ),
                   ],
                 ),
@@ -434,9 +449,17 @@ class _VendorDashboardScreenState extends State<VendorDashboardScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _analytics?.pendingPayoutAmount ?? 0 > 0 ? _requestPayout : null,
+                    onPressed: pendingAmount > 0 ? _requestPayout : null,
                     style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary),
                     child: const Text('Request Payout'),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () => context.push('/vendor/autopayout'),
+                    child: const Text('Auto-Payout Settings'),
                   ),
                 ),
               ],

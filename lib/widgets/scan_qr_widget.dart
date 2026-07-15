@@ -151,10 +151,10 @@ class ScanQrWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.3), width: 1.5),
+        border: Border.all(color: color.withOpacity(0.3), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha: 0.08),
+            color: color.withOpacity(0.08),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -168,7 +168,7 @@ class ScanQrWidget extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
+                  color: color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(Icons.qr_code, color: color, size: 18),
@@ -205,7 +205,7 @@ class ScanQrWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: color.withValues(alpha: 0.15)),
+                border: Border.all(color: color.withOpacity(0.15)),
               ),
               child: QrImageView(
                 data: qrData,
@@ -260,7 +260,7 @@ class ScanQrWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
+          border: Border.all(color: color.withOpacity(0.3)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -320,7 +320,7 @@ class ScanQrWidget extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
+                  border: Border.all(color: color.withOpacity(0.3), width: 2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: QrImageView(

@@ -834,7 +834,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: AppTheme.error.withValues(alpha: 0.1),
+                      color: AppTheme.error.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(color: AppTheme.error),
                     ),
@@ -860,7 +860,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppTheme.error.withValues(alpha: 0.1),
+                      color: AppTheme.error.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -898,7 +898,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
               margin: const EdgeInsets.only(bottom: 16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.error.withValues(alpha: 0.1),
+                color: AppTheme.error.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppTheme.error, width: 1.5),
               ),
@@ -931,7 +931,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
             ),
           // Order Info Card
           FjCard(
-            color: allVerified ? AppTheme.success.withValues(alpha: 0.1) : AppTheme.primaryLight,
+            color: allVerified ? AppTheme.success.withOpacity(0.1) : AppTheme.primaryLight,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1275,10 +1275,10 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
             child: Container(
               height: 80,
               decoration: BoxDecoration(
-                color: AppTheme.infoGrey.withValues(alpha: 0.05),
+                color: AppTheme.infoGrey.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: AppTheme.infoGrey.withValues(alpha: 0.1),
+                  color: AppTheme.infoGrey.withOpacity(0.1),
                   style: BorderStyle.solid,
                 ),
               ),
@@ -1313,7 +1313,7 @@ class _OrderPackingScreenState extends State<OrderPackingScreen> {
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => Container(
                     height: 120,
-                    color: AppTheme.success.withValues(alpha: 0.1),
+                    color: AppTheme.success.withOpacity(0.1),
                     child: const Center(
                       child: Icon(Icons.check_circle, color: AppTheme.success, size: 40),
                     ),

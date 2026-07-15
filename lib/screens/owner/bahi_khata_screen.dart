@@ -169,7 +169,7 @@ class _BahiKhataScreenState extends State<BahiKhataScreen> {
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: CircleAvatar(
-          backgroundColor: AppTheme.info.withValues(alpha: 0.1),
+          backgroundColor: AppTheme.info.withOpacity(0.1),
           child: Text(
             user.name?[0].toUpperCase() ?? '?',
             style: const TextStyle(color: AppTheme.info, fontWeight: FontWeight.bold),
@@ -378,7 +378,7 @@ class _BahiKhataScreenState extends State<BahiKhataScreen> {
                         ChoiceChip(
                           label: const Text('Credit (Udhaar)'),
                           selected: isCredit,
-                          selectedColor: AppTheme.error.withValues(alpha: 0.15),
+                          selectedColor: AppTheme.error.withOpacity(0.15),
                           labelStyle: TextStyle(
                             color: isCredit ? AppTheme.error : AppTheme.grey700,
                             fontWeight: isCredit ? FontWeight.bold : FontWeight.normal,
@@ -393,7 +393,7 @@ class _BahiKhataScreenState extends State<BahiKhataScreen> {
                         ChoiceChip(
                           label: const Text('Payment'),
                           selected: !isCredit,
-                          selectedColor: AppTheme.success.withValues(alpha: 0.15),
+                          selectedColor: AppTheme.success.withOpacity(0.15),
                           labelStyle: TextStyle(
                             color: !isCredit ? AppTheme.success : AppTheme.grey700,
                             fontWeight: !isCredit ? FontWeight.bold : FontWeight.normal,

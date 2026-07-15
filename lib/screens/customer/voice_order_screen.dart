@@ -186,7 +186,7 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen> with SingleTickerPr
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: AppTheme.primary.withValues(alpha: 0.1),
+              color: AppTheme.primary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -470,7 +470,7 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen> with SingleTickerPr
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: item.selected && matched ? AppTheme.info.withValues(alpha: 0.5) : AppTheme.grey200,
+          color: item.selected && matched ? AppTheme.info.withOpacity(0.5) : AppTheme.grey200,
         ),
         boxShadow: AppTheme.cardShadows,
       ),
@@ -579,7 +579,7 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen> with SingleTickerPr
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
+        color: color.withOpacity(0.12),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
@@ -739,7 +739,7 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen> with SingleTickerPr
                     height: 100 + (_pulse.value * 40),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppTheme.primary.withValues(alpha: 0.2 * (1.0 - _pulse.value)),
+                      color: AppTheme.primary.withOpacity(0.2 * (1.0 - _pulse.value)),
                     ),
                   );
                 },
@@ -752,9 +752,7 @@ class _VoiceOrderScreenState extends State<VoiceOrderScreen> with SingleTickerPr
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: (active ? AppTheme.primary : AppTheme.grey300).withValues(
-                      alpha: active ? 0.3 : 0.1,
-                    ),
+                    color: (active ? AppTheme.primary : AppTheme.grey300).withOpacity(active ? 0.3 : 0.1,),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   ),

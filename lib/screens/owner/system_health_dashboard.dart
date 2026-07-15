@@ -202,8 +202,8 @@ class _SystemHealthDashboardState extends State<SystemHealthDashboard> {
     return Container(
       decoration: BoxDecoration(
         color: isHealthy
-            ? AppTheme.success.withValues(alpha: 0.1)
-            : AppTheme.error.withValues(alpha: 0.1),
+            ? AppTheme.success.withOpacity(0.1)
+            : AppTheme.error.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: isHealthy ? AppTheme.success : AppTheme.error, width: 1),
       ),

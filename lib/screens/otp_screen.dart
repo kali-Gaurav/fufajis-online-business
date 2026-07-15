@@ -285,13 +285,13 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
                         height: 80,
                         decoration: BoxDecoration(
                           color: _otpComplete
-                              ? AppTheme.success.withValues(alpha: 0.15)
-                              : AppTheme.primary.withValues(alpha: 0.15),
+                              ? AppTheme.success.withOpacity(0.15)
+                              : AppTheme.primary.withOpacity(0.15),
                           borderRadius: BorderRadius.circular(24),
                           boxShadow: [
                             BoxShadow(
                               color: (_otpComplete ? AppTheme.success : AppTheme.primary)
-                                  .withValues(alpha: 0.1),
+                                  .withOpacity(0.1),
                               blurRadius: 20,
                               offset: const Offset(0, 4),
                             ),
@@ -391,7 +391,7 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
                         boxShadow: _otpComplete
                             ? [
                                 BoxShadow(
-                                  color: AppTheme.primary.withValues(alpha: 0.3),
+                                  color: AppTheme.primary.withOpacity(0.3),
                                   blurRadius: 12,
                                   offset: const Offset(0, 4),
                                 ),
@@ -425,7 +425,7 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                               decoration: BoxDecoration(
-                                color: AppTheme.primary.withValues(alpha: 0.1),
+                                color: AppTheme.primary.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(24),
                               ),
                               child: const Text(
@@ -445,7 +445,7 @@ class _OTPScreenState extends State<OTPScreen> with TickerProviderStateMixin {
                                 seconds: _resendTimer,
                                 size: 44,
                                 ringColor: AppTheme.primary,
-                                trackColor: AppTheme.primary.withValues(alpha: 0.12),
+                                trackColor: AppTheme.primary.withOpacity(0.12),
                                 textStyle: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w800,

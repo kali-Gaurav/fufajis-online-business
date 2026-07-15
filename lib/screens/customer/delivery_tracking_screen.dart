@@ -110,7 +110,7 @@ class _StepTimeline extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: 14,
-                      backgroundColor: AppTheme.primary.withValues(alpha: 0.8),
+                      backgroundColor: AppTheme.primary.withOpacity(0.8),
                       child: Icon(step.$2, size: 14, color: Colors.white),
                     ),
                     if (!isLast) Container(width: 2, height: 30, color: AppTheme.grey200),

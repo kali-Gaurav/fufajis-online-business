@@ -230,7 +230,7 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: AppTheme.error.withValues(alpha: 0.1),
+                        color: AppTheme.error.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: AppTheme.error),
                       ),
@@ -352,7 +352,7 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
                                           decoration: BoxDecoration(
                                             color: _getExpiryColor(
                                               daysUntilExpiry,
-                                            ).withValues(alpha: 0.2),
+                                            ).withOpacity(0.2),
                                             borderRadius: BorderRadius.circular(20),
                                           ),
                                           child: Text(
@@ -503,9 +503,9 @@ class _ExpiryTrackingScreenState extends State<ExpiryTrackingScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Column(
         children: [

@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fufaji/services/stock_adjustment_service.dart';
+import 'package:fufajis_online/services/stock_adjustment_service.dart';
 import 'package:mockito/mockito.dart';
 
 void main() {

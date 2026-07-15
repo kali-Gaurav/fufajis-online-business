@@ -221,7 +221,7 @@ class _OwnerSubscriptionDashboardState extends State<OwnerSubscriptionDashboard>
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: riskColor.withValues(alpha: 0.2),
+                    color: riskColor.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(

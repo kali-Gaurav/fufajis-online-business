@@ -148,7 +148,7 @@ class _OwnerDashboardRedesignedState extends State<OwnerDashboardRedesigned> {
             Icon(
               Icons.trending_up,
               size: 40,
-              color: Colors.white.withValues(alpha: 0.3),
+              color: Colors.white.withOpacity(0.3),
             ),
           ],
         ),
@@ -243,7 +243,7 @@ class _OwnerDashboardRedesignedState extends State<OwnerDashboardRedesigned> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.15),
+                      color: color.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Icon(icon, color: color, size: 16),
@@ -354,7 +354,7 @@ class _OwnerDashboardRedesignedState extends State<OwnerDashboardRedesigned> {
               child: LinearProgressIndicator(
                 value: percentage / 100,
                 minHeight: 8,
-                backgroundColor: color.withValues(alpha: 0.1),
+                backgroundColor: color.withOpacity(0.1),
                 valueColor: AlwaysStoppedAnimation<Color>(color),
               ),
             ),
@@ -438,7 +438,7 @@ class _OwnerDashboardRedesignedState extends State<OwnerDashboardRedesigned> {
       onTap: onTap,
       child: Card(
         elevation: 0,
-        color: color.withValues(alpha: 0.08),
+        color: color.withOpacity(0.08),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 16),
           child: Column(

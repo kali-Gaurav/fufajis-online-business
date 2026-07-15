@@ -17,7 +17,7 @@ class MaintenanceOverlay extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.white, AppTheme.primaryColor.withValues(alpha: 0.05)],
+            colors: [Colors.white, AppTheme.primaryColor.withOpacity(0.05)],
           ),
         ),
         child: Column(

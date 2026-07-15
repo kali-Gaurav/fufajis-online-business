@@ -101,11 +101,11 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> with SingleTickerPr
                     width: 90,
                     height: 90,
                     decoration: BoxDecoration(
-                      color: AppTheme.primary.withValues(alpha: 0.15),
+                      color: AppTheme.primary.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(28),
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.primary.withValues(alpha: 0.05),
+                          color: AppTheme.primary.withOpacity(0.05),
                           blurRadius: 16,
                           offset: const Offset(0, 4),
                         ),
@@ -280,7 +280,7 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> with SingleTickerPr
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -295,7 +295,7 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> with SingleTickerPr
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.12),
+                    color: color.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(icon, size: 30, color: color),

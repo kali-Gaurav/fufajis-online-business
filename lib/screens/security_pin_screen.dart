@@ -309,7 +309,7 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> with SingleTicker
                     width: 90,
                     height: 90,
                     decoration: BoxDecoration(
-                      color: AppTheme.primary.withValues(alpha: 0.15),
+                      color: AppTheme.primary.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(28),
                     ),
                     child: const Icon(
@@ -405,7 +405,7 @@ class _SecurityPinScreenState extends State<SecurityPinScreen> with SingleTicker
                     child: Column(
                       children: [
                         PulseGlow(
-                          glowColor: AppTheme.primary.withValues(alpha: 0.2),
+                          glowColor: AppTheme.primary.withOpacity(0.2),
                           maxRadius: 10,
                           child: InkWell(
                             onTap: _tryBiometric,
@@ -581,7 +581,7 @@ class _LockoutViewState extends State<_LockoutView> with SingleTickerProviderSta
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
+                      color: Colors.black.withOpacity(0.04),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),

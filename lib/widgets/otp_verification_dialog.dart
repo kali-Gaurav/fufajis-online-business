@@ -107,7 +107,7 @@ class _OTPVerificationDialogState extends State<OTPVerificationDialog> {
               height: 60,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppTheme.primary.withValues(alpha: 0.1),
+                color: AppTheme.primary.withOpacity(0.1),
               ),
               child: const Icon(Icons.verified_user, color: AppTheme.primary, size: 32),
             ),
@@ -126,9 +126,9 @@ class _OTPVerificationDialogState extends State<OTPVerificationDialog> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.info.withValues(alpha: 0.1),
+                color: AppTheme.info.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppTheme.info.withValues(alpha: 0.3)),
+                border: Border.all(color: AppTheme.info.withOpacity(0.3)),
               ),
               child: const Text(
                 'Enter the 4-digit OTP provided by the delivery agent to complete the delivery',
@@ -198,9 +198,9 @@ class _OTPVerificationDialogState extends State<OTPVerificationDialog> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppTheme.error.withValues(alpha: 0.1),
+                  color: AppTheme.error.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppTheme.error.withValues(alpha: 0.3)),
+                  border: Border.all(color: AppTheme.error.withOpacity(0.3)),
                 ),
                 child: Row(
                   children: [

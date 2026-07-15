@@ -160,7 +160,7 @@ class _ShopManagementScreenState extends State<ShopManagementScreen> {
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       leading: CircleAvatar(
         radius: 24,
-        backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
+        backgroundColor: AppTheme.primary.withOpacity(0.1),
         child: const Icon(Icons.store, color: AppTheme.primary),
       ),
       title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
@@ -178,7 +178,7 @@ class _ShopManagementScreenState extends State<ShopManagementScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: statusColor.withValues(alpha: 0.1),
+              color: statusColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(

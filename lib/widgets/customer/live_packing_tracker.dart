@@ -33,13 +33,13 @@ class LivePackingTracker extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: isDone
-                ? AppTheme.success.withValues(alpha: 0.05)
-                : AppTheme.warning.withValues(alpha: 0.05),
+                ? AppTheme.success.withOpacity(0.05)
+                : AppTheme.warning.withOpacity(0.05),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isDone
-                  ? AppTheme.success.withValues(alpha: 0.2)
-                  : AppTheme.warning.withValues(alpha: 0.2),
+                  ? AppTheme.success.withOpacity(0.2)
+                  : AppTheme.warning.withOpacity(0.2),
             ),
           ),
           child: Column(

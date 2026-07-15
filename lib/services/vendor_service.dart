@@ -396,6 +396,35 @@ class VendorService {
     }
   }
 
+  Future<void> updateAutoPayoutSettings({
+    required String vendorId,
+    bool? enabled,
+    String? frequency,
+    double? minimumThreshold,
+    String? payoutMethod,
+  }) async {
+    try {
+      final updates = <String, dynamic>{
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+
+      if (enabled != null) updates['auto_payout_enabled'] = enabled;
+      if (frequency != null) updates['payout_frequency'] = frequency;
+      if (minimumThreshold != null) updates['minimum_payout_threshold'] = minimumThreshold;
+      if (payoutMethod != null) updates['default_payout_method'] = payoutMethod;
+
+      await _supabase.client
+          .from('vendors')
+          .update(updates)
+          .eq('id', vendorId);
+
+      debugPrint('[VendorService] Auto-payout settings updated for vendor: $vendorId');
+    } catch (e) {
+      debugPrint('[VendorService] Error updating auto-payout settings: $e');
+      rethrow;
+    }
+  }
+
   // ============================================================================
   // ANALYTICS OPERATIONS
   // ============================================================================

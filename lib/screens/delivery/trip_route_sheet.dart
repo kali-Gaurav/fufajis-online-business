@@ -290,9 +290,9 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
                     decoration: BoxDecoration(
                       color: online
                           ? (pendingCount > 0
-                                ? AppTheme.warning.withValues(alpha: 0.15)
-                                : AppTheme.success.withValues(alpha: 0.1))
-                          : AppTheme.warning.withValues(alpha: 0.15),
+                                ? AppTheme.warning.withOpacity(0.15)
+                                : AppTheme.success.withOpacity(0.1))
+                          : AppTheme.warning.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -435,7 +435,7 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primary.withValues(alpha: 0.3),
+            color: AppTheme.primary.withOpacity(0.3),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -451,7 +451,7 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
                 icon: const Icon(Icons.refresh, size: 14),
                 label: const Text('Re-Optimize', style: TextStyle(fontSize: 12)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white.withValues(alpha: 0.2),
+                  backgroundColor: Colors.white.withOpacity(0.2),
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -542,7 +542,7 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
         boxShadow: isCurrentStop
             ? [
                 BoxShadow(
-                  color: AppTheme.primary.withValues(alpha: 0.1),
+                  color: AppTheme.primary.withOpacity(0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 3),
                 ),
@@ -708,7 +708,7 @@ class _TripRouteSheetState extends State<TripRouteSheet> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: chipColor.withValues(alpha: 0.1),
+        color: chipColor.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(

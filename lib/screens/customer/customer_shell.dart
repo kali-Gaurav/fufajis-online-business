@@ -149,8 +149,8 @@ class _CustomerShellState extends State<CustomerShell> {
             right: 16,
             child: GlassmorphicContainer(
               borderRadius: 24,
-              tint: Colors.white.withValues(alpha: 0.90),
-              borderColor: Colors.white.withValues(alpha: 0.6),
+              tint: Colors.white.withOpacity(0.90),
+              borderColor: Colors.white.withOpacity(0.6),
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,

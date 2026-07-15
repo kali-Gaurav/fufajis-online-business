@@ -98,7 +98,7 @@ class _AttendanceManagementScreenState extends State<AttendanceManagementScreen>
               border: Border.all(color: AppTheme.grey200),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.black.withValues(alpha: 0.02),
+                  color: AppTheme.black.withOpacity(0.02),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -109,7 +109,7 @@ class _AttendanceManagementScreenState extends State<AttendanceManagementScreen>
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.success.withValues(alpha: 0.1),
+                    color: AppTheme.success.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.people, color: AppTheme.success, size: 24),
@@ -146,7 +146,7 @@ class _AttendanceManagementScreenState extends State<AttendanceManagementScreen>
               border: Border.all(color: AppTheme.grey200),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.black.withValues(alpha: 0.02),
+                  color: AppTheme.black.withOpacity(0.02),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -157,7 +157,7 @@ class _AttendanceManagementScreenState extends State<AttendanceManagementScreen>
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.1),
+                    color: AppTheme.primary.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.check_circle_outline, color: AppTheme.primary, size: 24),
@@ -213,7 +213,7 @@ class _AttendanceManagementScreenState extends State<AttendanceManagementScreen>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.success.withValues(alpha: 0.1),
+                  color: AppTheme.success.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -267,7 +267,7 @@ class _AttendanceManagementScreenState extends State<AttendanceManagementScreen>
                           Row(
                             children: [
                               CircleAvatar(
-                                backgroundColor: AppTheme.success.withValues(alpha: 0.1),
+                                backgroundColor: AppTheme.success.withOpacity(0.1),
                                 radius: 18,
                                 child: const Icon(Icons.person, color: AppTheme.success, size: 18),
                               ),

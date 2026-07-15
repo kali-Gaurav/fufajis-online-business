@@ -16,7 +16,7 @@ class LiquidProgressBar extends StatelessWidget {
       child: LinearProgressIndicator(
         value: value,
         color: color ?? Theme.of(context).primaryColor,
-        backgroundColor: (color ?? Theme.of(context).primaryColor).withValues(alpha: 0.2),
+        backgroundColor: (color ?? Theme.of(context).primaryColor).withOpacity(0.2),
       ),
     );
   }

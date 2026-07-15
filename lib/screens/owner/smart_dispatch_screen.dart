@@ -354,7 +354,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.1),
+                    color: AppTheme.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -467,7 +467,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
         borderRadius: BorderRadius.circular(8),
         child: Container(
           padding: const EdgeInsets.all(12),
-          color: AppTheme.primary.withValues(alpha: 0.9),
+          color: AppTheme.primary.withOpacity(0.9),
           child: Text('#${order.orderNumber}', style: const TextStyle(color: AppTheme.white)),
         ),
       ),
@@ -498,7 +498,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
             margin: const EdgeInsets.symmetric(vertical: 3),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: isHovered ? AppTheme.primary.withValues(alpha: 0.08) : AppTheme.grey50,
+              color: isHovered ? AppTheme.primary.withOpacity(0.08) : AppTheme.grey50,
               borderRadius: BorderRadius.circular(8),
               border: isHovered ? Border.all(color: AppTheme.primary, width: 1.5) : null,
             ),
@@ -509,7 +509,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
                   height: 24,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.15),
+                    color: AppTheme.primary.withOpacity(0.15),
                     shape: BoxShape.circle,
                   ),
                   child: Text(
@@ -542,7 +542,7 @@ class _SmartDispatchScreenState extends State<SmartDispatchScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: AppTheme.success.withValues(alpha: 0.15),
+                                color: AppTheme.success.withOpacity(0.15),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: const Text(

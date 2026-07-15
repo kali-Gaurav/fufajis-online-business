@@ -113,7 +113,7 @@ class _ContinuousBarcodeScannerDialogState extends State<ContinuousBarcodeScanne
                     margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     decoration: BoxDecoration(
-                      color: _statusColor.withValues(alpha: 0.9),
+                      color: _statusColor.withOpacity(0.9),
                       borderRadius: BorderRadius.circular(30),
                     ),
                     child: Text(

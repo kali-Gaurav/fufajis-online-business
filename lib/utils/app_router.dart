@@ -38,6 +38,41 @@ import '../screens/customer/notification_center.dart';
 import '../screens/customer/notification_settings_screen.dart';
 import '../screens/customer/order_detail_screen.dart';
 import '../screens/owner/owner_dashboard.dart';
+import '../screens/owner/data_sync_monitor_screen.dart';
+import '../screens/owner/inventory_sync_manager_screen.dart';
+import '../screens/owner/payment_settlement_sync_screen.dart';
+import '../screens/owner/order_status_machine_screen.dart';
+import '../screens/owner/workflow_automation_designer_screen.dart';
+import '../screens/owner/customer_engagement_automation_screen.dart';
+import '../screens/owner/dynamic_pricing_engine_screen.dart';
+import '../screens/owner/inventory_auto_replenishment_screen.dart';
+import '../screens/owner/gl_accounting_system_screen.dart';
+import '../screens/owner/tax_management_screen.dart';
+import '../screens/owner/vendor_settlement_screen.dart';
+import '../screens/owner/advanced_rbac_screen.dart';
+import '../screens/owner/staff_performance_screen.dart';
+import '../screens/owner/shift_scheduling_screen.dart';
+import '../screens/owner/compliance_dashboard_screen.dart';
+import '../screens/owner/advanced_performance_dashboard_screen.dart';
+import '../screens/owner/promotion_discount_management_screen.dart';
+import '../screens/owner/customer_segmentation_targeting_screen.dart';
+import '../screens/owner/realtime_analytics_dashboard_screen.dart';
+import '../screens/owner/employee_performance_dashboard_screen.dart';
+import '../screens/owner/shift_schedule_management_screen.dart';
+import '../screens/owner/task_assignment_tracking_screen.dart';
+import '../screens/owner/attendance_compliance_screen.dart';
+import '../screens/owner/vendor_supplier_management_screen.dart';
+import '../screens/owner/warehouse_logistics_screen.dart';
+import '../screens/owner/quality_compliance_screen.dart';
+import '../screens/owner/reports_analytics_export_screen.dart';
+import '../screens/delivery/rider_profile_management_screen.dart';
+import '../screens/delivery/intelligent_dispatcher_screen.dart';
+import '../screens/delivery/ai_route_optimization_screen.dart';
+import '../screens/delivery/delivery_performance_analytics_screen.dart';
+import '../screens/owner/demand_forecasting_screen.dart';
+import '../screens/owner/inventory_optimization_screen.dart';
+import '../screens/owner/customer_intelligence_screen.dart';
+import '../screens/owner/executive_command_center_screen.dart';
 import '../screens/owner/products_management.dart';
 import '../screens/owner/orders_management.dart';
 import '../screens/owner/inventory_screen.dart';
@@ -110,6 +145,7 @@ import '../screens/owner/failed_delivery_escalation_screen.dart';
 import '../screens/delivery/delivery_reschedule_screen.dart';
 import '../screens/rider/rider_route_history_screen.dart';
 import '../screens/customer/wallet_screen.dart';
+import '../screens/customer/wallet_payment_dashboard_screen.dart';
 import '../screens/customer/membership_screen.dart';
 import '../screens/rider/rider_map_screen.dart';
 import '../screens/admin/dead_letter_dashboard_screen.dart';
@@ -122,11 +158,14 @@ import '../screens/owner/settlements_management.dart';
 import '../screens/owner/settlement_reporting_screen.dart';
 import '../screens/customer/wishlist_screen.dart';
 import '../screens/customer/loyalty_screen.dart';
+import '../screens/customer/referral_rewards_dashboard_screen.dart';
 import '../screens/customer/family_management_screen.dart';
 import '../screens/customer/smart_kitchen_screen.dart';
 import '../screens/customer/subscription_screen.dart';
+import '../screens/customer/subscription_management_screen.dart';
 import '../screens/customer/identity_contacts_screen.dart';
 import '../screens/customer/refer_earn_screen.dart';
+import '../screens/customer/personalized_recommendations_screen.dart';
 import '../screens/customer/add_review_screen.dart';
 import '../screens/customer/enhanced_delivery_tracking_screen.dart';
 import '../screens/customer/product_card_enhancements_screen.dart';
@@ -139,12 +178,16 @@ import '../screens/vendor/vendor_products_management_screen.dart';
 import '../screens/vendor/vendor_orders_screen.dart';
 import '../screens/vendor/vendor_payout_screen.dart';
 import '../screens/vendor/vendor_commission_autopayout_screen.dart';
+import '../screens/vendor/vendor_commission_dashboard_screen.dart';
 import '../screens/vendor/vendor_dispute_resolution_screen.dart';
 import '../screens/admin/admin_vendor_approval_screen.dart';
 import '../screens/customer/subscription_checkout_screen.dart';
 import '../screens/customer/subscription_detail_screen.dart';
 import '../screens/customer/subscription_retention_screen.dart';
+import '../screens/customer/subscriptions/subscription_setup_screen.dart';
+import '../services/subscription_service.dart';
 import '../screens/owner/owner_subscription_dashboard.dart';
+import '../screens/inventory/supplier_management_screen.dart';
 
 /// Combines multiple [Listenable]s into one so GoRouter re-evaluates
 /// its redirect when either AuthProvider OR GuestProvider changes state.
@@ -388,6 +431,11 @@ class AppRouter {
           ),
           GoRoute(path: '/customer/my-wallet', builder: (context, state) => const WalletScreen()),
           GoRoute(
+            path: '/customer/wallet-payments',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const WalletPaymentDashboardScreen()),
+          ),
+          GoRoute(
             path: '/customer/membership',
             builder: (context, state) => const MembershipScreen(),
           ),
@@ -412,6 +460,11 @@ class AppRouter {
                 FufajiPageTransition(key: state.pageKey, child: const LoyaltyScreen()),
           ),
           GoRoute(
+            path: '/customer/referral-rewards',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const ReferralRewardsDashboardScreen()),
+          ),
+          GoRoute(
             path: '/customer/family',
             pageBuilder: (context, state) =>
                 FufajiPageTransition(key: state.pageKey, child: const FamilyManagementScreen()),
@@ -427,6 +480,11 @@ class AppRouter {
                 FufajiPageTransition(key: state.pageKey, child: const SubscriptionScreen()),
           ),
           GoRoute(
+            path: '/customer/subscription-setup',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const SubscriptionSetupScreen()),
+          ),
+          GoRoute(
             path: '/customer/subscription-detail/:subscriptionId',
             pageBuilder: (context, state) =>
                 FufajiPageTransition(
@@ -438,13 +496,23 @@ class AppRouter {
           ),
           GoRoute(
             path: '/customer/subscription-checkout',
-            pageBuilder: (context, state) =>
-                FufajiPageTransition(key: state.pageKey, child: const SubscriptionCheckoutScreen()),
+            pageBuilder: (context, state) {
+              final items = state.extra as List<SubscriptionItem>? ?? [];
+              return FufajiPageTransition(
+                key: state.pageKey,
+                child: SubscriptionCheckoutScreen(items: items),
+              );
+            },
           ),
           GoRoute(
             path: '/customer/subscription-retention',
             pageBuilder: (context, state) =>
                 FufajiPageTransition(key: state.pageKey, child: const SubscriptionRetentionScreen()),
+          ),
+          GoRoute(
+            path: '/customer/subscription-management',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const SubscriptionManagementScreen()),
           ),
           GoRoute(
             path: '/customer/identity',
@@ -455,6 +523,11 @@ class AppRouter {
             path: '/customer/refer',
             pageBuilder: (context, state) =>
                 FufajiPageTransition(key: state.pageKey, child: const ReferEarnScreen()),
+          ),
+          GoRoute(
+            path: '/customer/recommendations',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const PersonalizedRecommendationsScreen()),
           ),
           GoRoute(
             path: '/customer/add-review/:productId',
@@ -503,6 +576,66 @@ class AppRouter {
             builder: (context, state) => const ProductsManagementScreen(),
           ),
           GoRoute(
+            path: '/owner/performance',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const AdvancedPerformanceDashboardScreen()),
+          ),
+          GoRoute(
+            path: '/owner/promotions',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const PromotionDiscountManagementScreen()),
+          ),
+          GoRoute(
+            path: '/owner/segmentation',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const CustomerSegmentationTargetingScreen()),
+          ),
+          GoRoute(
+            path: '/owner/realtime-analytics',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const RealtimeAnalyticsDashboardScreen()),
+          ),
+          GoRoute(
+            path: '/owner/employee-performance',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const EmployeePerformanceDashboardScreen()),
+          ),
+          GoRoute(
+            path: '/owner/shift-schedule',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const ShiftScheduleManagementScreen()),
+          ),
+          GoRoute(
+            path: '/owner/task-assignment',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const TaskAssignmentTrackingScreen()),
+          ),
+          GoRoute(
+            path: '/owner/attendance',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const AttendanceComplianceScreen()),
+          ),
+          GoRoute(
+            path: '/owner/vendors',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const VendorSupplierManagementScreen()),
+          ),
+          GoRoute(
+            path: '/owner/warehouse-logistics',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const WarehouseLogisticsScreen()),
+          ),
+          GoRoute(
+            path: '/owner/quality-compliance',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const QualityComplianceScreen()),
+          ),
+          GoRoute(
+            path: '/owner/reports-analytics',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const ReportsAnalyticsExportScreen()),
+          ),
+          GoRoute(
             path: '/owner/packing-terminal',
             builder: (context, state) {
               final orderId = state.uri.queryParameters['orderId'];
@@ -537,6 +670,10 @@ class AppRouter {
           GoRoute(
             path: '/owner/inventory-audit',
             builder: (context, state) => const InventoryAuditScreen(),
+          ),
+          GoRoute(
+            path: '/inventory/suppliers',
+            builder: (context, state) => const SupplierManagementScreen(),
           ),
           GoRoute(
             path: '/owner/vendor-request',
@@ -683,6 +820,106 @@ class AppRouter {
             path: '/owner/subscriptions',
             builder: (context, state) => const OwnerSubscriptionDashboard(),
           ),
+          GoRoute(
+            path: '/owner/demand-forecasting',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const DemandForecastingScreen()),
+          ),
+          GoRoute(
+            path: '/owner/inventory-optimization',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const InventoryOptimizationScreen()),
+          ),
+          GoRoute(
+            path: '/owner/customer-intelligence',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const CustomerIntelligenceScreen()),
+          ),
+          GoRoute(
+            path: '/owner/executive-command-center',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const ExecutiveCommandCenterScreen()),
+          ),
+          GoRoute(
+            path: '/owner/data-sync-monitor',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const DataSyncMonitorScreen()),
+          ),
+          GoRoute(
+            path: '/owner/inventory-sync-manager',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const InventorySyncManagerScreen()),
+          ),
+          GoRoute(
+            path: '/owner/payment-settlement-sync',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const PaymentSettlementSyncScreen()),
+          ),
+          GoRoute(
+            path: '/owner/order-status-machine',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const OrderStatusMachineScreen()),
+          ),
+          GoRoute(
+            path: '/owner/workflow-automation',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const WorkflowAutomationDesignerScreen()),
+          ),
+          GoRoute(
+            path: '/owner/customer-engagement',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const CustomerEngagementAutomationScreen()),
+          ),
+          GoRoute(
+            path: '/owner/dynamic-pricing',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const DynamicPricingEngineScreen()),
+          ),
+          GoRoute(
+            path: '/owner/auto-replenishment',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const InventoryAutoReplenishmentScreen()),
+          ),
+          GoRoute(
+            path: '/owner/gl-accounting',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const GLAccountingSystemScreen()),
+          ),
+          GoRoute(
+            path: '/owner/tax-management',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const TaxManagementScreen()),
+          ),
+          GoRoute(
+            path: '/owner/vendor-settlement',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const VendorSettlementScreen()),
+          ),
+          GoRoute(
+            path: '/owner/financial-dashboard',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const FinancialDashboardScreen()),
+          ),
+          GoRoute(
+            path: '/owner/advanced-rbac',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const AdvancedRBACScreen()),
+          ),
+          GoRoute(
+            path: '/owner/staff-performance',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const StaffPerformanceScreen()),
+          ),
+          GoRoute(
+            path: '/owner/shift-scheduling',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const ShiftSchedulingScreen()),
+          ),
+          GoRoute(
+            path: '/owner/compliance-dashboard',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const ComplianceDashboardScreen()),
+          ),
         ],
       ),
 
@@ -725,6 +962,26 @@ class AppRouter {
           GoRoute(
             path: '/delivery/smart-route',
             builder: (context, state) => const SmartRouteScreen(),
+          ),
+          GoRoute(
+            path: '/delivery/riders',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const RiderProfileManagementScreen()),
+          ),
+          GoRoute(
+            path: '/delivery/dispatcher',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const IntelligentDispatcherScreen()),
+          ),
+          GoRoute(
+            path: '/delivery/route-optimization',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const AIRouteOptimizationScreen()),
+          ),
+          GoRoute(
+            path: '/delivery/performance-analytics',
+            pageBuilder: (context, state) =>
+                FufajiPageTransition(key: state.pageKey, child: const DeliveryPerformanceAnalyticsScreen()),
           ),
         ],
       ),
@@ -857,6 +1114,14 @@ class AppRouter {
           ),
           GoRoute(
             path: 'autopayout',
+            builder: (context, state) => const VendorCommissionAutopayoutScreen(),
+          ),
+          GoRoute(
+            path: 'commission',
+            builder: (context, state) => const VendorCommissionDashboardScreen(),
+          ),
+          GoRoute(
+            path: 'payout-settings',
             builder: (context, state) => const VendorCommissionAutopayoutScreen(),
           ),
           GoRoute(

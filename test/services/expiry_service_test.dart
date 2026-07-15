@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fufaji/services/expiry_service.dart';
+import 'package:fufajis_online/services/expiry_service.dart';
 import 'package:mockito/mockito.dart';
 
 void main() {

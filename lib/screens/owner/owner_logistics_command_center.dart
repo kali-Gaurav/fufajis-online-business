@@ -162,7 +162,7 @@ class _OwnerLogisticsCommandCenterState extends State<OwnerLogisticsCommandCente
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
+            color: Colors.black.withOpacity(0.3),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -216,11 +216,11 @@ class _OwnerLogisticsCommandCenterState extends State<OwnerLogisticsCommandCente
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: status.color.withValues(alpha: 0.5), width: 2),
+        side: BorderSide(color: status.color.withOpacity(0.5), width: 2),
       ),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: status.color.withValues(alpha: 0.2),
+          backgroundColor: status.color.withOpacity(0.2),
           child: Text(
             score.toInt().toString(),
             style: TextStyle(color: status.color, fontWeight: FontWeight.bold),

@@ -99,7 +99,7 @@ class _CustomerSegmentationScreenState extends State<CustomerSegmentationScreen>
                 _SegmentListView(
                   customers: _churnRiskList,
                   chipLabel: 'Churn Risk',
-                  chipColor: AppTheme.error.withValues(alpha: 0.15),
+                  chipColor: AppTheme.error.withOpacity(0.15),
                   chipTextColor: AppTheme.error,
                   actionLabel: 'Send Offer',
                   actionIcon: Icons.local_offer_outlined,

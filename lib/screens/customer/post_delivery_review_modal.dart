@@ -213,7 +213,7 @@ class _PostDeliveryReviewModalState extends State<PostDeliveryReviewModal> {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: _rateAllTogether
-                        ? AppTheme.primary.withValues(alpha: 0.1)
+                        ? AppTheme.primary.withOpacity(0.1)
                         : AppTheme.grey100,
                     border: Border.all(
                       color: _rateAllTogether
@@ -257,7 +257,7 @@ class _PostDeliveryReviewModalState extends State<PostDeliveryReviewModal> {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: !_rateAllTogether
-                        ? AppTheme.primary.withValues(alpha: 0.1)
+                        ? AppTheme.primary.withOpacity(0.1)
                         : AppTheme.grey100,
                     border: Border.all(
                       color: !_rateAllTogether

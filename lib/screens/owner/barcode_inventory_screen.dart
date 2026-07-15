@@ -417,7 +417,7 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
                 margin: const EdgeInsets.symmetric(horizontal: 3),
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
-                  color: selected ? mode.color : Colors.white.withValues(alpha: 0.1),
+                  color: selected ? mode.color : Colors.white.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Column(
@@ -500,7 +500,7 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
       dense: true,
       leading: CircleAvatar(
         radius: 18,
-        backgroundColor: entry.mode.color.withValues(alpha: 0.15),
+        backgroundColor: entry.mode.color.withOpacity(0.15),
         child: Icon(entry.mode.icon, size: 16, color: entry.mode.color),
       ),
       title: Text(
@@ -547,8 +547,8 @@ class _BarcodeInventoryScreenState extends State<BarcodeInventoryScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
                   color: currentQty < 5
-                      ? AppTheme.error.withValues(alpha: 0.1)
-                      : AppTheme.info.withValues(alpha: 0.1),
+                      ? AppTheme.error.withOpacity(0.1)
+                      : AppTheme.info.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(

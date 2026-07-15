@@ -131,7 +131,7 @@ class _SupplierCommandCenterState extends State<SupplierCommandCenter> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.info.withValues(alpha: 0.3),
+            color: AppTheme.info.withOpacity(0.3),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -178,7 +178,7 @@ class _SupplierCommandCenterState extends State<SupplierCommandCenter> {
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: opStatus.color.withValues(alpha: 0.3)),
+        side: BorderSide(color: opStatus.color.withOpacity(0.3)),
       ),
       child: ListTile(
         leading: Icon(Icons.inventory, color: opStatus.color),

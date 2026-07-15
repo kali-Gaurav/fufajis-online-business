@@ -53,7 +53,7 @@ class _ChurnAlertCardState extends State<ChurnAlertCard> {
       elevation: alert.riskLevel == 'CRITICAL' ? 4 : 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: riskColor.withValues(alpha: 0.3), width: 2),
+        side: BorderSide(color: riskColor.withOpacity(0.3), width: 2),
       ),
       child: Column(
         children: [
@@ -61,7 +61,7 @@ class _ChurnAlertCardState extends State<ChurnAlertCard> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: riskColor.withValues(alpha: 0.1),
+              color: riskColor.withOpacity(0.1),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(10),
                 topRight: Radius.circular(10),
@@ -303,7 +303,7 @@ class _ChurnAlertCardState extends State<ChurnAlertCard> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(

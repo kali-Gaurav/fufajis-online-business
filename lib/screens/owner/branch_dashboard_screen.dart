@@ -293,7 +293,7 @@ class _BranchDashboardScreenState extends State<BranchDashboardScreen> {
           height: 70,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: color.withValues(alpha: 0.5), width: 3),
+            border: Border.all(color: color.withOpacity(0.5), width: 3),
           ),
           child: Center(
             child: Text(
@@ -342,7 +342,7 @@ class _MetricCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.1),
+                    color: color.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(

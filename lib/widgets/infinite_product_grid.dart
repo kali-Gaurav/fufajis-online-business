@@ -286,7 +286,7 @@ class _ProductTileState extends State<_ProductTile> with SingleTickerProviderSta
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.07),
+                color: Colors.black.withOpacity(0.07),
                 blurRadius: 10,
                 offset: const Offset(0, 3),
               ),
@@ -310,7 +310,7 @@ class _ProductTileState extends State<_ProductTile> with SingleTickerProviderSta
                     Positioned.fill(
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.48),
+                          color: Colors.black.withOpacity(0.48),
                           borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
                         ),
                         alignment: Alignment.center,

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../utils/app_theme.dart';
+import '../../services/vendor_service.dart';
+import '../../providers/auth_provider.dart';
 
 class VendorCommissionAutoPayoutScreen extends StatefulWidget {
   final String vendorId;
@@ -19,6 +22,7 @@ class _VendorCommissionAutoPayoutScreenState
   double _minimumThreshold = 500.0;
   String _payoutMethod = 'bank'; // bank, upi
   bool _isLoading = false;
+  final _vendorService = VendorService();
 
   @override
   Widget build(BuildContext context) {
@@ -218,9 +222,9 @@ class _VendorCommissionAutoPayoutScreenState
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.primary.withValues(alpha: 0.05),
+        color: AppTheme.primary.withOpacity(0.05),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
+        border: Border.all(color: AppTheme.primary.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -320,25 +324,38 @@ class _VendorCommissionAutoPayoutScreenState
   Future<void> _saveSettings() async {
     setState(() => _isLoading = true);
     try {
-      // TODO: Save settings to backend
-      // await _vendorService.updateAutoPayoutSettings(
-      //   vendorId: widget.vendorId,
-      //   enabled: _autoPayoutEnabled,
-      //   frequency: _payoutFrequency,
-      //   minimumThreshold: _minimumThreshold,
-      //   payoutMethod: _payoutMethod,
-      // );
+      // Get vendor ID from auth provider
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final vendorId = authProvider.currentUser?.id ?? widget.vendorId;
+
+      await _vendorService.updateAutoPayoutSettings(
+        vendorId: vendorId,
+        enabled: _autoPayoutEnabled,
+        frequency: _payoutFrequency,
+        minimumThreshold: _minimumThreshold,
+        payoutMethod: _payoutMethod,
+      );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Auto-payout settings saved successfully')),
+          const SnackBar(
+            content: Text('✓ Auto-payout settings saved successfully'),
+            duration: Duration(seconds: 2),
+            backgroundColor: Color(0xFF4CAF50),
+          ),
         );
-        Navigator.pop(context);
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) Navigator.pop(context);
+        });
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(
+            content: Text('Error saving settings: ${e.toString()}'),
+            duration: const Duration(seconds: 3),
+            backgroundColor: Colors.red[700],
+          ),
         );
       }
     } finally {

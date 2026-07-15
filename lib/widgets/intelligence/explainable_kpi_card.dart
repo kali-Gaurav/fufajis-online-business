@@ -45,9 +45,7 @@ class ExplainableKpiCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: (isTrendPositive ? AppTheme.success : AppTheme.error).withValues(
-                      alpha: 0.1,
-                    ),
+                    color: (isTrendPositive ? AppTheme.success : AppTheme.error).withOpacity(0.1,),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -107,9 +105,9 @@ class ExplainableKpiCard extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.info.withValues(alpha: 0.05),
+                color: AppTheme.info.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppTheme.info.withValues(alpha: 0.2)),
+                border: Border.all(color: AppTheme.info.withOpacity(0.2)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

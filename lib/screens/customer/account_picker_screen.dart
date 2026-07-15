@@ -27,9 +27,9 @@ class AccountPickerScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.primary.withValues(alpha: 0.08),
+                color: AppTheme.primary.withOpacity(0.08),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
+                border: Border.all(color: AppTheme.primary.withOpacity(0.2)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,7 +86,7 @@ class AccountPickerScreen extends StatelessWidget {
                             border: Border.all(color: AppTheme.grey200),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.04),
+                                color: Colors.black.withOpacity(0.04),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -106,7 +106,7 @@ class AccountPickerScreen extends StatelessWidget {
                                   children: [
                                     CircleAvatar(
                                       radius: 26,
-                                      backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
+                                      backgroundColor: AppTheme.primary.withOpacity(0.1),
                                       child: const Icon(
                                         Icons.person_rounded,
                                         color: AppTheme.primary,
@@ -145,7 +145,7 @@ class AccountPickerScreen extends StatelessWidget {
                                     Container(
                                       padding: const EdgeInsets.all(8),
                                       decoration: BoxDecoration(
-                                        color: AppTheme.primary.withValues(alpha: 0.08),
+                                        color: AppTheme.primary.withOpacity(0.08),
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(

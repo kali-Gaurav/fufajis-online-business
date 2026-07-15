@@ -290,7 +290,7 @@ class _EmployeeTaskBoardScreenState extends State<EmployeeTaskBoardScreen> {
   Widget _buildStatCard(String label, String count, Color color) {
     return Card(
       elevation: 0,
-      color: color.withValues(alpha: 0.08),
+      color: color.withOpacity(0.08),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -348,9 +348,9 @@ class _EmployeeTaskBoardScreenState extends State<EmployeeTaskBoardScreen> {
       width: 300,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
+        color: color.withOpacity(0.08),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
+        border: Border.all(color: color.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -366,7 +366,7 @@ class _EmployeeTaskBoardScreenState extends State<EmployeeTaskBoardScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.2),
+                  color: color.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -387,7 +387,7 @@ class _EmployeeTaskBoardScreenState extends State<EmployeeTaskBoardScreen> {
               child: Center(
                 child: Text(
                   'No tasks',
-                  style: TextStyle(color: color.withValues(alpha: 0.5), fontSize: 12),
+                  style: TextStyle(color: color.withOpacity(0.5), fontSize: 12),
                 ),
               ),
             )
@@ -411,10 +411,10 @@ class _EmployeeTaskBoardScreenState extends State<EmployeeTaskBoardScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: columnColor.withValues(alpha: 0.3)),
+          border: Border.all(color: columnColor.withOpacity(0.3)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: Colors.black.withOpacity(0.05),
               blurRadius: 4,
             ),
           ],

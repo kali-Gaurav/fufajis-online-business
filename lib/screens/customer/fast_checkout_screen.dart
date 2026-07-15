@@ -175,7 +175,7 @@ class _FastCheckoutScreenState extends State<FastCheckoutScreen> {
             margin: const EdgeInsets.only(right: 16),
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: AppTheme.warning.withValues(alpha: 0.2),
+              color: AppTheme.warning.withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Text(
@@ -205,9 +205,9 @@ class _FastCheckoutScreenState extends State<FastCheckoutScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withValues(alpha: 0.05),
+                      color: AppTheme.primaryColor.withOpacity(0.05),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.1)),
+                      border: Border.all(color: AppTheme.primaryColor.withOpacity(0.1)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -435,7 +435,7 @@ class _FastCheckoutScreenState extends State<FastCheckoutScreen> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
+              color: Colors.black.withOpacity(0.1),
               blurRadius: 10,
               offset: const Offset(0, -5),
             ),
@@ -487,7 +487,7 @@ class _FastCheckoutScreenState extends State<FastCheckoutScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primary.withValues(alpha: 0.05) : Colors.transparent,
+          color: isSelected ? AppTheme.primary.withOpacity(0.05) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: isSelected ? AppTheme.primary : AppTheme.grey200),
         ),

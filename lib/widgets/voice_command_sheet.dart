@@ -185,7 +185,7 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet> with TickerProvid
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: AppTheme.primary.withValues(alpha: 0.1),
+            color: AppTheme.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(Icons.mic, color: AppTheme.primary),
@@ -251,7 +251,7 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet> with TickerProvid
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primary.withValues(alpha: 0.4),
+                    color: AppTheme.primary.withOpacity(0.4),
                     blurRadius: 24,
                     spreadRadius: 4,
                   ),
@@ -290,7 +290,7 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet> with TickerProvid
                   width: 8,
                   height: barH,
                   decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.4 + val * 0.6),
+                    color: AppTheme.primary.withOpacity(0.4 + val * 0.6),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 );
@@ -311,7 +311,7 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet> with TickerProvid
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.error.withValues(alpha: 0.4),
+                  color: AppTheme.error.withOpacity(0.4),
                   blurRadius: 20,
                   spreadRadius: 4,
                 ),
@@ -378,9 +378,9 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet> with TickerProvid
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppTheme.primary.withValues(alpha: 0.05),
+            color: AppTheme.primary.withOpacity(0.05),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
+            border: Border.all(color: AppTheme.primary.withOpacity(0.2)),
           ),
           child: Column(
             children: [
@@ -443,10 +443,10 @@ class _VoiceCommandSheetState extends State<VoiceCommandSheet> with TickerProvid
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: (isSuccess ? AppTheme.success : AppTheme.error).withValues(alpha: 0.08),
+            color: (isSuccess ? AppTheme.success : AppTheme.error).withOpacity(0.08),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: (isSuccess ? AppTheme.success : AppTheme.error).withValues(alpha: 0.25),
+              color: (isSuccess ? AppTheme.success : AppTheme.error).withOpacity(0.25),
             ),
           ),
           child: Column(

@@ -173,7 +173,7 @@ class _InventoryVisualImprovementsScreenState
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppTheme.grey200),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4),
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4),
         ],
       ),
       child: Column(
@@ -221,7 +221,7 @@ class _InventoryVisualImprovementsScreenState
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: statusColor.withValues(alpha: 0.2),
+              color: statusColor.withOpacity(0.2),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
@@ -331,8 +331,8 @@ class _InventoryVisualImprovementsScreenState
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        color: color.withOpacity(0.08),
+        border: Border.all(color: color.withOpacity(0.3)),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -437,7 +437,7 @@ class _InventoryVisualImprovementsScreenState
                   height: 32,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: statusColor.withValues(alpha: 0.2),
+                    color: statusColor.withOpacity(0.2),
                   ),
                   child: Center(
                     child: Text(
@@ -481,7 +481,7 @@ class _InventoryVisualImprovementsScreenState
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: _getExpiryColor(item.expiryDays).withValues(alpha: 0.2),
+                  color: _getExpiryColor(item.expiryDays).withOpacity(0.2),
                   borderRadius: BorderRadius.circular(3),
                 ),
                 child: Text(

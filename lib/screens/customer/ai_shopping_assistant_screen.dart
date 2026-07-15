@@ -185,7 +185,7 @@ class _AiShoppingAssistantScreenState extends State<AiShoppingAssistantScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -235,8 +235,8 @@ class _QuickActionButton extends StatelessWidget {
       padding: const EdgeInsets.only(right: 8),
       child: ActionChip(
         label: Text(label, style: const TextStyle(fontSize: 12)),
-        backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
-        side: BorderSide(color: AppTheme.primary.withValues(alpha: 0.5)),
+        backgroundColor: AppTheme.primary.withOpacity(0.1),
+        side: BorderSide(color: AppTheme.primary.withOpacity(0.5)),
         onPressed: onTap,
       ),
     );

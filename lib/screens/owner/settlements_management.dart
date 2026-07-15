@@ -82,7 +82,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
           boxShadow: [
             if (isSelected)
               BoxShadow(
-                color: AppTheme.primary.withValues(alpha: 0.2),
+                color: AppTheme.primary.withOpacity(0.2),
                 blurRadius: 6,
                 offset: const Offset(0, 2),
               ),
@@ -174,7 +174,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.ownerAccent.withValues(alpha: 0.3),
+                    color: AppTheme.ownerAccent.withOpacity(0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 6),
                   ),
@@ -356,8 +356,8 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
         children: [
           CircleAvatar(
             backgroundColor: p.status == PayoutStatus.processed
-                ? AppTheme.success.withValues(alpha: 0.1)
-                : AppTheme.error.withValues(alpha: 0.1),
+                ? AppTheme.success.withOpacity(0.1)
+                : AppTheme.error.withOpacity(0.1),
             child: Icon(
               p.status == PayoutStatus.processed ? Icons.check : Icons.priority_high,
               color: p.status == PayoutStatus.processed ? AppTheme.success : AppTheme.error,
@@ -526,7 +526,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.03),
+            color: AppTheme.black.withOpacity(0.03),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -539,7 +539,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppTheme.primary.withValues(alpha: 0.1),
+              color: AppTheme.primary.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.directions_run, color: AppTheme.primary, size: 24),
@@ -654,7 +654,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: statusColor.withValues(alpha: 0.1),
+                      color: statusColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
@@ -782,7 +782,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
           border: Border.all(color: AppTheme.grey100),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.black.withValues(alpha: 0.02),
+              color: AppTheme.black.withOpacity(0.02),
               blurRadius: 4,
               offset: const Offset(0, 1),
             ),
@@ -793,7 +793,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.08),
+                color: color.withOpacity(0.08),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, color: color, size: 20),
@@ -886,7 +886,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.black.withValues(alpha: 0.03),
+            color: AppTheme.black.withOpacity(0.03),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -905,7 +905,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppTheme.primary.withValues(alpha: 0.08),
+                      color: AppTheme.primary.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
@@ -924,7 +924,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.08),
+                  color: statusColor.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Row(
@@ -1005,7 +1005,7 @@ class _SettlementsManagementScreenState extends State<SettlementsManagementScree
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: reasonBadgeColor.withValues(alpha: 0.08),
+                  color: reasonBadgeColor.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(

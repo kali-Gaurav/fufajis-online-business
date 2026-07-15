@@ -420,7 +420,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub> with SingleTicker
             gradient: RadialGradient(
               center: Alignment.center,
               radius: 0.85,
-              colors: [Colors.transparent, Colors.black.withValues(alpha: 0.55)],
+              colors: [Colors.transparent, Colors.black.withOpacity(0.55)],
             ),
           ),
         ),
@@ -461,7 +461,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub> with SingleTicker
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: modeConfig.color.withValues(alpha: 0.85),
+                      color: modeConfig.color.withOpacity(0.85),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -492,7 +492,7 @@ class _UnifiedScannerHubState extends State<UnifiedScannerHub> with SingleTicker
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: _flashOn ? AppTheme.warning.withValues(alpha: 0.85) : Colors.black54,
+                      color: _flashOn ? AppTheme.warning.withOpacity(0.85) : Colors.black54,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
@@ -554,9 +554,9 @@ class _ModeTile extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: config.color.withValues(alpha: 0.15),
+          color: config.color.withOpacity(0.15),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: config.color.withValues(alpha: 0.4), width: 1.5),
+          border: Border.all(color: config.color.withOpacity(0.4), width: 1.5),
         ),
         padding: const EdgeInsets.all(14),
         child: Column(
@@ -565,7 +565,7 @@ class _ModeTile extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: config.color.withValues(alpha: 0.2),
+                color: config.color.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(config.icon, color: config.color, size: 22),
@@ -582,7 +582,7 @@ class _ModeTile extends StatelessWidget {
             const SizedBox(height: 2),
             Text(
               config.labelHi,
-              style: TextStyle(color: Colors.white.withValues(alpha: 0.55), fontSize: 11),
+              style: TextStyle(color: Colors.white.withOpacity(0.55), fontSize: 11),
             ),
           ],
         ),
@@ -717,7 +717,7 @@ class _ProductResultSheet extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppTheme.info.withValues(alpha: 0.1),
+                    color: AppTheme.info.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.inventory_2, color: AppTheme.info, size: 28),
@@ -799,9 +799,9 @@ class _Stat extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.08),
+          color: color.withOpacity(0.08),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color.withValues(alpha: 0.25)),
+          border: Border.all(color: color.withOpacity(0.25)),
         ),
         child: Column(
           children: [

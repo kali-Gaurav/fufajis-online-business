@@ -68,7 +68,7 @@ class _NetworkErrorScreenState extends State<NetworkErrorScreen> {
                 FadeSlideIn(
                   duration: AppTheme.durationMedium,
                   child: PulseGlow(
-                    glowColor: AppTheme.primary.withValues(alpha: 0.2),
+                    glowColor: AppTheme.primary.withOpacity(0.2),
                     maxRadius: 16,
                     child: Container(
                       padding: const EdgeInsets.all(24),
@@ -76,7 +76,7 @@ class _NetworkErrorScreenState extends State<NetworkErrorScreen> {
                         color: isDark ? AppTheme.grey800 : Colors.white,
                         shape: BoxShape.circle,
                         boxShadow: [
-                          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12),
+                          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12),
                         ],
                       ),
                       child: const Icon(Icons.wifi_off_rounded, size: 64, color: AppTheme.primary),
@@ -136,7 +136,7 @@ class _NetworkErrorScreenState extends State<NetworkErrorScreen> {
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.primary.withValues(alpha: 0.35),
+                              color: AppTheme.primary.withOpacity(0.35),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
@@ -185,7 +185,7 @@ class _NetworkErrorScreenState extends State<NetworkErrorScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
-                          color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.white,
+                          color: isDark ? Colors.white.withOpacity(0.03) : Colors.white,
                           border: Border.all(color: isDark ? AppTheme.grey800 : AppTheme.grey200),
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -217,7 +217,7 @@ class _NetworkErrorScreenState extends State<NetworkErrorScreen> {
                         color: isDark ? const Color(0xFF2C2C2C) : AppTheme.grey200,
                       ),
                       boxShadow: [
-                        BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10),
+                        BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10),
                       ],
                     ),
                     child: Column(
@@ -259,16 +259,16 @@ class _NetworkErrorScreenState extends State<NetworkErrorScreen> {
                         duration: const Duration(milliseconds: 300),
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         decoration: BoxDecoration(
-                          color: bannerColor.withValues(alpha: 0.1),
+                          color: bannerColor.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: bannerColor.withValues(alpha: 0.3)),
+                          border: Border.all(color: bannerColor.withOpacity(0.3)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             // Animated connection state dot
                             PulseGlow(
-                              glowColor: bannerColor.withValues(alpha: 0.25),
+                              glowColor: bannerColor.withOpacity(0.25),
                               maxRadius: 4,
                               child: Container(
                                 width: 10,

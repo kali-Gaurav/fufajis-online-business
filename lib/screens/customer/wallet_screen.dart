@@ -143,7 +143,7 @@ class _WalletScreenState extends State<WalletScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
+                            color: Colors.white.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(AppTheme.radiusFull),
                           ),
                           child: const Text(
@@ -267,7 +267,7 @@ class _WalletScreenState extends State<WalletScreen> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: AppTheme.primary.withValues(alpha: 0.1),
+              color: AppTheme.primary.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.receipt_long_outlined, size: 40, color: AppTheme.primary),
@@ -303,9 +303,9 @@ class _QuickAddButton extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.2),
+            color: Colors.white.withOpacity(0.2),
             borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
+            border: Border.all(color: Colors.white.withOpacity(0.4)),
           ),
           child: Text(
             '+₹$amount',
@@ -347,7 +347,7 @@ class _StatTile extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
+                color: color.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, size: 18, color: color),
@@ -394,8 +394,8 @@ class _TransactionTile extends StatelessWidget {
             height: 42,
             decoration: BoxDecoration(
               color: isCredit
-                  ? AppTheme.success.withValues(alpha: 0.1)
-                  : AppTheme.error.withValues(alpha: 0.1),
+                  ? AppTheme.success.withOpacity(0.1)
+                  : AppTheme.error.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(

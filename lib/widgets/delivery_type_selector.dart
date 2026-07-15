@@ -96,7 +96,7 @@ class _DeliveryTypeSelectorState extends State<DeliveryTypeSelector> {
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.08) : Colors.white,
+          color: isSelected ? color.withOpacity(0.08) : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? color : AppTheme.grey300,
@@ -104,7 +104,7 @@ class _DeliveryTypeSelectorState extends State<DeliveryTypeSelector> {
           ),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.black.withValues(alpha: 0.04),
+              color: AppTheme.black.withOpacity(0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -118,7 +118,7 @@ class _DeliveryTypeSelectorState extends State<DeliveryTypeSelector> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: isSelected ? color.withValues(alpha: 0.15) : AppTheme.grey100,
+                  color: isSelected ? color.withOpacity(0.15) : AppTheme.grey100,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: isSelected ? color : AppTheme.grey600, size: 24),
@@ -159,7 +159,7 @@ class _DeliveryTypeSelectorState extends State<DeliveryTypeSelector> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                        color: (isSelected ? color : AppTheme.grey600).withValues(alpha: 0.1),
+                        color: (isSelected ? color : AppTheme.grey600).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
@@ -212,9 +212,9 @@ class _DeliveryTypeSelectorState extends State<DeliveryTypeSelector> {
       return Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: AppTheme.success.withValues(alpha: 0.1),
+          color: AppTheme.success.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppTheme.success.withValues(alpha: 0.3)),
+          border: Border.all(color: AppTheme.success.withOpacity(0.3)),
         ),
         child: const Row(
           children: [
@@ -240,9 +240,9 @@ class _DeliveryTypeSelectorState extends State<DeliveryTypeSelector> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.primary.withValues(alpha: 0.08),
+        color: AppTheme.primary.withOpacity(0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
+        border: Border.all(color: AppTheme.primary.withOpacity(0.2)),
       ),
       child: Row(
         children: [
@@ -320,7 +320,7 @@ class CompactDeliveryTypeSelector extends StatelessWidget {
               width: 100,
               margin: const EdgeInsets.only(right: 8),
               decoration: BoxDecoration(
-                color: isSelected ? color.withValues(alpha: 0.1) : AppTheme.grey100,
+                color: isSelected ? color.withOpacity(0.1) : AppTheme.grey100,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: isSelected ? color : AppTheme.grey300,
